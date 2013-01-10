@@ -8,11 +8,11 @@ double energie(System *S);
 int main(){
 	Chrono t;
 	t.tic();
-	unsigned int const N_spin(3);
-	unsigned int const N_m(6);
-
-	System oneD(N_spin, N_m, 1);
 	for(unsigned int i(0);i<10;i++){
+		unsigned int const N_spin(3);
+		unsigned int const N_m(6);
+
+		System oneD(N_spin, N_m, 1);
 		std::cout<<energie(&oneD)<<" ";
 	}
 	t.tac();
