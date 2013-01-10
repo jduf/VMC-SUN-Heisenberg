@@ -5,11 +5,12 @@
 #include<cstdlib>
 #include<iostream>
 #include<armadillo>
+#include "System.hpp"
 
 class State{
 	public:
 		//créateur initial prenant un pointeur vers une arma::mat
-		State(unsigned int N_spin, unsigned int N_m, arma::Mat<double> *U);
+		State(System *S);
 		//cérateurs de copie profonde (néessaire car s et wis sont des pointeurs)
 		State(State const& s);
 		State();
@@ -26,12 +27,11 @@ class State{
 		inline double Det() const {return det;}
 
 	private:
-		unsigned int N_spin, N_m;
+		System *S;
 		unsigned int *s;
 		unsigned int *wis;
 		double det;
 		std::vector<arma::Mat<double> > A;
-		arma::Mat<double> *U; 
 
 		void compute_matrices();
 		void compute_det(); // sign(permutation) => ratio det tjrs - ??? 

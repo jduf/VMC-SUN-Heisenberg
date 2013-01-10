@@ -8,7 +8,7 @@ class System{
 		System(unsigned int N_spin, unsigned int N_m, unsigned int dim);
 		~System();
 
-		unsigned int N_spin, N_m, N_site;
+		unsigned int const N_spin, N_m, N_site;
 		unsigned int *nts;
 		arma::Mat<double> U;
 

@@ -15,7 +15,7 @@ all:test
 test:test.o State.o System.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-State.o:State.cpp State.hpp
+State.o:State.cpp State.hpp System.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 System.o:System.cpp System.hpp

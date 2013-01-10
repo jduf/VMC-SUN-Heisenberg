@@ -31,7 +31,6 @@ void System::create_U(unsigned int dim){
 	
 	arma::Col<double> EVal;
 	arma::eig_sym(EVal,U,T);
-	U.print();
 }
 
 void System::create_nts(unsigned int dim){
