@@ -28,6 +28,7 @@ State::State(System *S):
 	}
 	compute_matrices();
 	compute_det();
+	//std::cout<<"creation"<<std::endl;
 }
 
 State::State(State const& s):
@@ -37,19 +38,22 @@ State::State(State const& s):
 	det(s.det),
 	A(s.A)
 {
-	for(unsigned int i(0); i<S->N_site; i++){
+	for(unsigned int i(0); i< S-> N_site; i++){
 		this->s[i] = s.s[i];
 		this->wis[i] = s.wis[i];
 	}
+	//std::cout<<"copie"<<std::endl;
 }
 
-State::State():
+State::State(unsigned int N_site):
 	S(NULL),
-	s(NULL),
-	wis(NULL),
+	s(new unsigned int[N_site]),
+	wis(new unsigned int[N_site]),
 	det(0.0),
 	A()
-{}
+{
+	//std::cout<<"minimal"<<std::endl;
+}
 
 State::~State(){
 	delete s;
@@ -59,15 +63,12 @@ State::~State(){
 
 State& State::operator=(State const& s){
 	this->S = s.S;
-	this->s = new unsigned int[s.S->N_site];
-	this->wis = new unsigned int[s.S->N_site];
-	this->det = s.det,
-	this->A = s.A;
-
-	for(unsigned int i(0); i<S->N_site; i++){
+	for(unsigned int i(0); i < S->N_site; i++){
 		this->s[i] = s.s[i];
 		this->wis[i] = s.wis[i];
 	}
+	this->det = s.det,
+	this->A = s.A;
 
 	//std::cout<<"affectation"<<std::endl;
 	return (*this);

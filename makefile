@@ -12,7 +12,7 @@ LDFLAGS= -llapack -lblas -larmadillo
 
 all:test
 
-test:test.o State.o System.o
+test:test.o State.o System.o Chrono.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 State.o:State.cpp State.hpp System.hpp
@@ -21,9 +21,11 @@ State.o:State.cpp State.hpp System.hpp
 System.o:System.cpp System.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-test.o:test.cpp State.hpp
+Chrono.o:Chrono.cpp Chrono.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
+test.o:test.cpp State.hpp
+	$(CXX) -c $(CXXFLAGS) $^ 
 
 clean:
 	rm *.o test

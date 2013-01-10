@@ -13,7 +13,7 @@ class State{
 		State(System *S);
 		//cérateurs de copie profonde (néessaire car s et wis sont des pointeurs)
 		State(State const& s);
-		State();
+		State(unsigned int N_site);
 		//destructeur necessaire car utilisation de new dans certains créateurs
 		~State();
 		//affectation profonde (pointeurs)
@@ -27,6 +27,9 @@ class State{
 		inline double Det() const {return det;}
 
 	private:
+		// pas de créateur par défaut, car pas d'allocation mémoire
+		State();
+
 		System *S;
 		unsigned int *s;
 		unsigned int *wis;
