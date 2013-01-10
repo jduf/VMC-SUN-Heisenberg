@@ -12,7 +12,7 @@ class State{
 		State(unsigned int N_spin, unsigned int N_m, arma::Mat<double> *U);
 		//cérateurs de copie profonde (néessaire car s et wis sont des pointeurs)
 		State(State const& s);
-		State();
+		State(unsigned int N_site);
 		//destructeur necessaire car utilisation de new dans certains créateurs
 		~State();
 		//affectation profonde (pointeurs)
@@ -26,6 +26,7 @@ class State{
 		inline double Det() const {return det;}
 
 	private:
+		State();
 		unsigned int N_spin, N_m;
 		unsigned int *s;
 		unsigned int *wis;

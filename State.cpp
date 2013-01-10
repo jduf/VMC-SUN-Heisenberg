@@ -49,16 +49,16 @@ State::State(State const& s):
 	//std::cout<<"coustructeur copie"<<std::endl;
 }
 
-State::State():
+State::State(unsigned int N_site):
 	N_spin(0), 
 	N_m(0),
-	s(NULL),
-	wis(NULL),
+	s(new unsigned int[N_site]),
+	wis(new unsigned int[N_site]),
 	det(0.0),
 	A(),
 	U()
 {
-	//std::cout<<"coustructeur vide"<<std::endl;
+	//std::cout<<"coustructeur minimal"<<std::endl;
 }
 
 State::~State(){
@@ -70,16 +70,13 @@ State::~State(){
 State& State::operator=(State const& s){
 	this->N_spin = s.N_spin; 
 	this->N_m = s.N_m;
-	this->s = new unsigned int[N_m*N_spin];
-	this->wis = new unsigned int[N_m*N_spin];
-	this->det = s.det,
-	this->A = s.A;
-	this->U = s.U;
-
 	for(unsigned int i(0); i<N_m*N_spin; i++){
 		this->s[i] = s.s[i];
 		this->wis[i] = s.wis[i];
 	}
+	this->det = s.det,
+	this->A = s.A;
+	this->U = s.U;
 
 	//std::cout<<"affectation"<<std::endl;
 	return (*this);
