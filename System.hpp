@@ -9,6 +9,7 @@ class System{
 		~System();
 
 		unsigned int const N_spin, N_m, N_site;
+		unsigned int Nx, Ny, dim;
 		unsigned int *nts;
 		arma::Mat<double> U;
 

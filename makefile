@@ -25,4 +25,4 @@ test.o:test.cpp State.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
 clean:
-	rm *.o test
+	rm *.o *.gch test
