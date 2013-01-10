@@ -21,9 +21,6 @@ State.o:State.cpp State.hpp System.hpp
 Chrono.o:Chrono.cpp Chrono.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-Chrono.o:Chrono.cpp Chrono.hpp
-	$(CXX) -c $(CXXFLAGS) $^ 
-
 test.o:test.cpp State.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 

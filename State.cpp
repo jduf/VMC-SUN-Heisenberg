@@ -52,11 +52,7 @@ State::State(unsigned int N_site):
 	det(0.0),
 	A()
 {
-<<<<<<< HEAD
-	//std::cout<<"coustructeur minimal"<<std::endl;
-=======
 	//std::cout<<"minimal"<<std::endl;
->>>>>>> use-system
 }
 
 State::~State(){
@@ -66,24 +62,13 @@ State::~State(){
 }
 
 State& State::operator=(State const& s){
-<<<<<<< HEAD
-	this->N_spin = s.N_spin; 
-	this->N_m = s.N_m;
-	for(unsigned int i(0); i<N_m*N_spin; i++){
-=======
 	this->S = s.S;
 	for(unsigned int i(0); i < S->N_site; i++){ //attention, S->N_site doit != 0
->>>>>>> use-system
 		this->s[i] = s.s[i];
 		this->wis[i] = s.wis[i];
 	}
 	this->det = s.det,
 	this->A = s.A;
-<<<<<<< HEAD
-	this->U = s.U;
-=======
->>>>>>> use-system
-
 	//std::cout<<"affectation"<<std::endl;
 	return (*this);
 }
