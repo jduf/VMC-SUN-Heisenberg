@@ -63,7 +63,7 @@ State::~State(){
 
 State& State::operator=(State const& s){
 	this->S = s.S;
-	for(unsigned int i(0); i < S->N_site; i++){
+	for(unsigned int i(0); i < S->N_site; i++){ //attention, S->N_site doit != 0
 		this->s[i] = s.s[i];
 		this->wis[i] = s.wis[i];
 	}
@@ -111,10 +111,10 @@ void State::compute_det(){
 }
 
 void State::compute_matrices(){
-	for(unsigned int i(0); i<S->N_spin; i++){
-		A[i] = arma::zeros(S->N_m,S->N_m);
-		for(unsigned int j(0); j<S->N_m; j++){
-			for(unsigned int k(0);k<S->N_m;k++){
+	for(unsigned int i(0); i < S->N_spin; i++){
+		A[i] = arma::zeros(S->N_m, S->N_m);
+		for(unsigned int j(0); j < S->N_m; j++){
+			for(unsigned int k(0); k < S->N_m; k++){
 				A[i](k,j) = S->U(s[i*S->N_m+j],k);
 			}
 		}

@@ -23,8 +23,8 @@ class State{
 		State swap() const;
 		// échange les site a et b (pouvant être de même spin)
 		State swap(unsigned int a, unsigned int b) const;
-		void print() const;
 		inline double Det() const {return det;}
+		void print() const;
 
 	private:
 		// pas de créateur par défaut, car pas d'allocation mémoire
