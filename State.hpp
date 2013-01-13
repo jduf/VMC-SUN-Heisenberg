@@ -6,6 +6,7 @@
 #include<iostream>
 #include<armadillo>
 #include "System.hpp"
+#include "Matrice.hpp"
 
 class State{
 	public:
@@ -34,7 +35,7 @@ class State{
 		unsigned int *s;
 		unsigned int *wis;
 		double det;
-		std::vector<arma::Mat<double> > A;
+		std::vector<Matrice> A;
 
 		void compute_matrices();
 		void compute_det(); // sign(permutation) => ratio det tjrs - ??? 

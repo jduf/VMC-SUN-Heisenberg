@@ -8,7 +8,7 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	Ny(0),
 	dim(dim),
 	nts(new unsigned int[N_spin*N_m*dim]),
-	U()
+	U(N_spin*N_m)
 {
 	if(dim==1){Nx = N_site; Ny=1;}
 	if(dim==2){Nx = 4; Ny = 4;}
@@ -21,7 +21,7 @@ System::~System(){
 }
 
 void System::create_U(unsigned int dim){
-	arma::Mat<double> T(arma::zeros(N_site,N_site));
+	Matrice T(N_site,0);
 	if(dim==1){
 		T(0,1)=-1.0;
 		T(0,N_site-1)=1.0;
@@ -42,10 +42,11 @@ void System::create_U(unsigned int dim){
 		}
 		T(Nx-1,N_site-1) = 1;
 		T(N_site-1,N_site-Ny) = 1;
-		T = T+T.t();
+		//T = T+T.transpose();
+		std::cout<<"implémenter transpose"<<std::endl;
 	}
-	arma::Col<double> EVal;
-	arma::eig_sym(EVal,U,T);
+	Vecteur EVal;
+	T.eigenvalue(EVal);
 }
 
 void System::create_nts(unsigned int dim){

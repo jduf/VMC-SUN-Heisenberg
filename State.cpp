@@ -105,13 +105,13 @@ State State::swap(unsigned int a, unsigned int b) const{
 void State::compute_det(){
 	det = 1.0;
 	for(unsigned int i(0); i<S->N_spin; i++){
-		det *= arma::det(A[i]);
+		//det *= arma::det(A[i].ptr());
 	}
+	std::cout<<"implémenter det via lapack"<<std::endl;
 }
 
 void State::compute_matrices(){
 	for(unsigned int i(0); i < S->N_spin; i++){
-		A[i] = arma::zeros(S->N_m, S->N_m);
 		for(unsigned int j(0); j < S->N_m; j++){
 			for(unsigned int k(0); k < S->N_m; k++){
 				A[i](k,j) = S->U(s[i*S->N_m+j],k);
