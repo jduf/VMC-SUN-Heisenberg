@@ -17,6 +17,5 @@ class System{
 		System();
 		void create_U(unsigned int dim);
 		void create_nts(unsigned int dim);
-
 };
 #endif

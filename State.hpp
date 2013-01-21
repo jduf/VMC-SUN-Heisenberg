@@ -1,10 +1,8 @@
 #ifndef DEF_STATE
 #define DEF_STATE
 
-#include<vector>
 #include<cstdlib>
 #include<iostream>
-#include<armadillo>
 #include "System.hpp"
 #include "Matrice.hpp"
 
@@ -14,7 +12,6 @@ class State{
 		State(System *S);
 		//cérateurs de copie profonde (néessaire car s et wis sont des pointeurs)
 		State(State const& s);
-		State(unsigned int N_site);
 		//destructeur necessaire car utilisation de new dans certains créateurs
 		~State();
 		//affectation profonde (pointeurs)
@@ -32,10 +29,10 @@ class State{
 		State();
 
 		System *S;
+		Matrice *A;
 		unsigned int *s;
 		unsigned int *wis;
 		double det;
-		std::vector<Matrice> A;
 
 		void compute_matrices();
 		void compute_det(); // sign(permutation) => ratio det tjrs - ??? 

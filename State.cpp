@@ -1,11 +1,13 @@
 #include "State.hpp"
 
+/*Constructors and destructor*/
+/*{*/
 State::State(System *S):
 	S(S),
+	A(new Matrice[S->N_spin]),
 	s(new unsigned int[S->N_site]),
 	wis(new unsigned int[S->N_site]),
-	det(0.0),
-	A(S->N_spin)
+	det(0.0)
 {
 	srand(time(NULL));
 	unsigned int site(0);
@@ -33,34 +35,31 @@ State::State(System *S):
 
 State::State(State const& s):
 	S(s.S),
+	A(s.A),
 	s(new unsigned int[s.S->N_site]),
 	wis(new unsigned int[s.S->N_site]),
-	det(s.det),
-	A(s.A)
+	det(s.det)
 {
-	for(unsigned int i(0); i< S-> N_site; i++){
+	for(unsigned int i(0); i< S->N_spin; i++){
+		this->A[i] = s.A[i];
+	}
+	for(unsigned int i(0); i< S->N_site; i++){
 		this->s[i] = s.s[i];
 		this->wis[i] = s.wis[i];
 	}
 	//std::cout<<"copie"<<std::endl;
 }
 
-State::State(unsigned int N_site):
-	S(NULL),
-	s(new unsigned int[N_site]),
-	wis(new unsigned int[N_site]),
-	det(0.0),
-	A()
-{
-	//std::cout<<"minimal"<<std::endl;
-}
-
 State::~State(){
 	delete s;
 	delete wis;
+	delete A;
 	//std::cout<<"destructeur"<<std::endl;
 }
+/*}*/
 
+/*operator*/
+/*{*/
 State& State::operator=(State const& s){
 	this->S = s.S;
 	for(unsigned int i(0); i < S->N_site; i++){ //attention, S->N_site doit != 0
@@ -73,6 +72,10 @@ State& State::operator=(State const& s){
 	return (*this);
 }
 
+/*}*/
+
+/*methods that return something related to the class*/
+/*{*/
 State State::swap() const {
 	unsigned int s1,s2,p1,p2,a,b;
 	p1 = rand() % S->N_m;
@@ -101,7 +104,10 @@ State State::swap(unsigned int a, unsigned int b) const{
 
 	return new_s;
 }
+/*}*/
 
+/*methods that modify the class*/
+/*{*/
 void State::compute_det(){
 	det = 1.0;
 	for(unsigned int i(0); i<S->N_spin; i++){
@@ -119,7 +125,10 @@ void State::compute_matrices(){
 		}
 	}
 }
+/*}*/
 
+/*other methods*/
+/*{*/
 void State::print() const{
 	std::cout<<"{";
 	for(unsigned int i(0); i<S->N_spin; i++){
@@ -142,4 +151,4 @@ void State::print() const{
 	}
 	std::cout<<det<<std::endl<<std::endl;
 }
-
+/*}*/

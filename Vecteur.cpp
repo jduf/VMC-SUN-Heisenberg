@@ -1,5 +1,7 @@
 #include "Vecteur.hpp"
 
+/*Constructors and destructor*/
+/*{*/
 Vecteur::Vecteur():v(NULL),N(0){}
 
 Vecteur::Vecteur(unsigned int N):
@@ -32,7 +34,10 @@ Vecteur::~Vecteur(){
 	delete v;
 	std::cout<<"destructeur"<<std::endl;
 }
+/*}*/
 
+/*operators*/
+/*{*/
 Vecteur& Vecteur::operator=(Vecteur const& vec){
 	std::cout<<"affectation"<<std::endl;
 	if(this->N!=vec.N){
@@ -68,27 +73,32 @@ double const& Vecteur::operator()(unsigned int i) const{
 	//}
 	//return s;
 //}
+/*}*/
 
+/*methods that modify the class*/
+/*{*/
 void  Vecteur::fill_vecteur(double val){
 	for(unsigned int i(0);i<N;i++){
 		v[i]=val;
 	}
 }
 
-void Vecteur::Test() const{
-	print();
-}
-
-void Vecteur::Chop(){
+void Vecteur::chop(){
 	for(unsigned int i(0);i<N;i++){
 		if(std::fabs(v[i]) < 1e-10 ){v[i]=0;}
 	}
 }
+/*}*/
 
-
+/*other methods*/
+/*{*/
 void Vecteur::print() const{
 	for(unsigned int i(0);i<N;i++){
 		std::cout<<v[i]<<std::endl;;
 	}
 }
 
+void Vecteur::test() const{
+	print();
+}
+/*}*/

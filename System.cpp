@@ -45,8 +45,6 @@ void System::create_U(unsigned int dim){
 		//T = T+T.transpose();
 		std::cout<<"implémenter transpose"<<std::endl;
 	}
-	Vecteur EVal;
-	T.eigenvalue(EVal);
 }
 
 void System::create_nts(unsigned int dim){
