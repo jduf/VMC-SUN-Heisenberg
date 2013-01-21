@@ -28,6 +28,9 @@ State::State(System *S):
 			N_as--;
 		}
 	}
+	std::cout<<"init As ";
+	init_A(S->N_spin,S->N_m);
+	std::cout<<"compute As ";
 	compute_matrices();
 	compute_det();
 	//std::cout<<"creation"<<std::endl;
@@ -50,10 +53,28 @@ State::State(State const& s):
 	//std::cout<<"copie"<<std::endl;
 }
 
+State::State(unsigned int N_site, unsigned int N_spin):
+	S(NULL),
+	A(new Matrice[N_spin]),
+	s(new unsigned int[N_site]),
+	wis(new unsigned int[N_site]),
+	det(0.0)
+{
+	std::cout<<"init As ";
+	init_A(N_spin,N_site/N_spin);
+	//std::cout<<"minimal"<<std::endl;
+}
+
 State::~State(){
 	delete s;
 	delete wis;
+	std::cout<<"ok"<<std::endl;
+	//for(unsigned int i(0);i<S->N_spin;i++){
+		//A[i].~Matrice();;
+	//}
+	//std::cout<<"ok"<<std::endl;
 	delete A;
+	std::cout<<"ok"<<std::endl;
 	//std::cout<<"destructeur"<<std::endl;
 }
 /*}*/
@@ -68,10 +89,9 @@ State& State::operator=(State const& s){
 	}
 	this->det = s.det,
 	this->A = s.A;
-	//std::cout<<"affectation"<<std::endl;
+	std::cout<<"affectation : state"<<std::endl;
 	return (*this);
 }
-
 /*}*/
 
 /*methods that return something related to the class*/
@@ -102,18 +122,26 @@ State State::swap(unsigned int a, unsigned int b) const{
 	new_s.compute_matrices();
 	new_s.compute_det();
 
+	std::cout<<"det computed"<<std::endl;
+	
 	return new_s;
 }
 /*}*/
 
 /*methods that modify the class*/
 /*{*/
+void State::init_A(unsigned int N_spin, unsigned int N_m){
+	for(unsigned int i(0); i<N_spin; i++){
+		A[i] = Matrice (N_m);
+	}
+}
+
 void State::compute_det(){
 	det = 1.0;
 	for(unsigned int i(0); i<S->N_spin; i++){
-		//det *= arma::det(A[i].ptr());
+		Lapack Ai(A[i],'G');
+		det *= Ai.det();
 	}
-	std::cout<<"implémenter det via lapack"<<std::endl;
 }
 
 void State::compute_matrices(){

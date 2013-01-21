@@ -47,13 +47,14 @@ Matrice::~Matrice(){
 /*operators*/
 /*{*/
 Matrice& Matrice::operator=(Matrice const& mat){
-	std::cout<<"affectation"<<std::endl;
+	std::cout<<"affectation : matrice";
 	if(this->N!=mat.N){
 		delete this->m;
 		this->m = new double[mat.N*mat.N];
 		this->N = mat.N;
-		std::cerr<<"affectation d'une matrice de taille différente"<<std::endl;
+		std::cerr<<" de taille différente";
 	}
+	std::cout<<std::endl;
 	for(unsigned int i(0); i<this->N*this->N; i++){
 		this->m[i] = mat.m[i];
 	}

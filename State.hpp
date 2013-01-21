@@ -5,12 +5,14 @@
 #include<iostream>
 #include "System.hpp"
 #include "Matrice.hpp"
+#include "Lapack.hpp"
 
 class State{
 	public:
 		//créateur initial prenant un pointeur vers une arma::mat
 		State(System *S);
 		//cérateurs de copie profonde (néessaire car s et wis sont des pointeurs)
+		State(unsigned int N_site, unsigned int N_spin);
 		State(State const& s);
 		//destructeur necessaire car utilisation de new dans certains créateurs
 		~State();
@@ -34,6 +36,7 @@ class State{
 		unsigned int *wis;
 		double det;
 
+		void init_A(unsigned int N_spin, unsigned int N_m);
 		void compute_matrices();
 		void compute_det(); // sign(permutation) => ratio det tjrs - ??? 
 };

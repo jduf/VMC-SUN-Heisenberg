@@ -45,5 +45,4 @@ class Matrice{
 
 std::ostream& operator<<(std::ostream& flux, Matrice const& mat);
 Matrice operator*(Matrice const& mat1, Matrice const& mat2);
-
 #endif

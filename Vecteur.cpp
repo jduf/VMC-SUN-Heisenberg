@@ -39,7 +39,7 @@ Vecteur::~Vecteur(){
 /*operators*/
 /*{*/
 Vecteur& Vecteur::operator=(Vecteur const& vec){
-	std::cout<<"affectation"<<std::endl;
+	std::cout<<"affectation : vecteur "<<std::endl;
 	if(this->N!=vec.N){
 		std::cerr<<"impossible d'affecter deux Vecteurs si dim1 =! dim2"<<std::endl;
 	}

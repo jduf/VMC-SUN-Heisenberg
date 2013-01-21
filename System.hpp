@@ -2,6 +2,7 @@
 #define DEF_SYSTEM
 
 #include "Matrice.hpp"
+#include "Lapack.hpp"
 
 class System{
 	public:
