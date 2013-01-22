@@ -39,7 +39,7 @@ Matrice::Matrice(Matrice const& mat):
 }
 
 Matrice::~Matrice(){
-	delete  m;
+	delete[]  m;
 	std::cout<<"destructeur : matrice"<<std::endl;
 }
 /*}*/
@@ -49,7 +49,7 @@ Matrice::~Matrice(){
 Matrice& Matrice::operator=(Matrice const& mat){
 	std::cout<<"affectation : matrice";
 	if(this->N!=mat.N){
-		delete this->m;
+		delete[] this->m;
 		this->m = new double[mat.N*mat.N];
 		this->N = mat.N;
 		std::cerr<<" de taille différente";

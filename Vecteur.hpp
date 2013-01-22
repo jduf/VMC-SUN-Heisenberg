@@ -1,6 +1,7 @@
 #ifndef DEF_VECTEUR
 #define DEF_VECTEUR
 
+
 #include <iostream>
 #include <cmath>
 

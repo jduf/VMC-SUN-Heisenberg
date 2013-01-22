@@ -19,7 +19,7 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 }
 
 System::~System(){
-	delete nts;
+	delete[] nts;
 }
 /*}*/
 

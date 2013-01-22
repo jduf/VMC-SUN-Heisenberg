@@ -1,12 +1,14 @@
 CXX = g++ 
 CC = $(CXX) 
 
+DEBUG = -g
+
 #CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2 
-CXXFLAGS = -pedantic -Wall -Wextra -llapack -lblas
+CXXFLAGS = -pedantic -Wall -Wextra -llapack -lblas $(DEBUG)
 #CXXFLAGS = -O3 -fopenmp -msse2
 
 #LIBFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDFLAGS= -llapack -lblas
+LDFLAGS= -llapack -lblas $(DEBUG)
 #LIBFLAGS = -O3 -fopenmp -msse2
 
 all:test

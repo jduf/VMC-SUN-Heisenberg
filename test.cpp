@@ -31,7 +31,6 @@ double energie(System *S){
 	while(i<NMC){
 		std::cout<<"swap alpha"<<std::endl;
 		tmp = alpha.swap();
-		std::cout<<"det computed"<<std::endl;
 		ratio = (tmp.Det() * tmp.Det()) / (alpha.Det() * alpha.Det());
 		if(ratio>1 || rand()/RAND_MAX <ratio){
 			i++;
@@ -39,6 +38,7 @@ double energie(System *S){
 			alpha = tmp;
 			for(unsigned int j(0);j<S->N_site;j++){
 				for(unsigned int d(0);d<S->dim;d++){
+					std::cout<<"affect beta"<<std::endl;
 					beta = alpha.swap(j,S->nts[S->dim*j+d]);
 					energie += beta.Det()/alpha.Det();
 				}

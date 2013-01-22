@@ -8,7 +8,7 @@ Vecteur::Vecteur(unsigned int N):
 	v(new double[N]),
 	N(N)
 {
-	std::cout<<"taille"<<std::endl;
+	std::cout<<"taille : vecteur"<<std::endl;
 	fill_vecteur(0.0);
 }
 
@@ -16,7 +16,7 @@ Vecteur::Vecteur(unsigned int N, double val):
 	v(new double[N]),
 	N(N)
 {
-	std::cout<<"taille+const"<<std::endl;
+	std::cout<<"taille+const : vecteur"<<std::endl;
 	fill_vecteur(val);
 }
 
@@ -24,22 +24,22 @@ Vecteur::Vecteur(Vecteur const& vec):
 	v(new double[vec.size()]),
 	N(vec.size())
 {
-	std::cout<<"copie"<<std::endl;
+	std::cout<<"copie : vecteur"<<std::endl;
 	for(unsigned int i(0);i<N;i++){
 			v[i] = vec(i);
 	}
 }
 
 Vecteur::~Vecteur(){
-	delete v;
-	std::cout<<"destructeur"<<std::endl;
+	delete[] v;
+	std::cout<<"destructeur : vecteur"<<std::endl;
 }
 /*}*/
 
 /*operators*/
 /*{*/
 Vecteur& Vecteur::operator=(Vecteur const& vec){
-	std::cout<<"affectation : vecteur "<<std::endl;
+	std::cout<<"affectation : vecteur"<<std::endl;
 	if(this->N!=vec.N){
 		std::cerr<<"impossible d'affecter deux Vecteurs si dim1 =! dim2"<<std::endl;
 	}

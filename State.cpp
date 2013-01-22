@@ -66,16 +66,10 @@ State::State(unsigned int N_site, unsigned int N_spin):
 }
 
 State::~State(){
-	delete s;
-	delete wis;
-	std::cout<<"ok"<<std::endl;
-	//for(unsigned int i(0);i<S->N_spin;i++){
-		//A[i].~Matrice();;
-	//}
-	//std::cout<<"ok"<<std::endl;
-	delete A;
-	std::cout<<"ok"<<std::endl;
-	//std::cout<<"destructeur"<<std::endl;
+	delete[] s;
+	delete[] wis;
+	delete[] A;
+	std::cout<<"destructeur : state"<<std::endl;
 }
 /*}*/
 
@@ -121,8 +115,6 @@ State State::swap(unsigned int a, unsigned int b) const{
 	new_s.wis[a] = wis[b];
 	new_s.compute_matrices();
 	new_s.compute_det();
-
-	std::cout<<"det computed"<<std::endl;
 	
 	return new_s;
 }
@@ -142,6 +134,8 @@ void State::compute_det(){
 		Lapack Ai(A[i],'G');
 		det *= Ai.det();
 	}
+
+	std::cout<<"det computed"<<std::endl;
 }
 
 void State::compute_matrices(){
