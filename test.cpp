@@ -9,7 +9,7 @@ int main(){
 	t.tic();
 	unsigned int const N_spin(3);
 	unsigned int const N_m(2);
-	System oneD(N_spin, N_m, 1);
+	System oneD(N_spin, N_m, 1);	
 	std::cout<<energie(&oneD)<<" ";
 	t.tac();
 	std::cout<<"en "<<t<<" seconde(s)"<<std::endl;
