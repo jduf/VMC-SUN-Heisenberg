@@ -25,7 +25,7 @@ double energie(System *S){
 	while(i<NMC){
 		tmp = alpha.swap();
 		ratio = (tmp.Det() * tmp.Det()) / (alpha.Det() * alpha.Det());
-		if(ratio>1 || rand()/RAND_MAX <ratio){
+		if(ratio>1 || double(rand())/RAND_MAX <ratio ){
 			i++;
 			alpha = tmp;
 			for(unsigned int j(0);j<S->N_site;j++){
@@ -34,8 +34,8 @@ double energie(System *S){
 					energie += beta.Det()/alpha.Det();
 				}
 			}
-		} 
-	}
+		}
+	} 
 	return -energie/(S->N_site * NMC); // sign(permutation) => ratio det tjrs - ??? 
 }
 
