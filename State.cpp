@@ -28,9 +28,7 @@ State::State(System *S):
 			N_as--;
 		}
 	}
-	std::cout<<"init As ";
 	init_A(S->N_spin,S->N_m);
-	std::cout<<"compute As ";
 	compute_matrices();
 	compute_det();
 	//std::cout<<"creation"<<std::endl;
@@ -38,11 +36,13 @@ State::State(System *S):
 
 State::State(State const& s):
 	S(s.S),
-	A(s.A),
+	//A(s.A),
+	A(new Matrice[S->N_spin]),
 	s(new unsigned int[s.S->N_site]),
 	wis(new unsigned int[s.S->N_site]),
 	det(s.det)
 {
+	//std::cout<<"copie"<<std::endl;
 	for(unsigned int i(0); i< S->N_spin; i++){
 		this->A[i] = s.A[i];
 	}
@@ -50,7 +50,6 @@ State::State(State const& s):
 		this->s[i] = s.s[i];
 		this->wis[i] = s.wis[i];
 	}
-	//std::cout<<"copie"<<std::endl;
 }
 
 State::State(unsigned int N_site, unsigned int N_spin):
@@ -60,16 +59,16 @@ State::State(unsigned int N_site, unsigned int N_spin):
 	wis(new unsigned int[N_site]),
 	det(0.0)
 {
-	std::cout<<"init As ";
+	//std::cout<<"init As ";
 	init_A(N_spin,N_site/N_spin);
 	//std::cout<<"minimal"<<std::endl;
 }
 
 State::~State(){
+	//std::cout<<"destructeur : state"<<std::endl;
 	delete[] s;
 	delete[] wis;
 	delete[] A;
-	std::cout<<"destructeur : state"<<std::endl;
 }
 /*}*/
 
@@ -81,9 +80,11 @@ State& State::operator=(State const& s){
 		this->s[i] = s.s[i];
 		this->wis[i] = s.wis[i];
 	}
-	this->det = s.det,
-	this->A = s.A;
-	std::cout<<"affectation : state"<<std::endl;
+	this->det = s.det;
+	for(unsigned int i(0); i< S->N_spin; i++){
+		this->A[i] = s.A[i];
+	}
+	//std::cout<<"affectation : state"<<std::endl;
 	return (*this);
 }
 /*}*/
@@ -135,7 +136,6 @@ void State::compute_det(){
 		det *= Ai.det();
 	}
 
-	std::cout<<"det computed"<<std::endl;
 }
 
 void State::compute_matrices(){

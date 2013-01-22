@@ -1,14 +1,16 @@
 CXX = g++ 
 CC = $(CXX) 
 
-DEBUG = -g
-
+DEBUG = -g 
+ERRORS = -pedantic -Wall -Wextra
+LAPACK = -llapack -lblas
+OPT = -O3
 #CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2 
-CXXFLAGS = -pedantic -Wall -Wextra -llapack -lblas $(DEBUG)
+CXXFLAGS = $(LAPACK) $(ERRORS) $(DEBUG)
 #CXXFLAGS = -O3 -fopenmp -msse2
 
 #LIBFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDFLAGS= -llapack -lblas $(DEBUG)
+LDFLAGS= $(LAPACK) $(DEBUG)
 #LIBFLAGS = -O3 -fopenmp -msse2
 
 all:test

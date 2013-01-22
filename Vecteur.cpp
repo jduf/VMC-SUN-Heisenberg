@@ -8,15 +8,14 @@ Vecteur::Vecteur(unsigned int N):
 	v(new double[N]),
 	N(N)
 {
-	std::cout<<"taille : vecteur"<<std::endl;
-	fill_vecteur(0.0);
+	//std::cout<<"taille : vecteur"<<std::endl;
 }
 
 Vecteur::Vecteur(unsigned int N, double val):
 	v(new double[N]),
 	N(N)
 {
-	std::cout<<"taille+const : vecteur"<<std::endl;
+	//std::cout<<"taille+const : vecteur"<<std::endl;
 	fill_vecteur(val);
 }
 
@@ -24,7 +23,7 @@ Vecteur::Vecteur(Vecteur const& vec):
 	v(new double[vec.size()]),
 	N(vec.size())
 {
-	std::cout<<"copie : vecteur"<<std::endl;
+	//std::cout<<"copie : vecteur"<<std::endl;
 	for(unsigned int i(0);i<N;i++){
 			v[i] = vec(i);
 	}
@@ -32,7 +31,7 @@ Vecteur::Vecteur(Vecteur const& vec):
 
 Vecteur::~Vecteur(){
 	delete[] v;
-	std::cout<<"destructeur : vecteur"<<std::endl;
+	//std::cout<<"destructeur : vecteur"<<std::endl;
 }
 /*}*/
 

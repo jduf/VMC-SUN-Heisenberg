@@ -46,12 +46,11 @@ void System::create_U(unsigned int dim){
 		}
 		U(Nx-1,N_site-1) = 1;
 		U(N_site-1,N_site-Ny) = 1;
-		//T = T+T.transpose();
+		//U = U+U.transpose();
 		std::cout<<"implémenter transpose"<<std::endl;
 	}
 	Lapack ES(U.ptr(),U.size(),'S');
-	Vecteur EVec(ES.eigensystem());
-	EVec.print();
+	ES.eigensystem();
 }
 
 void System::create_nts(unsigned int dim){

@@ -6,23 +6,21 @@ Matrice::Matrice():
 	m(NULL),
 	N(0)
 {
-	std::cout<<"default : matrice"<<std::endl;
-	//fill_matrice(0.0);
+	//std::cout<<"default : matrice"<<std::endl;
 }
 
 Matrice::Matrice(unsigned int N):
 	m(new double[N*N]),
 	N(N)
 {
-	std::cout<<"taille : matrice"<<std::endl;
-	//fill_matrice(0.0);
+	//std::cout<<"taille : matrice"<<std::endl;
 }
 
 Matrice::Matrice(unsigned int N, double val):
 	m(new double[N*N]),
 	N(N)
 {
-	std::cout<<"taille+const : matrice"<<std::endl;
+	//std::cout<<"taille+const : matrice"<<std::endl;
 	fill_matrice(val);
 }
 
@@ -30,7 +28,7 @@ Matrice::Matrice(Matrice const& mat):
 	m(new double[mat.size()*mat.size()]),
 	N(mat.size())
 {
-	std::cout<<"copie : matrice"<<std::endl;
+	//std::cout<<"copie : matrice"<<std::endl;
 	for(unsigned int i(0);i<N;i++){
 		for(unsigned int j(0);j<N;j++){
 			m[i+j*N] = mat(i,j);
@@ -39,22 +37,22 @@ Matrice::Matrice(Matrice const& mat):
 }
 
 Matrice::~Matrice(){
+	//std::cout<<"destructeur : matrice"<<std::endl;
 	delete[]  m;
-	std::cout<<"destructeur : matrice"<<std::endl;
 }
 /*}*/
 
 /*operators*/
 /*{*/
 Matrice& Matrice::operator=(Matrice const& mat){
-	std::cout<<"affectation : matrice";
+	//std::cout<<"affectation : matrice";
 	if(this->N!=mat.N){
 		delete[] this->m;
 		this->m = new double[mat.N*mat.N];
 		this->N = mat.N;
-		std::cerr<<" de taille différente";
+		//std::cerr<<" de taille différente";
 	}
-	std::cout<<std::endl;
+	//std::cout<<std::endl;
 	for(unsigned int i(0); i<this->N*this->N; i++){
 		this->m[i] = mat.m[i];
 	}
