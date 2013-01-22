@@ -46,8 +46,7 @@ void System::create_U(unsigned int dim){
 		}
 		U(Nx-1,N_site-1) = 1;
 		U(N_site-1,N_site-Ny) = 1;
-		//U = U+U.transpose();
-		std::cout<<"implémenter transpose"<<std::endl;
+		U = U+U.transpose();
 	}
 	Lapack ES(U.ptr(),U.size(),'S');
 	ES.eigensystem();

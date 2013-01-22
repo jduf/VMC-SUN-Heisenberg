@@ -130,7 +130,6 @@ void State::init_A(unsigned int N_m, unsigned int N_spin){
 
 void State::compute_det(){
 	det = 1.0;
-	double dl(0.0),dm(0.0);
 	for(unsigned int i(0); i<S->N_spin; i++){
 		Lapack Ai(A[i],'G');
 		det *= Ai.det();

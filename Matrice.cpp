@@ -69,6 +69,22 @@ double const& Matrice::operator()(unsigned int i, unsigned int j) const{
 	return m[i+j*N];
 }
 
+Matrice& Matrice::operator+=(Matrice const& mat){
+	for(unsigned int i(0);i<N;i++){
+		for(unsigned int j(0);j<N;j++){
+				m[i+j*N] += mat(i,j);
+		}
+	}
+	return (*this);
+}
+
+Matrice operator+(Matrice const& mat1, Matrice const& mat2){
+	Matrice matout(mat1);
+	matout += mat2;
+
+	return matout;
+}
+
 Matrice& Matrice::operator*=(Matrice const& mat){
 	Matrice tmp(*this);
 
