@@ -17,8 +17,8 @@ int main(){
 
 double energie(System *S){
 	State alpha(S);
-	State beta(S->N_site,S->N_spin);
-	State tmp(S->N_site,S->N_spin);
+	State beta(S->N_m,S->N_spin);
+	State tmp(S->N_m,S->N_spin);
 
 	double ratio(0.0), energie(0.0);
 	unsigned int i(0),NMC(30);

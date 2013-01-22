@@ -28,7 +28,7 @@ State::State(System *S):
 			N_as--;
 		}
 	}
-	init_A(S->N_spin,S->N_m);
+	init_A(S->N_m,S->N_spin);
 	compute_matrices();
 	compute_det();
 	//std::cout<<"creation"<<std::endl;
@@ -36,7 +36,6 @@ State::State(System *S):
 
 State::State(State const& s):
 	S(s.S),
-	//A(s.A),
 	A(new Matrice[S->N_spin]),
 	s(new unsigned int[s.S->N_site]),
 	wis(new unsigned int[s.S->N_site]),
@@ -52,15 +51,15 @@ State::State(State const& s):
 	}
 }
 
-State::State(unsigned int N_site, unsigned int N_spin):
+State::State(unsigned int N_m, unsigned int N_spin):
 	S(NULL),
 	A(new Matrice[N_spin]),
-	s(new unsigned int[N_site]),
-	wis(new unsigned int[N_site]),
+	s(new unsigned int[N_spin*N_m]),
+	wis(new unsigned int[N_spin*N_m]),
 	det(0.0)
 {
 	//std::cout<<"init As ";
-	init_A(N_spin,N_site/N_spin);
+	init_A(N_m,N_spin);
 	//std::cout<<"minimal"<<std::endl;
 }
 
@@ -123,7 +122,7 @@ State State::swap(unsigned int a, unsigned int b) const{
 
 /*methods that modify the class*/
 /*{*/
-void State::init_A(unsigned int N_spin, unsigned int N_m){
+void State::init_A(unsigned int N_m, unsigned int N_spin){
 	for(unsigned int i(0); i<N_spin; i++){
 		A[i] = Matrice (N_m);
 	}
