@@ -131,8 +131,9 @@ void State::init_A(unsigned int N_m, unsigned int N_spin){
 void State::compute_det(){
 	det = 1.0;
 	for(unsigned int i(0); i<S->N_spin; i++){
-		Lapack Ai(A[i],'G');
-		det *= Ai.det();
+		//Lapack Ai(A[i],'G');
+		//det *= Ai.det();
+		det *= (A[i](0,0)*A[i](1,1)-A[i](0,1)*A[i](1,0));
 	}
 
 }
