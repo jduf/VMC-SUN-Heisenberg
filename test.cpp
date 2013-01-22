@@ -9,7 +9,7 @@ int main(){
 	Chrono t;
 	t.tic();
 	unsigned int const N_spin(3);
-	unsigned int const N_m(2);
+	unsigned int const N_m(8);
 	System oneD(N_spin, N_m, 1);
 	std::cout<<energie(&oneD)<<" ";
 	t.tac();
@@ -21,7 +21,7 @@ double energie(System *S){
 	State beta(S->N_site);
 	State tmp(S->N_site);
 	double ratio(0.0), energie(0.0);
-	unsigned int i(0),NMC(36);
+	unsigned int i(0),NMC(1e4);
 	while(i<NMC){
 		tmp = alpha.swap();
 		ratio = (tmp.Det() * tmp.Det()) / (alpha.Det() * alpha.Det());
