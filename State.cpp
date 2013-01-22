@@ -67,7 +67,7 @@ State& State::operator=(State const& s){
 		this->s[i] = s.s[i];
 		this->wis[i] = s.wis[i];
 	}
-	this->det = s.det,
+	this->det = s.det;
 	this->A = s.A;
 	//std::cout<<"affectation"<<std::endl;
 	return (*this);
