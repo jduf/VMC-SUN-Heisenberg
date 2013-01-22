@@ -36,7 +36,7 @@ Matrice.o:Matrice.cpp Matrice.hpp Vecteur.hpp
 Lapack.o:Lapack.cpp Lapack.hpp Matrice.hpp Vecteur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-test.o:test.cpp State.hpp System.hpp Chrono.hpp Matrice.hpp Matrice.hpp
+test.o:test.cpp Save.hpp State.hpp System.hpp Chrono.hpp Matrice.hpp Matrice.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
 clean:
