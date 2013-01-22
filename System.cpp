@@ -46,15 +46,6 @@ void System::create_U(unsigned int dim){
 	}
 	arma::Col<double> EVal;
 	arma::eig_sym(EVal,U,T);
-
-	unsigned int val(3);
-	arma::Mat<double> A(T);
-	//A = A-EVal(val)*arma::eye(N_site,N_site);
-	arma::Col<double> X(N_site);
-	for(unsigned int i(0);i<N_site;i++){
-		X(i) = U(i,val);
-	}
-	(A*X).print();
 }
 
 void System::create_nts(unsigned int dim){
