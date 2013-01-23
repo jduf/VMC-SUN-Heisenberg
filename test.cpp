@@ -35,7 +35,7 @@ double energie(System *S){
 	State alpha(S);
 	State beta(S->N_m,S->N_spin);
 	State tmp(S->N_m,S->N_spin);
-	Save f1("det-of-the-chosen-states.dat");
+	Save file("det-of-the-chosen-states.dat");
 
 	//std::cout<<"# of states : "<< factorial(S->N_site)/(pow(factorial(S->N_m),S->N_spin))<<std::endl;
 	double ratio(0.0), energie(0.0);
@@ -46,7 +46,7 @@ double energie(System *S){
 		if(ratio>1 || (double)rand()/RAND_MAX <ratio){
 			i++;
 			alpha = tmp;
-			f1<<alpha.Det()<<Save::endl;
+			file<<alpha.Det()<<Save::endl;
 			for(unsigned int j(0);j<S->N_site;j++){
 				for(unsigned int d(0);d<S->dim;d++){
 					beta = alpha.swap(j,S->nts[S->dim*j+d]);
