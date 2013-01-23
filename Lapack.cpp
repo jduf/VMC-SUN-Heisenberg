@@ -9,7 +9,6 @@ Lapack::Lapack(Matrice const& mat, char matrice_type):
 	matrice_type(matrice_type),
 	preserve_matrix(true)
 {
-	//std::cout<<"création (copie matrice) : lapack"<<std::endl;
 	reset();
 }
 
@@ -19,13 +18,10 @@ Lapack::Lapack(double* m, unsigned int N, char matrice_type):
 	N(N),
 	matrice_type(matrice_type),
 	preserve_matrix(false)
-{
-	//std::cout<<"création (modifie matrice) : lapack"<<std::endl;
-}
+{ }
 
 Lapack::~Lapack(){
 	if(preserve_matrix){
-		//std::cout<<"destructeur : lapack"<<std::endl;
 		delete[] m;
 	} 
 }
@@ -37,15 +33,17 @@ Vecteur Lapack::eigensystem() const {
 	if (matrice_type != 'S'){
 		std::cerr<<"Matrix type not implemented"<<std::endl;
 	}
-	return dsyev();
+	Vecteur EVal(N);
+	dsyev(EVal);
+	return EVal;
 }
 
 double Lapack::det() const {
-	int ipiv[N];
 	double det(1.0);
+	int ipiv[N];
 	dgetrf(ipiv);
 	for(unsigned int i(0); i<N; i++){
-		if(ipiv[i] != i+1){
+		if(ipiv[i] != i+1){ // ipiv return value between [1,N]
 			det *= -m[i*N+i];
 		} else {
 			det *= m[i*N+i];
@@ -66,6 +64,12 @@ void Lapack::lu(Matrice& L, Matrice& U) const {
 		}
 	}
 }
+
+void Lapack::inv() const {
+	int ipiv[N];
+	dgetrf(ipiv);
+	dgetri(ipiv);	
+}
 /*}*/
 
 /*private methods used to call lapack*/
@@ -75,14 +79,19 @@ void Lapack::dgetrf(int ipiv[]) const {
 	dgetrf_(&N, &N, m, &N, ipiv, &info);
 }
 
-Vecteur Lapack::dsyev() const {
-	Vecteur EVal(N);
+void Lapack::dsyev(Vecteur const& EVal) const {
 	char jobz('V'),uplo('U');
 	unsigned int const lwork(3*N-1);
 	double work[lwork];
 	int info;
 	dsyev_(&jobz, &uplo, &N, m, &N, EVal.ptr(), work ,&lwork, &info);
-	return EVal;
+}
+
+void Lapack::dgetri(int ipiv[]) const {
+	unsigned int const lwork(3*N-1);
+	double work[lwork];
+	int info;
+	dgetri_(&N, m, &N, ipiv, work,  &lwork, &info);
 }
 /*}*/
 

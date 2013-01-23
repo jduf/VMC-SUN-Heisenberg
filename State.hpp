@@ -1,8 +1,8 @@
 #ifndef DEF_STATE
 #define DEF_STATE
 
-#include<cstdlib>
-#include<iostream>
+#include <cstdlib>
+#include <iostream>
 #include "System.hpp"
 #include "Matrice.hpp"
 #include "Lapack.hpp"

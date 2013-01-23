@@ -138,6 +138,7 @@ void State::compute_det(){
 }
 
 void State::compute_matrices(){
+	//std::cout<<"cm"<<std::endl;
 	unsigned int l(0);
 	for(unsigned int i(0); i < S->N_spin; i++){
 		for(unsigned int j(0); j < S->N_m; j++){

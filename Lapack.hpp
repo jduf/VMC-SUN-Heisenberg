@@ -4,7 +4,8 @@
 #include "Matrice.hpp"
 #include "Vecteur.hpp"
 
-class Lapack{ public:
+class Lapack{
+	public:
 /*Constructors and destructor*/
 		Lapack(Matrice const& mat, char matrice_type);
 		Lapack(double* m, unsigned int N, char matrice_type);
@@ -13,6 +14,7 @@ class Lapack{ public:
 		Vecteur eigensystem() const;
 		void lu(Matrice& L, Matrice& U) const;
 		double det() const;
+		void inv() const;
 
 		void reset(); 
 		Matrice LapToMat() const;
@@ -29,7 +31,8 @@ class Lapack{ public:
 		
 /*private methods used to call lapack*/
 		void dgetrf(int ipiv[]) const;
-		Vecteur dsyev() const;
+		void dgetri(int ipiv[]) const;
+		void dsyev(Vecteur const& EVal) const;
 };
 
 //work for a symmetric matrix
@@ -48,6 +51,14 @@ extern "C" void dgetrf_(unsigned int const *row,
 		double *m,
 		unsigned int const *lda,
 		int ipiv[],
+		int *info);
+
+extern "C" void dgetri_(unsigned int const *n,
+		double *m,
+		unsigned int const *lda, 
+		int ipiv[],
+		double work[], 
+		unsigned int const *lwork, 
 		int *info);
 
 /* //{ for a symmetric matrix, doesn't give me the lu decomposition
