@@ -29,10 +29,8 @@ Matrice::Matrice(Matrice const& mat):
 	N(mat.size())
 {
 	//std::cout<<"copie : matrice"<<std::endl;
-	for(unsigned int i(0);i<N;i++){
-		for(unsigned int j(0);j<N;j++){
-			m[i+j*N] = mat(i,j);
-		}
+	for(unsigned int i(0);i<N*N;i++){
+		m[i] = mat.m[i];
 	}
 }
 
@@ -134,7 +132,7 @@ void Matrice::fill_matrice(double val){
 void Matrice::print() const{
 	for(unsigned int i(0); i < N; i++){
 		for(unsigned int j(0); j < N; j++){
-			std::cout <<std::setprecision(3)<<std::setw(7)<<std::fixed<< m[i+j*N] << " ";
+			std::cout <<std::setprecision(7)<<std::setw(10)<<std::fixed<< m[i+j*N] << " ";
 		}
 		std::cout << std::endl;
 	}
@@ -147,7 +145,7 @@ Matrice Matrice::transpose() const{
 	Matrice T(N);
 	for(unsigned int i(0);i<N;i++){
 		for(unsigned int j(0);j<N;j++){
-			T(i,j) = m[j+i*N];
+			T.m[i+j*N] = m[j+i*N];
 		}
 	}
 	return T;
