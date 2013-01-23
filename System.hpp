@@ -1,7 +1,8 @@
 #ifndef DEF_SYSTEM
 #define DEF_SYSTEM
 
-#include<armadillo>
+#include "Matrice.hpp"
+#include "Lapack.hpp"
 
 class System{
 	public:
@@ -10,12 +11,12 @@ class System{
 
 		unsigned int const N_spin, N_m, N_site, dim;
 		unsigned int *nts;
-		arma::Mat<double> U;
+		Matrice U;
 
 	private:
-		unsigned int Nx, Ny;
+		System();
+		unsigned int Nx,Ny;
 		void create_U(unsigned int dim);
 		void create_nts(unsigned int dim);
-
 };
 #endif

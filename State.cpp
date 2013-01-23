@@ -1,11 +1,13 @@
 #include "State.hpp"
 
+/*Constructors and destructor*/
+/*{*/
 State::State(System *S):
 	S(S),
+	A(new Matrice[S->N_spin]),
 	s(new unsigned int[S->N_site]),
 	wis(new unsigned int[S->N_site]),
-	det(0.0),
-	A(S->N_spin)
+	det(0.0)
 {
 	srand(time(NULL));
 	unsigned int site(0);
@@ -26,6 +28,7 @@ State::State(System *S):
 			N_as--;
 		}
 	}
+	init_A(S->N_m,S->N_spin);
 	compute_matrices();
 	compute_det();
 	//std::cout<<"creation"<<std::endl;
@@ -33,34 +36,43 @@ State::State(System *S):
 
 State::State(State const& s):
 	S(s.S),
+	A(new Matrice[S->N_spin]),
 	s(new unsigned int[s.S->N_site]),
 	wis(new unsigned int[s.S->N_site]),
-	det(s.det),
-	A(s.A)
+	det(s.det)
 {
-	for(unsigned int i(0); i< S-> N_site; i++){
+	//std::cout<<"copie"<<std::endl;
+	for(unsigned int i(0); i< S->N_spin; i++){
+		this->A[i] = s.A[i];
+	}
+	for(unsigned int i(0); i< S->N_site; i++){
 		this->s[i] = s.s[i];
 		this->wis[i] = s.wis[i];
 	}
-	//std::cout<<"copie"<<std::endl;
 }
 
-State::State(unsigned int N_site):
+State::State(unsigned int N_m, unsigned int N_spin):
 	S(NULL),
-	s(new unsigned int[N_site]),
-	wis(new unsigned int[N_site]),
-	det(0.0),
-	A()
+	A(new Matrice[N_spin]),
+	s(new unsigned int[N_spin*N_m]),
+	wis(new unsigned int[N_spin*N_m]),
+	det(0.0)
 {
+	//std::cout<<"init As ";
+	init_A(N_m,N_spin);
 	//std::cout<<"minimal"<<std::endl;
 }
 
 State::~State(){
-	delete s;
-	delete wis;
-	//std::cout<<"destructeur"<<std::endl;
+	//std::cout<<"destructeur : state"<<std::endl;
+	delete[] s;
+	delete[] wis;
+	delete[] A;
 }
+/*}*/
 
+/*operator*/
+/*{*/
 State& State::operator=(State const& s){
 	this->S = s.S;
 	for(unsigned int i(0); i < S->N_site; i++){ //attention, S->N_site doit != 0
@@ -68,11 +80,16 @@ State& State::operator=(State const& s){
 		this->wis[i] = s.wis[i];
 	}
 	this->det = s.det;
-	this->A = s.A;
-	//std::cout<<"affectation"<<std::endl;
+	for(unsigned int i(0); i< S->N_spin; i++){
+		this->A[i] = s.A[i];
+	}
+	//std::cout<<"affectation : state"<<std::endl;
 	return (*this);
 }
+/*}*/
 
+/*methods that return something related to the class*/
+/*{*/
 State State::swap() const {
 	unsigned int s1,s2,p1,p2,a,b;
 	p1 = rand() % S->N_m;
@@ -98,28 +115,44 @@ State State::swap(unsigned int a, unsigned int b) const{
 	new_s.wis[a] = wis[b];
 	new_s.compute_matrices();
 	new_s.compute_det();
-
+	
 	return new_s;
+}
+/*}*/
+
+/*methods that modify the class*/
+/*{*/
+void State::init_A(unsigned int N_m, unsigned int N_spin){
+	for(unsigned int i(0); i<N_spin; i++){
+		A[i] = Matrice (N_m);
+	}
 }
 
 void State::compute_det(){
 	det = 1.0;
 	for(unsigned int i(0); i<S->N_spin; i++){
-		det *= arma::det(A[i]);
+		Lapack Ai(A[i],'G');
+		det *= Ai.det();
 	}
+
 }
 
 void State::compute_matrices(){
+	//std::cout<<"cm"<<std::endl;
+	unsigned int l(0);
 	for(unsigned int i(0); i < S->N_spin; i++){
-		A[i] = arma::zeros(S->N_m, S->N_m);
 		for(unsigned int j(0); j < S->N_m; j++){
+			l = s[i*S->N_m+j];
 			for(unsigned int k(0); k < S->N_m; k++){
-				A[i](k,j) = S->U(s[i*S->N_m+j],k);
+				A[i](k,j) = S->U(l,k);
 			}
 		}
 	}
 }
+/*}*/
 
+/*other methods*/
+/*{*/
 void State::print() const{
 	std::cout<<"{";
 	for(unsigned int i(0); i<S->N_spin; i++){
@@ -142,4 +175,4 @@ void State::print() const{
 	}
 	std::cout<<det<<std::endl<<std::endl;
 }
-
+/*}*/

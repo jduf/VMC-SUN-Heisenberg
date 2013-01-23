@@ -1,19 +1,19 @@
 #ifndef DEF_STATE
 #define DEF_STATE
 
-#include<vector>
-#include<cstdlib>
-#include<iostream>
-#include<armadillo>
+#include <cstdlib>
+#include <iostream>
 #include "System.hpp"
+#include "Matrice.hpp"
+#include "Lapack.hpp"
 
 class State{
 	public:
 		//créateur initial prenant un pointeur vers une arma::mat
 		State(System *S);
 		//cérateurs de copie profonde (néessaire car s et wis sont des pointeurs)
+		State(unsigned int N_m, unsigned int N_spin);
 		State(State const& s);
-		State(unsigned int N_site);
 		//destructeur necessaire car utilisation de new dans certains créateurs
 		~State();
 		//affectation profonde (pointeurs)
@@ -31,11 +31,12 @@ class State{
 		State();
 
 		System *S;
+		Matrice *A;
 		unsigned int *s;
 		unsigned int *wis;
 		double det;
-		std::vector<arma::Mat<double> > A;
 
+		void init_A(unsigned int N_m, unsigned int N_spin);
 		void compute_matrices();
 		void compute_det(); // sign(permutation) => ratio det tjrs - ??? 
 };

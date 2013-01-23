@@ -1,12 +1,14 @@
 #include "System.hpp"
 
+/*Constructors and destructor*/
+/*{*/
 System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	N_spin(N_spin),
 	N_m(N_m),
 	N_site(N_m*N_spin),
 	dim(dim),
 	nts(new unsigned int[N_spin*N_m*dim]),
-	U(),
+	U(N_spin*N_m),
 	Nx(0),
 	Ny(0)
 {
@@ -17,35 +19,37 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 }
 
 System::~System(){
-	delete nts;
+	delete[] nts;
 }
+/*}*/
 
+/*methods that modify the class*/
+/*{*/
 void System::create_U(unsigned int dim){
-	arma::Mat<double> T(arma::zeros(N_site,N_site));
 	if(dim==1){
-		T(0,1)=-1.0;
-		T(0,N_site-1)=1.0;
+		U(0,1)=-1.0;
+		U(0,N_site-1)=1.0;
 		for(unsigned int i(1); i< N_site-1; i++){
-			T(i,i-1) = -1.0;
-			T(i,i+1) = -1.0;
+			U(i,i-1) = -1.0;
+			U(i,i+1) = -1.0;
 		}
-		T(N_site-1,0)=1.0;
-		T(N_site-1,N_site-2)=-1.0;
+		U(N_site-1,0)=1.0;
+		U(N_site-1,N_site-2)=-1.0;
 	}
 	if(dim==2){
 		unsigned int j(0);
 		for(unsigned int i(0); i< N_site-1; i++){
-			if((i+1) % Nx == 0){T(i,j*Nx) = 1;j++;}
-			else {T(i,i+1) = -1.0;}
-			if(i+Nx < N_site){ T(i,i+Nx) = -1.0;}
-			else{ T(i,i+Nx-N_site) = 1.0;}
+			if((i+1) % Nx == 0){U(i,j*Nx) = 1;j++;}
+			else {U(i,i+1) = -1.0;}
+			if(i+Nx < N_site){ U(i,i+Nx) = -1.0;}
+			else{ U(i,i+Nx-N_site) = 1.0;}
 		}
-		T(Nx-1,N_site-1) = 1;
-		T(N_site-1,N_site-Ny) = 1;
-		T = T+T.t();
+		U(Nx-1,N_site-1) = 1;
+		U(N_site-1,N_site-Ny) = 1;
+		U = U+U.transpose();
 	}
-	arma::Col<double> EVal;
-	arma::eig_sym(EVal,U,T);
+	Lapack ES(U.ptr(),U.size(),'S');
+	ES.eigensystem();
 }
 
 void System::create_nts(unsigned int dim){
@@ -64,3 +68,4 @@ void System::create_nts(unsigned int dim){
 	}
 	//std::cout<<nts[dim*5]<<" "<<nts[dim*5+1]<<std::endl;
 }
+/*}*/
