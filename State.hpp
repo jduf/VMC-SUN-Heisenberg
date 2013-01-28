@@ -20,11 +20,12 @@ class State{
 		State& operator=(State const& s);
 
 		// échange deux site de spin différent
-		State swap() const;
+		State swap();
 		// échange les site a et b (pouvant être de même spin)
-		State swap(unsigned int a, unsigned int b) const;
+		State swap(unsigned int a, unsigned int b);
 		inline double Det() const {return det;}
 		void print() const;
+		void color(std::ostream& flux) const;
 
 	private:
 		// pas de créateur par défaut, car pas d'allocation mémoire
@@ -34,10 +35,13 @@ class State{
 		Matrice *A;
 		unsigned int *s;
 		unsigned int *wis;
+		unsigned int matrix_changed[2];
 		double det;
 
 		void init_A(unsigned int N_m, unsigned int N_spin);
 		void compute_matrices();
 		void compute_det(); // sign(permutation) => ratio det tjrs - ??? 
 };
+
+std::ostream& operator<<(std::ostream& flux, State const& S);
 #endif
