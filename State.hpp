@@ -20,9 +20,9 @@ class State{
 		State& operator=(State const& s);
 
 		// échange deux site de spin différent
-		State swap();
+		State swap() const;
 		// échange les site a et b (pouvant être de même spin)
-		State swap(unsigned int a, unsigned int b);
+		State swap(unsigned int a, unsigned int b) const;
 		inline double Det() const {return det;}
 		void print() const;
 		void color(std::ostream& flux) const;
@@ -35,7 +35,6 @@ class State{
 		Matrice *A;
 		unsigned int *s;
 		unsigned int *wis;
-		unsigned int matrix_changed[2];
 		double det;
 
 		void init_A(unsigned int N_m, unsigned int N_spin);

@@ -99,7 +99,7 @@ std::ostream& operator<<(std::ostream& flux, State const& S){
 
 /*methods that return something related to the class*/
 /*{*/
-State State::swap(){
+State State::swap() const{
 	unsigned int s1,s2,p1,p2,a,b;
 	p1 = rand() % S->N_m;
 	p2 = rand() % S->N_m;
@@ -114,7 +114,7 @@ State State::swap(){
 	return swap(a,b);
 }
 
-State State::swap(unsigned int a, unsigned int b){
+State State::swap(unsigned int a, unsigned int b) const{
 	State new_s(*this);
 	
 	new_s.s[wis[b]] = s[wis[a]];
@@ -124,9 +124,6 @@ State State::swap(unsigned int a, unsigned int b){
 	new_s.wis[a] = wis[b];
 	new_s.compute_matrices();
 	new_s.compute_det();
-
-	matrix_changed[0] = a / S->N_m;
-	matrix_changed[1] = b / S->N_m;
 
 	return new_s;
 }
