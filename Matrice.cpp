@@ -4,21 +4,24 @@
 /*{*/
 Matrice::Matrice():
 	m(NULL),
-	N(0)
+	N(0),
+	delete_matrix(true)
 {
 	//std::cout<<"default : matrice"<<std::endl;
 }
 
 Matrice::Matrice(unsigned int N):
 	m(new double[N*N]),
-	N(N)
+	N(N),
+	delete_matrix(true)
 {
 	//std::cout<<"taille : matrice"<<std::endl;
 }
 
 Matrice::Matrice(unsigned int N, double val):
 	m(new double[N*N]),
-	N(N)
+	N(N),
+	delete_matrix(true)
 {
 	//std::cout<<"taille+const : matrice"<<std::endl;
 	fill_matrice(val);
@@ -26,7 +29,8 @@ Matrice::Matrice(unsigned int N, double val):
 
 Matrice::Matrice(Matrice const& mat):
 	m(new double[mat.size()*mat.size()]),
-	N(mat.size())
+	N(mat.size()),
+	delete_matrix(true)
 {
 	//std::cout<<"copie : matrice"<<std::endl;
 	for(unsigned int i(0);i<N*N;i++){
@@ -34,9 +38,17 @@ Matrice::Matrice(Matrice const& mat):
 	}
 }
 
+Matrice::Matrice(double* m, unsigned int N):
+	m(m),
+	N(N),
+	delete_matrix(false)
+{ }
+
 Matrice::~Matrice(){
 	//std::cout<<"destructeur : matrice"<<std::endl;
-	delete[]  m;
+	if(delete_matrix){
+		delete[]  m;
+	}
 }
 /*}*/
 

@@ -14,6 +14,7 @@ class Matrice{
 		Matrice(unsigned int N);
 		Matrice(unsigned int N, double val);
 		Matrice(Matrice const& mat);
+		Matrice(double* m, unsigned int N);
 		~Matrice();
 
 /*operators*/
@@ -38,6 +39,7 @@ class Matrice{
 	private:
 		double *m; // m = [[ligne0],[ligne1],...]
 		unsigned int N;
+		bool const delete_matrix;
 		
 /*methods that modify the class*/
 		void fill_matrice(double val);

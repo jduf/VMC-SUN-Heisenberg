@@ -5,6 +5,7 @@
 State::State(System *S):
 	S(S),
 	A(new Matrice[S->N_spin]),
+	Ainv(new Matrice[S->N_spin]),
 	s(new unsigned int[S->N_site]),
 	wis(new unsigned int[S->N_site]),
 	det(0.0)
@@ -30,6 +31,10 @@ State::State(System *S):
 	}
 	init_A(S->N_m,S->N_spin);
 	compute_matrices();
+	//for(unsigned int i(0); i < S->N_spin; i++){
+		//Lapack A_(A[i].ptr(),A[i].size(),'G');
+		//A_.inv();
+	//}
 	compute_det();
 	//std::cout<<"creation"<<std::endl;
 }
@@ -37,6 +42,7 @@ State::State(System *S):
 State::State(State const& s):
 	S(s.S),
 	A(new Matrice[S->N_spin]),
+	Ainv(new Matrice[S->N_spin]),
 	s(new unsigned int[s.S->N_site]),
 	wis(new unsigned int[s.S->N_site]),
 	det(s.det)
@@ -54,6 +60,7 @@ State::State(State const& s):
 State::State(unsigned int N_m, unsigned int N_spin):
 	S(NULL),
 	A(new Matrice[N_spin]),
+	Ainv(new Matrice[N_spin]),
 	s(new unsigned int[N_spin*N_m]),
 	wis(new unsigned int[N_spin*N_m]),
 	det(0.0)
@@ -68,6 +75,7 @@ State::~State(){
 	delete[] s;
 	delete[] wis;
 	delete[] A;
+	delete[] Ainv;
 }
 /*}*/
 
@@ -92,14 +100,25 @@ std::ostream& operator<<(std::ostream& flux, State const& S){
 	return flux;
 }
 
-//double operator/(State const& S1, State const& S2){
-	//return flux;
-//}
+double operator/(State const& Snew, State const& Sold){
+	double d(1.0),w(0.0);
+	unsigned int N(4);
+	for(unsigned int i(0); i<2;i++){
+		Matrice const mold(Sold.get_mat(i),N);
+		Matrice mnew(Snew.get_mat(i),N);
+		Lapack lnew(mnew,'G');
+		Lapack lold(mold,'G');
+		w=compute_ratio_det(mold,mnew,Snew.get_changed_column(i),N);
+		std::cout<<lnew.det()/lold.det()<<" "<<w<<std::endl;
+		d *= w;
+	}
+	return d;
+}
 /*}*/
 
 /*methods that return something related to the class*/
 /*{*/
-State State::swap(){
+State State::swap() const {
 	unsigned int s1,s2,p1,p2,a,b;
 	p1 = rand() % S->N_m;
 	p2 = rand() % S->N_m;
@@ -114,7 +133,7 @@ State State::swap(){
 	return swap(a,b);
 }
 
-State State::swap(unsigned int a, unsigned int b){
+State State::swap(unsigned int a, unsigned int b) const {
 	State new_s(*this);
 	
 	new_s.s[wis[b]] = s[wis[a]];
@@ -123,10 +142,9 @@ State State::swap(unsigned int a, unsigned int b){
 	new_s.wis[b] = wis[a];
 	new_s.wis[a] = wis[b];
 	new_s.compute_matrices();
-	new_s.compute_det();
+	new_s.compute_det(); 
 
-	matrix_changed[0] = a / S->N_m;
-	matrix_changed[1] = b / S->N_m;
+	new_s.modify_matrix(a,b);
 
 	return new_s;
 }
@@ -137,6 +155,22 @@ void State::color(std::ostream& flux) const{
 		col = wis[i] / S->N_m;
 		flux << col<<" ";
 	}
+}
+
+double* State::get_mat(unsigned int i) const {
+	return A[i].ptr();
+}
+
+unsigned int State::get_changed_column(unsigned int i) const {
+	return column_changed[i];
+}
+
+double compute_ratio_det(Matrice const& mold, Matrice const& mnew, unsigned int col, unsigned int N){
+	double d(0.0);
+	for(unsigned int i(0);i<N;i++){
+		d += mold(i,col)*mnew(i,col);
+	}
+	return d;
 }
 /*}*/
 
@@ -167,6 +201,16 @@ void State::compute_matrices(){
 			}
 		}
 	}
+	
+}
+
+void State::modify_matrix(unsigned int a, unsigned int b){
+	spin_changed[0] = wis[a] / S->N_m;
+	spin_changed[1] = wis[b] / S->N_m;
+	column_changed[0] = wis[a] % S->N_m;
+	column_changed[1] = wis[b] % S->N_m;
+	std::cout<<spin_changed[0]<<" "<<column_changed[0]<<std::endl;
+	std::cout<<spin_changed[1]<<" "<<column_changed[1]<<std::endl;
 }
 /*}*/
 
