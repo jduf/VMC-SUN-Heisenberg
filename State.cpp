@@ -2,13 +2,15 @@
 
 /*Constructors and destructor*/
 /*{*/
-State::State(System *S):
+State::State(System *S,bool whole_copy):
 	S(S),
 	A(new Matrice[S->N_spin]),
 	Ainv(new Matrice[S->N_spin]),
 	s(new unsigned int[S->N_site]),
 	wis(new unsigned int[S->N_site]),
-	det(0.0)
+	det(0.0),
+	delete_matrix(true),
+	whole_copy(whole_copy)
 {
 	srand(time(NULL));
 	unsigned int site(0);
@@ -29,8 +31,7 @@ State::State(System *S):
 			N_as--;
 		}
 	}
-	init_A(S->N_m,S->N_spin);
-	compute_matrices();
+	init_matrices(S->N_m,S->N_spin);
 	//for(unsigned int i(0); i < S->N_spin; i++){
 		//Lapack A_(A[i].ptr(),A[i].size(),'G');
 		//A_.inv();
@@ -41,55 +42,46 @@ State::State(System *S):
 
 State::State(State const& s):
 	S(s.S),
-	A(new Matrice[S->N_spin]),
-	Ainv(new Matrice[S->N_spin]),
-	s(new unsigned int[s.S->N_site]),
-	wis(new unsigned int[s.S->N_site]),
-	det(s.det)
+	A(s.A),
+	Ainv(s.Ainv),
+	s(s.s),
+	wis(s.wis),
+	det(s.det),
+	delete_matrix(false),
+	whole_copy(false)
 {
 	//std::cout<<"copie"<<std::endl;
-	for(unsigned int i(0); i< S->N_spin; i++){
-		this->A[i] = s.A[i];
-	}
-	for(unsigned int i(0); i< S->N_site; i++){
-		this->s[i] = s.s[i];
-		this->wis[i] = s.wis[i];
-	}
-}
-
-State::State(unsigned int N_m, unsigned int N_spin):
-	S(NULL),
-	A(new Matrice[N_spin]),
-	Ainv(new Matrice[N_spin]),
-	s(new unsigned int[N_spin*N_m]),
-	wis(new unsigned int[N_spin*N_m]),
-	det(0.0)
-{
-	//std::cout<<"init As ";
-	init_A(N_m,N_spin);
-	//std::cout<<"minimal"<<std::endl;
 }
 
 State::~State(){
 	//std::cout<<"destructeur : state"<<std::endl;
+	if(delete_matrix){
+		delete[] A;
+		delete[] Ainv;
+	}
 	delete[] s;
 	delete[] wis;
-	delete[] A;
-	delete[] Ainv;
 }
 /*}*/
 
 /*operator*/
 /*{*/
 State& State::operator=(State const& s){
-	this->S = s.S;
-	for(unsigned int i(0); i < S->N_site; i++){ //attention, S->N_site doit != 0
-		this->s[i] = s.s[i];
-		this->wis[i] = s.wis[i];
-	}
-	this->det = s.det;
-	for(unsigned int i(0); i< S->N_spin; i++){
-		this->A[i] = s.A[i];
+	//this->S = s.S; // inutile car pointe de toute façon sur le bon system
+	
+	if(whole_copy){
+		for(unsigned int i(0); i < S->N_site; i++){ //attention, S->N_site doit != 0
+			this->s[i] = s.s[i];
+			this->wis[i] = s.wis[i];
+		}
+		for(unsigned int i(0); i< S->N_spin; i++){
+			this->A[i] = s.A[i];
+		}
+	} else {
+		for(unsigned int i(0);i<2;i++){
+			this->column_changed[i] = s.column_changed[i];
+			this->matrix_changed[i] = s.matrix_changed[i];
+		}
 	}
 	//std::cout<<"affectation : state"<<std::endl;
 	return (*this);
@@ -104,10 +96,6 @@ double operator/(State const& Snew, State const& Sold){
 	double d(1.0),w(0.0);
 	unsigned int N(4);
 	for(unsigned int i(0); i<2;i++){
-		Matrice const mold(Sold.get_mat(i),N);
-		Matrice mnew(Snew.get_mat(i),N);
-		Lapack lnew(mnew,'G');
-		Lapack lold(mold,'G');
 		w=compute_ratio_det(mold,mnew,Snew.get_changed_column(i),N);
 		std::cout<<lnew.det()/lold.det()<<" "<<w<<std::endl;
 		d *= w;
@@ -141,10 +129,8 @@ State State::swap(unsigned int a, unsigned int b) const {
 
 	new_s.wis[b] = wis[a];
 	new_s.wis[a] = wis[b];
-	new_s.compute_matrices();
-	new_s.compute_det(); 
 
-	new_s.modify_matrix(a,b);
+	new_s.modify_matrix(wis[a],wis[b]);
 
 	return new_s;
 }
@@ -155,10 +141,6 @@ void State::color(std::ostream& flux) const{
 		col = wis[i] / S->N_m;
 		flux << col<<" ";
 	}
-}
-
-double* State::get_mat(unsigned int i) const {
-	return A[i].ptr();
 }
 
 unsigned int State::get_changed_column(unsigned int i) const {
@@ -176,9 +158,16 @@ double compute_ratio_det(Matrice const& mold, Matrice const& mnew, unsigned int 
 
 /*methods that modify the class*/
 /*{*/
-void State::init_A(unsigned int N_m, unsigned int N_spin){
-	for(unsigned int i(0); i<N_spin; i++){
+void State::init_matrices(unsigned int N_m, unsigned int N_spin){
+	unsigned int l(0);
+	for(unsigned int i(0); i < N_spin; i++){
 		A[i] = Matrice (N_m);
+		for(unsigned int j(0); j < N_m; j++){
+			l = s[i*S->N_m+j];
+			for(unsigned int k(0); k < N_m; k++){
+				A[i](k,j) = S->U(l,k);
+			}
+		}
 	}
 }
 
@@ -191,26 +180,12 @@ void State::compute_det(){
 
 }
 
-void State::compute_matrices(){
-	unsigned int l(0);
-	for(unsigned int i(0); i < S->N_spin; i++){
-		for(unsigned int j(0); j < S->N_m; j++){
-			l = s[i*S->N_m+j];
-			for(unsigned int k(0); k < S->N_m; k++){
-				A[i](k,j) = S->U(l,k);
-			}
-		}
-	}
-	
-}
 
-void State::modify_matrix(unsigned int a, unsigned int b){
-	spin_changed[0] = wis[a] / S->N_m;
-	spin_changed[1] = wis[b] / S->N_m;
-	column_changed[0] = wis[a] % S->N_m;
-	column_changed[1] = wis[b] % S->N_m;
-	std::cout<<spin_changed[0]<<" "<<column_changed[0]<<std::endl;
-	std::cout<<spin_changed[1]<<" "<<column_changed[1]<<std::endl;
+void State::modify_matrix(unsigned int wisa, unsigned int wisb){
+	matrix_changed[0] = wisa / S->N_m;
+	matrix_changed[1] = wisb / S->N_m;
+	column_changed[0] = wisa % S->N_m;
+	column_changed[1] = wisb % S->N_m;
 }
 /*}*/
 

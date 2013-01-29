@@ -10,10 +10,7 @@
 class State{
 	public:
 		//créateur initial prenant un pointeur vers une arma::mat
-		State(System *S);
-		//cérateurs de copie profonde (néessaire car s et wis sont des pointeurs)
-		State(unsigned int N_m, unsigned int N_spin);
-		State(State const& s);
+		State(System *S,bool whole_copy);
 		//destructeur necessaire car utilisation de new dans certains créateurs
 		~State();
 		//affectation profonde (pointeurs)
@@ -25,12 +22,12 @@ class State{
 		State swap(unsigned int a, unsigned int b) const;
 		void print() const;
 		void color(std::ostream& flux) const;
-		double* get_mat(unsigned int i) const;
 		unsigned int get_changed_column(unsigned int i) const;
 
 	private:
 		// pas de créateur par défaut, car pas d'allocation mémoire
 		State();
+		State(State const& s); //copie de surface
 
 		System *S;
 		Matrice *A;
@@ -38,13 +35,14 @@ class State{
 		unsigned int *s;
 		unsigned int *wis;
 		unsigned int column_changed[2];
-		unsigned int spin_changed[2];
+		unsigned int matrix_changed[2];
 		double det;
+		bool delete_matrix;
+		bool whole_copy;
 
-		void init_A(unsigned int N_m, unsigned int N_spin);
-		void compute_matrices();
+		void init_matrices(unsigned int N_m, unsigned int N_spin);
 		void compute_det(); // sign(permutation) => ratio det tjrs - ??? 
-		void modify_matrix(unsigned int a, unsigned int b);
+		void modify_matrix(unsigned int wisa, unsigned int wisb);
 };
 
 std::ostream& operator<<(std::ostream& flux, State const& S);
