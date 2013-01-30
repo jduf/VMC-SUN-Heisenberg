@@ -6,45 +6,75 @@
 double energie(System *S);
 
 int main(){
+	unsigned int const N_spin(3);
+	unsigned int const N_m(3);
+	System oneD(N_spin, N_m, 1);	
+
 	//Chrono t;
 	//t.tic();
-	unsigned int const N_spin(3);
-	unsigned int const N_m(4);
-	System oneD(N_spin, N_m, 1);	
 	//std::cout<<energie(&oneD)<<" ";
 	//t.tac();
 	//std::cout<<"en "<<t<<" seconde(s)"<<std::endl;
 	
-	std::cout<<"create alpha"<<std::endl;
-	State alpha(&oneD);
+	State alpha(&oneD,true);
 	alpha.print();
-	State tmp(alpha.swap());
-	tmp.print();
-	std::cout<<tmp/alpha<<std::endl;
+	State tmp(&oneD,false);
+	double alpha_det(0.0);
+	double tmp_det(0.0);
 
-	//t.tic();
-	//unsigned int const N_spin(4);
-	//unsigned int const N_m(4);
-	//System two(N_spin, N_m, 2);	
-	//std::cout<<energie(&two)<<" ";
-	//t.tac();
-	//std::cout<<"en "<<t<<" seconde(s)"<<std::endl;
+	alpha_det=alpha.Det();
+
+	tmp = alpha.swap();
+	std::cout<<"ratio="<<tmp/alpha<<std::endl;
+	
+	alpha = tmp;
+	alpha.print();
+	tmp_det=alpha.Det();
+	std::cout<<"ratio old="<<tmp_det/alpha_det<<std::endl;
+
+	alpha_det = tmp_det;
+
+	tmp = alpha.swap();
+	std::cout<<"ratio="<<tmp/alpha<<std::endl;
+	
+	alpha = tmp;
+	alpha.print();
+	tmp_det = alpha.Det();
+	std::cout<<"ratio old="<<tmp_det/alpha_det<<std::endl;
+	//double alpha_det(0.0);
+	//double tmp_det(0.0);
+	//double ratio(0.0);
+	//for(unsigned int i(0);i<5;i++){
+		//tmp = alpha.swap();
+		//ratio = tmp/alpha;
+		//alpha_det = alpha.Det();
+		//alpha = tmp;
+		//tmp_det = alpha.Det();
+		//std::cout<<ratio<<" "<<tmp_det/alpha_det<<std::endl;
+	//}
+
+	//alpha = tmp;
+	//double tmp_det(alpha.Det());
+	//std::cout<<tmp_det/alpha_det<<std::endl;
+	//std::cout<<"alpha=tmp"<<std::endl;
+	//alpha.print();
 }
 
 double energie(System *S){
-	State alpha(S);
+	State alpha(S,true);
+	State tmp(S,false);
 	double ratio(0.0), energie(0.0);
-	unsigned int i(0),NMC(1e4);
+	unsigned int i(0),NMC(34);
 	while(i<NMC){
-		State tmp(alpha.swap());
+		tmp = alpha.swap();
 		ratio = tmp/alpha;
 		if(ratio>1 || (double)rand()/RAND_MAX <ratio){
 			i++;
 			alpha = tmp;
 			for(unsigned int j(0);j<S->N_site;j++){
 				for(unsigned int d(0);d<S->dim;d++){
-					State beta(alpha.swap(j,S->nts[S->dim*j+d]));
-					energie += beta/alpha;
+					tmp = alpha.swap(j,S->nts[S->dim*j+d]);
+					energie += tmp/alpha;
 				}
 			}
 		}

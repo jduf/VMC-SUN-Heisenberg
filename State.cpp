@@ -12,6 +12,7 @@ State::State(System *S,bool whole_copy):
 	delete_matrix(true),
 	whole_copy(whole_copy)
 {
+	//std::cout<<"creation"<<std::endl;
 	srand(time(NULL));
 	unsigned int site(0);
 	unsigned int N_as(S->N_site);
@@ -32,12 +33,11 @@ State::State(System *S,bool whole_copy):
 		}
 	}
 	init_matrices(S->N_m,S->N_spin);
-	//for(unsigned int i(0); i < S->N_spin; i++){
-		//Lapack A_(A[i].ptr(),A[i].size(),'G');
-		//A_.inv();
-	//}
 	compute_det();
-	//std::cout<<"creation"<<std::endl;
+	for(unsigned int i(0);i<2;i++){
+		cc[i] = 0;
+		mc[i] = 0;
+	}
 }
 
 State::State(State const& s):
@@ -54,13 +54,15 @@ State::State(State const& s):
 }
 
 State::~State(){
-	//std::cout<<"destructeur : state"<<std::endl;
+	//std::cout<<"destructeur : state";
 	if(delete_matrix){
+	//std::cout<<" effectif";
 		delete[] A;
 		delete[] Ainv;
+		delete[] s;
+		delete[] wis;
 	}
-	delete[] s;
-	delete[] wis;
+	//std::cout<<std::endl;
 }
 /*}*/
 
@@ -68,22 +70,43 @@ State::~State(){
 /*{*/
 State& State::operator=(State const& s){
 	//this->S = s.S; // inutile car pointe de toute façon sur le bon system
-	
-	if(whole_copy){
-		for(unsigned int i(0); i < S->N_site; i++){ //attention, S->N_site doit != 0
-			this->s[i] = s.s[i];
-			this->wis[i] = s.wis[i];
-		}
-		for(unsigned int i(0); i< S->N_spin; i++){
-			this->A[i] = s.A[i];
-		}
-	} else {
-		for(unsigned int i(0);i<2;i++){
-			this->column_changed[i] = s.column_changed[i];
-			this->matrix_changed[i] = s.matrix_changed[i];
-		}
+	for(unsigned int i(0);i<2;i++){
+		this->cc[i] = s.cc[i];
+		this->mc[i] = s.mc[i];
 	}
-	//std::cout<<"affectation : state"<<std::endl;
+
+	if(whole_copy){
+		//std::cout<<"whole ";
+		unsigned int a(0),b(0);
+		a = s.mc[0]*S->N_m+s.cc[0];
+		b = s.mc[1]*S->N_m+s.cc[1];
+		std::cout<<a<<" ab "<<b<<std::endl;
+		std::cout<<s.s[a]<<" sab "<<s.s[b]<<std::endl;
+		std::cout<<this->s[a]<<" sab "<<this->s[b]<<std::endl;
+		
+		this->s[b] = s.s[a];
+		this->s[a] = s.s[b];
+
+		std::cout<<this->s[a]<<" sab "<<this->s[b]<<std::endl;
+		a = s.s[a];
+		b = s.s[b];
+
+		this->wis[b] = s.wis[a];
+		this->wis[a] = s.wis[b];
+
+		for(unsigned int i(0); i<S->N_m; i++){
+			this->A[s.mc[0]](i,s.cc[0]) = s.A[s.mc[1]](i,s.cc[1]);
+			this->A[s.mc[1]](i,s.cc[1]) = s.A[s.mc[0]](i,s.cc[0]);
+		}
+
+		for(unsigned int i(0); i<S->N_spin;i++){
+			this->Ainv[i] = this->A[i];
+			Lapack A_(this->Ainv[i].ptr(),this->Ainv[i].size(),'G');
+			A_.inv();
+		}
+		this->compute_det();
+	} 
+	//std::cout<<"affectation"<<std::endl;
 	return (*this);
 }
 
@@ -93,44 +116,40 @@ std::ostream& operator<<(std::ostream& flux, State const& S){
 }
 
 double operator/(State const& Snew, State const& Sold){
-	double d(1.0),w(0.0);
-	unsigned int N(4);
-	for(unsigned int i(0); i<2;i++){
-		w=compute_ratio_det(mold,mnew,Snew.get_changed_column(i),N);
-		std::cout<<lnew.det()/lold.det()<<" "<<w<<std::endl;
-		d *= w;
-	}
-	return d;
+	return Snew.divided();
 }
 /*}*/
 
 /*methods that return something related to the class*/
 /*{*/
 State State::swap() const {
-	unsigned int s1,s2,p1,p2,a,b;
-	p1 = rand() % S->N_m;
-	p2 = rand() % S->N_m;
+	unsigned int s1,s2;
 	s1 = rand() % S->N_spin;
 	s2 = rand() % S->N_spin;
 	while(s1==s2){
 		s2 = rand() % S->N_spin;
 	}
-    a = s[s1*S->N_m + p1];
-	b = s[s2*S->N_m + p2];
 	
-	return swap(a,b);
+	State new_s(*this);
+
+	new_s.mc[0] = s1;
+	new_s.mc[1] = s2;
+	new_s.cc[0] = rand() % S->N_m;
+	new_s.cc[1] = rand() % S->N_m;
+	
+	//std::cout<<"swap"<<std::endl;
+	//std::cout<<s[s1*S->N_m+new_s.cc[0]]<<" "<<s[s2*S->N_m+new_s.cc[1]]<<std::endl;
+
+	return new_s;
 }
 
 State State::swap(unsigned int a, unsigned int b) const {
 	State new_s(*this);
-	
-	new_s.s[wis[b]] = s[wis[a]];
-	new_s.s[wis[a]] = s[wis[b]];
 
-	new_s.wis[b] = wis[a];
-	new_s.wis[a] = wis[b];
-
-	new_s.modify_matrix(wis[a],wis[b]);
+	new_s.mc[0] = wis[a] / S->N_m;
+	new_s.mc[1] = wis[b] / S->N_m;
+	new_s.cc[0] = wis[a] % S->N_m;
+	new_s.cc[1] = wis[b] % S->N_m;
 
 	return new_s;
 }
@@ -143,16 +162,13 @@ void State::color(std::ostream& flux) const{
 	}
 }
 
-unsigned int State::get_changed_column(unsigned int i) const {
-	return column_changed[i];
-}
-
-double compute_ratio_det(Matrice const& mold, Matrice const& mnew, unsigned int col, unsigned int N){
-	double d(0.0);
-	for(unsigned int i(0);i<N;i++){
-		d += mold(i,col)*mnew(i,col);
+double State::divided() const {
+	double d1(0.0),d2(0.0);
+	for(unsigned int i(0);i<S->N_m;i++){
+		d1 += Ainv[mc[0]](cc[0],i)*A[mc[1]](i,cc[1]);
+		d2 += Ainv[mc[1]](cc[1],i)*A[mc[0]](i,cc[0]);
 	}
-	return d;
+	return d1*d2;
 }
 /*}*/
 
@@ -162,12 +178,16 @@ void State::init_matrices(unsigned int N_m, unsigned int N_spin){
 	unsigned int l(0);
 	for(unsigned int i(0); i < N_spin; i++){
 		A[i] = Matrice (N_m);
+		Ainv[i] = Matrice (N_m);
 		for(unsigned int j(0); j < N_m; j++){
 			l = s[i*S->N_m+j];
 			for(unsigned int k(0); k < N_m; k++){
 				A[i](k,j) = S->U(l,k);
 			}
 		}
+		Ainv[i] = A[i];
+		Lapack A_(Ainv[i].ptr(),Ainv[i].size(),'G');
+		A_.inv();
 	}
 }
 
@@ -179,38 +199,34 @@ void State::compute_det(){
 	}
 
 }
-
-
-void State::modify_matrix(unsigned int wisa, unsigned int wisb){
-	matrix_changed[0] = wisa / S->N_m;
-	matrix_changed[1] = wisb / S->N_m;
-	column_changed[0] = wisa % S->N_m;
-	column_changed[1] = wisb % S->N_m;
-}
 /*}*/
 
 /*other methods*/
 /*{*/
 void State::print() const{
-	//std::cout<<"{";
-	//for(unsigned int i(0); i<S->N_spin; i++){
-		//std::cout<<"{ ";
-		//for(unsigned int j(0); j<S->N_m; j++){
-			//std::cout<<s[i*S->N_m+j]<<" ";
-		//}
-		//std::cout<<"}";
-	//}
-	//std::cout<<"}"<<std::endl;
-	//for(unsigned int i(0); i<S->N_spin; i++){
-		//for(unsigned int j(0); j<S->N_m; j++){
-			//std::cout<<wis[i*S->N_m+j]<<" ";
-		//}
-	//}
-	//std::cout<<std::endl;
+	std::cout<<"{";
+	for(unsigned int i(0); i<S->N_spin; i++){
+		std::cout<<"{ ";
+		for(unsigned int j(0); j<S->N_m; j++){
+			std::cout<<s[i*S->N_m+j]<<" ";
+		}
+		std::cout<<"}";
+	}
+	std::cout<<"}"<<std::endl;
+	for(unsigned int i(0); i<S->N_site; i++){
+		std::cout<<wis[i]<<" ";
+	}
+	std::cout<<std::endl;
+	for(unsigned int i(0);i<2;i++){
+		std::cout<<mc[i]<<" "<< cc[i]<<std::endl;
+	}
 	for(unsigned int i(0);i<S->N_spin;i++){
 		std::cout<<std::endl;
 		A[i].print();
 	}
-	std::cout<<det<<std::endl<<std::endl;
+	for(unsigned int i(0);i<S->N_spin;i++){
+		std::cout<<std::endl;
+		(A[i]*Ainv[i]).print();
+	}
 }
 /*}*/

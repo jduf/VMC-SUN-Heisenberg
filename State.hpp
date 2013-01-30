@@ -22,7 +22,8 @@ class State{
 		State swap(unsigned int a, unsigned int b) const;
 		void print() const;
 		void color(std::ostream& flux) const;
-		unsigned int get_changed_column(unsigned int i) const;
+		double divided() const ;
+		double Det() { return det;};
 
 	private:
 		// pas de créateur par défaut, car pas d'allocation mémoire
@@ -34,18 +35,16 @@ class State{
 		Matrice *Ainv;
 		unsigned int *s;
 		unsigned int *wis;
-		unsigned int column_changed[2];
-		unsigned int matrix_changed[2];
+		unsigned int cc[2]; // column changed
+		unsigned int mc[2]; // matrix changed
 		double det;
 		bool delete_matrix;
 		bool whole_copy;
 
 		void init_matrices(unsigned int N_m, unsigned int N_spin);
 		void compute_det(); // sign(permutation) => ratio det tjrs - ??? 
-		void modify_matrix(unsigned int wisa, unsigned int wisb);
 };
 
 std::ostream& operator<<(std::ostream& flux, State const& S);
 double operator/(State const& Snew, State const& Sold);
-double compute_ratio_det(Matrice const& mold, Matrice const& mnew, unsigned int col, unsigned int N);
 #endif
