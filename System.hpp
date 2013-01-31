@@ -14,9 +14,9 @@ class System{
 		Matrice U;
 		Matrice *A;
 		Matrice *Ainv;
-		double w;
+		double w[2];
 
-		void update_matrices(unsigned int mc[], unsigned int cc[]);
+		void update_matrices(unsigned int const mc[], unsigned int const cc[]);
 
 	private:
 		System();

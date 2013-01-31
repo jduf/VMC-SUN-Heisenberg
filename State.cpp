@@ -87,7 +87,7 @@ State& State::operator=(State const& s){
 		this->wis[b] = this->wis[a];
 		this->wis[a] = tmp;
 
-		this->S->update_matrices(mc,cc);
+		this->S->update_matrices(this->mc,this->cc);
 	} 
 	//this->compute_det();
 	//std::cout<<"affectation"<<std::endl;
@@ -148,15 +148,18 @@ void State::color(std::ostream& flux) const{
 
 double State::divided() const {
 	if(mc[0] == mc[1]){
-		S->w = -1;
+		S->w[0] = -1;
+		S->w[1] = -1;
 		return -1;
-	} else {
+	} else { // à déplacer le calcul dans System.cpp
 		double d1(0.0),d2(0.0);
 		for(unsigned int i(0);i<S->N_m;i++){
 			d1 += S->Ainv[mc[0]](cc[0],i)*S->A[mc[1]](i,cc[1]);
 			d2 += S->Ainv[mc[1]](cc[1],i)*S->A[mc[0]](i,cc[0]);
 		}
-		S->w = d1*d2;
+		S->w[0] = d1;
+		S->w[1] = d2;
+		std::cout<<d1<<" "<<d2<<std::endl;
 		return d1*d2;
 	}
 }
@@ -209,13 +212,13 @@ void State::print() const{
 	for(unsigned int i(0);i<2;i++){
 		std::cout<<mc[i]<<" "<< cc[i]<<std::endl;
 	}
-	//for(unsigned int i(0);i<S->N_spin;i++){
-		//std::cout<<std::endl;
-		//S->A[i].print();
-	//}
-	//for(unsigned int i(0);i<S->N_spin;i++){
-		//std::cout<<std::endl;
-		//(S->A[i]*S->Ainv[i]).print();
-	//}
+	for(unsigned int i(0);i<S->N_spin;i++){
+		std::cout<<std::endl;
+		S->A[i].print();
+	}
+	for(unsigned int i(0);i<S->N_spin;i++){
+		std::cout<<std::endl;
+		(S->A[i]*S->Ainv[i]).print();
+	}
 }
 /*}*/

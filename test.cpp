@@ -7,14 +7,23 @@ double energie(System *S);
 
 int main(){
 	unsigned int const N_spin(3);
-	unsigned int const N_m(2);
+	unsigned int const N_m(4);
 	System oneD(N_spin, N_m, 1);	
 
-	Chrono t;
-	t.tic();
-	std::cout<<energie(&oneD)<<std::endl;
-	t.tac();
-	std::cerr<<t<<" seconde(s)"<<std::endl;
+	//Chrono t;
+	//t.tic();
+	//std::cout<<energie(&oneD)<<std::endl;
+	//t.tac();
+	//std::cerr<<t<<" seconde(s)"<<std::endl;
+	
+	State alpha(&oneD,true);
+	State tmp(&oneD,false);
+
+	//alpha.print();
+	tmp = alpha.swap();
+	std::cout<<tmp/alpha<<std::endl;
+	alpha=tmp;
+	alpha.print();
 }
 
 double energie(System *S){
