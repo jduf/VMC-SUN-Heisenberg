@@ -11,7 +11,7 @@ State::State(System *S,bool whole_copy):
 	whole_copy(whole_copy)
 {
 	//std::cout<<"creation"<<std::endl;
-	srand(time(NULL));
+	srand(time(NULL)^(getpid()<<16));
 	unsigned int site(0);
 	unsigned int N_as(S->N_site);
 	unsigned int available_sites[S->N_site];
@@ -88,8 +88,8 @@ State& State::operator=(State const& s){
 		this->wis[a] = tmp;
 
 		this->S->update_matrices(mc,cc);
-		//this->compute_det();
 	} 
+	//this->compute_det();
 	//std::cout<<"affectation"<<std::endl;
 	return (*this);
 }
@@ -147,15 +147,15 @@ void State::color(std::ostream& flux) const{
 }
 
 double State::divided() const {
-	double d1(0.0),d2(0.0);
-	for(unsigned int i(0);i<S->N_m;i++){
-		d1 += S->Ainv[mc[0]](cc[0],i)*S->A[mc[1]](i,cc[1]);
-		d2 += S->Ainv[mc[1]](cc[1],i)*S->A[mc[0]](i,cc[0]);
-	}
-	if (d1*d2<1e-7){
+	if(mc[0] == mc[1]){
 		return -1;
 	} else {
-	return d1*d2;
+		double d1(0.0),d2(0.0);
+		for(unsigned int i(0);i<S->N_m;i++){
+			d1 += S->Ainv[mc[0]](cc[0],i)*S->A[mc[1]](i,cc[1]);
+			d2 += S->Ainv[mc[1]](cc[1],i)*S->A[mc[0]](i,cc[0]);
+		}
+		return d1*d2;
 	}
 }
 /*}*/

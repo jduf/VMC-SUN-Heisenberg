@@ -12,66 +12,9 @@ int main(){
 
 	Chrono t;
 	t.tic();
-	std::cout<<energie(&oneD)<<" ";
+	std::cout<<energie(&oneD)<<std::endl;
 	t.tac();
-	std::cout<<"en "<<t<<" seconde(s)"<<std::endl;
-	//
-	//State alpha(&oneD,true);
-	//alpha.print();
-	//State tmp(&oneD,false);
-	//double alpha_det(0.0);
-	//double tmp_det(0.0);
-//
-	//alpha_det=alpha.Det();
-//
-	//tmp = alpha.swap(1,2);
-	//std::cout<<"ratio="<<tmp/alpha<<std::endl;
-	//
-	//alpha = tmp;
-	//alpha.print();
-	//tmp_det=alpha.Det();
-	//std::cout<<"ratio old="<<tmp_det/alpha_det<<std::endl;
-//
-//// boucle
-	//alpha_det = tmp_det;
-//
-	//tmp = alpha.swap(1,2);
-	//std::cout<<"ratio="<<tmp/alpha<<std::endl;
-	//
-	//alpha = tmp;
-	//alpha.print();
-	//tmp_det = alpha.Det();
-	//std::cout<<"ratio old="<<tmp_det/alpha_det<<std::endl;
-//
-//// boucle
-	//alpha_det = tmp_det;
-//
-	//tmp = alpha.swap(1,2);
-	//std::cout<<"ratio="<<tmp/alpha<<std::endl;
-	//
-	//alpha = tmp;
-	//alpha.print();
-	//tmp_det = alpha.Det();
-	//std::cout<<"ratio old="<<tmp_det/alpha_det<<std::endl;
-
-
-	//double alpha_det(0.0);
-	//double tmp_det(0.0);
-	//double ratio(0.0);
-	//for(unsigned int i(0);i<5;i++){
-		//tmp = alpha.swap();
-		//ratio = tmp/alpha;
-		//alpha_det = alpha.Det();
-		//alpha = tmp;
-		//tmp_det = alpha.Det();
-		//std::cout<<ratio<<" "<<tmp_det/alpha_det<<std::endl;
-	//}
-
-	//alpha = tmp;
-	//double tmp_det(alpha.Det());
-	//std::cout<<tmp_det/alpha_det<<std::endl;
-	//std::cout<<"alpha=tmp"<<std::endl;
-	//alpha.print();
+	std::cerr<<t<<" seconde(s)"<<std::endl;
 }
 
 double energie(System *S){
