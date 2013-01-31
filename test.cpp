@@ -15,7 +15,7 @@ int main(){
 	std::cout<<energie(&oneD)<<" ";
 	t.tac();
 	std::cout<<"en "<<t<<" seconde(s)"<<std::endl;
-	
+	//
 	//State alpha(&oneD,true);
 	//alpha.print();
 	//State tmp(&oneD,false);
@@ -42,6 +42,18 @@ int main(){
 	//alpha.print();
 	//tmp_det = alpha.Det();
 	//std::cout<<"ratio old="<<tmp_det/alpha_det<<std::endl;
+//
+//// boucle
+	//alpha_det = tmp_det;
+//
+	//tmp = alpha.swap(1,2);
+	//std::cout<<"ratio="<<tmp/alpha<<std::endl;
+	//
+	//alpha = tmp;
+	//alpha.print();
+	//tmp_det = alpha.Det();
+	//std::cout<<"ratio old="<<tmp_det/alpha_det<<std::endl;
+
 
 	//double alpha_det(0.0);
 	//double tmp_det(0.0);
@@ -66,10 +78,11 @@ double energie(System *S){
 	State alpha(S,true);
 	State tmp(S,false);
 	double ratio(0.0), energie(0.0);
-	unsigned int i(0),NMC(34);
+	unsigned int i(0),NMC(40);
 	while(i<NMC){
 		tmp = alpha.swap();
 		ratio = tmp/alpha;
+		ratio *= ratio;
 		if(ratio>1 || (double)rand()/RAND_MAX <ratio){
 			i++;
 			alpha = tmp;

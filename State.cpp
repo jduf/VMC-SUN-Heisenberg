@@ -88,7 +88,7 @@ State& State::operator=(State const& s){
 		this->wis[a] = tmp;
 
 		this->S->update_matrices(mc,cc);
-		this->compute_det();
+		//this->compute_det();
 	} 
 	//std::cout<<"affectation"<<std::endl;
 	return (*this);
@@ -152,7 +152,11 @@ double State::divided() const {
 		d1 += S->Ainv[mc[0]](cc[0],i)*S->A[mc[1]](i,cc[1]);
 		d2 += S->Ainv[mc[1]](cc[1],i)*S->A[mc[0]](i,cc[0]);
 	}
+	if (d1*d2<1e-7){
+		return -1;
+	} else {
 	return d1*d2;
+	}
 }
 /*}*/
 
