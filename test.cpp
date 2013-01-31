@@ -12,22 +12,9 @@ int main(){
 	unsigned int const N_spin(3);
 	unsigned int const N_m(2);
 	System oneD(N_spin, N_m, 1);	
-	std::cout<<energie(&oneD)<<" ";
+	std::cout<<energie(&oneD)<<std::endl;
 	t.tac();
-	std::cout<<"en "<<t<<" seconde(s)"<<std::endl;
-	
-	//std::cout<<"create alpha"<<std::endl;
-	//State alpha(&oneD);
-	//alpha.print();
-	//(alpha.swap()).print();
-
-	//t.tic();
-	//unsigned int const N_spin(4);
-	//unsigned int const N_m(4);
-	//System two(N_spin, N_m, 2);	
-	//std::cout<<energie(&two)<<" ";
-	//t.tac();
-	//std::cout<<"en "<<t<<" seconde(s)"<<std::endl;
+	std::cerr<<t<<" seconde(s)"<<std::endl;
 }
 
 double factorial(unsigned int m){
