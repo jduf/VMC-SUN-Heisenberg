@@ -35,7 +35,7 @@ class State{
 		unsigned int *wis;
 		unsigned int cc[2]; // column changed
 		unsigned int mc[2]; // matrix changed
-		double det;
+		double det,w;
 		bool delete_matrix;
 		bool whole_copy;
 

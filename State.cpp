@@ -148,6 +148,7 @@ void State::color(std::ostream& flux) const{
 
 double State::divided() const {
 	if(mc[0] == mc[1]){
+		S->w = -1;
 		return -1;
 	} else {
 		double d1(0.0),d2(0.0);
@@ -155,6 +156,7 @@ double State::divided() const {
 			d1 += S->Ainv[mc[0]](cc[0],i)*S->A[mc[1]](i,cc[1]);
 			d2 += S->Ainv[mc[1]](cc[1],i)*S->A[mc[0]](i,cc[0]);
 		}
+		S->w = d1*d2;
 		return d1*d2;
 	}
 }

@@ -11,6 +11,7 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	U(N_site),
 	A(new Matrice[N_spin]),
 	Ainv(new Matrice[N_spin]),
+	w(0.0),
 	Nx(0),
 	Ny(0)
 {
