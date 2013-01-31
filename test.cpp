@@ -7,40 +7,42 @@ double energie(System *S);
 
 int main(){
 	unsigned int const N_spin(3);
-	unsigned int const N_m(3);
+	unsigned int const N_m(2);
 	System oneD(N_spin, N_m, 1);	
 
-	//Chrono t;
-	//t.tic();
-	//std::cout<<energie(&oneD)<<" ";
-	//t.tac();
-	//std::cout<<"en "<<t<<" seconde(s)"<<std::endl;
+	Chrono t;
+	t.tic();
+	std::cout<<energie(&oneD)<<" ";
+	t.tac();
+	std::cout<<"en "<<t<<" seconde(s)"<<std::endl;
 	
-	State alpha(&oneD,true);
-	alpha.print();
-	State tmp(&oneD,false);
-	double alpha_det(0.0);
-	double tmp_det(0.0);
+	//State alpha(&oneD,true);
+	//alpha.print();
+	//State tmp(&oneD,false);
+	//double alpha_det(0.0);
+	//double tmp_det(0.0);
+//
+	//alpha_det=alpha.Det();
+//
+	//tmp = alpha.swap(1,2);
+	//std::cout<<"ratio="<<tmp/alpha<<std::endl;
+	//
+	//alpha = tmp;
+	//alpha.print();
+	//tmp_det=alpha.Det();
+	//std::cout<<"ratio old="<<tmp_det/alpha_det<<std::endl;
+//
+//// boucle
+	//alpha_det = tmp_det;
+//
+	//tmp = alpha.swap(1,2);
+	//std::cout<<"ratio="<<tmp/alpha<<std::endl;
+	//
+	//alpha = tmp;
+	//alpha.print();
+	//tmp_det = alpha.Det();
+	//std::cout<<"ratio old="<<tmp_det/alpha_det<<std::endl;
 
-	alpha_det=alpha.Det();
-
-	tmp = alpha.swap();
-	std::cout<<"ratio="<<tmp/alpha<<std::endl;
-	
-	alpha = tmp;
-	alpha.print();
-	tmp_det=alpha.Det();
-	std::cout<<"ratio old="<<tmp_det/alpha_det<<std::endl;
-
-	alpha_det = tmp_det;
-
-	tmp = alpha.swap();
-	std::cout<<"ratio="<<tmp/alpha<<std::endl;
-	
-	alpha = tmp;
-	alpha.print();
-	tmp_det = alpha.Det();
-	std::cout<<"ratio old="<<tmp_det/alpha_det<<std::endl;
 	//double alpha_det(0.0);
 	//double tmp_det(0.0);
 	//double ratio(0.0);

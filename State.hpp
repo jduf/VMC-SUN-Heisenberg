@@ -31,8 +31,6 @@ class State{
 		State(State const& s); //copie de surface
 
 		System *S;
-		Matrice *A;
-		Matrice *Ainv;
 		unsigned int *s;
 		unsigned int *wis;
 		unsigned int cc[2]; // column changed
@@ -41,8 +39,8 @@ class State{
 		bool delete_matrix;
 		bool whole_copy;
 
-		void init_matrices(unsigned int N_m, unsigned int N_spin);
 		void compute_det(); // sign(permutation) => ratio det tjrs - ??? 
+		void init_matrices(unsigned int N_m, unsigned int N_spin);
 };
 
 std::ostream& operator<<(std::ostream& flux, State const& S);
