@@ -70,7 +70,6 @@ State& State::operator=(State const& s){
 	}
 
 	if(whole_copy){
-		//std::cout<<"whole ";
 		unsigned int a(0),b(0);
 		a = this->mc[0]*S->N_m+this->cc[0];
 		b = this->mc[1]*S->N_m+this->cc[1];
@@ -89,8 +88,6 @@ State& State::operator=(State const& s){
 
 		this->S->update_matrices(mc,cc);
 	} 
-	//this->compute_det();
-	//std::cout<<"affectation"<<std::endl;
 	return (*this);
 }
 
