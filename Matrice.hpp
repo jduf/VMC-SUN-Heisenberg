@@ -5,7 +5,8 @@
 #include <iomanip>
 #include <cmath>
 
-#include "Vecteur.hpp"
+#include"Vecteur.hpp"
+
 
 class Matrice{
 	public:
@@ -21,7 +22,8 @@ class Matrice{
 		double const& operator()(unsigned int i, unsigned int j) const;
 		double& operator()(unsigned int i, unsigned int j);
 		Matrice& operator*=(Matrice const& mat); // m1 *= m2 : m1 = m1*m2
-		Matrice& operator+=(Matrice const& mat);
+		Matrice& operator+=(Matrice const& mat); 
+		Matrice& operator-=(Matrice const& mat); 
 		
 /*methods that modify the class*/
 		void chop();
@@ -47,4 +49,6 @@ class Matrice{
 std::ostream& operator<<(std::ostream& flux, Matrice const& mat);
 Matrice operator*(Matrice const& mat1, Matrice const& mat2);
 Matrice operator+(Matrice const& mat1, Matrice const& mat2);
+Matrice operator-(Matrice const& mat1, Matrice const& mat2);
+Matrice operator^(Vecteur const& vec1, Vecteur const& vec2);
 #endif

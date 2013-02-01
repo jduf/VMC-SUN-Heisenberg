@@ -12,6 +12,11 @@ class System{
 		unsigned int const N_spin, N_m, N_site, dim;
 		unsigned int *nts;
 		Matrice U;
+		Matrice *A;
+		Matrice *Ainv;
+		double w;
+
+		void update_matrices(unsigned int mc[], unsigned int cc[]);
 
 	private:
 		System();

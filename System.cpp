@@ -8,7 +8,10 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	N_site(N_m*N_spin),
 	dim(dim),
 	nts(new unsigned int[N_spin*N_m*dim]),
-	U(N_spin*N_m),
+	U(N_site),
+	A(new Matrice[N_spin]),
+	Ainv(new Matrice[N_spin]),
+	w(0.0),
 	Nx(0),
 	Ny(0)
 {
@@ -20,6 +23,26 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 
 System::~System(){
 	delete[] nts;
+	delete[] A;
+	delete[] Ainv;
+}
+/*}*/
+
+/*methods that return something related to the class*/
+/*{*/
+void System::update_matrices(unsigned int mc[], unsigned int cc[]){
+	double tmp(0.0);
+	for(unsigned int i(0); i<N_m; i++){
+		tmp = A[mc[0]](i,cc[0]);
+		A[mc[0]](i,cc[0]) = A[mc[1]](i,cc[1]);
+		A[mc[1]](i,cc[1]) = tmp;
+	}
+
+	for(unsigned int i(0); i<N_spin;i++){
+		Ainv[i] = A[i];
+		Lapack A_(Ainv[i].ptr(),Ainv[i].size(),'G');
+		A_.inv();
+	}
 }
 /*}*/
 

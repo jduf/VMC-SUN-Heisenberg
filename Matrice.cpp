@@ -5,22 +5,17 @@
 Matrice::Matrice():
 	m(NULL),
 	N(0)
-{
-	//std::cout<<"default : matrice"<<std::endl;
-}
+{ } 
 
 Matrice::Matrice(unsigned int N):
 	m(new double[N*N]),
 	N(N)
-{
-	//std::cout<<"taille : matrice"<<std::endl;
-}
+{ }
 
 Matrice::Matrice(unsigned int N, double val):
 	m(new double[N*N]),
 	N(N)
 {
-	//std::cout<<"taille+const : matrice"<<std::endl;
 	fill_matrice(val);
 }
 
@@ -28,14 +23,12 @@ Matrice::Matrice(Matrice const& mat):
 	m(new double[mat.size()*mat.size()]),
 	N(mat.size())
 {
-	//std::cout<<"copie : matrice"<<std::endl;
 	for(unsigned int i(0);i<N*N;i++){
-		m[i] = mat.m[i];
+			m[i] = mat.m[i];
 	}
 }
 
 Matrice::~Matrice(){
-	//std::cout<<"destructeur : matrice"<<std::endl;
 	delete[]  m;
 }
 /*}*/
@@ -43,12 +36,10 @@ Matrice::~Matrice(){
 /*operators*/
 /*{*/
 Matrice& Matrice::operator=(Matrice const& mat){
-	//std::cout<<"="<<std::endl;
 	if(this->N!=mat.N){
 		delete[] this->m;
 		this->m = new double[mat.N*mat.N];
 		this->N = mat.N;
-		//std::cerr<<" de taille différente";
 	}
 	for(unsigned int i(0); i<this->N*this->N; i++){
 		this->m[i] = mat.m[i];
@@ -82,6 +73,22 @@ Matrice operator+(Matrice const& mat1, Matrice const& mat2){
 	return matout;
 }
 
+Matrice& Matrice::operator-=(Matrice const& mat){
+	for(unsigned int i(0);i<N;i++){
+		for(unsigned int j(0);j<N;j++){
+				m[i+j*N] -= mat(i,j);
+		}
+	}
+	return (*this);
+}
+
+Matrice operator-(Matrice const& mat1, Matrice const& mat2){
+	Matrice matout(mat1);
+	matout -= mat2;
+
+	return matout;
+}
+
 Matrice& Matrice::operator*=(Matrice const& mat){
 	Matrice tmp(*this);
 
@@ -109,6 +116,17 @@ Matrice operator*(Matrice const& mat1, Matrice const& mat2){
 	}
 	return matout;
 }
+
+Matrice operator^(Vecteur const& vec1, Vecteur const& vec2){
+	if(vec1.size() != vec2.size()){std::cout<<"les vecteurs n'ont pas la même taille"<<std::endl;}
+	Matrice mat(vec1.size());
+	for(unsigned int i(0);i<mat.size();i++){
+		for(unsigned int j(0);j<mat.size();j++){
+			mat(i,j) = vec1(i)*vec2(j);
+		}
+	}
+	return mat;
+}
 /*}*/
 
 /*methods that modify the class*/
@@ -131,7 +149,7 @@ void Matrice::fill_matrice(double val){
 void Matrice::print() const{
 	for(unsigned int i(0); i < N; i++){
 		for(unsigned int j(0); j < N; j++){
-			std::cout <<std::setprecision(7)<<std::setw(10)<<std::fixed<< m[i+j*N] << " ";
+			std::cout <<std::setprecision(3)<<std::setw(7)<<std::fixed<< m[i+j*N] << " ";
 		}
 		std::cout << std::endl;
 	}
