@@ -22,7 +22,6 @@ class System{
 
 	private:
 		System();
-		Matrice U;
 		Matrice *A;
 		Matrice *Ainv;
 		unsigned int *s;
@@ -32,8 +31,8 @@ class System{
 		unsigned int mc[2]; // matrix changed
 		double w[3];
 
-		void create_U(unsigned int dim);
+		void create_U(Matrice& U, unsigned int dim);
 		void create_nts(unsigned int dim);
-		void init_state();
+		void init_state(Matrice const& U);
 };
 #endif

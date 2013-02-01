@@ -8,7 +8,6 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	N_site(N_m*N_spin),
 	dim(dim),
 	nts(new unsigned int[N_spin*N_m*dim]),
-	U(N_site),
 	A(new Matrice[N_spin]),
 	Ainv(new Matrice[N_spin]),
 	s(new unsigned int[N_spin*N_m]),
@@ -17,10 +16,11 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	Ny(0)
 {
 	if(dim==1){Nx = N_site; Ny=1;}
-	if(dim==2){Nx = 4; Ny = 4;}
-	create_U(dim);
+	if(dim==2){Nx = 6; Ny = 6;}
+	Matrice U(N_site);
+	create_U(U,dim);
 	create_nts(dim);
-	init_state();
+	init_state(U);
 	for(unsigned int i(0);i<2;i++){
 		w[i] = 0;
 		cc[i] = 0;
@@ -86,7 +86,7 @@ void System::print(){
 
 /*methods that modify the class*/
 /*{*/
-void System::create_U(unsigned int dim){
+void System::create_U(Matrice& U, unsigned int dim){
 	if(dim==1){
 		U(0,1)=-1.0;
 		U(0,N_site-1)=1.0;
@@ -108,9 +108,11 @@ void System::create_U(unsigned int dim){
 		U(Nx-1,N_site-1) = 1;
 		U(N_site-1,N_site-Ny) = 1;
 		U = U+U.transpose();
+		//U.print();
 	}
 	Lapack ES(U.ptr(),U.size(),'S');
-	ES.eigensystem();
+	Vecteur Eval(ES.eigensystem());
+	//Eval.print();
 }
 
 void System::create_nts(unsigned int dim){
@@ -130,7 +132,7 @@ void System::create_nts(unsigned int dim){
 	//std::cout<<nts[dim*5]<<" "<<nts[dim*5+1]<<std::endl;
 }
 
-void System::init_state(){
+void System::init_state(Matrice const& U){
 	srand(time(NULL)^(getpid()<<16));
 	unsigned int site(0);
 	unsigned int N_as(N_site);

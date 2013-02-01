@@ -6,19 +6,19 @@ double energie(System& S);
 
 int main(){
 	unsigned int const N_spin(3);
-	unsigned int const N_m(2);
-	System oneD(N_spin, N_m, 1);	
+	unsigned int const N_m(8);
+	System S(N_spin, N_m, 1);	
 
 	Chrono t;
 	t.tic();
-	std::cout<<energie(oneD)<<std::endl;
+	std::cout<<energie(S)<<std::endl;
 	t.tac();
 	std::cerr<<t<<" seconde(s)"<<std::endl;
 }
 
 double energie(System& S){
 	double ratio(0.0), energie(0.0);
-	unsigned int i(0),NMC(40);
+	unsigned int i(0),NMC(1e4);
 	while(i<NMC){
 		S.swap();
 		ratio = S.compute_ratio();
