@@ -106,37 +106,37 @@ double operator/(State const& Snew, State const& Sold){
 
 /*methods that return something related to the class*/
 /*{*/
-State State::swap() const {
-	unsigned int s1,s2;
-	s1 = rand() % S->N_spin;
-	s2 = rand() % S->N_spin;
-	while(s1==s2){
-		s2 = rand() % S->N_spin;
-	}
-	
-	State new_s(*this);
-
-	new_s.mc[0] = s1;
-	new_s.mc[1] = s2;
-	new_s.cc[0] = rand() % S->N_m;
-	new_s.cc[1] = rand() % S->N_m;
-	
+//State State::swap() const {
+	//unsigned int s1,s2;
+	//s1 = rand() % S->N_spin;
+	//s2 = rand() % S->N_spin;
+	//while(s1==s2){
+		//s2 = rand() % S->N_spin;
+	//}
+	//
+	//State new_s(*this);
+//
+	//new_s.mc[0] = s1;
+	//new_s.mc[1] = s2;
+	//new_s.cc[0] = rand() % S->N_m;
+	//new_s.cc[1] = rand() % S->N_m;
+	//
 	//std::cout<<"swap"<<std::endl;
 	//std::cout<<s[s1*S->N_m+new_s.cc[0]]<<" "<<s[s2*S->N_m+new_s.cc[1]]<<std::endl;
+//
+	//return new_s;
+//}
 
-	return new_s;
-}
-
-State State::swap(unsigned int a, unsigned int b) const {
-	State new_s(*this);
-
-	new_s.mc[0] = wis[a] / S->N_m;
-	new_s.mc[1] = wis[b] / S->N_m;
-	new_s.cc[0] = wis[a] % S->N_m;
-	new_s.cc[1] = wis[b] % S->N_m;
-
-	return new_s;
-}
+//State State::swap(unsigned int a, unsigned int b) const {
+	//State new_s(*this);
+//
+	//new_s.mc[0] = wis[a] / S->N_m;
+	//new_s.mc[1] = wis[b] / S->N_m;
+	//new_s.cc[0] = wis[a] % S->N_m;
+	//new_s.cc[1] = wis[b] % S->N_m;
+//
+	//return new_s;
+//}
 
 void State::color(std::ostream& flux) const{
 	unsigned int col(0);
@@ -146,23 +146,23 @@ void State::color(std::ostream& flux) const{
 	}
 }
 
-double State::divided() const {
-	if(mc[0] == mc[1]){
-		S->w[0] = -1;
-		S->w[1] = -1;
-		return -1;
-	} else { // à déplacer le calcul dans System.cpp
-		double d1(0.0),d2(0.0);
-		for(unsigned int i(0);i<S->N_m;i++){
-			d1 += S->Ainv[mc[0]](cc[0],i)*S->A[mc[1]](i,cc[1]);
-			d2 += S->Ainv[mc[1]](cc[1],i)*S->A[mc[0]](i,cc[0]);
-		}
-		S->w[0] = d1;
-		S->w[1] = d2;
-		std::cout<<d1<<" "<<d2<<std::endl;
-		return d1*d2;
-	}
-}
+//double State::divided() const {
+	//if(mc[0] == mc[1]){
+		//S->w[0] = -1;
+		//S->w[1] = -1;
+		//return -1;
+	//} else { // à déplacer le calcul dans System.cpp
+		//double d1(0.0),d2(0.0);
+		//for(unsigned int i(0);i<S->N_m;i++){
+			//d1 += S->Ainv[mc[0]](cc[0],i)*S->A[mc[1]](i,cc[1]);
+			//d2 += S->Ainv[mc[1]](cc[1],i)*S->A[mc[0]](i,cc[0]);
+		//}
+		//S->w[0] = d1;
+		//S->w[1] = d2;
+		//std::cout<<d1<<" "<<d2<<std::endl;
+		//return d1*d2;
+	//}
+//}
 /*}*/
 
 /*methods that modify the class*/
