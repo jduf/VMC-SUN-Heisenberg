@@ -4,7 +4,7 @@ CC = $(CXX)
 DEBUG =
 ERRORS = -Wall -Wextra
 LAPACK = -llapack -lblas
-OPTION =
+OPTION = 
 
 CXXFLAGS = $(LAPACK) $(ERRORS) $(DEBUG) $(OPTION)
 

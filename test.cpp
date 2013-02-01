@@ -5,9 +5,13 @@
 double energie(System& S);
 
 int main(){
-	unsigned int const N_spin(3);
-	unsigned int const N_m(8);
-	System S(N_spin, N_m, 1);	
+	unsigned int N_spin(3);
+	unsigned int N_m(2);
+	System S(N_spin, N_m, 1);
+	int N;
+	std::cout<<"donne N_spin"<<std::flush;
+	std::cin>>N_spin;
+	std::cout<<N<<std::endl;
 
 	Chrono t;
 	t.tic();
@@ -18,7 +22,7 @@ int main(){
 
 double energie(System& S){
 	double ratio(0.0), energie(0.0);
-	unsigned int i(0),NMC(1e4);
+	unsigned int i(0),NMC(40);
 	while(i<NMC){
 		S.swap();
 		ratio = S.compute_ratio();
