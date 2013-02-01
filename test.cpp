@@ -9,22 +9,11 @@ int main(){
 	unsigned int const N_m(2);
 	System oneD(N_spin, N_m, 1);	
 
-	//Chrono t;
-	//t.tic();
-	//std::cout<<energie(oneD)<<std::endl;
-	//t.tac();
-	//std::cerr<<t<<" seconde(s)"<<std::endl;
-	
-	oneD.print();
-	oneD.swap();
-	std::cout<<oneD.compute_ratio()<<std::endl;
-	oneD.update_state();
-	oneD.print();
-	//std::cout<<"swap 1,2"<<std::endl;
-	//oneD.swap(1,2);
-	//std::cout<<oneD.compute_ratio()<<std::endl;
-	//oneD.update_state();
-	//oneD.print();
+	Chrono t;
+	t.tic();
+	std::cout<<energie(oneD)<<std::endl;
+	t.tac();
+	std::cerr<<t<<" seconde(s)"<<std::endl;
 }
 
 double energie(System& S){
