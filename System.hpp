@@ -21,8 +21,6 @@ class System{
 
 		unsigned int operator[](unsigned int i) const;
 
-		unsigned int operator[](unsigned int i) const { return wis[i];};
-
 		void print();
 
 	private:

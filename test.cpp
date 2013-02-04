@@ -39,7 +39,7 @@ void get_N(unsigned int &N){
 double energie(System& S,unsigned int N_MC){
 	double ratio(0.0), energie(0.0);
 	unsigned int i(0);
-	Save step("analyse-2d.dat");
+	Save steps("analyse-2d.dat");
 	while(i<N_MC){
 		S.swap();
 		ratio = S.compute_ratio();
@@ -47,7 +47,7 @@ double energie(System& S,unsigned int N_MC){
 		if(ratio>1 || (double)rand()/RAND_MAX <ratio){
 			i++;
 			S.update_state();
-			steps << S << " " << S.det() <<Save::endl;
+			//steps << S << " " << S.det() <<Save::endl;
 			for(unsigned int j(0);j<S.N_site;j++){
 				for(unsigned int d(0);d<S.dim;d++){
 					S.swap(j,S.nts[S.dim*j+d]);
