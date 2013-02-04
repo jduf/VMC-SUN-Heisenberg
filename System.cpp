@@ -16,7 +16,11 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	Ny(0)
 {
 	if(dim==1){Nx = N_site; Ny=1;}
+<<<<<<< Updated upstream
 	if(dim==2){Nx = 6; Ny = 6;}
+=======
+	if(dim==2){Nx = 6; Ny = 6;} // Nx & Ny > 2 sinon problème d'antipériodicité
+>>>>>>> Stashed changes
 	Matrice U(N_site);
 	create_U(U,dim);
 	create_nts(dim);
@@ -37,23 +41,45 @@ System::~System(){
 }
 /*}*/
 
+/*operators*/
+/*{*/
+unsigned int System::operator[](unsigned int i) const {
+	return wis[i];
+}
+
+std::ostream& operator<<(std::ostream& flux, System const& S){
+	for(unsigned int i(0);i<S.N_site;i++){
+		flux<<S[i]/S.N_m<<" ";
+	}
+	return flux;
+}
+/*}*/
+
 /*methods that return something related to the class*/
 /*{*/
 double System::compute_ratio(){
 	if(mc[0] == mc[1]){
-		w[mc[0]] = -1;
-		w[mc[1]] = -1;
+		w[0] = -1;
+		w[1] = -1;
 		return -1;
 	} else { 
-		double d1(0.0),d2(0.0);
+		w[0] = 0.0;
+		w[1] = 0.0;
 		for(unsigned int i(0);i<N_m;i++){
-			d1 += Ainv[mc[0]](cc[0],i)*A[mc[1]](i,cc[1]);
-			d2 += Ainv[mc[1]](cc[1],i)*A[mc[0]](i,cc[0]);
+			w[0] += Ainv[mc[0]](cc[0],i)*A[mc[1]](i,cc[1]);
+			w[1] += Ainv[mc[1]](cc[1],i)*A[mc[0]](i,cc[0]);
 		}
-		w[mc[0]] = d1;
-		w[mc[1]] = d2;
-		return d1*d2;
+		return w[0]*w[1];
 	}
+}
+
+double System::det(){
+	double d(1.0);
+	for(unsigned int i(0);i<N_spin;i++){
+		Lapack A_(A[i],'G');
+		d *= A_.det();
+	}
+	return d;
 }
 
 void System::print(){
@@ -73,14 +99,14 @@ void System::print(){
 	for(unsigned int i(0);i<2;i++){
 		std::cout<<mc[i]<<" "<< cc[i]<<std::endl;
 	}
-	//for(unsigned int i(0);i<N_spin;i++){
-		//std::cout<<std::endl;
-		//A[i].print();
-	//}
 	for(unsigned int i(0);i<N_spin;i++){
 		std::cout<<std::endl;
-		(A[i]*Ainv[i]).print();
+		A[i].print();
 	}
+	//for(unsigned int i(0);i<N_spin;i++){
+		//std::cout<<std::endl;
+		//(A[i]*Ainv[i]).print();
+	//}
 }
 /*}*/
 
@@ -112,7 +138,10 @@ void System::create_U(Matrice& U, unsigned int dim){
 	}
 	Lapack ES(U.ptr(),U.size(),'S');
 	Vecteur Eval(ES.eigensystem());
-	//Eval.print();
+	if(fabs(Eval(N_m-1) - Eval(N_m)) < 1e-5){
+		std::cerr<<"les valeurs propres sont dégénérées au niveau de Fermi, N_m="<<N_m<<" N_spin="<<N_spin<<std::endl;
+		Eval.print();
+	}
 }
 
 void System::create_nts(unsigned int dim){
@@ -129,7 +158,6 @@ void System::create_nts(unsigned int dim){
 			}
 		}
 	}
-	//std::cout<<nts[dim*5]<<" "<<nts[dim*5+1]<<std::endl;
 }
 
 void System::init_state(Matrice const& U){
@@ -181,7 +209,6 @@ void System::swap(unsigned int a, unsigned int b) {
 }
 
 void System::update_state(){
-	//std::cout<<"whole ";
 	unsigned int a(0),b(0);
 	a = mc[0]*N_m+cc[0];
 	b = mc[1]*N_m+cc[1];
@@ -204,26 +231,41 @@ void System::update_state(){
 		A[mc[0]](i,cc[0]) = A[mc[1]](i,cc[1]);
 		A[mc[1]](i,cc[1]) = tmp;
 	}
-//
-	//Vecteur v1(N_m);
-	//Vecteur v2(N_m);
-	//for(unsigned int m(0);m<2;m++){
-		//for(unsigned int i(0);i<N_m;i++){
-			//v1(i) = 0.0;
-			//v2(i) = Ainv[mc[m]](cc[m],i);
-			//for(unsigned int j(0);j<N_m;j++){
-				//v1(i) += Ainv[mc[m]](i,j)*A[mc[m]](j,cc[m])/w[mc[m]];
+
+	//if(mc[0] == mc[1]){
+		//Ainv[mc[0]] = A[mc[0]];
+		//Lapack A_(Ainv[mc[0]].ptr(),Ainv[mc[0]].size(),'G');
+		//A_.inv();
+	//} else {
+		//Matrice mat(N_m);
+		//for(unsigned int m(0);m<2;m++){
+			//for(unsigned int i(0);i<N_m;i++){
+				//for(unsigned int j(0);j<N_m;j++){
+					//tmp = 0.0;
+					//for(unsigned int k(0.0);k<N_m;k++){
+						//tmp += Ainv[mc[m]](i,k)*A[mc[m]](k,cc[m]);
+					//}
+					//if(cc[m] == i){
+						//tmp -= 1;
+					//}
+					//tmp /= w[m];
+					//mat(i,j) = tmp*Ainv[mc[m]](cc[m],j);
+				//}
 			//}
-			//v1(cc[m]) = 1.0/w[mc[m]];
+			//Ainv[mc[m]] -= mat;
 		//}
-		//Ainv[mc[m]] -= (v1^v2);
 	//}
-	for(unsigned int m(0);m<2;m++){
-		Ainv[mc[m]] = A[mc[m]];
-		Lapack A_(Ainv[mc[m]].ptr(),Ainv[mc[m]].size(),'G');
+	
+	if(mc[0] == mc[1]){
+		Ainv[mc[0]] = A[mc[0]];
+		Lapack A_(Ainv[mc[0]].ptr(),Ainv[mc[0]].size(),'G');
 		A_.inv();
-		//Ainv[mc[m]].print();
-		//std::cout<<std::endl;
+	} else {
+		for(unsigned int m(0);m<2;m++){
+			Ainv[mc[m]] = A[mc[m]];
+			Lapack Ainv_(Ainv[mc[m]].ptr(),Ainv[mc[m]].size(),'G');
+			Ainv_.inv();
+		}
 	}
 }
 /*}*/

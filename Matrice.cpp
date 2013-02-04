@@ -47,13 +47,11 @@ Matrice& Matrice::operator=(Matrice const& mat){
 	return (*this);
 }
 
-double& Matrice::operator()(unsigned int i, unsigned int j){
-	if(i >= N || j>=N){ std::cout<<"bug taille"<<std::endl; }
+double& Matrice::operator()(unsigned int const &i, unsigned int const &j){
 	return m[i+j*N];
 }
 
-double const& Matrice::operator()(unsigned int i, unsigned int j) const{
-	if(i >= N || j>=N){std::cout<<"bug taille"<<std::endl;}
+double const& Matrice::operator()(unsigned int const &i, unsigned int const &j) const{
 	return m[i+j*N];
 }
 

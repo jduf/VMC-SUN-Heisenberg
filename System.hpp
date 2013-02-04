@@ -17,6 +17,9 @@ class System{
 		void swap();
 		void swap(unsigned int a, unsigned int b);
 		double compute_ratio();
+		double det();
+
+		unsigned int operator[](unsigned int i) const;
 
 		void print();
 
@@ -29,7 +32,7 @@ class System{
 		unsigned int Nx,Ny;
 		unsigned int cc[2]; // column changed
 		unsigned int mc[2]; // matrix changed
-		double w[3];
+		double w[2];
 
 		void create_U(Matrice& U, unsigned int dim);
 		void create_nts(unsigned int dim);
