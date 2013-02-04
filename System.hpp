@@ -18,6 +18,8 @@ class System{
 		void swap(unsigned int a, unsigned int b);
 		double compute_ratio();
 
+		unsigned int operator[](unsigned int i) const { return wis[i];};
+
 		void print();
 
 	private:
@@ -35,4 +37,6 @@ class System{
 		void create_nts(unsigned int dim);
 		void init_state(Matrice const& U);
 };
+
+std::ostream& operator<<(std::ostream& flux, System const& S);
 #endif

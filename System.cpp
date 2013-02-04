@@ -16,7 +16,7 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	Ny(0)
 {
 	if(dim==1){Nx = N_site; Ny=1;}
-	if(dim==2){Nx = 6; Ny = 6;}
+	if(dim==2){Nx = 4; Ny = 4;}
 	Matrice U(N_site);
 	create_U(U,dim);
 	create_nts(dim);
@@ -36,6 +36,13 @@ System::~System(){
 	delete[] Ainv;
 }
 /*}*/
+
+std::ostream& operator<<(std::ostream& flux, System const& S){
+	for(unsigned int i(0);i<S.N_site;i++){
+		flux<<S[i]<<" ";
+	}
+	return flux;
+}
 
 /*methods that return something related to the class*/
 /*{*/
