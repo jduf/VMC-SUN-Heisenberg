@@ -4,7 +4,7 @@ CC = $(CXX)
 DEBUG =
 ERRORS = -Wall -Wextra
 LAPACK = -llapack -lblas
-OPTION = -O3
+OPTION = 
 
 CXXFLAGS = $(LAPACK) $(ERRORS) $(DEBUG) $(OPTION)
 
@@ -12,22 +12,16 @@ LDFLAGS= $(LAPACK) $(DEBUG) $(OPTION)
 
 all:test
 
-test:test.o System.o Vecteur.o Matrice.o Lapack.o
+test:test.o System.o Lapack.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-System.o:System.cpp System.hpp Matrice.hpp
+Lapack.o:Lapack.cpp Lapack.hpp Matrice.hpp Vecteur.hpp 
 	$(CXX) -c $(CXXFLAGS) $^
 
-Vecteur.o:Vecteur.cpp Vecteur.hpp
+System.o:System.cpp System.hpp Vecteur.hpp Matrice.hpp Lapack.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-Matrice.o:Matrice.cpp Matrice.hpp Vecteur.hpp
-	$(CXX) -c $(CXXFLAGS) $^
-	
-Lapack.o:Lapack.cpp Lapack.hpp Matrice.hpp Vecteur.hpp
-	$(CXX) -c $(CXXFLAGS) $^
-
-test.o:test.cpp Save.hpp Chrono.hpp System.hpp Chrono.hpp Matrice.hpp Matrice.hpp
+test.o:test.cpp Save.hpp Chrono.hpp System.hpp 
 	$(CXX) -c $(CXXFLAGS) $^ 
 
 clean:

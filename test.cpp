@@ -1,6 +1,6 @@
 #include "Save.hpp"
-#include "System.hpp"
 #include "Chrono.hpp"
+#include "System.hpp"
 
 #include<string>
 #include<sstream>
@@ -39,7 +39,7 @@ void get_N(unsigned int &N){
 double energie(System& S,unsigned int N_MC){
 	double ratio(0.0), energie(0.0);
 	unsigned int i(0);
-	Save steps("analyse-2d.dat");
+	//Save steps("analyse-2d.dat");
 	while(i<N_MC){
 		S.swap();
 		ratio = S.compute_ratio();

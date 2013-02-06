@@ -8,8 +8,8 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	N_site(N_m*N_spin),
 	dim(dim),
 	nts(new unsigned int[N_spin*N_m*dim]),
-	A(new Matrice[N_spin]),
-	Ainv(new Matrice[N_spin]),
+	A(new Matrice<double>[N_spin]),
+	Ainv(new Matrice<double>[N_spin]),
 	s(new unsigned int[N_spin*N_m]),
 	wis(new unsigned int[N_spin*N_m]),
 	Nx(0),
@@ -17,7 +17,7 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 {
 	if(dim==1){Nx = N_site; Ny=1;}
 	if(dim==2){Nx = 6; Ny = 6;} // Nx & Ny > 2 sinon problème d'antipériodicité
-	Matrice U(N_site);
+	Matrice<double> U(N_site);
 	create_U(U,dim);
 	create_nts(dim);
 	init_state(U);
@@ -72,7 +72,7 @@ double System::compute_ratio(){
 double System::det(){
 	double d(1.0);
 	for(unsigned int i(0);i<N_spin;i++){
-		Lapack A_(A[i],'G');
+		Lapack<double> A_(A[i],'G');
 		d *= A_.det();
 	}
 	return d;
@@ -108,7 +108,7 @@ void System::print(){
 
 /*methods that modify the class*/
 /*{*/
-void System::create_U(Matrice& U, unsigned int dim){
+void System::create_U(Matrice<double>& U, unsigned int dim){
 	if(dim==1){
 		U(0,1)=-1.0;
 		U(0,N_site-1)=1.0;
@@ -132,8 +132,8 @@ void System::create_U(Matrice& U, unsigned int dim){
 		U = U+U.transpose();
 		//U.print();
 	}
-	Lapack ES(U.ptr(),U.size(),'S');
-	Vecteur Eval(ES.eigensystem());
+	Lapack<double> ES(U.ptr(),U.size(),'S');
+	Vecteur<double> Eval(ES.eigensystem());
 	if(fabs(Eval(N_m-1) - Eval(N_m)) < 1e-5){
 		std::cerr<<"les valeurs propres sont dégénérées au niveau de Fermi, N_m="<<N_m<<" N_spin="<<N_spin<<std::endl;
 		Eval.print();
@@ -156,7 +156,7 @@ void System::create_nts(unsigned int dim){
 	}
 }
 
-void System::init_state(Matrice const& U){
+void System::init_state(Matrice<double> const& U){
 	srand(time(NULL)^(getpid()<<16));
 	unsigned int site(0);
 	unsigned int N_as(N_site);
@@ -166,8 +166,8 @@ void System::init_state(Matrice const& U){
 	}
 
 	for(unsigned int i(0); i < N_spin; i++){
-		A[i] = Matrice (N_m);
-		Ainv[i] = Matrice (N_m);
+		A[i] = Matrice<double> (N_m);
+		Ainv[i] = Matrice<double> (N_m);
 		for(unsigned int j(0); j < N_m; j++){
 			//l = s[i*N_m+j];
 			site = rand() % N_as;
@@ -182,7 +182,7 @@ void System::init_state(Matrice const& U){
 			N_as--;
 		}
 		Ainv[i] = A[i];
-		Lapack A_(Ainv[i].ptr(),Ainv[i].size(),'G');
+		Lapack<double> A_(Ainv[i].ptr(),Ainv[i].size(),'G');
 		A_.inv();
 	}
 }
@@ -254,12 +254,12 @@ void System::update_state(){
 	
 	if(mc[0] == mc[1]){
 		Ainv[mc[0]] = A[mc[0]];
-		Lapack A_(Ainv[mc[0]].ptr(),Ainv[mc[0]].size(),'G');
+		Lapack<double> A_(Ainv[mc[0]].ptr(),Ainv[mc[0]].size(),'G');
 		A_.inv();
 	} else {
 		for(unsigned int m(0);m<2;m++){
 			Ainv[mc[m]] = A[mc[m]];
-			Lapack Ainv_(Ainv[mc[m]].ptr(),Ainv[mc[m]].size(),'G');
+			Lapack<double> Ainv_(Ainv[mc[m]].ptr(),Ainv[mc[m]].size(),'G');
 			Ainv_.inv();
 		}
 	}

@@ -1,6 +1,7 @@
 #ifndef DEF_SYSTEM
 #define DEF_SYSTEM
 
+#include "Vecteur.hpp"
 #include "Matrice.hpp"
 #include "Lapack.hpp"
 #include <cstdlib>
@@ -25,8 +26,8 @@ class System{
 
 	private:
 		System();
-		Matrice *A;
-		Matrice *Ainv;
+		Matrice<double> *A;
+		Matrice<double> *Ainv;
 		unsigned int *s;
 		unsigned int *wis;
 		unsigned int Nx,Ny;
@@ -34,9 +35,9 @@ class System{
 		unsigned int mc[2]; // matrix changed
 		double w[2];
 
-		void create_U(Matrice& U, unsigned int dim);
+		void create_U(Matrice<double>& U, unsigned int dim);
 		void create_nts(unsigned int dim);
-		void init_state(Matrice const& U);
+		void init_state(Matrice<double> const& U);
 };
 
 std::ostream& operator<<(std::ostream& flux, System const& S);
