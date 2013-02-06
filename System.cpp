@@ -10,6 +10,7 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	nts(new unsigned int[N_spin*N_m*dim]),
 	A(new Matrice<double>[N_spin]),
 	Ainv(new Matrice<double>[N_spin]),
+	tmp_mat(N_m,0.0),
 	s(new unsigned int[N_spin*N_m]),
 	wis(new unsigned int[N_spin*N_m]),
 	Nx(0),
@@ -37,26 +38,10 @@ System::~System(){
 }
 /*}*/
 
-/*operators*/
-/*{*/
-unsigned int System::operator[](unsigned int i) const {
-	return wis[i];
-}
-
-std::ostream& operator<<(std::ostream& flux, System const& S){
-	for(unsigned int i(0);i<S.N_site;i++){
-		flux<<S[i]/S.N_m<<" ";
-	}
-	return flux;
-}
-/*}*/
-
 /*methods that return something related to the class*/
 /*{*/
 double System::compute_ratio(){
 	if(mc[0] == mc[1]){
-		w[0] = -1;
-		w[1] = -1;
 		return -1;
 	} else { 
 		w[0] = 0.0;
@@ -227,41 +212,28 @@ void System::update_state(){
 		A[mc[0]](i,cc[0]) = A[mc[1]](i,cc[1]);
 		A[mc[1]](i,cc[1]) = tmp;
 	}
-
-	if(mc[0] == mc[1]){
-		Ainv[mc[0]] = A[mc[0]];
-		Lapack<double> A_(Ainv[mc[0]].ptr(),Ainv[mc[0]].size(),'G');
-		A_.inv();
-	} else {
-		Matrice<double> mat(N_m);
-		for(unsigned int m(0);m<2;m++){
-			for(unsigned int i(0);i<N_m;i++){
-				for(unsigned int j(0);j<N_m;j++){
-					tmp = 0.0;
-					for(unsigned int k(0.0);k<N_m;k++){
-						tmp += Ainv[mc[m]](i,k)*A[mc[m]](k,cc[m]);
-					}
-					if(cc[m] == i){
-						tmp -= 1;
-					}
-					tmp /= w[m];
-					mat(i,j) = tmp*Ainv[mc[m]](cc[m],j);
-				}
-			}
-			Ainv[mc[m]] -= mat;
-		}
-	}
 	
-	//if(mc[0] == mc[1]){
-		//Ainv[mc[0]] = A[mc[0]];
-		//Lapack<double> A_(Ainv[mc[0]].ptr(),Ainv[mc[0]].size(),'G');
-		//A_.inv();
-	//} else {
-		//for(unsigned int m(0);m<2;m++){
-			//Ainv[mc[m]] = A[mc[m]];
-			//Lapack<double> Ainv_(Ainv[mc[m]].ptr(),Ainv[mc[m]].size(),'G');
-			//Ainv_.inv();
-		//}
-	//}
+	double tmp_start(0.0);
+	for(unsigned int m(0);m<2;m++){
+		for(unsigned int i(0);i<N_m;i++){
+			if(cc[m] == i){ tmp_start = -1.0; }
+			else { tmp_start = 0.0;}
+			for(unsigned int j(0);j<N_m;j++){
+				tmp = tmp_start;
+				for(unsigned int k(0);k<N_m;k++){
+					tmp += Ainv[mc[m]](i,k)*A[mc[m]](k,cc[m]);
+				}
+				tmp_mat(i,j) = tmp*Ainv[mc[m]](cc[m],j)/w[m];
+			}
+		}
+		Ainv[mc[m]] -= tmp_mat;
+	}
 }
 /*}*/
+
+std::ostream& operator<<(std::ostream& flux, System const& S){
+	for(unsigned int i(0);i<S.N_site;i++){
+		flux<<S[i]/S.N_m<<" ";
+	}
+	return flux;
+}

@@ -20,7 +20,7 @@ class System{
 		double compute_ratio();
 		double det();
 
-		unsigned int operator[](unsigned int i) const;
+		unsigned int const& operator[](unsigned int const& i) const { return wis[i];};
 
 		void print();
 
@@ -28,6 +28,7 @@ class System{
 		System();
 		Matrice<double> *A;
 		Matrice<double> *Ainv;
+		Matrice<double> tmp_mat;
 		unsigned int *s;
 		unsigned int *wis;
 		unsigned int Nx,Ny;
