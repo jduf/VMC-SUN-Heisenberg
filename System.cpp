@@ -228,40 +228,40 @@ void System::update_state(){
 		A[mc[1]](i,cc[1]) = tmp;
 	}
 
-	//if(mc[0] == mc[1]){
-		//Ainv[mc[0]] = A[mc[0]];
-		//Lapack A_(Ainv[mc[0]].ptr(),Ainv[mc[0]].size(),'G');
-		//A_.inv();
-	//} else {
-		//Matrice mat(N_m);
-		//for(unsigned int m(0);m<2;m++){
-			//for(unsigned int i(0);i<N_m;i++){
-				//for(unsigned int j(0);j<N_m;j++){
-					//tmp = 0.0;
-					//for(unsigned int k(0.0);k<N_m;k++){
-						//tmp += Ainv[mc[m]](i,k)*A[mc[m]](k,cc[m]);
-					//}
-					//if(cc[m] == i){
-						//tmp -= 1;
-					//}
-					//tmp /= w[m];
-					//mat(i,j) = tmp*Ainv[mc[m]](cc[m],j);
-				//}
-			//}
-			//Ainv[mc[m]] -= mat;
-		//}
-	//}
-	
 	if(mc[0] == mc[1]){
 		Ainv[mc[0]] = A[mc[0]];
 		Lapack<double> A_(Ainv[mc[0]].ptr(),Ainv[mc[0]].size(),'G');
 		A_.inv();
 	} else {
+		Matrice<double> mat(N_m);
 		for(unsigned int m(0);m<2;m++){
-			Ainv[mc[m]] = A[mc[m]];
-			Lapack<double> Ainv_(Ainv[mc[m]].ptr(),Ainv[mc[m]].size(),'G');
-			Ainv_.inv();
+			for(unsigned int i(0);i<N_m;i++){
+				for(unsigned int j(0);j<N_m;j++){
+					tmp = 0.0;
+					for(unsigned int k(0.0);k<N_m;k++){
+						tmp += Ainv[mc[m]](i,k)*A[mc[m]](k,cc[m]);
+					}
+					if(cc[m] == i){
+						tmp -= 1;
+					}
+					tmp /= w[m];
+					mat(i,j) = tmp*Ainv[mc[m]](cc[m],j);
+				}
+			}
+			Ainv[mc[m]] -= mat;
 		}
 	}
+	
+	//if(mc[0] == mc[1]){
+		//Ainv[mc[0]] = A[mc[0]];
+		//Lapack<double> A_(Ainv[mc[0]].ptr(),Ainv[mc[0]].size(),'G');
+		//A_.inv();
+	//} else {
+		//for(unsigned int m(0);m<2;m++){
+			//Ainv[mc[m]] = A[mc[m]];
+			//Lapack<double> Ainv_(Ainv[mc[m]].ptr(),Ainv[mc[m]].size(),'G');
+			//Ainv_.inv();
+		//}
+	//}
 }
 /*}*/
