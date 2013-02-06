@@ -19,8 +19,8 @@ class Matrice{
 
 /*operators*/
 		Matrice& operator=(Matrice const& mat);
-		double const& operator()(unsigned int const& i, unsigned int const& j) const;
-		double& operator()(unsigned int const& i, unsigned int const& j);
+		inline double const& operator()(unsigned int const& i, unsigned int const& j) const { return m[i+j*N]; };
+		inline double& operator()(unsigned int const& i, unsigned int const& j){ return m[i+j*N]; };
 		Matrice& operator*=(Matrice const& mat); // m1 *= m2 : m1 = m1*m2
 		Matrice& operator+=(Matrice const& mat); 
 		Matrice& operator-=(Matrice const& mat); 

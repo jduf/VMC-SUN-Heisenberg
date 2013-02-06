@@ -10,7 +10,7 @@ double energie(System& S,unsigned int N_MC);
 void get_N(unsigned int &N);
 
 int main(){
-	unsigned int N_spin(3),N_m(12),N_MC(1e4);
+	unsigned int N_spin(3),N_m(8),N_MC(1e4);
 	//std::cout<<"N_spin="<<std::flush;
 	//get_N(N_spin);
 	//std::cout<<"N_m="<<std::flush;
@@ -18,7 +18,7 @@ int main(){
 	//std::cout<<"N_MC="<<std::flush;
 	//get_N(N_MC);
 	//std::cout<<N_MC<<std::endl;
-	System S(N_spin, N_m, 2);
+	System S(N_spin, N_m, 1);
 	
 	Chrono t;
 	t.tic();

@@ -48,16 +48,6 @@ Vecteur& Vecteur::operator=(Vecteur const& vec){
 	return (*this);
 }
 
-double& Vecteur::operator()(unsigned int i){
-	if(i >= N ){std::cout<<"bug taille"<<std::endl;}
-	return v[i];
-}
-
-double const& Vecteur::operator()(unsigned int i) const{
-	if(i >= N ){std::cout<<"bug taille"<<std::endl;}
-	return v[i];
-}
-
 //Vecteur& Vecteur::operator*=(double const& d){
 	//for(unsigned int i(0);i<N;i++){
 		//v[i] *= d;

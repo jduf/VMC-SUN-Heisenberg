@@ -16,8 +16,8 @@ class Vecteur{
 
 /*operators*/
 		Vecteur& operator=(Vecteur const& mat);
-		double const& operator()(unsigned int i) const;
-		double& operator()(unsigned int i);
+		inline double const& operator()(unsigned int const& i) const { return v[i]; };
+		inline double& operator()(unsigned int const& i) { return v[i]; };
 		//Vecteur& operator*=(double const& d);
 
 /*methods that modify the class*/

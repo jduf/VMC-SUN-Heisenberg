@@ -47,14 +47,6 @@ Matrice& Matrice::operator=(Matrice const& mat){
 	return (*this);
 }
 
-double& Matrice::operator()(unsigned int const &i, unsigned int const &j){
-	return m[i+j*N];
-}
-
-double const& Matrice::operator()(unsigned int const &i, unsigned int const &j) const{
-	return m[i+j*N];
-}
-
 Matrice& Matrice::operator+=(Matrice const& mat){
 	for(unsigned int i(0);i<N;i++){
 		for(unsigned int j(0);j<N;j++){
