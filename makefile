@@ -21,7 +21,7 @@ Lapack.o:Lapack.cpp Lapack.hpp Matrice.hpp Vecteur.hpp
 System.o:System.cpp System.hpp Vecteur.hpp Matrice.hpp Lapack.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-test.o:test.cpp Save.hpp Chrono.hpp System.hpp 
+test.o:test.cpp Save.hpp Chrono.hpp Parseur.hpp System.hpp 
 	$(CXX) -c $(CXXFLAGS) $^ 
 
 clean:

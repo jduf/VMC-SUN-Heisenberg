@@ -1,5 +1,6 @@
 #include "Save.hpp"
 #include "Chrono.hpp"
+#include "Parseur.hpp"
 #include "System.hpp"
 
 #include<string>
@@ -7,33 +8,23 @@
 #include<iostream>
 
 double energie(System& S,unsigned int N_MC);
-void get_N(unsigned int &N);
 
-int main(){
-	unsigned int N_spin(3),N_m(8),N_MC(1e4);
-	//std::cout<<"N_spin="<<std::flush;
-	//get_N(N_spin);
-	//std::cout<<"N_m="<<std::flush;
-	//get_N(N_m);
-	//std::cout<<"N_MC="<<std::flush;
-	//get_N(N_MC);
-	//std::cout<<N_MC<<std::endl;
+int main(int argc, char* argv[]){
+	Parseur P(argc,argv);
+	unsigned int N_spin(3);
+	unsigned int N_m(8);
+	unsigned int N_MC(1e4);
+	P.set("N_spin",N_spin);	
+	P.set("N_m",N_m);	
+	P.set("N_MC",N_MC);	
+
 	System S(N_spin, N_m, 1);
-	
+
 	Chrono t;
 	t.tic();
 	std::cout<<energie(S,N_MC)<<std::endl;
 	t.tac();
 	std::cerr<<t<<" seconde(s)"<<std::endl;
-}
-
-void get_N(unsigned int &N){
-	std::string input;
-	std::getline(std::cin,input);
-	if(!input.empty()){
-		std::istringstream stream(input);
-		stream >> N;
-	}
 }
 
 double energie(System& S,unsigned int N_MC){
