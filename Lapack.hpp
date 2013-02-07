@@ -7,6 +7,7 @@
 //work for a symmetric matrix
 /*{*/
 extern "C" void dsyev_(char *jobz, char *uplo, unsigned int const *n, double *m, unsigned int const *lda, double *w, double work[], unsigned int const *lwork, int *info);
+extern "C" void zheev_(char *jobz, char *uplo, unsigned int const *n, std::complex<double> *m, unsigned int const *lda, double *w, std::complex<double> work[], unsigned int const *lwork, double rwork[], int *info);
 
 extern "C" void dgetrf_(unsigned int const *row, unsigned int const *col, double *m, unsigned int const *lda, int ipiv[], int *info);
 extern "C" void zgetrf_(unsigned int const *row, unsigned int const *col, std::complex<double> *m, unsigned int const *lda, int ipiv[], int *info);
@@ -23,7 +24,8 @@ class Lapack{
 		Lapack(T* m, unsigned int N, char matrix_type);
 		~Lapack();
 
-		Vecteur<T> eigensystem() const;
+		void eigensystem(Vecteur<double>& EVal, bool EVec=true) const; //by default compute eigenvectors
+
 		T det() const;
 		void lu(Matrice<T>& L, Matrice<T>& U) const;
 		void inv() const;
@@ -42,7 +44,8 @@ class Lapack{
 /*private methods used to call lapack*/
 		void getrf(int ipiv[]) const;
 		void getri(int ipiv[]) const;
-		void syev(Vecteur<T> & EVal) const;
+		void syev(Vecteur<double> & EVal) const;
+		void heev(Vecteur<double> & EVal) const; //valeurs propres d'une matrice hermitienne sont réelles
 };
 
 /*Constructors and destructor*/
@@ -59,6 +62,12 @@ Lapack<T>::Lapack(Matrice<T> const& mat, char matrix_type):
 			m[i+j*N] = mat(i,j);
 		}
 	}
+	for(unsigned int i(0); i<N; i++){
+		for(unsigned int j(0); j<N; j++){
+			std::cout<<m[i+j*N]<<" ";
+		}
+		std::cout<<std::endl;
+	}
 }
 
 template<typename T>
@@ -67,11 +76,12 @@ Lapack<T>::Lapack(T* m, unsigned int N, char matrix_type):
 	N(N),
 	matrix_type(matrix_type),
 	modify_original_matrix(true)
-{}
+{ }
 
 template<typename T>
 Lapack<T>::~Lapack(){
 	if(!modify_original_matrix){
+		std::cout<<"destructeur : lapack"<<std::endl;
 		delete[] m;
 	} 
 }
@@ -79,16 +89,6 @@ Lapack<T>::~Lapack(){
 
 /*methods used to call lapack*/
 /*{*/
-template<typename T> 
-Vecteur<T> Lapack<T>::eigensystem() const {
-	if (matrix_type != 'S'){
-		std::cerr<<"inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
-		std::cerr<<"inv : the only matrix type implemented is S"<<std::endl;
-	}
-	Vecteur<T> EVal(N);
-	syev(EVal);
-	return EVal;
-}
 
 template<typename T> 
 T Lapack<T>::det() const {

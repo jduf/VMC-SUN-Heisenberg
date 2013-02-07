@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <complex>
+
 #include "Vecteur.hpp"
 
 template<typename M>
@@ -29,6 +30,7 @@ class Matrice{
 
 		/*methods that return something related to the class*/
 		Matrice<M> transpose() const;
+		Matrice<M> trans_conj() const;
 
 		/*other methods*/
 		inline M* ptr() const { return m; };
@@ -61,7 +63,7 @@ template<typename M>
 Matrice<M>::Matrice():
 	m(NULL),
 	N(0)
-{ } 
+{ }
 
 template<typename M>
 Matrice<M>::Matrice(unsigned int N):
@@ -139,6 +141,7 @@ Matrice<M> operator-(Matrice<M> const& mat1, Matrice<M> const& mat2){
 template<typename M>
 Matrice<M>& Matrice<M>::operator*=(Matrice<M> const& mat){
 	Matrice<M> tmp(*this);
+
 	for(unsigned int i(0);i<N;i++){
 		for(unsigned int j(0);j<N;j++){
 			this->m[i+j*N] = 0.0;
@@ -153,7 +156,7 @@ Matrice<M>& Matrice<M>::operator*=(Matrice<M> const& mat){
 template<typename M>
 Matrice<M> operator*(Matrice<M> const& mat1, Matrice<M> const& mat2){
 	Matrice<M> matout(mat1);
-	std::cerr<<"Matrice::opération * peut-être améliorée"<<std::endl;
+	std::cerr<<"opération * peut-être améliorée"<<std::endl;
 	//matout *= mat2; // pas sur de quoi est mieux...
 	unsigned int N(mat1.size());
 	for(unsigned int i(0);i<N;i++){

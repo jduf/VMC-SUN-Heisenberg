@@ -118,10 +118,11 @@ void System::create_U(Matrice<double>& U, unsigned int dim){
 		//U.print();
 	}
 	Lapack<double> ES(U.ptr(),U.size(),'S');
-	Vecteur<double> Eval(ES.eigensystem());
-	if(fabs(Eval(N_m-1) - Eval(N_m)) < 1e-5){
+	Vecteur<double> EVal(N_site);
+	ES.eigensystem(EVal);
+	if(fabs(EVal(N_m-1) - EVal(N_m)) < 1e-5){
 		std::cerr<<"les valeurs propres sont dégénérées au niveau de Fermi, N_m="<<N_m<<" N_spin="<<N_spin<<std::endl;
-		Eval.print();
+		EVal.print();
 	}
 }
 
