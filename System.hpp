@@ -18,9 +18,10 @@ class System{
 		void update_state();
 		void swap();
 		void swap(unsigned int a, unsigned int b);
-		double compute_ratio();
-		double det();
+		T compute_ratio();
+		T det();
 
+		std::complex<double> CC(double a, double b){return std::complex<double> (a,b);};
 		unsigned int const& operator[](unsigned int const& i) const { return wis[i];};
 
 		void print();
@@ -42,7 +43,8 @@ class System{
 		void init_state(Matrice<T> const& U);
 };
 
-std::ostream& operator<<(std::ostream& flux, System const& S);
+template<typename T>
+std::ostream& operator<<(std::ostream& flux, System<T> const& S);
 
 /*Constructors and destructor*/
 /*{*/
@@ -62,7 +64,7 @@ System<T>::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	Ny(0)
 {
 	if(dim==1){Nx = N_site; Ny=1;}
-	if(dim==2){Nx = 6; Ny = 6;} // Nx & Ny > 2 sinon problème d'antipériodicité
+	if(dim==2){Nx = 4; Ny = 3;} // Nx & Ny > 2 sinon problème d'antipériodicité
 	Matrice<T> U(N_site);
 	create_U(U,dim);
 	create_nts(dim);
@@ -142,39 +144,6 @@ void System<T>::print(){
 
 /*methods that modify the class*/
 /*{*/
-template<typename T>
-void System<T>::create_U(Matrice<double>& U, unsigned int dim){
-	if(dim==1){
-		U(0,1)=-1.0;
-		U(0,N_site-1)=1.0;
-		for(unsigned int i(1); i< N_site-1; i++){
-			U(i,i-1) = -1.0;
-			U(i,i+1) = -1.0;
-		}
-		U(N_site-1,0)=1.0;
-		U(N_site-1,N_site-2)=-1.0;
-	}
-	if(dim==2){
-		unsigned int j(0);
-		for(unsigned int i(0); i< N_site-1; i++){
-			if((i+1) % Nx == 0){U(i,j*Nx) = 1;j++;}
-			else {U(i,i+1) = -1.0;}
-			if(i+Nx < N_site){ U(i,i+Nx) = -1.0;}
-			else{ U(i,i+Nx-N_site) = 1.0;}
-		}
-		U(Nx-1,N_site-1) = 1;
-		U(N_site-1,N_site-Ny) = 1;
-		U = U+U.transpose();
-		//U.print();
-	}
-	Lapack<T> ES(U.ptr(),U.size(),'S');
-	Vecteur<double> EVal(N_site);
-	ES.eigensystem(EVal);
-	if(fabs(EVal(N_m-1) - EVal(N_m)) < 1e-5){
-		std::cerr<<"les valeurs propres sont dégénérées au niveau de Fermi, N_m="<<N_m<<" N_spin="<<N_spin<<std::endl;
-		EVal.print();
-	}
-}
 
 template<typename T>
 void System<T>::create_nts(unsigned int dim){
@@ -287,7 +256,8 @@ void System<T>::update_state(){
 }
 /*}*/
 
-std::ostream& operator<<(std::ostream& flux, System const& S){
+template<typename T>
+std::ostream& operator<<(std::ostream& flux, System<T> const& S){
 	for(unsigned int i(0);i<S.N_site;i++){
 		flux<<S[i]/S.N_m<<" ";
 	}

@@ -7,13 +7,12 @@
 #include<iostream>
 #include<complex>
 
-double energie(System& S,unsigned int N_MC);
+double energie(System<double>& S,unsigned int N_MC);
 void get_N(unsigned int &N);
-std::complex<double> cc(double a,double b){return std::complex<double> (a,b);}
 
 
 int main(){
-	unsigned int N_spin(3),N_m(8),N_MC(1e4);
+	unsigned int N_spin(3),N_m(4),N_MC(1e4);
 	//std::cout<<"N_spin="<<std::flush;
 	//get_N(N_spin);
 	//std::cout<<"N_m="<<std::flush;
@@ -21,7 +20,8 @@ int main(){
 	//std::cout<<"N_MC="<<std::flush;
 	//get_N(N_MC);
 	//std::cout<<N_MC<<std::endl;
-	System S(N_spin, N_m, 1);
+	//System<double> S(N_spin, N_m, 1);
+	System<std::complex<double> > S(N_spin, N_m, 2);
 	
 	//Chrono t;
 	//t.tic();
@@ -39,7 +39,7 @@ void get_N(unsigned int &N){
 	}
 }
 
-double energie(System& S,unsigned int N_MC){
+double energie(System<double>& S,unsigned int N_MC){
 	double ratio(0.0), energie(0.0);
 	unsigned int i(0);
 	//Save steps("analyse-2d.dat");

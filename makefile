@@ -12,10 +12,13 @@ LDFLAGS= $(LAPACK) $(DEBUG) $(OPTION)
 
 all:test
 
-test:test.o Lapack.o Matrice.o
+test:test.o Lapack.o Matrice.o System.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 Matrice.o:Matrice.cpp Matrice.hpp Vecteur.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
+System.o:System.cpp System.hpp Matrice.hpp Lapack.hpp Vecteur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 Lapack.o:Lapack.cpp Lapack.hpp Matrice.hpp Vecteur.hpp 

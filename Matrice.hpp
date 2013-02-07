@@ -207,7 +207,9 @@ template<typename M>
 void Matrice<M>::print() const{
 	for(unsigned int i(0); i < N; i++){
 		for(unsigned int j(0); j < N; j++){
-			std::cout <<std::setprecision(3)<<std::setw(7)<<std::fixed<< m[i+j*N] << " ";
+			//std::cout << m[i+j*N] << " ";
+			//std::cout <<std::setprecision(1)<<std::setw(7)<<std::fixed<< m[i+j*N] << " ";
+			std::cout <<std::setprecision(1)<<std::setw(12)<<std::fixed<< m[i+j*N] << " ";
 		}
 		std::cout << std::endl;
 	}
