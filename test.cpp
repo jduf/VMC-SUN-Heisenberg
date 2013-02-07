@@ -22,7 +22,8 @@ int main(int argc, char* argv[]){
 
 	Chrono t;
 	t.tic();
-	std::cout<<energie(S,N_MC)<<std::endl;
+	//std::cout<<N_spin<<" "<<" "<<N_m<<" "<<N_MC<<" "<<energie(S,N_MC)<<std::endl;
+	std::cout<<N_spin<<" "<<N_m<<" "<<N_MC<<" "<<energie(S,N_MC)<<std::endl;
 	t.tac();
 	std::cerr<<t<<" seconde(s)"<<std::endl;
 }
