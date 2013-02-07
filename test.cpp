@@ -5,9 +5,12 @@
 #include<string>
 #include<sstream>
 #include<iostream>
+#include<complex>
 
 double energie(System& S,unsigned int N_MC);
 void get_N(unsigned int &N);
+std::complex<double> cc(double a,double b){return std::complex<double> (a,b);}
+
 
 int main(){
 	unsigned int N_spin(3),N_m(8),N_MC(1e4);
@@ -20,11 +23,11 @@ int main(){
 	//std::cout<<N_MC<<std::endl;
 	System S(N_spin, N_m, 1);
 	
-	Chrono t;
-	t.tic();
-	std::cout<<energie(S,N_MC)<<std::endl;
-	t.tac();
-	std::cerr<<t<<" seconde(s)"<<std::endl;
+	//Chrono t;
+	//t.tic();
+	//std::cout<<energie(S,N_MC)<<std::endl;
+	//t.tac();
+	//std::cerr<<t<<" seconde(s)"<<std::endl;
 }
 
 void get_N(unsigned int &N){
