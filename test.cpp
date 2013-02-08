@@ -12,20 +12,20 @@ double energie(System& S,unsigned int N_MC);
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	unsigned int N_spin(3);
-	unsigned int N_m(8);
+	unsigned int N_m(4);
 	unsigned int N_MC(1e4);
 	P.set("N_spin",N_spin);	
 	P.set("N_m",N_m);	
 	P.set("N_MC",N_MC);	
 
-	System S(N_spin, N_m, 1);
+	System S(N_spin, N_m, 2);
 
-	Chrono t;
-	t.tic();
+	//Chrono t;
+	//t.tic();
 	//std::cout<<N_spin<<" "<<" "<<N_m<<" "<<N_MC<<" "<<energie(S,N_MC)<<std::endl;
-	std::cout<<N_spin<<" "<<N_m<<" "<<N_MC<<" "<<energie(S,N_MC)<<std::endl;
-	t.tac();
-	std::cerr<<t<<" seconde(s)"<<std::endl;
+	//std::cout<<N_spin<<" "<<N_m<<" "<<N_MC<<" "<<energie(S,N_MC)<<std::endl;
+	////t.tac();
+	//std::cerr<<t<<" seconde(s)"<<std::endl;
 }
 
 double energie(System& S,unsigned int N_MC){

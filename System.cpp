@@ -13,11 +13,19 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
 	tmp_mat(N_m,0.0),
 	s(new unsigned int[N_spin*N_m]),
 	wis(new unsigned int[N_spin*N_m]),
-	Nx(0),
-	Ny(0)
+	Nx(N_site),
+	Ny(1)
 {
-	if(dim==1){Nx = N_site; Ny=1;}
-	if(dim==2){Nx = 6; Ny = 6;} // Nx & Ny > 2 sinon problème d'antipériodicité
+	srand(time(NULL)^(getpid()<<16));
+	if(dim==2){
+		while(Nx < 3 || Ny < 3){
+			Nx=(rand() % N_site)+1;
+			while(N_site % Nx != 0 ){
+				Nx=(rand() % N_site)+1;
+			}
+			Ny=N_site/Nx;
+		}
+	} // Nx & Ny > 2 sinon problème d'antipériodicité
 	Matrice<double> U(N_site);
 	create_U(U,dim);
 	create_nts(dim);
@@ -107,15 +115,15 @@ void System::create_U(Matrice<double>& U, unsigned int dim){
 	if(dim==2){
 		unsigned int j(0);
 		for(unsigned int i(0); i< N_site-1; i++){
-			if((i+1) % Nx == 0){U(i,j*Nx) = 1;j++;}
+			if((i+1) % Nx == 0){U(j*Nx,i) = 1;j++;}
 			else {U(i,i+1) = -1.0;}
 			if(i+Nx < N_site){ U(i,i+Nx) = -1.0;}
-			else{ U(i,i+Nx-N_site) = 1.0;}
+			else{ U(i+Nx-N_site,i) = 1.0;}
 		}
 		U(Nx-1,N_site-1) = 1;
-		U(N_site-1,N_site-Ny) = 1;
-		U = U+U.transpose();
-		//U.print();
+		U(N_site-Nx,N_site-1) = 1;
+		U += U.transpose();
+		U.print();
 	}
 	Lapack<double> ES(U.ptr(),U.size(),'S');
 	Vecteur<double> EVal(N_site);
@@ -143,7 +151,6 @@ void System::create_nts(unsigned int dim){
 }
 
 void System::init_state(Matrice<double> const& U){
-	srand(time(NULL)^(getpid()<<16));
 	unsigned int site(0);
 	unsigned int N_as(N_site);
 	unsigned int available_sites[N_site];

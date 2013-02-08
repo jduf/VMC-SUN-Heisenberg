@@ -22,8 +22,12 @@ Parseur::Parseur(unsigned int argc, char* argv[]):
 	var(new std::string[argc-1]),
 	argc(argc-1)
 {
-	for(unsigned int i(1);i<argc;i++){
-		var[i-1] = argv[i];
+	if(this->argc % 2 == 0){
+		for(unsigned int i(1);i<argc;i++){
+			var[i-1] = argv[i];
+		}
+	} else {
+		std::cerr<<"Parseur : not enough arguments"<<std::endl;
 	}
 }
 
@@ -41,7 +45,7 @@ void Parseur::set(std::string pattern, T &val){
 	}
 	if(found){
 		std::stringstream ss(var[i+1]);
-		ss >> val;
+		ss>> val;
 	} else {
 		std::cerr<<"Parseur : "<<pattern<<" wasn't found thus its value is not defined"<<std::endl;
 	}
