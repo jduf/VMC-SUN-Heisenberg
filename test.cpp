@@ -4,21 +4,25 @@
 #include "System.hpp"
 
 #include<string>
-#include<sstream>
 #include<iostream>
 
 double energie(System& S,unsigned int N_MC);
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	unsigned int N_spin(3);
-	unsigned int N_m(4);
+	unsigned int N_spin(4);
+	unsigned int N_n(3);
+	unsigned int N_m(6);
 	unsigned int N_MC(1e4);
+	std::string filename;
+
 	P.set("N_spin",N_spin);	
 	P.set("N_m",N_m);	
+	P.set("N_n",N_n);	
 	P.set("N_MC",N_MC);	
+	P.set("filename",filename);	
 
-	System S(N_spin, N_m, 1);
+	System S(N_spin,N_m,N_n,filename);
 
 	Chrono t;
 	t.tic();
@@ -40,8 +44,8 @@ double energie(System& S,unsigned int N_MC){
 			S.update_state();
 			//steps << S << " " << S.det() <<Save::endl;
 			for(unsigned int j(0);j<S.N_site;j++){
-				for(unsigned int d(0);d<S.dim;d++){
-					S.swap(j,S.nts[S.dim*j+d]);
+				for(unsigned int d(0);d<S.N_n;d++){
+					S.swap(j,S.nts[S.N_n*j+d]);
 					energie += S.compute_ratio();
 				}
 			}

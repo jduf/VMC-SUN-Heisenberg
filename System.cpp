@@ -2,33 +2,25 @@
 
 /*Constructors and destructor*/
 /*{*/
-System::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
+System::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, std::string filename):
 	N_spin(N_spin),
 	N_m(N_m),
+	N_n(N_n),
 	N_site(N_m*N_spin),
-	dim(dim),
-	nts(new unsigned int[N_spin*N_m*dim]),
+	nts(new unsigned int[N_spin*N_m*N_n]),
 	A(new Matrice<double>[N_spin]),
 	Ainv(new Matrice<double>[N_spin]),
 	tmp_mat(N_m,0.0),
 	s(new unsigned int[N_spin*N_m]),
-	wis(new unsigned int[N_spin*N_m]),
-	Nx(N_site),
-	Ny(1)
+	wis(new unsigned int[N_spin*N_m])
 {
 	srand(time(NULL)^(getpid()<<16));
-	if(dim==2){
-		while(Nx < 3 || Ny < 3){
-			Nx=(rand() % N_site)+1;
-			while(N_site % Nx != 0 ){
-				Nx=(rand() % N_site)+1;
-			}
-			Ny=N_site/Nx;
-		}
-	} // Nx & Ny > 2 sinon problème d'antipériodicité
 	Matrice<double> U(N_site);
-	create_U(U,dim);
-	create_nts(dim);
+	Read r(filename, U);
+	create_nts(U);
+	Lapack<double> ES(U.ptr(),U.size(),'S');
+	std::cout<<"ok"<<std::endl;
+	U.print();
 	init_state(U);
 	for(unsigned int i(0);i<2;i++){
 		w[i] = 0;
@@ -101,50 +93,16 @@ void System::print(){
 
 /*methods that modify the class*/
 /*{*/
-void System::create_U(Matrice<double>& U, unsigned int dim){
-	if(dim==1){
-		U(0,1)=-1.0;
-		U(0,N_site-1)=1.0;
-		for(unsigned int i(1); i< N_site-1; i++){
-			U(i,i-1) = -1.0;
-			U(i,i+1) = -1.0;
-		}
-		U(N_site-1,0)=1.0;
-		U(N_site-1,N_site-2)=-1.0;
-	}
-	if(dim==2){
-		unsigned int j(0);
-		for(unsigned int i(0); i< N_site-1; i++){
-			if((i+1) % Nx == 0){U(j*Nx,i) = 1;j++;}
-			else {U(i,i+1) = -1.0;}
-			if(i+Nx < N_site){ U(i,i+Nx) = -1.0;}
-			else{ U(i+Nx-N_site,i) = 1.0;}
-		}
-		U(Nx-1,N_site-1) = 1;
-		U(N_site-Nx,N_site-1) = 1;
-		U += U.transpose();
-		U.print();
-	}
-	Lapack<double> ES(U.ptr(),U.size(),'S');
-	Vecteur<double> EVal(N_site);
-	ES.eigensystem(EVal);
-	if(fabs(EVal(N_m-1) - EVal(N_m)) < 1e-5){
-		std::cerr<<"les valeurs propres sont dégénérées au niveau de Fermi, N_m="<<N_m<<" N_spin="<<N_spin<<std::endl;
-		EVal.print();
-	}
-}
-
-void System::create_nts(unsigned int dim){
-	if(dim==1){
-		for(unsigned int i(0);i<N_site;i++){
-			nts[i] = (i+1) % N_site;
-		}
-	} 
-	if(dim==2) {
-		for(unsigned int j(0);j<Ny;j++){
-			for(unsigned int i(0);i<Nx;i++){
-				nts[dim*(j*Nx+i)] = (i+1) % Nx + j*Nx;
-				nts[dim*(j*Nx+i)+1] = ((j+1)*Nx) % N_site + i;
+void System::create_nts(Matrice<double> const& U){
+	unsigned int k(0);
+	for(unsigned int i(0); i<N_site;i++){
+		for(unsigned int j(0); j<N_site;j++){
+			if ( fabs(U(i,j)) > 1e-4){
+				for(unsigned int d(0);d<N_n;d++){
+					nts[k] = j*N_site+i;
+					std::cout<<nts[k]<<" "<<U(i,j)<<std::endl;
+					k++;
+				}
 			}
 		}
 	}
