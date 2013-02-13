@@ -1,9 +1,10 @@
 CXX = g++ 
 CC = $(CXX) 
 
-DEBUG =
+DEBUG = -DNDEBUG
+#DEBUG =  
 ERRORS = -Wall -Wextra
-LAPACK = -llapack -lblas
+LAPACK = -llapack -lblas -pedantic
 OPTION = -O3
 
 CXXFLAGS = $(LAPACK) $(ERRORS) $(DEBUG) $(OPTION)
