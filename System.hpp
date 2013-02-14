@@ -9,10 +9,11 @@
 
 class System{
 	public:
+		//System(unsigned int N_spin, unsigned int N_m, std::string lattice, std::string filename);
 		System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, std::string filename);
 		~System();
 
-		unsigned int const N_spin, N_m, N_n, N_site;
+		unsigned int const N_spin, N_m, N_nts, N_site;
 		unsigned int *nts;
 		
 		void update_state();

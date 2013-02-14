@@ -11,16 +11,18 @@ double energie(System& S,unsigned int N_MC);
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	unsigned int N_spin(4);
-	unsigned int N_n(3);
 	unsigned int N_m(6);
+	unsigned int N_n(0);
 	unsigned int N_MC(1e6);
 	std::string filename;
+	std::string lattice;
 
 	P.set("N_spin",N_spin);	
 	P.set("N_m",N_m);	
 	P.set("N_n",N_n);	
 	P.set("N_MC",N_MC);	
 	P.set("filename",filename);	
+	P.set("lattice",lattice);	
 
 	System S(N_spin,N_m,N_n,filename);
 
@@ -50,7 +52,7 @@ double energie(System& S,unsigned int N_MC){
 			i++;
 			S.update_state();
 			//steps << S << " " << S.det() <<Save::endl;
-			for(unsigned int i(0);i<2*S.N_site*S.N_n;i += 2){
+			for(unsigned int i(0);i<S.N_nts-1;i += 2){
 				S.swap(S.nts[i],S.nts[i+1]);
 				energie += S.compute_ratio();
 			}

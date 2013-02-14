@@ -2,18 +2,24 @@
 
 /*Constructors and destructor*/
 /*{*/
+//System::System(unsigned int N_spin, unsigned int N_m, std::string lattice, std::string filename):
 System::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, std::string filename):
 	N_spin(N_spin),
 	N_m(N_m),
-	N_n(N_n),
+	N_nts(N_n*N_m*N_spin),
 	N_site(N_m*N_spin),
-	nts(new unsigned int[2*N_spin*N_m*N_n]),
+	nts(new unsigned int[N_n*N_m*N_spin]),
 	A(new Matrice<double>[N_spin]),
 	Ainv(new Matrice<double>[N_spin]),
 	tmp_mat(N_m,0.0),
 	s(new unsigned int[N_spin*N_m]),
 	wis(new unsigned int[N_spin*N_m])
 {
+	//if(lattice == "chain") { N_nts = 2*N_site; }
+	//else if (lattice == "square") { N_nts = 4*N_site; }
+	//else if (lattice == "honeycomb") { N_nts = 3*N_site; }
+	//else { std::cerr<<"lattice type not definded"<<std::endl; }
+	//nts = new unsigned int[N_nts];
 	srand(time(NULL)^(getpid()<<16));
 	Matrice<double> U(N_site);
 	Read r(filename, U);
@@ -94,6 +100,7 @@ void System::print(){
 /*methods that modify the class*/
 /*{*/
 void System::create_nts(Matrice<double> const& U){
+
 	unsigned int k(0);
 	for(unsigned int i(0); i<N_site;i++){
 		for(unsigned int j(i+1); j<N_site;j++){
@@ -104,7 +111,8 @@ void System::create_nts(Matrice<double> const& U){
 			}
 		}
 	}
-	for(unsigned int i(0);i<2*N_n*N_site;i += 2){
+	
+	for(unsigned int i(0);i<N_nts-1;i+=2){
 		std::cout<<nts[i]<<" "<<nts[i+1]<<std::endl;
 	}
 }
@@ -179,7 +187,7 @@ void System::update_state(){
 		A[mc[0]](i,cc[0]) = A[mc[1]](i,cc[1]);
 		A[mc[1]](i,cc[1]) = tmp;
 	}
-	
+
 	double tmp_start(0.0);
 	for(unsigned int m(0);m<2;m++){
 		for(unsigned int i(0);i<N_m;i++){
