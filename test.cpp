@@ -13,7 +13,7 @@ int main(int argc, char* argv[]){
 	unsigned int N_spin(4);
 	unsigned int N_n(3);
 	unsigned int N_m(6);
-	unsigned int N_MC(1e4);
+	unsigned int N_MC(1e6);
 	std::string filename;
 
 	P.set("N_spin",N_spin);	
@@ -22,8 +22,16 @@ int main(int argc, char* argv[]){
 	P.set("N_MC",N_MC);	
 	P.set("filename",filename);	
 
+	Matrice<double> U(N_m*N_spin);
+	Read r(filename, U);
+
 	System S(N_spin,N_m,N_n,filename);
 
+	//for(unsigned int i(0); i<N_spin*N_m;i++){
+		//for(unsigned int d(0); d<N_n;d++){
+			//std::cout<<S.nts[i*N_n+d]<<" "<<U(i,S.nts[i*N_n+d])<<std::endl;
+		//}
+	//}
 	Chrono t;
 	t.tic();
 	std::cout<<N_spin<<" "<<N_m<<" "<<N_MC<<" "<<energie(S,N_MC)<<std::endl;

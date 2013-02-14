@@ -65,16 +65,13 @@ template <typename T>
 Vecteur<T>::Vecteur(unsigned int N):
 	v(new T[N]),
 	N(N)
-{
-	std::cout<<"taille : vecteur"<<std::endl;
-}
+{ }
 
 template <typename T>
 Vecteur<T>::Vecteur(unsigned int N, T val):
 	v(new T[N]),
 	N(N)
 {
-	std::cout<<"taille+const : vecteur"<<std::endl;
 	fill_vecteur(val);
 }
 
@@ -83,7 +80,6 @@ Vecteur<T>::Vecteur(Vecteur<T> const& vec):
 	v(new T[vec.size()]),
 	N(vec.size())
 {
-	std::cout<<"copie : vecteur"<<std::endl;
 	for(unsigned int i(0);i<N;i++){
 			v[i] = vec(i);
 	}
@@ -92,7 +88,6 @@ Vecteur<T>::Vecteur(Vecteur<T> const& vec):
 template <typename T>
 Vecteur<T>::~Vecteur(){
 	delete[] v;
-	std::cout<<"destructeur : vecteur"<<std::endl;
 }
 /*}*/
 

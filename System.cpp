@@ -17,10 +17,11 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, std::str
 	srand(time(NULL)^(getpid()<<16));
 	Matrice<double> U(N_site);
 	Read r(filename, U);
+	//U.print();
 	create_nts(U);
 	Lapack<double> ES(U.ptr(),U.size(),'S');
-	std::cout<<"ok"<<std::endl;
-	U.print();
+	Vecteur<double> EVal(N_site);
+	ES.eigensystem(EVal);
 	init_state(U);
 	for(unsigned int i(0);i<2;i++){
 		w[i] = 0;
@@ -98,11 +99,8 @@ void System::create_nts(Matrice<double> const& U){
 	for(unsigned int i(0); i<N_site;i++){
 		for(unsigned int j(0); j<N_site;j++){
 			if ( fabs(U(i,j)) > 1e-4){
-				for(unsigned int d(0);d<N_n;d++){
-					nts[k] = j*N_site+i;
-					std::cout<<nts[k]<<" "<<U(i,j)<<std::endl;
-					k++;
-				}
+				nts[k] = j;
+				k++;
 			}
 		}
 	}
