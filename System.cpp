@@ -7,7 +7,7 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, std::str
 	N_m(N_m),
 	N_n(N_n),
 	N_site(N_m*N_spin),
-	nts(new unsigned int[N_spin*N_m*N_n]),
+	nts(new unsigned int[2*N_spin*N_m*N_n]),
 	A(new Matrice<double>[N_spin]),
 	Ainv(new Matrice<double>[N_spin]),
 	tmp_mat(N_m,0.0),
@@ -17,7 +17,6 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, std::str
 	srand(time(NULL)^(getpid()<<16));
 	Matrice<double> U(N_site);
 	Read r(filename, U);
-	//U.print();
 	create_nts(U);
 	Lapack<double> ES(U.ptr(),U.size(),'S');
 	Vecteur<double> EVal(N_site);
@@ -97,12 +96,16 @@ void System::print(){
 void System::create_nts(Matrice<double> const& U){
 	unsigned int k(0);
 	for(unsigned int i(0); i<N_site;i++){
-		for(unsigned int j(0); j<N_site;j++){
+		for(unsigned int j(i+1); j<N_site;j++){
 			if ( fabs(U(i,j)) > 1e-4){
-				nts[k] = j;
-				k++;
+				nts[k] = i;
+				nts[k+1] = j;
+				k+=2;
 			}
 		}
+	}
+	for(unsigned int i(0);i<2*N_n*N_site;i += 2){
+		std::cout<<nts[i]<<" "<<nts[i+1]<<std::endl;
 	}
 }
 

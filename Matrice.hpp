@@ -103,7 +103,7 @@ Matrice<M>::Matrice(Matrice<M> const& mat):
 
 template<typename M>
 Matrice<M>::~Matrice(){
-	delete[]  m;
+	delete[] m;
 }
 /*}*/
 

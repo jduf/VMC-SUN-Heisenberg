@@ -22,21 +22,20 @@ int main(int argc, char* argv[]){
 	P.set("N_MC",N_MC);	
 	P.set("filename",filename);	
 
-	Matrice<double> U(N_m*N_spin);
-	Read r(filename, U);
-
 	System S(N_spin,N_m,N_n,filename);
 
-	//for(unsigned int i(0); i<N_spin*N_m;i++){
-		//for(unsigned int d(0); d<N_n;d++){
-			//std::cout<<S.nts[i*N_n+d]<<" "<<U(i,S.nts[i*N_n+d])<<std::endl;
-		//}
-	//}
-	Chrono t;
-	t.tic();
+
+	//S.print();
+	//S.swap();
+	//std::cout<< S.compute_ratio()<<std::endl;
+	//S.update_state();
+	//S.print();
+
+	//Chrono t;
+	//t.tic();
 	std::cout<<N_spin<<" "<<N_m<<" "<<N_MC<<" "<<energie(S,N_MC)<<std::endl;
-	t.tac();
-	std::cerr<<t<<" seconde(s)"<<std::endl;
+	//t.tac();
+	//std::cerr<<t<<" seconde(s)"<<std::endl;
 }
 
 double energie(System& S,unsigned int N_MC){
@@ -51,11 +50,9 @@ double energie(System& S,unsigned int N_MC){
 			i++;
 			S.update_state();
 			//steps << S << " " << S.det() <<Save::endl;
-			for(unsigned int j(0);j<S.N_site;j++){
-				for(unsigned int d(0);d<S.N_n;d++){
-					S.swap(j,S.nts[S.N_n*j+d]);
-					energie += S.compute_ratio();
-				}
+			for(unsigned int i(0);i<2*S.N_site*S.N_n;i += 2){
+				S.swap(S.nts[i],S.nts[i+1]);
+				energie += S.compute_ratio();
 			}
 		}
 	}
