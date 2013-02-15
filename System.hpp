@@ -9,8 +9,7 @@
 
 class System{
 	public:
-		//System(unsigned int N_spin, unsigned int N_m, std::string lattice, std::string filename);
-		System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, std::string filename);
+		System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, Matrice<double>& U);
 		~System();
 
 		unsigned int const N_spin, N_m, N_nts, N_site;
@@ -37,7 +36,7 @@ class System{
 		unsigned int mc[2]; // matrix changed
 		double w[2];
 
-		void create_nts(Matrice<double> const& U);
+		void init_nts(Matrice<double> const& U);
 		void init_state(Matrice<double> const& U);
 };
 

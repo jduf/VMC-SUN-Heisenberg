@@ -2,8 +2,7 @@
 
 /*Constructors and destructor*/
 /*{*/
-//System::System(unsigned int N_spin, unsigned int N_m, std::string lattice, std::string filename):
-System::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, std::string filename):
+System::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, Matrice<double>& U):
 	N_spin(N_spin),
 	N_m(N_m),
 	N_nts(N_n*N_m*N_spin),
@@ -15,19 +14,13 @@ System::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, std::str
 	s(new unsigned int[N_spin*N_m]),
 	wis(new unsigned int[N_spin*N_m])
 {
-	//if(lattice == "chain") { N_nts = 2*N_site; }
-	//else if (lattice == "square") { N_nts = 4*N_site; }
-	//else if (lattice == "honeycomb") { N_nts = 3*N_site; }
-	//else { std::cerr<<"lattice type not definded"<<std::endl; }
-	//nts = new unsigned int[N_nts];
 	srand(time(NULL)^(getpid()<<16));
-	Matrice<double> U(N_site);
-	Read r(filename, U);
-	create_nts(U);
+	init_nts(U);
 	Lapack<double> ES(U.ptr(),U.size(),'S');
 	Vecteur<double> EVal(N_site);
 	ES.eigensystem(EVal);
 	init_state(U);
+
 	for(unsigned int i(0);i<2;i++){
 		w[i] = 0;
 		cc[i] = 0;
@@ -99,8 +92,7 @@ void System::print(){
 
 /*methods that modify the class*/
 /*{*/
-void System::create_nts(Matrice<double> const& U){
-
+void System::init_nts(Matrice<double> const& U){
 	unsigned int k(0);
 	for(unsigned int i(0); i<N_site;i++){
 		for(unsigned int j(i+1); j<N_site;j++){
@@ -110,10 +102,6 @@ void System::create_nts(Matrice<double> const& U){
 				k+=2;
 			}
 		}
-	}
-	
-	for(unsigned int i(0);i<N_nts-1;i+=2){
-		std::cout<<nts[i]<<" "<<nts[i+1]<<std::endl;
 	}
 }
 
