@@ -65,7 +65,7 @@ template <typename T>
 Vecteur<T>::Vecteur(unsigned int N):
 	v(new T[N]),
 	N(N)
-{ }
+{ } 
 
 template <typename T>
 Vecteur<T>::Vecteur(unsigned int N, T val):
@@ -95,7 +95,6 @@ Vecteur<T>::~Vecteur(){
 /*{*/
 template <typename T>
 Vecteur<T>& Vecteur<T>::operator=(Vecteur<T> const& vec){
-	std::cout<<"affectation : vecteur"<<std::endl;
 	if(this->N != vec.N){
 		delete[] this->v;
 		this->N = vec.N;

@@ -8,6 +8,7 @@
 
 #include "Vecteur.hpp"
 
+
 template<typename M>
 class Matrice{
 	public:
@@ -58,7 +59,6 @@ class Matrice{
 		void fill_matrice(M val);
 };
 
-//std::ostream& operator<<(std::ostream& flux, Matrice const& mat);
 template<typename M>
 Matrice<M> operator+(Matrice<M> const& mat1, Matrice<M> const& mat2);
 template<typename M>
@@ -68,6 +68,8 @@ Matrice<M> operator*(Matrice<M> const& mat1, Matrice<M> const& mat2);
 template<typename M>
 Matrice<M> operator^(Vecteur<M> const& vec1, Vecteur<M> const& vec2);
 
+template<typename M>
+std::ostream& operator<<(std::ostream& flux, Matrice<M> const& mat);
 
 /*Constructors and destructor*/
 /*{*/
@@ -75,7 +77,7 @@ template<typename M>
 Matrice<M>::Matrice():
 	m(NULL),
 	N(0)
-{ }
+{ } 
 
 template<typename M>
 Matrice<M>::Matrice(unsigned int N):
@@ -103,7 +105,7 @@ Matrice<M>::Matrice(Matrice<M> const& mat):
 
 template<typename M>
 Matrice<M>::~Matrice(){
-	delete[] m;
+	delete[]  m;
 }
 /*}*/
 
@@ -256,4 +258,16 @@ Matrice<std::complex<double> > Matrice<M>::trans_conj() const{
 	return tmp;
 }
 /*}*/
+
+template<typename M>
+std::ostream& operator<<(std::ostream& flux, Matrice<M> const& mat){
+	for(unsigned int i(0);i<mat.size();i++){
+		for(unsigned int j(0);j<mat.size();j++){
+			flux<<mat(i,j)<<" ";
+		}
+		flux<<std::endl;
+	}
+	return flux;
+}
+
 #endif
