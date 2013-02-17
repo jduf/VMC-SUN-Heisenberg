@@ -9,10 +9,10 @@
 template<typename T>
 class System{
 	public:
-		System(unsigned int N_spin, unsigned int N_m, unsigned int dim);
+		System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, Matrice<double>& U);
 		~System();
 
-		unsigned int const N_spin, N_m, N_site, dim;
+		unsigned int const N_spin, N_m, N_nts, N_site;
 		unsigned int *nts;
 		
 		void update_state();
@@ -33,13 +33,11 @@ class System{
 		Matrice<T> tmp_mat;
 		unsigned int *s;
 		unsigned int *wis;
-		unsigned int Nx,Ny;
 		unsigned int cc[2]; // column changed
 		unsigned int mc[2]; // matrix changed
 		T w[2];
 
-		void create_U(Matrice<T>& U, unsigned int dim);
-		void create_nts(unsigned int dim);
+		void init_nts(Matrice<T> const& U);
 		void init_state(Matrice<T> const& U);
 };
 
@@ -49,25 +47,23 @@ std::ostream& operator<<(std::ostream& flux, System<T> const& S);
 /*Constructors and destructor*/
 /*{*/
 template<typename T>
-System<T>::System(unsigned int N_spin, unsigned int N_m, unsigned int dim):
+System<T>::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, Matrice<double>& U):
 	N_spin(N_spin),
 	N_m(N_m),
+	N_nts(N_n*N_m*N_spin),
 	N_site(N_m*N_spin),
-	dim(dim),
-	nts(new unsigned int[N_spin*N_m*dim]),
+	nts(new unsigned int[N_spin*N_m*N_n]),
 	A(new Matrice<T>[N_spin]),
 	Ainv(new Matrice<T>[N_spin]),
 	tmp_mat(N_m,0.0),
 	s(new unsigned int[N_spin*N_m]),
-	wis(new unsigned int[N_spin*N_m]),
-	Nx(0),
-	Ny(0)
+	wis(new unsigned int[N_spin*N_m])
 {
-	if(dim==1){Nx = N_site; Ny=1;}
-	if(dim==2){Nx = 4; Ny = 3;} // Nx & Ny > 2 sinon problème d'antipériodicité
-	Matrice<T> U(N_site);
-	create_U(U,dim);
-	create_nts(dim);
+	srand(time(NULL)^(getpid()<<16));
+	init_nts(U);
+	Lapack<double> ES(U.ptr(),U.size(),'S');
+	Vecteur<double> EVal(N_site);
+	ES.eigensystem(EVal);
 	init_state(U);
 	for(unsigned int i(0);i<2;i++){
 		w[i] = 0;
@@ -146,17 +142,14 @@ void System<T>::print(){
 /*{*/
 
 template<typename T>
-void System<T>::create_nts(unsigned int dim){
-	if(dim==1){
-		for(unsigned int i(0);i<N_site;i++){
-			nts[i] = (i+1) % N_site;
-		}
-	} 
-	if(dim==2) {
-		for(unsigned int j(0);j<Ny;j++){
-			for(unsigned int i(0);i<Nx;i++){
-				nts[dim*(j*Nx+i)] = (i+1) % Nx + j*Nx;
-				nts[dim*(j*Nx+i)+1] = ((j+1)*Nx) % N_site + i;
+void System<T>::init_nts(Matrice<T> const& U){
+	unsigned int k(0);
+	for(unsigned int i(0); i<N_site;i++){
+		for(unsigned int j(i+1); j<N_site;j++){
+			if ( fabs(U(i,j)) > 1e-4){
+				nts[k] = i;
+				nts[k+1] = j;
+				k+=2;
 			}
 		}
 	}
@@ -176,7 +169,6 @@ void System<T>::init_state(Matrice<T> const& U){
 		A[i] = Matrice<T> (N_m);
 		Ainv[i] = Matrice<T> (N_m);
 		for(unsigned int j(0); j < N_m; j++){
-			//l = s[i*N_m+j];
 			site = rand() % N_as;
 			s[j+i*N_m] = available_sites[site];
 			wis[available_sites[site]] = i*N_m+j; 	

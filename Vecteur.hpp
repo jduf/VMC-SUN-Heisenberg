@@ -3,39 +3,47 @@
 
 #include <iostream>
 #include <cmath>
+#include <cassert>
 
 template <typename T>
 class Vecteur{
 	public:
-/*Constructors and destructor*/
+		/*!Default constructor that initializes *v to NULL and N to 0*/
 		Vecteur();
+		/*!Initializes a static array of T of size N*/
 		Vecteur(unsigned int N);
+		/*!Initializes a static array of T of size N to a value val*/
 		Vecteur(unsigned int N, T val);
-		//Vecteur(unsigned int N, V val);
+		/*!Deep copy*/
 		Vecteur(Vecteur<T> const& v);
+		/*!Delete the static array*/
 		~Vecteur();
 
-/*operators*/
+		/*!Does a deep copie*/
 		Vecteur& operator=(Vecteur const& mat);
-		inline T const& operator()(unsigned int const& i) const {return v[i];};
-		inline T& operator()(unsigned int const& i){return v[i];};
+		/*!Accesses the ith entry of the vector*/
+		inline T const& operator()(unsigned int const& i) const {assert(i<N); return v[i];};
+		/*!Set the ith entry of the vector*/
+		inline T& operator()(unsigned int const& i){assert(i<N); return v[i];};
+		/*!Multiplies this vector by a double*/
 		Vecteur<T>& operator*=(T const& d);
 
-/*methods that modify the class*/
+		/*!Sets the entries to zero if they are close to 0*/
 		void chop();
 
-/*other methods*/
+		/*!Returns the pointer on the array*/
 		inline T* ptr() const { return v; };
+		/*!Returns the size of the vector*/
 		inline unsigned int size() const { return N; };
 
 		void test() const;
 		void print() const;
 
 	private:
-		T *v;
-		unsigned int N;
+		T *v; //!< pointer to a static array
+		unsigned int N; //!< size of the static array
 		
-/*methods that modify the class*/
+		/*!Set the all the values to val*/
 		void fill_vecteur(T val);
 };
 
@@ -57,16 +65,18 @@ template <typename T>
 Vecteur<T>::Vecteur(unsigned int N):
 	v(new T[N]),
 	N(N)
-{ }
+{ } 
 
 template <typename T>
 Vecteur<T>::Vecteur(unsigned int N, T val):
 	v(new T[N]),
 	N(N)
-{ fill_vecteur(val); }
+{
+	fill_vecteur(val);
+}
 
 template <typename T>
-Vecteur<T>::Vecteur(Vecteur const& vec):
+Vecteur<T>::Vecteur(Vecteur<T> const& vec):
 	v(new T[vec.size()]),
 	N(vec.size())
 {
@@ -85,8 +95,9 @@ Vecteur<T>::~Vecteur(){
 /*{*/
 template <typename T>
 Vecteur<T>& Vecteur<T>::operator=(Vecteur<T> const& vec){
-	if(this->N!=vec.N){
-		std::cerr<<"impossible d'affecter deux Vecteurs si dim1 =! dim2"<<std::endl;
+	if(this->N != vec.N){
+		delete[] this->v;
+		this->N = vec.N;
 	}
 	for(unsigned int i(0); i<N; i++){
 		this->v[i] = vec.v[i];
@@ -118,9 +129,7 @@ Vecteur<T> operator*(Vecteur<T> const& vec, T const& d){
 
 template <typename T>
 T operator*(Vecteur<T> const& vec1, Vecteur<T> const& vec2){
-	if(vec1.size() != vec2.size()){
-		std::cerr<<"scalar product between vector of different size"<<std::endl;
-	}
+	assert(vec1.N==vec2.N);
 	T s(0.0);
 	for(unsigned int i(0);i<vec1.size();i++){
 		s += vec1(i)*vec2(i);
