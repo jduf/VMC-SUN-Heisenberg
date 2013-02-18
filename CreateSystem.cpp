@@ -68,6 +68,8 @@ void compute_EVec(Matrice<double>& H, Write& w){
 	Lapack<double> ES(H.ptr(),H.size(),'S');
 	Vecteur<double> EVal(H.size());
 	ES.eigensystem(EVal);
+	EVal.print();
+	H.print();
 	w<<H;
 }
 
@@ -79,12 +81,12 @@ void compute_EVec(Matrice<std::complex<double> >& H, Write& w){
 }
 
 template<typename M>
-void init_nts(Matrice<M> const& U, unsigned int N_n, Write& w){
-	unsigned int k(0),N_site(U.size());
+void init_sts(Matrice<M> const& H, unsigned int N_n, Write& w){
+	unsigned int k(0),N_site(H.size());
 	Array2D<unsigned int> nts(N_site*N_n/2,2);
 	for(unsigned int i(0); i<N_site;i++){
 		for(unsigned int j(i+1); j<N_site;j++){
-			if ( std::abs(U(i,j)) > 1e-4){
+			if ( std::abs(H(i,j)) > 1e-4){
 				nts(k,0) = i;
 				nts(k,1) = j;
 				k++;

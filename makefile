@@ -24,10 +24,10 @@ MC.o:MC.cpp Chrono.hpp Parseur.hpp System.hpp Read.hpp
 ########
 # setup
 ########
-setup:Setup.o Write.o Read.o
+setup:Setup.o Write.o Read.o Lapack.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-Setup.o:Setup.cpp Read.hpp Write.hpp
+Setup.o:Setup.cpp Read.hpp Write.hpp Matrice.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
 ########

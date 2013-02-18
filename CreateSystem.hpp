@@ -14,7 +14,7 @@ void compute_EVec(Matrice<double>& H, Write& w);
 void compute_EVec(Matrice<std::complex<double> >& H, Write& w);
 
 template<typename M>
-void init_nts(Matrice<M> const& U, unsigned int N_n, Write& w);
+void init_sts(Matrice<M> const& H, unsigned int N_n, Write& w);
 
 void check(std::string lattice);
 
@@ -46,13 +46,13 @@ int main(int argc, char* argv[]){
 		Matrice<std::complex<double> > H(N_spin*N_m);
 		init_H(H,N_n);
 		std::cout<<H<<std::endl;
-		init_nts(H,N_n,w);
+		init_sts(H,N_n,w);
 		compute_EVec(H,w);
 	} else {
 		Matrice<double> H(N_spin*N_m);
 		init_H(H,N_n);
 		std::cout<<H<<std::endl;
-		init_nts(H,N_n,w);
+		init_sts(H,N_n,w);
 		compute_EVec(H,w);
 	}
 

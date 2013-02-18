@@ -30,7 +30,6 @@ int main(int argc, char* argv[]){
 
 	Array2D<unsigned int> sts(N_spin*N_m*N_n/2,2);
 	r>>sts;
-	std::cout<<sts;
 	if(is_complex){
 		Matrice<std::complex<double> > EVec(N_m*N_spin);
 		r>>EVec;
@@ -40,7 +39,6 @@ int main(int argc, char* argv[]){
 		Matrice<double> EVec(N_m*N_spin);
 		r>>EVec;
 		System<double> S(N_spin,N_m,sts,EVec);
-	std::cerr<<"ok"<<std::endl;
 		E=energie(S,N_MC);
 	}
 
@@ -60,7 +58,7 @@ double energie(System<T>& S,unsigned int N_MC){
 		if(ratio>1 || (double)rand()/RAND_MAX <ratio){
 			i++;
 			S.update_state();
-			for(unsigned int i(0);i<S.N_site;i++){
+			for(unsigned int i(0);i<S.sts.row();i++){
 				S.swap(S.sts(i,0),S.sts(i,1));
 				energie += S.compute_ratio();
 			}
