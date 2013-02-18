@@ -65,7 +65,7 @@ template <typename T>
 Vecteur<T>::Vecteur(unsigned int N):
 	v(new T[N]),
 	N(N)
-{ } 
+{ }
 
 template <typename T>
 Vecteur<T>::Vecteur(unsigned int N, T val):

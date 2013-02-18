@@ -8,7 +8,6 @@
 
 #include "Vecteur.hpp"
 
-
 template<typename M>
 class Matrice{
 	public:
@@ -70,6 +69,8 @@ Matrice<M> operator^(Vecteur<M> const& vec1, Vecteur<M> const& vec2);
 
 template<typename M>
 std::ostream& operator<<(std::ostream& flux, Matrice<M> const& mat);
+template<typename M>
+std::istream& operator>>(std::istream& flux, Matrice<M>& mat);
 
 /*Constructors and destructor*/
 /*{*/
@@ -77,7 +78,7 @@ template<typename M>
 Matrice<M>::Matrice():
 	m(NULL),
 	N(0)
-{ } 
+{ }
 
 template<typename M>
 Matrice<M>::Matrice(unsigned int N):
@@ -201,6 +202,27 @@ Matrice<M> operator^(Vecteur<M> const& vec1, Vecteur<M> const& vec2){
 	}
 	return mat;
 }
+
+template<typename M>
+std::ostream& operator<<(std::ostream& flux, Matrice<M> const& mat){
+	for(unsigned int i(0);i<mat.size();i++){
+		for(unsigned int j(0);j<mat.size();j++){
+			flux<<mat(i,j)<<" ";
+		}
+		flux<<std::endl;
+	}
+	return flux;
+}
+
+template<typename M>
+std::istream& operator>>(std::istream& flux, Matrice<M>& mat){
+	for(unsigned int i(0);i<mat.size();i++){
+		for(unsigned int j(0);j<mat.size();j++){
+			flux>>mat(i,j);
+		}
+	}
+	return flux;
+}
 /*}*/
 
 /*methods that modify the class*/
@@ -227,7 +249,7 @@ template<typename M>
 void Matrice<M>::print() const{
 	for(unsigned int i(0); i < N; i++){
 		for(unsigned int j(0); j < N; j++){
-			std::cout << m[i+j*N] << " ";
+			std::cout <<std::setprecision(3)<<std::setw(7)<<std::fixed<< m[i+j*N] << " ";
 		}
 		std::cout << std::endl;
 	}
@@ -258,16 +280,4 @@ Matrice<std::complex<double> > Matrice<M>::trans_conj() const{
 	return tmp;
 }
 /*}*/
-
-template<typename M>
-std::ostream& operator<<(std::ostream& flux, Matrice<M> const& mat){
-	for(unsigned int i(0);i<mat.size();i++){
-		for(unsigned int j(0);j<mat.size();j++){
-			flux<<mat(i,j)<<" ";
-		}
-		flux<<std::endl;
-	}
-	return flux;
-}
-
 #endif

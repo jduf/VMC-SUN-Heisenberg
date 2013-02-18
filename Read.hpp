@@ -2,6 +2,8 @@
 #define DEF_READ
 
 #include"Matrice.hpp"
+#include"Array2D.hpp"
+
 #include<iostream>
 #include<fstream>
 #include<string>
@@ -17,7 +19,9 @@ class Read{
 		template<typename T>
 			Read& operator>>(T& t);
 		template<typename M>
-			Read& operator>>(Matrice<M>& m);
+			Read& operator>>(Matrice<M>& mat);
+		template<typename A>
+			Read& operator>>(Array2D<A>& arr);
 
 	private:
 		/*!forbids default constructor*/
@@ -31,9 +35,9 @@ class Read{
 		void open_txt(std::string filename);
 
 		template<typename M>
-			void read_binary_matrix(Matrice<M>& m);
-		template<typename M>
-			void read_txt_matrix(Matrice<M>& m);
+			void read_binary_matrix(Matrice<M>& mat);
+		template<typename A>
+			void read_binary_array2d(Array2D<A>& arr);
 
 		FILE *bfile;
 		std::ifstream tfile;
@@ -49,41 +53,56 @@ Read& Read::operator>>(T& t){
 }
 
 template<typename M>
-Read& Read::operator>>(Matrice<M>& m){
-	if(binary) { read_binary_matrix(m); }
-	else { read_txt_matrix(m); }
+Read& Read::operator>>(Matrice<M>& mat){
+	if(binary) { read_binary_matrix(mat); }
+	else { tfile>>mat; }
+	return (*this);
+}
+
+template<typename A>
+Read& Read::operator>>(Array2D<A>& arr){
+	if(binary) { read_binary_array2d(arr);}
+	else { tfile>>arr; }
 	return (*this);
 }
 
 template<typename M>
-void Read::read_binary_matrix(Matrice<M>& m){
+void Read::read_binary_matrix(Matrice<M>& mat){
 	unsigned int N(0);
 	fread(&N,sizeof(N),1,bfile);
 	M tmp[N*N];
 	fread(&tmp,sizeof(tmp),1,bfile);
-	if(N != m.size()) {
+	if(N != mat.size()) {
 		Matrice<M> mat_tmp(N);
 		for(unsigned int i(0);i<N*N;i++){
 			(mat_tmp.ptr())[i]=tmp[i];
 		}
-		m = mat_tmp;
+		mat = mat_tmp;
 	} else {
 		for(unsigned int i(0);i<N*N;i++){
-			(m.ptr())[i]=tmp[i];
+			(mat.ptr())[i]=tmp[i];
 		}
 	}
 }
 
-template<typename M>
-void Read::read_txt_matrix(Matrice<M>& m){
-	if(m.size()!=0) {
-		for(unsigned int i(0); i<m.size();i++){
-			for(unsigned int j(0); j<m.size();j++){
-				tfile >> m(i,j);
-			}
+template<typename A>
+void Read::read_binary_array2d(Array2D<A>& arr){
+	unsigned int N_row(0);
+	unsigned int N_col(0);
+	fread(&N_row,sizeof(N_row),1,bfile);
+	fread(&N_col,sizeof(N_col),1,bfile);
+	A tmp[N_row*N_col];
+	fread(&tmp,sizeof(tmp),1,bfile);
+	if(N_row != arr.row() || N_col != arr.col()) {
+		Array2D<A> arr_tmp(N_row,N_col);
+		for(unsigned int i(0);i<N_row*N_col;i++){
+			(arr_tmp.ptr())[i]=tmp[i];
 		}
+		arr = arr_tmp;
 	} else {
-		std::cerr<<"Read : to read a Matrice<M> you need to set the size of the input matric"<<std::endl;
+		for(unsigned int i(0);i<N_row*N_col;i++){
+			(arr.ptr())[i]=tmp[i];
+		}
 	}
 }
 #endif

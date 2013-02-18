@@ -4,24 +4,26 @@
 #include "Vecteur.hpp"
 #include "Matrice.hpp"
 #include "Lapack.hpp"
+#include "Array2D.hpp"
+
 #include <cstdlib>
+#include <cmath>
 
 template<typename T>
 class System{
 	public:
-		System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, Matrice<double>& U);
+		System(unsigned int N_spin, unsigned int N_m, Array2D<unsigned int> sts, Matrice<T>& EVec);
 		~System();
 
-		unsigned int const N_spin, N_m, N_nts, N_site;
-		unsigned int *nts;
+		unsigned int const N_spin, N_m, N_site;
+		Array2D<unsigned int> sts;
 		
 		void update_state();
 		void swap();
 		void swap(unsigned int a, unsigned int b);
-		T compute_ratio();
+		double compute_ratio();
 		T det();
 
-		std::complex<double> CC(double a, double b){return std::complex<double> (a,b);};
 		unsigned int const& operator[](unsigned int const& i) const { return wis[i];};
 
 		void print();
@@ -37,8 +39,7 @@ class System{
 		unsigned int mc[2]; // matrix changed
 		T w[2];
 
-		void init_nts(Matrice<T> const& U);
-		void init_state(Matrice<T> const& U);
+		void init_state(Matrice<T> const& EVec);
 };
 
 template<typename T>
@@ -47,12 +48,11 @@ std::ostream& operator<<(std::ostream& flux, System<T> const& S);
 /*Constructors and destructor*/
 /*{*/
 template<typename T>
-System<T>::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, Matrice<double>& U):
+System<T>::System(unsigned int N_spin, unsigned int N_m, Array2D<unsigned int> sts, Matrice<T>& EVec):
 	N_spin(N_spin),
 	N_m(N_m),
-	N_nts(N_n*N_m*N_spin),
 	N_site(N_m*N_spin),
-	nts(new unsigned int[N_spin*N_m*N_n]),
+	sts(sts),
 	A(new Matrice<T>[N_spin]),
 	Ainv(new Matrice<T>[N_spin]),
 	tmp_mat(N_m,0.0),
@@ -60,11 +60,7 @@ System<T>::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, Matri
 	wis(new unsigned int[N_spin*N_m])
 {
 	srand(time(NULL)^(getpid()<<16));
-	init_nts(U);
-	Lapack<double> ES(U.ptr(),U.size(),'S');
-	Vecteur<double> EVal(N_site);
-	ES.eigensystem(EVal);
-	init_state(U);
+	init_state(EVec);
 	for(unsigned int i(0);i<2;i++){
 		w[i] = 0;
 		cc[i] = 0;
@@ -74,7 +70,6 @@ System<T>::System(unsigned int N_spin, unsigned int N_m, unsigned int N_n, Matri
 
 template<typename T>
 System<T>::~System(){
-	delete[] nts;
 	delete[] s;
 	delete[] wis;
 	delete[] A;
@@ -85,7 +80,7 @@ System<T>::~System(){
 /*methods that return something related to the class*/
 /*{*/
 template<typename T> //peut être un double en retour
-T System<T>::compute_ratio(){
+double System<T>::compute_ratio(){
 	if(mc[0] == mc[1]){
 		return -1;
 	} else { 
@@ -95,6 +90,7 @@ T System<T>::compute_ratio(){
 			w[0] += Ainv[mc[0]](cc[0],i)*A[mc[1]](i,cc[1]);
 			w[1] += Ainv[mc[1]](cc[1],i)*A[mc[0]](i,cc[0]);
 		}
+		//std::cout<<w[0]<<" "<<w[1]<<" "<<w[0]*w[1]<<std::endl;
 		return w[0]*w[1];
 	}
 }
@@ -140,24 +136,8 @@ void System<T>::print(){
 
 /*methods that modify the class*/
 /*{*/
-
 template<typename T>
-void System<T>::init_nts(Matrice<T> const& U){
-	unsigned int k(0);
-	for(unsigned int i(0); i<N_site;i++){
-		for(unsigned int j(i+1); j<N_site;j++){
-			if ( fabs(U(i,j)) > 1e-4){
-				nts[k] = i;
-				nts[k+1] = j;
-				k+=2;
-			}
-		}
-	}
-}
-
-template<typename T>
-void System<T>::init_state(Matrice<T> const& U){
-	srand(time(NULL)^(getpid()<<16));
+void System<T>::init_state(Matrice<T> const& EVec){
 	unsigned int site(0);
 	unsigned int N_as(N_site);
 	unsigned int available_sites[N_site];
@@ -173,7 +153,7 @@ void System<T>::init_state(Matrice<T> const& U){
 			s[j+i*N_m] = available_sites[site];
 			wis[available_sites[site]] = i*N_m+j; 	
 			for(unsigned int k(0); k < N_m; k++){
-				A[i](k,j) = U(available_sites[site],k);
+				A[i](k,j) = EVec(available_sites[site],k);
 			}
 			for(unsigned int k(site); k < N_as-1; k++){
 				available_sites[k] = available_sites[k+1];
