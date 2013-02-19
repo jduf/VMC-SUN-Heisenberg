@@ -36,22 +36,24 @@ int main(int argc, char* argv[]){
 	ss1<<N_spin;
 	ss2<<N_spin*N_m;
 	lattice += "-N"+ss1.str() + "-S"+ss2.str();
-	std::cout<<lattice<<std::endl;
-
+	if(is_complex){ lattice += "-1"; }
+	else{ lattice += "-0"; }
 	//N_spin = 3; N_m = 4; N_n = 4; lattice="check"; is_complex=false;
+	std::cout<<lattice<<std::endl;
 
 	Write w(lattice.c_str());
 	w<<is_complex<<N_spin<<N_m<<N_n;
+	std::cout<<is_complex<<std::endl;
 	if(is_complex){
 		Matrice<std::complex<double> > H(N_spin*N_m);
 		init_H(H,N_n);
+		std::cout<<"Hcomp"<<std::endl;
 		std::cout<<H<<std::endl;
 		init_sts(H,N_n,w);
 		compute_EVec(H,w);
 	} else {
 		Matrice<double> H(N_spin*N_m);
 		init_H(H,N_n);
-		std::cout<<H<<std::endl;
 		init_sts(H,N_n,w);
 		compute_EVec(H,w);
 	}

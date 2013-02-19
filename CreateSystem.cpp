@@ -18,16 +18,15 @@ void init_H(Matrice<double>& H, unsigned int N_n){
 			}
 		case 4:
 			{
-				unsigned int Nx(3),Ny(4);
+				unsigned int N_row(4),N_col(6);
+				assert(N_row*N_col==N_site);
 				unsigned int j(0);
-				for(unsigned int i(0); i< N_site-1; i++){
-					if((i+1) % Nx == 0){H(j*Nx,i) = 1.0;j++;}
+				for(unsigned int i(0); i< N_site; i++){
+					if((i+1) % N_col == 0){H(j*N_col,i) = 1.0;j++;}
 					else {H(i,i+1) = -1.0;}
-					if(i+Nx < N_site){ H(i,i+Nx) = -1.0;}
-					else{ H(i+Nx-N_site,i) = 1.0;}
+					if(i+N_col < N_site){ H(i,i+N_col) = -1.0;}
+					else{ H(i+N_col-N_site,i) = 1.0;}
 				}
-				H(Nx-1,N_site-1) = 1.0;
-				H(N_site-Nx,N_site-1) = 1.0;
 				H = H+H.transpose();
 				break;
 			}
@@ -43,17 +42,16 @@ void init_H(Matrice<std::complex<double> >& H, unsigned int N_n){
 	switch(N_n){
 		case 4:
 			{
-				unsigned int Nx(3),Ny(4);
-				double phi(M_PI/3.0);
+				unsigned int N_row(4),N_col(6);
+				assert(N_row*N_col==N_site);
+				double phi(2*M_PI/N_col);
 				unsigned int j(0);
-				for(unsigned int i(0); i< N_site-1; i++){
-					if((i+1) % Nx == 0){ H(j*Nx,i) = 1.0; j++;}
+				for(unsigned int i(0); i< N_site; i++){
+					if((i+1) % N_col == 0){ H(j*N_col,i) = 1.0; j++;}
 					else { H(i,i+1) = -1.0;}
-					if(i+Nx < N_site){ H(i,i+Nx) = -std::polar(1.0,((i%Nx)+1)*phi);}
-					else{ H(i+Nx-N_site,i) =std::polar(1.0,((i%Nx)+1)*phi);}
+					if(i+N_col < N_site){ H(i,i+N_col) = std::polar(1.0,-((i%N_col)+1)*phi);}
+					else{ H(i+N_col-N_site,i) = std::polar(1.0,((i%N_col)+1)*phi);}
 				}
-				H(Nx-1,N_site-1) = std::polar(1.0,(((N_site-1)%Nx)+1)*phi);
-				H(N_site-Nx,N_site-1) = 1.0;
 				H = H+H.trans_conj();
 				break;
 			}
@@ -77,6 +75,7 @@ void compute_EVec(Matrice<std::complex<double> >& H, Write& w){
 	Lapack<std::complex<double> > ES(H.ptr(),H.size(),'H');
 	Vecteur<double> EVal(H.size());
 	ES.eigensystem(EVal);
+	EVal.print();
 	w<<H;
 }
 

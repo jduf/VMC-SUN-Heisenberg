@@ -39,7 +39,9 @@ int main(int argc, char* argv[]){
 		Matrice<double> EVec(N_m*N_spin);
 		r>>EVec;
 		System<double> S(N_spin,N_m,sts,EVec);
-		E=energie(S,N_MC);
+		S.swap();
+		S.ratio();
+		//E=energie(S,N_MC);
 	}
 
 	std::cout<<N_spin<<" "<<N_m<<" "<<N_MC<<" "<< E<<std::endl;
@@ -53,14 +55,14 @@ double energie(System<T>& S,unsigned int N_MC){
 	unsigned int i(0);
 	while(i<N_MC){
 		S.swap();
-		ratio = S.compute_ratio();
-		ratio *= ratio;
+		ratio = S.ratio();  
+		ratio *= ratio;// gérer les nombres complex...
 		if(ratio>1 || (double)rand()/RAND_MAX <ratio){
 			i++;
-			S.update_state();
+			S.update();
 			for(unsigned int i(0);i<S.sts.row();i++){
 				S.swap(S.sts(i,0),S.sts(i,1));
-				energie += S.compute_ratio();
+				energie += S.ratio();
 			}
 		}
 	}

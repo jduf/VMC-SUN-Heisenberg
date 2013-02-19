@@ -18,11 +18,10 @@ class System{
 		unsigned int const N_spin, N_m, N_site;
 		Array2D<unsigned int> sts;
 		
-		void update_state();
+		void update();
+		T ratio();
 		void swap();
 		void swap(unsigned int a, unsigned int b);
-		double compute_ratio();
-		T det();
 
 		unsigned int const& operator[](unsigned int const& i) const { return wis[i];};
 
@@ -30,6 +29,7 @@ class System{
 
 	private:
 		System();
+		System& operator=(System const & S);
 		Matrice<T> *A;
 		Matrice<T> *Ainv;
 		Matrice<T> tmp_mat;
@@ -41,9 +41,6 @@ class System{
 
 		void init_state(Matrice<T> const& EVec);
 };
-
-template<typename T>
-std::ostream& operator<<(std::ostream& flux, System<T> const& S);
 
 /*Constructors and destructor*/
 /*{*/
@@ -80,7 +77,7 @@ System<T>::~System(){
 /*methods that return something related to the class*/
 /*{*/
 template<typename T> //peut être un double en retour
-double System<T>::compute_ratio(){
+T System<T>::ratio(){
 	if(mc[0] == mc[1]){
 		return -1;
 	} else { 
@@ -91,18 +88,9 @@ double System<T>::compute_ratio(){
 			w[1] += Ainv[mc[1]](cc[1],i)*A[mc[0]](i,cc[0]);
 		}
 		//std::cout<<w[0]<<" "<<w[1]<<" "<<w[0]*w[1]<<std::endl;
+		std::cout<<
 		return w[0]*w[1];
 	}
-}
-
-template<typename T>
-T System<T>::det(){
-	T d(1.0);
-	for(unsigned int i(0);i<N_spin;i++){
-		Lapack<T> A_(A[i],'G');
-		d *= A_.det();
-	}
-	return d;
 }
 
 template<typename T>
@@ -186,7 +174,7 @@ void System<T>::swap(unsigned int a, unsigned int b) {
 }
 
 template<typename T>
-void System<T>::update_state(){
+void System<T>::update(){
 	unsigned int a(0),b(0);
 	a = mc[0]*N_m+cc[0];
 	b = mc[1]*N_m+cc[1];
@@ -227,12 +215,4 @@ void System<T>::update_state(){
 	}
 }
 /*}*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& flux, System<T> const& S){
-	for(unsigned int i(0);i<S.N_site;i++){
-		flux<<S[i]/S.N_m<<" ";
-	}
-	return flux;
-}
 #endif
