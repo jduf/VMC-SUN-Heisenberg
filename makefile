@@ -11,7 +11,7 @@ CXXFLAGS = $(LAPACK) $(ERRORS) $(DEBUG) $(OPTION)
 
 LDFLAGS= $(LAPACK) $(DEBUG) $(OPTION)
 
-all:mc setup createsystem
+all:mc setup cs
 ########
 # mc
 #######
@@ -33,10 +33,13 @@ Setup.o:Setup.cpp Read.hpp Write.hpp Matrice.hpp Parseur.hpp
 ########
 # create
 ########
-createsystem:CreateSystem.o Read.o Write.o Lapack.o
+cs:cs.o CreateSystem.o Read.o Write.o Lapack.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-CreateSystem.o:CreateSystem.cpp CreateSystem.hpp Read.hpp Write.hpp Array2D.hpp
+CreateSystem.o:CreateSystem.cpp CreateSystem.hpp Read.hpp Write.hpp Array2D.hpp Matrice.hpp Lapack.hpp
+	$(CXX) -c $(CXXFLAGS) $^ 
+
+CS.o:CS.cpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
 ########
@@ -54,4 +57,4 @@ Lapack.o:Lapack.cpp Lapack.hpp Matrice.hpp Vecteur.hpp
 # divers
 ########
 clean:
-	rm *.o *.gch mc setup createsystem
+	rm *.o *.gch mc setup cs

@@ -1,62 +1,66 @@
 #include "Read.hpp"
 #include "Write.hpp"
-#include "Parseur.hpp"
 #include "Array2D.hpp"
 #include "Lapack.hpp"
 #include "Matrice.hpp"
 
-#include <sstream>
 #include <complex>
 
-void init_H(Matrice<double>& H, unsigned int N_n);
-void init_H(Matrice<std::complex<double> >& H, unsigned int N_n);
-void compute_EVec(Matrice<double>& H, Write& w);
-void compute_EVec(Matrice<std::complex<double> >& H, Write& w);
+template<typename M>
+class CreateState{
+	public:
+		CreateState(unsigned int N_m, unsigned int N_spin, unsigned int N_n, std::string filename);
+
+	private:
+		std::string const filename;
+		char mat_type;
+		Write w;
+		unsigned int const N_m, N_spin, N_n, N_site;
+		Matrice<M> H;
+
+		void init();
+		void compute_EVec();
+
+		void init_sts();
+};
 
 template<typename M>
-void init_sts(Matrice<M> const& H, unsigned int N_n, Write& w);
+CreateState<M>::CreateState(unsigned int N_m, unsigned int N_spin, unsigned int N_n, std::string filename):
+	filename(filename),
+	mat_type('U'),
+	w(),
+	N_m(N_m),
+	N_spin(N_spin), 
+	N_n(N_n),
+	N_site(N_m*N_spin),
+	H(N_spin*N_m)
+{
+	init();
+	init_sts();
+	compute_EVec();
+}
 
-void check(std::string lattice);
 
-int main(int argc, char* argv[]){
-	Parseur P(argc,argv);
-	unsigned int N_spin(0), N_m(0), N_n(0);
-	bool is_complex(false);
-	std::string lattice;
-
-	P.set("N_spin",N_spin);	
-	P.set("N_m",N_m);	
-	P.set("lattice",lattice);	
-	P.set("complex",is_complex);
-	if(lattice=="chain"){ N_n = 2;}
-	if(lattice=="honeycomb"){ N_n = 3;}
-	if(lattice=="square"){ N_n = 4;}
-	std::stringstream ss1;
-	std::stringstream ss2;
-	ss1<<N_spin;
-	ss2<<N_spin*N_m;
-	lattice += "-N"+ss1.str() + "-S"+ss2.str();
-	if(is_complex){ lattice += "-1"; }
-	else{ lattice += "-0"; }
-	//N_spin = 3; N_m = 4; N_n = 4; lattice="check"; is_complex=false;
-	std::cout<<lattice<<std::endl;
-
-	Write w(lattice.c_str());
-	w<<is_complex<<N_spin<<N_m<<N_n;
-	std::cout<<is_complex<<std::endl;
-	if(is_complex){
-		Matrice<std::complex<double> > H(N_spin*N_m);
-		init_H(H,N_n);
-		std::cout<<"Hcomp"<<std::endl;
-		std::cout<<H<<std::endl;
-		init_sts(H,N_n,w);
-		compute_EVec(H,w);
-	} else {
-		Matrice<double> H(N_spin*N_m);
-		init_H(H,N_n);
-		init_sts(H,N_n,w);
-		compute_EVec(H,w);
+template<typename M>
+void CreateState<M>::init_sts(){
+	unsigned int k(0),N_site(H.size());
+	Array2D<unsigned int> nts(N_site*N_n/2,2);
+	for(unsigned int i(0); i<N_site;i++){
+		for(unsigned int j(i+1); j<N_site;j++){
+			if ( std::abs(H(i,j)) > 1e-4){
+				nts(k,0) = i;
+				nts(k,1) = j;
+				k++;
+			}
+		}
 	}
+	w<<nts<<H;
+}
 
-	check(lattice);
+template<typename M>
+void CreateState<M>::compute_EVec(){
+	Lapack<M> ES(H.ptr(),H.size(), mat_type);
+	Vecteur<double> EVal(H.size());
+	ES.eigensystem(EVal);
+	w<<H;
 }
