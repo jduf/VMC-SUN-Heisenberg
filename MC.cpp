@@ -13,20 +13,21 @@ double energie(System<std::complex<double> >& S,unsigned int N_MC);
 double energie(System<double>& S,unsigned int N_MC);
 
 int main(int argc, char* argv[]){
-	std::cerr<<"vérifer abs, fabs, abs(complex)"<<std::endl;
-	std::cerr<<"vérifer det et compute_ration pour les complex"<<std::endl;
+	//std::cerr<<"vérifer abs, fabs, abs(complex)"<<std::endl;
+	//std::cerr<<"vérifer det et compute_ration pour les complex"<<std::endl;
 
-	Chrono t;
-	t.tic();
+	//Chrono t;
+	//t.tic();
 
+	double E0(0.0);
+	double E1(1.0);
 	double E(0.0);
 	Parseur P(argc,argv);
 	std::string sysname;
-	unsigned int N_spin(0), N_m(0), N_n(0), N_MC(0);
+	unsigned int N_spin(0), N_m(0), N_n(0), N_MC(100);
 	bool is_complex(false);
 
 	P.set("sysname",sysname);	
-	P.set("N_MC",N_MC);	
 
 	Read r(sysname.c_str());
 	r>>is_complex>>N_spin>>N_m>>N_n;
@@ -38,25 +39,24 @@ int main(int argc, char* argv[]){
 		Matrice<std::complex<double> > H(N_m*N_spin);
 		r>>H>>EVec;
 		System<std::complex<double> > S(N_spin,N_m,sts,H,EVec);
-		//S.print();
-		//S.swap();
-		//S.ratio();
-		//S.update();
-		//S.print();
-		//S.swap(0,18);
-		//S.ratio(true);
-		E=energie(S,N_MC);
+		E0=energie(S,N_MC);
+		while(std::abs((E0-E1)/E1)> 1e-2){
+			E1 = E0;
+			E0=energie(S,N_MC);
+			std::cout<<is_complex<<" "<<N_n<<" "<<N_spin<<" "<<N_spin*N_m<<" "<<N_MC<<" "<<E0<<std::endl;
+			N_MC *= 10 ;
+		}
+		std::cerr<<is_complex<<" "<<N_n<<" "<<N_spin<<" "<<N_spin*N_m<<" "<<N_MC/10<<" "<<E0<<std::endl;
 	} else {
 		Matrice<double> EVec(N_m*N_spin);
 		Matrice<double> H(N_m*N_spin);
 		r>>H>>EVec;
 		System<double> S(N_spin,N_m,sts,H,EVec);
-		//E=energie(S,N_MC);
+		E=energie(S,N_MC);
 	}
 
-	std::cout<<N_spin<<" "<<N_m<<" "<<N_MC<<" "<< E<<std::endl;
-	t.tac();
-	std::cerr<<t<<" seconde(s)"<<std::endl;
+	//t.tac();
+	//std::cerr<<t<<" seconde(s)"<<std::endl;
 }
 
 //template<typename T>
@@ -114,6 +114,6 @@ double energie(System<std::complex<double> >& S,unsigned int N_MC){
 			}
 		}
 	}
-	std::cout<<energie<<" "<<std::imag(energie)/(S.N_site*N_MC)<<std::endl;
+	//std::cout<<energie<<" "<<std::imag(energie)/(S.N_site*N_MC)<<std::endl;
 	return std::real(energie)/(S.N_site * N_MC); // sign(permutation) => ratio det tjrs - ??? 
 }

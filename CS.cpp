@@ -4,13 +4,13 @@
 #include <sstream>
 #include <string>
 
-void check(std::string lattice);
+void check(std::string filename);
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	unsigned int N_spin(0), N_m(0), N_n(0);
 	bool is_complex(false);
-	std::string lattice;
+	std::string filename;
 
 	P.set("N_spin",N_spin);	
 	P.set("N_m",N_m);	
@@ -19,44 +19,44 @@ int main(int argc, char* argv[]){
 	switch(N_n){
 		case 2:
 			{
-				lattice="chain";
+				filename="chain";
 				break;
 			}
 		case 3:
 			{
-				lattice="honeycomb";
+				filename="honeycomb";
 				break;
 			}
 		case 4:
 			{
-				lattice="square";
+				filename="square";
 				break;
 			}
 		default:
 			{
-				std::cerr<<"main : lattice type undefined"<<std::endl;
+				std::cerr<<"main : filename type undefined"<<std::endl;
 			}
 	}
 	std::stringstream ss1;
 	std::stringstream ss2;
 	ss1<<N_spin;
 	ss2<<N_spin*N_m;
-	lattice += "-N"+ss1.str() + "-S"+ss2.str();
-	if(is_complex){ lattice += "-1"; }
-	else{ lattice += "-0"; }
+	filename += "-N"+ss1.str() + "-S"+ss2.str();
+	if(is_complex){ filename += "-1"; }
+	else{ filename += "-0"; }
 
 	if(is_complex){
-		CreateState<std::complex<double> > CS(N_m,N_spin,N_n,lattice);
+		CreateState<std::complex<double> > CS(N_m,N_spin,N_n,filename);
 	} else {
-		CreateState<double> CS(N_m,N_spin,N_n,lattice);
+		CreateState<double> CS(N_m,N_spin,N_n,filename);
 	}
 
-	check(lattice);
+	//check(filename);
 }
 
-void check(std::string lattice){
-	std::cout<<lattice<<std::endl;
-	Read r(lattice.c_str());
+void check(std::string filename){
+	std::cout<<filename<<std::endl;
+	Read r(filename.c_str());
 	unsigned int N_spin(0), N_m(0), N_n(0);
 	bool is_complex;
 

@@ -14,6 +14,7 @@
 class Read{
 	public:
 		Read(std::string filename, bool binary=true);
+		Read();
 		~Read();
 
 		template<typename T>
@@ -22,47 +23,60 @@ class Read{
 			Read& operator>>(Matrice<M>& mat);
 		template<typename A>
 			Read& operator>>(Array2D<A>& arr);
+		
+		void open(std::string filename, bool binary=true);
 
 	private:
-		/*!forbids default constructor*/
-		Read();
 		/*!forbids copy constructor*/
 		Read(Read const& R);
 		/*!forbids assertion operator*/
 		Read& operator=(Read const&);
 
-		void open_binary(std::string filename);
-		void open_txt(std::string filename);
+		void open_binary();
+		void open_txt();
 
 		template<typename M>
 			void read_binary_matrix(Matrice<M>& mat);
 		template<typename A>
 			void read_binary_array2d(Array2D<A>& arr);
 
+		std::string filename;
 		FILE *bfile;
 		std::ifstream tfile;
-		bool locked;
+		bool unlocked;
 		bool binary;
 };
 
 template<typename T>
 Read& Read::operator>>(T& t){
-	if(binary){ fread(&t,sizeof(t),1,bfile); }
-	else { tfile >> t; }
+	if(unlocked){
+		if(binary){ fread(&t,sizeof(t),1,bfile); }
+		else { tfile >> t; }
+	} else {
+		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
+	}
 	return (*this);
 }
 
 template<typename M>
 Read& Read::operator>>(Matrice<M>& mat){
-	if(binary) { read_binary_matrix(mat); }
-	else { tfile>>mat; }
+	if(unlocked){
+		if(binary) { read_binary_matrix(mat); }
+		else { tfile>>mat; }
+	} else {
+		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
+	}
 	return (*this);
 }
 
 template<typename A>
 Read& Read::operator>>(Array2D<A>& arr){
-	if(binary) { read_binary_array2d(arr);}
-	else { tfile>>arr; }
+	if(unlocked){
+		if(binary) { read_binary_array2d(arr);}
+		else { tfile>>arr; }
+	} else {
+		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
+	}
 	return (*this);
 }
 

@@ -1,7 +1,8 @@
 #include "CreateSystem.hpp"
 
 template<>
-void CreateState<double>::init(){
+void CreateState<double>::compute_H(){
+	is_complex = false;
 	mat_type = 'S';
 	switch(N_n){
 		case 2:
@@ -16,13 +17,16 @@ void CreateState<double>::init(){
 		case 4:
 			{
 				unsigned int N_row(0),N_col(0);
-				std::cout<<"N_site="<<N_site<<std::endl;
-				while(N_row*N_col != N_site || N_row<3 || N_col<3){
-					std::cout<<"N_col=";
-					std::cin>>N_col;
-					std::cout<<"N_row=";
-					std::cin>>N_row;
-				}
+				N_row = sqrt(N_site);
+				N_col = N_site/N_row;
+				std::cout<<N_row<<" "<<N_col<<std::endl;
+				//assert(N_row*N_col==N_site);
+				//while(N_row*N_col != N_site || N_row<3 || N_col<3){
+					//std::cout<<"N_col=";
+					//std::cin>>N_col;
+					//std::cout<<"N_row=";
+					//std::cin>>N_row;
+				//}
 				unsigned int j(0);
 				for(unsigned int i(0); i< N_site; i++){
 					if((i+1) % N_col == 0){H(j*N_col,i) = 1.0;j++;}
@@ -31,6 +35,10 @@ void CreateState<double>::init(){
 					else{ H(i+N_col-N_site,i) = 1.0;}
 				}
 				H += H.transpose();
+				std::stringstream ss1,ss2;
+				ss1 << N_row;
+				ss2 << N_col;
+				filename_comp = "-" + ss1.str() + "x" + ss2.str();
 				break;
 			}
 		default:
@@ -38,20 +46,20 @@ void CreateState<double>::init(){
 				std::cerr<<"init_H<real> : lattice type undefined"<<std::endl;
 			}
 	}
-	filename += 
-	w.open(filename);
-	w<<false<<N_spin<<N_m<<N_n;
 }
 
 template<>
-void CreateState<std::complex<double> >::init(){
+void CreateState<std::complex<double> >::compute_H(){
+	is_complex = true;
 	mat_type = 'H';
-	w<<true<<N_spin<<N_m<<N_n;
 	unsigned int N_site(H.size());
 	switch(N_n){
 		case 4:
 			{
-				unsigned int N_row(4),N_col(6);
+				unsigned int N_row(0),N_col(0);
+				N_row = sqrt(N_site);
+				N_col = N_site/N_row;
+				std::cout<<N_row<<" "<<N_col<<std::endl;
 				assert(N_row*N_col==N_site);
 				double phi(2*M_PI/N_col);
 				unsigned int j(0);

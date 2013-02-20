@@ -58,7 +58,6 @@ System<T>::System(unsigned int N_spin, unsigned int N_m, Array2D<unsigned int> c
 	s(new unsigned int[N_spin*N_m]),
 	wis(new unsigned int[N_spin*N_m])
 {
-	std::cout<<H<<std::endl;
 	srand(time(NULL)^(getpid()<<16));
 	init_state(EVec);
 	for(unsigned int i(0);i<2;i++){

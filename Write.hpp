@@ -14,6 +14,7 @@
 class Write{
 	public:
 		Write(std::string filename, bool binary=true);
+		Write();
 		~Write();
 
 		static std::string endl;
@@ -25,48 +26,61 @@ class Write{
 		template<typename A>
 			Write& operator<<(Array2D<A> const& arr);
 	
+		void open(std::string filename, bool binary=true);
+
 	private:
-		/*!forbids default constructor*/
-		Write();
 		/*!forbids copy constructor*/
 		Write(Write const& s);
 		/*!forbids assertion operator*/
 		Write& operator=(Write const&);
 
-		void open_binary(std::string filename);
-		void open_txt(std::string filename);
+		void open_binary();
+		void open_txt();
 
 		template<typename M>
 			void write_binary_matrix(Matrice<M> const& mat);
 		template<typename A>
 			void write_binary_array2d(Array2D<A> const& arr);
 
+		std::string filename;
 		FILE *bfile;
 		std::ofstream tfile;
+		bool unlocked;
 		bool binary;
-		bool locked;
 };
 
 template<typename T>
 Write& Write::operator<<(T const& t){
-	if(binary){
-		fwrite(&t, sizeof(t), 1 ,bfile);
-		fflush(bfile);
-	} else { tfile<< t; }
+	if(unlocked){
+		if(binary){
+			fwrite(&t, sizeof(t), 1 ,bfile);
+			fflush(bfile);
+		} else { tfile<< t; }
+	} else {
+		std::cerr<<"Write : the file "<< filename<< " is locked"<<std::endl;
+	}
 	return (*this);
 }
 
 template<typename M>
 Write& Write::operator<<(Matrice<M> const& mat){
-	if(binary) { write_binary_matrix(mat); }
-	else { tfile<<mat; }
+	if(unlocked){
+		if(binary) { write_binary_matrix(mat); }
+		else { tfile<<mat; }
+	} else {
+		std::cerr<<"Write : the file "<< filename<< " is locked"<<std::endl;
+	}
 	return (*this);
 }
 
 template<typename A>
 Write& Write::operator<<(Array2D<A> const& arr){
-	if(binary) { write_binary_array2d(arr);}
-	else { tfile<<arr; }
+	if(unlocked){
+		if(binary) { write_binary_array2d(arr);}
+		else { tfile<<arr; }
+	} else {
+		std::cerr<<"Write : the file "<< filename<< " is locked"<<std::endl;
+	}
 	return (*this);
 }
 

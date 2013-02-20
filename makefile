@@ -1,11 +1,11 @@
 CXX = g++ 
 CC = $(CXX) 
 
-#DEBUG = -DNDEBUG
+DEBUG = -DNDEBUG
 #DEBUG = -pg
 ERRORS = -Wall -Wextra -pedantic
 LAPACK = -llapack -lblas -pedantic
-#OPTION = -O3
+OPTION = -O3
 
 CXXFLAGS = $(LAPACK) $(ERRORS) $(DEBUG) $(OPTION)
 
@@ -33,7 +33,7 @@ Setup.o:Setup.cpp Read.hpp Write.hpp Matrice.hpp Parseur.hpp
 ########
 # create
 ########
-cs:cs.o CreateSystem.o Read.o Write.o Lapack.o
+cs:CS.o CreateSystem.o Read.o Write.o Lapack.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 CreateSystem.o:CreateSystem.cpp CreateSystem.hpp Read.hpp Write.hpp Array2D.hpp Matrice.hpp Lapack.hpp
