@@ -90,10 +90,6 @@ T System<T>::ratio(bool update){
 				w[0] += Ainv[mc[0]](cc[0],i)*A[mc[1]](i,cc[1]);
 				w[1] += Ainv[mc[1]](cc[1],i)*A[mc[0]](i,cc[0]);
 			}
-			//std::cout<<alpha<<" "<<beta<<" "<<H(alpha,beta)<<std::endl;
-			//std::cout<<H(s[mc[0]*N_m + cc[0]],s[mc[1]*N_m + cc[1]])<<std::endl;
-			//std::cout<<w[0]<<" "<<w[1]<<" "<<w[0]*w[1]<<std::endl;
-			//std::cout<<H(s[mc[0]*N_m + cc[0]],s[mc[1]*N_m + cc[1]]) * w[0]*w[1]<<std::endl;
 			return H(s[mc[0]*N_m + cc[0]],s[mc[1]*N_m + cc[1]]) * w[0]*w[1];
 		}
 	} else {

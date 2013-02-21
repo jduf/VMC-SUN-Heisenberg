@@ -6,8 +6,6 @@
 #include<string>
 #include<iostream>
 
-//template<typename T> 
-//double energie(System<T>& S,unsigned int N_MC);
 
 double energie(System<std::complex<double> >& S,unsigned int N_MC);
 double energie(System<double>& S,unsigned int N_MC);
@@ -59,26 +57,6 @@ int main(int argc, char* argv[]){
 	//std::cerr<<t<<" seconde(s)"<<std::endl;
 }
 
-//template<typename T>
-//double energie(System<T>& S,unsigned int N_MC){
-	//double ratio(0.0), energie(0.0);
-	//unsigned int i(0);
-	//while(i<N_MC){
-		//S.swap();
-		//ratio = S.ratio(false);  
-		//ratio *= ratio;
-		//if(ratio>1 || (double)rand()/RAND_MAX <ratio){
-			//i++;
-			//S.update();
-			//for(unsigned int i(0);i<S.sts.row();i++){
-				//S.swap(S.sts(i,0),S.sts(i,1));
-				//energie += S.ratio(true);
-			//}
-		//}
-	//}
-	//return energie/(S.N_site * N_MC); // sign(permutation) => ratio det tjrs - ??? 
-//}
-
 double energie(System<double>& S,unsigned int N_MC){
 	double ratio(0.0), energie(0.0);
 	unsigned int i(0);
@@ -114,6 +92,5 @@ double energie(System<std::complex<double> >& S,unsigned int N_MC){
 			}
 		}
 	}
-	//std::cout<<energie<<" "<<std::imag(energie)/(S.N_site*N_MC)<<std::endl;
 	return std::real(energie)/(S.N_site * N_MC); // sign(permutation) => ratio det tjrs - ??? 
 }
