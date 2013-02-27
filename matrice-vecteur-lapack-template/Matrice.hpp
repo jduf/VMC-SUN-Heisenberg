@@ -80,26 +80,19 @@ template<typename M>
 Matrice<M>::Matrice():
 	m(NULL),
 	N(0)
-{
-	std::cout<<"default : matrice"<<std::endl;
-	//fill_matrice(0.0);
-}
+{ }
 
 template<typename M>
 Matrice<M>::Matrice(unsigned int N):
 	m(new M[N*N]),
 	N(N)
-{
-	std::cout<<"taille : matrice"<<std::endl;
-	//fill_matrice(0.0);
-}
+{ } 
 
 template<typename M>
 Matrice<M>::Matrice(unsigned int N, M val):
 	m(new M[N*N]),
 	N(N)
 {
-	std::cout<<"taille+const+complex: matrice"<<std::endl;
 	fill_matrice(val);
 }
 
@@ -108,7 +101,6 @@ Matrice<M>::Matrice(Matrice<M> const& mat):
 	m(new M[mat.size()*mat.size()]),
 	N(mat.size())
 {
-	std::cout<<"copie : matrice"<<std::endl;
 	for(unsigned int i(0);i<N*N;i++){
 		m[i] = mat.m[i];
 	}
@@ -117,7 +109,6 @@ Matrice<M>::Matrice(Matrice<M> const& mat):
 template<typename M>
 Matrice<M>::~Matrice(){
 	delete[]  m;
-	std::cout<<"destructeur : matrice"<<std::endl;
 }
 /*}*/
 
@@ -125,14 +116,12 @@ Matrice<M>::~Matrice(){
 /*{*/
 template<typename M>
 Matrice<M>& Matrice<M>::operator=(Matrice<M> const& mat){
-	std::cout<<"affectation : matrice";
 	if(this->N!=mat.N){
 		delete[] this->m;
 		this->m = new M[mat.N*mat.N];
 		this->N = mat.N;
 		std::cerr<<" de taille différente";
 	}
-	std::cout<<std::endl;
 	for(unsigned int i(0); i<this->N*this->N; i++){
 		this->m[i] = mat.m[i];
 	}
