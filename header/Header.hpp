@@ -1,48 +1,42 @@
 #ifndef DEF_HEADER
 #define DEF_HEADER
 
-#include "Read.hpp"
-#include "Write.hpp"
 #include "Matrice.hpp"
+#include "Array2D.hpp"
+#include "RST.hpp"
 
 #include <string>
 #include <sstream>
 #include <iostream>
-#include <complex>
 #include <ctime>
-
-struct RSTFormatting{
-	RSTFormatting():item("+ "),bf("**"),it("*"),np("\n\n"),title('='){}
-	std::string item,bf,it,np;
-	char title;
-};
+#include <complex>
 
 class Header{
 	public:
-		Header(Read& r);
-		Header(std::string const& s);
+		Header();
+		~Header();
 
-		void add(std::string str, double const& d);
-		void add(std::string str, std::complex<double> const& c);
+		void init(std::string title);
 
-		void show(){std::cout<<h;}
-		void write(Write& w);
-		void add(std::string str, Matrice<double>& m);
+		void add(std::string const& s, double const& d);
+		void add(std::string const& s, std::complex<double> const& c);
+		void add(std::string const& s, Matrice<double> const& mat);
+		void add(std::string const& s, Matrice<std::complex<double> > const& mat);
 
-		inline std::string get() const{ return h;};
+		inline RST* get() const {return rst;};
+		void set(std::string const& s) { rst->set(s); };
+
 
 	private:
-		std::string h;
-		RSTFormatting rst;
+		RST *rst;
 
-		std::string title(std::string& t);
-
-		void when();
-		void intro(std::string const& s);
+		std::string when();
 
 		template<typename T>
 			std::string tostring(T const& t);
 };
+
+std::ostream& operator<<(std::ostream& flux, Header const& h);
 
 template<typename T>
 std::string Header::tostring(T const& t){
@@ -50,5 +44,4 @@ std::string Header::tostring(T const& t){
 	s<<t;
 	return s.str();
 }
-
 #endif

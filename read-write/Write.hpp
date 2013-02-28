@@ -3,6 +3,7 @@
 
 #include "Matrice.hpp"
 #include "Array2D.hpp"
+#include "Header.hpp"
 
 #include<iostream>
 #include<fstream>
@@ -26,7 +27,7 @@ class Write{
 		/*!Default constructor that needs a call of Write::open(std::string filename, bool binary)*/
 		Write();
 		/*!Opens a file named "filename", by default open a binary file*/
-		Write(std::string filename);
+		Write(std::string filename, bool header=false);
 		/*!Closes the file*/
 		~Write();
 
@@ -43,10 +44,15 @@ class Write{
 		Write& operator<<(std::string const& s);
 	
 		/*!To be used with a default constructor : opens a file named "filename", reads from the filename the type of file*/
-		void open(std::string filename);
+		void open(std::string filename, bool header=false);
+
+		template<typename T>
+			void operator()(std::string const& var, T const& val);
+
+		/*!Returns the filename in which the class in writing*/
+		std::string get_filename() const { return filename;};
 
 		static std::string endl; //!<Gives a way to end lines
-		std::string get_filename() const { return filename;};
 
 	private:
 		/*!Forbids copy constructor*/
@@ -58,6 +64,8 @@ class Write{
 		void open_binary();
 		/*!Subroutine needed to open a text file*/
 		void open_txt();
+		/*!Write the filename and the date in the header*/
+		void write_header();
 
 		/*!Subroutine that check if the correct extension is given*/
 		bool is_binary(std::string f);
@@ -72,6 +80,7 @@ class Write{
 		std::string filename; //!< name of the file to write in
 		FILE *bfile; //!< pointer on the binery file to write in
 		std::ofstream tfile; //!< stream of the text file to write in
+		Header *h; //!< pointer to a header (actually it will be a footer)
 		bool unlocked; //!< true if the file is ready to be write in
 		bool binary; //!< true if the file is binary
 };
@@ -82,7 +91,9 @@ Write& Write::operator<<(T const& t){
 		if(binary){
 			fwrite(&t, sizeof(t), 1 ,bfile);
 			fflush(bfile);
-		} else { tfile<< t<<std::flush; }
+		} else {
+			tfile<< t<<std::flush; 
+		}
 	} else {
 		std::cerr<<"Write : the file "<< filename<< " is locked"<<std::endl;
 	}
@@ -136,6 +147,12 @@ void Write::write_binary_array2d(Array2D<A> const& arr){
 	}
 	fwrite(&tmp, sizeof(tmp), 1 ,bfile);
 	fflush(bfile);
+}
+
+template<typename T>
+void Write::operator()(std::string const& var, T const& val){
+	(*this)<< val;
+	h->add(var,val);
 }
 #endif
 

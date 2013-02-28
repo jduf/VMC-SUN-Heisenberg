@@ -120,7 +120,6 @@ Matrice<M>& Matrice<M>::operator=(Matrice<M> const& mat){
 		delete[] this->m;
 		this->m = new M[mat.N*mat.N];
 		this->N = mat.N;
-		std::cerr<<" de taille différente";
 	}
 	for(unsigned int i(0); i<this->N*this->N; i++){
 		this->m[i] = mat.m[i];

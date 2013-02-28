@@ -23,8 +23,8 @@ int main(){
 	//m2(1,0) = 6;
 	//m2(1,1) = 7;
 	//Matrice<double> m4(m2);
-	//m1.print();
-	//m2.print();
+	////m1.print();
+	////m2.print();
 //
 	//std::cout<<"m1"<<std::endl;
 	//m1.print();	

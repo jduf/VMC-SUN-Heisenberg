@@ -14,19 +14,19 @@ all:test
 test.o:test.cpp Read.hpp Write.hpp Header.hpp Directory.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Read.o:Read.cpp Read.hpp Matrice.hpp Array2D.hpp 
+Read.o:Read.cpp Read.hpp Matrice.hpp Array2D.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Write.o:Write.cpp Write.hpp Matrice.hpp Array2D.hpp 
+Write.o:Write.cpp Write.hpp Matrice.hpp Array2D.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Header.o:Header.cpp Header.hpp Read.hpp Write.hpp Matrice.hpp
+Header.o:Header.cpp Header.hpp RST.hpp Matrice.hpp Array2D.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 Directory.o:Directory.cpp Directory.hpp 
 	$(CXX) -c  $(CXXFLAGS) $^
 
-RST.o:RST.cpp RST.hpp Write.hpp 
+RST.o:RST.cpp RST.hpp 
 	$(CXX) -c  $(CXXFLAGS) $^
 
 test:test.o Read.o Write.o Header.o Directory.o RST.o

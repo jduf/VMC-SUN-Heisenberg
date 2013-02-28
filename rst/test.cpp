@@ -1,4 +1,3 @@
-#include "Header.hpp"
 #include "Directory.hpp"
 #include "Read.hpp"
 #include "Write.hpp"
@@ -15,12 +14,10 @@ int main(){
 	d.print();
 	for(unsigned int i(0); i<d.size();i++){
 		file = d.get_path(i) + "/" + d.get_name(i) + d.get_ext(i);
-		std::cout<<file<<std::endl;
-		Read r(file);
-		Header h(r);
+		Read r(file,true);
 		file = d.get_name(i) + ".rst";
 		Write w(save_in+file);
-		w<<h.get();
+		w<<r.header();
 
 		file = d.get_name(i);
 		command = "rst2html " + save_in + file + ".rst " + save_in + file + ".html";  

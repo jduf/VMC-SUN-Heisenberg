@@ -1,14 +1,15 @@
 #ifndef DEF_READ
 #define DEF_READ
 
-#include"Matrice.hpp"
-#include"Array2D.hpp"
+#include "Matrice.hpp"
+#include "Array2D.hpp"
+#include "Header.hpp"
 
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<stdio.h>
-#include<complex>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <stdio.h>
+#include <complex>
 
 /*!Class that allows to read datas easily from a file.
  *To be used with Write.hpp
@@ -27,10 +28,9 @@ class Read{
 		/*!Default constructor that needs a call of Read::open(std::string filename, bool binary)*/
 		Read();
 		/*!Opens a file named "filename", reads from the filename the type of file*/
-		Read(std::string filename);
+		Read(std::string filename, bool header=false);
 		/*!Closes the file*/
 		~Read();
-
 
 		/*!Stream operator that reads datas without formatting*/
 		template<typename T>
@@ -45,7 +45,9 @@ class Read{
 		Read& operator>>(std::string& s);
 
 		/*!To be used with a default constructor : opens a file named "filename", reads from the filename the type of file*/
-		void open(std::string filename);
+		void open(std::string filename, bool header=false);
+
+		inline std::string header() const { return (h->get())->get(); };
 
 	private:
 		/*!Forbids copy constructor*/
@@ -57,6 +59,8 @@ class Read{
 		void open_binary();
 		/*!Subroutine needed to open a text file*/
 		void open_txt();
+		/*!Extract the header from the file and save it in h*/
+		void read_header();
 
 		/*!Subroutine that check if the correct extension is given*/
 		bool is_binary(std::string f);
@@ -71,6 +75,7 @@ class Read{
 		std::string filename; //!< name of the file to read from
 		FILE *bfile; //!< pointer on the binery file to read from
 		std::ifstream tfile; //!< stream of the text file to read form
+		Header *h; //!< pointer to a header (actually it will be a footer)
 		bool unlocked; //!< true if the file is ready to be read from
 		bool binary; //!< true if the file is binary
 };

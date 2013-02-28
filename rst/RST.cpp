@@ -1,51 +1,83 @@
 #include "RST.hpp"
+#include "Write.hpp"
 
-RST::RST(std::string fname):
+RST::RST():
 	RST_nl("\n"),
 	RST_np("\n\n"),
 	RST_title("="),
 	RST_subtitle("-"),
 	RST_item("+ "),
-	w(fname + ".rst"),
-	fname(fname),
-	links(0)
+	rst(""),
+	links(0),
+	filename(""),
+	w(NULL)
 {}
 
-RST::~RST(){
-	w<<RST_np;
-	for(unsigned int i(0); i<links.size();i++){
-		w<<links[i]<<RST_nl;
+RST::RST(std::string filename):
+	RST_nl("\n"),
+	RST_np("\n\n"),
+	RST_title("="),
+	RST_subtitle("-"),
+	RST_item("+ "),
+	rst(""),
+	links(0),
+	filename(filename),
+	w(new Write(filename + ".rst"))
+{ }
+
+RST::~RST()
+{ 
+	if(w){ 
+		rst += RST_np;
+		for(unsigned int i(0); i<links.size();i++){
+			rst += links[i] + RST_nl;
+		}
+		(*w)<<rst;
+		std::string command("rst2html " + filename + ".rst " + filename + ".html");  
+		system(command.c_str());
+		delete w;
 	}
-	std::string command("rst2html " + fname + ".rst " + fname + ".html");  
-	system(command.c_str());
 }
 
 void RST::title(std::string t){
-	w<<RST_np<<t<<RST_nl;
-	for(unsigned int i(0);i<t.size();i++){ w << RST_title; }
-	w<<RST_np;
+	rst += RST_np + t + RST_nl;
+	for(unsigned int i(0);i<t.size();i++){ rst +=  RST_title; }
+	rst += RST_np;
 }
 
 void RST::subtitle(std::string t){
-	w<<RST_np<<t<<RST_nl;
-	for(unsigned int i(0);i<t.size();i++){ w << RST_subtitle; }
-	w<<RST_np;
+	rst += RST_np + t + RST_nl;
+	for(unsigned int i(0);i<t.size();i++){ rst += RST_subtitle; }
+	rst += RST_np;
 }
 
 void RST::text(std::string t){
-	w<<t<<" ";
+	 rst += t + " ";
+}
+
+void RST::textit(std::string t){
+	 rst += " *" + t + "* ";
+}
+
+void RST::textbf(std::string t){
+	 rst += " **" + t + "** ";
 }
 
 void RST::item(std::string t){
-	w<<RST_item<<t<<RST_nl;
+	 rst += RST_item + t + RST_nl;
 }
 
 void RST::np(){
-	w<<RST_np;
+	 rst += RST_np;
 }
 
 void RST::hyperlink(std::string t, std::string l){
-	w<<"`"<<t<<"`_ ";
+	 rst += "`" + t + "`_ ";
 	links.push_back(".. _" + t + ": " + l);
+}
+
+std::ostream& operator<<(std::ostream& flux, RST const& rst){
+	flux<<rst.get();
+	return flux;
 }
 
