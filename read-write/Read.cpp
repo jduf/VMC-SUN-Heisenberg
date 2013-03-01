@@ -60,7 +60,7 @@ void Read::open_txt(){
 }
 
 bool Read::is_binary(std::string f){
-	std::string ext(".bin");
+	std::string ext(".jdbin");
 	if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ return true;}
 	else{ return false;}
 }
@@ -87,7 +87,11 @@ Read& Read::operator>>(std::string& s){
 			c[N] = '\0';
 			s = c;
 		} else {
-			std::cerr<<"Read : << for string in text file is not implemented"<<std::endl;
+			std::string tmp("");
+			while(tfile.good()){ 
+				getline(tfile,tmp);
+				s += tmp + "\n";
+			}
 		}
 	} else {
 		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;

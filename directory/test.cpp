@@ -2,7 +2,7 @@
 
 int main(){
 	Directory d;
-	d.search_ext(".cpp");
+	d.search_ext(".jdcpp");
 	d.print();
 }
 

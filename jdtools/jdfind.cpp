@@ -8,7 +8,7 @@
 int main(){
 	Directory d;
 	d.search_ext(".jdbin","/home/jdufour/travail/cpp-dev");
-	std::string save_in("/home/jdufour/travail/cpp-dev/rst/output/");
+	std::string save_in("/home/jdufour/travail/cpp-dev/jdtools/rst-output/");
 	std::string file;
 	std::string command("");
 	d.print();
@@ -24,7 +24,7 @@ int main(){
 		system(command.c_str());
 	}
 
-	RST rst("index");
+	RST rst(save_in + "index");
 	rst.title("RST");
 	rst.subtitle("Possibilities");
 	rst.text("Here I display all the bin files");

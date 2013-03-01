@@ -62,7 +62,7 @@ void Write::open_txt(){
 }
 
 bool Write::is_binary(std::string f){
-	std::string ext(".bin");
+	std::string ext(".jdbin");
 	if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ return true;}
 	else{ return false;}
 }

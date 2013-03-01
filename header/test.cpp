@@ -11,7 +11,7 @@ void write_bin(){
 	std::complex<double> c(2.3,3.5);
 	Matrice<std::complex<double> > C(2,c);
 
-	Write write("data-1.bin",true);
+	Write write("data-1.jdbin",true);
 	write("a",a);	
 	write("c",c);	
 	write("A",A);	
@@ -26,7 +26,7 @@ void read_bin(){
 	std::complex<double> c;
 	Matrice<std::complex<double> > C;
 
-	Read read("data-1.bin",true);
+	Read read("data-1.jdbin",true);
 	std::cout<<read.header();
 	read>>a>>c>>A>>C;
 	std::cout<<a<<std::endl;
