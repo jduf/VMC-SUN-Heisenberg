@@ -59,18 +59,14 @@ Array2D<A>::Array2D():
 	a(NULL),
 	N_row(0),
 	N_col(0)
-{
-	std::cout<<"default : Array2D"<<std::endl;
-}
+{ }
 
 template<typename A>
 Array2D<A>::Array2D(unsigned int N_row, unsigned int N_col):
 	a(new A[N_row*N_col]),
 	N_row(N_row),
 	N_col(N_col)
-{
-	std::cout<<"taille+const+complex: Array2D"<<std::endl;
-}
+{ }
 
 template<typename A>
 Array2D<A>::Array2D(unsigned int N_row, unsigned int N_col, A val):
@@ -78,7 +74,6 @@ Array2D<A>::Array2D(unsigned int N_row, unsigned int N_col, A val):
 	N_row(N_row),
 	N_col(N_col)
 {
-	std::cout<<"taille+const+complex: Array2D"<<std::endl;
 	fill_Array2D(val);
 }
 
@@ -88,7 +83,6 @@ Array2D<A>::Array2D(Array2D<A> const& arr):
 	N_row(arr.row()),
 	N_col(arr.col())
 {
-	std::cout<<"copie : Array2D"<<std::endl;
 	for(unsigned int i(0);i<N_row*N_col;i++){
 		a[i] = arr.a[i];
 	}
@@ -97,7 +91,6 @@ Array2D<A>::Array2D(Array2D<A> const& arr):
 template<typename A>
 Array2D<A>::~Array2D(){
 	delete[] a;
-	std::cout<<"destructeur : Array2D"<<std::endl;
 }
 /*}*/
 
@@ -105,15 +98,12 @@ Array2D<A>::~Array2D(){
 /*{*/
 template<typename A>
 Array2D<A>& Array2D<A>::operator=(Array2D<A> const& arr){
-	std::cout<<"affectation : Array2D";
 	if(this->N_row!=arr.N_row || this->N_col!=arr.N_col ){
 		delete[] this->a;
 		this->a = new A[arr.N_row*arr.N_col];
 		this->N_row = arr.N_row;
 		this->N_col = arr.N_col;
-		std::cerr<<" de taille différente";
 	}
-	std::cout<<std::endl;
 	for(unsigned int i(0); i<this->N_row*this->N_col; i++){
 		this->a[i] = arr.a[i];
 	}

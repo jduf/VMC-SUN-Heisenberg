@@ -14,7 +14,7 @@ int main(){
 	d.print();
 	for(unsigned int i(0); i<d.size();i++){
 		file = d.get_path(i) + "/" + d.get_name(i) + d.get_ext(i);
-		Read r(file,true);
+		Read r(file);
 		file = d.get_name(i) + ".rst";
 		Write w(save_in+file);
 		w<<r.header();

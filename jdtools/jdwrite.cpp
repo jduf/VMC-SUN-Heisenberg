@@ -3,11 +3,10 @@
 #include "Rewrite.hpp"
 #include <cstdlib>
 
-
 int main(int argc, char* argv[]){
 	if(argc==2){
 		std::string filename(argv[1]);
-		Read r(filename,true);
+		Read r(filename);
 		Write w("/tmp/tmp.txt");
 		w<<r.header();
 		std::cout<<r.header()<<std::endl;

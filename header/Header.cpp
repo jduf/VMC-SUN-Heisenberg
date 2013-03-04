@@ -7,19 +7,19 @@ Header::Header():
 Header::~Header(){delete rst; }
 
 void Header::add(std::string const& s, double const& d){
-	rst->item("double " + s + "=" + tostring(d));
+	rst->def(s + "=" + tostring(d), "double");
 }
 
 void Header::add(std::string const& s, std::complex<double> const& c){
-	rst->item("complex " + s + "=" +tostring(c));
+	rst->def(s + "=" + tostring(c), "complex");
 }
 
 void Header::add(std::string const& s, Matrice<double> const& mat){
-	rst->item("Matrice<double> " + s + " of size " + tostring(mat.size()) + "x" + tostring(mat.size()));
+	rst->def(s + "(" + tostring(mat.size()) + "x" + tostring(mat.size())+ ")","Matrice<double>");
 }
 
 void Header::add(std::string const& s, Matrice<std::complex<double> > const& mat){
-	rst->item("Matrice<complex> " + s + " of size " + tostring(mat.size()) + "x" + tostring(mat.size()));
+	rst->def(s + "(" + tostring(mat.size()) + "x" + tostring(mat.size())+ ")","Matrice<complex>");
 }
 
 std::string Header::when(){
@@ -37,7 +37,7 @@ std::string Header::when(){
 }
 
 void Header::init(std::string title){
-	rst->title(title);
+	rst->title(title,"=");
 	rst->textit(when());
 	rst->np();
 }

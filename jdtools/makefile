@@ -9,7 +9,7 @@ CXXFLAGS = -pedantic -Wall -Wextra
 LDFLAGS = -pedantic -Wall -Wextra 
 #LDLIBS = -O3 -fopenmp -msse2
 
-all:jdwrite jdread jdfind
+all:jdwrite jdread jdfind jdtags
 
 ########
 # jdfind
@@ -17,7 +17,7 @@ all:jdwrite jdread jdfind
 jdfind.o:jdfind.cpp Directory.hpp Read.hpp Write.hpp RST.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-jdfind:jdfind.o Header.o Read.o Write.o RST.o Directory.o
+jdfind:jdfind.o Header.o Read.o Write.o RST.o Directory.o 
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 ########
@@ -38,6 +38,15 @@ jdwrite.o:jdwrite.cpp Read.hpp Write.hpp Rewrite.hpp
 jdwrite:jdwrite.o Read.o Write.o Header.o RST.o Rewrite.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
+#########
+# jdtags
+#########
+jdtags.o:jdtags.cpp Read.hpp Write.hpp RST.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+
+jdtags:jdtags.o Read.o Write.o RST.o Header.o RST.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
 ########
 # commun
 ########
@@ -55,7 +64,6 @@ Directory.o:Directory.cpp Directory.hpp
 
 RST.o:RST.cpp RST.hpp 
 	$(CXX) -c  $(CXXFLAGS) $^
-
 
 
 ref:

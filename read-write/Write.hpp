@@ -5,11 +5,10 @@
 #include "Array2D.hpp"
 #include "Header.hpp"
 
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<stdio.h>
-#include<complex>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <complex>
 
 /*!Class that allows to write datas easily in a file.
  *To be used with Read.hpp
@@ -27,7 +26,7 @@ class Write{
 		/*!Default constructor that needs a call of Write::open(std::string filename, bool binary)*/
 		Write();
 		/*!Opens a file named "filename", by default open a binary file*/
-		Write(std::string filename, bool header=false);
+		Write(std::string filename);
 		/*!Closes the file*/
 		~Write();
 
@@ -42,9 +41,10 @@ class Write{
 			Write& operator<<(Array2D<A> const& arr);
 		/*!Stream operator that writes strings*/
 		Write& operator<<(std::string const& s);
-	
+		Write& operator<<(Array2D<std::string> const& arr);
+
 		/*!To be used with a default constructor : opens a file named "filename", reads from the filename the type of file*/
-		void open(std::string filename, bool header=false);
+		void open(std::string filename);
 
 		template<typename T>
 			void operator()(std::string const& var, T const& val);
@@ -68,7 +68,7 @@ class Write{
 		void write_header();
 
 		/*!Subroutine that check if the correct extension is given*/
-		bool is_binary(std::string f);
+		bool test_ext(std::string f);
 
 		/*!Subroutine needed to write a matrix in a binary file*/
 		template<typename M>
@@ -85,7 +85,7 @@ class Write{
 		bool binary; //!< true if the file is binary
 };
 
-template<typename T>
+template<typename T>//doesn't work with string (it seems)
 Write& Write::operator<<(T const& t){
 	if(unlocked){
 		if(binary){
@@ -100,7 +100,7 @@ Write& Write::operator<<(T const& t){
 	return (*this);
 }
 
-template<typename M>
+template<typename M>//doesn't work with string
 Write& Write::operator<<(Matrice<M> const& mat){
 	if(unlocked){
 		if(binary) { write_binary_matrix(mat); }
@@ -122,7 +122,7 @@ Write& Write::operator<<(Array2D<A> const& arr){
 	return (*this);
 }
 
-template<typename M>
+template<typename M>//doesn't work with string
 void Write::write_binary_matrix(Matrice<M> const& mat){
 	unsigned int N(mat.size());
 	fwrite(&N, sizeof(N), 1 ,bfile);
@@ -134,7 +134,7 @@ void Write::write_binary_matrix(Matrice<M> const& mat){
 	fflush(bfile);
 }
 
-template<typename A>
+template<typename A>//doesn't work with string
 void Write::write_binary_array2d(Array2D<A> const& arr){
 	unsigned int N_row(arr.row());
 	unsigned int N_col(arr.col());
@@ -151,8 +151,12 @@ void Write::write_binary_array2d(Array2D<A> const& arr){
 
 template<typename T>
 void Write::operator()(std::string const& var, T const& val){
-	(*this)<< val;
-	h->add(var,val);
+	if(h){
+		(*this)<< val;
+		h->add(var,val);
+	} else {
+		std::cout<<"Write : there's no header in "<<filename<<std::endl;
+	}	
 }
 #endif
 

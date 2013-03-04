@@ -6,17 +6,16 @@
 
 void write_bin(){
 	std::cout<<"écriture d'un fichier binaire"<<std::endl;
-	double a(7.35);
-	Matrice<double> A(6,6.2);
-	std::complex<double> c(2.3,3.5);
-	Matrice<std::complex<double> > C(2,c);
+	double a(6.5);
+	Matrice<double> A(10,2.2);
+	std::complex<double> c(7.5,1.5);
+	Matrice<std::complex<double> > C(8,c);
 
-	Write write("data-1.jdbin",true);
+	Write write("data-3.jdbin");
 	write("a",a);	
-	write("c",c);	
+	//write("c",c);	
 	write("A",A);	
 	write("C",C);	
-	//write<<a<<C<<c<<A;
 }
 
 void read_bin(){
@@ -26,12 +25,14 @@ void read_bin(){
 	std::complex<double> c;
 	Matrice<std::complex<double> > C;
 
-	Read read("data-1.jdbin",true);
+	Read read("data-3.jdbin");
 	std::cout<<read.header();
-	read>>a>>c>>A>>C;
+	//read>>a>>c>>A>>C;
+	read>>a>>A>>C;
+	//read>>a>>c;
 	std::cout<<a<<std::endl;
 	std::cout<<A<<std::endl;
-	std::cout<<c<<std::endl;
+	//std::cout<<c<<std::endl;
 	std::cout<<C<<std::endl;
 }
 

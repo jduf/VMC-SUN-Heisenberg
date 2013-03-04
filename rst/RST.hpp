@@ -4,8 +4,8 @@
 class Write;
 
 #include <string>
-#include <vector>
-#include <cstdlib>
+//#include <vector>
+#include <cstdlib> // -> system(std::string command)
 
 class RST{
 	public:
@@ -13,19 +13,17 @@ class RST{
 		RST(std::string filename);
 		~RST();
 
-	void title(std::string t);
-		void subtitle(std::string t);
+		void title(std::string t,std::string symb);
 		void text(std::string t);
 		void textit(std::string t);
 		void textbf(std::string t);
 		void item(std::string t);
+		void def(std::string t, std::string def);
 		void hyperlink(std::string t, std::string l);
 		void np();
 
 		std::string RST_nl;
 		std::string RST_np;
-		std::string RST_title;
-		std::string RST_subtitle;
 		std::string RST_item;
 
 		inline std::string get() const { return rst;};
@@ -33,7 +31,7 @@ class RST{
 
 	private:
 		std::string rst;
-		std::vector<std::string> links;
+		//std::vector<std::string> links;
 		std::string filename;
 		Write *w;
 };

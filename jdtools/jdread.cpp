@@ -7,7 +7,7 @@
 int main(int argc, char* argv[]){
 	if(argc==2){
 		std::string filename(argv[1]);
-		Read r(filename,true);
+		Read r(filename);
 		std::cout<<r.header()<<std::endl;
 	} else {
 		std::cerr<<"jdread : take exactly one input argument"<<std::endl;

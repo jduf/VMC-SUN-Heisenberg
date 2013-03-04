@@ -1,15 +1,15 @@
 #include "Write.hpp"
 
-Write::Write(std::string filename, bool header):
+Write::Write(std::string filename):
 	filename(filename),
 	bfile(NULL),
 	h(NULL),
 	unlocked(true),
-	binary(is_binary(filename))
+	binary(test_ext(filename))
 {
 	if(binary){open_binary();}
 	else{open_txt();}
-	if(header && unlocked ){h = new Header; h->init(filename);}
+	if(h && unlocked ){h->init(filename);}
 }
 
 Write::Write():
@@ -32,13 +32,26 @@ Write::~Write(){
 
 std::string Write::endl="\n";
 
-void Write::open(std::string filename, bool header){
+bool Write::test_ext(std::string f){
+	//std::cout<<f<<std::endl;
+	std::string base_ext("bin");
+	std::string ext("");
+	if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ 
+		ext = "." + base_ext;
+		if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ return true;}
+		ext = ".jd" + base_ext;
+		if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ h = new Header; return true; }
+	} 
+	return false;
+}
+
+void Write::open(std::string filename){
 	if(!unlocked){
 		this->filename = filename;
-		this->binary = is_binary(filename);
+		this->binary = test_ext(filename);
 		if(binary){open_binary();}
 		else{open_txt();}
-		if(header){h = new Header; h->set(filename);}
+		if(h){h->init(filename);}
 		unlocked=true;
 	} else {
 		std::cerr<<"Write : the file "<< filename << " is already open"<<std::endl;
@@ -59,12 +72,6 @@ void Write::open_txt(){
 		unlocked = false;
 		std::cerr<<"Write : the opening of file "<< filename<<" is problematic"<<std::endl;
 	} 
-}
-
-bool Write::is_binary(std::string f){
-	std::string ext(".jdbin");
-	if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ return true;}
-	else{ return false;}
 }
 
 Write& Write::operator<<(std::string const& s){
@@ -95,4 +102,29 @@ void Write::write_header(){
 	} else {  
 		tfile<<(h->get())->get()<<std::flush;
 	}
+}
+
+Write& Write::operator<<(Array2D<std::string> const& arr){
+	if(unlocked){
+		if(binary){
+			std::string s("");
+			unsigned int N(0);
+			unsigned int row(arr.row());
+			unsigned int col(arr.col());
+			fwrite(&row,sizeof(row), 1 ,bfile);
+			fwrite(&col,sizeof(col), 1 ,bfile);
+			for(unsigned int i(0); i<arr.col()*arr.row(); i++){
+				s = (arr.ptr())[i];
+				N = s.size();
+				fwrite(&N,sizeof(N), 1 ,bfile);
+				fwrite(s.c_str(),1, N ,bfile);
+				fflush(bfile);
+			}
+		} else {  
+			std::cerr<<"Write : << for Array2D<std::string> is not implemented"<<std::endl;
+		}
+	} else {
+		std::cerr<<"Write : the file "<< filename<< " is locked"<<std::endl;
+	}
+	return (*this);
 }

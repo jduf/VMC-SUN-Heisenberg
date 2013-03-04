@@ -8,7 +8,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <stdio.h>
 #include <complex>
 
 /*!Class that allows to read datas easily from a file.
@@ -28,7 +27,7 @@ class Read{
 		/*!Default constructor that needs a call of Read::open(std::string filename, bool binary)*/
 		Read();
 		/*!Opens a file named "filename", reads from the filename the type of file*/
-		Read(std::string filename, bool header=false);
+		Read(std::string filename);
 		/*!Closes the file*/
 		~Read();
 
@@ -43,11 +42,12 @@ class Read{
 			Read& operator>>(Array2D<A>& arr);
 		/*!Stream operator that reads strings*/
 		Read& operator>>(std::string& s);
+		Read& operator>>(Array2D<std::string>& arr);
 
 		/*!To be used with a default constructor : opens a file named "filename", reads from the filename the type of file*/
-		void open(std::string filename, bool header=false);
+		void open(std::string filename);
 
-		inline std::string header() const { return (h->get())->get(); };
+		std::string header() const;
 
 	private:
 		/*!Forbids copy constructor*/
@@ -63,7 +63,7 @@ class Read{
 		void read_header();
 
 		/*!Subroutine that check if the correct extension is given*/
-		bool is_binary(std::string f);
+		bool test_ext(std::string f);
 
 		/*!Subroutine needed to read a matrix from a binary file*/
 		template<typename M>
