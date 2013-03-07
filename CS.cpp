@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){
 		CreateState<double> CS(N_m,N_spin,N_n,filename);
 	}
 
-	//check(filename);
+	//check(filename + "-VPDNF.jdbin");
 }
 
 void check(std::string filename){

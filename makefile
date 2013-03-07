@@ -11,29 +11,23 @@ CXXFLAGS = $(LAPACK) $(ERRORS) $(DEBUG) $(OPTION)
 
 LDFLAGS= $(LAPACK) $(DEBUG) $(OPTION)
 
-all:mc setup cs
+all:mc cs
 ########
 # mc
 #######
-mc:MC.o Lapack.o Read.o Write.o
+mc:MC.o Lapack.o Rand.o Read.o Write.o Header.o RST.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-MC.o:MC.cpp Chrono.hpp Parseur.hpp System.hpp Read.hpp
+Rand.o:Rand.cpp Rand.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
-########
-# setup
-########
-setup:Setup.o Write.o Read.o Lapack.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-Setup.o:Setup.cpp Read.hpp Write.hpp Matrice.hpp Parseur.hpp
+MC.o:MC.cpp Chrono.hpp System.hpp Read.hpp Array2D.hpp Matrice.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
 ########
 # create
 ########
-cs:CS.o CreateSystem.o Read.o Write.o Lapack.o
+cs:CS.o CreateSystem.o Lapack.o Read.o Write.o Header.o RST.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 CreateSystem.o:CreateSystem.cpp CreateSystem.hpp Read.hpp Write.hpp Array2D.hpp Matrice.hpp Lapack.hpp
@@ -45,10 +39,16 @@ CS.o:CS.cpp CreateSystem.hpp Parseur.hpp
 ########
 # commun
 ########
-Write.o:Write.cpp Write.hpp Matrice.hpp
+Write.o:Write.cpp Write.hpp Header.hpp Matrice.hpp Array2D.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-Read.o:Read.cpp Read.hpp Matrice.hpp
+Read.o:Read.cpp Read.hpp Header.hpp Matrice.hpp Array2D.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+	
+Header.o:Header.cpp Header.hpp Matrice.hpp Array2D.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
+RST.o:RST.cpp RST.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 Lapack.o:Lapack.cpp Lapack.hpp Matrice.hpp Vecteur.hpp 
@@ -57,4 +57,7 @@ Lapack.o:Lapack.cpp Lapack.hpp Matrice.hpp Vecteur.hpp
 # divers
 ########
 clean:
-	rm *.o *.gch mc setup cs
+	rm *.o *.gch mc cs
+
+ref:
+	doxygen Doxyfile
