@@ -9,7 +9,7 @@ CXXFLAGS = -pedantic -Wall -Wextra
 LDFLAGS = -pedantic -Wall -Wextra 
 #LDLIBS = -O3 -fopenmp -msse2
 
-all:test
+all:test bl
 
 test.o:test.cpp Read.hpp Write.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
@@ -27,6 +27,12 @@ RST.o:RST.cpp RST.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 test:test.o Read.o Write.o Header.o RST.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+bl.o:bl.cpp Read.hpp Write.hpp Header.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+
+bl:bl.o Read.o Write.o Header.o RST.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 ref:

@@ -117,19 +117,11 @@ template<typename M>
 void Read::read_binary_matrix(Matrice<M>& mat){
 	unsigned int N(0);
 	fread(&N,sizeof(N),1,bfile);
-	M tmp[N*N];
-	fread(&tmp,sizeof(tmp),1,bfile);
 	if(N != mat.size()) {
 		Matrice<M> mat_tmp(N);
-		for(unsigned int i(0);i<N*N;i++){
-			(mat_tmp.ptr())[i]=tmp[i];
-		}
 		mat = mat_tmp;
-	} else {
-		for(unsigned int i(0);i<N*N;i++){
-			(mat.ptr())[i]=tmp[i];
-		}
-	}
+	} 
+	fread(mat.ptr(),sizeof(M),N*N,bfile);
 }
 
 template<typename A>
@@ -138,19 +130,11 @@ void Read::read_binary_array2d(Array2D<A>& arr){
 	unsigned int N_col(0);
 	fread(&N_row,sizeof(N_row),1,bfile);
 	fread(&N_col,sizeof(N_col),1,bfile);
-	A tmp[N_row*N_col];
-	fread(&tmp,sizeof(tmp),1,bfile);
 	if(N_row != arr.row() || N_col != arr.col()) {
 		Array2D<A> arr_tmp(N_row,N_col);
-		for(unsigned int i(0);i<N_row*N_col;i++){
-			(arr_tmp.ptr())[i]=tmp[i];
-		}
 		arr = arr_tmp;
-	} else {
-		for(unsigned int i(0);i<N_row*N_col;i++){
-			(arr.ptr())[i]=tmp[i];
-		}
-	}
+	} 
+	fread(arr.ptr(),sizeof(A),N_row*N_col,bfile);
 }
 #endif
 

@@ -21,16 +21,18 @@ void Lapack<std::complex<double> >::getrf(int ipiv[]) const {
 template<>
 void Lapack<double>::getri(int ipiv[]) const {
 	unsigned int const lwork(3*N-1);
-	double work[lwork];
+	double* work(new double[lwork]);
 	int info;
 	dgetri_(&N, m, &N, ipiv, work,  &lwork, &info);
+	delete[] work;
 }
 template<>
 void Lapack<std::complex<double> >::getri(int ipiv[]) const {
 	unsigned int const lwork(3*N-1);
-	std::complex<double> work[lwork];
+	std::complex<double>* work(new std::complex<double>[lwork]);
 	int info;
 	zgetri_(&N, m, &N, ipiv, work,  &lwork, &info);
+	delete[] work;
 }
 /*}*/
 /*}*/
@@ -45,9 +47,10 @@ void Lapack<double>::eigensystem(Vecteur<double>& EVal, bool EVec) const {
 			{
 				char uplo('U');
 				unsigned int const lwork(3*N-1);
-				double work[lwork];
+				double* work(new double[lwork]);
 				int info;
 				dsyev_(&jobz, &uplo, &N, m, &N, EVal.ptr(), work ,&lwork, &info);
+				delete[] work;
 			}
 			break;
 		default:
@@ -68,10 +71,12 @@ void Lapack<std::complex<double> >::eigensystem(Vecteur<double>& EVal, bool EVec
 			{
 				char uplo('U');
 				unsigned int const lwork(2*N-1);
-				std::complex<double> work[lwork];
-				double rwork[3*N-2];
+				std::complex<double>* work(new std::complex<double>[lwork]);
+				double* rwork(new double[3*N-2]);
 				int info;
 				zheev_(&jobz, &uplo, &N, m, &N, EVal.ptr(), work, &lwork, rwork, &info);
+				delete[] work;
+				delete[] rwork;
 			}
 			break;
 		default:

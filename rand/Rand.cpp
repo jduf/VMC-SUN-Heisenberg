@@ -98,9 +98,6 @@ Rand::Rand(int len) {
 	sow(&seed1,&seed2);
 
 #pragma omp critical
-	{
-		fprintf(stderr,"have seeds s1=%i, s2=%i\n",seed1,seed2);
-	}
 	int ij=seed1;
 	int kl=seed2;
 
@@ -157,9 +154,6 @@ Rand::Rand(int len,int thread) {
 	seed2+=thread;
 
 #pragma omp critical
-	{
-		fprintf(stderr,"have seeds s1=%i, s2=%i\n",seed1,seed2);
-	}
 	int ij=seed1;
 	int kl=seed2;
 
@@ -221,18 +215,12 @@ Rand::Rand(std::string fn, bool auto_save) {
 
 Rand::~Rand() {
 #pragma omp critical
-  {
-    fprintf(stderr,"ranmar deconstructor called\n");
-  }
   if (auto_save) save_state(fn);
   if(rvec!=NULL){ delete[] rvec; rvec=NULL;}
 }
 
 void Rand::free() {
 #pragma omp critical
-  {
-    fprintf(stderr,"ranmar free called\n");
-  }
   if (auto_save) save_state(fn);
   if(rvec!=NULL) { delete[] rvec; rvec=NULL;}
 }

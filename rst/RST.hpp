@@ -19,7 +19,7 @@ class RST{
 		void textbf(std::string t);
 		void item(std::string t);
 		void def(std::string t, std::string def);
-		void hyperlink(std::string t, std::string l);
+		void hyperlink(std::string display, std::string link);
 		void np();
 
 		std::string RST_nl;

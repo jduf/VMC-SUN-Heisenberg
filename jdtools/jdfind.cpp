@@ -27,13 +27,16 @@ void create_tag_file_list(std::string h, std::vector<std::string>& df){
 
 int main(){
 	Directory d;
-	d.search_ext(".jdbin","/home/jdufour/travail/cpp-dev");
+	d.search_ext(".jdbin","/home/jdufour/travail/SU4HL");
 	std::string save_in("/home/jdufour/travail/cpp-dev/jdtools/rst-output/");
 	std::string rsthtml_file("");
 	std::string data_file("");
 	std::string file("");
 	std::string command("");
 	std::vector<std::string> df;
+
+	command = "rm "+save_in +"*";
+	system(command.c_str());
 	for(unsigned int i(0); i<d.size();i++){
 		data_file = d.get_path(i) + "/" + d.get_name(i) + d.get_ext(i);
 		Read r(data_file);
@@ -44,7 +47,7 @@ int main(){
 		w<<h<<Write::endl;
 		w<<"*"+data_file+"*"<<Write::endl;
 
-		command = "rst2html --stylesheet=/home/jdufour/.rst/style/voidspace.css " + rsthtml_file + ".rst " + rsthtml_file + ".html";  
+		command = "rst2html " + rsthtml_file + ".rst " + rsthtml_file + ".html";  
 		system(command.c_str());
 		create_tag_file_list(h,df);
 		df.push_back(rsthtml_file);
@@ -60,7 +63,6 @@ int main(){
 
 	std::string file_link;
 	RST rst(save_in + "index");
-	rst.title("RST","=");
 	rst.title("List of all the files","-");
 	for(unsigned int i(0);i<d.size();i++){
 		file_link = save_in + d.get_name(i) + ".html";

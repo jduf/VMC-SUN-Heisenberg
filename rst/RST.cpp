@@ -29,7 +29,7 @@ RST::~RST()
 			//rst += links[i] + RST_nl;
 		//}
 		(*w)<<rst;
-		std::string command("rst2html --stylesheet=/home/jdufour/.rst/style/voidspace.css " + filename + ".rst " + filename + ".html");  
+		std::string command("rst2html " + filename + ".rst " + filename + ".html");  
 		system(command.c_str());
 		delete w;
 	}
@@ -58,15 +58,18 @@ void RST::item(std::string t){
 }
 
 void RST::def(std::string t, std::string def){
-	 rst += ":" + t + ":" + " " + def + RST_nl;
+	if(def.size()>20){
+		std::cerr<<"RST : too long"<<std::endl;
+	}
+	rst += ":" + t + ":" + " " + def + RST_nl;
 }
 
 void RST::np(){
 	 rst += RST_np;
 }
 
-void RST::hyperlink(std::string t, std::string l){
-	rst += "`" + t + " <" + l + ">`_ ";
+void RST::hyperlink(std::string display, std::string link){
+	rst += "`" + display + " <" + link + ">`_ ";
 	//links.push_back(".. _" + t + ": " + l);
 }
 

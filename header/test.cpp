@@ -16,6 +16,7 @@ void write_bin(){
 	//write("c",c);	
 	write("A",A);	
 	write("C",C);	
+	write.linking();
 }
 
 void read_bin(){

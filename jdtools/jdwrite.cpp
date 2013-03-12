@@ -3,22 +3,25 @@
 #include "Rewrite.hpp"
 #include <cstdlib>
 
-int main(int argc, char* argv[]){
-	if(argc==2){
-		std::string filename(argv[1]);
-		Read r(filename);
-		Write w("/tmp/tmp.txt");
-		w<<r.header();
-		std::cout<<r.header()<<std::endl;
+void read(std::string filename){
+	Read r(filename);
+	Write w("/tmp/tmp.txt");
+	w<<r.header();
+}
 
-		system("vim /tmp/tmp.txt");
-
+void rewrite(std::string filename){
 		Read tmp("/tmp/tmp.txt");
 		std::string n_header;
 		tmp>>n_header;
-
 		Rewrite rw(filename);
 		rw.rewrite_header(n_header);
+}
+
+int main(int argc, char* argv[]){
+	if(argc==2){
+		read(argv[1]);
+		system("vim /tmp/tmp.txt");
+		rewrite(argv[1]);
 	} else {
 		std::cerr<<"jdwrite : take exactly one input argument"<<std::endl;
 		std::cerr<<"usage -> ./jdwrite filename"<<std::endl;

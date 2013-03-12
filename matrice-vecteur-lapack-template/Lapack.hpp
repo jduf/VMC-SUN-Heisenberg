@@ -95,16 +95,11 @@ Lapack<T>::Lapack(T* m, unsigned int N, char matrix_type):
 	N(N),
 	matrix_type(matrix_type),
 	modify_original_matrix(true)
-{
-	std::cout<<"création (modifie matrice) : lapack"<<std::endl;
-}
+{ }
 
 template<typename T>
 Lapack<T>::~Lapack(){
-	if(!modify_original_matrix){
-		std::cout<<"destructeur : lapack"<<std::endl;
-		delete[] m;
-	} 
+	if(!modify_original_matrix){ delete[] m; } 
 }
 /*}*/
 
@@ -113,12 +108,12 @@ Lapack<T>::~Lapack(){
 template<typename T> 
 T Lapack<T>::det() const {
 	if (matrix_type != 'G'){
-		std::cerr<<"inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
-		std::cerr<<"inv : the only matrix type implemented is G"<<std::endl;
+		std::cerr<<"Lapack inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
+		std::cerr<<"Lapack inv : the only matrix type implemented is G"<<std::endl;
 		return 0;
 	} else {
 		T det(1.0);
-		int ipiv[N];
+		int* ipiv(new int[N]);
 		getrf(ipiv);
 		for(unsigned int i(0); i<N; i++){
 			if(ipiv[i] != i+1){ // ipiv return value between [1,N]
@@ -127,6 +122,7 @@ T Lapack<T>::det() const {
 				det *= m[i*N+i];
 			}
 		}
+		delete[] ipiv;
 		return det;
 	}
 }
@@ -134,22 +130,23 @@ T Lapack<T>::det() const {
 template<typename T>
 void Lapack<T>::inv() const {
 	if (matrix_type != 'G'){
-		std::cerr<<"inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
-		std::cerr<<"inv : the only matrix type implemented is G"<<std::endl;
+		std::cerr<<"Lapack inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
+		std::cerr<<"Lapack inv : the only matrix type implemented is G"<<std::endl;
 	} else {
-		int ipiv[N];
+		int* ipiv(new int[N]);
 		getrf(ipiv);
 		getri(ipiv);	
+		delete[] ipiv;
 	}
 }
 
 template<typename T>
 void Lapack<T>::lu(Matrice<T>& L, Matrice<T>& U) const {
 	if (matrix_type != 'G'){
-		std::cerr<<"inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
-		std::cerr<<"inv : the only matrix type implemented is G"<<std::endl;
+		std::cerr<<"Lapack inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
+		std::cerr<<"Lapack inv : the only matrix type implemented is G"<<std::endl;
 	}
-	int ipiv[N];
+	int* ipiv(new int[N]);
 	getrf(ipiv);
 	for(unsigned int i(0); i< N; i++){
 		L(i,i)=1.0;
@@ -159,6 +156,7 @@ void Lapack<T>::lu(Matrice<T>& L, Matrice<T>& U) const {
 			L(j,i) = m[j+i*N];
 		}
 	}
+	delete[] ipiv;
 }
 /*}*/
 

@@ -48,6 +48,16 @@ jdtags:jdtags.o Read.o Write.o RST.o Header.o RST.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 ########
+# jdlink
+########
+jdflink.o:jdlink.cpp Directory.hpp Read.hpp Write.hpp RST.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+
+jdlink:jdlink.o Header.o Read.o Write.o RST.o Directory.o 
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+
+########
 # commun
 ########
 Read.o:Read.cpp Read.hpp Matrice.hpp Array2D.hpp Header.hpp

@@ -94,30 +94,17 @@ std::string Read::header() const {
 Read& Read::operator>>(Array2D<std::string>& arr){
 	if(unlocked){
 		if(binary){ 
-			unsigned int N(0);
 			unsigned int row(0);
 			unsigned int col(0);
 			fread(&row,sizeof(row),1,bfile);
 			fread(&col,sizeof(col),1,bfile);
 			if(arr.row() != row || arr.col() != col){
 				Array2D<std::string> arr_tmp(row,col);
-				for(unsigned int i(0);i<row*col;i++){
-					fread(&N,sizeof(N),1,bfile);
-					char c[N];
-					fread(c,1,N,bfile);
-					c[N] = '\0';
-					(arr_tmp.ptr())[i] = c;
-				}
 				arr = arr_tmp;
-			} else { 
-					for(unsigned int i(0);i<row*col;i++){
-					fread(&N,sizeof(N),1,bfile);
-					char c[N];
-					fread(c,1,N,bfile);
-					c[N] = '\0';
-					(arr.ptr())[i] = c;
-				}			
-			}
+			} 
+			for(unsigned int i(0);i<row*col;i++){
+				(*this)>>(arr.ptr())[i];
+			}			
 		} else {
 			std::cerr<<"Read : << for Array2D<std::string> is not implemented"<<std::endl;
 		}

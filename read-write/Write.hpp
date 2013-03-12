@@ -126,11 +126,7 @@ template<typename M>//doesn't work with string
 void Write::write_binary_matrix(Matrice<M> const& mat){
 	unsigned int N(mat.size());
 	fwrite(&N, sizeof(N), 1 ,bfile);
-	M tmp[N*N];
-	for(unsigned int i(0);i<N*N;i++){
-		tmp[i] = (mat.ptr())[i];
-	}
-	fwrite(&tmp, sizeof(tmp), 1 ,bfile);
+	fwrite(mat.ptr(),sizeof(M),N*N,bfile);
 	fflush(bfile);
 }
 
@@ -141,11 +137,7 @@ void Write::write_binary_array2d(Array2D<A> const& arr){
 
 	fwrite(&N_row, sizeof(N_row), 1 ,bfile);
 	fwrite(&N_col, sizeof(N_col), 1 ,bfile);
-	A tmp[N_row*N_col];
-	for(unsigned int i(0);i<N_row*N_col;i++){
-		tmp[i] = (arr.ptr())[i];
-	}
-	fwrite(&tmp, sizeof(tmp), 1 ,bfile);
+	fwrite(arr.ptr(), sizeof(A), N_row*N_col ,bfile);
 	fflush(bfile);
 }
 

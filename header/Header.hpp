@@ -19,13 +19,17 @@ class Header{
 		void init(std::string title);
 
 		void add(std::string const& s, double const& d);
-		void add(std::string const& s, std::complex<double> const& c);
+		void add(std::string const& s, bool const& d);
+		void add(std::string const& s, unsigned int const& d);
+		void add(std::string const& s, std::string const& d);
+		void add(std::string const& s, std::complex<double> const& d);
 		void add(std::string const& s, Matrice<double> const& mat);
 		void add(std::string const& s, Matrice<std::complex<double> > const& mat);
+		void add(std::string const& s, Array2D<unsigned int> const& arr);
 
 		inline RST* get() const {return rst;};
 		void set(std::string const& s) { rst->set(s); };
-
+		void hyperlink(std::string const& display, std::string const& link);
 
 	private:
 		RST *rst;

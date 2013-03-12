@@ -108,17 +108,12 @@ Write& Write::operator<<(Array2D<std::string> const& arr){
 	if(unlocked){
 		if(binary){
 			std::string s("");
-			unsigned int N(0);
 			unsigned int row(arr.row());
 			unsigned int col(arr.col());
 			fwrite(&row,sizeof(row), 1 ,bfile);
 			fwrite(&col,sizeof(col), 1 ,bfile);
 			for(unsigned int i(0); i<arr.col()*arr.row(); i++){
-				s = (arr.ptr())[i];
-				N = s.size();
-				fwrite(&N,sizeof(N), 1 ,bfile);
-				fwrite(s.c_str(),1, N ,bfile);
-				fflush(bfile);
+				(*this)<<(arr.ptr())[i];
 			}
 		} else {  
 			std::cerr<<"Write : << for Array2D<std::string> is not implemented"<<std::endl;

@@ -2,7 +2,6 @@
 #define DEF_VECTEUR
 
 #include <iostream>
-#include <cmath>
 #include <cassert>
 
 /*!Class that implement a static array as a vector
@@ -33,9 +32,6 @@ class Vecteur{
 		inline T& operator()(unsigned int const& i){assert(i<N); return v[i];};
 		/*!Multiplies this vector by a double*/
 		Vecteur<T>& operator*=(T const& d);
-
-		/*!Sets the entries to zero if they are close to 0*/
-		void chop();
 
 		/*!Returns the pointer on the array*/
 		inline T* ptr() const { return v; };
@@ -68,16 +64,13 @@ template <typename T>
 Vecteur<T>::Vecteur(unsigned int N):
 	v(new T[N]),
 	N(N)
-{
-	std::cout<<"taille : vecteur"<<std::endl;
-}
+{ }
 
 template <typename T>
 Vecteur<T>::Vecteur(unsigned int N, T val):
 	v(new T[N]),
 	N(N)
 {
-	std::cout<<"taille+const : vecteur"<<std::endl;
 	fill_vecteur(val);
 }
 
@@ -86,7 +79,6 @@ Vecteur<T>::Vecteur(Vecteur<T> const& vec):
 	v(new T[vec.size()]),
 	N(vec.size())
 {
-	std::cout<<"copie : vecteur"<<std::endl;
 	for(unsigned int i(0);i<N;i++){
 			v[i] = vec(i);
 	}
@@ -95,7 +87,6 @@ Vecteur<T>::Vecteur(Vecteur<T> const& vec):
 template <typename T>
 Vecteur<T>::~Vecteur(){
 	delete[] v;
-	std::cout<<"destructeur : vecteur"<<std::endl;
 }
 /*}*/
 
@@ -103,7 +94,6 @@ Vecteur<T>::~Vecteur(){
 /*{*/
 template <typename T>
 Vecteur<T>& Vecteur<T>::operator=(Vecteur<T> const& vec){
-	std::cout<<"affectation : vecteur"<<std::endl;
 	if(this->N != vec.N){
 		delete[] this->v;
 		this->N = vec.N;
@@ -162,14 +152,6 @@ template <typename T>
 void Vecteur<T>::fill_vecteur(T val){
 	for(unsigned int i(0);i<N;i++){
 		v[i] = val;
-	}
-}
-
-template <typename T>
-void Vecteur<T>::chop(){
-	std::cerr<<"chop : attention utilise fabs... ne marche peut-être pas avec tous les types"<<std::endl;
-	for(unsigned int i(0);i<N;i++){
-		if(std::fabs(v[i]) < 1e-10 ){v[i]=0;}
 	}
 }
 /*}*/
