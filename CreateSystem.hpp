@@ -1,4 +1,3 @@
-#include "Read.hpp"
 #include "Write.hpp"
 #include "Array2D.hpp"
 #include "Matrice.hpp"
@@ -20,19 +19,17 @@ class CreateState{
 		~CreateState();
 
 	private:
+		unsigned int const N_m, N_n, N_spin, N_site;//!<
+		Array2D<unsigned int> sts;//!< 
+		Matrice<double> H;//!< hopping matrix
+		Matrice<M> T;//!< eigenvectors matrix (transfer matrix)
 		std::string filename; //!<
-		std::string filename_comp;//!<
 		bool is_complex;//!<
 		char mat_type;//!<
-		Write w;//!<
-		unsigned int const N_m, N_spin, N_n, N_site;//!<
-		Matrice<M> H;//!< hopping matrix
-		Matrice<M> EVec;//!< eigenvectors matrix
-		Array2D<unsigned int> sts;//!<
 
 		/*!Compute the hopping matrix*/
 		void compute_H();
-		/*!Compute the eigenvectors from H*/
+		/*!Compute the eigenvectors from the mean field hamiltonian*/
 		void compute_EVec();
 		/*!For every site, compute all its other sites that  */
 		void compute_sts();
@@ -40,18 +37,16 @@ class CreateState{
 
 template<typename M>
 CreateState<M>::CreateState(unsigned int N_m, unsigned int N_spin, unsigned int N_n, std::string filename):
-	filename(filename),
-	filename_comp(""),
-	is_complex(false),
-	mat_type('U'),
-	w(),
 	N_m(N_m),
-	N_spin(N_spin), 
 	N_n(N_n),
+	N_spin(N_spin), 
 	N_site(N_m*N_spin),
+	sts(N_spin*N_m*N_n/2,2),
 	H(N_spin*N_m),
-	EVec(N_spin*N_m),
-	sts(N_spin*N_m*N_n/2,2)
+	T(N_spin*N_m),
+	filename(filename),
+	is_complex(false),
+	mat_type('U')
 {
 	compute_H();
 	compute_sts();
@@ -61,14 +56,14 @@ CreateState<M>::CreateState(unsigned int N_m, unsigned int N_spin, unsigned int 
 
 template<typename M>
 CreateState<M>::~CreateState(){
-	w.open(filename+filename_comp+".jdbin");
+	Write w(filename+".jdbin");
 	w("complex",is_complex);
 	w("N_spin",N_spin);
 	w("N_m",N_m);
 	w("N_n",N_n);
 	w("sts",sts);
 	w("H",H);
-	w("T",EVec);
+	w("T",T);
 }
 
 template<typename M>
@@ -87,11 +82,10 @@ void CreateState<M>::compute_sts(){
 
 template<typename M>
 void CreateState<M>::compute_EVec(){
-	EVec = H;
-	Lapack<M> ES(EVec.ptr(),N_site, mat_type);
+	Lapack<M> ES(T.ptr(),N_site, mat_type);
 	Vecteur<double> EVal(N_site);
 	ES.eigensystem(EVal);
 	if(std::abs(EVal(N_m) - EVal(N_m-1))<1e-10){
-		filename_comp = "-VPDNF";
+		filename += "-VPDNF";
 	}
 }

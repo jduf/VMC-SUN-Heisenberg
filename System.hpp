@@ -1,13 +1,10 @@
 #ifndef DEF_SYSTEM
 #define DEF_SYSTEM
 
-#include "Vecteur.hpp"
 #include "Matrice.hpp"
 #include "Lapack.hpp"
-#include "Array2D.hpp"
 #include "Rand.hpp"
 
-//#include <cstdlib>
 
 /*!Class that contains the information on the state
  * 
@@ -16,32 +13,32 @@
 template<typename T>
 class System{
 	public:
-		System(unsigned int N_spin, unsigned int N_m, Array2D<unsigned int> const& sts, Matrice<T> const& H, Matrice<T> const& EVec);
+		System(unsigned int N_spin, unsigned int N_m, Matrice<T> const& EVec);
 		~System();
 
 		unsigned int const N_spin, N_m, N_site;
-		Array2D<unsigned int> const sts;
+		unsigned int s1, s2;
 		
 		void print();
 
 		void update();
 		void swap();
 		void swap(unsigned int a, unsigned int b);
-		T ratio(bool update=false);
+		T ratio();
 
 	private:
 		System();
-		System& operator=(System const & S);
+		System(System const& S);
+		System& operator=(System const& S);
 
-		Matrice<T> *A;      //!< matrices that we need to compute the determinant from 
+		Matrice<T> *A;      //!< matrices that we need to compute the determinant 
 		Matrice<T> *Ainv;   //!< inverse of the matrices
 		Matrice<T> tmp_mat; //!< temporary matrix used to update Ainv
-		Matrice<T> const H; //!< to be moved to AnalyseState.hpp
 		T w[2];             //!< determinant ratios
-		unsigned int *s;    //!< store 
-		unsigned int *wis;  //!< 
 		unsigned int mc[2]; //!< matrices that are modified 
 		unsigned int cc[2]; //!< column's matrices that are exchanged 
+		unsigned int *s;    //!< store 
+		unsigned int *wis;  //!< 
 		Rand rnd;
 
 		void init_state(Matrice<T> const& EVec);
@@ -50,15 +47,15 @@ class System{
 /*Constructors and destructor*/
 /*{*/
 template<typename T>
-System<T>::System(unsigned int N_spin, unsigned int N_m, Array2D<unsigned int> const& sts, Matrice<T> const& H, Matrice<T> const& EVec):
+System<T>::System(unsigned int N_spin, unsigned int N_m,  Matrice<T> const& EVec):
 	N_spin(N_spin),
 	N_m(N_m),
 	N_site(N_m*N_spin),
-	sts(sts),
+	s1(0),
+	s2(0),
 	A(new Matrice<T>[N_spin]),
 	Ainv(new Matrice<T>[N_spin]),
 	tmp_mat(N_m,0.0),
-	H(H),
 	s(new unsigned int[N_spin*N_m]),
 	wis(new unsigned int[N_spin*N_m]),
 	rnd(10)
@@ -83,20 +80,19 @@ System<T>::~System(){
 /*methods that return something related to the class*/
 /*{*/
 template<typename T> 
-T System<T>::ratio(bool update){
+T System<T>::ratio(){
 	if(mc[0] == mc[1]){
 		// when one matrix is modified, two of its columns are exchanged and
-		// therefore a minus sign arises (update = always true if mc[0]=mc[1])
-		return -H(s[mc[0]*N_m + cc[0]],s[mc[1]*N_m + cc[1]]);// the minus comes frome the hopping term
-	}else {
+		// therefore a minus sign arises 
+		return -1;
+	} else {
 		w[0] = 0.0;
 		w[1] = 0.0;
 		for(unsigned int i(0);i<N_m;i++){
 			w[0] += Ainv[mc[0]](cc[0],i)*A[mc[1]](i,cc[1]);
 			w[1] += Ainv[mc[1]](cc[1],i)*A[mc[0]](i,cc[0]);
 		}
-		if(update){ return H(s[mc[0]*N_m + cc[0]],s[mc[1]*N_m + cc[1]]) * w[0]*w[1];  }
-		else { return w[0]*w[1]; }
+		return w[0]*w[1]; 
 	}
 }
 
@@ -131,7 +127,7 @@ template<typename T>
 void System<T>::init_state(Matrice<T> const& EVec){
 	unsigned int site(0);
 	unsigned int N_as(N_site);
-	unsigned int available_sites[N_site];
+	unsigned int* available_sites(new unsigned int[N_site]);
 	for(unsigned int i(0); i < N_as; i++){
 		available_sites[i]  = i;	
 	}
@@ -155,6 +151,7 @@ void System<T>::init_state(Matrice<T> const& EVec){
 		Lapack<T> A_(Ainv[i].ptr(),Ainv[i].size(),'G');
 		A_.inv();
 	}
+	delete[] available_sites;
 }
 
 template<typename T>
@@ -174,6 +171,8 @@ void System<T>::swap(unsigned int a, unsigned int b) {
 	mc[1] = wis[b] / N_m;
 	cc[0] = wis[a] % N_m;
 	cc[1] = wis[b] % N_m;
+	s1=s[mc[0]*N_m + cc[0]];
+	s2=s[mc[1]*N_m + cc[1]];
 }
 
 template<typename T>

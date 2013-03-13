@@ -9,32 +9,35 @@ OPTION = -O3
 
 CXXFLAGS = $(LAPACK) $(ERRORS) $(DEBUG) $(OPTION)
 
-LDFLAGS= $(LAPACK) $(DEBUG) $(OPTION)
+LDFLAGS  = $(LAPACK) $(ERRORS) $(DEBUG) $(OPTION)
 
 all:mc cs
 ########
 # mc
 #######
-mc:MC.o Lapack.o Rand.o Read.o Write.o Header.o RST.o
+mc:mc.o MonteCarlo.o Lapack.o Rand.o Read.o Write.o Header.o RST.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 Rand.o:Rand.cpp Rand.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
-MC.o:MC.cpp Chrono.hpp System.hpp Read.hpp Array2D.hpp Matrice.hpp
+MonteCarlo.o:MonteCarlo.cpp MonteCarlo.hpp Chrono.hpp System.hpp Read.hpp Array2D.hpp Matrice.hpp
+	$(CXX) -c $(CXXFLAGS) $^ 
+
+mc.o:mc.cpp MonteCarlo.hpp Chrono.hpp System.hpp Read.hpp Array2D.hpp Matrice.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
 ########
 # create
 ########
-cs:CS.o CreateSystem.o Lapack.o Read.o Write.o Header.o RST.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+cs:cs.o CreateSystem.o Lapack.o Read.o Write.o Header.o RST.o
+	$(CXX) -o $@ $^ $(LAPACK) $(OPTION)
 
 CreateSystem.o:CreateSystem.cpp CreateSystem.hpp Read.hpp Write.hpp Array2D.hpp Matrice.hpp Lapack.hpp
-	$(CXX) -c $(CXXFLAGS) $^ 
+	$(CXX) -c $(LAPACK) $(OPTION) $^ 
 
-CS.o:CS.cpp CreateSystem.hpp Parseur.hpp
-	$(CXX) -c $(CXXFLAGS) $^ 
+cs.o:cs.cpp CreateSystem.hpp Parseur.hpp
+	$(CXX) -c $(LAPACK) $(OPTION) $^ 
 
 ########
 # commun
