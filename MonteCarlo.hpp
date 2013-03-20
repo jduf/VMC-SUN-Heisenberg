@@ -3,13 +3,14 @@
 
 #include "System.hpp"
 #include "Array2D.hpp"
+#include "Write.hpp"
 
 #include <vector>
 
 template <typename T>
 class MonteCarlo{
 	public:
-		MonteCarlo(System<T>* S, Matrice<double> const& H, Array2D<unsigned int> const& sts);
+		MonteCarlo(System<T>* S, Matrice<double> const& H, Array2D<unsigned int> const& sts, std::string filename);
 		~MonteCarlo();
 
 		void run();
@@ -24,6 +25,8 @@ class MonteCarlo{
 		std::vector<double> sampling;
 		double E;
 		unsigned int const N_MC;
+		Write output;
+		std::string filename;
 
 		void compute_energy();
 		bool binning_analyse(unsigned int& iter);
@@ -32,13 +35,15 @@ class MonteCarlo{
 };
 
 template<typename T>
-MonteCarlo<T>::MonteCarlo(System<T>* S, Matrice<double> const& H, Array2D<unsigned int> const& sts):
+MonteCarlo<T>::MonteCarlo(System<T>* S, Matrice<double> const& H, Array2D<unsigned int> const& sts,std::string filename):
 	S(S),
 	H(H),
 	sts(sts),
 	sampling(0),
 	E(0.0),
-	N_MC(1e4)
+	N_MC(1e4),
+	output(filename+".out"),
+	filename(filename)
 {}
 
 template<typename T>
@@ -60,23 +65,25 @@ bool MonteCarlo<T>::binning_analyse(unsigned int& iter){
 			bin.resize(bin2.size());
 			bin=bin2;
 		}
-		std::cerr<<E / (sampling.size() * S->N_site)<<std::endl;
-		if(fabs(d[d.size()-1]) > 1e-2){iter=0; return true;}
-		else {
-			std::cout<<" "<<S->N_spin
-				<<" "<<S->N_m
-				<<" "<<sampling.size()
-				<<" "<<E / (sampling.size() * S->N_site);
-			for(unsigned int i(0);i<d.size();i++){
-				std::cout<<" "<<d[i];
-			}
-			return false;
+
+		output<<" "<<S->N_spin
+			<<" "<<S->N_m
+			<<" "<<sampling.size()
+			<<" "<<E / (sampling.size() * S->N_site);
+		for(unsigned int i(0);i<d.size();i++){
+			output<<" "<<d[i];
 		}
+		output<<Write::endl;
+		if( std::abs( E / (sampling.size() * S->N_site) )  > 100 ){ 
+			std::cerr<<filename<< " : initial condition lead to a wrong value, resetting the simulation"<<std::endl;
+			E = 0;
+			sampling.clear();
+		} 
+		if(fabs(d[d.size()-1]) > 5e-2){iter=0; return true;}
+		else { return false; }
 	} else {
 		return true;
 	}
-
-	//std::cout<<"time "<< 0.5*((d[d.size()-1]/d[0])*(d[d.size()-1]/d[0])-1)<<std::endl;
 }
 
 template<typename T>

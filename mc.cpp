@@ -2,7 +2,6 @@
 @file mc.cpp
 */
 
-#include "Chrono.hpp"
 #include "Read.hpp"
 #include "System.hpp"
 #include "Matrice.hpp"
@@ -17,8 +16,6 @@ int main(int argc, char* argv[]){
 	//std::cerr<<"vérifer abs, fabs, abs(complex)"<<std::endl;
 	//std::cerr<<"vérifer det et compute_ration pour les complex"<<std::endl;
 	if(argc==2){
-		Chrono t;
-		t.tic();
 		std::string filename(argv[1]);
 
 		unsigned int N_spin(0), N_m(0), N_n(0);
@@ -34,18 +31,14 @@ int main(int argc, char* argv[]){
 			Matrice<std::complex<double> > T(N_m*N_spin);
 			r>>T;
 			System<std::complex<double> > S(N_spin,N_m,T);
-			MonteCarlo<std::complex<double> > sim(&S,H,sts);
+			MonteCarlo<std::complex<double> > sim(&S,H,sts,filename);
 			sim.run();
-			t.tac();
-			std::cout<<" "<<t<<std::endl;
 		} else {
 			Matrice<double> T(N_m*N_spin);
 			r>>T;
 			System<double> S(N_spin,N_m,T);
-			MonteCarlo<double> sim(&S,H,sts);
+			MonteCarlo<double> sim(&S,H,sts,filename);
 			sim.run();
-			t.tac();
-			std::cout<<" "<<t<<std::endl;
 		}
 	} else {
 		std::cerr<<"main : need one argument -> filename.jdbin"<<std::endl;

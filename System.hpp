@@ -25,6 +25,7 @@ class System{
 		void swap();
 		void swap(unsigned int a, unsigned int b);
 		T ratio();
+		unsigned int operator[](unsigned int i){return wis[i]/N_m;};
 
 	private:
 		System();
@@ -193,7 +194,9 @@ void System<T>::update(){
 	wis[b] = wis[a];
 	wis[a] = s_tmp;
 
-	T tmp(0.0);
+// there is a way to avoid this loop and its useless copy if one keeps track
+// only of the columns that are echanged...
+	T tmp(0.0); 
 	for(unsigned int i(0); i<N_m; i++){
 		tmp = A[mc[0]](i,cc[0]);
 		A[mc[0]](i,cc[0]) = A[mc[1]](i,cc[1]);
@@ -204,7 +207,7 @@ void System<T>::update(){
 	for(unsigned int m(0);m<2;m++){
 		for(unsigned int i(0);i<N_m;i++){
 			if(cc[m] == i){ tmp_start = -1.0; }
-			else { tmp_start = 0.0;}
+			else { tmp_start = 0.0; }
 			for(unsigned int j(0);j<N_m;j++){
 				tmp = tmp_start;
 				for(unsigned int k(0);k<N_m;k++){

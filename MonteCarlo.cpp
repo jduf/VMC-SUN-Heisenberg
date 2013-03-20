@@ -1,6 +1,5 @@
 #include "MonteCarlo.hpp"
 
-
 template<>
 void MonteCarlo<std::complex<double> >::compute_energy(){
 	double E_step(0.0);
