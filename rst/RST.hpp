@@ -4,7 +4,6 @@
 class Write;
 
 #include <string>
-//#include <vector>
 #include <cstdlib> // -> system(std::string command)
 
 class RST{
@@ -27,11 +26,10 @@ class RST{
 		std::string RST_item;
 
 		inline std::string get() const { return rst;};
-		void set(std::string const& s) { rst = s; };
+		inline void set(std::string const& s) { rst = s; };
 
 	private:
 		std::string rst;
-		//std::vector<std::string> links;
 		std::string filename;
 		Write *w;
 };

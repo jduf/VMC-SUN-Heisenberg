@@ -6,7 +6,6 @@ RST::RST():
 	RST_np("\n\n"),
 	RST_item("+ "),
 	rst(""),
-	//links(0),
 	filename(""),
 	w(NULL)
 {}
@@ -16,7 +15,6 @@ RST::RST(std::string filename):
 	RST_np("\n\n"),
 	RST_item("+ "),
 	rst(""),
-	//links(0),
 	filename(filename),
 	w(new Write(filename + ".rst"))
 { }
@@ -36,13 +34,13 @@ RST::~RST()
 }
 
 void RST::title(std::string t,std::string symb){
-	rst += RST_np + t + RST_nl;
+	rst += RST_nl + t + RST_nl;
 	for(unsigned int i(0);i<t.size();i++){ rst +=  symb; }
 	rst += RST_np;
 }
 
 void RST::text(std::string t){
-	 rst += t + " ";
+	 rst += t + RST_nl;
 }
 
 void RST::textit(std::string t){
@@ -58,7 +56,7 @@ void RST::item(std::string t){
 }
 
 void RST::def(std::string t, std::string def){
-	if(def.size()>20){
+	if(def.size()>25){
 		std::cerr<<"RST : too long"<<std::endl;
 	}
 	rst += ":" + t + ":" + " " + def + RST_nl;

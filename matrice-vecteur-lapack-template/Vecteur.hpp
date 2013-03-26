@@ -4,6 +4,9 @@
 #include <iostream>
 #include <cassert>
 
+template <typename T>
+class Matrice;
+
 /*!Class that implement a static array as a vector
  *
  * - behaves as a std::vector<T>
@@ -32,6 +35,11 @@ class Vecteur{
 		inline T& operator()(unsigned int const& i){assert(i<N); return v[i];};
 		/*!Multiplies this vector by a double*/
 		Vecteur<T>& operator*=(T const& d);
+		Vecteur<T> operator*(T const& d) const;
+		/*!Scalar product*/
+		T operator*(Vecteur<T> const& vec) const;
+		/*!Exterior product*/
+		Matrice<T> operator^(Vecteur<T> const& vec) const;
 
 		/*!Returns the pointer on the array*/
 		inline T* ptr() const { return v; };
@@ -49,16 +57,12 @@ class Vecteur{
 template <typename T>
 Vecteur<T> operator*(T const& d, Vecteur<T> const& vec);
 template <typename T>
-Vecteur<T> operator*(Vecteur<T> const& vec, T const& d);
-template <typename T>
-T operator*(Vecteur<T> const& vec1, Vecteur<T> const& vec2);
-template <typename T>
 std::ostream& operator<<(std::ostream &flux, Vecteur<T> const& v);
 
 /*Constructors and destructor*/
 /*{*/
 template <typename T>
-Vecteur<T>::Vecteur():v(NULL),N(0){}
+Vecteur<T>::Vecteur():v(NULL),N(0){ }
 
 template <typename T>
 Vecteur<T>::Vecteur(unsigned int N):
@@ -86,7 +90,10 @@ Vecteur<T>::Vecteur(Vecteur<T> const& vec):
 
 template <typename T>
 Vecteur<T>::~Vecteur(){
-	delete[] v;
+	if(v){
+		delete[] v;
+		v = NULL;
+	}
 }
 /*}*/
 
@@ -95,7 +102,8 @@ Vecteur<T>::~Vecteur(){
 template <typename T>
 Vecteur<T>& Vecteur<T>::operator=(Vecteur<T> const& vec){
 	if(this->N != vec.N){
-		delete[] this->v;
+		if(this->v){ delete[] this->v; }
+		this->v = new T[N];
 		this->N = vec.N;
 	}
 	for(unsigned int i(0); i<N; i++){
@@ -113,35 +121,46 @@ Vecteur<T>& Vecteur<T>::operator*=(T const& d){
 }
 
 template <typename T>
+Vecteur<T> Vecteur<T>::operator*(T const& d) const{
+	Vecteur<T> vecout((*this));
+	vecout *= d;	
+	return vecout;
+}
+
+template <typename T>
 Vecteur<T> operator*(T const& d, Vecteur<T> const& vec){
-	Vecteur<T> v(vec);
-	v *= d;	
-	return v;
+	Vecteur<T> vecout(vec);
+	vecout *= d;	
+	return vecout;
 }
 
 template <typename T>
-Vecteur<T> operator*(Vecteur<T> const& vec, T const& d){
-	Vecteur<T> v(vec);
-	v *= d;	
-	return v;
-}
-
-template <typename T>
-T operator*(Vecteur<T> const& vec1, Vecteur<T> const& vec2){
-	assert(vec1.N==vec2.N);
+T Vecteur<T>::operator*(Vecteur<T> const& vec) const{
+	assert(N==vec.N);
 	T s(0.0);
-	for(unsigned int i(0);i<vec1.size();i++){
-		s += vec1(i)*vec2(i);
+	for(unsigned int i(0);i<N;i++){
+		s += v[i]*vec.v[i];
 	}
 	return s;
 }
 
+template<typename T>
+Matrice<T> Vecteur<T>::operator^(Vecteur<T> const& vec) const{
+	assert(N == vec.N);
+	Matrice<T> mat(N);
+	for(unsigned int i(0);i<N;i++){
+		for(unsigned int j(0);j<N;j++){
+			mat(i,j) = v[i]*vec.v[j];
+		}
+	}
+	return mat;
+}
+
 template <typename T>
 std::ostream& operator<<(std::ostream &flux, Vecteur<T> const& v){
-	for(unsigned int i(0); i<v.size()-1; i++){
+	for(unsigned int i(0); i<v.size(); i++){
 		flux << v(i) <<std::endl;
 	}
-	flux << v(v.size()-1);
 	return flux;
 }
 /*}*/

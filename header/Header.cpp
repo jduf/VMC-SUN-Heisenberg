@@ -6,6 +6,10 @@ Header::Header():
 
 Header::~Header(){delete rst; }
 
+void Header::add(std::string const& s){
+	rst->text(s);
+}
+
 void Header::add(std::string const& s, double const& d){
 	rst->def(s + "=" + tostring(d), "double");
 }

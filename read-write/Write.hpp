@@ -49,6 +49,8 @@ class Write{
 		template<typename T>
 			void operator()(std::string const& var, T const& val);
 
+		void header(std::string s);
+
 		/*!Returns the filename in which the class in writing*/
 		std::string get_filename() const { return filename;};
 
@@ -144,10 +146,10 @@ void Write::write_binary_array2d(Array2D<A> const& arr){
 template<typename T>
 void Write::operator()(std::string const& var, T const& val){
 	if(h){
-		(*this)<< val;
+		(*this)<<val;
 		h->add(var,val);
 	} else {
-		std::cout<<"Write : there's no header in "<<filename<<std::endl;
+		std::cout<<"Write : operator() : there's no header in "<<filename<<std::endl;
 	}	
 }
 #endif

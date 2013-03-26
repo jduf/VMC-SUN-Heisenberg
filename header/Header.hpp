@@ -18,6 +18,7 @@ class Header{
 
 		void init(std::string title);
 
+		void add(std::string const& s);
 		void add(std::string const& s, double const& d);
 		void add(std::string const& s, bool const& d);
 		void add(std::string const& s, unsigned int const& d);

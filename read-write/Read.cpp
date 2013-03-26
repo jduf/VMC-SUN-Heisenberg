@@ -9,7 +9,7 @@ Read::Read(std::string filename):
 {
 	if(binary){open_binary();}
 	else{open_txt();}
-	if(h && unlocked){read_header();}
+	if(h){read_header();}
 }
 
 Read::Read():
@@ -65,21 +65,31 @@ void Read::open(std::string filename){
 		if(binary){open_binary();}
 		else{open_txt();}
 		unlocked=true;
+		if(h && unlocked){read_header();}
 	} else {
 		std::cerr<<"Read : the file "<< filename << " is already open"<<std::endl;
 	}
 }
 
 void Read::read_header(){
-	unsigned int N(0);
-	fseek(bfile,-sizeof(N),SEEK_END);
-	fread(&N,sizeof(N),1,bfile);
-	char c[N];
-	fseek(bfile,-sizeof(c)-sizeof(N),SEEK_END);
-	fread(c,1,N,bfile);
-	c[N] = '\0';
-	h->set(c);
-	rewind(bfile);
+	if(unlocked){
+		if(binary){
+			unsigned int N(0);
+			fseek(bfile,-sizeof(N),SEEK_END);
+			fread(&N,sizeof(N),1,bfile);
+			char* c(new char[N+1]);
+			fseek(bfile,-sizeof(char)*N-sizeof(N),SEEK_END);
+			fread(c,1,N,bfile);
+			c[N] = '\0';
+			h->set(c);
+			rewind(bfile);
+			delete[] c;
+		} else {
+			std::cerr<<"Read : read_header() not implemented for non binary file"<<std::endl;
+		}
+	} else {
+		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
+	}
 }
 
 std::string Read::header() const { 
@@ -119,10 +129,11 @@ Read& Read::operator>>(std::string& s){
 		if(binary){ 
 			unsigned int N(0);
 			fread(&N,sizeof(N),1,bfile);
-			char c[N];
+			char* c(new char[N+1]);
 			fread(c,1,N,bfile);
 			c[N] = '\0';
 			s = c;
+			delete[] c;
 		} else {
 			std::string tmp("");
 			while(tfile.good()){ 

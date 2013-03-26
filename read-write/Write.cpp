@@ -90,6 +90,10 @@ Write& Write::operator<<(std::string const& s){
 	return (*this);
 }
 
+void Write::header(std::string s){
+	if(h){ h->add(s); }
+}
+
 void Write::write_header(){
 	if(binary){
 		if(h){
