@@ -1,66 +1,38 @@
 #include "MonteCarlo.hpp"
 
 template<>
-void MonteCarlo<std::complex<double> >::compute_energy(){
-	double E_step(0.0);
-	for(unsigned int j(0);j<sts.row();j++){
-		S->swap(sts(j,0),sts(j,1));
-		E_step += std::real(S->ratio() * H(sts(j,0),sts(j,1)));
-	}
-	E += E_step;
-	sampling.push_back(E_step);
-}
-
-template<>
-void MonteCarlo<double>::compute_energy(){
-	double E_step(0.0);
-	for(unsigned int j(0);j<sts.row();j++){
-		S->swap(sts(j,0),sts(j,1));
-		E_step += S->ratio() * H(sts(j,0),sts(j,1));
-	}
-	E += E_step;
-	sampling.push_back(E_step);
-}
-
-template<>
-void MonteCarlo<double>::run(){
-	srand(time(NULL)^(getpid()<<16));
-	double ratio(0.0);
-	unsigned int DCT(0);
+void MonteCarlo<double>::run(unsigned int const& thread){
 	unsigned int i(0);
+	double E_config(0);
+	double ratio(0.0);
 	do{
-		S->swap();
-		ratio = S->ratio(); 
+		S[thread].swap();
+		ratio = S[thread].ratio(); 
 		ratio *= ratio;
 		if(ratio>1 || (double)rand()/RAND_MAX <ratio){
-			S->update();
-			if(DCT == 0){
-				compute_energy();
-				DCT = S->N_site;
-				i++;
-			}
-			DCT--;
+			S[thread].update();
+			E_config = S[thread].compute_energy();
+			E[thread] += E_config;
+			sampling[thread].push_back(E_config);
+			i++;
 		}
-	} while(binning_analysis(i));
+	} while(binning_analysis(i,thread));
 }
 
 template<>
-void MonteCarlo<std::complex<double> >::run(){
-	srand(time(NULL)^(getpid()<<16));
-	double ratio(0.0);
+void MonteCarlo<std::complex<double> >::run(unsigned int const& thread){
 	unsigned int i(0);
-	unsigned int DCT(0);
+	double E_config(0);
+	double ratio(0.0);
 	do{
-		S->swap();
-		ratio = std::norm(S->ratio());
+		S[thread].swap();
+		ratio = std::norm(S[thread].ratio());
 		if(ratio>1 || (double)rand()/RAND_MAX <ratio){
-			S->update();
-			if(DCT == 0){
-				compute_energy();
-				DCT = S->N_site;
-				i++;
-			}
-			DCT--;
+			S[thread].update();
+			E_config = S[thread].compute_energy();
+			E[thread] += E_config;
+			sampling[thread].push_back(E_config);
+			i++;
 		}
-	} while(binning_analysis(i));
+	} while(binning_analysis(i,thread));
 }

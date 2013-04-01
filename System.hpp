@@ -2,6 +2,7 @@
 #define DEF_SYSTEM
 
 #include "Matrice.hpp"
+#include "Array2D.hpp"
 #include "Lapack.hpp"
 #include "Rand.hpp"
 
@@ -13,61 +14,56 @@
 template<typename T>
 class System{
 	public:
-		System(unsigned int N_spin, unsigned int N_m, Matrice<T> const& EVec);
+		System();
 		~System();
 
-		unsigned int const N_spin, N_m, N_site;
+		unsigned int N_spin, N_m, N_site;
 		unsigned int s1, s2;
 		
 		void print();
+		void init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> const& H_, Array2D<unsigned int> const& sts_, Matrice<T> const& EVec, unsigned int thread);
 
 		void update();
 		void swap();
-		void swap(unsigned int a, unsigned int b);
+		void swap(unsigned int const& a, unsigned int const& b);
 		T ratio();
-		//unsigned int operator[](unsigned int i){return wis[i]/N_m;};
+
+		//{Description
+		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
+		 * permutation */
+		//}
+		double compute_energy();
 
 	private:
-		System();
 		System(System const& S);
 		System& operator=(System const& S);
 
 		Matrice<T> *A;      //!< matrices that we need to compute the determinant 
 		Matrice<T> *Ainv;   //!< inverse of the matrices
-		Matrice<T> tmp_mat; //!< temporary matrix used to update Ainv
-		T w[2];             //!< determinant ratios
 		unsigned int mc[2]; //!< matrices that are modified 
 		unsigned int cc[2]; //!< column's matrices that are exchanged 
 		unsigned int *s;    //!< store 
-		unsigned int *wis;  //!< 
-		Rand rnd;
-
-		void init_state(Matrice<T> const& EVec);
+		unsigned int *wis;  
+		Matrice<T> tmp_mat; //!< temporary matrix used to update Ainv
+		T w[2];             //!< determinant ratios
+		Rand* rnd;			//!< generator of random number, gives different numbers for different thread
+		Matrice<double> H;
+		Array2D<unsigned int> sts;
 };
 
 /*Constructors and destructor*/
 /*{*/
 template<typename T>
-System<T>::System(unsigned int N_spin, unsigned int N_m,  Matrice<T> const& EVec):
-	N_spin(N_spin),
-	N_m(N_m),
-	N_site(N_m*N_spin),
+System<T>::System():
+	N_spin(0),
+	N_m(0),
+	N_site(0),
 	s1(0),
 	s2(0),
-	A(new Matrice<T>[N_spin]),
-	Ainv(new Matrice<T>[N_spin]),
-	tmp_mat(N_m,0.0),
-	s(new unsigned int[N_spin*N_m]),
-	wis(new unsigned int[N_spin*N_m]),
-	rnd(10)
-{
-	init_state(EVec);
-	for(unsigned int i(0);i<2;i++){
-		w[i] = 0;
-		cc[i] = 0;
-		mc[i] = 0;
-	}
-}
+	tmp_mat(0,0.0),
+	H(0,0),
+	sts(0,0)
+{ }
 
 template<typename T>
 System<T>::~System(){
@@ -75,16 +71,25 @@ System<T>::~System(){
 	delete[] wis;
 	delete[] A;
 	delete[] Ainv;
+	delete rnd;
 }
 /*}*/
 
 /*methods that return something related to the class*/
 /*{*/
+//{Description
+/*!Computes the ratio of the two determinants related to the current and next
+ * configuration
+ *
+ * + when one matrix is modified, two of its columns are exchanged and
+ * therefore a minus sign arises 
+ * + when two matrices are modified, one computes the ratio using a specialized
+ * formula 
+ */
+//}
 template<typename T> 
 T System<T>::ratio(){
 	if(mc[0] == mc[1]){
-		// when one matrix is modified, two of its columns are exchanged and
-		// therefore a minus sign arises 
 		return -1;
 	} else {
 		w[0] = 0.0;
@@ -109,35 +114,50 @@ void System<T>::print(){
 	}
 	std::cout<<"}"<<std::endl;
 	//for(unsigned int i(0); i<N_site; i++){
-		//std::cout<<wis[i]<<" ";
+	//std::cout<<wis[i]<<" ";
 	//}
 	//std::cout<<std::endl;
 	for(unsigned int i(0);i<2;i++){
-		std::cout<<mc[i]<<" "<< cc[i]<<std::endl;
+		std::cout<<mc[i]<<" "<< cc[i]<<" "<<w[i]<<std::endl;
 	}
-	//for(unsigned int i(0);i<N_spin;i++){
-		//std::cout<<std::endl;
-		//std::cout<<Ainv[i] * A[i]<<std::endl;
-	//}
+	for(unsigned int i(0);i<N_spin;i++){
+		std::cout<<std::endl;
+		std::cout<<Ainv[i] * A[i]<<std::endl;
+	}
 }
 /*}*/
 
 /*methods that modify the class*/
 /*{*/
 template<typename T>
-void System<T>::init_state(Matrice<T> const& EVec){
+void System<T>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> const& H_, Array2D<unsigned int> const& sts_, Matrice<T> const& EVec, unsigned int thread){
+	N_spin = N_spin_;
+	N_m = N_m_;
+	N_site = N_spin*N_m;
+
+	H = H_;
+	sts = sts_;
+	tmp_mat = Matrice<T>(N_m);
+	A = new Matrice<T>[N_spin];
+	Ainv = new Matrice<T>[N_spin];
+	s = new unsigned int[N_site];
+	wis = new unsigned int[N_site];
+	rnd = new Rand(10,thread);
+
+
 	unsigned int site(0);
 	unsigned int N_as(N_site);
 	unsigned int* available_sites(new unsigned int[N_site]);
+
 	for(unsigned int i(0); i < N_as; i++){
 		available_sites[i]  = i;	
 	}
-
+ 
 	for(unsigned int i(0); i < N_spin; i++){
 		A[i] = Matrice<T> (N_m);
 		Ainv[i] = Matrice<T> (N_m);
 		for(unsigned int j(0); j < N_m; j++){
-			site = rnd.get(N_as);
+			site = rnd->get(N_as);
 			s[j+i*N_m] = available_sites[site];
 			wis[available_sites[site]] = i*N_m+j; 	
 			for(unsigned int k(0); k < N_m; k++){
@@ -152,22 +172,29 @@ void System<T>::init_state(Matrice<T> const& EVec){
 		Lapack<T> A_(Ainv[i].ptr(),Ainv[i].size(),'G');
 		A_.inv();
 	}
+
+	for(unsigned int i(0);i<2;i++){
+		w[i] = 0;
+		cc[i] = 0;
+		mc[i] = 0;
+	}
+
 	delete[] available_sites;
 }
 
 template<typename T>
 void System<T>::swap() {
-	mc[0] = rnd.get(N_spin);
-	mc[1] = rnd.get(N_spin);
+	mc[0] = rnd->get(N_spin);
+	mc[1] = rnd->get(N_spin);
 	while(mc[0]==mc[1]){
-		mc[1] = rnd.get(N_spin);
+		mc[1] = rnd->get(N_spin);
 	}
-	cc[0] = rnd.get(N_m);
-	cc[1] = rnd.get(N_m);
+	cc[0] = rnd->get(N_m);
+	cc[1] = rnd->get(N_m);
 }
 
 template<typename T>
-void System<T>::swap(unsigned int a, unsigned int b) {
+void System<T>::swap(unsigned int const& a, unsigned int const& b) {
 	mc[0] = wis[a] / N_m;
 	mc[1] = wis[b] / N_m;
 	cc[0] = wis[a] % N_m;
@@ -194,15 +221,15 @@ void System<T>::update(){
 	wis[b] = wis[a];
 	wis[a] = s_tmp;
 
-// there is a way to avoid this loop and its useless copy if one keeps track
-// only of the columns that are echanged...
+	// there is a way to avoid this loop and its useless copy if one keeps track
+	// only of the columns that are echanged...
 	T tmp(0.0); 
 	for(unsigned int i(0); i<N_m; i++){
 		tmp = A[mc[0]](i,cc[0]);
 		A[mc[0]](i,cc[0]) = A[mc[1]](i,cc[1]);
 		A[mc[1]](i,cc[1]) = tmp;
 	}
-	
+
 	T tmp_start(0.0);
 	for(unsigned int m(0);m<2;m++){
 		for(unsigned int i(0);i<N_m;i++){
