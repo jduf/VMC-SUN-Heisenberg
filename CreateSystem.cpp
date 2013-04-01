@@ -2,6 +2,7 @@
 
 template<>
 void CreateSystem<double>::compute_H(unsigned int N_row, unsigned int N_col, double parity){
+	std::cout<<N_site<<" "<<N_col<<" "<<N_row<<" "<<parity<<std::endl;
 	H.set(0.0);
 	T.set(0.0);
 	is_complex = false;
@@ -11,7 +12,7 @@ void CreateSystem<double>::compute_H(unsigned int N_row, unsigned int N_col, dou
 			if(j+1 == N_col){ H( i*N_col , i*N_col + j) = parity; }
 			else { H( i*N_col + j , i*N_col + j + 1) = -1.0; }
 			if(i+1 == N_row ){ H(j, i*N_col + j ) = parity;}
-			else{ H( i*N_col + j, i*N_col + j + N_col) = -1.0;}
+			else{ H(i*N_col + j, (i+1)*N_col + j) = -1.0;}
 		}
 	}
 	H += H.transpose();
@@ -20,6 +21,7 @@ void CreateSystem<double>::compute_H(unsigned int N_row, unsigned int N_col, dou
 
 template<>
 void CreateSystem<std::complex<double> >::compute_H(unsigned int N_row, unsigned int N_col, double parity){
+	std::cout<<N_site<<" "<<N_col<<" "<<N_row<<" "<<parity<<std::endl;
 	H.set(0.0);
 	T.set(0.0);
 	is_complex = true;
@@ -27,21 +29,22 @@ void CreateSystem<std::complex<double> >::compute_H(unsigned int N_row, unsigned
 	unsigned int N_site(H.size());
 	double phi(2*M_PI/N_spin);
 	unsigned int j(0);
-	for(unsigned int i(0); i< N_site; i++){
-		if((i+1) % N_col == 0){
-			T(j*N_col,i) = parity;
-			H(j*N_col,i) = parity;
-			j++;
-		} else {
-			T(i,i+1) = -1.0;
-			H(i,i+1) = -1.0;
-		}
-		if(i+N_col < N_site){
-			T(i,i+N_col) = -std::polar(1.0,((i%N_spin)+1)*phi);
-			H(i,i+N_col) = -1.0;
-		} else{
-			T(i+N_col-N_site,i) = parity*std::polar(1.0,-((i%N_spin)+1)*phi);
-			H(i+N_col-N_site,i) = parity; 
+	for(unsigned int i(0); i< N_row; i++){
+		for(unsigned int j(0); j< N_col; j++){
+			if(j+1 == N_col){
+				H( i*N_col , i*N_col + j) = parity;
+				T( i*N_col , i*N_col + j) = parity;
+			} else { 
+				H( i*N_col + j , i*N_col + j + 1) = -1.0; 
+				T( i*N_col + j , i*N_col + j + 1) = -1.0; 
+			}
+			if(i+1 == N_row ){
+				H(j, i*N_col + j ) = parity;
+				T(j, i*N_col + j) = parity*std::polar(1.0,-((i%N_spin)+1)*phi);
+			} else{
+				H(i*N_col + j, (i+1)*N_col + j) = -1.0;
+				T(i*N_col + j, (i+1)*N_col + j) = -std::polar(1.0,((i%N_spin)+1)*phi);
+			}
 		}
 	}
 	H += H.transpose();
@@ -59,7 +62,6 @@ void CreateSystem<double>::compute_H(){
 	}
 	H += H.transpose();
 	T = H;
-	rst.text("Chain");
 }
 
 template<>

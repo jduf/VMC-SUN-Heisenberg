@@ -71,23 +71,29 @@ CreateSystem<M>::CreateSystem(unsigned int N_m, unsigned int N_spin, unsigned in
 				compute_H();
 				compute_EVec();
 				successful = true;
+				rst.text("Chain");
 				save();
 				break;
 			}
 		case 4:
 			{
 				filename="square"+filename;
+				double parity(1.0);
+				double const p(-1.0);
 				unsigned int N_row(floor(sqrt(N_site)));
 				unsigned int N_col(floor(sqrt(N_site)));
 				if(N_site==N_row*N_col){
-					compute_H(N_row,N_col,-1.0);
+					compute_H(N_row,N_col,parity);
 					if(compute_EVec()){
-						compute_H(N_row,N_col,1.0);
+						parity *= p;
+						compute_H(N_row,N_col,parity);
 						if(compute_EVec()){
 							set_size(N_row,N_col);
-							compute_H(N_row,N_col,-1.0);
+							parity *= p;
+							compute_H(N_row,N_col,parity);
 							if(compute_EVec()){
-								compute_H(N_row,N_col,1.0);
+								parity *= p;
+								compute_H(N_row,N_col,parity);
 								if(compute_EVec()){
 									std::cerr<<"CreateSystem : can't find a lattice without degeneracy"<<std::endl;
 								}
@@ -96,18 +102,18 @@ CreateSystem<M>::CreateSystem(unsigned int N_m, unsigned int N_spin, unsigned in
 					}
 				} else {
 					set_size(N_row,N_col);
-					compute_H(N_row,N_col,-1.0);
+					compute_H(N_row,N_col,parity);
 					if(compute_EVec()){
-						compute_H(N_row,N_col,1.0);
+						parity *= p;
+						compute_H(N_row,N_col,parity);
 						if(compute_EVec()){
 							std::cerr<<"CreateSystem : can't find a lattice without degeneracy"<<std::endl;
 						}
 					}
 				}
-				assert(N_col>2);
-				assert(N_row>2);
-				assert(N_row*N_col==N_site);
-				assert(N_col % N_spin ==0);
+				if(N_col * N_row != N_site){
+					std::cerr<<N_spin<<" "<<N_m<<" "<<N_col<<" "<<N_row<<std::endl;
+				}
 				if(is_complex){ rst.text("Chiral spin liquid"); }
 				else{ rst.text("Fermi sea");}
 				if(successful){
@@ -115,12 +121,18 @@ CreateSystem<M>::CreateSystem(unsigned int N_m, unsigned int N_spin, unsigned in
 					std::stringstream ss4;
 					ss3<<N_row;
 					ss4<<N_col;
-					filename += "-" + ss3.str()+"x"+ ss4.str() ;
+					if(parity == -1){ filename += "-" + ss3.str()+"x"+ ss4.str() + "-p" ;}
+					else { filename += "-" + ss3.str()+"x"+ ss4.str() + "+p" ;}
 				}
 				save();
 				if(successful && N_n == 4){
 					(*w)("N_row",N_row);
 					(*w)("N_col",N_col);
+					(*w)("parity",parity);
+					assert(N_col>2);
+					assert(N_row>2);
+					assert(N_row*N_col==N_site);
+					assert(N_col % N_spin == 0);
 				}
 				break;
 			}
@@ -165,8 +177,9 @@ bool CreateSystem<M>::compute_EVec(){
 template<typename M>
 void CreateSystem<M>::save(){
 	if(successful){
-		if(is_complex){ filename += "-1"; }
-		else{ filename += "-0"; }
+
+		if(is_complex){ filename += "-c"; }
+		else{ filename += "-r"; }
 		compute_sts();
 
 		w = new Write(filename+".jdbin");
@@ -184,10 +197,20 @@ void CreateSystem<M>::save(){
 
 template<typename M>
 void CreateSystem<M>::set_size(unsigned int& N_row, unsigned int& N_col){
-	unsigned int i(1);
-	while(N_site % (i*N_spin) == 0 && i*i*N_spin*N_spin < N_site){ i++; }
-	std::cout<<i<<std::endl;
-	N_col = (i-1) *N_spin;
+	N_col = ceil(sqrt(N_site))+N_spin;
+	bool test(true);
+	while( test ){
+		test = false;
+		N_col--; 
+		if(N_col % N_spin != 0){ test = true; }
+		if(N_site % N_col != 0){ test = true; }
+		if(N_col < 3) { test = true; }
+	}
 	N_row = N_site/N_col;
+	if(N_col % N_spin != 0){
+		unsigned int tmp(N_col);
+		N_col=N_row;
+		N_row=tmp;
+	}
 }
 

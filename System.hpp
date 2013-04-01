@@ -25,7 +25,7 @@ class System{
 		void swap();
 		void swap(unsigned int a, unsigned int b);
 		T ratio();
-		unsigned int operator[](unsigned int i){return wis[i]/N_m;};
+		//unsigned int operator[](unsigned int i){return wis[i]/N_m;};
 
 	private:
 		System();

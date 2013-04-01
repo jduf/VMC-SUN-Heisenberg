@@ -41,8 +41,7 @@ void MonteCarlo<double>::run(){
 			}
 			DCT--;
 		}
-	} while(binning_analyse(i));
-	E /= (sampling.size() * S->N_site);
+	} while(binning_analysis(i));
 }
 
 template<>
@@ -63,6 +62,5 @@ void MonteCarlo<std::complex<double> >::run(){
 			}
 			DCT--;
 		}
-	} while(binning_analyse(i));
-	E /= (sampling.size() * S->N_site);
+	} while(binning_analysis(i));
 }
