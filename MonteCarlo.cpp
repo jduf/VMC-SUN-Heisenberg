@@ -2,7 +2,7 @@
 
 template<>
 void MonteCarlo<double>::run(unsigned int const& thread){
-	unsigned int i(0);
+	unsigned int i(1);
 	double E_config(0);
 	double ratio(0.0);
 	do{
@@ -14,14 +14,22 @@ void MonteCarlo<double>::run(unsigned int const& thread){
 			E_config = S[thread].compute_energy();
 			E[thread] += E_config;
 			sampling[thread].push_back(E_config);
-			i++;
+			if(i < N_MC){ i++;}
+			else {
+				i = 1;
+				binning_analysis(thread);
+			}
 		}
-	} while(binning_analysis(i,thread));
+	} while(keep_measuring);
+#pragma omp critical
+	{
+		binning_analysis(thread);
+	}
 }
 
 template<>
 void MonteCarlo<std::complex<double> >::run(unsigned int const& thread){
-	unsigned int i(0);
+	unsigned int i(1);
 	double E_config(0);
 	double ratio(0.0);
 	do{
@@ -32,7 +40,15 @@ void MonteCarlo<std::complex<double> >::run(unsigned int const& thread){
 			E_config = S[thread].compute_energy();
 			E[thread] += E_config;
 			sampling[thread].push_back(E_config);
-			i++;
+			if(i < N_MC){ i++;}
+			else {
+				i = 1;
+				binning_analysis(thread);
+			}
 		}
-	} while(binning_analysis(i,thread));
+	} while(keep_measuring);
+#pragma omp critical
+	{
+		binning_analysis(thread);
+	}
 }

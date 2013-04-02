@@ -18,7 +18,6 @@ int main(int argc, char* argv[]){
 	if(argc==2){
 		std::string filename(argv[1]);
 		unsigned int nthreads(4);
-		std::cout<<nthreads<<std::endl;
 
 		unsigned int N_spin(0), N_m(0), N_n(0);
 		bool is_complex(false);
@@ -30,14 +29,15 @@ int main(int argc, char* argv[]){
 		Matrice<double> H(N_m*N_spin);
 		r>>sts>>H;
 		if(is_complex){
-			MonteCarlo<std::complex<double> > sim(filename);
 			Matrice<std::complex<double> > T(N_m*N_spin);
+			MonteCarlo<std::complex<double> > sim(filename);
 			r>>T;
 			sim.init(N_spin,N_m,H,sts,T,nthreads);
-#pragma omp parallel
+#pragma omp parallel num_threads(nthreads)
 			{
 				sim.run(omp_get_thread_num());
 			}
+			sim.save(nthreads);
 		} else {
 			Matrice<double> T(N_m*N_spin);
 			MonteCarlo<double> sim(filename);
@@ -47,6 +47,7 @@ int main(int argc, char* argv[]){
 			{
 				sim.run(omp_get_thread_num());
 			}
+			sim.save(nthreads);
 		}
 	} else {
 		std::cerr<<"main : need one argument -> filename.jdbin"<<std::endl;
