@@ -51,6 +51,22 @@ class System{
 		Array2D<unsigned int> sts;
 };
 
+/*double real(T)*/
+/*{*/
+template<typename T>
+double real(T x);
+
+template<>
+inline double real(double x){
+	return x;
+}
+
+template<>
+inline double real(std::complex<double> x){
+	return std::real(x);
+}
+/*}*/
+
 /*Constructors and destructor*/
 /*{*/
 template<typename T>
@@ -100,6 +116,16 @@ T System<T>::ratio(){
 		}
 		return w[0]*w[1]; 
 	}
+}
+
+template<typename T>
+double System<T>::compute_energy(){
+	double E_step(0.0);
+	for(unsigned int j(0);j<sts.row();j++){
+		swap(sts(j,0),sts(j,1));
+		E_step += real(ratio() * H(sts(j,0),sts(j,1)));
+	}
+	return E_step;
 }
 
 template<typename T>
