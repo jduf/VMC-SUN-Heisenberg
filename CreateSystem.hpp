@@ -16,7 +16,7 @@
 template<typename M>
 class CreateSystem{
 	public:
-		CreateSystem(unsigned int N_m, unsigned int N_spin, unsigned int N_n);
+		CreateSystem(unsigned int N_m, unsigned int N_spin, unsigned int N_n, double parity);
 		~CreateSystem();
 
 	private:
@@ -36,7 +36,7 @@ class CreateSystem{
 		/*!Compute the hopping matrix for a square lattice*/
 		void compute_H(unsigned int N_row, unsigned int N_col, double parity);
 		/*!Compute the eigenvectors from the mean field hamiltonian*/
-		bool compute_EVec();
+		void compute_EVec();
 		void compute_sts();
 
 		void save();
@@ -44,7 +44,7 @@ class CreateSystem{
 };
 
 template<typename M>
-CreateSystem<M>::CreateSystem(unsigned int N_m, unsigned int N_spin, unsigned int N_n):
+CreateSystem<M>::CreateSystem(unsigned int N_m, unsigned int N_spin, unsigned int N_n, double parity):
 	N_m(N_m),
 	N_n(N_n),
 	N_spin(N_spin), 
@@ -78,61 +78,33 @@ CreateSystem<M>::CreateSystem(unsigned int N_m, unsigned int N_spin, unsigned in
 		case 4:
 			{
 				filename="square"+filename;
-				double parity(1.0);
-				double const p(-1.0);
 				unsigned int N_row(floor(sqrt(N_site)));
 				unsigned int N_col(floor(sqrt(N_site)));
 				if(N_site==N_row*N_col){
 					compute_H(N_row,N_col,parity);
-					if(compute_EVec()){
-						parity *= p;
-						compute_H(N_row,N_col,parity);
-						if(compute_EVec()){
-							set_size(N_row,N_col);
-							parity *= p;
-							compute_H(N_row,N_col,parity);
-							if(compute_EVec()){
-								parity *= p;
-								compute_H(N_row,N_col,parity);
-								if(compute_EVec()){
-									std::cerr<<"CreateSystem : can't find a lattice without degeneracy"<<std::endl;
-								}
-							}
-						}
-					}
 				} else {
-					set_size(N_row,N_col);
-					compute_H(N_row,N_col,parity);
-					if(compute_EVec()){
-						parity *= p;
-						compute_H(N_row,N_col,parity);
-						if(compute_EVec()){
-							std::cerr<<"CreateSystem : can't find a lattice without degeneracy"<<std::endl;
-						}
-					}
+					std::cerr<<"CreateSystem : the cluster is not a square"<<std::endl;
 				}
-				if(N_col * N_row != N_site){
-					std::cerr<<N_spin<<" "<<N_m<<" "<<N_col<<" "<<N_row<<std::endl;
-				}
-				if(is_complex){ rst.text("Chiral spin liquid"); }
-				else{ rst.text("Fermi sea");}
+				compute_EVec();
 				if(successful){
+					if(is_complex){ rst.text("Chiral spin liquid"); }
+					else{ rst.text("Fermi sea"); }
 					std::stringstream ss3;
 					std::stringstream ss4;
 					ss3<<N_row;
 					ss4<<N_col;
-					if(parity == -1){ filename += "-" + ss3.str()+"x"+ ss4.str() + "-p" ;}
-					else { filename += "-" + ss3.str()+"x"+ ss4.str() + "+p" ;}
-				}
-				save();
-				if(successful && N_n == 4){
+					if(parity == -1){ filename += "-" + ss3.str()+"x"+ ss4.str() + "-PB" ;}
+					else { filename += "-" + ss3.str()+"x"+ ss4.str() + "-AP" ;}
+					save();
 					(*w)("N_row",N_row);
 					(*w)("N_col",N_col);
 					(*w)("parity",parity);
-					assert(N_col>2);
-					assert(N_row>2);
-					assert(N_row*N_col==N_site);
-					assert(N_col % N_spin == 0);
+				} else {
+					if(parity == -1){
+						std::cerr<<"CreateSystem : degeneate for PBC"<<std::endl;
+					} else {
+						std::cerr<<"CreateSystem : degeneate for APBC"<<std::endl;
+					}
 				}
 				break;
 			}
@@ -164,22 +136,20 @@ void CreateSystem<M>::compute_sts(){
 }
 
 template<typename M>
-bool CreateSystem<M>::compute_EVec(){
+void CreateSystem<M>::compute_EVec(){
 	successful = false;
 	Lapack<M> ES(T.ptr(),N_site, mat_type);
 	Vecteur<double> EVal(N_site);
 	ES.eigensystem(EVal);
 	//std::cout<<EVal<<std::endl;
-	if(std::abs(EVal(N_m) - EVal(N_m-1))<1e-10){ return true; }
-	else { successful = true; return false; }
+	if(std::abs(EVal(N_m) - EVal(N_m-1))>1e-10){ successful = true; }
 }
 
 template<typename M>
 void CreateSystem<M>::save(){
 	if(successful){
-
 		if(is_complex){ filename += "-c"; }
-		else{ filename += "-r"; }
+		else{filename += "-r"; }
 		compute_sts();
 
 		w = new Write(filename+".jdbin");

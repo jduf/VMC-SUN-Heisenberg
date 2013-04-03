@@ -12,20 +12,34 @@
 //{Description
 /*! Class MonteCarlo
  *
- * Takes a pointer to System and let the system evolve using its update(), swap() and
- * ratio() methods. Thus System.hpp need to have those methods
+ * Is created simply by giving the name of the output file and the number of
+ * independant thread that sould be lunched. An independant System will be
+ * created on each thread and therefore, each System should be initialized
+ * using the init method.  For each thread, the class let System evolve using
+ * its update(), swap() and * ratio() methods.  Thus System.hpp need to have
+ * those methods
  */
 //}
 template <typename T>
 class MonteCarlo{
 	public:
-		/*!Constructors */
+		/*!Allocate memory with new[] and starts the chronometer*/
 		MonteCarlo(std::string filename, unsigned int const& nthreads); 
+		/*!Free allocated memory with delete[] and stops the chronometer*/
 		~MonteCarlo();
 
+		//{Public methods, core of the Monte-Carlo simulation
+		/*!Lunches an independent simulation on a thread. When one of the
+		 * threads is stopped by the test_convergence() method, all thread will
+		 * be stopped at the same time and the results for all threads are
+		 * computed
+		 * */
+		//}
 		void run(unsigned int const& thread);
-		void save();
+		/*!Initializes a different System for each thread*/
 		void init(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<T> EVec);
+		/*!Saves the essential data in the "result" file*/
+		void save();
 
 	private:
 		/*!Forbids the copy constructor*/
@@ -33,12 +47,22 @@ class MonteCarlo{
 		/*!Forbids the assignment operator*/
 		MonteCarlo const& operator=(MonteCarlo const& mc);
 
-		void test_convergence(unsigned int const& thread);
-		void binning(std::vector<double>& d, unsigned int const& thread);
 
+		//{Private methods that give a shutoff condition
+		/*!Stops the simulation when
+		 *
+		 * - convergence is reached
+		 * - time limit is up
+		 * - if the energy diverges
+		 *
+		 * ands save each step in the "output" file
+		 */
+		//}
+		void test_convergence(unsigned int const& thread);
+		/*!Proceed to a binning analysis and, for each bin, it save the variance */
+		void binning(std::vector<double>& d, unsigned int const& thread);
 		/*!Computes the mean of a std::vector<double> */
 		double mean(std::vector<double> const& v);
-
 		/*!Compute the variance of a std::vector<double> */
 		double delta(std::vector<double> const& v, double m);
 
@@ -49,7 +73,7 @@ class MonteCarlo{
 		System<T>* S; //!< Pointer to a system 
 		double* E; //!< Value that the MC algorithm tries to compute
 		double* err; //!< Error on E
-		std::vector<double>* sampling; //<! Stores all the values that MC considers
+		std::vector<double>* sampling; //!< Stores all the values that MC considers
 		std::string filename; //!< Name of the output file
 		Write output; //!< Text file of name "filename.out" that stores all the output of the MC algorithm
 		Write result; //!< Text file of name "filename.dat" that stores the final result
@@ -57,12 +81,12 @@ class MonteCarlo{
 		Chrono stop; //!< To stop the simulation after time_limit seconds
 };
 
-/*Constructors and destructor*/
+/*constructors and destructor*/
 /*{*/
 template<typename T>
 MonteCarlo<T>::MonteCarlo(std::string filename, unsigned int const& nthreads):
 	nthreads(nthreads),
-	time_limit(nthreads*5),
+	time_limit(nthreads*3600),
 	N_MC(1e4),
 	S(new System<T>[nthreads]),
 	E(new double[nthreads]),
@@ -90,25 +114,6 @@ MonteCarlo<T>::~MonteCarlo(){
 /*public void methods*/
 /*{*/
 template<typename T>
-void MonteCarlo<T>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<T> EVec){
-	for(unsigned int i(0);i<nthreads;i++){
-		S[i].init(N_spin,N_m,H,sts,EVec,i);
-	}
-}
-
-template<typename T>
-void MonteCarlo<T>::save(){
-	for(unsigned int thread(0); thread<nthreads; thread++){
-		result<<S[thread].N_spin
-			<<" "<<S[thread].N_m
-			<<" "<<sampling[thread].size()
-			<<" "<<E[thread] / (sampling[thread].size() * S[thread].N_site)
-			<<" "<<err[thread]
-			<<Write::endl;
-	}
-}
-
-template<typename T>
 void MonteCarlo<T>::run(unsigned int const& thread){
 	unsigned int i(1);
 	double E_config(0);
@@ -134,27 +139,29 @@ void MonteCarlo<T>::run(unsigned int const& thread){
 		test_convergence(thread);
 	}
 }
+
+template<typename T>
+void MonteCarlo<T>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<T> EVec){
+	for(unsigned int i(0);i<nthreads;i++){
+		S[i].init(N_spin,N_m,H,sts,EVec,i);
+	}
+}
+
+template<typename T>
+void MonteCarlo<T>::save(){
+	for(unsigned int thread(0); thread<nthreads; thread++){
+		result<<S[thread].N_spin
+			<<" "<<S[thread].N_m
+			<<" "<<sampling[thread].size()
+			<<" "<<E[thread] / (sampling[thread].size() * S[thread].N_site)
+			<<" "<<err[thread]
+			<<Write::endl;
+	}
+}
 /*}*/
 
 /*private void methods*/
 /*{*/
-template<typename T>
-void MonteCarlo<T>::binning(std::vector<double>& d, unsigned int const& thread){
-	std::vector<double> bin(sampling[thread]);
-	std::vector<double> bin2(bin.size()/2);
-	unsigned int l(0);
-	while(pow(2,l+1)*100<sampling[thread].size()){
-		d.push_back(delta(bin,mean(bin)));
-		l++;
-		for(unsigned int i(0);i<bin2.size();i++){
-			bin2[i] = (bin[2*i] + bin[2*i+1])/2.0;
-		}
-		bin.resize(bin2.size());
-		bin=bin2;
-		bin2.resize(bin2.size()/2);
-	}
-}
-
 template<typename T>
 void MonteCarlo<T>::test_convergence(unsigned int const& thread){
 	if( fabs( E[thread] / sampling[thread].size() )  > 1e5 ){ 
@@ -194,6 +201,23 @@ void MonteCarlo<T>::test_convergence(unsigned int const& thread){
 			result<<"% the simulation was stopped because it reached the time limit"<<Write::endl;
 			std::cerr<<"the simulation was stopped because it reached the time limit"<<std::endl;
 		}
+	}
+}
+
+template<typename T>
+void MonteCarlo<T>::binning(std::vector<double>& d, unsigned int const& thread){
+	std::vector<double> bin(sampling[thread]);
+	std::vector<double> bin2(bin.size()/2);
+	unsigned int l(0);
+	while(pow(2,l+1)*100<sampling[thread].size()){
+		d.push_back(delta(bin,mean(bin)));
+		l++;
+		for(unsigned int i(0);i<bin2.size();i++){
+			bin2[i] = (bin[2*i] + bin[2*i+1])/2.0;
+		}
+		bin.resize(bin2.size());
+		bin=bin2;
+		bin2.resize(bin2.size()/2);
 	}
 }
 /*}*/

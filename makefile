@@ -12,6 +12,8 @@ CXXFLAGS = $(LAPACK) $(ERRORS) $(DEBUG) $(OPTION)
 LDFLAGS  = $(LAPACK) $(ERRORS) $(DEBUG) $(OPTION)
 
 all:mc cs check
+	cp mc cs check sim/
+
 #############
 # monte-carlo
 #############
@@ -24,7 +26,7 @@ Rand.o:Rand.cpp Rand.hpp
 Chrono.o:Chrono.cpp Chrono.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
-mc.o:mc.cpp MonteCarlo.hpp System.hpp Read.hpp Array2D.hpp Matrice.hpp 
+mc.o:mc.cpp MonteCarlo.hpp System.hpp Read.hpp Array2D.hpp Matrice.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
 ########

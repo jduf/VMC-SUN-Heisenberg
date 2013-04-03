@@ -14,18 +14,29 @@
 template<typename T>
 class System{
 	public:
+		/*!*/
 		System();
 		~System();
 
 		unsigned int N_spin, N_m, N_site;
-		unsigned int s1, s2;
 		
 		void print();
 		void init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> const& H_, Array2D<unsigned int> const& sts_, Matrice<T> const& EVec, unsigned int thread);
 
 		void update();
 		void swap();
+
 		void swap(unsigned int const& a, unsigned int const& b);
+		//{Description
+		/*!Computes the ratio of the two determinants related to the current and next
+		 * configuration
+		 *
+		 * - when one matrix is modified, two of its columns are exchanged and
+		 * therefore a minus sign arises 
+		 * - when two matrices are modified, one computes the ratio using a specialized
+		 * formula 
+		 */
+		//}
 		T ratio();
 
 		//{Description
@@ -35,48 +46,37 @@ class System{
 		double compute_energy();
 
 	private:
+		/*!Forbids copy constructor*/
 		System(System const& S);
+		/*!Forbids assigment operator*/
 		System& operator=(System const& S);
 
-		Matrice<T> *A;      //!< matrices that we need to compute the determinant 
-		Matrice<T> *Ainv;   //!< inverse of the matrices
-		unsigned int mc[2]; //!< matrices that are modified 
-		unsigned int cc[2]; //!< column's matrices that are exchanged 
-		unsigned int *s;    //!< store 
-		unsigned int *wis;  
+		Rand* rnd;			//!< generator of random numbers 
+		Matrice<T> *A;      //!< det(A) <=> <GS|a>
+		Matrice<T> *Ainv;   //!< inverse of A
 		Matrice<T> tmp_mat; //!< temporary matrix used to update Ainv
-		T w[2];             //!< determinant ratios
-		Rand* rnd;			//!< generator of random number, gives different numbers for different thread
-		Matrice<double> H;
-		Array2D<unsigned int> sts;
+		T w[2];             //!< determinant ratios : <GS|a>/<GS|b>
+		unsigned int *s;    //!< s[i] = j : ??? ???
+		unsigned int *wis;  //!< wis[i] = j : on ith site there is the j particle
+		unsigned int mc[2]; //!< matrices (colors) that are modified 
+		unsigned int cc[2]; //!< column's matrices (~band) that are exchanged 
+		Matrice<double> H;	//!< Hamiltonian
+		Array2D<unsigned int> sts; //!< sts(i,0) is a neighboor of sts(i,1)
 };
 
-/*double real(T)*/
-/*{*/
-template<typename T>
-double real(T x);
-
-template<>
-inline double real(double x){
-	return x;
-}
-
-template<>
-inline double real(std::complex<double> x){
-	return std::real(x);
-}
-/*}*/
-
-/*Constructors and destructor*/
+/*constructors and destructor*/
 /*{*/
 template<typename T>
 System<T>::System():
 	N_spin(0),
 	N_m(0),
 	N_site(0),
-	s1(0),
-	s2(0),
+	rnd(NULL),
+	A(NULL),
+	Ainv(NULL),
 	tmp_mat(0,0.0),
+	s(NULL),
+	wis(NULL),
 	H(0,0),
 	sts(0,0)
 { }
@@ -93,16 +93,6 @@ System<T>::~System(){
 
 /*methods that return something related to the class*/
 /*{*/
-//{Description
-/*!Computes the ratio of the two determinants related to the current and next
- * configuration
- *
- * + when one matrix is modified, two of its columns are exchanged and
- * therefore a minus sign arises 
- * + when two matrices are modified, one computes the ratio using a specialized
- * formula 
- */
-//}
 template<typename T> 
 T System<T>::ratio(){
 	if(mc[0] == mc[1]){
@@ -170,7 +160,6 @@ void System<T>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> co
 	wis = new unsigned int[N_site];
 	rnd = new Rand(10,thread);
 
-
 	unsigned int site(0);
 	unsigned int N_as(N_site);
 	unsigned int* available_sites(new unsigned int[N_site]);
@@ -221,12 +210,10 @@ void System<T>::swap() {
 
 template<typename T>
 void System<T>::swap(unsigned int const& a, unsigned int const& b) {
-	mc[0] = wis[a] / N_m;
-	mc[1] = wis[b] / N_m;
-	cc[0] = wis[a] % N_m;
-	cc[1] = wis[b] % N_m;
-	s1=s[mc[0]*N_m + cc[0]];
-	s2=s[mc[1]*N_m + cc[1]];
+	mc[0] = wis[a] / N_m; //gives the color of particle on site a
+	cc[0] = wis[a] % N_m; //gives the band of particle on site a
+	mc[1] = wis[b] / N_m; //gives the color of particle on site b
+	cc[1] = wis[b] % N_m; //gives the band of particle on site b
 }
 
 template<typename T>
@@ -249,6 +236,7 @@ void System<T>::update(){
 
 	// there is a way to avoid this loop and its useless copy if one keeps track
 	// only of the columns that are echanged...
+	// exchange the two columns
 	T tmp(0.0); 
 	for(unsigned int i(0); i<N_m; i++){
 		tmp = A[mc[0]](i,cc[0]);
@@ -256,6 +244,7 @@ void System<T>::update(){
 		A[mc[1]](i,cc[1]) = tmp;
 	}
 
+	//compute Ainv
 	T tmp_start(0.0);
 	for(unsigned int m(0);m<2;m++){
 		for(unsigned int i(0);i<N_m;i++){
@@ -273,4 +262,21 @@ void System<T>::update(){
 	}
 }
 /*}*/
+
+/*double real(T)*/
+/*{*/
+template<typename T>
+double real(T x);
+
+template<>
+inline double real(double x){
+	return x;
+}
+
+template<>
+inline double real(std::complex<double> x){
+	return std::real(x);
+}
+/*}*/
+
 #endif

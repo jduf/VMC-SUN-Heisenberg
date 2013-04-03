@@ -19,9 +19,11 @@ int main(int argc, char* argv[]){
 	P.set("complex",is_complex);
 
 	if(is_complex){
-		CreateSystem<std::complex<double> > CS(N_m,N_spin,N_n);
+		CreateSystem<std::complex<double> > CS_P(N_m,N_spin,N_n,-1);
+		CreateSystem<std::complex<double> > CS_AP(N_m,N_spin,N_n,1);
 	} else {
-		CreateSystem<double> CS(N_m,N_spin,N_n);
+		CreateSystem<double> CS_P(N_m,N_spin,N_n,-1);
+		CreateSystem<double> CS_AP(N_m,N_spin,N_n,1);
 	}
 }
 
