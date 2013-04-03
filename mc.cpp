@@ -6,18 +6,21 @@
 #include "Matrice.hpp"
 #include "Array2D.hpp"
 #include "MonteCarlo.hpp"
+#include "Parseur.hpp"
 
 #include<string>
 #include<iostream>
-#include<cstdlib>
 #include<omp.h>
 
 int main(int argc, char* argv[]){
+	Parseur P(argc,argv);
 	//std::cerr<<"vérifer abs, fabs, abs(complex)"<<std::endl;
 	//std::cerr<<"vérifer det et compute_ration pour les complex"<<std::endl;
-	if(argc==2){
-		std::string filename(argv[1]);
-		unsigned int nthreads(4);
+	if(P.n_args()==1 || P.n_args()==2){
+		std::string filename("");
+		unsigned int nthreads(2);
+		P.set("sim",filename);
+		P.set("nthread",nthreads);
 
 		unsigned int N_spin(0), N_m(0), N_n(0);
 		bool is_complex(false);
