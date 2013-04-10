@@ -93,8 +93,8 @@ CreateSystem<M>::CreateSystem(unsigned int N_m, unsigned int N_spin, unsigned in
 					std::stringstream ss4;
 					ss3<<N_row;
 					ss4<<N_col;
-					if(parity == -1){ filename += "-" + ss3.str()+"x"+ ss4.str() + "-PB" ;}
-					else { filename += "-" + ss3.str()+"x"+ ss4.str() + "-AP" ;}
+					if(parity == -1){ filename += "-" + ss3.str()+"x"+ ss4.str() + "-P" ;}
+					else { filename += "-" + ss3.str()+"x"+ ss4.str() + "-A" ;}
 					save();
 					(*w)("N_row",N_row);
 					(*w)("N_col",N_col);

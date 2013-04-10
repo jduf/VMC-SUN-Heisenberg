@@ -73,6 +73,7 @@ class MonteCarlo{
 		System<T>* S; //!< Pointer to a system 
 		double* E; //!< Value that the MC algorithm tries to compute
 		double* err; //!< Error on E
+		unsigned int status; //!< Successful:0 Not lunched:1  Time elapsed:2
 		std::vector<double>* sampling; //!< Stores all the values that MC considers
 		std::string filename; //!< Name of the output file
 		Write output; //!< Text file of name "filename.out" that stores all the output of the MC algorithm
@@ -86,18 +87,19 @@ class MonteCarlo{
 template<typename T>
 MonteCarlo<T>::MonteCarlo(std::string filename, unsigned int const& nthreads):
 	nthreads(nthreads),
-	time_limit(nthreads*3600),
+	time_limit(nthreads*3600*2*24),
 	N_MC(1e4),
 	S(new System<T>[nthreads]),
 	E(new double[nthreads]),
 	err(new double[nthreads]),
+	status(1),
 	sampling(new std::vector<double>[nthreads]),
 	filename(filename),
 	output(filename+".out"),
 	result(filename+".dat"),
 	keep_measuring(true)
 {
-	result<<"%N_spin "<<"N_m "<<"N_samples "<<"E_persite "<<"Delta_E "<<Write::endl;
+	result<<"%N_spin "<<"N_m "<<"N_samples "<<"E_persite "<<"Delta_E "<<"Boundary_condition "<<"Status"<<Write::endl;
 	stop.tic();
 }
 
@@ -149,12 +151,17 @@ void MonteCarlo<T>::init(unsigned int const& N_spin, unsigned int const& N_m, Ma
 
 template<typename T>
 void MonteCarlo<T>::save(){
+	int parity(0);
+	if(filename.find("P") != std::string::npos ){ parity = -1;}
+	if(filename.find("A") != std::string::npos ){ parity = 1;}
 	for(unsigned int thread(0); thread<nthreads; thread++){
 		result<<S[thread].N_spin
 			<<" "<<S[thread].N_m
 			<<" "<<sampling[thread].size()
 			<<" "<<E[thread] / (sampling[thread].size() * S[thread].N_site)
 			<<" "<<err[thread]
+			<<" "<<parity
+			<<" "<<status
 			<<Write::endl;
 	}
 }
@@ -164,11 +171,18 @@ void MonteCarlo<T>::save(){
 /*{*/
 template<typename T>
 void MonteCarlo<T>::test_convergence(unsigned int const& thread){
-	if( fabs( E[thread] / sampling[thread].size() )  > 1e5 ){ 
+	if( fabs( E[thread] / sampling[thread].size() )  > 1e3 ){ 
 		std::cerr<<filename<< " : initial condition lead to a wrong value, restarting the simulation (E="<<E[thread]<<")"<<std::endl;
 		E[thread] = 0;
 		sampling[thread].clear();
 	}  else {
+		if(keep_measuring && stop.time_limit_reached(time_limit)){
+			keep_measuring = false;
+			status = 2;
+			result<<"% the simulation was stopped because it reached the time limit"<<Write::endl;
+			std::cerr<<"the simulation was stopped because it reached the time limit"<<std::endl;
+		}
+
 		std::vector<double> d(0);
 		binning(d,thread);
 
@@ -185,7 +199,10 @@ void MonteCarlo<T>::test_convergence(unsigned int const& thread){
 		}
 		cond += sqrt((cond)/2);
 		err[thread] = d[d.size()-1] / S[thread].N_site; 
-		if(cond/m<1e-2 && keep_measuring){ keep_measuring = false; }
+		if(cond/m<1e-2){ 
+			keep_measuring = false; 
+			status = 0;
+		}
 	
 		output<<S[thread].N_spin
 			<<" "<<S[thread].N_m
@@ -196,11 +213,6 @@ void MonteCarlo<T>::test_convergence(unsigned int const& thread){
 			output<<" "<<d[i];
 		}
 		output<<Write::endl;
-		if(stop.time_limit_reached(time_limit)){
-			keep_measuring = false;
-			result<<"% the simulation was stopped because it reached the time limit"<<Write::endl;
-			std::cerr<<"the simulation was stopped because it reached the time limit"<<std::endl;
-		}
 	}
 }
 

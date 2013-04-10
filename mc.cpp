@@ -36,6 +36,7 @@ int main(int argc, char* argv[]){
 			MonteCarlo<std::complex<double> > sim(filename,nthreads);
 			r>>T;
 			sim.init(N_spin,N_m,H,sts,T);
+			omp_set_nested(1);
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.run(omp_get_thread_num());

@@ -55,8 +55,13 @@ template<>
 void CreateSystem<double>::compute_H(){
 	is_complex = false;
 	mat_type = 'S';
-	if(N_m % 2 == 0){ H(0,N_site -1 ) = 1.0; }
-	else { H(0, N_site -1 ) = -1.0;}
+	if(N_m % 2 == 0){ 
+		filename += "-A";
+		H(0,N_site -1 ) = 1.0;
+	} else {
+		filename += "-P";
+		H(0, N_site -1 ) = -1.0;
+	}
 	for(unsigned int i(0); i< N_site-1; i++){
 		H(i,i+1) = -1.0;
 	}

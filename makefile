@@ -1,10 +1,10 @@
 CXX = g++ 
 CC = $(CXX) 
 
-#DEBUG = -DNDEBUG
 #DEBUG = -pg
+DEBUG = -DNDEBUG
 ERRORS = -Wall -Wextra -pedantic
-LAPACK = -llapack -lblas -pedantic
+LAPACK = -llapack -lblas
 OPTION = -O3 -fopenmp
 
 CXXFLAGS = $(LAPACK) $(ERRORS) $(DEBUG) $(OPTION)
@@ -26,7 +26,7 @@ Rand.o:Rand.cpp Rand.hpp
 Chrono.o:Chrono.cpp Chrono.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
-mc.o:mc.cpp MonteCarlo.hpp System.hpp Read.hpp Array2D.hpp Matrice.hpp
+mc.o:mc.cpp MonteCarlo.hpp System.hpp Lapack.hpp Read.hpp Array2D.hpp Matrice.hpp
 	$(CXX) -c $(CXXFLAGS) $^ 
 
 ########
