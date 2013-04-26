@@ -1,13 +1,14 @@
 #ifndef DEF_SYSTEM
 #define DEF_SYSTEM
 
-#include <omp.h>
-
 #include "Matrice.hpp"
 #include "Array2D.hpp"
 #include "Lapack.hpp"
 #include "Rand.hpp"
 #include "Write.hpp"
+
+#include <omp.h>
+#include <cmath>
 
 /*!Class that contains the information on the state
  * 
@@ -71,13 +72,6 @@ class System{
 		unsigned int N_m;	//!< number of each color
 		unsigned int N_site;//!< number of lattice site
 
-		unsigned int a,b;	//!< two exchanged site by swap()
-
-		void init_test(unsigned int N_spin_, unsigned int N_m_, Matrice<double> const& H_, Array2D<unsigned int> const& sts_, Matrice<T> const& EVec, double* rnd, unsigned int rnd_size);
-		void swap_test(double* rnd, unsigned int& r);
-		T compute_energy_test();
-		void update_test();
-		void print_test(Write& out);
 
 	private:
 		/*!Forbids copy constructor*/
@@ -90,6 +84,7 @@ class System{
 		Matrice<T> *Ainv;   //!< inverse of A
 		Matrice<T> tmp_m[2];//!< temporary matrices used during the update 
 		T w[2];             //!< determinant ratios : <GS|a>/<GS|b>
+		unsigned int a,b;	//!< two exchanged site by swap()
 		unsigned int *wis;  //!< wis[i] = j : on ith site there is the j particle
 		unsigned int mc[2]; //!< matrices (colors) that are modified 
 		unsigned int cc[2]; //!< column's matrices (~band) that are exchanged 
@@ -104,11 +99,11 @@ System<T>::System():
 	N_spin(0),
 	N_m(0),
 	N_site(0),
-	a(0),
-	b(0),
 	rnd(NULL),
 	A(NULL),
 	Ainv(NULL),
+	a(0),
+	b(0),
 	wis(NULL),
 	H(0,0),
 	sts(0,0)
@@ -136,10 +131,7 @@ T System<T>::ratio(){
 			w[0] += Ainv[mc[0]](cc[0],i)*A[mc[1]](i,cc[1]);
 			w[1] += Ainv[mc[1]](cc[1],i)*A[mc[0]](i,cc[0]);
 		}
-		if( std::abs(w[0]*w[1]) < 1e-15 ){
-			//std::cerr<<"ratio "<<w[0]*w[1]<<std::endl;
-			return 0.0;
-		}
+		if( std::abs(w[0]*w[1]) < 1e-15 ){ return 0.0; }
 		else { return w[0]*w[1]; }
 	}
 }
@@ -155,15 +147,6 @@ double System<T>::compute_energy(){
 }
 
 template<typename T>
-T System<T>::compute_energy_test(){
-	T E_step(0.0);
-	for(unsigned int j(0);j<sts.row();j++){
-		swap(sts(j,0),sts(j,1));
-		E_step += ratio() * H(sts(j,0),sts(j,1));
-	}
-	return E_step;
-}
-template<typename T>
 void System<T>::print(){
 	for(unsigned int i(0); i<N_site; i++){
 	std::cout<<wis[i]<<" ";
@@ -176,13 +159,6 @@ void System<T>::print(){
 		//std::cout<<std::endl;
 		//std::cout<<Ainv[i] * A[i]<<std::endl;
 	//}
-}
-template<typename T>
-void System<T>::print_test(Write& out){
-	for(unsigned int i(0); i<N_site; i++){
-		out<<wis[i]/N_m<<" ";
-	}
-	out<<Write::endl;
 }
 /*}*/
 
@@ -201,32 +177,43 @@ void System<T>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> co
 	wis = new unsigned int[N_site];
 	rnd = new Rand(10,thread);
 
+	bool seek_state(false);
 	unsigned int site(0);
-	unsigned int N_as(N_site);
 	unsigned int* available_sites(new unsigned int[N_site]);
+	unsigned int N_as(0);
 
-	for(unsigned int i(0); i < N_as; i++){
-		available_sites[i]  = i;	
-	}
- 
-	for(unsigned int i(0); i < N_spin; i++){
-		A[i] = Matrice<T> (N_m);
-		Ainv[i] = Matrice<T> (N_m);
-		for(unsigned int j(0); j < N_m; j++){
-			site = rnd->get(N_as);
-			wis[available_sites[site]] = i*N_m+j; 	
-			for(unsigned int k(0); k < N_m; k++){
-				A[i](k,j) = EVec(available_sites[site],k);
-			}
-			for(unsigned int k(site); k < N_as-1; k++){
-				available_sites[k] = available_sites[k+1];
-			}
-			N_as--;
+	do {
+		seek_state = false;
+		N_as = N_site;
+		for(unsigned int i(0); i < N_as; i++){
+			available_sites[i]  = i;	
 		}
-		Ainv[i] = A[i];
-		Lapack<T> A_(Ainv[i].ptr(),Ainv[i].size(),'G');
-		A_.inv();
-	}
+
+		for(unsigned int i(0); i < N_spin; i++){
+			A[i] = Matrice<T> (N_m);
+			Ainv[i] = Matrice<T> (N_m);
+			for(unsigned int j(0); j < N_m; j++){
+				site = rnd->get(N_as);
+				wis[available_sites[site]] = i*N_m+j; 	
+				for(unsigned int k(0); k < N_m; k++){
+					A[i](k,j) = EVec(available_sites[site],k);
+				}
+				for(unsigned int k(site); k < N_as-1; k++){
+					available_sites[k] = available_sites[k+1];
+				}
+				N_as--;
+			}
+			Lapack<T> DetA_(A[i],'G');
+			if(std::abs(DetA_.det())<1e-10){
+				seek_state = true;
+				i=N_spin;
+			} else {	
+				Ainv[i] = A[i];
+				Lapack<T> A_(Ainv[i].ptr(),Ainv[i].size(),'G');
+				A_.inv();
+			}
+		}
+	} while ( seek_state );
 
 	delete[] available_sites;
 
@@ -295,105 +282,6 @@ void System<T>::update(){
 	for(unsigned int m=0;m<2;m++){
 		Ainv[mc[m]] -= tmp_m[m];
 	}
-}
-
-template<typename T>
-void System<T>::update_test(){
-	unsigned int s_tmp(wis[b]);
-	wis[b] = wis[a];
-	wis[a] = s_tmp;
-
-	// there is a way to avoid this loop and its useless copy if one keeps track
-	// only of the columns that are echanged...
-	// exchange the two columns
-	T tmp(0.0); 
-	for(unsigned int i(0); i<N_m; i++){
-		tmp = A[mc[0]](i,cc[0]);
-		A[mc[0]](i,cc[0]) = A[mc[1]](i,cc[1]);
-		A[mc[1]](i,cc[1]) = tmp;
-	}
-
-	//compute Ainv
-	for(unsigned int m=0;m<2;m++){
-		for(unsigned int i(0);i<N_m;i++){
-			if(cc[m] == i){ tmp = -1.0; }
-			else { tmp = 0.0; }
-			for(unsigned int k(0);k<N_m;k++){
-				tmp += Ainv[mc[m]](i,k)*A[mc[m]](k,cc[m]);
-			}
-			for(unsigned int j(0);j<N_m;j++){
-				tmp_m[m](i,j) = tmp*Ainv[mc[m]](cc[m],j)/w[m];
-			}
-		}
-		Ainv[mc[m]] -= tmp_m[m];
-	}
-}
-template<typename T>
-void System<T>::init_test(unsigned int N_spin_, unsigned int N_m_, Matrice<double> const& H_, Array2D<unsigned int> const& sts_, Matrice<T> const& EVec, double* rnd, unsigned int rnd_size){
-	N_spin = N_spin_;
-	N_m = N_m_;
-	N_site = N_spin*N_m;
-
-	H = H_;
-	sts = sts_;
-	A = new Matrice<T>[N_spin];
-	Ainv = new Matrice<T>[N_spin];
-	wis = new unsigned int[N_site];
-
-	unsigned int site(0);
-	unsigned int N_as(N_site);
-	unsigned int* available_sites(new unsigned int[N_site]);
-
-	for(unsigned int i(0); i < N_as; i++){
-		available_sites[i]  = i;	
-	}
- 
-	unsigned int r(0);
-	for(unsigned int i(0); i < N_spin; i++){
-		A[i] = Matrice<T> (N_m);
-		Ainv[i] = Matrice<T> (N_m);
-		for(unsigned int j(0); j < N_m; j++){
-			if(!(r<rnd_size)){std::cerr<<"static_rnd_sy to small"<<std::endl;}
-			site = floor(rnd[r]*N_as);
-			r++;
-			wis[available_sites[site]] = i*N_m+j; 	
-			for(unsigned int k(0); k < N_m; k++){
-				A[i](k,j) = EVec(available_sites[site],k);
-			}
-			for(unsigned int k(site); k < N_as-1; k++){
-				available_sites[k] = available_sites[k+1];
-			}
-			N_as--;
-		}
-		Ainv[i] = A[i];
-		Lapack<T> A_(Ainv[i].ptr(),Ainv[i].size(),'G');
-		A_.inv();
-		Matrice<T> det(A[i]);
-		Lapack<T> det_(det.ptr(),det.size(),'G');
-		std::cout<<det_.det()<<std::endl;;
-	}
-
-	delete[] available_sites;
-
-	for(unsigned int i(0);i<2;i++){
-		w[i] = 0;
-		cc[i] = 0;
-		mc[i] = 0;
-		tmp_m[i] = Matrice<T>(N_m);
-	}
-}
-template<typename T>
-void System<T>::swap_test(double* rnd, unsigned int& r) {
-	a = floor(rnd[r]*N_site); r++;
-	b = floor(rnd[r]*N_site); r++;
-	mc[0] = wis[a] / N_m; //gives the color of particle on site a
-	mc[1] = wis[b] / N_m; //gives the color of particle on site b
-	while(mc[0] == mc[1]){
-		b = floor(rnd[r]*N_site); r++;
-		mc[1] = wis[b] / N_m; //gives the color of particle on site b
-	}
-	cc[0] = wis[a] % N_m; //gives the band of particle on site a
-	cc[1] = wis[b] % N_m; //gives the band of particle on site b
 }
 /*}*/
 

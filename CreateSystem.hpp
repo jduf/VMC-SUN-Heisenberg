@@ -1,3 +1,6 @@
+#ifndef DEF_CREATESYSTEM
+#define DEF_CREATESYSTEM
+
 #include "Write.hpp"
 #include "Array2D.hpp"
 #include "Matrice.hpp"
@@ -6,6 +9,7 @@
 
 #include <complex>
 #include <sstream>
+#include <cmath>
 
 /*!Class that creates a file containing all the necessary information to run a
  * Monte-Carlo simulation.
@@ -183,3 +187,4 @@ void CreateSystem<M>::set_size(unsigned int& N_row, unsigned int& N_col){
 	}
 }
 
+#endif
