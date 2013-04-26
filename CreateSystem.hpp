@@ -113,12 +113,11 @@ CreateSystem<M>::CreateSystem(unsigned int N_m, unsigned int N_spin, unsigned in
 				std::cerr<<"CreateSystem : lattice type undefined"<<std::endl;
 			}
 	}
-
 }
 
 template<typename M>
 CreateSystem<M>::~CreateSystem(){
-	if(successful){ delete w; }
+	if(w){ delete w; }
 }
 
 template<typename M>

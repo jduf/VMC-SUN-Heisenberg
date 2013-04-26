@@ -40,6 +40,10 @@ class MonteCarlo{
 		void init(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<T> EVec);
 		/*!Saves the essential data in the "result" file*/
 		void save();
+		
+		void run_test(double* rnd_swap, unsigned int rnd_swap_size, double* rnd_ratio, unsigned int rnd_ratio_size);
+		void save_test();
+		void init_test(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<T> EVec, double* rnd, unsigned int rnd_size);
 
 	private:
 		/*!Forbids the copy constructor*/
@@ -99,12 +103,13 @@ MonteCarlo<T>::MonteCarlo(std::string filename, unsigned int const& nthreads):
 	result(filename+".dat"),
 	keep_measuring(true)
 {
-	result<<"%N_spin "<<"N_m "<<"N_samples "<<"E_persite "<<"Delta_E "<<"Boundary_condition "<<"Status"<<Write::endl;
+	//result<<"%N_spin "<<"N_m "<<"N_samples "<<"E_persite "<<"Delta_E "<<"Boundary_condition "<<"Status"<<Write::endl;
 	stop.tic();
 }
 
 template<typename T>
 MonteCarlo<T>::~MonteCarlo(){
+	S->print();
 	delete[] S;
 	delete[] sampling;
 	delete[] E;
@@ -164,6 +169,41 @@ void MonteCarlo<T>::save(){
 			<<" "<<status
 			<<Write::endl;
 	}
+}
+
+template<typename T>
+void MonteCarlo<T>:: init_test(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<T> EVec, double* rnd, unsigned int rnd_size){
+	S[0].init_test(N_spin,N_m,H,sts,EVec,rnd,rnd_size);
+	S->print();
+}
+template<typename T>
+void MonteCarlo<T>::run_test(double* rnd_swap, unsigned int rnd_swap_size, double* rnd_ratio, unsigned int rnd_ratio_size){
+	unsigned int r_swap(0);
+	unsigned int r_ratio(0);
+	T E_config(0);
+	double ratio(0.0);
+	do{
+		S->swap_test(rnd_swap,r_swap);
+		ratio = norm_squared(S->ratio());
+		output<<r_swap<<" "<<S->a<<" "<<S->b<<" "<<ratio<<" ";
+		if(ratio>1 || rnd_ratio[r_ratio] <ratio){
+			S->print_test(result);
+			S->update_test();
+			E_config = S->compute_energy_test();
+			output<<E_config<<" ";
+		} else {
+			output<<0<<" ";
+		}
+		output<<Write::endl;
+		r_ratio++;
+	} while(r_ratio<rnd_ratio_size && r_swap<rnd_swap_size);
+}
+template<typename T>
+void MonteCarlo<T>::save_test(){
+	for(unsigned int i(0); i<sampling->size();i++){
+		std::cout<<sampling[0][i]<<" ";
+	}
+	std::cout<<std::endl;
 }
 /*}*/
 

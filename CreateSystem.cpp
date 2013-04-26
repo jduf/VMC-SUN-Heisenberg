@@ -9,9 +9,9 @@ void CreateSystem<double>::compute_H(unsigned int N_row, unsigned int N_col, dou
 	mat_type = 'S';
 	for(unsigned int i(0); i< N_row; i++){
 		for(unsigned int j(0); j< N_col; j++){
-			if(j+1 == N_col){ H( i*N_col , i*N_col + j) = parity; }
+			if(j+1 == N_col){ H(i*N_col , i*N_col + j) = parity; }
 			else { H( i*N_col + j , i*N_col + j + 1) = -1.0; }
-			if(i+1 == N_row ){ H(j, i*N_col + j ) = parity;}
+			if(i+1 == N_row ){ H(j, i*N_col + j) = parity;}
 			else{ H(i*N_col + j, (i+1)*N_col + j) = -1.0;}
 		}
 	}
@@ -39,16 +39,17 @@ void CreateSystem<std::complex<double> >::compute_H(unsigned int N_row, unsigned
 				T( i*N_col + j , i*N_col + j + 1) = -1.0; 
 			}
 			if(i+1 == N_row ){
-				H(j, i*N_col + j ) = parity;
-				T(j, i*N_col + j) = parity*std::polar(1.0,-((i%N_spin)+1)*phi);
+				H(j, i*N_col + j) = parity;
+				T(j, i*N_col + j) = parity*std::polar(1.0,-((j%N_spin)+1)*phi);
 			} else{
 				H(i*N_col + j, (i+1)*N_col + j) = -1.0;
-				T(i*N_col + j, (i+1)*N_col + j) = -std::polar(1.0,((i%N_spin)+1)*phi);
+				T(i*N_col + j, (i+1)*N_col + j) = -std::polar(1.0,((j%N_spin)+1)*phi);
 			}
 		}
 	}
 	H += H.transpose();
 	T += T.trans_conj(); 
+	std::cout<<T<<std::endl;
 }
 
 template<>
