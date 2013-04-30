@@ -17,6 +17,7 @@ class Parseur{
 		/*! sets val to the value that corresponds to pattern in argv[]*/
 		template<typename T>
 		void set(std::string pattern, T &val);
+		unsigned int n_args() const {return argc/2; }
 
 	private:
 		Parseur();
@@ -25,7 +26,7 @@ class Parseur{
 
 		std::string *var; //!< static array that contains all the char* argv[] strings
 		bool *unused_var; //!< static array that lists the variable that where set using void set(std::string pattern, T &val)
-		unsigned int argc;//!< size of the arrays (number of arguments given to the main program 
+		unsigned int argc;//!< size of the arrays (number of arguments given to the main program)
 		bool locked; //!< stores the state of the program, if true a wrong number of agrument was given to the program 
 };
 

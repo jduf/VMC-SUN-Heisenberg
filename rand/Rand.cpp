@@ -98,52 +98,54 @@ Rand::Rand(int len) {
 	sow(&seed1,&seed2);
 
 #pragma omp critical
-	int ij=seed1;
-	int kl=seed2;
+	{
+		int ij=seed1;
+		int kl=seed2;
 
-	float s, t;
-	int i, j, k, l, m;
-	int ii, jj;
+		float s, t;
+		int i, j, k, l, m;
+		int ii, jj;
 
 
-	if (ij < 0 || ij > 31328){ stop("ranmar: 1st seed must be between 0 and 31328\n");}
-	if (kl < 0 || kl > 30081){ stop("ranmar: 1st seed must be between 0 and 30081\n");}
-	if (len < 0){ stop("ranmar: len < 0");}
+		if (ij < 0 || ij > 31328){ stop("ranmar: 1st seed must be between 0 and 31328\n");}
+		if (kl < 0 || kl > 30081){ stop("ranmar: 1st seed must be between 0 and 30081\n");}
+		if (len < 0){ stop("ranmar: len < 0");}
 
-	Rand::auto_save = false;
-	Rand::fn = "";
+		Rand::auto_save = false;
+		Rand::fn = "";
 
-	Rand::len = len;
-	rvec = new float[len];
-	pos = len - 1;
+		Rand::len = len;
+		rvec = new float[len];
+		pos = len - 1;
 
-	c  = (float)(  362436.0 / 16777216.0);
-	cd = (float)( 7654321.0 / 16777216.0);
-	cm = (float)(16777213.0 / 16777216.0);
+		c  = (float)(  362436.0 / 16777216.0);
+		cd = (float)( 7654321.0 / 16777216.0);
+		cm = (float)(16777213.0 / 16777216.0);
 
-	i97 = 96;
-	j97 = 32;
+		i97 = 96;
+		j97 = 32;
 
-	i = (int)fmod(ij/177.0, 177.0) + 2;
-	j = (int)fmod((double)ij, 177.0) + 2;
-	k = (int)fmod(kl/169.0, 178.0) + 1;
-	l = (int)fmod((double)kl, 169.0);
+		i = (int)fmod(ij/177.0, 177.0) + 2;
+		j = (int)fmod((double)ij, 177.0) + 2;
+		k = (int)fmod(kl/169.0, 178.0) + 1;
+		l = (int)fmod((double)kl, 169.0);
 
-	for ( ii=0; ii<=96; ii++ ) {
-		s = (float)0.0;
-		t = (float)0.5;
-		for ( jj=0; jj<=23; jj++ ) {
-			m = (int)fmod( fmod((double)i*j,179.0)*k , 179.0 );
-			i = j;
-			j = k;
-			k = m;
-			l = (int)fmod( 53.0*l+1.0 , 169.0 );
-			if ( fmod((double)l*m,64.0) >= 32) {s = s + t;}
-			t = (float)(0.5 * t);
+		for ( ii=0; ii<=96; ii++ ) {
+			s = (float)0.0;
+			t = (float)0.5;
+			for ( jj=0; jj<=23; jj++ ) {
+				m = (int)fmod( fmod((double)i*j,179.0)*k , 179.0 );
+				i = j;
+				j = k;
+				k = m;
+				l = (int)fmod( 53.0*l+1.0 , 169.0 );
+				if ( fmod((double)l*m,64.0) >= 32) {s = s + t;}
+				t = (float)(0.5 * t);
+			}
+			u[ii] = s;
 		}
-		u[ii] = s;
+		Rand::auto_save=false;
 	}
-	Rand::auto_save=false;
 }
 
 Rand::Rand(int len,int thread) {
@@ -154,52 +156,53 @@ Rand::Rand(int len,int thread) {
 	seed2+=thread;
 
 #pragma omp critical
-	int ij=seed1;
-	int kl=seed2;
+	{
+		int ij=seed1;
+		int kl=seed2;
 
-	float s, t;
-	int i, j, k, l, m;
-	int ii, jj;
+		float s, t;
+		int i, j, k, l, m;
+		int ii, jj;
 
+		if (ij < 0 || ij > 31328){ stop("ranmar: 1st seed must be between 0 and 31328\n");}
+		if (kl < 0 || kl > 30081){ stop("ranmar: 1st seed must be between 0 and 30081\n");}
+		if (len < 0) {stop("ranmar: len < 0"); }
 
-	if (ij < 0 || ij > 31328){ stop("ranmar: 1st seed must be between 0 and 31328\n");}
-	if (kl < 0 || kl > 30081){ stop("ranmar: 1st seed must be between 0 and 30081\n");}
-	if (len < 0) {stop("ranmar: len < 0"); }
+		Rand::auto_save = false;
+		Rand::fn = "";
 
-	Rand::auto_save = false;
-	Rand::fn = "";
+		Rand::len = len;
+		rvec = new float[len];
+		pos = len - 1;
 
-	Rand::len = len;
-	rvec = new float[len];
-	pos = len - 1;
+		c  = (float)(  362436.0 / 16777216.0);
+		cd = (float)( 7654321.0 / 16777216.0);
+		cm = (float)(16777213.0 / 16777216.0);
 
-	c  = (float)(  362436.0 / 16777216.0);
-	cd = (float)( 7654321.0 / 16777216.0);
-	cm = (float)(16777213.0 / 16777216.0);
+		i97 = 96;
+		j97 = 32;
 
-	i97 = 96;
-	j97 = 32;
+		i = (int)fmod(ij/177.0, 177.0) + 2;
+		j = (int)fmod((double)ij, 177.0) + 2;
+		k = (int)fmod(kl/169.0, 178.0) + 1;
+		l = (int)fmod((double)kl, 169.0);
 
-	i = (int)fmod(ij/177.0, 177.0) + 2;
-	j = (int)fmod((double)ij, 177.0) + 2;
-	k = (int)fmod(kl/169.0, 178.0) + 1;
-	l = (int)fmod((double)kl, 169.0);
-
-	for ( ii=0; ii<=96; ii++ ) {
-		s = (float)0.0;
-		t = (float)0.5;
-		for ( jj=0; jj<=23; jj++ ) {
-			m = (int)fmod( fmod((double)i*j,179.0)*k , 179.0 );
-			i = j;
-			j = k;
-			k = m;
-			l = (int)fmod( 53.0*l+1.0 , 169.0 );
-			if ( fmod((double)l*m,64.0) >= 32) { s = s + t;}
-			t = (float)(0.5 * t);
+		for ( ii=0; ii<=96; ii++ ) {
+			s = (float)0.0;
+			t = (float)0.5;
+			for ( jj=0; jj<=23; jj++ ) {
+				m = (int)fmod( fmod((double)i*j,179.0)*k , 179.0 );
+				i = j;
+				j = k;
+				k = m;
+				l = (int)fmod( 53.0*l+1.0 , 169.0 );
+				if ( fmod((double)l*m,64.0) >= 32) { s = s + t;}
+				t = (float)(0.5 * t);
+			}
+			u[ii] = s;
 		}
-		u[ii] = s;
+		Rand::auto_save=false;
 	}
-	Rand::auto_save=false;
 }
 
 bool Rand::is_null() {

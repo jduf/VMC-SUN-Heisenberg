@@ -6,14 +6,14 @@
 
 //work for a symmetric matrix
 /*{*/
-extern "C" void dsyev_(char *jobz, char *uplo, unsigned int const *n, double *m, unsigned int const *lda, double *w, double work[], unsigned int const *lwork, int *info);
-extern "C" void zheev_(char *jobz, char *uplo, unsigned int const *n, std::complex<double> *m, unsigned int const *lda, double *w, std::complex<double> work[], unsigned int const *lwork, double rwork[], int *info);
+extern "C" void dsyev_(char *jobz, char *uplo, unsigned int const *n, double *m, unsigned int const *lda, double *w, double *work, unsigned int const *lwork, int *info);
+extern "C" void zheev_(char *jobz, char *uplo, unsigned int const *n, std::complex<double> *m, unsigned int const *lda, double *w, std::complex<double> *work, unsigned int const *lwork, double *rwork, int *info);
 
-extern "C" void dgetrf_(unsigned int const *row, unsigned int const *col, double *m, unsigned int const *lda, int ipiv[], int *info);
-extern "C" void zgetrf_(unsigned int const *row, unsigned int const *col, std::complex<double> *m, unsigned int const *lda, int ipiv[], int *info);
+extern "C" void dgetrf_(unsigned int const *row, unsigned int const *col, double *m, unsigned int const *lda, int *ipiv, int *info);
+extern "C" void zgetrf_(unsigned int const *row, unsigned int const *col, std::complex<double> *m, unsigned int const *lda, int *ipiv, int *info);
 
-extern "C" void dgetri_(unsigned int const *n, double *m, unsigned int const *lda, int ipiv[], double work[], unsigned int const *lwork, int *info);
-extern "C" void zgetri_(unsigned int const *n, std::complex<double> *m, unsigned int const *lda, int ipiv[], std::complex<double> work[], unsigned int const *lwork, int *info);
+extern "C" void dgetri_(unsigned int const *n, double *m, unsigned int const *lda, int *ipiv, double *work, unsigned int const *lwork, int *info);
+extern "C" void zgetri_(unsigned int const *n, std::complex<double> *m, unsigned int const *lda, int *ipiv, std::complex<double> *work, unsigned int const *lwork, int *info);
 /*}*/
 
 /*!Class that allows an easy use of the LAPACK routines
@@ -29,8 +29,8 @@ class Lapack{
 		/*!Constructor that copy the input matrix, no LAPACK routine can affect the input matrix */
 		Lapack(Matrice<T> const& mat, char matrix_type);
 		/*!Constructor that takes a pointer on a static array, all the LAPACK routines will affect the static array pointed */
-		Lapack(T* m, unsigned int N, char matrix_type);
-		/*!Destructor (don't delete anything if modify_original_matrix==false)*/
+		Lapack(T *m, unsigned int N, char matrix_type);
+		/*!Destructor (delete if allocate_new_memory==true)*/
 		~Lapack();
 
 		/*!Specialized routine that computes the eigenvalues and the eigenvectors if EVec==true*/
@@ -53,12 +53,12 @@ class Lapack{
 		T *m; //!< pointer on a static array, the square matrix (same structure as the one in Matrice.hpp)
 		unsigned int const N; //!< size of the square matrix
 		char const matrix_type; //!< type of matrix (symmetric, hermitian, general,...)
-		bool const modify_original_matrix; //!< true if the original matrix will be modified by the LAPACK routine
+		bool const allocate_new_memory; //!< false if the original matrix will be modified by the LAPACK routine
 		
 		/*!Specialized subroutine that calls a LAPACK routine to compute the LU decomposition*/
-		void getrf(int ipiv[]) const;
+		void getrf(int *ipiv) const;
 		/*!Specialized subroutine that calls a LAPACK routine to compute the inverse after the use of getrf*/
-		void getri(int ipiv[]) const;
+		void getri(int *ipiv) const;
 		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of a symmetric real matrix*/
 		void syev(Vecteur<double> & EVal) const;
 		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of an hermitian complex matrix*/
@@ -72,34 +72,34 @@ Lapack<T>::Lapack(Matrice<T> const& mat, char matrix_type):
 	m(new T[mat.size()*mat.size()]),
 	N(mat.size()),
 	matrix_type(matrix_type),
-	modify_original_matrix(false)
+	allocate_new_memory(true)
 {
-	std::cout<<"création (copie matrice) : lapack"<<std::endl;
-	std::cout<<"peut-être que la matrice est mal déclarée"<<std::endl;
+	//std::cout<<"création (copie matrice) : lapack"<<std::endl;
+	//std::cout<<"peut-être que la matrice est mal déclarée"<<std::endl;
 	for(unsigned int i(0); i<N; i++){
 		for(unsigned int j(0); j<N; j++){
 			m[i+j*N] = mat(i,j);
 		}
 	}
-	for(unsigned int i(0); i<N; i++){
-		for(unsigned int j(0); j<N; j++){
-			std::cout<<m[i+j*N]<<" ";
-		}
-		std::cout<<std::endl;
-	}
+	//for(unsigned int i(0); i<N; i++){
+		//for(unsigned int j(0); j<N; j++){
+			//std::cout<<m[i+j*N]<<" ";
+		//}
+		//std::cout<<std::endl;
+	//}
 }
 
 template<typename T>
-Lapack<T>::Lapack(T* m, unsigned int N, char matrix_type):
+Lapack<T>::Lapack(T *m, unsigned int N, char matrix_type):
 	m(m),
 	N(N),
 	matrix_type(matrix_type),
-	modify_original_matrix(true)
+	allocate_new_memory(false)
 { }
 
 template<typename T>
 Lapack<T>::~Lapack(){
-	if(!modify_original_matrix){ delete[] m; } 
+	if(allocate_new_memory){ delete[] m; } 
 }
 /*}*/
 
@@ -116,7 +116,7 @@ T Lapack<T>::det() const {
 		int* ipiv(new int[N]);
 		getrf(ipiv);
 		for(unsigned int i(0); i<N; i++){
-			if(ipiv[i] != i+1){ // ipiv return value between [1,N]
+			if(ipiv[i] != int(i+1)){ // ipiv return value between [1,N]
 				det *= -m[i*N+i];
 			} else {
 				det *= m[i*N+i];

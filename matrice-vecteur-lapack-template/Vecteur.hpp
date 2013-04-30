@@ -3,17 +3,19 @@
 
 #include <iostream>
 #include <cassert>
+#include <cmath> //allow abs(double) and abs(complex) 
+#include <complex>
 
-template <typename T>
+template <typename Type>
 class Matrice;
 
 /*!Class that implement a static array as a vector
  *
- * - behaves as a std::vector<T>
+ * - behaves as a std::vector<Type>
  * - can be saved with Write.hpp 
  * - can be loaded with Read.hpp 
  * */
-template <typename T>
+template <typename Type>
 class Vecteur{
 	public:
 		/*!Default constructor that initializes *v to NULL and N to 0*/
@@ -21,66 +23,70 @@ class Vecteur{
 		/*!Initializes a static array of T of size N*/
 		Vecteur(unsigned int N);
 		/*!Initializes a static array of T of size N to a value val*/
-		Vecteur(unsigned int N, T val);
+		Vecteur(unsigned int N, Type val);
 		/*!Deep copy*/
-		Vecteur(Vecteur<T> const& v);
+		Vecteur(Vecteur<Type> const& v);
 		/*!Delete the static array*/
 		~Vecteur();
 
 		/*!Does a deep copie*/
 		Vecteur& operator=(Vecteur const& mat);
 		/*!Accesses the ith entry of the vector*/
-		inline T const& operator()(unsigned int const& i) const {assert(i<N); return v[i];};
+		inline Type const& operator()(unsigned int const& i) const {assert(i<N); return v[i];};
 		/*!Set the ith entry of the vector*/
-		inline T& operator()(unsigned int const& i){assert(i<N); return v[i];};
+		inline Type& operator()(unsigned int const& i){assert(i<N); return v[i];};
 		/*!Multiplies this vector by a double*/
-		Vecteur<T>& operator*=(T const& d);
-		Vecteur<T> operator*(T const& d) const;
+		Vecteur<Type>& operator*=(Type const& d);
+		Vecteur<Type> operator*(Type const& d) const;
 		/*!Scalar product*/
-		T operator*(Vecteur<T> const& vec) const;
+		Type operator*(Vecteur<Type> const& vec) const;
 		/*!Exterior product*/
-		Matrice<T> operator^(Vecteur<T> const& vec) const;
+		Matrice<Type> operator^(Vecteur<Type> const& vec) const;
 
 		/*!Returns the pointer on the array*/
-		inline T* ptr() const { return v; };
+		inline Type* ptr() const { return v; };
 		/*!Returns the size of the vector*/
 		inline unsigned int size() const { return N; };
 
+		/*!Sets the entries to zero if they are close to 0*/
+		void chop(double precision = 1e-10);
+
+		/*!Set the all the values to val*/
+		void set(Type val);
+
 	private:
-		T *v; //!< pointer to a static array
+		Type *v; //!< pointer to a static array
 		unsigned int N; //!< size of the static array
 		
-		/*!Set the all the values to val*/
-		void fill_vecteur(T val);
 };
 
-template <typename T>
-Vecteur<T> operator*(T const& d, Vecteur<T> const& vec);
-template <typename T>
-std::ostream& operator<<(std::ostream &flux, Vecteur<T> const& v);
+template <typename Type>
+Vecteur<Type> operator*(Type const& d, Vecteur<Type> const& vec);
+template <typename Type>
+std::ostream& operator<<(std::ostream &flux, Vecteur<Type> const& v);
 
 /*Constructors and destructor*/
 /*{*/
-template <typename T>
-Vecteur<T>::Vecteur():v(NULL),N(0){ }
+template <typename Type>
+Vecteur<Type>::Vecteur():v(NULL),N(0){ }
 
-template <typename T>
-Vecteur<T>::Vecteur(unsigned int N):
-	v(new T[N]),
+template <typename Type>
+Vecteur<Type>::Vecteur(unsigned int N):
+	v(new Type[N]),
 	N(N)
 { }
 
-template <typename T>
-Vecteur<T>::Vecteur(unsigned int N, T val):
-	v(new T[N]),
+template <typename Type>
+Vecteur<Type>::Vecteur(unsigned int N, Type val):
+	v(new Type[N]),
 	N(N)
 {
-	fill_vecteur(val);
+	set(val);
 }
 
-template <typename T>
-Vecteur<T>::Vecteur(Vecteur<T> const& vec):
-	v(new T[vec.size()]),
+template <typename Type>
+Vecteur<Type>::Vecteur(Vecteur<Type> const& vec):
+	v(new Type[vec.size()]),
 	N(vec.size())
 {
 	for(unsigned int i(0);i<N;i++){
@@ -88,8 +94,8 @@ Vecteur<T>::Vecteur(Vecteur<T> const& vec):
 	}
 }
 
-template <typename T>
-Vecteur<T>::~Vecteur(){
+template <typename Type>
+Vecteur<Type>::~Vecteur(){
 	if(v){
 		delete[] v;
 		v = NULL;
@@ -99,11 +105,11 @@ Vecteur<T>::~Vecteur(){
 
 /*operators*/
 /*{*/
-template <typename T>
-Vecteur<T>& Vecteur<T>::operator=(Vecteur<T> const& vec){
+template <typename Type>
+Vecteur<Type>& Vecteur<Type>::operator=(Vecteur<Type> const& vec){
 	if(this->N != vec.N){
 		if(this->v){ delete[] this->v; }
-		this->v = new T[N];
+		this->v = new Type[N];
 		this->N = vec.N;
 	}
 	for(unsigned int i(0); i<N; i++){
@@ -112,42 +118,42 @@ Vecteur<T>& Vecteur<T>::operator=(Vecteur<T> const& vec){
 	return (*this);
 }
 
-template <typename T>
-Vecteur<T>& Vecteur<T>::operator*=(T const& d){
+template <typename Type>
+Vecteur<Type>& Vecteur<Type>::operator*=(Type const& d){
 	for(unsigned int i(0);i<N;i++){
 		v[i] *= d;
 	}
 	return (*this);
 }
 
-template <typename T>
-Vecteur<T> Vecteur<T>::operator*(T const& d) const{
-	Vecteur<T> vecout((*this));
+template <typename Type>
+Vecteur<Type> Vecteur<Type>::operator*(Type const& d) const{
+	Vecteur<Type> vecout((*this));
 	vecout *= d;	
 	return vecout;
 }
 
-template <typename T>
-Vecteur<T> operator*(T const& d, Vecteur<T> const& vec){
-	Vecteur<T> vecout(vec);
+template <typename Type>
+Vecteur<Type> operator*(Type const& d, Vecteur<Type> const& vec){
+	Vecteur<Type> vecout(vec);
 	vecout *= d;	
 	return vecout;
 }
 
-template <typename T>
-T Vecteur<T>::operator*(Vecteur<T> const& vec) const{
+template <typename Type>
+Type Vecteur<Type>::operator*(Vecteur<Type> const& vec) const{
 	assert(N==vec.N);
-	T s(0.0);
+	Type s(0.0);
 	for(unsigned int i(0);i<N;i++){
 		s += v[i]*vec.v[i];
 	}
 	return s;
 }
 
-template<typename T>
-Matrice<T> Vecteur<T>::operator^(Vecteur<T> const& vec) const{
+template<typename Type>
+Matrice<Type> Vecteur<Type>::operator^(Vecteur<Type> const& vec) const{
 	assert(N == vec.N);
-	Matrice<T> mat(N);
+	Matrice<Type> mat(N);
 	for(unsigned int i(0);i<N;i++){
 		for(unsigned int j(0);j<N;j++){
 			mat(i,j) = v[i]*vec.v[j];
@@ -156,8 +162,8 @@ Matrice<T> Vecteur<T>::operator^(Vecteur<T> const& vec) const{
 	return mat;
 }
 
-template <typename T>
-std::ostream& operator<<(std::ostream &flux, Vecteur<T> const& v){
+template <typename Type>
+std::ostream& operator<<(std::ostream &flux, Vecteur<Type> const& v){
 	for(unsigned int i(0); i<v.size(); i++){
 		flux << v(i) <<std::endl;
 	}
@@ -167,10 +173,25 @@ std::ostream& operator<<(std::ostream &flux, Vecteur<T> const& v){
 
 /*methods that modify the class*/
 /*{*/
-template <typename T>
-void Vecteur<T>::fill_vecteur(T val){
+template <typename Type>
+void Vecteur<Type>::set(Type val){
 	for(unsigned int i(0);i<N;i++){
 		v[i] = val;
+	}
+}
+
+template<>
+inline void Vecteur<double>::chop(double precision){
+	for(unsigned int i(0);i<N*N;i++){
+		if(std::abs(v[i]) < precision ){v[i]=0.0;}
+	}
+}
+
+template<>
+inline void Vecteur<std::complex<double> >::chop(double precision){
+	for(unsigned int i(0);i<N*N;i++){
+		if(std::abs(v[i].real()) < precision ){v[i].real()=0.0;}
+		if(std::abs(v[i].imag()) < precision ){v[i].imag()=0.0;}
 	}
 }
 /*}*/

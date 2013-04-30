@@ -13,7 +13,9 @@ all:test
 
 test.o:test.cpp Chrono.hpp
 
-test:test.o 
+Chrono.o:Chrono.cpp Chrono.hpp
+
+test:test.o Chrono.o
 
 ref:
 	doxygen Doxyfile

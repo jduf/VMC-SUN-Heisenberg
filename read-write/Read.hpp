@@ -42,6 +42,7 @@ class Read{
 			Read& operator>>(Array2D<A>& arr);
 		/*!Stream operator that reads strings*/
 		Read& operator>>(std::string& s);
+		/*!Stream operator that reads 2D arrays of strings*/
 		Read& operator>>(Array2D<std::string>& arr);
 
 		/*!To be used with a default constructor : opens a file named "filename", reads from the filename the type of file*/
@@ -78,12 +79,13 @@ class Read{
 		Header *h; //!< pointer to a header (actually it will be a footer)
 		bool unlocked; //!< true if the file is ready to be read from
 		bool binary; //!< true if the file is binary
+		size_t reading_point; //!< last bit read
 };
 
 template<typename T>
 Read& Read::operator>>(T& t){
 	if(unlocked){
-		if(binary){ fread(&t,sizeof(t),1,bfile); }
+		if(binary){ reading_point = fread(&t,sizeof(t),1,bfile); }
 		else { tfile >> t; }
 	} else {
 		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
@@ -116,25 +118,25 @@ Read& Read::operator>>(Array2D<A>& arr){
 template<typename M>
 void Read::read_binary_matrix(Matrice<M>& mat){
 	unsigned int N(0);
-	fread(&N,sizeof(N),1,bfile);
+	reading_point = fread(&N,sizeof(N),1,bfile);
 	if(N != mat.size()) {
 		Matrice<M> mat_tmp(N);
 		mat = mat_tmp;
 	} 
-	fread(mat.ptr(),sizeof(M),N*N,bfile);
+	reading_point = fread(mat.ptr(),sizeof(M),N*N,bfile);
 }
 
 template<typename A>
 void Read::read_binary_array2d(Array2D<A>& arr){
 	unsigned int N_row(0);
 	unsigned int N_col(0);
-	fread(&N_row,sizeof(N_row),1,bfile);
-	fread(&N_col,sizeof(N_col),1,bfile);
+	reading_point = fread(&N_row,sizeof(N_row),1,bfile);
+	reading_point = fread(&N_col,sizeof(N_col),1,bfile);
 	if(N_row != arr.row() || N_col != arr.col()) {
 		Array2D<A> arr_tmp(N_row,N_col);
 		arr = arr_tmp;
 	} 
-	fread(arr.ptr(),sizeof(A),N_row*N_col,bfile);
+	reading_point = fread(arr.ptr(),sizeof(A),N_row*N_col,bfile);
 }
 #endif
 

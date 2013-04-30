@@ -28,7 +28,9 @@ RST::~RST()
 		//}
 		(*w)<<rst;
 		std::string command("rst2html " + filename + ".rst " + filename + ".html");  
-		system(command.c_str());
+		int status(0);
+		status = system(command.c_str());
+		if(status != 0){std::cerr<<"RST : ~RST() : the command function called returns an error"<<std::endl; }
 		delete w;
 	}
 }

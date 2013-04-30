@@ -5,12 +5,13 @@
 /*compute lu factorization : dgetrf zgetrf*/
 /*{*/
 template<>
-void Lapack<double>::getrf(int ipiv[]) const {
+void Lapack<double>::getrf(int *ipiv) const {
 	int info;
 	dgetrf_(&N, &N, m, &N, ipiv, &info);
 }
+
 template<>
-void Lapack<std::complex<double> >::getrf(int ipiv[]) const {
+void Lapack<std::complex<double> >::getrf(int *ipiv) const {
 	int info;
 	zgetrf_(&N, &N, m, &N, ipiv, &info);
 }
@@ -19,15 +20,16 @@ void Lapack<std::complex<double> >::getrf(int ipiv[]) const {
 /*compute inverse of a matrix after using a lu decomposition : dgetri zgetri*/
 /*{*/
 template<>
-void Lapack<double>::getri(int ipiv[]) const {
+void Lapack<double>::getri(int *ipiv) const {
 	unsigned int const lwork(3*N-1);
 	double* work(new double[lwork]);
 	int info;
 	dgetri_(&N, m, &N, ipiv, work,  &lwork, &info);
 	delete[] work;
 }
+
 template<>
-void Lapack<std::complex<double> >::getri(int ipiv[]) const {
+void Lapack<std::complex<double> >::getri(int *ipiv) const {
 	unsigned int const lwork(3*N-1);
 	std::complex<double>* work(new std::complex<double>[lwork]);
 	int info;
@@ -51,6 +53,9 @@ void Lapack<double>::eigensystem(Vecteur<double>& EVal, bool EVec) const {
 				int info;
 				dsyev_(&jobz, &uplo, &N, m, &N, EVal.ptr(), work ,&lwork, &info);
 				delete[] work;
+				if(info){
+					std::cerr<<"Lapack : eigensystem<double> : bug, info="<<info<<std::endl;
+				}
 			}
 			break;
 		default:
@@ -77,6 +82,9 @@ void Lapack<std::complex<double> >::eigensystem(Vecteur<double>& EVal, bool EVec
 				zheev_(&jobz, &uplo, &N, m, &N, EVal.ptr(), work, &lwork, rwork, &info);
 				delete[] work;
 				delete[] rwork;
+				if(info){
+					std::cerr<<"Lapack : eigensystem<complex> : bug, info="<<info<<std::endl;
+				}
 			}
 			break;
 		default:

@@ -5,7 +5,8 @@ Read::Read(std::string filename):
 	bfile(NULL),
 	h(NULL),
 	unlocked(true),
-	binary(test_ext(filename))
+	binary(test_ext(filename)),
+	reading_point(0)
 {
 	if(binary){open_binary();}
 	else{open_txt();}
@@ -17,7 +18,8 @@ Read::Read():
 	bfile(NULL),
 	h(NULL),
 	unlocked(false),
-	binary(true)
+	binary(true),
+	reading_point(0)
 { }
 
 Read::~Read(){
@@ -76,10 +78,10 @@ void Read::read_header(){
 		if(binary){
 			unsigned int N(0);
 			fseek(bfile,-sizeof(N),SEEK_END);
-			fread(&N,sizeof(N),1,bfile);
+			reading_point = fread(&N,sizeof(N),1,bfile);
 			char* c(new char[N+1]);
 			fseek(bfile,-sizeof(char)*N-sizeof(N),SEEK_END);
-			fread(c,1,N,bfile);
+			reading_point = fread(c,1,N,bfile);
 			c[N] = '\0';
 			h->set(c);
 			rewind(bfile);
@@ -106,8 +108,8 @@ Read& Read::operator>>(Array2D<std::string>& arr){
 		if(binary){ 
 			unsigned int row(0);
 			unsigned int col(0);
-			fread(&row,sizeof(row),1,bfile);
-			fread(&col,sizeof(col),1,bfile);
+			reading_point = fread(&row,sizeof(row),1,bfile);
+			reading_point = fread(&col,sizeof(col),1,bfile);
 			if(arr.row() != row || arr.col() != col){
 				Array2D<std::string> arr_tmp(row,col);
 				arr = arr_tmp;
@@ -128,9 +130,9 @@ Read& Read::operator>>(std::string& s){
 	if(unlocked){
 		if(binary){ 
 			unsigned int N(0);
-			fread(&N,sizeof(N),1,bfile);
+			reading_point = fread(&N,sizeof(N),1,bfile);
 			char* c(new char[N+1]);
-			fread(c,1,N,bfile);
+			reading_point = fread(c,1,N,bfile);
 			c[N] = '\0';
 			s = c;
 			delete[] c;
