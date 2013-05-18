@@ -65,7 +65,7 @@ Vecteur<Type> operator*(Type const& d, Vecteur<Type> const& vec);
 template <typename Type>
 std::ostream& operator<<(std::ostream &flux, Vecteur<Type> const& v);
 
-/*Constructors and destructor*/
+/*constructors and destructor*/
 /*{*/
 template <typename Type>
 Vecteur<Type>::Vecteur():v(NULL),N(0){ }

@@ -59,6 +59,9 @@ class Matrice{
 		/*!Returns the size of the matrix*/
 		inline unsigned int size() const { return N; };
 
+		/*!Print the matrice for mathematica*/
+		void print_mathematica();
+
 	private:
 		Type *m; //!< pointer to a static array of the form m = [[column0],[column1],...]
 		unsigned int N; //!< size of the matrix
@@ -70,7 +73,7 @@ std::ostream& operator<<(std::ostream& flux, Matrice<Type> const& mat);
 template<typename Type>
 std::istream& operator>>(std::istream& flux, Matrice<Type>& mat);
 
-/*Constructors and destructor*/
+/*constructors and destructor*/
 /*{*/
 template<typename Type>
 Matrice<Type>::Matrice():
@@ -261,4 +264,21 @@ Matrice<std::complex<double> > Matrice<Type>::trans_conj() const{
 	return tmp;
 }
 /*}*/
+
+template<typename Type>
+void Matrice<Type>::print_mathematica(){
+	std::cout<<"{{";
+	for(unsigned int i(0);i<N-1;i++){
+		for(unsigned int j(0);j<N-1;j++){
+			std::cout<<m[i+j*N]<<",";
+		}
+		std::cout<<m[i+(N-1)*N]<<"},"<<std::endl;
+		std::cout<<"{";
+	}
+	for(unsigned int j(0);j<N-1;j++){
+		std::cout<<m[N-1+j*N]<<",";
+	}
+	std::cout<<m[N*N-1]<<"}}"<<std::endl;
+}
+
 #endif

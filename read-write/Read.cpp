@@ -1,5 +1,7 @@
 #include "Read.hpp"
 
+/*constructors and destructor*/
+/*{*/
 Read::Read(std::string filename):
 	filename(filename),
 	bfile(NULL),
@@ -31,78 +33,10 @@ Read::~Read(){
 		std::cerr<<"Read : the file "<< filename << " is already open"<<std::endl;
 	}
 }
+/*}*/
 
-bool Read::test_ext( std::string f){
-	std::string base_ext("bin");
-	std::string ext("");
-	if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ 
-		ext = "." + base_ext;
-		if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ return true;}
-		ext = ".jd" + base_ext;
-		if(f.find(ext, (f.size() - ext.size())) != std::string::npos){  h = new Header; return true; }
-	}
-	return false;
-}
-
-void Read::open_binary(){
-	bfile = fopen(filename.c_str(),"rb");
-	if(bfile==NULL){
-		unlocked = false;
-		std::cerr<<"Read : the opening of file "<< filename<<" is problematic"<<std::endl;
-	}
-}
-
-void Read::open_txt(){
-	tfile.open(filename.c_str(),std::ios::in);
-	if(!tfile){
-		unlocked = false;
-		std::cerr<<"Read : the opening of file "<< filename<<" is problematic"<<std::endl;
-	} 
-}
-
-void Read::open(std::string filename){
-	if(!unlocked){
-		this->filename = filename;
-		this->binary = test_ext(filename);
-		if(binary){open_binary();}
-		else{open_txt();}
-		unlocked=true;
-		if(h && unlocked){read_header();}
-	} else {
-		std::cerr<<"Read : the file "<< filename << " is already open"<<std::endl;
-	}
-}
-
-void Read::read_header(){
-	if(unlocked){
-		if(binary){
-			unsigned int N(0);
-			fseek(bfile,-sizeof(N),SEEK_END);
-			reading_point = fread(&N,sizeof(N),1,bfile);
-			char* c(new char[N+1]);
-			fseek(bfile,-sizeof(char)*N-sizeof(N),SEEK_END);
-			reading_point = fread(c,1,N,bfile);
-			c[N] = '\0';
-			h->set(c);
-			rewind(bfile);
-			delete[] c;
-		} else {
-			std::cerr<<"Read : read_header() not implemented for non binary file"<<std::endl;
-		}
-	} else {
-		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
-	}
-}
-
-std::string Read::header() const { 
-	if(h){
-		return (h->get())->get();
-	} else {
-		std::cerr<<"Read : the file has no header"<<std::endl;
-		return 0;
-	}
-}
-
+/*operators*/
+/*{*/
 Read& Read::operator>>(Array2D<std::string>& arr){
 	if(unlocked){
 		if(binary){ 
@@ -148,5 +82,85 @@ Read& Read::operator>>(std::string& s){
 	}
 	return (*this);
 }
+/*}*/
 
+/*private methods used in the constructors or with open(std::string filename)*/
+/*{*/
+void Read::open(std::string filename){
+	if(!unlocked){
+		this->filename = filename;
+		this->binary = test_ext(filename);
+		if(binary){open_binary();}
+		else{open_txt();}
+		unlocked=true;
+		if(h){read_header();}
+	} else {
+		std::cerr<<"Read : the file "<< filename << " is already open"<<std::endl;
+	}
+}
 
+bool Read::test_ext( std::string f){
+	std::string base_ext("bin");
+	std::string ext("");
+	if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ 
+		ext = "." + base_ext;
+		if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ return true;}
+		ext = ".jd" + base_ext;
+		if(f.find(ext, (f.size() - ext.size())) != std::string::npos){  h = new Header; return true; }
+	}
+	return false;
+}
+
+void Read::open_binary(){
+	bfile = fopen(filename.c_str(),"rb");
+	if(bfile==NULL){
+		unlocked = false;
+		std::cerr<<"Read : the opening of file "<< filename<<" is problematic"<<std::endl;
+	}
+}
+
+void Read::open_txt(){
+	tfile.open(filename.c_str(),std::ios::in);
+	if(!tfile){
+		unlocked = false;
+		std::cerr<<"Read : the opening of file "<< filename<<" is problematic"<<std::endl;
+	} 
+}
+
+void Read::read_header(){
+	if(unlocked){
+		if(binary){
+			unsigned int N(0);
+			fseek(bfile,-sizeof(N),SEEK_END);
+			reading_point = fread(&N,sizeof(N),1,bfile);
+			char* c(new char[N+1]);
+			fseek(bfile,-sizeof(char)*N-sizeof(N),SEEK_END);
+			reading_point = fread(c,1,N,bfile);
+			c[N] = '\0';
+			h->set(c);
+			rewind(bfile);
+			delete[] c;
+		} else {
+			std::cerr<<"Read : read_header() not implemented for non binary file"<<std::endl;
+		}
+	} else {
+		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
+	}
+}
+/*}*/
+
+/*methods that returns something related to the class*/
+/*{*/
+std::string Read::get_header() const { 
+	if(h && unlocked){
+		return (h->get())->get();
+	} else {
+		std::cerr<<"Read : the file has no header or is locked"<<std::endl;
+		return 0;
+	}
+}
+
+bool Read::get_status() const{
+	return unlocked;
+}
+/*}*/

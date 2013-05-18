@@ -22,6 +22,7 @@ class Header{
 		void add(std::string const& s, double const& d);
 		void add(std::string const& s, bool const& d);
 		void add(std::string const& s, unsigned int const& d);
+		void add(std::string const& s, int const& d);
 		void add(std::string const& s, std::string const& d);
 		void add(std::string const& s, std::complex<double> const& d);
 		void add(std::string const& s, Matrice<double> const& mat);

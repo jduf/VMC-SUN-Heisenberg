@@ -16,7 +16,9 @@ class Parseur{
 
 		/*! sets val to the value that corresponds to pattern in argv[]*/
 		template<typename T>
-		void set(std::string pattern, T &val);
+			void set(std::string pattern, T &val);
+		template<typename T>
+			void set(T &val);
 		unsigned int n_args() const {return argc/2; }
 
 	private:
@@ -44,8 +46,13 @@ Parseur::Parseur(unsigned int argc, char* argv[]):
 			unused_var[i] = true;
 		}
 	} else {
-		locked = true;
-		std::cerr<<"Parseur : not enough arguments"<<std::endl;
+		if(this->argc == 1){
+			var[0] = argv[1];
+			argc=2;
+		} else {
+			locked = true;
+			std::cerr<<"Parseur : not enough arguments"<<std::endl;
+		}
 	}
 }
 
@@ -75,6 +82,15 @@ void Parseur::set(std::string pattern, T &val){
 		} else {
 			std::cerr<<"Parseur : "<<pattern<<" wasn't found thus its value is still "<<val<<std::endl;
 		}
+	} else{
+		std::cerr<<"Parseur : the parseur is locked because a wrong number of arguments was given"<<std::endl;
+	}
+}
+
+template<typename T>
+void Parseur::set(T &val){
+	if(!locked){
+		val = var[0];
 	} else{
 		std::cerr<<"Parseur : the parseur is locked because a wrong number of arguments was given"<<std::endl;
 	}

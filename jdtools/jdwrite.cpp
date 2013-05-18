@@ -6,7 +6,7 @@
 void read(std::string filename){
 	Read r(filename);
 	Write w("/tmp/tmp.txt");
-	w<<r.header();
+	w<<r.get_header();
 }
 
 void rewrite(std::string filename){

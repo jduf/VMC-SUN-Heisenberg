@@ -14,7 +14,7 @@ all:jdwrite jdread jdfind jdtags
 ########
 # jdfind
 ########
-jdfind.o:jdfind.cpp Directory.hpp Read.hpp Write.hpp RST.hpp
+jdfind.o:jdfind.cpp Directory.hpp Read.hpp Write.hpp RST.hpp Parseur.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 jdfind:jdfind.o Header.o Read.o Write.o RST.o Directory.o 
@@ -74,7 +74,6 @@ Directory.o:Directory.cpp Directory.hpp
 
 RST.o:RST.cpp RST.hpp 
 	$(CXX) -c  $(CXXFLAGS) $^
-
 
 ref:
 	doxygen Doxyfile

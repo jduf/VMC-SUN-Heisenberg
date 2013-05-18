@@ -31,7 +31,7 @@ class Rand{
 
 		// gives the next random number from the runvector
 		inline float get() {
-			++ pos;
+			pos++;
 			if (pos == len){ ranvec();}
 			return rvec[pos];
 		}

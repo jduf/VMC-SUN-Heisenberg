@@ -17,6 +17,7 @@ class RST{
 		void textit(std::string t);
 		void textbf(std::string t);
 		void item(std::string t);
+		void lineblock(std::string t);
 		void def(std::string t, std::string def);
 		void hyperlink(std::string display, std::string link);
 		void np();

@@ -27,6 +27,10 @@ void Header::add(std::string const& s, unsigned int const& d){
 	rst->def(s + "=" + tostring(d), "unsigned int");
 }
 
+void Header::add(std::string const& s, int const& d){
+	rst->def(s + "=" + tostring(d), "int");
+}
+
 void Header::add(std::string const& s, std::complex<double> const& d){
 	rst->def(s + "=" + tostring(d), "complex");
 }

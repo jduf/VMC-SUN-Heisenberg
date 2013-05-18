@@ -48,7 +48,10 @@ class Read{
 		/*!To be used with a default constructor : opens a file named "filename", reads from the filename the type of file*/
 		void open(std::string filename);
 
-		std::string header() const;
+		/*!Returns the header contained in the file*/
+		std::string get_header() const;
+		/*!True if the file can be read*/
+		bool get_status() const;
 
 	private:
 		/*!Forbids copy constructor*/
