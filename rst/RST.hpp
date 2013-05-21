@@ -9,7 +9,7 @@ class Write;
 class RST{
 	public:
 		RST();
-		RST(std::string filename);
+		RST(std::string path, std::string filename);
 		~RST();
 
 		void title(std::string t,std::string symb);
@@ -20,7 +20,9 @@ class RST{
 		void lineblock(std::string t);
 		void def(std::string t, std::string def);
 		void hyperlink(std::string display, std::string link);
+		void figure(std::string image, std::string legend, unsigned int scale=100);
 		void np();
+		void pdf();
 
 		std::string RST_nl;
 		std::string RST_np;
@@ -31,8 +33,10 @@ class RST{
 
 	private:
 		std::string rst;
+		std::string path;
 		std::string filename;
 		Write *w;
+		bool create_pdf;
 };
 
 std::ostream& operator<<(std::ostream& flux, RST const& rst);

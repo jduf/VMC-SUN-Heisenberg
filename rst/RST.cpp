@@ -6,32 +6,50 @@ RST::RST():
 	RST_np("\n\n"),
 	RST_item("+ "),
 	rst(""),
+	path(""),
 	filename(""),
-	w(NULL)
+	w(NULL),
+	create_pdf(false)
 {}
 
-RST::RST(std::string filename):
+RST::RST(std::string path, std::string filename):
 	RST_nl("\n"),
 	RST_np("\n\n"),
 	RST_item("+ "),
 	rst(""),
+	path(path),
 	filename(filename),
-	w(new Write(filename + ".rst"))
+	w(new Write(path + filename + ".rst")),
+	create_pdf(false)
 { }
 
 RST::~RST() { 
 	if(w){ 
 		rst += RST_np;
 		//for(unsigned int i(0); i<links.size();i++){
-			//rst += links[i] + RST_nl;
+		//rst += links[i] + RST_nl;
 		//}
 		(*w)<<rst;
-		std::string command("rst2html " + filename + ".rst " + filename + ".html");  
+		std::string command("rst2html " + path  + filename + ".rst " + path + filename + ".html");  
 		int status(0);
 		status = system(command.c_str());
-		if(status != 0){std::cerr<<"RST : ~RST() : the command function called returns an error"<<std::endl; }
+		if(status != 0){
+			std::cerr<<"RST : ~RST() : the command function called returns an error for the html creation"<<std::endl; 
+		} else {
+			if(create_pdf){
+				command="rst2latex " + path + filename + ".rst " + path + filename + ".tex";  
+				status = system(command.c_str());
+				command = "pdflatex -output-directory " + path + " "  + filename + ".tex"; 
+				status = system(command.c_str());
+				if(status != 0){std::cerr<<"RST : ~RST() : the command function called returns an error for the pdf creation"<<std::endl; }
+			}
+		}
 		delete w;
 	}
+}
+
+void RST::pdf(){
+	create_pdf=true;
 }
 
 void RST::title(std::string t,std::string symb){
@@ -56,15 +74,15 @@ void RST::lineblock(std::string t){
 }
 
 void RST::textit(std::string t){
-	 rst += "*" + t + "*" + RST_nl;
+	rst += "*" + t + "*" + RST_nl;
 }
 
 void RST::textbf(std::string t){
-	 rst += "**" + t + "**" + RST_nl;
+	rst += "**" + t + "**" + RST_nl;
 }
 
 void RST::item(std::string t){
-	 rst += RST_item + t + RST_nl;
+	rst += RST_item + t + RST_nl;
 }
 
 void RST::def(std::string t, std::string def){
@@ -75,12 +93,19 @@ void RST::def(std::string t, std::string def){
 }
 
 void RST::np(){
-	 rst += RST_np;
+	rst += RST_np;
 }
 
 void RST::hyperlink(std::string display, std::string link){
 	rst += "`" + display + " <" + link + ">`_ " + RST_nl;
 	//links.push_back(".. _" + t + ": " + l);
+}
+
+void RST::figure(std::string image, std::string legend, unsigned int scale){
+	rst += ".. figure:: " + image + RST_nl;
+	rst += "   :scale: " + tostring(scale) + " %" + RST_nl;
+	rst += "   :align: center" + RST_np;
+	rst += "   " + legend + RST_np;
 }
 
 std::ostream& operator<<(std::ostream& flux, RST const& rst){

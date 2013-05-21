@@ -6,7 +6,6 @@
 #include "RST.hpp"
 
 #include <string>
-#include <sstream> //-> tostring(T const& t)
 #include <iostream>
 #include <complex>
 #include <ctime> // -> time(0)
@@ -37,17 +36,14 @@ class Header{
 		RST *rst;
 
 		std::string when();
-
-		template<typename T>
-			std::string tostring(T const& t);
 };
 
-std::ostream& operator<<(std::ostream& flux, Header const& h);
-
 template<typename T>
-std::string Header::tostring(T const& t){
+std::string tostring(T const& t){
 	std::ostringstream s;
 	s<<t;
 	return s.str();
 }
+
+std::ostream& operator<<(std::ostream& flux, Header const& h);
 #endif

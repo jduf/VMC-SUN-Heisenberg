@@ -8,8 +8,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream> //-> tostring(T const& t)
 #include <complex>
 
+//{Description
 /*!Class that allows to write datas easily in a file.
  *To be used with Read.hpp
  *Can be used to write a binary or a text file.
@@ -21,6 +23,7 @@
  *When used with a binary file
  * - many different kinds of datas can be saved together
 */
+//}
 class Write{
 	public:
 		/*!Default constructor that needs a call of Write::open(std::string filename, bool binary)*/

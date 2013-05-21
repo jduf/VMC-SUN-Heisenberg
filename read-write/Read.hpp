@@ -10,6 +10,7 @@
 #include <string>
 #include <complex>
 
+//{Description
 /*!Class that allows to read datas easily from a file.
  *To be used with Write.hpp
  *Can be used to read a binary or a text file.
@@ -22,6 +23,7 @@
  *When used with a binary file
  * - many different kinds of datas can be extracted
 */
+//}
 class Read{
 	public:
 		/*!Default constructor that needs a call of Read::open(std::string filename, bool binary)*/

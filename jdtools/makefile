@@ -2,14 +2,12 @@ CXX = g++
 CC = $(CXX)
 
 #CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-CXXFLAGS = -pedantic -Wall -Wextra 
-#CXXFLAGS = -O3 -fopenmp -msse2
+CXXFLAGS = -pedantic -Wall -Wextra -O3
 
 #LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDFLAGS = -pedantic -Wall -Wextra 
-#LDLIBS = -O3 -fopenmp -msse2
+LDFLAGS = -pedantic -Wall -Wextra -O3
 
-all:jdwrite jdread jdfind jdtags
+all:jdwrite jdread jdfind jdtags jdinfo
 
 ########
 # jdfind
@@ -56,6 +54,14 @@ jdflink.o:jdlink.cpp Directory.hpp Read.hpp Write.hpp RST.hpp
 jdlink:jdlink.o Header.o Read.o Write.o RST.o Directory.o 
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
+##########
+# jdinfo
+##########
+jdinfo.o:jdinfo.cpp Directory.hpp Read.hpp Write.hpp RST.hpp Parseur.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+
+jdinfo:jdinfo.o Header.o Read.o Write.o RST.o Directory.o 
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 ########
 # commun
@@ -66,7 +72,7 @@ Read.o:Read.cpp Read.hpp Matrice.hpp Array2D.hpp Header.hpp
 Write.o:Write.cpp Write.hpp Matrice.hpp Array2D.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Header.o:Header.cpp Header.hpp RST.hpp Matrice.hpp Array2D.hpp
+Header.o:Header.cpp Header.hpp RST.hpp Matrice.hpp Array2D.hpp Write.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 Directory.o:Directory.cpp Directory.hpp 

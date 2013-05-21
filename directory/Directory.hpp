@@ -12,7 +12,7 @@ class Directory {
 		inline std::string get_name(unsigned int i) const {return fname[i];};
 		inline std::string get_path(unsigned int i) const {return path[i];};
 		inline std::string get_ext(unsigned int i) const {return ext[i];};
-		inline std::string operator[](unsigned int i) const {return path[i]+"/"+fname[i]+ext[i]; };
+		inline std::string operator[](unsigned int i) const {return path[i]+fname[i]+ext[i]; };
 		inline unsigned int size() const {return path.size();};
 
 		void print();
