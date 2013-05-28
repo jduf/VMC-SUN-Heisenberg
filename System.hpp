@@ -72,6 +72,7 @@ class System{
 		unsigned int N_m;	//!< number of each color
 		unsigned int N_site;//!< number of lattice site
 
+		//Vecteur<double> bound;
 
 	private:
 		/*!Forbids copy constructor*/
@@ -99,6 +100,7 @@ System<T>::System():
 	N_spin(0),
 	N_m(0),
 	N_site(0),
+	//bound(108,0),
 	rnd(NULL),
 	A(NULL),
 	Ainv(NULL),
@@ -111,6 +113,25 @@ System<T>::System():
 
 template<typename T>
 System<T>::~System(){
+	//for(unsigned int i(0);i<N_spin;i++){
+		//Matrice<T> Ainv_check(A[i]);
+		//Lapack<T> A_(Ainv_check.ptr(),Ainv_check.size(),'G');
+		//A_.inv();
+		//Matrice<T> check(Ainv_check*A[i]);
+		//T t(0);
+		//for(unsigned int j(0);j<check.size();j++){
+			//t+= std::abs(check(j,j))-1.0;
+		//}
+		//T m(0);
+		//for(unsigned int j(0);j<check.size();j++){
+			//for(unsigned int k(0);k<check.size();k++){
+				//m+= std::abs(Ainv[i](j,k)-Ainv_check(j,k));
+			//}
+		//}
+		//std::cout<< i <<": trace of Ainv.A="<<t<<std::endl;
+		//std::cout<< i <<": difference between Ainv and Ainv_check="<<m<<std::endl;
+	//}
+
 	delete[] A;
 	delete[] Ainv;
 	delete[] wis;
@@ -123,7 +144,7 @@ System<T>::~System(){
 template<typename T> 
 T System<T>::ratio(){
 	if(mc[0] == mc[1]){
-		return -1;
+		return -1.0;
 	} else {
 		w[0] = 0.0;
 		w[1] = 0.0;
@@ -131,7 +152,7 @@ T System<T>::ratio(){
 			w[0] += Ainv[mc[0]](cc[0],i)*A[mc[1]](i,cc[1]);
 			w[1] += Ainv[mc[1]](cc[1],i)*A[mc[0]](i,cc[0]);
 		}
-		if( std::abs(w[0]*w[1]) < 1e-15 ){ return 0.0; }
+		if( std::abs(w[0]*w[1]) < 1e-10 ){ return 0.0; }
 		else { return w[0]*w[1]; }
 	}
 }
@@ -139,9 +160,17 @@ T System<T>::ratio(){
 template<typename T>
 double System<T>::compute_energy(){
 	double E_step(0.0);
+	//double a(0.0);
 	for(unsigned int j(0);j<sts.row();j++){
 		swap(sts(j,0),sts(j,1));
 		E_step += real(ratio() * H(sts(j,0),sts(j,1)));
+		//a = -real(ratio());
+		//E_step += a;
+		//if(std::abs(H(sts(j,0),sts(j,1))+1)<1e-4){//if true -> th
+			//bound(j) += a;
+		//} else {
+			//bound(j) += a;
+		//}
 	}
 	return E_step;
 }
@@ -172,48 +201,45 @@ void System<T>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> co
 
 	H = H_;
 	sts = sts_;
+
 	A = new Matrice<T>[N_spin];
 	Ainv = new Matrice<T>[N_spin];
 	wis = new unsigned int[N_site];
 	rnd = new Rand(10,thread);
 
-	bool seek_state(false);
 	unsigned int site(0);
 	unsigned int* available_sites(new unsigned int[N_site]);
 	unsigned int N_as(0);
 
-	do {
-		seek_state = false;
-		N_as = N_site;
-		for(unsigned int i(0); i < N_as; i++){
-			available_sites[i]  = i;	
-		}
+	N_as = N_site;
+	for(unsigned int i(0); i < N_as; i++){
+		available_sites[i]  = i;	
+	}
 
-		for(unsigned int i(0); i < N_spin; i++){
-			A[i] = Matrice<T> (N_m);
-			Ainv[i] = Matrice<T> (N_m);
-			for(unsigned int j(0); j < N_m; j++){
-				site = rnd->get(N_as);
-				wis[available_sites[site]] = i*N_m+j; 	
-				for(unsigned int k(0); k < N_m; k++){
-					A[i](k,j) = EVec(available_sites[site],k);
-				}
-				for(unsigned int k(site); k < N_as-1; k++){
-					available_sites[k] = available_sites[k+1];
-				}
-				N_as--;
+	for(unsigned int i(0); i < N_spin; i++){
+		A[i] = Matrice<T> (N_m);
+		Ainv[i] = Matrice<T> (N_m);
+		for(unsigned int j(0); j < N_m; j++){
+			site = rnd->get(N_as);
+			wis[available_sites[site]] = i*N_m+j; 	
+			for(unsigned int k(0); k < N_m; k++){
+				A[i](k,j) = EVec(available_sites[site],k);
 			}
-			Lapack<T> DetA_(A[i],'G');
-			if(std::abs(DetA_.det())<1e-10){
-				seek_state = true;
-				i=N_spin;
-			} else {	
-				Ainv[i] = A[i];
-				Lapack<T> A_(Ainv[i].ptr(),Ainv[i].size(),'G');
-				A_.inv();
+			for(unsigned int k(site); k < N_as-1; k++){
+				available_sites[k] = available_sites[k+1];
 			}
+			N_as--;
 		}
-	} while ( seek_state );
+		Ainv[i] = A[i];
+		Lapack<T> A_(Ainv[i].ptr(),Ainv[i].size(),'G');
+		A_.inv();
+		//Matrice<T> check(Ainv[i]*A[i]);
+		//T t(0);
+		//for(unsigned int j(0);j<check.size();j++){
+			//t+= std::abs(check(j,j))-1.0;
+		//}
+		//std::cout<< i <<": trace of Ainv.A="<<t<<std::endl;
+	}
 
 	delete[] available_sites;
 
@@ -264,22 +290,17 @@ void System<T>::update(){
 	}
 
 	//compute Ainv
-#pragma omp parallel for num_threads(2) private(tmp)
 	for(unsigned int m=0;m<2;m++){
 		for(unsigned int i(0);i<N_m;i++){
 			if(cc[m] == i){ tmp = -1.0; }
 			else { tmp = 0.0; }
-			for(unsigned int k(0);k<N_m;k++){
-				tmp += Ainv[mc[m]](i,k)*A[mc[m]](k,cc[m]);
+			for(unsigned int j(0);j<N_m;j++){
+				tmp += Ainv[mc[m]](i,j)*A[mc[m]](j,cc[m]);
 			}
 			for(unsigned int j(0);j<N_m;j++){
 				tmp_m[m](i,j) = tmp*Ainv[mc[m]](cc[m],j)/w[m];
 			}
 		}
-	}
-
-#pragma omp parallel for num_threads(2)
-	for(unsigned int m=0;m<2;m++){
 		Ainv[mc[m]] -= tmp_m[m];
 	}
 }
@@ -288,15 +309,15 @@ void System<T>::update(){
 /*double real(T)*/
 /*{*/
 template<typename T>
-double real(T x);
+double real(T const& x);
 
 template<>
-inline double real(double x){
+inline double real(double const& x){
 	return x;
 }
 
 template<>
-inline double real(std::complex<double> x){
+inline double real(std::complex<double> const& x){
 	return std::real(x);
 }
 /*}*/

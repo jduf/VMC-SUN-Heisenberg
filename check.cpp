@@ -16,7 +16,7 @@ int main(int argc, char* argv[]){
 
 void check(std::string filename){
 	Read r(filename);
-	std::cout<<r.header()<<std::endl;
+	std::cout<<r.get_header()<<std::endl;
 	unsigned int N_spin(0), N_m(0), N_n(0);
 	bool is_complex;
 
@@ -25,8 +25,10 @@ void check(std::string filename){
 	Matrice<double> H(N_m*N_spin);
 	r>>sts>>H;
 	std::cout<<"N_spin="<<N_spin<<" N_m="<<N_m<<" N_n="<<N_n<<std::endl;
-	std::cout<<"nts="<<std::endl;
-	std::cout<<sts<<std::endl;
+	std::cout<<"sts="<<std::endl;
+	for(unsigned int i(0);i<sts.row();i++){
+		std::cout<<sts(i,0)<<" "<<sts(i,1)<<" "<<H(sts(i,0),sts(i,1))<<std::endl;
+	}
 	std::cout<<"H="<<std::endl;
 	std::cout<<H<<std::endl;
 	if(is_complex){

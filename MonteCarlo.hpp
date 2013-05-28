@@ -69,36 +69,52 @@ class MonteCarlo{
 
 	
 		unsigned int const nthreads; //!< Number of independant chains that are lunched
-		unsigned int const time_limit; //!< Time limit in second
 		unsigned int const N_MC; //!< Number of measure to do before doing a binning analysis
-		System<T>* S; //!< Pointer to a system 
-		double* E; //!< Value that the MC algorithm tries to compute
-		double* err; //!< Error on E
+		unsigned int const time_limit; //!< Time limit in second
 		unsigned int status; //!< Successful:0 Not lunched:1  Time elapsed:2
-		std::vector<double>* sampling; //!< Stores all the values that MC considers
+		bool keep_measuring; //!< True if the code runs
+		Chrono stop; //!< To stop the simulation after time_limit seconds
 		std::string filename; //!< Name of the output file
 		Write output; //!< Text file of name "filename.out" that stores all the output of the MC algorithm
 		Write result; //!< Text file of name "filename.dat" that stores the final result
-		bool keep_measuring; //!< True if the code runs
-		Chrono stop; //!< To stop the simulation after time_limit seconds
+		System<T>* S; //!< Pointer to a system 
+		double* E; //!< Value that the MC algorithm tries to compute
+		double* err; //!< Error on E
+		std::vector<double>* sampling; //!< Stores all the values that MC considers
 };
+
+/*double norm_squared(T)*/
+/*{*/
+template<typename T>
+double norm_squared(T x);
+
+template<>
+inline double norm_squared(double x){
+	return x*x;
+}
+
+template<>
+inline double norm_squared(std::complex<double> x){
+	return std::norm(x);
+}
+/*}*/
 
 /*constructors and destructor*/
 /*{*/
 template<typename T>
 MonteCarlo<T>::MonteCarlo(std::string filename, unsigned int const& nthreads):
 	nthreads(nthreads),
-	time_limit(nthreads*3600*2*24),
 	N_MC(1e4),
-	S(new System<T>[nthreads]),
-	E(new double[nthreads]),
-	err(new double[nthreads]),
+	time_limit(nthreads*3600*2*24),
 	status(1),
-	sampling(new std::vector<double>[nthreads]),
+	keep_measuring(true),
 	filename(filename),
 	output(filename+".out"),
 	result(filename+".dat"),
-	keep_measuring(true)
+	S(new System<T>[nthreads]),
+	E(new double[nthreads]),
+	err(new double[nthreads]),
+	sampling(new std::vector<double>[nthreads])
 {
 	result<<"%N_spin "<<"N_m "<<"N_samples "<<"E_persite "<<"Delta_E "<<"Boundary_condition "<<"Status"<<Write::endl;
 	stop.tic();
@@ -118,52 +134,85 @@ MonteCarlo<T>::~MonteCarlo(){
 /*{*/
 template<typename T>
 void MonteCarlo<T>::run(unsigned int const& thread){
-	unsigned int i(1);
+	unsigned int i(0);
 	double E_config(0);
 	double ratio(0.0);
 	Rand rnd(1e4,thread);
-	do{
-		S[thread].swap();
-		ratio = norm_squared(S[thread].ratio());
-		if(ratio>1 || rnd.get() <ratio){
-			S[thread].update();
-			E_config = S[thread].compute_energy();
-			E[thread] += E_config;
-			sampling[thread].push_back(E_config);
-			if(i < N_MC){ i++;}
-			else {
-				i = 1;
-				test_convergence(thread);
+	bool binning(true);
+	if(binning){
+		do{
+			S[thread].swap();
+			ratio = norm_squared(S[thread].ratio());
+			if( (ratio > 1.0) || (rnd.get() < ratio) ){
+				S[thread].update();
+				E_config = S[thread].compute_energy();
+				E[thread] += E_config;
+				sampling[thread].push_back(E_config);
+				i++;
+				if(i % N_MC == 0) {
+					test_convergence(thread);
+				}
 			}
-		}
-	} while(keep_measuring);
+		} while(keep_measuring);
+	} else {
+		do{
+			S[thread].swap();
+			ratio = norm_squared(S[thread].ratio());
+			if(ratio>1 || rnd.get() <ratio){
+				i++;
+				if(i % N_MC == 0) {
+					S[thread].update();
+					E_config = S[thread].compute_energy();
+					E[thread] += E_config;
+					sampling[thread].push_back(E_config);
+				}
+			}
+		} while(i<1e10); 
+	}
 #pragma omp critical
 	{
+		//Write wb("bound-"+ tostring(thread) + ".dat");
 		test_convergence(thread);
+		//wb << S[thread].bound / sampling[thread].size()<<Write::endl;
+		//double a(0);
+		//for(unsigned int i(0); i< 108;i++){
+			//a+=S[thread].bound(i) / sampling[thread].size();
+		//}
+		//wb<<a<<Write::endl;
 	}
 }
 
 template<typename T>
 void MonteCarlo<T>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<T> EVec){
-	for(unsigned int i(0);i<nthreads;i++){
-		S[i].init(N_spin,N_m,H,sts,EVec,i);
+	for(unsigned int thread(0);thread<nthreads;thread++){
+		S[thread].init(N_spin,N_m,H,sts,EVec,thread);
+		unsigned int j(0);
+		double ratio(0.0);
+		Rand rnd(1e4,thread);
+		do{
+			S[thread].swap();
+			ratio = norm_squared(S[thread].ratio());
+			if(ratio>1 || rnd.get() <ratio){
+				S[thread].update();
+				j++;
+			}
+		} while (j<10);
 	}
 }
 
 template<typename T>
 void MonteCarlo<T>::save(){
-	int parity(0);
-	if(filename.find("P") != std::string::npos ){ parity = -1;}
-	if(filename.find("A") != std::string::npos ){ parity = 1;}
+	int bc(0);
+	if(filename.find("P") != std::string::npos ){ bc = 1;}
+	if(filename.find("A") != std::string::npos ){ bc = -1;}
 	for(unsigned int thread(0); thread<nthreads; thread++){
 		result<<S[thread].N_spin
 			<<" "<<S[thread].N_m
 			<<" "<<sampling[thread].size()
 			<<" "<<E[thread] / (sampling[thread].size() * S[thread].N_site)
 			<<" "<<err[thread]
-			<<" "<<parity
-			<<" "<<status
-			<<Write::endl;
+			<<" "<<bc
+			<<" "<<status <<Write::endl;
 	}
 }
 /*}*/
@@ -174,7 +223,7 @@ template<typename T>
 void MonteCarlo<T>::test_convergence(unsigned int const& thread){
 	if( std::abs( E[thread] / sampling[thread].size() )  > 1e3 ){ 
 		std::cerr<<filename<< " : initial condition lead to a wrong value, restarting the simulation (E="<<E[thread]<<")"<<std::endl;
-		E[thread] = 0;
+		E[thread] = 0.0;
 		sampling[thread].clear();
 	}  else {
 		if(keep_measuring && stop.time_limit_reached(time_limit)){
@@ -200,7 +249,7 @@ void MonteCarlo<T>::test_convergence(unsigned int const& thread){
 		}
 		cond += sqrt((cond)/2);
 		err[thread] = d[d.size()-1] / S[thread].N_site; 
-		if(cond/m<1e-2){ 
+		if(cond/m<1e-3){ 
 			keep_measuring = false; 
 			status = 0;
 		}
@@ -255,22 +304,6 @@ double MonteCarlo<T>::delta(std::vector<double> const& v, double m){
 		d += (v[i]-m)*(v[i]-m);
 	}
 	return sqrt(d / (N*(N-1))); 
-}
-/*}*/
-
-/*double norm_squared(T)*/
-/*{*/
-template<typename T>
-double norm_squared(T x);
-
-template<>
-inline double norm_squared(double x){
-	return x*x;
-}
-
-template<>
-inline double norm_squared(std::complex<double> x){
-	return std::norm(x);
 }
 /*}*/
 #endif

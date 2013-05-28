@@ -1,6 +1,4 @@
-/*!
-@file mc.cpp
-*/
+/*!  @file mc.cpp */
 
 #include "Read.hpp"
 #include "Matrice.hpp"
@@ -42,7 +40,7 @@ void run(Parseur& P){
 			MonteCarlo<std::complex<double> > sim(filename,nthreads);
 			r>>T;
 			sim.init(N_spin,N_m,H,sts,T);
-			omp_set_nested(1);
+			//omp_set_nested(1);
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.run(omp_get_thread_num());
@@ -54,7 +52,7 @@ void run(Parseur& P){
 			MonteCarlo<double> sim(filename,nthreads);
 			r>>T;
 			sim.init(N_spin,N_m,H,sts,T);
-			omp_set_nested(1);
+			//omp_set_nested(1);
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.run(omp_get_thread_num());
