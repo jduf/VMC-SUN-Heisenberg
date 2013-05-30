@@ -23,22 +23,22 @@ extern "C" void zgetri_(unsigned int const *n, std::complex<double> *m, unsigned
  * - compute eigensystem
  * - compute LU decomposition
  * */
-template<typename T>
+template<typename Type>
 class Lapack{
 	public:
 		/*!Constructor that copy the input matrix, no LAPACK routine can affect the input matrix */
-		Lapack(Matrice<T> const& mat, char matrix_type);
+		Lapack(Matrice<Type> const& mat, char matrix_type);
 		/*!Constructor that takes a pointer on a static array, all the LAPACK routines will affect the static array pointed */
-		Lapack(T *m, unsigned int N, char matrix_type);
+		Lapack(Type *m, unsigned int N, char matrix_type);
 		/*!Destructor (delete if allocate_new_memory==true)*/
 		~Lapack();
 
 		/*!Specialized routine that computes the eigenvalues and the eigenvectors if EVec==true*/
 		void eigensystem(Vecteur<double>& EVal, bool EVec=true) const; 
 		/*!Compute the determinant*/
-		T det() const;
+		Type det() const;
 		/*!Compute the LU decomposition*/
-		void lu(Matrice<T>& L, Matrice<T>& U) const;
+		void lu(Matrice<Type>& L, Matrice<Type>& U) const;
 		/*!Compute the inverse*/
 		void inv() const;
 		
@@ -50,7 +50,7 @@ class Lapack{
 		/*!Forbids assertion operator*/
 		Lapack& operator=(Lapack const& l);
 
-		T *m; //!< pointer on a static array, the square matrix (same structure as the one in Matrice.hpp)
+		Type *m; //!< pointer on a static array, the square matrix (same structure as the one in Matrice.hpp)
 		unsigned int const N; //!< size of the square matrix
 		char const matrix_type; //!< type of matrix (symmetric, hermitian, general,...)
 		bool const allocate_new_memory; //!< false if the original matrix will be modified by the LAPACK routine
@@ -67,9 +67,9 @@ class Lapack{
 
 /*Constructors and destructor*/
 /*{*/
-template<typename T>
-Lapack<T>::Lapack(Matrice<T> const& mat, char matrix_type):
-	m(new T[mat.size()*mat.size()]),
+template<typename Type>
+Lapack<Type>::Lapack(Matrice<Type> const& mat, char matrix_type):
+	m(new Type[mat.size()*mat.size()]),
 	N(mat.size()),
 	matrix_type(matrix_type),
 	allocate_new_memory(true)
@@ -89,16 +89,16 @@ Lapack<T>::Lapack(Matrice<T> const& mat, char matrix_type):
 	//}
 }
 
-template<typename T>
-Lapack<T>::Lapack(T *m, unsigned int N, char matrix_type):
+template<typename Type>
+Lapack<Type>::Lapack(Type *m, unsigned int N, char matrix_type):
 	m(m),
 	N(N),
 	matrix_type(matrix_type),
 	allocate_new_memory(false)
 { }
 
-template<typename T>
-Lapack<T>::~Lapack(){
+template<typename Type>
+Lapack<Type>::~Lapack(){
 	if(allocate_new_memory){ delete[] m; } 
 }
 /*}*/

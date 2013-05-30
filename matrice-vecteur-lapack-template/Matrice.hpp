@@ -53,6 +53,8 @@ class Matrice{
 		Matrice<Type> transpose() const;
 		/*!Returns the conjugate transpose of complex matrix (may give an error) */
 		Matrice<std::complex<double> > trans_conj() const;
+		/*!Returns the diagonal elements in an vector*/
+		Vecteur<Type> diag() const;
 
 		/*!Returns the pointer to the matrix*/
 		inline Type* ptr() const { return m; };
@@ -262,6 +264,15 @@ Matrice<std::complex<double> > Matrice<Type>::trans_conj() const{
 		}
 	}
 	return tmp;
+}
+
+template<typename Type>
+Vecteur<Type> Matrice<Type>::diag() const{
+	Vecteur<Type> v(N);
+	for(unsigned int i(0);i<N;i++){
+		v(i) = m[i*(N+1)];
+	}
+	return v;
 }
 /*}*/
 

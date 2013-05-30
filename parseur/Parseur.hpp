@@ -17,8 +17,13 @@ class Parseur{
 		/*! sets val to the value that corresponds to pattern in argv[]*/
 		template<typename T>
 			void set(std::string pattern, T &val);
+		/*! returns the value that corresponds to pattern in argv[]*/
+		template<typename T>
+			T get(std::string pattern);
+		/*! work only if argc=2 (one argument passed to the main)*/
 		template<typename T>
 			void set(T &val);
+
 		unsigned int n_args() const {return argc/2; }
 
 	private:
@@ -31,40 +36,6 @@ class Parseur{
 		unsigned int argc;//!< size of the arrays (number of arguments given to the main program)
 		bool locked; //!< stores the state of the program, if true a wrong number of agrument was given to the program 
 };
-
-Parseur::Parseur(unsigned int argc, char* argv[]):
-	var(new std::string[argc-1]),
-	unused_var(new bool[(argc-1)/2]),
-	argc(argc-1),
-	locked(false)
-{
-	if(this->argc % 2 == 0){
-		for(unsigned int i(1);i<argc;i++){
-			var[i-1] = argv[i];
-		}
-		for(unsigned int i(1);i<argc/2;i++){
-			unused_var[i] = true;
-		}
-	} else {
-		if(this->argc == 1){
-			var[0] = argv[1];
-			argc=2;
-		} else {
-			locked = true;
-			std::cerr<<"Parseur : not enough arguments"<<std::endl;
-		}
-	}
-}
-
-Parseur::~Parseur(){
-	for(unsigned int i(0);i<argc/2;i++){
-		if(unused_var[i]){
-			std::cerr<<"Parseur : variable "<<var[2*i]<<" was given as input but not used"<<std::endl;
-		}
-	}
-	delete[] var;
-	delete[] unused_var;
-}
 
 template<typename T>
 void Parseur::set(std::string pattern, T &val){
@@ -84,6 +55,32 @@ void Parseur::set(std::string pattern, T &val){
 		}
 	} else{
 		std::cerr<<"Parseur : the parseur is locked because a wrong number of arguments was given"<<std::endl;
+	}
+}
+
+template<typename T>
+T Parseur::get(std::string pattern){
+	if(!locked){
+		bool found(false);
+		unsigned int i(0);
+		while(!found && i<argc){
+			if(var[i]==pattern){found = true;}
+			else{i += 2;}
+		}
+		if(found){
+			unused_var[i/2] = false;
+			std::stringstream ss(var[i+1]);
+			T val;
+			ss>>val;
+			return val;
+		} else {
+			std::cerr<<"Parseur : "<<pattern<<" wasn't found thus the return value is 0"<<std::endl;
+			return 0;
+		}
+	} else{
+		std::cerr<<"Parseur : the parseur is locked because a wrong number of arguments was given"<<std::endl;
+		std::cerr<<"Parseur : thus the return value is 0"<<std::endl;
+		return 0;
 	}
 }
 

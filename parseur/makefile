@@ -7,9 +7,11 @@ LDLIBS =  -pedantic -Wall -Wextra
 
 all:test 
 
+test:test.o Parseur.o
+
 test.o:test.cpp Parseur.hpp
 
-test:test.o 
+Parseur.o:Parseur.cpp Parseur.hpp
 
 ref:
 	doxygen Doxyfile

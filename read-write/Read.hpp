@@ -34,14 +34,14 @@ class Read{
 		~Read();
 
 		/*!Stream operator that reads datas without formatting*/
-		template<typename T>
-			Read& operator>>(T& t);
+		template<typename Type>
+			Read& operator>>(Type& t);
 		/*!Stream operator that reads matrices, uses Matrice<M>::operator>>*/
-		template<typename M>
-			Read& operator>>(Matrice<M>& mat);
+		template<typename Type>
+			Read& operator>>(Matrice<Type>& mat);
 		/*!Stream operator that reads arrays, uses Array2D<A>::operator>>*/
-		template<typename A>
-			Read& operator>>(Array2D<A>& arr);
+		template<typename Type>
+			Read& operator>>(Array2D<Type>& arr);
 		/*!Stream operator that reads strings*/
 		Read& operator>>(std::string& s);
 		/*!Stream operator that reads 2D arrays of strings*/
@@ -87,8 +87,8 @@ class Read{
 		size_t reading_point; //!< last bit read
 };
 
-template<typename T>
-Read& Read::operator>>(T& t){
+template<typename Type>
+Read& Read::operator>>(Type& t){
 	if(unlocked){
 		if(binary){ reading_point = fread(&t,sizeof(t),1,bfile); }
 		else { tfile >> t; }
@@ -98,8 +98,8 @@ Read& Read::operator>>(T& t){
 	return (*this);
 }
 
-template<typename M>
-Read& Read::operator>>(Matrice<M>& mat){
+template<typename Type>
+Read& Read::operator>>(Matrice<Type>& mat){
 	if(unlocked){
 		if(binary) { read_binary_matrix(mat); }
 		else { tfile>>mat; }
@@ -109,8 +109,8 @@ Read& Read::operator>>(Matrice<M>& mat){
 	return (*this);
 }
 
-template<typename A>
-Read& Read::operator>>(Array2D<A>& arr){
+template<typename Type>
+Read& Read::operator>>(Array2D<Type>& arr){
 	if(unlocked){
 		if(binary) { read_binary_array2d(arr);}
 		else { tfile>>arr; }
@@ -120,28 +120,28 @@ Read& Read::operator>>(Array2D<A>& arr){
 	return (*this);
 }
 
-template<typename M>
-void Read::read_binary_matrix(Matrice<M>& mat){
+template<typename Type>
+void Read::read_binary_matrix(Matrice<Type>& mat){
 	unsigned int N(0);
 	reading_point = fread(&N,sizeof(N),1,bfile);
 	if(N != mat.size()) {
-		Matrice<M> mat_tmp(N);
+		Matrice<Type> mat_tmp(N);
 		mat = mat_tmp;
 	} 
-	reading_point = fread(mat.ptr(),sizeof(M),N*N,bfile);
+	reading_point = fread(mat.ptr(),sizeof(Type),N*N,bfile);
 }
 
-template<typename A>
-void Read::read_binary_array2d(Array2D<A>& arr){
+template<typename Type>
+void Read::read_binary_array2d(Array2D<Type>& arr){
 	unsigned int N_row(0);
 	unsigned int N_col(0);
 	reading_point = fread(&N_row,sizeof(N_row),1,bfile);
 	reading_point = fread(&N_col,sizeof(N_col),1,bfile);
 	if(N_row != arr.row() || N_col != arr.col()) {
-		Array2D<A> arr_tmp(N_row,N_col);
+		Array2D<Type> arr_tmp(N_row,N_col);
 		arr = arr_tmp;
 	} 
-	reading_point = fread(arr.ptr(),sizeof(A),N_row*N_col,bfile);
+	reading_point = fread(arr.ptr(),sizeof(Type),N_row*N_col,bfile);
 }
 #endif
 

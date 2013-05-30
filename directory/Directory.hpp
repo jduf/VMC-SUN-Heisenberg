@@ -26,7 +26,7 @@ class Directory {
 		std::vector<std::string> path;
 		std::vector<std::string> ext;
 
-		void split_fname(std::string f);
+		void split_ext(std::string f);
 };
 
 #endif

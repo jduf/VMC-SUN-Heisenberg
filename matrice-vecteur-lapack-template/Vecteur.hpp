@@ -30,14 +30,17 @@ class Vecteur{
 		~Vecteur();
 
 		/*!Does a deep copie*/
-		Vecteur& operator=(Vecteur const& mat);
+		Vecteur& operator=(Vecteur const& vec);
 		/*!Accesses the ith entry of the vector*/
 		inline Type const& operator()(unsigned int const& i) const {assert(i<N); return v[i];};
 		/*!Set the ith entry of the vector*/
 		inline Type& operator()(unsigned int const& i){assert(i<N); return v[i];};
-		/*!Multiplies this vector by a double*/
+		/*!Multiplies this vector by a Type*/
 		Vecteur<Type>& operator*=(Type const& d);
 		Vecteur<Type> operator*(Type const& d) const;
+		/*!Divide this vector by a Type*/
+		Vecteur<Type>& operator/=(Type const& d);
+		Vecteur<Type> operator/(Type const& d) const;
 		/*!Scalar product*/
 		Type operator*(Vecteur<Type> const& vec) const;
 		/*!Exterior product*/
@@ -150,6 +153,21 @@ Type Vecteur<Type>::operator*(Vecteur<Type> const& vec) const{
 	return s;
 }
 
+template <typename Type>
+Vecteur<Type>& Vecteur<Type>::operator/=(Type const& d){
+	for(unsigned int i(0);i<N;i++){
+		v[i] /= d;
+	}
+	return (*this);
+}
+
+template <typename Type>
+Vecteur<Type> Vecteur<Type>::operator/(Type const& d) const{
+	Vecteur<Type> vecout((*this));
+	vecout /= d;	
+	return vecout;
+}
+
 template<typename Type>
 Matrice<Type> Vecteur<Type>::operator^(Vecteur<Type> const& vec) const{
 	assert(N == vec.N);
@@ -182,7 +200,7 @@ void Vecteur<Type>::set(Type val){
 
 template<>
 inline void Vecteur<double>::chop(double precision){
-	for(unsigned int i(0);i<N*N;i++){
+	for(unsigned int i(0);i<N;i++){
 		if(std::abs(v[i]) < precision ){v[i]=0.0;}
 	}
 }

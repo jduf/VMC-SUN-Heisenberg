@@ -34,14 +34,14 @@ class Write{
 		~Write();
 
 		/*!Stream operator that writes datas without formatting*/
-		template<typename T>
-			Write& operator<<(T const& t);	
+		template<typename Type>
+			Write& operator<<(Type const& t);	
 		/*!Stream operator that writes matrices, uses Matrice<M>::operator<<*/
-		template<typename M>
-			Write& operator<<(Matrice<M> const& mat);
+		template<typename Type>
+			Write& operator<<(Matrice<Type> const& mat);
 		/*!Stream operator that writes arrays, uses Array2D<A>::operator<<*/
-		template<typename A>
-			Write& operator<<(Array2D<A> const& arr);
+		template<typename Type>
+			Write& operator<<(Array2D<Type> const& arr);
 		/*!Stream operator that writes strings*/
 		Write& operator<<(std::string const& s);
 		Write& operator<<(Array2D<std::string> const& arr);
@@ -49,8 +49,8 @@ class Write{
 		/*!To be used with a default constructor : opens a file named "filename", reads from the filename the type of file*/
 		void open(std::string filename);
 
-		template<typename T>
-			void operator()(std::string const& var, T const& val);
+		template<typename Type>
+			void operator()(std::string const& var, Type const& val);
 
 		void header(std::string s);
 
@@ -90,8 +90,8 @@ class Write{
 		bool binary; //!< true if the file is binary
 };
 
-template<typename T>//doesn't work with string (it seems)
-Write& Write::operator<<(T const& t){
+template<typename Type>//doesn't work with string (it seems)
+Write& Write::operator<<(Type const& t){
 	if(unlocked){
 		if(binary){
 			fwrite(&t, sizeof(t), 1 ,bfile);
@@ -105,8 +105,8 @@ Write& Write::operator<<(T const& t){
 	return (*this);
 }
 
-template<typename M>//doesn't work with string
-Write& Write::operator<<(Matrice<M> const& mat){
+template<typename Type>//doesn't work with string
+Write& Write::operator<<(Matrice<Type> const& mat){
 	if(unlocked){
 		if(binary) { write_binary_matrix(mat); }
 		else { tfile<<mat<<std::flush; }
@@ -116,8 +116,8 @@ Write& Write::operator<<(Matrice<M> const& mat){
 	return (*this);
 }
 
-template<typename A>
-Write& Write::operator<<(Array2D<A> const& arr){
+template<typename Type>
+Write& Write::operator<<(Array2D<Type> const& arr){
 	if(unlocked){
 		if(binary) { write_binary_array2d(arr);}
 		else { tfile<<arr<<std::flush; }
@@ -127,27 +127,27 @@ Write& Write::operator<<(Array2D<A> const& arr){
 	return (*this);
 }
 
-template<typename M>//doesn't work with string
-void Write::write_binary_matrix(Matrice<M> const& mat){
+template<typename Type>//doesn't work with string
+void Write::write_binary_matrix(Matrice<Type> const& mat){
 	unsigned int N(mat.size());
 	fwrite(&N, sizeof(N), 1 ,bfile);
-	fwrite(mat.ptr(),sizeof(M),N*N,bfile);
+	fwrite(mat.ptr(),sizeof(Type),N*N,bfile);
 	fflush(bfile);
 }
 
-template<typename A>//doesn't work with string
-void Write::write_binary_array2d(Array2D<A> const& arr){
+template<typename Type>//doesn't work with string
+void Write::write_binary_array2d(Array2D<Type> const& arr){
 	unsigned int N_row(arr.row());
 	unsigned int N_col(arr.col());
 
 	fwrite(&N_row, sizeof(N_row), 1 ,bfile);
 	fwrite(&N_col, sizeof(N_col), 1 ,bfile);
-	fwrite(arr.ptr(), sizeof(A), N_row*N_col ,bfile);
+	fwrite(arr.ptr(), sizeof(Type), N_row*N_col ,bfile);
 	fflush(bfile);
 }
 
-template<typename T>
-void Write::operator()(std::string const& var, T const& val){
+template<typename Type>
+void Write::operator()(std::string const& var, Type const& val){
 	if(h){
 		(*this)<<val;
 		h->add(var,val);

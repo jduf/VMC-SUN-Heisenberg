@@ -21,7 +21,7 @@ void Directory::search_file(std::string const& keyword, std::string curr_dir){
 			std::string f = entry->d_name;
 			if (f.find(keyword) != std::string::npos){
 				path.push_back(curr_dir);
-				split_fname(f);
+				split_ext(f);
 			}
 		}
 		entry = readdir(dir_point);
@@ -42,7 +42,7 @@ void Directory::search_file_ext(std::string const& extension, std::string curr_d
 			std::string f = entry->d_name;
 			if (f.find(extension,f.size()-extension.size()) != std::string::npos){
 				path.push_back(curr_dir);
-				split_fname(f);
+				split_ext(f);
 			}
 		}
 		entry = readdir(dir_point);
@@ -56,8 +56,8 @@ void Directory::print(){
 	}
 }
 
-void Directory::split_fname(std::string f){
-	unsigned int pos(f.find("."));
+void Directory::split_ext(std::string f){
+	unsigned int pos(f.find_last_of("."));
 	fname.push_back(f.substr(0,pos));
 	ext.push_back(f.substr(pos));
 }
