@@ -1,14 +1,13 @@
 /*!  @file mc.cpp */
 
+#include "Parseur.hpp"
 #include "Read.hpp"
 #include "Matrice.hpp"
 #include "Array2D.hpp"
 #include "MonteCarlo.hpp"
-#include "Parseur.hpp"
 
 #include<string>
 #include<iostream>
-#include<cmath>
 #include<omp.h>
 
 void run(Parseur& P);
@@ -25,14 +24,14 @@ void run(Parseur& P){
 		P.set("sim",filename);
 		P.set("nthreads",nthreads);
 
-		unsigned int N_spin(0), N_m(0), N_n(0);
+		unsigned int N_spin(0), N_m(0);
 		bool is_complex(false);
 
 		Read r(filename.c_str());
-		r>>is_complex>>N_spin>>N_m>>N_n;
+		r>>is_complex>>N_spin>>N_m;
 
-		Array2D<unsigned int> sts(N_spin*N_m*N_n/2,2);
-		Matrice<double> H(N_m*N_spin);
+		Array2D<unsigned int> sts;
+		Matrice<double> H;
 		r>>sts>>H;
 		if(is_complex){
 			std::cerr<<"the simulation will be lunched for complex numbers"<<std::endl;

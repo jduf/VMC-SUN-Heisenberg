@@ -5,9 +5,7 @@
 #include "Array2D.hpp"
 #include "Lapack.hpp"
 #include "Rand.hpp"
-#include "Write.hpp"
 
-#include <omp.h>
 #include <cmath>
 
 /*!Class that contains the information on the state
@@ -15,7 +13,7 @@
  *
  * 
 */
-template<typename T>
+template<typename Type>
 class System{
 	public:
 		/*!create a System without any parameters set*/
@@ -34,7 +32,7 @@ class System{
 		 * - set w, cc, mc and tmp_m
 		 */
 		//}
-		void init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> const& H_, Array2D<unsigned int> const& sts_, Matrice<T> const& EVec, unsigned int thread);
+		void init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> const& H_, Array2D<unsigned int> const& sts_, Matrice<Type> const& EVec, unsigned int thread);
 		/*!exchanges two particles of different color */
 		void swap();
 		/*!exchanges particle on site s1 with the one on site s2*/
@@ -49,7 +47,7 @@ class System{
 		 *   determinant lemma
 		 */
 		//}
-		T ratio();
+		Type ratio();
 		//{Description
 		/*!Updates the state if the condition given by the System::ratio()
 		 * method is accepted. The update consists of :
@@ -81,10 +79,10 @@ class System{
 		System& operator=(System const& S);
 
 		Rand* rnd;			//!< generator of random numbers 
-		Matrice<T> *A;      //!< det(A) <=> <GS|a>
-		Matrice<T> *Ainv;   //!< inverse of A
-		Matrice<T> tmp_m[2];//!< temporary matrices used during the update 
-		T w[2];             //!< determinant ratios : <GS|a>/<GS|b>
+		Matrice<Type> *A;      //!< det(A) <=> <GS|a>
+		Matrice<Type> *Ainv;   //!< inverse of A
+		Matrice<Type> tmp_m[2];//!< temporary matrices used during the update 
+		Type w[2];             //!< determinant ratios : <GS|a>/<GS|b>
 		unsigned int a,b;	//!< two exchanged site by swap()
 		unsigned int *wis;  //!< wis[i] = j : on ith site there is the j particle
 		unsigned int mc[2]; //!< matrices (colors) that are modified 
@@ -93,10 +91,27 @@ class System{
 		Array2D<unsigned int> sts; //!< sts(i,0) is a site that can be exchanged with sts(i,1)
 };
 
+
+/*double real(T)*/
+/*{*/
+template<typename Type>
+double real(Type const& x);
+
+template<>
+inline double real(double const& x){
+	return x;
+}
+
+template<>
+inline double real(std::complex<double> const& x){
+	return std::real(x);
+}
+/*}*/
+
 /*constructors and destructor*/
 /*{*/
-template<typename T>
-System<T>::System():
+template<typename Type>
+System<Type>::System():
 	N_spin(0),
 	N_m(0),
 	N_site(0),
@@ -111,8 +126,8 @@ System<T>::System():
 	sts(0,0)
 { }
 
-template<typename T>
-System<T>::~System(){
+template<typename Type>
+System<Type>::~System(){
 	//for(unsigned int i(0);i<N_spin;i++){
 		//Matrice<T> Ainv_check(A[i]);
 		//Lapack<T> A_(Ainv_check.ptr(),Ainv_check.size(),'G');
@@ -141,8 +156,8 @@ System<T>::~System(){
 
 /*methods that return something related to the class*/
 /*{*/
-template<typename T> 
-T System<T>::ratio(){
+template<typename Type> 
+Type System<Type>::ratio(){
 	if(mc[0] == mc[1]){
 		return -1.0;
 	} else {
@@ -157,8 +172,8 @@ T System<T>::ratio(){
 	}
 }
 
-template<typename T>
-double System<T>::compute_energy(){
+template<typename Type>
+double System<Type>::compute_energy(){
 	double E_step(0.0);
 	//double a(0.0);
 	for(unsigned int j(0);j<sts.row();j++){
@@ -175,8 +190,8 @@ double System<T>::compute_energy(){
 	return E_step;
 }
 
-template<typename T>
-void System<T>::print(){
+template<typename Type>
+void System<Type>::print(){
 	for(unsigned int i(0); i<N_site; i++){
 	std::cout<<wis[i]<<" ";
 	}
@@ -193,8 +208,8 @@ void System<T>::print(){
 
 /*methods that modify the class*/
 /*{*/
-template<typename T>
-void System<T>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> const& H_, Array2D<unsigned int> const& sts_, Matrice<T> const& EVec, unsigned int thread){
+template<typename Type>
+void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> const& H_, Array2D<unsigned int> const& sts_, Matrice<Type> const& EVec, unsigned int thread){
 	N_spin = N_spin_;
 	N_m = N_m_;
 	N_site = N_spin*N_m;
@@ -202,23 +217,22 @@ void System<T>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> co
 	H = H_;
 	sts = sts_;
 
-	A = new Matrice<T>[N_spin];
-	Ainv = new Matrice<T>[N_spin];
+	A = new Matrice<Type>[N_spin];
+	Ainv = new Matrice<Type>[N_spin];
 	wis = new unsigned int[N_site];
 	rnd = new Rand(10,thread);
 
 	unsigned int site(0);
+	unsigned int N_as(N_site);
 	unsigned int* available_sites(new unsigned int[N_site]);
-	unsigned int N_as(0);
 
-	N_as = N_site;
-	for(unsigned int i(0); i < N_as; i++){
+	for(unsigned int i(0); i < N_site; i++){
 		available_sites[i]  = i;	
 	}
 
 	for(unsigned int i(0); i < N_spin; i++){
-		A[i] = Matrice<T> (N_m);
-		Ainv[i] = Matrice<T> (N_m);
+		A[i] = Matrice<Type> (N_m);
+		Ainv[i] = Matrice<Type> (N_m);
 		for(unsigned int j(0); j < N_m; j++){
 			site = rnd->get(N_as);
 			wis[available_sites[site]] = i*N_m+j; 	
@@ -231,7 +245,7 @@ void System<T>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> co
 			N_as--;
 		}
 		Ainv[i] = A[i];
-		Lapack<T> A_(Ainv[i].ptr(),Ainv[i].size(),'G');
+		Lapack<Type> A_(Ainv[i].ptr(),Ainv[i].size(),'G');
 		A_.inv();
 		//Matrice<T> check(Ainv[i]*A[i]);
 		//T t(0);
@@ -247,12 +261,12 @@ void System<T>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> co
 		w[i] = 0;
 		cc[i] = 0;
 		mc[i] = 0;
-		tmp_m[i] = Matrice<T>(N_m);
+		tmp_m[i] = Matrice<Type>(N_m);
 	}
 }
 
-template<typename T>
-void System<T>::swap() {
+template<typename Type>
+void System<Type>::swap() {
 	a = rnd->get(N_site);
 	b = rnd->get(N_site);
 	mc[0] = wis[a] / N_m; //gives the color of particle on site a
@@ -265,16 +279,16 @@ void System<T>::swap() {
 	cc[1] = wis[b] % N_m; //gives the band of particle on site b
 }
 
-template<typename T>
-void System<T>::swap(unsigned int const& s1, unsigned int const& s2) {
+template<typename Type>
+void System<Type>::swap(unsigned int const& s1, unsigned int const& s2) {
 	mc[0] = wis[s1] / N_m; //gives the color of particle on site s1
 	mc[1] = wis[s2] / N_m; //gives the color of particle on site s2
 	cc[0] = wis[s1] % N_m; //gives the band of particle on site s1
 	cc[1] = wis[s2] % N_m; //gives the band of particle on site s2
 }
 
-template<typename T>
-void System<T>::update(){
+template<typename Type>
+void System<Type>::update(){
 	unsigned int s_tmp(wis[b]);
 	wis[b] = wis[a];
 	wis[a] = s_tmp;
@@ -282,7 +296,7 @@ void System<T>::update(){
 	// there is a way to avoid this loop and its useless copy if one keeps track
 	// only of the columns that are echanged...
 	// exchange the two columns
-	T tmp(0.0); 
+	Type tmp(0.0); 
 	for(unsigned int i(0); i<N_m; i++){
 		tmp = A[mc[0]](i,cc[0]);
 		A[mc[0]](i,cc[0]) = A[mc[1]](i,cc[1]);
@@ -303,22 +317,6 @@ void System<T>::update(){
 		}
 		Ainv[mc[m]] -= tmp_m[m];
 	}
-}
-/*}*/
-
-/*double real(T)*/
-/*{*/
-template<typename T>
-double real(T const& x);
-
-template<>
-inline double real(double const& x){
-	return x;
-}
-
-template<>
-inline double real(std::complex<double> const& x){
-	return std::real(x);
 }
 /*}*/
 #endif

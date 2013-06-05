@@ -21,7 +21,7 @@
  * those methods
  */
 //}
-template <typename T>
+template <typename Type>
 class MonteCarlo{
 	public:
 		/*!Allocate memory with new[] and starts the chronometer*/
@@ -38,7 +38,7 @@ class MonteCarlo{
 		//}
 		void run(unsigned int const& thread);
 		/*!Initializes a different System for each thread*/
-		void init(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<T> EVec);
+		void init(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<Type> EVec);
 		/*!Saves the essential data in the "result" file*/
 		void save();
 		
@@ -77,7 +77,7 @@ class MonteCarlo{
 		std::string filename; //!< Name of the output file
 		Write output; //!< Text file of name "filename.out" that stores all the output of the MC algorithm
 		Write result; //!< Text file of name "filename.dat" that stores the final result
-		System<T>* S; //!< Pointer to a system 
+		System<Type>* S; //!< Pointer to a system 
 		double* E; //!< Value that the MC algorithm tries to compute
 		double* err; //!< Error on E
 		std::vector<double>* sampling; //!< Stores all the values that MC considers
@@ -85,8 +85,8 @@ class MonteCarlo{
 
 /*double norm_squared(T)*/
 /*{*/
-template<typename T>
-double norm_squared(T x);
+template<typename Type>
+double norm_squared(Type x);
 
 template<>
 inline double norm_squared(double x){
@@ -101,8 +101,8 @@ inline double norm_squared(std::complex<double> x){
 
 /*constructors and destructor*/
 /*{*/
-template<typename T>
-MonteCarlo<T>::MonteCarlo(std::string filename, unsigned int const& nthreads):
+template<typename Type>
+MonteCarlo<Type>::MonteCarlo(std::string filename, unsigned int const& nthreads):
 	nthreads(nthreads),
 	N_MC(1e4),
 	time_limit(nthreads*3600*2*24),
@@ -111,7 +111,7 @@ MonteCarlo<T>::MonteCarlo(std::string filename, unsigned int const& nthreads):
 	filename(filename),
 	output(filename+".out"),
 	result(filename+".dat"),
-	S(new System<T>[nthreads]),
+	S(new System<Type>[nthreads]),
 	E(new double[nthreads]),
 	err(new double[nthreads]),
 	sampling(new std::vector<double>[nthreads])
@@ -120,8 +120,8 @@ MonteCarlo<T>::MonteCarlo(std::string filename, unsigned int const& nthreads):
 	stop.tic();
 }
 
-template<typename T>
-MonteCarlo<T>::~MonteCarlo(){
+template<typename Type>
+MonteCarlo<Type>::~MonteCarlo(){
 	delete[] S;
 	delete[] sampling;
 	delete[] E;
@@ -132,8 +132,8 @@ MonteCarlo<T>::~MonteCarlo(){
 
 /*public void methods*/
 /*{*/
-template<typename T>
-void MonteCarlo<T>::run(unsigned int const& thread){
+template<typename Type>
+void MonteCarlo<Type>::run(unsigned int const& thread){
 	unsigned int i(0);
 	double E_config(0);
 	double ratio(0.0);
@@ -182,8 +182,8 @@ void MonteCarlo<T>::run(unsigned int const& thread){
 	}
 }
 
-template<typename T>
-void MonteCarlo<T>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<T> EVec){
+template<typename Type>
+void MonteCarlo<Type>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<Type> EVec){
 	for(unsigned int thread(0);thread<nthreads;thread++){
 		S[thread].init(N_spin,N_m,H,sts,EVec,thread);
 		unsigned int j(0);
@@ -200,8 +200,8 @@ void MonteCarlo<T>::init(unsigned int const& N_spin, unsigned int const& N_m, Ma
 	}
 }
 
-template<typename T>
-void MonteCarlo<T>::save(){
+template<typename Type>
+void MonteCarlo<Type>::save(){
 	int bc(0);
 	if(filename.find("P") != std::string::npos ){ bc = 1;}
 	if(filename.find("A") != std::string::npos ){ bc = -1;}
@@ -219,8 +219,8 @@ void MonteCarlo<T>::save(){
 
 /*private void methods*/
 /*{*/
-template<typename T>
-void MonteCarlo<T>::test_convergence(unsigned int const& thread){
+template<typename Type>
+void MonteCarlo<Type>::test_convergence(unsigned int const& thread){
 	if( std::abs( E[thread] / sampling[thread].size() )  > 1e3 ){ 
 		std::cerr<<filename<< " : initial condition lead to a wrong value, restarting the simulation (E="<<E[thread]<<")"<<std::endl;
 		E[thread] = 0.0;
@@ -266,8 +266,8 @@ void MonteCarlo<T>::test_convergence(unsigned int const& thread){
 	}
 }
 
-template<typename T>
-void MonteCarlo<T>::binning(std::vector<double>& d, unsigned int const& thread){
+template<typename Type>
+void MonteCarlo<Type>::binning(std::vector<double>& d, unsigned int const& thread){
 	std::vector<double> bin(sampling[thread]);
 	std::vector<double> bin2(bin.size()/2);
 	unsigned int l(0);
@@ -286,8 +286,8 @@ void MonteCarlo<T>::binning(std::vector<double>& d, unsigned int const& thread){
 
 /*private methods with return*/
 /*{*/
-template<typename T>
-double MonteCarlo<T>::mean(std::vector<double> const& v){
+template<typename Type>
+double MonteCarlo<Type>::mean(std::vector<double> const& v){
 	double m(0.0);
 	unsigned int N(v.size());
 	for(unsigned int i(0);i<N;i++){
@@ -296,8 +296,8 @@ double MonteCarlo<T>::mean(std::vector<double> const& v){
 	return m/N;
 }
 
-template<typename T>
-double MonteCarlo<T>::delta(std::vector<double> const& v, double m){
+template<typename Type>
+double MonteCarlo<Type>::delta(std::vector<double> const& v, double m){
 	double d(0.0);
 	unsigned int N(v.size());
 	for(unsigned int i(0);i<N;i++){
