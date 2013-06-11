@@ -90,7 +90,7 @@ Write& Write::operator<<(std::string const& s){
 	return (*this);
 }
 
-void Write::header(std::string s){
+void Write::set_header(std::string s){
 	if(h){ h->add(s); }
 }
 

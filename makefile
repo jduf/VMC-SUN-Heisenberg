@@ -3,3 +3,4 @@ clean:
 
 ref:
 	doxygen Doxyfile
+	firefox html/files.html

@@ -12,56 +12,47 @@ all:jdwrite jdread jdfind jdtags jdinfo
 ########
 # jdfind
 ########
-jdfind.o:jdfind.cpp Directory.hpp Read.hpp Write.hpp RST.hpp Parseur.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-jdfind:jdfind.o Header.o Read.o Write.o RST.o Directory.o 
+jdfind:jdfind.o Header.o Read.o Write.o RST.o RSTfile.o Directory.o Parseur.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
+
+jdfind.o:jdfind.cpp Directory.hpp Read.hpp Write.hpp RSTfile.hpp Parseur.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
 
 ########
 # jdread
 ########
-jdread.o:jdread.cpp Header.hpp Read.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
 jdread:jdread.o Header.o Read.o Write.o RST.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
+
+jdread.o:jdread.cpp Header.hpp Read.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
 
 #########
 # jdwrite
 #########
-jdwrite.o:jdwrite.cpp Read.hpp Write.hpp Rewrite.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
 jdwrite:jdwrite.o Read.o Write.o Header.o RST.o Rewrite.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
+
+jdwrite.o:jdwrite.cpp Read.hpp Write.hpp Rewrite.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
 
 #########
 # jdtags
 #########
-jdtags.o:jdtags.cpp Read.hpp Write.hpp RST.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-jdtags:jdtags.o Read.o Write.o RST.o Header.o RST.o
+jdtags:jdtags.o Read.o Write.o Header.o RST.o RSTfile.o Parseur.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-########
-# jdlink
-########
-jdflink.o:jdlink.cpp Directory.hpp Read.hpp Write.hpp RST.hpp
+jdtags.o:jdtags.cpp Read.hpp Write.hpp RSTfile.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
-
-jdlink:jdlink.o Header.o Read.o Write.o RST.o Directory.o 
-	$(CXX) -o $@ $^ $(LDFLAGS)
 
 ##########
 # jdinfo
 ##########
-jdinfo.o:jdinfo.cpp Directory.hpp Read.hpp Write.hpp RST.hpp Parseur.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-jdinfo:jdinfo.o Header.o Read.o Write.o RST.o Directory.o 
+jdinfo:jdinfo.o Header.o Read.o Write.o RST.o RSTfile.o Directory.o Parseur.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
+
+jdinfo.o:jdinfo.cpp Directory.hpp Read.hpp Write.hpp RSTfile.hpp Parseur.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
 
 ########
 # commun
@@ -78,7 +69,13 @@ Header.o:Header.cpp Header.hpp RST.hpp Matrice.hpp Array2D.hpp Write.hpp
 Directory.o:Directory.cpp Directory.hpp 
 	$(CXX) -c  $(CXXFLAGS) $^
 
+Parseur.o:Parseur.cpp Parseur.hpp 
+	$(CXX) -c  $(CXXFLAGS) $^
+
 RST.o:RST.cpp RST.hpp 
+	$(CXX) -c  $(CXXFLAGS) $^
+
+RSTfile.o:RSTfile.cpp RSTfile.hpp RST.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 ref:

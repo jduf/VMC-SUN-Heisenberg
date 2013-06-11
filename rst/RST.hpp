@@ -1,15 +1,12 @@
 #ifndef DEF_RST
 #define DEF_RST
 
-class Write;
-
 #include <string>
 #include <cstdlib> // -> system(std::string command)
 
 class RST{
 	public:
 		RST();
-		RST(std::string path, std::string filename);
 		~RST();
 
 		void title(std::string t,std::string symb);
@@ -22,7 +19,6 @@ class RST{
 		void hyperlink(std::string display, std::string link);
 		void figure(std::string image, std::string legend, unsigned int scale=100);
 		void np();
-		void pdf();
 
 		std::string RST_nl;
 		std::string RST_np;
@@ -31,12 +27,8 @@ class RST{
 		inline std::string get() const { return rst;};
 		inline void set(std::string const& s) { rst = s; };
 
-	private:
+	protected:
 		std::string rst;
-		std::string path;
-		std::string filename;
-		Write *w;
-		bool create_pdf;
 };
 
 std::ostream& operator<<(std::ostream& flux, RST const& rst);

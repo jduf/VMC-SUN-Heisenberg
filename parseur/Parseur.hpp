@@ -15,14 +15,14 @@ class Parseur{
 		~Parseur();
 
 		/*! sets val to the value that corresponds to pattern in argv[]*/
-		template<typename T>
-			void set(std::string pattern, T &val);
+		template<typename Type>
+			void set(std::string pattern, Type &val);
 		/*! returns the value that corresponds to pattern in argv[]*/
-		template<typename T>
-			T get(std::string pattern);
+		template<typename Type>
+			Type get(std::string pattern);
 		/*! work only if argc=2 (one argument passed to the main)*/
-		template<typename T>
-			void set(T &val);
+		template<typename Type>
+			void set(Type &val);
 
 		unsigned int n_args() const {return argc/2; }
 
@@ -37,8 +37,8 @@ class Parseur{
 		bool locked; //!< stores the state of the program, if true a wrong number of agrument was given to the program 
 };
 
-template<typename T>
-void Parseur::set(std::string pattern, T &val){
+template<typename Type>
+void Parseur::set(std::string pattern, Type &val){
 	if(!locked){
 		bool found(false);
 		unsigned int i(0);
@@ -58,8 +58,8 @@ void Parseur::set(std::string pattern, T &val){
 	}
 }
 
-template<typename T>
-T Parseur::get(std::string pattern){
+template<typename Type>
+Type Parseur::get(std::string pattern){
 	if(!locked){
 		bool found(false);
 		unsigned int i(0);
@@ -70,7 +70,7 @@ T Parseur::get(std::string pattern){
 		if(found){
 			unused_var[i/2] = false;
 			std::stringstream ss(var[i+1]);
-			T val;
+			Type val;
 			ss>>val;
 			return val;
 		} else {
@@ -84,8 +84,8 @@ T Parseur::get(std::string pattern){
 	}
 }
 
-template<typename T>
-void Parseur::set(T &val){
+template<typename Type>
+void Parseur::set(Type &val){
 	if(!locked){
 		val = var[0];
 	} else{

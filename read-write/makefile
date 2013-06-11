@@ -29,12 +29,6 @@ RST.o:RST.cpp RST.hpp
 test:test.o Read.o Write.o Header.o RST.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-bl.o:bl.cpp Read.hpp Write.hpp Header.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-bl:bl.o Read.o Write.o Header.o RST.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
 ref:
 	doxygen Doxyfile
 

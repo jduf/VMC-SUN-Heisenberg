@@ -1,8 +1,10 @@
+/*!  @file jdfind.cpp */
+
 #include "Directory.hpp"
 #include "Parseur.hpp"
 #include "Read.hpp"
 #include "Write.hpp"
-#include "RST.hpp"
+#include "RSTfile.hpp"
 #include "Array2D.hpp"
 
 #include <string>
@@ -62,13 +64,13 @@ void create_readme(std::string const& directory_name){
 	std::string h("");
 	r>>h;
 
-	RST rst(directory_name,"info/README");
+	RSTfile rst("info/README",directory_name);
 	rst.text(h);
 	rst.hyperlink("List of all simulations", directory_name + "info/index.html");
 }
 
 void list_all_simulation_files(Directory const& d, std::string const& save_in){
-	RST rst(save_in, "index");
+	RSTfile rst("index",save_in);
 	rst.title("List of all the files","-");
 	for(unsigned int i(0);i<d.size();i++){
 		rst.hyperlink(d.get_name(i), save_in + d.get_name(i) + ".html");
@@ -86,7 +88,7 @@ void create_all_simulation_files(Directory const& d, std::string const& save_in)
 		Read r_data(d[i]+".dat");
 		r_data>>data;
 
-		RST rst(save_in, d.get_name(i));
+		RSTfile rst(d.get_name(i),save_in);
 		rst.text(h);
 		rst.textit(d[i]);
 		rst.np();

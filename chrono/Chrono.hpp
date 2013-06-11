@@ -1,8 +1,8 @@
 #ifndef DEF_CHRONO
 #define DEF_CHRONO
 
-#include<iostream>
 #include<ctime>
+#include<ostream>
 
 class Chrono{
 	public:

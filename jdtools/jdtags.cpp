@@ -1,8 +1,10 @@
+/*!  @file jdtags.cpp */
+
 #include "Read.hpp"
-#include "RST.hpp"
+#include "RSTfile.hpp"
 #include "Array2D.hpp"
 
-#include<dirent.h>// not useful but need to find the correct include to let getcwd work
+#include <dirent.h>// not useful but need to find the correct include to let getcwd work
 #include <string>
 #include <vector>
 #include <iostream>
@@ -34,7 +36,7 @@ void search_tag(std::string save_in, int argc, char* argv[]){
 		list_tags += std::string(argv[i])+", ";
 	}
 	list_tags += std::string(argv[argc-1]);
-	RST rst(save_in,"TAGS");
+	RSTfile rst("TAGS",save_in);
 	rst.title("File with tag *"+list_tags+"*","+");
 
 	Array2D<std::string> DF;

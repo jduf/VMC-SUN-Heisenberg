@@ -5,52 +5,10 @@ RST::RST():
 	RST_nl("\n"),
 	RST_np("\n\n"),
 	RST_item("+ "),
-	rst(""),
-	path(""),
-	filename(""),
-	w(NULL),
-	create_pdf(false)
+	rst("")
 {}
 
-RST::RST(std::string path, std::string filename):
-	RST_nl("\n"),
-	RST_np("\n\n"),
-	RST_item("+ "),
-	rst(""),
-	path(path),
-	filename(filename),
-	w(new Write(path + filename + ".rst")),
-	create_pdf(false)
-{ }
-
-RST::~RST() { 
-	if(w){ 
-		rst += RST_np;
-		//for(unsigned int i(0); i<links.size();i++){
-		//rst += links[i] + RST_nl;
-		//}
-		(*w)<<rst;
-		std::string command("rst2html " + path  + filename + ".rst " + path + filename + ".html");  
-		int status(0);
-		status = system(command.c_str());
-		if(status != 0){
-			std::cerr<<"RST : ~RST() : the command function called returns an error for the html creation"<<std::endl; 
-		} else {
-			if(create_pdf){
-				command="rst2latex " + path + filename + ".rst " + path + filename + ".tex";  
-				status = system(command.c_str());
-				command = "pdflatex -output-directory " + path + " "  + filename + ".tex"; 
-				status = system(command.c_str());
-				if(status != 0){std::cerr<<"RST : ~RST() : the command function called returns an error for the pdf creation"<<std::endl; }
-			}
-		}
-		delete w;
-	}
-}
-
-void RST::pdf(){
-	create_pdf=true;
-}
+RST::~RST() { }
 
 void RST::title(std::string t,std::string symb){
 	rst += t + RST_nl;

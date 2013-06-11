@@ -8,7 +8,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <sstream> //-> tostring(T const& t)
 #include <complex>
 
 //{Description
@@ -52,7 +51,7 @@ class Write{
 		template<typename Type>
 			void operator()(std::string const& var, Type const& val);
 
-		void header(std::string s);
+		void set_header(std::string s);
 
 		/*!Returns the filename in which the class in writing*/
 		std::string get_filename() const { return filename;};
@@ -152,7 +151,7 @@ void Write::operator()(std::string const& var, Type const& val){
 		(*this)<<val;
 		h->add(var,val);
 	} else {
-		std::cout<<"Write : operator() : there's no header in "<<filename<<std::endl;
+		std::cerr<<"Write : operator() : there's no header in "<<filename<<std::endl;
 	}	
 }
 #endif

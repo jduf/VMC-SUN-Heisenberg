@@ -182,7 +182,7 @@ template<typename Type>
 Matrice<Type> Matrice<Type>::operator*(Matrice<Type> const& mat) const{
 	assert(N == mat.N);
 	Matrice<Type> matout(N);
-	std::cerr<<"Matrice : opération * peut-être améliorée"<<std::endl;
+	std::cerr<<"Matrice::operator* : l'opération * peut-être améliorée"<<std::endl;
 	for(unsigned int i(0);i<N;i++){
 		for(unsigned int j(0);j<N;j++){
 			Type tmp(0.0);

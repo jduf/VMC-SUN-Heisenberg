@@ -47,6 +47,10 @@ void Header::add(std::string const& s, Array2D<unsigned int> const& arr){
 	rst->def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<unsigned int>");
 }
 
+void Header::add(std::string const& s, Array2D<double> const& arr){
+	rst->def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<double>");
+}
+
 std::string Header::when(){
 	time_t t(time(0));
 	struct tm* now(localtime(&t));

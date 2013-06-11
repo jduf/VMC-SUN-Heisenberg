@@ -1,8 +1,10 @@
+/*!  @file jdinfo.cpp */
+
 #include "Directory.hpp"
 #include "Parseur.hpp"
 #include "Read.hpp"
 #include "Write.hpp"
-#include "RST.hpp"
+#include "RSTfile.hpp"
 
 #include <string>
 #include <vector>
@@ -53,7 +55,7 @@ void update_readme(Directory const& d, std::string const& directory_name){
 	std::string h("");
 	r>>h;
 
-	RST rst(directory_name + "info/","README");
+	RSTfile rst("README",directory_name + "info/");
 	rst.text(h);
 	rst.hyperlink("List of all simulations", directory_name + "info/index.html");
 	rst.np();
@@ -61,7 +63,7 @@ void update_readme(Directory const& d, std::string const& directory_name){
 	for(unsigned int i(0);i<d.size();i++){
 		rst.figure(d[i],d[i],80);
 	}
-	rst.pdf();
+	rst.pdf(true);
 }
 
 
