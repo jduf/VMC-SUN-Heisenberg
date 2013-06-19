@@ -1,35 +1,33 @@
 #include"Parseur.hpp"
 
 Parseur::Parseur(unsigned int argc, char* argv[]):
-	var(new std::string[argc-1]),
-	unused_var(new bool[(argc-1)/2]),
-	argc(argc-1),
 	locked(false)
 {
-	if(this->argc % 2 == 0){
-		for(unsigned int i(1);i<argc;i++){
-			var[i-1] = argv[i];
-		}
-		for(unsigned int i(1);i<argc/2;i++){
-			unused_var[i] = true;
-		}
-	} else {
-		if(this->argc == 1){
-			var[0] = argv[1];
-			argc=2;
+	unsigned int j(0);
+	for(unsigned int i(1);i<argc;i++){
+		if(argv[i][0]=='-'){
+			std::string tmp(argv[i]);
+			var.push_back(tmp.substr(1));
+			val.push_back(argv[i+1]);
+			i++;
 		} else {
-			locked = true;
-			std::cerr<<"Parseur : not enough arguments"<<std::endl;
+			std::stringstream ss;
+			ss<<j;
+			var.push_back(ss.str());
+			val.push_back(argv[i]);
+			j++;
 		}
 	}
 }
 
 Parseur::~Parseur(){
-	for(unsigned int i(0);i<argc/2;i++){
-		if(unused_var[i]){
-			std::cerr<<"Parseur : variable "<<var[2*i]<<" was given as input but not used"<<std::endl;
-		}
+	for(unsigned int i(0);i<var.size();i++){
+			std::cerr<<"Parseur : variable "<<var[i]<<" was given as input but not used"<<std::endl;
 	}
-	delete[] var;
-	delete[] unused_var;
+}
+
+void Parseur::print(){
+	for(unsigned int i(0);i<var.size();i++){
+		std::cout<<var[i]<<" "<<val[i]<<std::endl;
+	}
 }

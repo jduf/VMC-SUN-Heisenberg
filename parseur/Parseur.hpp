@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <vector>
 
 class Parseur{
 	public:
@@ -16,42 +17,46 @@ class Parseur{
 
 		/*! sets val to the value that corresponds to pattern in argv[]*/
 		template<typename Type>
-			void set(std::string pattern, Type &val);
+			void set(std::string pattern, Type &input);
+		/*! work only if argc=2 (one argument passed to the main)*/
+		//template<typename Type>
+			//void set(Type &val);
 		/*! returns the value that corresponds to pattern in argv[]*/
 		template<typename Type>
 			Type get(std::string pattern);
-		/*! work only if argc=2 (one argument passed to the main)*/
-		template<typename Type>
-			void set(Type &val);
 
-		unsigned int n_args() const {return argc/2; }
+		unsigned int n_args() const {return var.size(); }
+		bool status() const {return locked; }
+
+		void print();
 
 	private:
 		Parseur();
 		Parseur(Parseur const& P);
 		Parseur& operator=(Parseur const& P);
 
-		std::string *var; //!< static array that contains all the char* argv[] strings
-		bool *unused_var; //!< static array that lists the variable that where set using void set(std::string pattern, T &val)
-		unsigned int argc;//!< size of the arrays (number of arguments given to the main program)
+		std::vector<std::string> var; //!< vector that contains the options (variables) to set
+		std::vector<std::string> val; //!< vector that contains the values of an option
 		bool locked; //!< stores the state of the program, if true a wrong number of agrument was given to the program 
 };
 
 template<typename Type>
-void Parseur::set(std::string pattern, Type &val){
+void Parseur::set(std::string pattern, Type &input){
 	if(!locked){
 		bool found(false);
 		unsigned int i(0);
-		while(!found && i<argc){
+		while(!found && i<var.size()){
 			if(var[i]==pattern){found = true;}
-			else{i += 2;}
+			else{i++;}
 		}
 		if(found){
-			unused_var[i/2] = false;
-			std::stringstream ss(var[i+1]);
-			ss>>val;
+			std::stringstream ss(val[i]);
+			ss>>input;
+			val.erase(val.begin()+i);
+			var.erase(var.begin()+i);
 		} else {
-			std::cerr<<"Parseur : "<<pattern<<" wasn't found thus its value is still "<<val<<std::endl;
+			std::cerr<<"Parseur : -"<<pattern<<" wasn't found"<<std::endl;
+			locked=true;
 		}
 	} else{
 		std::cerr<<"Parseur : the parseur is locked because a wrong number of arguments was given"<<std::endl;
@@ -60,36 +65,17 @@ void Parseur::set(std::string pattern, Type &val){
 
 template<typename Type>
 Type Parseur::get(std::string pattern){
-	if(!locked){
-		bool found(false);
-		unsigned int i(0);
-		while(!found && i<argc){
-			if(var[i]==pattern){found = true;}
-			else{i += 2;}
-		}
-		if(found){
-			unused_var[i/2] = false;
-			std::stringstream ss(var[i+1]);
-			Type val;
-			ss>>val;
-			return val;
-		} else {
-			std::cerr<<"Parseur : "<<pattern<<" wasn't found thus the return value is 0"<<std::endl;
-			return 0;
-		}
-	} else{
-		std::cerr<<"Parseur : the parseur is locked because a wrong number of arguments was given"<<std::endl;
-		std::cerr<<"Parseur : thus the return value is 0"<<std::endl;
-		return 0;
-	}
+	Type input;
+	set(pattern,input);
+	return input;
 }
 
-template<typename Type>
-void Parseur::set(Type &val){
-	if(!locked){
-		val = var[0];
-	} else{
-		std::cerr<<"Parseur : the parseur is locked because a wrong number of arguments was given"<<std::endl;
-	}
-}
+//template<typename Type>
+//void Parseur::set(Type &val){
+	//if(!locked){
+		//val = var[0];
+	//} else{
+		//std::cerr<<"Parseur : the parseur is locked because a wrong number of arguments was given"<<std::endl;
+	//}
+//}
 #endif

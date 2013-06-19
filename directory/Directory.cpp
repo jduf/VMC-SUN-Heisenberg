@@ -7,17 +7,17 @@ Directory::Directory():
 	ext(0)
 { }
 
-void Directory::search_file(std::string const& keyword, std::string curr_dir){
+void Directory::search_file(std::string const& keyword, std::string curr_dir, bool link){
 	DIR* dir_point = opendir(curr_dir.c_str());
 	dirent* entry = readdir(dir_point);
 	while (entry){
 		if (entry->d_type == DT_DIR){
 			std::string dir = entry->d_name;
 			if (dir != "." && dir != ".."){
-				search_file(keyword,curr_dir+dir+"/");
+				search_file(keyword,curr_dir+dir+"/",link);
 			}
 		}
-		else if (entry->d_type == DT_REG){
+		else if (entry->d_type == DT_REG || (link && entry->d_type==DT_LNK) ){
 			std::string f = entry->d_name;
 			if (f.find(keyword) != std::string::npos){
 				path.push_back(curr_dir);
@@ -29,20 +29,22 @@ void Directory::search_file(std::string const& keyword, std::string curr_dir){
 	closedir(dir_point);
 }
 
-void Directory::search_file_ext(std::string const& extension, std::string curr_dir){
+void Directory::search_file_ext(std::string const& extension, std::string curr_dir, bool link){
 	DIR* dir_point = opendir(curr_dir.c_str());
 	dirent* entry = readdir(dir_point);
 	while (entry){
 		if (entry->d_type == DT_DIR){
 			std::string dir = entry->d_name;
 			if (dir != "." && dir != ".."){
-				search_file_ext(extension,curr_dir+dir+"/");
+				search_file_ext(extension,curr_dir+dir+"/",link);
 			}
-		} else if (entry->d_type == DT_REG){
-			std::string f = entry->d_name;
-			if (f.find(extension,f.size()-extension.size()) != std::string::npos){
-				path.push_back(curr_dir);
-				split_ext(f);
+		} else {
+			if (entry->d_type == DT_REG || (link && entry->d_type==DT_LNK) ){
+				std::string f = entry->d_name;
+				if (f.find(extension,f.size()-extension.size()) != std::string::npos){
+					path.push_back(curr_dir);
+					split_ext(f);
+				}
 			}
 		}
 		entry = readdir(dir_point);

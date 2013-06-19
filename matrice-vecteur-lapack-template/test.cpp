@@ -92,57 +92,57 @@ int main(){
 //
 	// /*}*/
 	/*eigenvalue*/
-	///*{*/
-	//unsigned int N_site(6);
-	//Matrice<double> H(N_site,0.0);
-	//H(0,1)=-1.0;
-	//H(0,N_site-1)=1.0;
-	//for(unsigned int i(1); i< N_site-1; i++){
-		//H(i,i-1) = -1.0;
-		//H(i,i+1) = -1.0;
-	//}
-	//H(N_site-1,0)=1.0;
-	//H(N_site-1,N_site-2)=-1.0;
-	//std::cout<<H<<std::endl;;
-	//Matrice<double> T(H);
-	//Vecteur<double> EVal(N_site);
-	//Lapack<double> EVecTest(T,'S');
-	//EVecTest.eigensystem(EVal);
-	//EVal.chop();
-	//std::cout<<EVal<<std::endl;;
-	//Lapack<double> EVec(T.ptr(),T.size(),'S');
-	//EVec.eigensystem(EVal,true);
-	//EVal.chop();
-	//std::cout<<EVal<<std::endl;;
-	//T.chop();
-	//std::cout<<T<<std::endl;;
-	//
-	//Matrice<double> Tinv(T);
-	//Lapack<double> Tinv_(Tinv.ptr(),Tinv.size(),'G');
-	//Tinv_.inv();
-	//
-	//Matrice<double> vp(Tinv*H*T);
-	//std::cout<<vp.diag()<<std::endl;
+	/*{*/
+	unsigned int N_site(6);
+	Matrice<double> H(N_site,0.0);
+	H(0,1)=-1.0;
+	H(0,N_site-1)=1.0;
+	for(unsigned int i(1); i< N_site-1; i++){
+		H(i,i-1) = -1.0;
+		H(i,i+1) = -1.0;
+	}
+	H(N_site-1,0)=1.0;
+	H(N_site-1,N_site-2)=-1.0;
+	std::cout<<H<<std::endl;;
+	Matrice<double> T(H);
+	Vecteur<double> EVal(N_site);
+	Lapack<double> EVecTest(T,'S');
+	EVecTest.eigensystem(EVal);
+	EVal.chop();
+	std::cout<<EVal<<std::endl;;
+	Lapack<double> EVec(T.ptr(),T.size(),'S');
+	EVec.eigensystem(EVal,true);
+	EVal.chop();
+	std::cout<<EVal<<std::endl;;
+	T.chop();
+	std::cout<<T<<std::endl;;
+	
+	Matrice<double> Tinv(T);
+	Lapack<double> Tinv_(Tinv.ptr(),Tinv.size(),'G');
+	Tinv_.inv();
+	
+	Matrice<double> vp(Tinv*H*T);
+	std::cout<<vp.diag()<<std::endl;
+
+	//Matrice<std::complex<double> > M(3,0);
+	//M(0,0) = std::complex<double> (1,0); 
+	//M(0,1) = std::complex<double> (2,3); 
+	//M(0,2) = std::complex<double> (6,4); 
+	//M(1,0) = std::complex<double> (2,-3); 
+	//M(1,1) = std::complex<double> (4,0); 
+	//M(1,2) = std::complex<double> (-4,-6); 
+	//M(2,0) = std::complex<double> (6,-4); 
+	//M(2,1) = std::complex<double> (-4,6); 
+	//M(2,2) = std::complex<double> (5,0); 
 //
-	////Matrice<std::complex<double> > M(3,0);
-	////M(0,0) = std::complex<double> (1,0); 
-	////M(0,1) = std::complex<double> (2,3); 
-	////M(0,2) = std::complex<double> (6,4); 
-	////M(1,0) = std::complex<double> (2,-3); 
-	////M(1,1) = std::complex<double> (4,0); 
-	////M(1,2) = std::complex<double> (-4,-6); 
-	////M(2,0) = std::complex<double> (6,-4); 
-	////M(2,1) = std::complex<double> (-4,6); 
-	////M(2,2) = std::complex<double> (5,0); 
-////
-	////Lapack<std::complex<double> > M_(M.ptr(),M.size(),'H');
-	////Vecteur<double> EVal2(3);
-	////M_.eigensystem(EVal2,true);
-	////std::cout<<EVal2<<std::endl;;
-	////std::cout<<"true eigenvalue" << -7.72113<<" "<<3.4124<<" "<<14.3087<<std::endl;
-	////std::cout<<M<<std::endl;;
-	////std::cout<<M.trans_conj()<<std::endl;;
-	///*}*/
+	//Lapack<std::complex<double> > M_(M.ptr(),M.size(),'H');
+	//Vecteur<double> EVal2(3);
+	//M_.eigensystem(EVal2,true);
+	//std::cout<<EVal2<<std::endl;;
+	//std::cout<<"true eigenvalue" << -7.72113<<" "<<3.4124<<" "<<14.3087<<std::endl;
+	//std::cout<<M<<std::endl;;
+	//std::cout<<M.trans_conj()<<std::endl;;
+	/*}*/
 	//lu et det
 	///*{*/
 	//unsigned int N_site(3);
@@ -199,35 +199,35 @@ int main(){
 //
 	///*}*/
 	//inverse
-	/*{*/
-	unsigned int N_site(3);
-	Matrice<double> T(N_site);
-	T(0,0)=-1.0;
-	T(0,1)=2.5;
-	T(0,2)=5;
-	T(1,0)=0;
-	T(1,1)=-12;
-	T(1,2)=-145.42;
-	T(2,0)=	7;
-	T(2,1)=54;
-	T(2,2)=47;
-	std::cout<<T<<std::endl;
-
-	Matrice<double> Tinv(T);
-	Lapack<double> Keep(T,'G'); // T va être conservé
-	Lapack<double> Det(T,'G'); // T va être conservé
-	Lapack<double> Over(T.ptr(),T.size(),'G'); // T va être écrasé
-	
-	std::cout<<"det="<<-9413.53<<" ?=?  "<<Det.det()<<std::endl;
-	Keep.inv();
-	std::cout<<T<<std::endl;
-	Over.inv();
-	std::cout<<T<<std::endl;
-
-	std::cout<<(T*Tinv)<<std::endl;;
-	std::cout<<(Tinv*T)<<std::endl;;
-
-
-	/*}*/
+	///*{*/
+	//unsigned int N_site(3);
+	//Matrice<double> T(N_site);
+	//T(0,0)=-1.0;
+	//T(0,1)=2.5;
+	//T(0,2)=5;
+	//T(1,0)=0;
+	//T(1,1)=-12;
+	//T(1,2)=-145.42;
+	//T(2,0)=	7;
+	//T(2,1)=54;
+	//T(2,2)=47;
+	//std::cout<<T<<std::endl;
+//
+	//Matrice<double> Tinv(T);
+	//Lapack<double> Keep(T,'G'); // T va être conservé
+	//Lapack<double> Det(T,'G'); // T va être conservé
+	//Lapack<double> Over(T.ptr(),T.size(),'G'); // T va être écrasé
+	//
+	//std::cout<<"det="<<-9413.53<<" ?=?  "<<Det.det()<<std::endl;
+	//Keep.inv();
+	//std::cout<<T<<std::endl;
+	//Over.inv();
+	//std::cout<<T<<std::endl;
+//
+	//std::cout<<(T*Tinv)<<std::endl;;
+	//std::cout<<(Tinv*T)<<std::endl;;
+//
+//
+	///*}*/
 }
 

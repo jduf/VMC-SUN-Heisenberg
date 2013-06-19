@@ -30,14 +30,14 @@ int main(int argc, char* argv[]){
 		if(directory_name == "."){
 			directory_name = buff;
 			if(directory_name[directory_name.size()-1] != '/'){
-				directory_name = directory_name + "/";
+				directory_name += "/";
 			}
 			save_in = directory_name + "info/";
 		} else {
 			directory_name ="/"+directory_name;
 			directory_name = buff+directory_name;
 			if(directory_name[directory_name.size()-1] != '/'){
-				directory_name = directory_name + "/";
+				directory_name += "/";
 			}
 			save_in = directory_name + "info/";
 		}

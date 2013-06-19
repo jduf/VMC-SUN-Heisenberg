@@ -46,6 +46,9 @@ class Vecteur{
 		/*!Exterior product*/
 		Matrice<Type> operator^(Vecteur<Type> const& vec) const;
 
+		/*!Returns the norm of the vector*/
+		double norm() const;
+
 		/*!Returns the pointer on the array*/
 		inline Type* ptr() const { return v; };
 		/*!Returns the size of the vector*/
@@ -211,6 +214,18 @@ inline void Vecteur<std::complex<double> >::chop(double precision){
 		if(std::abs(v[i].real()) < precision ){v[i].real()=0.0;}
 		if(std::abs(v[i].imag()) < precision ){v[i].imag()=0.0;}
 	}
+}
+/*}*/
+
+/*methods that return something related to the class*/
+/*{*/
+template <typename Type>
+double Vecteur<Type>::norm() const{
+	Type d(0.0);
+	for (unsigned int i(0);i<N;i++){
+		d+= v[i]*v[i];
+	}
+	return d;
 }
 /*}*/
 #endif
