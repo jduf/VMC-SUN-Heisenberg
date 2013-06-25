@@ -18,64 +18,62 @@ class Parseur{
 		/*! sets val to the value that corresponds to pattern in argv[]*/
 		template<typename Type>
 			void set(std::string pattern, Type &input);
-		/*! work only if argc=2 (one argument passed to the main)*/
-		//template<typename Type>
-			//void set(Type &val);
 		/*! returns the value that corresponds to pattern in argv[]*/
 		template<typename Type>
 			Type get(std::string pattern);
 
-		unsigned int n_args() const {return var.size(); }
 		bool status() const {return locked; }
-
-		void print();
 
 	private:
 		Parseur();
 		Parseur(Parseur const& P);
 		Parseur& operator=(Parseur const& P);
 
+		template<typename Type>
+			bool search(std::string pattern, Type &input);
+
 		std::vector<std::string> var; //!< vector that contains the options (variables) to set
 		std::vector<std::string> val; //!< vector that contains the values of an option
+		std::vector<bool> unused; //!< vector that contains false if the corresponding value is used
 		bool locked; //!< stores the state of the program, if true a wrong number of agrument was given to the program 
 };
 
 template<typename Type>
-void Parseur::set(std::string pattern, Type &input){
+bool Parseur::search(std::string pattern, Type &input){
 	if(!locked){
-		bool found(false);
 		unsigned int i(0);
+		bool found(false);
 		while(!found && i<var.size()){
-			if(var[i]==pattern){found = true;}
-			else{i++;}
+			if(var[i]==pattern){found=true;}
+			else { i++; }
 		}
 		if(found){
 			std::stringstream ss(val[i]);
 			ss>>input;
-			val.erase(val.begin()+i);
-			var.erase(var.begin()+i);
+			unused[i] = false;
+			return true;
+
 		} else {
-			std::cerr<<"Parseur : -"<<pattern<<" wasn't found"<<std::endl;
-			locked=true;
+			return false;
 		}
 	} else{
-		std::cerr<<"Parseur : the parseur is locked because a wrong number of arguments was given"<<std::endl;
+		std::cerr<<"Parseur : the parseur is locked"<<std::endl;
+		return true;
 	}
+}
+
+template<typename Type>
+void Parseur::set(std::string pattern, Type &input){
+	if(!search(pattern,input)) { std::cerr<<"Parseur : -"<<pattern<<" wasn't found thus its value is unchanged : "<< input <<std::endl; }
 }
 
 template<typename Type>
 Type Parseur::get(std::string pattern){
 	Type input;
-	set(pattern,input);
+	if(!search(pattern, input)) { 
+		locked = true; 
+		std::cerr<<"Parseur : -"<<pattern<<" wasn't found, the class is locked"<<std::endl; 
+	}
 	return input;
 }
-
-//template<typename Type>
-//void Parseur::set(Type &val){
-	//if(!locked){
-		//val = var[0];
-	//} else{
-		//std::cerr<<"Parseur : the parseur is locked because a wrong number of arguments was given"<<std::endl;
-	//}
-//}
 #endif

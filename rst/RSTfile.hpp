@@ -1,8 +1,10 @@
-#ifndef DEF_RSTfile
-#define DEF_RSTfile
+#ifndef DEF_RSTFILE
+#define DEF_RSTFILE
 
 #include"RST.hpp"
 #include"Write.hpp"
+
+#include <cstdlib> // -> system(std::string command)
 
 class RSTfile:public RST{
 	public:

@@ -2,7 +2,6 @@
 #define DEF_RST
 
 #include <string>
-#include <cstdlib> // -> system(std::string command)
 
 class RST{
 	public:

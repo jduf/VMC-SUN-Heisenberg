@@ -1,13 +1,15 @@
 /*!  @file jdread.cpp */
 #include "Read.hpp"
 #include "Header.hpp"
+#include "Parseur.hpp"
 
 #include <string>
 #include <iostream>
 
 int main(int argc, char* argv[]){
-	if(argc==2){
-		std::string filename(argv[1]);
+	Parseur P(argc,argv);
+	std::string filename(P.get<std::string>("0"));
+	if(!P.status()){
 		Read r(filename);
 		std::cout<<r.get_header()<<std::endl;
 	} else {

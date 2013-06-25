@@ -19,14 +19,13 @@ void create_tag_list(Directory const& d, std::string const& save_in);
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	if(argc == 2){
+	std::string directory_name(P.get<std::string>("0"));
+	if(!P.status()){
 		char buff[PATH_MAX];
 		getcwd(buff,PATH_MAX);
-		std::string directory_name("");
 		std::string save_in("");
 		std::string command("");
 
-		P.set(directory_name);
 		if(directory_name == "."){
 			directory_name = buff;
 			if(directory_name[directory_name.size()-1] != '/'){
@@ -42,7 +41,7 @@ int main(int argc, char* argv[]){
 			save_in = directory_name + "info/";
 		}
 		Directory d;
-		d.search_file_ext(".jdbin",directory_name);
+		d.search_file_ext(".jdbin",directory_name,false);
 		d.sort();
 		command = "mkdir -p " + save_in;
 		system(command.c_str());

@@ -6,14 +6,85 @@
 
 //work for a symmetric matrix
 /*{*/
-extern "C" void dsyev_(char *jobz, char *uplo, unsigned int const *n, double *m, unsigned int const *lda, double *w, double *work, unsigned int const *lwork, int *info);
-extern "C" void zheev_(char *jobz, char *uplo, unsigned int const *n, std::complex<double> *m, unsigned int const *lda, double *w, std::complex<double> *work, unsigned int const *lwork, double *rwork, int *info);
+extern "C" void dsyev_(
+		char const& jobz,
+		char const& uplo,
+		unsigned int const& n,
+		double *m,
+		unsigned int const& lda,
+		double *w,
+		double *work,
+		int const& lwork,
+		int& info
+		);
+extern "C" void zheev_(
+		char const& jobz,
+		char const& uplo,
+		unsigned int const& n,
+		std::complex<double> *m,
+		unsigned int const& lda,
+		double *w,
+		std::complex<double> *work,
+		int const& lwork,
+		double *rwork,
+		int& info
+		);
 
-extern "C" void dgetrf_(unsigned int const *row, unsigned int const *col, double *m, unsigned int const *lda, int *ipiv, int *info);
-extern "C" void zgetrf_(unsigned int const *row, unsigned int const *col, std::complex<double> *m, unsigned int const *lda, int *ipiv, int *info);
+extern "C" void dgetrf_(
+		unsigned int const& row,
+		unsigned int const& col,
+		double *m,
+		unsigned int const& lda,
+		int *ipiv,
+		int& info
+		);
+extern "C" void zgetrf_(
+		unsigned int const& row,
+		unsigned int const& col,
+		std::complex<double> *m,
+		unsigned int const& lda,
+		int *ipiv,
+		int& info
+		);
 
-extern "C" void dgetri_(unsigned int const *n, double *m, unsigned int const *lda, int *ipiv, double *work, unsigned int const *lwork, int *info);
-extern "C" void zgetri_(unsigned int const *n, std::complex<double> *m, unsigned int const *lda, int *ipiv, std::complex<double> *work, unsigned int const *lwork, int *info);
+extern "C" void dgetri_(
+		unsigned int const& n,
+		double *m,
+		unsigned int const& lda,
+		int *ipiv,
+		double *work,
+		int const& lwork,
+		int& info
+		);
+extern "C" void zgetri_(
+		unsigned int const& n,
+		std::complex<double> *m,
+		unsigned int const& lda,
+		int *ipiv,
+		std::complex<double> *work,
+		int const& lwork,
+		int& info
+		);
+
+extern "C" void dgecon_(
+		char const& norm,
+		unsigned int const& n,
+		double const *m, 
+		unsigned int const& lda,
+		double const& anorm, 
+		double& rcond, 
+		double *work,
+		int const *iwork,
+		int& info
+		);
+extern "C" double dlange_(
+		char const& norm,
+		unsigned int const& rows,
+		unsigned int const& col,
+		double const *m,
+		unsigned int const& lda,
+		double *work
+		);
 /*}*/
 
 /*!Class that allows an easy use of the LAPACK routines
@@ -42,6 +113,12 @@ class Lapack{
 		/*!Compute the inverse*/
 		void inv() const;
 		
+		/*!Compute the condition number*/
+		void cond() const;
+
+		/*!Compute the norm of the matrix*/
+		double norm() const;
+		
 	private:
 		/*!Forbids default constructor*/
 		Lapack();
@@ -63,6 +140,12 @@ class Lapack{
 		void syev(Vecteur<double> & EVal) const;
 		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of an hermitian complex matrix*/
 		void heev(Vecteur<double> & EVal) const; 
+		
+		/*!Specialized subroutine that calls a LAPACK routine to compute the norm of an general real matrix*/
+		double lange() const; 
+
+		/*!Specialized subroutine that calls a LAPACK routine to compute the condition number of an general real matrix*/
+		double gecon(double anorm) const; 
 };
 
 /*Constructors and destructor*/
@@ -108,8 +191,8 @@ Lapack<Type>::~Lapack(){
 template<typename T> 
 T Lapack<T>::det() const {
 	if (matrix_type != 'G'){
-		std::cerr<<"Lapack inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
-		std::cerr<<"Lapack inv : the only matrix type implemented is G"<<std::endl;
+		std::cerr<<"Lapack : det : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
+		std::cerr<<"Lapack : det : the only matrix type implemented is G"<<std::endl;
 		return 0;
 	} else {
 		T det(1.0);
@@ -130,8 +213,8 @@ T Lapack<T>::det() const {
 template<typename T>
 void Lapack<T>::inv() const {
 	if (matrix_type != 'G'){
-		std::cerr<<"Lapack inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
-		std::cerr<<"Lapack inv : the only matrix type implemented is G"<<std::endl;
+		std::cerr<<"Lapack : inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
+		std::cerr<<"Lapack : inv : the only matrix type implemented is G"<<std::endl;
 	} else {
 		int* ipiv(new int[N]);
 		getrf(ipiv);
@@ -143,20 +226,43 @@ void Lapack<T>::inv() const {
 template<typename T>
 void Lapack<T>::lu(Matrice<T>& L, Matrice<T>& U) const {
 	if (matrix_type != 'G'){
-		std::cerr<<"Lapack inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
-		std::cerr<<"Lapack inv : the only matrix type implemented is G"<<std::endl;
-	}
-	int* ipiv(new int[N]);
-	getrf(ipiv);
-	for(unsigned int i(0); i< N; i++){
-		L(i,i)=1.0;
-		U(i,i)=m[i+i*N];
-		for(unsigned int j(i+1); j< N; j++){
-			U(i,j) = m[i+j*N];
-			L(j,i) = m[j+i*N];
+		std::cerr<<"Lapack : lu : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
+		std::cerr<<"Lapack : lu : the only matrix type implemented is G"<<std::endl;
+	} else {
+		int* ipiv(new int[N]);
+		getrf(ipiv);
+		for(unsigned int i(0); i< N; i++){
+			L(i,i)=1.0;
+			U(i,i)=m[i+i*N];
+			for(unsigned int j(i+1); j< N; j++){
+				U(i,j) = m[i+j*N];
+				L(j,i) = m[j+i*N];
+			}
 		}
+		delete[] ipiv;
 	}
-	delete[] ipiv;
+}
+
+template<typename T>
+void Lapack<T>::cond() const {
+	if (matrix_type != 'G'){
+		std::cerr<<"Lapack : cond : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
+		std::cerr<<"Lapack : cond : the only matrix type implemented is G"<<std::endl;
+		return 0;
+	} else {
+		return gecon(lange());
+	}
+}
+
+template<typename T> 
+double Lapack<T>::norm() const {
+	if (matrix_type != 'G'){
+		std::cerr<<"Lapack : norm : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
+		std::cerr<<"Lapack : norm : the only matrix type implemented is G"<<std::endl;
+		return 0;
+	} else {
+		return lange();
+	}
 }
 /*}*/
 

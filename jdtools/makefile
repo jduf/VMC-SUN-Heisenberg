@@ -21,10 +21,10 @@ jdfind.o:jdfind.cpp Directory.hpp Read.hpp Write.hpp RSTfile.hpp Parseur.hpp
 ########
 # jdread
 ########
-jdread:jdread.o Header.o Read.o Write.o RST.o
+jdread:jdread.o Header.o Read.o Write.o RST.o Parseur.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-jdread.o:jdread.cpp Header.hpp Read.hpp
+jdread.o:jdread.cpp Header.hpp Read.hpp Parseur.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 #########
