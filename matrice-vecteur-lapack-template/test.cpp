@@ -10,87 +10,87 @@
 
 int main(){
 	/*operateurs*/
-	///*{*/
-	//unsigned int N(2);
-	//Matrice<double> m1(N);
-	//Matrice<double> m2(N,2);
-	////
-	//m1(0,0) = 1;
-	//m1(0,1) = 2;
-	//m1(1,0) = 3;
-	//m1(1,1) = 4;
-	//m2(0,1) = 5;
-	//m2(1,0) = 6;
-	//m2(1,1) = 7;
-//
-	//std::cout<<"m1"<<std::endl;
-	//std::cout<<m1<<std::endl;
-	//std::cout<<"m2"<<std::endl;
-	//std::cout<<m2<<std::endl;
-	//std::cout<<"m1*m2"<<std::endl;
-	//std::cout<<m1*m2<<std::endl;
-	//m1 *= m2;
-	//std::cout<<m1<<std::endl;
+	/*{*/
+	unsigned int N(2);
+	Matrice<double> m1(N);
+	Matrice<double> m2(N,2);
 	//
-	//std::cout<<"m2-(m1*m2)"<<std::endl;
-	//std::cout<<m2-m1<<std::endl;
-	//m2-=m1;
-	//std::cout<<"(m2-(m1*m2))-(m1*m2)"<<std::endl;
-	//std::cout<<m2-m1<<std::endl;
-//
-	//Vecteur<double> v1(3,3);
-	//std::cout<<"v1"<<std::endl;
-	//std::cout<<v1<<std::endl;
-	//Vecteur<double> v2(3);
-	//v2(0) = 0.0;
-	//v2(1) = v1(1);
-	//v2(2) = 5;
-	//std::cout<<"v2"<<std::endl;
-	//std::cout<<v2<<std::endl;
-//
-	//std::cout<<"v1^v2"<<std::endl;;
-	//std::cout<<(v1^v2)<<std::endl;;
-	//std::cout<<"v1*v2"<<std::endl;
-	//std::cout<<v1*v2<<std::endl;
-//
-	//std::cout<<"v1*2"<<std::endl;
-	//std::cout<<v1*2<<std::endl;
-	//v1 *= 2;
-	//std::cout<<v1<<std::endl;
-	//std::cout<<"2*v2"<<std::endl;
-	//std::cout<<2.0*v2<<std::endl;
-	//
-	//std::cout<<"v2/3.0"<<std::endl;
-	//std::cout<<v2/3.0<<std::endl;
-	//v2/=3.0;
-	//std::cout<<v2<<std::endl;
-//
-	//Vecteur<double> vtest(0);
-	//vtest = Vecteur<double>(3,1);
-	//std::cout<<"test"<<vtest<<std::endl;
-//
-	//std::complex<double> c1(1,2);
-	//std::complex<double> c2(4,5);
-	//std::complex<double> c3(5,1);
-	//Vecteur<std::complex<double> > v3(3,c1);
-	//Vecteur<std::complex<double> > v4(3);
-//
-	//v4(0) = v3(0);
-	//v4(1) = c3;
-	//v4(2) = 2;
-	//
-	//std::cout<<"v3"<<std::endl;
-	//std::cout<<v3<<std::endl;
-	//std::cout<<"v4"<<std::endl;
-	//std::cout<<v4<<std::endl;
-	//std::cout<<"v3*v4"<<std::endl;
-	//std::cout<<v3*v4<<std::endl;
-	//std::cout<<"v3*(4,5)"<<std::endl;
-	//std::cout<<v3*c2<<std::endl;
-	//std::cout<<"(4,5)*v3"<<std::endl;
-	//std::cout<<c2*v3<<std::endl;
-//
-	// /*}*/
+	m1(0,0) = 1;
+	m1(0,1) = 2;
+	m1(1,0) = 3;
+	m1(1,1) = 4;
+	m2(0,1) = 5;
+	m2(1,0) = 6;
+	m2(1,1) = 7;
+
+	std::cout<<"m1"<<std::endl;
+	std::cout<<m1<<std::endl;
+	std::cout<<"m2"<<std::endl;
+	std::cout<<m2<<std::endl;
+	std::cout<<"m1*m2"<<std::endl;
+	std::cout<<m1*m2<<std::endl;
+	m1 *= m2;
+	std::cout<<m1<<std::endl;
+	
+	std::cout<<"m2-(m1*m2)"<<std::endl;
+	std::cout<<m2-m1<<std::endl;
+	m2-=m1;
+	std::cout<<"(m2-(m1*m2))-(m1*m2)"<<std::endl;
+	std::cout<<m2-m1<<std::endl;
+
+	Vecteur<double> v1(3,3);
+	std::cout<<"v1"<<std::endl;
+	std::cout<<v1<<std::endl;
+	Vecteur<double> v2(3);
+	v2(0) = 0.0;
+	v2(1) = v1(1);
+	v2(2) = 5;
+	std::cout<<"v2"<<std::endl;
+	std::cout<<v2<<std::endl;
+
+	std::cout<<"v1^v2"<<std::endl;;
+	std::cout<<(v1^v2)<<std::endl;;
+	std::cout<<"v1*v2"<<std::endl;
+	std::cout<<v1*v2<<std::endl;
+
+	std::cout<<"v1*2"<<std::endl;
+	std::cout<<v1*2<<std::endl;
+	v1 *= 2;
+	std::cout<<v1<<std::endl;
+	std::cout<<"2*v2"<<std::endl;
+	std::cout<<2.0*v2<<std::endl;
+	
+	std::cout<<"v2/3.0"<<std::endl;
+	std::cout<<v2/3.0<<std::endl;
+	v2/=3.0;
+	std::cout<<v2<<std::endl;
+
+	Vecteur<double> vtest(0);
+	vtest = Vecteur<double>(3,1);
+	std::cout<<"test"<<vtest<<std::endl;
+
+	std::complex<double> c1(1,2);
+	std::complex<double> c2(4,5);
+	std::complex<double> c3(5,1);
+	Vecteur<std::complex<double> > v3(3,c1);
+	Vecteur<std::complex<double> > v4(3);
+
+	v4(0) = v3(0);
+	v4(1) = c3;
+	v4(2) = 2;
+	
+	std::cout<<"v3"<<std::endl;
+	std::cout<<v3<<std::endl;
+	std::cout<<"v4"<<std::endl;
+	std::cout<<v4<<std::endl;
+	std::cout<<"v3*v4"<<std::endl;
+	std::cout<<v3*v4<<std::endl;
+	std::cout<<"v3*(4,5)"<<std::endl;
+	std::cout<<v3*c2<<std::endl;
+	std::cout<<"(4,5)*v3"<<std::endl;
+	std::cout<<c2*v3<<std::endl;
+
+	 /*}*/
 	/*eigenvalue*/
 	/*{*/
 	unsigned int N_site(6);
