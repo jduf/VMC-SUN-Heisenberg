@@ -6,7 +6,7 @@
 class RST{
 	public:
 		RST();
-		~RST();
+		virtual ~RST();
 
 		void title(std::string t,std::string symb);
 		void text(std::string t);

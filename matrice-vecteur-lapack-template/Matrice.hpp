@@ -27,8 +27,8 @@ class Matrice{
 		/*!Delete the static array*/
 		~Matrice();
 
-		/*!Does a deep copie*/
-		Matrice<Type>& operator=(Matrice<Type> const& mat);
+		/*!Deep copy assignment*/
+		Matrice<Type>& operator=(Matrice<Type> const& mat); 
 		/*!Accesses the (i,j)th entry of the vector*/
 		inline Type const& operator()(unsigned int const& i, unsigned int const& j) const { assert(i<N && j<N); return m[i+j*N]; };
 		/*!Sets the (i,j)th entry of the vector*/

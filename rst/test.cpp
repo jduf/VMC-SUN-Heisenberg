@@ -8,7 +8,7 @@
 
 int main(){
 	Directory d;
-	d.search_file_ext(".jdbin","/home/jdufour/travail/cpp-dev/");
+	d.search_file_ext(".jdbin","/home/jdufour/travail/cpp-dev/",false);
 	std::string save_in("/home/jdufour/travail/cpp-dev/rst/output/");
 	std::string file;
 	std::string command("");
