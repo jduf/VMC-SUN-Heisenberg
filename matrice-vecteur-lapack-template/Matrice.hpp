@@ -30,17 +30,17 @@ class Matrice{
 		/*!Deep copy assignment*/
 		Matrice<Type>& operator=(Matrice<Type> const& mat); 
 		/*!Accesses the (i,j)th entry of the vector*/
-		inline Type const& operator()(unsigned int const& i, unsigned int const& j) const { assert(i<N && j<N); return m[i+j*N]; };
+		Type const& operator()(unsigned int const& i, unsigned int const& j) const { assert(i<N && j<N); return m[i+j*N]; };
 		/*!Sets the (i,j)th entry of the vector*/
-		inline Type& operator()(unsigned int const& i, unsigned int const& j) { assert(i<N && j<N); return m[i+j*N]; };
+		Type& operator()(unsigned int const& i, unsigned int const& j) { assert(i<N && j<N); return m[i+j*N]; };
 		/*!Additions this matrice with another*/
-		Matrice<Type>& operator+=(Matrice<Type> const& mat); 
+		Matrice<Type>& operator+=(Matrice<Type> const& mat);
 		Matrice<Type> operator+(Matrice<Type> const& mat) const;
 		/*!Substracts this matrice from another (m1 -= m2 : m1 = m1-m2)*/
-		Matrice<Type>& operator-=(Matrice<Type> const& mat); 
+		Matrice<Type>& operator-=(Matrice<Type> const& mat);
 		Matrice<Type> operator-(Matrice<Type> const& mat) const;
 		/*!Multiplies two matrices (m1 *= m2 : m1 = m1*m2)*/
-		Matrice<Type>& operator*=(Matrice<Type> const& mat); // 
+		Matrice<Type>& operator*=(Matrice<Type> const& mat);
 		Matrice<Type> operator*(Matrice<Type> const& mat) const;
 
 		/*!Sets the entries to zero if they are close to 0*/
@@ -57,9 +57,9 @@ class Matrice{
 		Vecteur<Type> diag() const;
 
 		/*!Returns the pointer to the matrix*/
-		inline Type* ptr() const { return m; };
+		Type* ptr() const { return m; };
 		/*!Returns the size of the matrix*/
-		inline unsigned int size() const { return N; };
+		unsigned int size() const { return N; };
 
 		/*!Print the matrice for mathematica*/
 		void print_mathematica();
@@ -267,6 +267,21 @@ Matrice<std::complex<double> > Matrice<Type>::trans_conj() const{
 }
 
 template<typename Type>
+void Matrice<Type>::print_mathematica(){
+	std::cout<<"{{";
+	for(unsigned int i(0);i<N-1;i++){
+		for(unsigned int j(0);j<N-1;j++){
+			std::cout<<m[i+j*N]<<",";
+		}
+		std::cout<<m[i+(N-1)*N]<<"},"<<std::endl<<"{";
+	}
+	for(unsigned int j(0);j<N-1;j++){
+		std::cout<<m[N-1+j*N]<<",";
+	}
+	std::cout<<m[N*N-1]<<"}}"<<std::endl;
+}
+
+template<typename Type>
 Vecteur<Type> Matrice<Type>::diag() const{
 	Vecteur<Type> v(N);
 	for(unsigned int i(0);i<N;i++){
@@ -275,21 +290,5 @@ Vecteur<Type> Matrice<Type>::diag() const{
 	return v;
 }
 /*}*/
-
-template<typename Type>
-void Matrice<Type>::print_mathematica(){
-	std::cout<<"{{";
-	for(unsigned int i(0);i<N-1;i++){
-		for(unsigned int j(0);j<N-1;j++){
-			std::cout<<m[i+j*N]<<",";
-		}
-		std::cout<<m[i+(N-1)*N]<<"},"<<std::endl;
-		std::cout<<"{";
-	}
-	for(unsigned int j(0);j<N-1;j++){
-		std::cout<<m[N-1+j*N]<<",";
-	}
-	std::cout<<m[N*N-1]<<"}}"<<std::endl;
-}
 
 #endif

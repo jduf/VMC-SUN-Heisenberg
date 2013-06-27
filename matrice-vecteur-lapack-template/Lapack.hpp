@@ -1,7 +1,7 @@
 #ifndef DEF_MLAPACK
 #define DEF_MLAPACK
 
-#include "Matrice.hpp"
+#include "Matrix.hpp"
 #include "Vecteur.hpp"
 
 //work for a symmetric matrix
@@ -79,7 +79,7 @@ extern "C" void dgecon_(
 		);
 extern "C" double dlange_(
 		char const& norm,
-		unsigned int const& rows,
+		unsigned int const& row,
 		unsigned int const& col,
 		double const *m,
 		unsigned int const& lda,
@@ -98,28 +98,43 @@ template<typename Type>
 class Lapack{
 	public:
 		/*!Constructor that copy the input matrix, no LAPACK routine can affect the input matrix */
-		Lapack(Matrice<Type> const& mat, char matrix_type);
-		/*!Constructor that takes a pointer on a static array, all the LAPACK routines will affect the static array pointed */
-		Lapack(Type *m, unsigned int N, char matrix_type);
+		Lapack(Matrix<Type> *m, bool del, char matrix_type);
 		/*!Destructor (delete if allocate_new_memory==true)*/
 		~Lapack();
 
 		/*!Specialized routine that computes the eigenvalues and the eigenvectors if EVec==true*/
-		void eigensystem(Vecteur<double>& EVal, bool EVec=true) const; 
+		void eigensystem(Vecteur<double>& EVal, bool EVec=true); 
 		/*!Compute the determinant*/
-		Type det() const;
+		Type det();
 		/*!Compute the LU decomposition*/
-		void lu(Matrice<Type>& L, Matrice<Type>& U) const;
+		void lu(Matrix<Type>& L, Matrix<Type>& U);
 		/*!Compute the inverse*/
-		void inv() const;
-		
+		void inv();
 		/*!Compute the condition number*/
-		void cond() const;
-
+		void cond();
 		/*!Compute the norm of the matrix*/
-		double norm() const;
+		double norm();
+
+		//Matrix<Type>* get_matrix();
 		
-	private:
+	protected:
+		Matrix<Type> *mat; //!< pointer on a Matrix
+		bool del; //!< false if the original matrix will be overwritten by the LAPACK routines
+		char const matrix_type; //!< type of matrix (symmetric, hermitian, general,...)
+		
+		/*!Specialized subroutine that calls a LAPACK routine to compute the LU decomposition*/
+		void getrf(int *ipiv);
+		/*!Specialized subroutine that calls a LAPACK routine to compute the inverse after the use of getrf*/
+		void getri(int *ipiv);
+		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of a symmetric real matrix*/
+		void syev(Vecteur<double> & EVal) ;
+		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of an hermitian complex matrix*/
+		void heev(Vecteur<double> & EVal) ; 
+		/*!Specialized subroutine that calls a LAPACK routine to compute the norm of an general real matrix*/
+		double lange() ; 
+		/*!Specialized subroutine that calls a LAPACK routine to compute the condition number of an general real matrix*/
+		double gecon(double anorm) ; 
+
 		/*!Forbids default constructor*/
 		Lapack();
 		/*!Forbids copy constructor*/
@@ -127,95 +142,62 @@ class Lapack{
 		/*!Forbids assertion operator*/
 		Lapack& operator=(Lapack const& l);
 
-		Type *m; //!< pointer on a static array, the square matrix (same structure as the one in Matrice.hpp)
-		unsigned int const N; //!< size of the square matrix
-		char const matrix_type; //!< type of matrix (symmetric, hermitian, general,...)
-		bool const allocate_new_memory; //!< false if the original matrix will be modified by the LAPACK routine
-		
-		/*!Specialized subroutine that calls a LAPACK routine to compute the LU decomposition*/
-		void getrf(int *ipiv) const;
-		/*!Specialized subroutine that calls a LAPACK routine to compute the inverse after the use of getrf*/
-		void getri(int *ipiv) const;
-		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of a symmetric real matrix*/
-		void syev(Vecteur<double> & EVal) const;
-		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of an hermitian complex matrix*/
-		void heev(Vecteur<double> & EVal) const; 
-		
-		/*!Specialized subroutine that calls a LAPACK routine to compute the norm of an general real matrix*/
-		double lange() const; 
-
-		/*!Specialized subroutine that calls a LAPACK routine to compute the condition number of an general real matrix*/
-		double gecon(double anorm) const; 
 };
 
 /*Constructors and destructor*/
 /*{*/
 template<typename Type>
-Lapack<Type>::Lapack(Matrice<Type> const& mat, char matrix_type):
-	m(new Type[mat.size()*mat.size()]),
-	N(mat.size()),
-	matrix_type(matrix_type),
-	allocate_new_memory(true)
+Lapack<Type>::Lapack(Matrix<Type> *m, bool del, char matrix_type):
+	mat(NULL),
+	del(del),
+	matrix_type(matrix_type)
 {
-	//std::cout<<"création (copie matrice) : lapack"<<std::endl;
-	//std::cout<<"peut-être que la matrice est mal déclarée"<<std::endl;
-	for(unsigned int i(0); i<N; i++){
-		for(unsigned int j(0); j<N; j++){
-			m[i+j*N] = mat(i,j);
-		}
-	}
-	//for(unsigned int i(0); i<N; i++){
-		//for(unsigned int j(0); j<N; j++){
-			//std::cout<<m[i+j*N]<<" ";
-		//}
-		//std::cout<<std::endl;
-	//}
+	if(del){ this->mat = new Matrix<Type>(*m); }
+	else { this->mat = m; }
 }
 
 template<typename Type>
-Lapack<Type>::Lapack(Type *m, unsigned int N, char matrix_type):
-	m(m),
-	N(N),
-	matrix_type(matrix_type),
-	allocate_new_memory(false)
-{ }
-
-template<typename Type>
 Lapack<Type>::~Lapack(){
-	if(allocate_new_memory){ delete[] m; } 
+	if(del){ delete this->mat; } 
 }
 /*}*/
 
 /*methods used to call lapack*/
 /*{*/
-template<typename T> 
-T Lapack<T>::det() const {
+template<typename Type> 
+Type Lapack<Type>::det()  {
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : det : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : det : the only matrix type implemented is G"<<std::endl;
 		return 0;
 	} else {
-		T det(1.0);
+		/*!
+		 * \warning 
+		 * the determinant needs to be rewritten for rectangles matrices
+		 * */
+		Type d(1.0);
+		unsigned int N(mat->row());
 		int* ipiv(new int[N]);
 		getrf(ipiv);
 		for(unsigned int i(0); i<N; i++){
-			if(ipiv[i] != int(i+1)){ // ipiv return value between [1,N]
-				det *= -m[i*N+i];
+			if(ipiv[i] != int(i+1)){ //! \note ipiv return value between [1,N]
+				d *= - (*mat)[i*N+i];
 			} else {
-				det *= m[i*N+i];
+				d *= (*mat)[i*N+i];
 			}
 		}
 		delete[] ipiv;
-		return det;
+		return d;
 	}
 }
 
-template<typename T>
-void Lapack<T>::inv() const {
+template<typename Type>
+void Lapack<Type>::inv()  {
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : inv : the only matrix type implemented is G"<<std::endl;
 	} else {
+		unsigned int N(mat->row());
 		int* ipiv(new int[N]);
 		getrf(ipiv);
 		getri(ipiv);	
@@ -223,28 +205,29 @@ void Lapack<T>::inv() const {
 	}
 }
 
-template<typename T>
-void Lapack<T>::lu(Matrice<T>& L, Matrice<T>& U) const {
+template<typename Type>
+void Lapack<Type>::lu(Matrix<Type>& L, Matrix<Type>& U)  {
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : lu : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : lu : the only matrix type implemented is G"<<std::endl;
 	} else {
+		unsigned int N(mat->row());
 		int* ipiv(new int[N]);
 		getrf(ipiv);
 		for(unsigned int i(0); i< N; i++){
 			L(i,i)=1.0;
-			U(i,i)=m[i+i*N];
+			U(i,i)=(*mat)[i+i*N];
 			for(unsigned int j(i+1); j< N; j++){
-				U(i,j) = m[i+j*N];
-				L(j,i) = m[j+i*N];
+				U(i,j) = (*mat)[i+j*N];
+				L(j,i) = (*mat)[j+i*N];
 			}
 		}
 		delete[] ipiv;
 	}
 }
 
-template<typename T>
-void Lapack<T>::cond() const {
+template<typename Type>
+void Lapack<Type>::cond()  {
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : cond : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : cond : the only matrix type implemented is G"<<std::endl;
@@ -254,8 +237,8 @@ void Lapack<T>::cond() const {
 	}
 }
 
-template<typename T> 
-double Lapack<T>::norm() const {
+template<typename Type> 
+double Lapack<Type>::norm()  {
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : norm : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : norm : the only matrix type implemented is G"<<std::endl;
@@ -265,5 +248,12 @@ double Lapack<T>::norm() const {
 	}
 }
 /*}*/
+
+//template<typename Type> 
+//Matrix<Type>* Lapack<Type>::get_matrix(){
+	//Matrix<Type>* tmp(mat); 
+	//this->mat->set_ptr(NULL);
+	//return tmp; 
+//}
 
 #endif

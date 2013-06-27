@@ -24,7 +24,7 @@ class SquareMatrix : public Matrix<Type>{
 		~SquareMatrix();
 
 		/*!Multiplies two matrices (m1 *= m2 : m1 = m1*m2)*/
-		SquareMatrix<Type>& operator*=(SquareMatrix<Type> const& mat); // 
+		SquareMatrix<Type>& operator*=(SquareMatrix<Type> const& mat);  
 
 
 	private:
@@ -68,8 +68,8 @@ SquareMatrix<Type>& SquareMatrix<Type>::operator*=(SquareMatrix<Type> const& mat
 		for(unsigned int j(0);j<N;j++){
 			this->m[i+j*N] = 0.0;
 			for(unsigned int k(0);k<N;k++){
-				//this->m[i+j*N] += tmp.m[i+k*N] * mat.m[k+j*N];
-				this->m[i+j*N] += tmp(i,k) * mat(k,j);
+				//this->m[i+j*N] += tmp(i,k) * mat(k,j);
+				this->m[i+j*N] += tmp.m[i+k*N] * mat.m[k+j*N];
 			}
 		}
 	}
