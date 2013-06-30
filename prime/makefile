@@ -12,9 +12,11 @@ LDLIBS =  -pedantic -Wall -Wextra -llapack -lblas
 all:test
 
 
-test.o:test.cpp Prime.hpp
+Prime.o:Prime.cpp Prime.hpp 
+	$(CXX) -c  $(CXXFLAGS) $^
 
-test:test.o 
+test:test.o Prime.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 
 clean:

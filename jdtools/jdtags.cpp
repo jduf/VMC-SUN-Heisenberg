@@ -1,29 +1,29 @@
 /*!  @file jdtags.cpp */
 
+#include "Linux.hpp"
 #include "Read.hpp"
 #include "RSTfile.hpp"
 #include "Array2D.hpp"
+#include "Parseur.hpp"
 
 #include <dirent.h>// not useful but need to find the correct include to let getcwd work
 #include <string>
 #include <vector>
 #include <iostream>
-#include <cstdlib> // system(std::string commad)
 
 void search_tag(std::string save_in, int argc, char* argv[]);
 
 int main(int argc, char* argv[]){
 	if(argc > 1){
+		Linux command;
 		char buff[PATH_MAX];
 		getcwd(buff,PATH_MAX);
 		std::string save_in(std::string(buff) + "/info/");
-		std::string command("");
 		std::string list_tags("");
 
 		search_tag(save_in,argc,argv);
 
-		command = "firefox " +save_in + "TAGS.html";
-		system(command.c_str());
+		command("firefox " +save_in + "TAGS.html");
 	} else {
 		std::cerr<<"jdtags : take at least one input argument"<<std::endl;
 		std::cerr<<"usage -> ./jdtag tag1 tag2 ..."<<std::endl;

@@ -115,7 +115,8 @@ class Lapack{
 		/*!Compute the norm of the matrix*/
 		double norm();
 
-		//Matrix<Type>* get_matrix();
+		Matrix<Type>* get_mat(){ return mat; }
+
 		
 	protected:
 		Matrix<Type> *mat; //!< pointer on a Matrix
@@ -248,12 +249,4 @@ double Lapack<Type>::norm()  {
 	}
 }
 /*}*/
-
-//template<typename Type> 
-//Matrix<Type>* Lapack<Type>::get_matrix(){
-	//Matrix<Type>* tmp(mat); 
-	//this->mat->set_ptr(NULL);
-	//return tmp; 
-//}
-
 #endif

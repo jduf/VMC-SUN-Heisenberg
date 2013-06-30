@@ -169,7 +169,7 @@ int main(){
 
 	std::cout<<"T"<<std::endl;
 	std::cout<<T<<std::endl;
-	Lapack<double> Over(&Tinv,false,'G'); // T va être écrasé
+	Lapack<double> Over(&Tinv,false,'G'); // Tinv va être écrasé
 	Over.inv();
 	std::cout<<"Tinv"<<std::endl;
 	std::cout<<Tinv<<std::endl;
@@ -180,9 +180,17 @@ int main(){
 	std::cout<<(Tinv*T)<<std::endl;;
 
 
-	//Matrix<double> M(Over.get_matrix());
-	//std::cout<<"M"<<std::endl;
-	//std::cout<<M<<std::endl;
+	Matrix<double> Tinv_lapack(Over.get_mat());
+	std::cout<<"get Tinv from lapack"<<std::endl;
+	std::cout<<Tinv_lapack<<std::endl;
+
+	std::cout<<"check that there is no memory leaks"<<std::endl;;
+	for(unsigned int i(0);i<10000000;i++){
+		Lapack<double> Over(&T,true,'G'); 
+		Over.inv();
+		Matrix<double> Tinv_new(Over.get_mat());
+		//std::cout<<(Tinv_new*T)<<std::endl;;
+	}
 	/*}*/
 }
 

@@ -12,7 +12,7 @@ Read::Read(std::string filename):
 {
 	if(binary){open_binary();}
 	else{open_txt();}
-	if(h){read_header();}
+	if(h){h->set(read_header());}
 }
 
 Read::Read():
@@ -106,7 +106,7 @@ bool Read::test_ext( std::string f){
 		ext = "." + base_ext;
 		if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ return true;}
 		ext = ".jd" + base_ext;
-		if(f.find(ext, (f.size() - ext.size())) != std::string::npos){  h = new Header; return true; }
+		if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ h = new Header; return true; }
 	}
 	return false;
 }
@@ -127,8 +127,9 @@ void Read::open_txt(){
 	} 
 }
 
-void Read::read_header(){
-	if(unlocked){
+std::string Read::read_header(){
+	std::string header("");
+	if(unlocked){ 
 		if(binary){
 			unsigned int N(0);
 			fseek(bfile,-sizeof(N),SEEK_END);
@@ -137,8 +138,8 @@ void Read::read_header(){
 			fseek(bfile,-sizeof(char)*N-sizeof(N),SEEK_END);
 			reading_point = fread(c,1,N,bfile);
 			c[N] = '\0';
-			h->set(c);
 			rewind(bfile);
+			header = c;
 			delete[] c;
 		} else {
 			std::cerr<<"Read : read_header() not implemented for non binary file"<<std::endl;
@@ -146,6 +147,7 @@ void Read::read_header(){
 	} else {
 		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
 	}
+	return header;
 }
 /*}*/
 
@@ -153,7 +155,7 @@ void Read::read_header(){
 /*{*/
 std::string Read::get_header() const { 
 	if(h && unlocked){
-		return (h->get())->get();
+		return (h->get()).get();
 	} else {
 		std::cerr<<"Read : the file has no header or is locked"<<std::endl;
 		return 0;

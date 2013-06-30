@@ -33,7 +33,6 @@ Write::~Write(){
 std::string Write::endl="\n";
 
 bool Write::test_ext(std::string f){
-	//std::cout<<f<<std::endl;
 	std::string base_ext("bin");
 	std::string ext("");
 	if(f.find(ext, (f.size() - ext.size())) != std::string::npos){ 
@@ -97,14 +96,14 @@ void Write::set_header(std::string s){
 void Write::write_header(){
 	if(binary){
 		if(h){
-			std::string s((h->get())->get());
+			std::string s((h->get()).get());
 			unsigned int N(s.size());
 			fwrite(s.c_str(),1, N ,bfile);
 			fwrite(&N,sizeof(N), 1 ,bfile);
 			fflush(bfile);
 		}
 	} else {  
-		tfile<<(h->get())->get()<<std::flush;
+		tfile<<(h->get()).get()<<std::flush;
 	}
 }
 

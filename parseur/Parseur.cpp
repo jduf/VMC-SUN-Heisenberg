@@ -3,7 +3,7 @@
 Parseur::Parseur(unsigned int argc, char* argv[]):
 	locked(false)
 {
-	std::cerr<<"Parseur : if the last argument has no var and starts with a -, the prog will crash"<<std::endl;
+	std::cerr<<"warning : Parseur : if the last argument has no var and starts with a -, the prog will crash"<<std::endl;
 	unsigned int j(0);
 	for(unsigned int i(1);i<argc;i++){
 		if(argv[i][0]=='-'){

@@ -3,8 +3,7 @@
 
 #include"RST.hpp"
 #include"Write.hpp"
-
-#include <cstdlib> // -> system(std::string command)
+#include"Linux.hpp"
 
 class RSTfile:public RST{
 	public:

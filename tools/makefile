@@ -12,7 +12,7 @@ all:diffdir
 diffdir:diffdir.o Directory.o Parseur.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-diffdir.o:diffdir.cpp Directory.hpp Parseur.hpp
+diffdir.o:diffdir.cpp Directory.hpp Parseur.hpp Linux.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 Directory.o:Directory.cpp Directory.hpp 

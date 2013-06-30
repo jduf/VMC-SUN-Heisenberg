@@ -1,6 +1,6 @@
 #include "Read.hpp"
 #include "Write.hpp"
-#include "Matrice.hpp"
+#include "Matrix.hpp"
 #include "Array2D.hpp"
 #include <complex>
 
@@ -8,14 +8,13 @@ void write_bin(){
 	std::cout<<"écriture d'un fichier binaire"<<std::endl;
 	Write write("data.bin");
 	double a(12.3);
-	std::string str("salut c'est une string\n plus compliquée");
-	Matrice<double> M(5,2.5);
+	std::string str("ci dessus, une matrice 5x3 valant 2.5 \n\nci dessous, une matrice complex 3x2 valant 3.2+0.2i\n");
+	Matrix<double> M(5,3,2.5);
 	std::complex<double> c(3.1,0.20);
-	Matrice<std::complex<double> > C(2,c);
-	Array2D<int> A(5,2,-3);
+	Matrix<std::complex<double> > C(2,3,c);
 	Array2D<std::string> tab_str(5,2,"bla");
-tab_str(2,1) = "nouvelle string";	
-	write<<M<<str<<C<<a<<c<<A<<tab_str;
+	tab_str(2,1) = "nouvelle string";	
+	write<<M<<str<<C<<a<<c<<tab_str;
 }
 
 void read_bin(){
@@ -23,33 +22,30 @@ void read_bin(){
 	Read read_1("data.bin");
 	Read read_2("data.bin");
 	double a(0);
-	std::string str("");
-	Matrice<double> M1(5);
-	Matrice<double> M2(2);
+	std::string str1("");
+	std::string str2("");
+	Matrix<double> M1(5,4);
+	Matrix<double> M2;
 	std::complex<double> c(0.0);
-	Matrice<std::complex<double> > C1(2);
-	Matrice<std::complex<double> > C2(5);
-	Array2D<int> A1(5,2);
-	Array2D<int> A2;
+	Matrix<std::complex<double> > C1(2,3);
+	Matrix<std::complex<double> > C2;
 	Array2D<std::string> tab_str1(5,2);
 	Array2D<std::string> tab_str2;
 
-	read_1>>M1>>str>>C1>>a>>c>>A1>>tab_str1;
-	std::cout<<a<<" "<<c<<std::endl;
+	read_1>>M1>>str1>>C1>>a>>c>>tab_str1;
 	std::cout<<M1<<std::endl;
+	std::cout<<str1<<std::endl;
 	std::cout<<C1<<std::endl;
-	std::cout<<A1<<std::endl;
-	std::cout<<str<<std::endl;
+	std::cout<<a<<" "<<c<<std::endl;
 	std::cout<<tab_str1<<std::endl;
 
 	std::cout<<"deuxième lecture"<<std::endl;
 
-	read_2>>M2>>str>>C2>>a>>c>>A2>>tab_str2;
-	std::cout<<a<<" "<<c<<std::endl;
+	read_2>>M2>>str2>>C2>>a>>c>>tab_str2;
 	std::cout<<M2<<std::endl;
+	std::cout<<str2<<std::endl;
 	std::cout<<C2<<std::endl;
-	std::cout<<A2<<std::endl;
-	std::cout<<str<<std::endl;
+	std::cout<<a<<" "<<c<<std::endl;
 	std::cout<<tab_str2<<std::endl;
 }
 

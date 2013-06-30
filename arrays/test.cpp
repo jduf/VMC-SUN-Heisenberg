@@ -37,13 +37,13 @@ int main(){
 
 template <typename T>
 void out(Array2D<T> const& t){
-	Write w("blalba",false);
+	Write w("blalba");
 	w<<t;
 }
 
 template <typename T>
 void in(Array2D<T>& t){
-	Read r("blalba",false);
+	Read r("blalba");
 	r>>t;
 	std::cout<<t<<std::endl;
 }

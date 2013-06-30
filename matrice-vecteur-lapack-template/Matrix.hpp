@@ -25,7 +25,7 @@ class Matrix{
 		/*!Deep copy*/
 		Matrix(Matrix<Type> const& mat);
 		/*!Replace a pointer with an instance*/
-		//Matrix(Matrix<Type> *mat);
+		Matrix(Matrix<Type> *map);
 		/*!Delete the static array*/
 		~Matrix();
 
@@ -65,19 +65,21 @@ class Matrix{
 		Matrix<Type> diag() const;
 
 		/*!Returns the pointer to the matrix*/
-		Type* ptr() const { return m; };
+		Type* ptr() const { return m; }
 		/*!Returns the size of the matrix*/
-		unsigned int size() const { return N_total; };
+		unsigned int total() const { return N_total; }
 		/*!Returns the number of rows of the matrix*/
-		unsigned int row() const { return N_row; };
+		unsigned int row() const { return N_row; }
 		/*!Returns the number of columns of the matrix*/
-		unsigned int col() const { return N_col; };
+		unsigned int col() const { return N_col; }
 
 	protected:
 		Type *m; //!< pointer to a static array
 		unsigned int N_row; //!< number of rows
 		unsigned int N_col; //!< number of columns
 		unsigned int N_total; //!< size of the array
+
+		void set_null_pointer(){m=NULL;}
 };
 
 template<typename Type>
@@ -131,15 +133,16 @@ Matrix<Type>::Matrix(Matrix<Type> const& mat):
 	}
 }
 
-//template<typename Type>
-//Matrix<Type>::Matrix(Matrix<Type> *mat):
-	//m(mat->ptr()),
-	//N_row(mat->row()),
-	//N_col(mat->col()),
-	//N_total(mat->size())
-//{ 
+template<typename Type>
+Matrix<Type>::Matrix(Matrix<Type> *mat):
+	m(mat->m),
+	N_row(mat->N_row),
+	N_col(mat->N_col),
+	N_total(mat->N_total)
+{ 
 	//std::cout<<"called pointer"<<std::endl;
-//}
+	mat->set_null_pointer();
+}
 
 template<typename Type>
 Matrix<Type>::~Matrix(){

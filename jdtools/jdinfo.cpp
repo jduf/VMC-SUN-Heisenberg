@@ -17,10 +17,10 @@ int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	std::string directory_name(P.get<std::string>("0"));
 	if(!P.status()){
+		Linux command;
 		char buff[PATH_MAX];
 		getcwd(buff,PATH_MAX);
 		std::string save_in("");
-		std::string command("");
 
 		if(directory_name == "."){
 			directory_name = buff;
@@ -42,8 +42,7 @@ int main(int argc, char* argv[]){
 		
 		update_readme(d,directory_name);
 
-		command = "firefox " + save_in + "README.html &";
-		system(command.c_str());
+		command("firefox " + save_in + "README.html &");
 	} else {
 		std::cerr<<"need to give a directory"<<std::endl;
 	 }

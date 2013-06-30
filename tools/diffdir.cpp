@@ -1,9 +1,9 @@
 #include "Directory.hpp"
 #include "Parseur.hpp"
+#include "Linux.hpp"
 
 #include <iostream>
 #include <string>
-#include <cstdlib> // system(std::string commad)
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
@@ -11,7 +11,7 @@ int main(int argc, char* argv[]){
 	std::string directory_name_2(P.get<std::string>("1"));
 	std::string ext(P.get<std::string>("e"));
 	if(!P.status()){
-		std::string command("");
+		Linux command;
 		std::string answer("");
 		bool match(false);
 
@@ -36,8 +36,7 @@ int main(int argc, char* argv[]){
 					std::cout<<"Do you want to compare " << d1.get_name(i) << d1.get_ext(i) << " ? [y/N] ";
 					std::getline(std::cin,answer);
 					if(answer=="y"){	
-						command = "vimdiff " + d1[i] + " " + d2[j];
-						system(command.c_str());
+						command("vimdiff " + d1[i] + " " + d2[j]);
 					}
 					match = true;
 				}

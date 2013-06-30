@@ -1,7 +1,7 @@
 #ifndef DEF_WRITE
 #define DEF_WRITE
 
-#include "Matrice.hpp"
+#include "Matrix.hpp"
 #include "Array2D.hpp"
 #include "Header.hpp"
 
@@ -35,9 +35,9 @@ class Write{
 		/*!Stream operator that writes datas without formatting*/
 		template<typename Type>
 			Write& operator<<(Type const& t);	
-		/*!Stream operator that writes matrices, uses Matrice<M>::operator<<*/
+		/*!Stream operator that writes matrices, uses Matrix<M>::operator<<*/
 		template<typename Type>
-			Write& operator<<(Matrice<Type> const& mat);
+			Write& operator<<(Matrix<Type> const& mat);
 		/*!Stream operator that writes arrays, uses Array2D<A>::operator<<*/
 		template<typename Type>
 			Write& operator<<(Array2D<Type> const& arr);
@@ -76,7 +76,7 @@ class Write{
 
 		/*!Subroutine needed to write a matrix in a binary file*/
 		template<typename M>
-			void write_binary_matrix(Matrice<M> const& mat);
+			void write_binary_matrix(Matrix<M> const& mat);
 		/*!Subroutine needed to write a matrix in a binary file*/
 		template<typename A>
 			void write_binary_array2d(Array2D<A> const& arr);
@@ -104,8 +104,8 @@ Write& Write::operator<<(Type const& t){
 	return (*this);
 }
 
-template<typename Type>//doesn't work with string
-Write& Write::operator<<(Matrice<Type> const& mat){
+template<typename Type>//!\warning doesn't work with string
+Write& Write::operator<<(Matrix<Type> const& mat){
 	if(unlocked){
 		if(binary) { write_binary_matrix(mat); }
 		else { tfile<<mat<<std::flush; }
@@ -127,10 +127,12 @@ Write& Write::operator<<(Array2D<Type> const& arr){
 }
 
 template<typename Type>//doesn't work with string
-void Write::write_binary_matrix(Matrice<Type> const& mat){
-	unsigned int N(mat.size());
-	fwrite(&N, sizeof(N), 1 ,bfile);
-	fwrite(mat.ptr(),sizeof(Type),N*N,bfile);
+void Write::write_binary_matrix(Matrix<Type> const& mat){
+	unsigned int N_row(mat.row());
+	unsigned int N_col(mat.col());
+	fwrite(&N_row, sizeof(N_row), 1 ,bfile);
+	fwrite(&N_col, sizeof(N_col), 1 ,bfile);
+	fwrite(mat.ptr(),sizeof(Type),N_row*N_col,bfile);
 	fflush(bfile);
 }
 

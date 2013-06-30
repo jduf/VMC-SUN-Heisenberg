@@ -1,54 +1,52 @@
 #include "Header.hpp"
 
-Header::Header():
-	rst(new RST)
-{ }
+Header::Header(){ }
 
-Header::~Header(){delete rst; }
+Header::~Header(){}
 
 void Header::add(std::string const& s){
-	rst->text(s);
+	rst.text(s);
 }
 
 void Header::add(std::string const& s, double const& d){
-	rst->def(s + "=" + tostring(d), "double");
+	rst.def(s + "=" + tostring(d), "double");
 }
 
 void Header::add(std::string const& s, bool const& d){
-	if(d){rst->def(s + "=true", "bool");}
-	else{rst->def(s + "=false", "bool");}
+	if(d){rst.def(s + "=true", "bool");}
+	else{rst.def(s + "=false", "bool");}
 }
 
 void Header::add(std::string const& s, std::string const& d){
-	rst->def(s + "=" + d, "string");
+	rst.def(s + "=" + d, "string");
 }
 
 void Header::add(std::string const& s, unsigned int const& d){
-	rst->def(s + "=" + tostring(d), "unsigned int");
+	rst.def(s + "=" + tostring(d), "unsigned int");
 }
 
 void Header::add(std::string const& s, int const& d){
-	rst->def(s + "=" + tostring(d), "int");
+	rst.def(s + "=" + tostring(d), "int");
 }
 
 void Header::add(std::string const& s, std::complex<double> const& d){
-	rst->def(s + "=" + tostring(d), "complex");
+	rst.def(s + "=" + tostring(d), "complex");
 }
 
-void Header::add(std::string const& s, Matrice<double> const& mat){
-	rst->def(s + "(" + tostring(mat.size()) + "x" + tostring(mat.size())+ ")","Matrice<double>");
+void Header::add(std::string const& s, Matrix<double> const& mat){
+	rst.def(s + "(" + tostring(mat.row()) + "x" + tostring(mat.col())+ ")","Matrix<double>");
 }
 
-void Header::add(std::string const& s, Matrice<std::complex<double> > const& mat){
-	rst->def(s + "(" + tostring(mat.size()) + "x" + tostring(mat.size())+ ")","Matrice<complex>");
+void Header::add(std::string const& s, Matrix<std::complex<double> > const& mat){
+	rst.def(s + "(" + tostring(mat.row()) + "x" + tostring(mat.col())+ ")","Matrix<complex>");
 }
 
 void Header::add(std::string const& s, Array2D<unsigned int> const& arr){
-	rst->def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<unsigned int>");
+	rst.def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<unsigned int>");
 }
 
 void Header::add(std::string const& s, Array2D<double> const& arr){
-	rst->def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<double>");
+	rst.def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<double>");
 }
 
 std::string Header::when(){
@@ -66,9 +64,9 @@ std::string Header::when(){
 }
 
 void Header::init(std::string title){
-	rst->title(title,"=");
-	rst->textit(when());
-	rst->np();
+	rst.title(title,"=");
+	rst.textit(when());
+	rst.np();
 }
 
 std::ostream& operator<<(std::ostream& flux, Header const& h){
@@ -76,6 +74,6 @@ std::ostream& operator<<(std::ostream& flux, Header const& h){
 	return flux;
 }
 
-void Header::hyperlink(std::string const& display, std::string const& link) {
-	rst->hyperlink(display,link);
-}
+//void Header::hyperlink(std::string const& display, std::string const& link) {
+	//rst.hyperlink(display,link);
+//}

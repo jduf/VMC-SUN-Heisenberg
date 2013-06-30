@@ -11,16 +11,16 @@ LDFLAGS = -pedantic -Wall -Wextra
 
 all:test
 
-test.o:test.cpp Read.hpp Write.hpp Matrice.hpp Vecteur.hpp Header.hpp
+test.o:test.cpp Read.hpp Write.hpp Matrix.hpp Vecteur.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Read.o:Read.cpp Read.hpp Matrice.hpp Array2D.hpp Header.hpp
+Read.o:Read.cpp Read.hpp Matrix.hpp Array2D.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Write.o:Write.cpp Write.hpp Matrice.hpp Array2D.hpp Header.hpp
+Write.o:Write.cpp Write.hpp Matrix.hpp Array2D.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Header.o:Header.cpp Header.hpp RST.hpp Matrice.hpp Vecteur.hpp Array2D.hpp
+Header.o:Header.cpp Header.hpp RST.hpp Matrix.hpp Vecteur.hpp Array2D.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 RST.o:RST.cpp RST.hpp 

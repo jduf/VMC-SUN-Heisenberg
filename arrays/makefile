@@ -7,15 +7,23 @@ LDLIBS =  -pedantic -Wall -Wextra -llapack -lblas
 
 all:test 
 
+test.o:test.cpp Array1D.hpp Array2D.hpp Read.hpp Write.hpp Matrix.hpp Vecteur.hpp Header.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
 
-test.o:test.cpp Array1D.hpp Array2D.hpp Read.hpp Write.hpp
-Read.o:Read.cpp Read.hpp Matrice.hpp
-Write.o:Write.cpp Write.hpp Matrice.hpp
+Read.o:Read.cpp Read.hpp Matrix.hpp Array2D.hpp Header.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
 
-test:test.o Read.o Write.o
+Write.o:Write.cpp Write.hpp Matrix.hpp Array2D.hpp Header.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+
+Header.o:Header.cpp Header.hpp RST.hpp Matrix.hpp Vecteur.hpp Array2D.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+
+test:test.o Read.o Write.o Header.o RST.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 ref:
 	doxygen Doxyfile
 
 clean:
-	rm *.o test
+	rm *.o test *.gch

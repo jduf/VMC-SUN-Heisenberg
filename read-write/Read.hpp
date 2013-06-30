@@ -1,7 +1,7 @@
 #ifndef DEF_READ
 #define DEF_READ
 
-#include "Matrice.hpp"
+#include "Matrix.hpp"
 #include "Array2D.hpp"
 #include "Header.hpp"
 
@@ -36,9 +36,9 @@ class Read{
 		/*!Stream operator that reads datas without formatting*/
 		template<typename Type>
 			Read& operator>>(Type& t);
-		/*!Stream operator that reads matrices, uses Matrice<M>::operator>>*/
+		/*!Stream operator that reads matrices, uses Matrix<M>::operator>>*/
 		template<typename Type>
-			Read& operator>>(Matrice<Type>& mat);
+			Read& operator>>(Matrix<Type>& mat);
 		/*!Stream operator that reads arrays, uses Array2D<A>::operator>>*/
 		template<typename Type>
 			Read& operator>>(Array2D<Type>& arr);
@@ -65,15 +65,15 @@ class Read{
 		void open_binary();
 		/*!Subroutine needed to open a text file*/
 		void open_txt();
-		/*!Extract the header from the file and save it in h*/
-		void read_header();
+		/*!Extract the header from the file and return it as a string*/
+		std::string read_header();
 
 		/*!Subroutine that check if the correct extension is given*/
 		bool test_ext(std::string f);
 
 		/*!Subroutine needed to read a matrix from a binary file*/
 		template<typename M>
-			void read_binary_matrix(Matrice<M>& mat);
+			void read_binary_matrix(Matrix<M>& mat);
 		/*!Subroutine needed to read a matrix from a binary file*/
 		template<typename A>
 			void read_binary_array2d(Array2D<A>& arr);
@@ -99,7 +99,7 @@ Read& Read::operator>>(Type& t){
 }
 
 template<typename Type>
-Read& Read::operator>>(Matrice<Type>& mat){
+Read& Read::operator>>(Matrix<Type>& mat){
 	if(unlocked){
 		if(binary) { read_binary_matrix(mat); }
 		else { tfile>>mat; }
@@ -121,14 +121,17 @@ Read& Read::operator>>(Array2D<Type>& arr){
 }
 
 template<typename Type>
-void Read::read_binary_matrix(Matrice<Type>& mat){
-	unsigned int N(0);
-	reading_point = fread(&N,sizeof(N),1,bfile);
-	if(N != mat.size()) {
-		Matrice<Type> mat_tmp(N);
+void Read::read_binary_matrix(Matrix<Type>& mat){
+	unsigned int N_row(0);
+	unsigned int N_col(0);
+	reading_point = fread(&N_row,sizeof(N_row),1,bfile);
+	reading_point = fread(&N_col,sizeof(N_col),1,bfile);
+	if(N_row != mat.row() || N_col != mat.col()) {
+		Matrix<Type> mat_tmp(N_row,N_col);
+		std::cerr<<"Read : read_binary_matrix : might be a better way (transfer the pointer)"<<std::endl;
 		mat = mat_tmp;
 	} 
-	reading_point = fread(mat.ptr(),sizeof(Type),N*N,bfile);
+	reading_point = fread(mat.ptr(),sizeof(Type),N_row*N_col,bfile);
 }
 
 template<typename Type>

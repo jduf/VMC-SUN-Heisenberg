@@ -1,11 +1,17 @@
 #include "RST.hpp"
-#include "Write.hpp"
 
 RST::RST():
 	RST_nl("\n"),
 	RST_np("\n\n"),
 	RST_item("+ "),
 	rst("")
+{}
+
+RST::RST(std::string rst):
+	RST_nl("\n"),
+	RST_np("\n\n"),
+	RST_item("+ "),
+	rst(rst)
 {}
 
 RST::~RST() { }

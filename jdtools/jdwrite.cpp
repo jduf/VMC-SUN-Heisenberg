@@ -2,7 +2,7 @@
 #include "Read.hpp"
 #include "Write.hpp"
 #include "Rewrite.hpp"
-#include <cstdlib>
+#include "Linux.hpp"
 
 void read(std::string filename){
 	Read r(filename);
@@ -21,7 +21,8 @@ void rewrite(std::string filename){
 int main(int argc, char* argv[]){
 	if(argc==2){
 		read(argv[1]);
-		system("vim /tmp/tmp.txt");
+		Linux command;
+		command("vim /tmp/tmp.txt");
 		rewrite(argv[1]);
 	} else {
 		std::cerr<<"jdwrite : take exactly one input argument"<<std::endl;

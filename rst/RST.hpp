@@ -2,10 +2,13 @@
 #define DEF_RST
 
 #include <string>
+#include <sstream> //-> tostring(T const& t)
+#include <iostream>
 
 class RST{
 	public:
 		RST();
+		RST(std::string rst);
 		virtual ~RST();
 
 		void title(std::string t,std::string symb);
@@ -29,6 +32,13 @@ class RST{
 	protected:
 		std::string rst;
 };
+
+template<typename T>
+std::string tostring(T const& t){
+	std::ostringstream s;
+	s<<t;
+	return s.str();
+}
 
 std::ostream& operator<<(std::ostream& flux, RST const& rst);
 #endif

@@ -1,5 +1,8 @@
+all:
+	make -f */makefile
+
 clean:
-	rm */*.o */*.gch
+	rm */*.o */*.gch */test
 
 ref:
 	doxygen Doxyfile

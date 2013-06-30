@@ -9,21 +9,21 @@ CXXFLAGS = -pedantic -Wall -Wextra
 LDFLAGS = -pedantic -Wall -Wextra 
 #LDLIBS = -O3 -fopenmp -msse2
 
-all:test bl
+all:test
 
-test.o:test.cpp Read.hpp Write.hpp Header.hpp
+test.o:test.cpp Read.hpp Write.hpp Header.hpp Matrix.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Read.o:Read.cpp Read.hpp Matrice.hpp Array2D.hpp Header.hpp
+Read.o:Read.cpp Read.hpp Array2D.hpp Header.hpp Matrix.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Write.o:Write.cpp Write.hpp Matrice.hpp Array2D.hpp Header.hpp
+Write.o:Write.cpp Write.hpp Array2D.hpp Header.hpp Matrix.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Header.o:Header.cpp Header.hpp RST.hpp Matrice.hpp Array2D.hpp
+Header.o:Header.cpp Header.hpp RST.hpp Array2D.hpp Matrix.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-RST.o:RST.cpp RST.hpp 
+RST.o:RST.cpp RST.hpp  
 	$(CXX) -c  $(CXXFLAGS) $^
 
 test:test.o Read.o Write.o Header.o RST.o
