@@ -18,10 +18,9 @@ int main(int argc, char* argv[]){
 }
 
 void run(Parseur& P){
-	if(P.n_args()==1 || P.n_args()==2){
-		std::string filename("");
+	std::string filename(P.get<std::string>("sim"));
+	if(!P.status()){
 		unsigned int nthreads(2);
-		P.set("sim",filename);
 		P.set("nthreads",nthreads);
 
 		unsigned int N_spin(0), N_m(0);
@@ -59,7 +58,7 @@ void run(Parseur& P){
 			sim.save();
 		}
 	} else {
-		std::cerr<<"main : mc sim filename.jdbin nthreads n"<<std::endl;
+		std::cerr<<"main : mc -sim filename.jdbin [-nthreads n]"<<std::endl;
 	}
 }
 
