@@ -2,7 +2,6 @@
 #define DEF_MLAPACK
 
 #include "Matrix.hpp"
-#include "Vecteur.hpp"
 
 //work for a symmetric matrix
 /*{*/
@@ -97,13 +96,13 @@ extern "C" double dlange_(
 template<typename Type>
 class Lapack{
 	public:
-		/*!Constructor that copy the input matrix, no LAPACK routine can affect the input matrix */
+		/*!Constructor that copy the input matrix, if del=false, the input matrix will be modified*/
 		Lapack(Matrix<Type> *m, bool del, char matrix_type);
-		/*!Destructor (delete if allocate_new_memory==true)*/
+		/*!Destructor (delete if del==true)*/
 		~Lapack();
 
 		/*!Specialized routine that computes the eigenvalues and the eigenvectors if EVec==true*/
-		void eigensystem(Vecteur<double>& EVal, bool EVec=true); 
+		void eigensystem(Matrix<double>& EVal, bool EVec=true); 
 		/*!Compute the determinant*/
 		Type det();
 		/*!Compute the LU decomposition*/
@@ -128,9 +127,9 @@ class Lapack{
 		/*!Specialized subroutine that calls a LAPACK routine to compute the inverse after the use of getrf*/
 		void getri(int *ipiv);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of a symmetric real matrix*/
-		void syev(Vecteur<double> & EVal) ;
+		void syev(Matrix<double> & EVal) ;
 		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of an hermitian complex matrix*/
-		void heev(Vecteur<double> & EVal) ; 
+		void heev(Matrix<double> & EVal) ; 
 		/*!Specialized subroutine that calls a LAPACK routine to compute the norm of an general real matrix*/
 		double lange() ; 
 		/*!Specialized subroutine that calls a LAPACK routine to compute the condition number of an general real matrix*/

@@ -6,8 +6,6 @@
 #include <cmath> //allow abs(double) and abs(complex) 
 #include <complex>
 
-#include "Vecteur.hpp"
-
 /*!Class that implement a static array as a matrix
  *
  * - can be saved with Write.hpp 

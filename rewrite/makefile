@@ -1,23 +1,19 @@
 CXX = g++
 CC = $(CXX)
 
-#CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
 CXXFLAGS = -pedantic -Wall -Wextra 
-#CXXFLAGS = -O3 -fopenmp -msse2
 
-#LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
 LDFLAGS = -pedantic -Wall -Wextra 
-#LDLIBS = -O3 -fopenmp -msse2
 
 all:test
 
 test.o:test.cpp Read.hpp Write.hpp Rewrite.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Read.o:Read.cpp Read.hpp Matrice.hpp Array2D.hpp Header.hpp
+Read.o:Read.cpp Read.hpp Matrix.hpp Array2D.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Write.o:Write.cpp Write.hpp Matrice.hpp Array2D.hpp Header.hpp
+Write.o:Write.cpp Write.hpp Matrix.hpp Array2D.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 Rewrite.o:Rewrite.cpp Rewrite.hpp Header.hpp

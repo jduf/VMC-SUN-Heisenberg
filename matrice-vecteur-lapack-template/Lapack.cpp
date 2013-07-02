@@ -1,4 +1,5 @@
 #include "Lapack.hpp"
+
 /*private methods that depend on the type, used to call lapack*/
 /*general Matrixs*/
 /*{*/
@@ -87,7 +88,7 @@ double Lapack<std::complex<double> >::lange() {
 
 /*public methods that depend on the type, used to call lapack*/
 template<> 
-void Lapack<double>::eigensystem(Vecteur<double>& EVal, bool EVec) {
+void Lapack<double>::eigensystem(Matrix<double>& EVal, bool EVec) {
 	char jobz('N');
 	if(EVec){jobz='V';}
 	switch(matrix_type){
@@ -112,7 +113,7 @@ void Lapack<double>::eigensystem(Vecteur<double>& EVal, bool EVec) {
 }
 
 template<> 
-void Lapack<std::complex<double> >::eigensystem(Vecteur<double>& EVal, bool EVec) {
+void Lapack<std::complex<double> >::eigensystem(Matrix<double>& EVal, bool EVec) {
 	char jobz('N');
 	if(EVec){jobz='V';}
 	switch(matrix_type){
