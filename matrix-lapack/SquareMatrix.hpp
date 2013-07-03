@@ -2,7 +2,6 @@
 #define DEF_SQUAREMATRIX
 
 #include "Matrix.hpp"
-#include "SquareMatrix.hpp"
 
 /*!Class that implement a static array as a matrix
  *

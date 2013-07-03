@@ -27,9 +27,9 @@ class Matrix{
 		/*!Delete the static array*/
 		~Matrix();
 
-		/*!Accesses the (i,j)th entry of the vector*/
+		/*!Accesses the (i,j)th entry of the matrix*/
 		Type const& operator()(unsigned int const& i, unsigned int const& j) const { assert(i<N_row && j<N_col); return m[i+j*N_row]; };
-		/*!Sets the (i,j)th entry of the vector*/
+		/*!Sets the (i,j)th entry of the matrix*/
 		Type& operator()(unsigned int const& i, unsigned int const& j) { assert(i<N_row && j<N_col); return m[i+j*N_row]; };
 		/*!Accesses the (i,j)th entry of the vector*/
 		Type const& operator[](unsigned int const& i) const { assert(i<N_total); return m[i]; };
