@@ -1,12 +1,12 @@
 #ifndef DEF_HEADER
 #define DEF_HEADER
 
-#include "Array2D.hpp"
+//#include "Array2D.hpp"
 #include "Matrix.hpp"
 #include "RST.hpp"
 
-#include <string>
-#include <iostream>
+//#include <string>
+//#include <ostream>
 #include <complex>
 #include <ctime> // -> time(0)
 
@@ -24,10 +24,12 @@ class Header{
 		void add(std::string const& s, int const& d);
 		void add(std::string const& s, std::string const& d);
 		void add(std::string const& s, std::complex<double> const& d);
+		void add(std::string const& s, Matrix<int> const& mat);
+		void add(std::string const& s, Matrix<unsigned int> const& mat);
 		void add(std::string const& s, Matrix<double> const& mat);
 		void add(std::string const& s, Matrix<std::complex<double> > const& mat);
-		void add(std::string const& s, Array2D<unsigned int> const& arr);
-		void add(std::string const& s, Array2D<double> const& arr);
+		//void add(std::string const& s, Array2D<unsigned int> const& arr);
+		//void add(std::string const& s, Array2D<double> const& arr);
 		//void hyperlink(std::string const& display, std::string const& link);
 
 		void set(std::string const& s) { rst.set(s); };

@@ -4,6 +4,8 @@
 
 #include "Matrix.hpp"
 #include "Lapack.hpp"
+#include "Read.hpp"
+#include "Write.hpp"
 
 #include <complex>
 
@@ -148,48 +150,90 @@ int main(){
 	//std::cout<<"L"<<std::endl;
 	//std::cout<<L<<std::endl;;
 	//std::cout<<"U"<<std::endl;
-	//std::cout<<	U<<std::endl;;
+	//std::cout<<U<<std::endl;;
 	//std::cout<<"T=LU"<<std::endl;
 	//std::cout<<L*U<<std::endl;;
 	///*}*/
 	//inverse
+	///*{*/
+	//Matrix<double> T(3,3);
+	//T(0,0)=-1.0;
+	//T(0,1)=2.5;
+	//T(0,2)=5;
+	//T(1,0)=0;
+	//T(1,1)=-12;
+	//T(1,2)=-145.42;
+	//T(2,0)=	7;
+	//T(2,1)=54;
+	//T(2,2)=47;
+	//Matrix<double> Tinv(T);
+//
+	//std::cout<<"T"<<std::endl;
+	//std::cout<<T<<std::endl;
+	//Lapack<double> Over(&Tinv,false,'G'); // Tinv va être écrasé
+	//Over.inv();
+	//std::cout<<"Tinv"<<std::endl;
+	//std::cout<<Tinv<<std::endl;
+//
+	//std::cout<<"I"<<std::endl;
+	//std::cout<<(T*Tinv)<<std::endl;;
+	//std::cout<<"I"<<std::endl;
+	//std::cout<<(Tinv*T)<<std::endl;;
+//
+//
+	//Lapack<double> Keep(&T,true,'G'); // T va être conservé
+	//Keep.inv();
+	//Matrix<double> Tinv_lapack(Over.get_mat());
+	//std::cout<<"get Tinv from lapack"<<std::endl;
+	//std::cout<<Tinv_lapack*T<<std::endl;
+//
+	////std::cout<<"check that there is no memory leaks"<<std::endl;;
+	////for(unsigned int i(0);i<10000000;i++){
+		////Lapack<double> Over(&T,true,'G'); 
+		////Over.inv();
+		////Matrix<double> Tinv_new(Over.get_mat());
+		//////std::cout<<(Tinv_new*T)<<std::endl;;
+	////}
+	///*}*/
+	//qr factorisation
 	/*{*/
-	Matrix<double> T(3,3);
-	T(0,0)=-1.0;
-	T(0,1)=2.5;
-	T(0,2)=5;
-	T(1,0)=0;
-	T(1,1)=-12;
-	T(1,2)=-145.42;
-	T(2,0)=	7;
-	T(2,1)=54;
-	T(2,2)=47;
-	Matrix<double> Tinv(T);
+	Matrix<double> T;
+	Read r("../../SUN/dev/src/sim/test_something.jdbin");
+	r>>T;
 
-	std::cout<<"T"<<std::endl;
-	std::cout<<T<<std::endl;
-	Lapack<double> Over(&Tinv,false,'G'); // Tinv va être écrasé
-	Over.inv();
-	std::cout<<"Tinv"<<std::endl;
-	std::cout<<Tinv<<std::endl;
+	//T = T.transpose();
+	T.chop();
+	Matrix<double>Q;
+	Matrix<double>R;
+	Lapack<double>qr(&T, true, 'G');
+	qr.qr(Q,R);
+	Q.chop();
+	R.chop();
+	T.chop();
+	//T = T.transpose();
+	//std::cout<<"T"<<std::endl;
+	//std::cout<<T<<std::endl;
+	//std::cout<<"QR"<<std::endl;
+	//std::cout<<(Q*R).transpose()<<std::endl;
 
-	std::cout<<"I"<<std::endl;
-	std::cout<<(T*Tinv)<<std::endl;;
-	std::cout<<"I"<<std::endl;
-	std::cout<<(Tinv*T)<<std::endl;;
+	//Matrix<double> ouf(T.col(),T.col());
+	//Matrix<double> QR(Q*R);
+	//for(unsigned int i(0);i<ouf.row();i++){
+		//for(unsigned int j(0);j<ouf.col();j++){
+			//ouf(i,j) = QR(i,j);
+		//}
+	//}
+	//Lapack<double> det_(&ouf,false,'G');
+	//std::cout<<det_.det()<<std::endl;
 
-
-	Matrix<double> Tinv_lapack(Over.get_mat());
-	std::cout<<"get Tinv from lapack"<<std::endl;
-	std::cout<<Tinv_lapack<<std::endl;
-
-	std::cout<<"check that there is no memory leaks"<<std::endl;;
-	for(unsigned int i(0);i<10000000;i++){
-		Lapack<double> Over(&T,true,'G'); 
-		Over.inv();
-		Matrix<double> Tinv_new(Over.get_mat());
-		//std::cout<<(Tinv_new*T)<<std::endl;;
-	}
+	Write wt("T.dat");
+	wt<<T;
+	Write wqr("QR.dat");
+	wqr<<Q*R;
+	Write wq("Q.dat");
+	wq<<Q;
+	Write wr("R.dat");
+	wr<<R;
 	/*}*/
 }
 

@@ -37,28 +37,28 @@ Read::~Read(){
 
 /*operators*/
 /*{*/
-Read& Read::operator>>(Array2D<std::string>& arr){
-	if(unlocked){
-		if(binary){ 
-			unsigned int row(0);
-			unsigned int col(0);
-			reading_point = fread(&row,sizeof(row),1,bfile);
-			reading_point = fread(&col,sizeof(col),1,bfile);
-			if(arr.row() != row || arr.col() != col){
-				Array2D<std::string> arr_tmp(row,col);
-				arr = arr_tmp;
-			} 
-			for(unsigned int i(0);i<row*col;i++){
-				(*this)>>(arr.ptr())[i];
-			}			
-		} else {
-			std::cerr<<"Read : << for Array2D<std::string> is not implemented"<<std::endl;
-		}
-	} else {
-		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
-	}
-	return (*this);
-}
+//Read& Read::operator>>(Array2D<std::string>& arr){
+	//if(unlocked){
+		//if(binary){ 
+			//unsigned int row(0);
+			//unsigned int col(0);
+			//reading_point = fread(&row,sizeof(row),1,bfile);
+			//reading_point = fread(&col,sizeof(col),1,bfile);
+			//if(arr.row() != row || arr.col() != col){
+				//Array2D<std::string> arr_tmp(row,col);
+				//arr = arr_tmp;
+			//} 
+			//for(unsigned int i(0);i<row*col;i++){
+				//(*this)>>(arr.ptr())[i];
+			//}			
+		//} else {
+			//std::cerr<<"Read : << for Array2D<std::string> is not implemented"<<std::endl;
+		//}
+	//} else {
+		//std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
+	//}
+	//return (*this);
+//}
 
 Read& Read::operator>>(std::string& s){
 	if(unlocked){

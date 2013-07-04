@@ -1,1 +1,1 @@
-../matrice-vecteur-lapack-template/Matrix.hpp
+../matrix-lapack/Matrix.hpp

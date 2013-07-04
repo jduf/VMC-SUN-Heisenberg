@@ -84,6 +84,18 @@ extern "C" double dlange_(
 		unsigned int const& lda,
 		double *work
 		);
+
+extern "C" void dgeqp3_(
+		unsigned int const& row,
+		unsigned int const& col,
+		double *m,
+		unsigned int const& lda,
+		int *jptv,
+		double *tau,
+		double *work,
+		int const& lwork,
+		int& info
+		);
 /*}*/
 
 /*!Class that allows an easy use of the LAPACK routines
@@ -92,6 +104,7 @@ extern "C" double dlange_(
  * - compute inverse
  * - compute eigensystem
  * - compute LU decomposition
+ * - compute QR decomposition
  * */
 template<typename Type>
 class Lapack{
@@ -107,6 +120,8 @@ class Lapack{
 		Type det();
 		/*!Compute the LU decomposition*/
 		void lu(Matrix<Type>& L, Matrix<Type>& U);
+		/*!Compute the QR decomposition*/
+		void qr(Matrix<Type>& Q, Matrix<Type>& R);
 		/*!Compute the inverse*/
 		void inv();
 		/*!Compute the condition number*/
@@ -124,6 +139,8 @@ class Lapack{
 		
 		/*!Specialized subroutine that calls a LAPACK routine to compute the LU decomposition*/
 		void getrf(int *ipiv);
+		/*!Specialized subroutine that calls a LAPACK routine to compute the QR decomposition*/
+		void geqp3(Matrix<Type>& Q, Matrix<Type>& R);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the inverse after the use of getrf*/
 		void getri(int *ipiv);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of a symmetric real matrix*/
@@ -181,9 +198,9 @@ Type Lapack<Type>::det()  {
 		getrf(ipiv);
 		for(unsigned int i(0); i<N; i++){
 			if(ipiv[i] != int(i+1)){ //! \note ipiv return value between [1,N]
-				d *= - (*mat)[i*N+i];
+				d *= - (*mat)(i,i);
 			} else {
-				d *= (*mat)[i*N+i];
+				d *= (*mat)(i,i);
 			}
 		}
 		delete[] ipiv;
@@ -210,19 +227,41 @@ void Lapack<Type>::lu(Matrix<Type>& L, Matrix<Type>& U)  {
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : lu : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : lu : the only matrix type implemented is G"<<std::endl;
-	} else {
+	} else if (mat->row()!=mat->col()){
+		std::cerr<<"Lapack : lu : works for square matrix only"<<std::endl;
+	} else  {
 		unsigned int N(mat->row());
+		L=Matrix<Type>(N,N);
+		U=Matrix<Type>(N,N);
 		int* ipiv(new int[N]);
 		getrf(ipiv);
-		for(unsigned int i(0); i< N; i++){
+		for(unsigned int i(0); i<N; i++){
 			L(i,i)=1.0;
 			U(i,i)=(*mat)[i+i*N];
-			for(unsigned int j(i+1); j< N; j++){
+			for(unsigned int j(i+1); j<N; j++){
 				U(i,j) = (*mat)[i+j*N];
 				L(j,i) = (*mat)[j+i*N];
 			}
 		}
 		delete[] ipiv;
+	}
+}
+
+template<typename Type>
+void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R)  {
+	if (matrix_type != 'G'){
+		std::cerr<<"Lapack : qr : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
+		std::cerr<<"Lapack : qr : the only matrix type implemented is G"<<std::endl;
+	} else {
+		Matrix<Type> Q12(mat->row(),mat->row(),0.0); //! see wikipedia
+		Q = Matrix<Type>(mat->row(),mat->col(),0.0);
+		R = Matrix<Type>(mat->col(),mat->col(),0.0);
+		geqp3(Q12,R);
+		for(unsigned int i(0); i<mat->row(); i++){
+			for(unsigned int j(0); j<mat->col(); j++){
+				Q(i,j) = Q12(i,j);
+			}
+		}
 	}
 }
 

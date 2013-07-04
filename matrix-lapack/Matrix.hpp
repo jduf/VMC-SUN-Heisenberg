@@ -16,9 +16,9 @@ class Matrix{
 	public:
 		/*!Default constructor that initializes *m to NULL and N to 0*/
 		Matrix();
-		/*!Initializes a static array of M of size N*N*/
+		/*!Initializes a static array of Type of size N_row*N_col*/
 		Matrix(unsigned int N_row, unsigned int N_col);
-		/*!Initializes a static array of M of size N*N to a value val*/
+		/*!Initializes a static array of Type of size N_row*N_col to a value val*/
 		Matrix(unsigned int N_row, unsigned int N_col, Type val);
 		/*!Deep copy*/
 		Matrix(Matrix<Type> const& mat);
@@ -28,13 +28,9 @@ class Matrix{
 		~Matrix();
 
 		/*!Accesses the (i,j)th entry of the matrix*/
-		Type const& operator()(unsigned int const& i, unsigned int const& j) const { assert(i<N_row && j<N_col); return m[i+j*N_row]; };
+		Type const& operator()(unsigned int const& i, unsigned int const& j=0) const { assert(i<N_row && j<N_col); return m[i+j*N_row]; };
 		/*!Sets the (i,j)th entry of the matrix*/
-		Type& operator()(unsigned int const& i, unsigned int const& j) { assert(i<N_row && j<N_col); return m[i+j*N_row]; };
-		/*!Accesses the (i,j)th entry of the vector*/
-		Type const& operator[](unsigned int const& i) const { assert(i<N_total); return m[i]; };
-		/*!Sets the (i,j)th entry of the vector*/
-		Type& operator[](unsigned int const& i) { assert(i<N_total); return m[i]; };
+		Type& operator()(unsigned int const& i, unsigned int const& j=0) { assert(i<N_row && j<N_col); return m[i+j*N_row]; };
 
 		/*!Deep copy assignment*/
 		Matrix<Type>& operator=(Matrix<Type> const& mat); 
@@ -47,6 +43,10 @@ class Matrix{
 		/*!Multiplies two matrices (m1 *= m2 : m1 = m1*m2)*/
 		Matrix<Type>& operator*=(Matrix<Type> const& mat);
 		Matrix<Type> operator*(Matrix<Type> const& mat) const;
+
+		/*!Multiplies a matrix by a scalar Type*/
+		Matrix<Type>& operator*=(Type const& d);
+		Matrix<Type> operator*(Type const& d) const;
 
 		/*!Set the whole matrix to val*/
 		void set(Type const& val);
@@ -78,6 +78,11 @@ class Matrix{
 		unsigned int N_total; //!< size of the array
 
 		void set_null_pointer(){m=NULL;}
+
+		/*!Accesses the (i,j)th entry of the vector*/
+		Type const& operator[](unsigned int const& i) const { assert(i<N_total); return m[i]; };
+		/*!Sets the (i,j)th entry of the vector*/
+		Type& operator[](unsigned int const& i) { assert(i<N_total); return m[i]; };
 };
 
 template<typename Type>
@@ -260,6 +265,21 @@ std::istream& operator>>(std::istream& flux, Matrix<Type>& mat){
 		}
 	}
 	return flux;
+}
+
+template<typename Type>
+Matrix<Type>& Matrix<Type>::operator*=(Type const& d){
+	for(unsigned int i(0);i<this->N_total;i++){
+		this->m[i] *= d; 
+	}
+	return (*this);
+}
+
+template<typename Type>
+Matrix<Type> Matrix<Type>::operator*(Type const& d) const{
+	Matrix<Type> tmp(*this);
+	tmp *= d;
+	return tmp;
 }
 /*}*/
 

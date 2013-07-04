@@ -10,13 +10,13 @@ all:test
 test.o:test.cpp Read.hpp Write.hpp Header.hpp Matrix.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Read.o:Read.cpp Read.hpp Array2D.hpp Header.hpp Matrix.hpp
+Read.o:Read.cpp Read.hpp  Header.hpp Matrix.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Write.o:Write.cpp Write.hpp Array2D.hpp Header.hpp Matrix.hpp
+Write.o:Write.cpp Write.hpp  Header.hpp Matrix.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Header.o:Header.cpp Header.hpp RST.hpp Array2D.hpp Matrix.hpp
+Header.o:Header.cpp Header.hpp RST.hpp  Matrix.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 RST.o:RST.cpp RST.hpp  

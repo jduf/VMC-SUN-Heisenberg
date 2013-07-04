@@ -33,6 +33,14 @@ void Header::add(std::string const& s, std::complex<double> const& d){
 	rst.def(s + "=" + tostring(d), "complex");
 }
 
+void Header::add(std::string const& s, Matrix<int> const& mat){
+	rst.def(s + "(" + tostring(mat.row()) + "x" + tostring(mat.col())+ ")","Matrix<int>");
+}
+
+void Header::add(std::string const& s, Matrix<unsigned int> const& mat){
+	rst.def(s + "(" + tostring(mat.row()) + "x" + tostring(mat.col())+ ")","Matrix<unsigned int>");
+}
+
 void Header::add(std::string const& s, Matrix<double> const& mat){
 	rst.def(s + "(" + tostring(mat.row()) + "x" + tostring(mat.col())+ ")","Matrix<double>");
 }
@@ -41,13 +49,13 @@ void Header::add(std::string const& s, Matrix<std::complex<double> > const& mat)
 	rst.def(s + "(" + tostring(mat.row()) + "x" + tostring(mat.col())+ ")","Matrix<complex>");
 }
 
-void Header::add(std::string const& s, Array2D<unsigned int> const& arr){
-	rst.def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<unsigned int>");
-}
+//void Header::add(std::string const& s, Array2D<unsigned int> const& arr){
+	//rst.def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<unsigned int>");
+//}
 
-void Header::add(std::string const& s, Array2D<double> const& arr){
-	rst.def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<double>");
-}
+//void Header::add(std::string const& s, Array2D<double> const& arr){
+	//rst.def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<double>");
+//}
 
 std::string Header::when(){
 	time_t t(time(0));
