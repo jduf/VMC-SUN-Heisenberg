@@ -48,8 +48,12 @@ class Matrix{
 		Matrix<Type>& operator*=(Type const& d);
 		Matrix<Type> operator*(Type const& d) const;
 
-		/*!Set the whole matrix to val*/
+		/*!Set the matrix to val*/
 		void set(Type const& val);
+		/*!Set a N_row x N_col matrix  */
+		void set(unsigned int N_row, unsigned int N_col);
+		/*!Set a N_row x N_col matrix to val */
+		void set(unsigned int N_row, unsigned int N_col, Type val);
 		/*!Sets the entries to zero if they are close to 0*/
 		void chop(double precision = 1e-10);
 		/*!Print the matrice for mathematica*/
@@ -305,6 +309,21 @@ void Matrix<Type>::set(Type const& val){
 	for(unsigned int i(0); i<N_total; i++){
 		m[i] = val;
 	}
+}
+
+template<typename Type>
+void Matrix<Type>::set(unsigned int N_row, unsigned int N_col){
+	if(m){ delete[]  m; }
+	m = new Type[N_row*N_col];
+	this->N_row = N_row;
+	this->N_col = N_col;
+	this->N_total = N_row*N_col;
+}
+
+template<typename Type>
+void Matrix<Type>::set(unsigned int N_row, unsigned int N_col, Type val){
+	this->set(N_row,N_col);
+	this->set(val);
 }
 /*}*/
 

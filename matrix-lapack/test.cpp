@@ -201,21 +201,36 @@ int main(){
 	Read r("../../SUN/dev/src/sim/test_something.jdbin");
 	r>>T;
 
-	//T = T.transpose();
-	T.chop();
-	Matrix<double>Q;
+	//std::cout<<T<<std::endl;
+	//std::cout<<T*P<<std::endl;
+	//Matrix<double> A(T.row(),T.row());
+	//Matrix<double> tmp(T*P);
+	//for(unsigned int i(0);i<A.row();i++){
+		//for(unsigned int j(0);j<A.row();j++){
+			//A(i,j) = tmp(i,j);
+		//}
+	//}
+
+	//Lapack<double> tmp_(&A,true,'G');
+	//std::cout<<tmp_.det()<<std::endl;
+
+
+	T = T.transpose();
 	Matrix<double>R;
+	Matrix<double>Q;
 	Lapack<double>qr(&T, true, 'G');
-	qr.qr(Q,R);
+	qr.qr(Q,R,true);
+	Matrix<double>P(qr.get_mat());
+	T.chop();
 	Q.chop();
 	R.chop();
 	T.chop();
-	//T = T.transpose();
-	//std::cout<<"T"<<std::endl;
-	//std::cout<<T<<std::endl;
-	//std::cout<<"QR"<<std::endl;
-	//std::cout<<(Q*R).transpose()<<std::endl;
 
+	//std::cout<<Q<<std::endl;
+	//std::cout<<R<<std::endl;
+	std::cout<<P<<std::endl;
+	std::cout<<T<<std::endl;
+	std::cout<<Q*R*P<<std::endl;
 	//Matrix<double> ouf(T.col(),T.col());
 	//Matrix<double> QR(Q*R);
 	//for(unsigned int i(0);i<ouf.row();i++){
@@ -229,7 +244,7 @@ int main(){
 	Write wt("T.dat");
 	wt<<T;
 	Write wqr("QR.dat");
-	wqr<<Q*R;
+	wqr<<Q*R*P;
 	Write wq("Q.dat");
 	wq<<Q;
 	Write wr("R.dat");

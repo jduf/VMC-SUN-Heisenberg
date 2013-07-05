@@ -85,12 +85,25 @@ extern "C" double dlange_(
 		double *work
 		);
 
+/*!start the A=QRP factorisation, gives directly R and P*/
 extern "C" void dgeqp3_(
 		unsigned int const& row,
 		unsigned int const& col,
 		double *m,
 		unsigned int const& lda,
-		int *jptv,
+		int *jpvt,
+		double *tau,
+		double *work,
+		int const& lwork,
+		int& info
+		);
+/*!ends the A=QRP factorisation, extract the Q matrix*/
+extern "C" void dorgqr_(
+		unsigned int const& row,
+		unsigned int const& col,
+		unsigned int const& k,
+		double *m,
+		unsigned int const& lda,
 		double *tau,
 		double *work,
 		int const& lwork,
@@ -121,7 +134,7 @@ class Lapack{
 		/*!Compute the LU decomposition*/
 		void lu(Matrix<Type>& L, Matrix<Type>& U);
 		/*!Compute the QR decomposition*/
-		void qr(Matrix<Type>& Q, Matrix<Type>& R);
+		void qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation=false);
 		/*!Compute the inverse*/
 		void inv();
 		/*!Compute the condition number*/
@@ -130,26 +143,35 @@ class Lapack{
 		double norm();
 
 		Matrix<Type>* get_mat(){ return mat; }
-
 		
 	protected:
 		Matrix<Type> *mat; //!< pointer on a Matrix
 		bool del; //!< false if the original matrix will be overwritten by the LAPACK routines
 		char const matrix_type; //!< type of matrix (symmetric, hermitian, general,...)
 		
-		/*!Specialized subroutine that calls a LAPACK routine to compute the LU decomposition*/
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * LU decomposition*/
 		void getrf(int *ipiv);
-		/*!Specialized subroutine that calls a LAPACK routine to compute the QR decomposition*/
-		void geqp3(Matrix<Type>& Q, Matrix<Type>& R);
-		/*!Specialized subroutine that calls a LAPACK routine to compute the inverse after the use of getrf*/
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * inverse after the call of getrf*/
 		void getri(int *ipiv);
-		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of a symmetric real matrix*/
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * QR decomposition*/
+		void geqp3(double* tau, int* jpvt);
+		/*!Specialized subroutine that calls a LAPACK routine to compute the Q
+		 * matrix of the QR decomposition after the call of geqp3*/
+		void gqr(unsigned int k, double* tau);
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * eigensystem of a symmetric real matrix*/
 		void syev(Matrix<double> & EVal) ;
-		/*!Specialized subroutine that calls a LAPACK routine to compute the eigensystem of an hermitian complex matrix*/
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * eigensystem of an hermitian complex matrix*/
 		void heev(Matrix<double> & EVal) ; 
-		/*!Specialized subroutine that calls a LAPACK routine to compute the norm of an general real matrix*/
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * norm of an general real matrix*/
 		double lange() ; 
-		/*!Specialized subroutine that calls a LAPACK routine to compute the condition number of an general real matrix*/
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * condition number of an general real matrix*/
 		double gecon(double anorm) ; 
 
 		/*!Forbids default constructor*/
@@ -248,20 +270,51 @@ void Lapack<Type>::lu(Matrix<Type>& L, Matrix<Type>& U)  {
 }
 
 template<typename Type>
-void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R)  {
+void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation)  {
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : qr : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : qr : the only matrix type implemented is G"<<std::endl;
 	} else {
-		Matrix<Type> Q12(mat->row(),mat->row(),0.0); //! see wikipedia
-		Q = Matrix<Type>(mat->row(),mat->col(),0.0);
-		R = Matrix<Type>(mat->col(),mat->col(),0.0);
-		geqp3(Q12,R);
-		for(unsigned int i(0); i<mat->row(); i++){
-			for(unsigned int j(0); j<mat->col(); j++){
-				Q(i,j) = Q12(i,j);
+		unsigned int k(std::min(mat->row(),mat->col()));
+		double *tau(new double[k]);
+		int *jpvt(new int[mat->col()]); //! \warning contains element in [1,N]
+		if(!permutation){
+			for(unsigned int i(0); i<mat->col();i++){
+				jpvt[i] = 1;
 			}
 		}
+
+		geqp3(tau,jpvt);
+		R.set(k,mat->col());
+		for(unsigned int i(0);i<R.row();i++){
+			for(unsigned int j(0);j<i;j++){
+				R(i,j) = 0.0;
+			}
+			for(unsigned int j(i);j<R.col();j++){
+				R(i,j) = (*mat)(i,j);
+			}
+		}
+		gqr(k,tau);
+
+		if(mat->col() > mat->row()){
+			Q.set(mat->row(),mat->row());
+			for(unsigned int i(0);i<Q.row();i++){
+				for(unsigned int j(0);j<Q.col();j++){
+					Q(i,j) = (*mat)(i,j);
+				}
+			}
+		} else { 
+			Q = *mat; 
+		}
+
+		if(permutation){
+			mat->set(mat->col(),mat->col(),0.0);
+			for(unsigned int i(0);i<mat->col();i++){
+				(*mat)(i,jpvt[i]-1) = 1;
+			}
+		}
+
+		delete[] tau;
 	}
 }
 

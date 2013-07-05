@@ -126,11 +126,7 @@ void Read::read_binary_matrix(Matrix<Type>& mat){
 	unsigned int N_col(0);
 	reading_point = fread(&N_row,sizeof(N_row),1,bfile);
 	reading_point = fread(&N_col,sizeof(N_col),1,bfile);
-	if(N_row != mat.row() || N_col != mat.col()) {
-		Matrix<Type> mat_tmp(N_row,N_col);
-		std::cerr<<"Read : read_binary_matrix : might be a better way (transfer the pointer)"<<std::endl;
-		mat = mat_tmp;
-	} 
+	if(N_row != mat.row() || N_col != mat.col()) { mat.set(N_row,N_col); } 
 	reading_point = fread(mat.ptr(),sizeof(Type),N_row*N_col,bfile);
 }
 
