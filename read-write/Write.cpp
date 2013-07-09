@@ -53,25 +53,24 @@ Write& Write::operator<<(std::string const& s){
 	return (*this);
 }
 
-////Write& Write::operator<<(Array2D<std::string> const& arr){
-	////if(unlocked){
-		////if(binary){
-			////std::string s("");
-			////unsigned int row(arr.row());
-			////unsigned int col(arr.col());
-			////fwrite(&row,sizeof(row), 1 ,bfile);
-			////fwrite(&col,sizeof(col), 1 ,bfile);
-			////for(unsigned int i(0); i<arr.col()*arr.row(); i++){
-				////(*this)<<(arr.ptr())[i];
-			////}
-		////} else {  
-			////std::cerr<<"Write : << for Array2D<std::string> is not implemented"<<std::endl;
-		////}
-	////} else {
-		////std::cerr<<"Write : the file "<< filename<< " is locked"<<std::endl;
-	////}
-	////return (*this);
-////}
+Write& Write::operator<<(Matrix<std::string> const& mat){
+	if(unlocked){
+		if(binary){
+			unsigned int N_row(mat.row());
+			unsigned int N_col(mat.col());
+			fwrite(&N_row, sizeof(N_row), 1 ,bfile);
+			fwrite(&N_col, sizeof(N_col), 1 ,bfile);
+			for(unsigned int i(0); i<N_col*N_row; i++){
+				(*this)<<(mat.ptr())[i];
+			}
+		} else {  
+			std::cerr<<"Write : << for Matrix<std::string> is not implemented"<<std::endl;
+		}
+	} else {
+		std::cerr<<"Write : the file "<< filename<< " is locked"<<std::endl;
+	}
+	return (*this);
+}
 /*}*/
 
 /*private methods used in the constructors, destructor or with open(std::string filename)*/

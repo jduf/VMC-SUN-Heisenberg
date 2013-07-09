@@ -42,7 +42,7 @@ jdwrite.o:jdwrite.cpp Read.hpp Write.hpp Rewrite.hpp Linux.hpp
 jdtags:jdtags.o Read.o Write.o Header.o RST.o RSTfile.o Parseur.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-jdtags.o:jdtags.cpp Read.hpp Write.hpp RSTfile.hpp Linux.hpp
+jdtags.o:jdtags.cpp Read.hpp Write.hpp RSTfile.hpp Linux.hpp Matrix.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 ##########
@@ -57,13 +57,13 @@ jdinfo.o:jdinfo.cpp Directory.hpp Read.hpp Write.hpp RSTfile.hpp Parseur.hpp
 ########
 # commun
 ########
-Read.o:Read.cpp Read.hpp Matrix.hpp Array2D.hpp Header.hpp
+Read.o:Read.cpp Read.hpp Matrix.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Write.o:Write.cpp Write.hpp Matrix.hpp Array2D.hpp Header.hpp
+Write.o:Write.cpp Write.hpp Matrix.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Header.o:Header.cpp Header.hpp RST.hpp Matrix.hpp Array2D.hpp Write.hpp
+Header.o:Header.cpp Header.hpp RST.hpp Matrix.hpp 
 	$(CXX) -c  $(CXXFLAGS) $^
 
 Directory.o:Directory.cpp Directory.hpp 
@@ -75,7 +75,7 @@ Parseur.o:Parseur.cpp Parseur.hpp
 RST.o:RST.cpp RST.hpp 
 	$(CXX) -c  $(CXXFLAGS) $^
 
-RSTfile.o:RSTfile.cpp RSTfile.hpp RST.hpp
+RSTfile.o:RSTfile.cpp RSTfile.hpp Write.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 ref:

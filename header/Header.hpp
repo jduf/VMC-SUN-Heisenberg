@@ -1,13 +1,9 @@
 #ifndef DEF_HEADER
 #define DEF_HEADER
 
-//#include "Array2D.hpp"
 #include "Matrix.hpp"
 #include "RST.hpp"
 
-//#include <string>
-//#include <ostream>
-#include <complex>
 #include <ctime> // -> time(0)
 
 class Header{

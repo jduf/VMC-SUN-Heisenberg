@@ -1,14 +1,9 @@
 #ifndef DEF_WRITE
 #define DEF_WRITE
 
-//#include "Matrix.hpp"
-//#include "Array2D.hpp"
 #include "Header.hpp"
 
-//#include <iostream>
 #include <fstream>
-//#include <string>
-//#include <complex>
 
 //{Description
 /*!Class that allows to write datas easily in a file.
@@ -21,40 +16,46 @@
  *
  *When used with a binary file
  * - many different kinds of datas can be saved together
-*/
+ */
 //}
 class Write{
 	public:
-		/*!Default constructor that needs a call of Write::open(std::string filename, bool binary)*/
+		/*!Default constructor that needs a call of Write::open(std::string
+		 * filename, bool binary)*/
 		Write();
 		/*!Opens a file named "filename", by default open a binary file*/
 		Write(std::string filename);
 		/*!Closes the file*/
 		~Write();
 
-		/*!Stream operator that writes datas without formatting*/
-		template<typename Type>
-			Write& operator<<(Type const& t);	
-		/*!Stream operator that writes matrices, uses Matrix<M>::operator<<*/
-		template<typename Type>
-			Write& operator<<(Matrix<Type> const& mat);
-		/*!Stream operator that writes arrays, uses Array2D<A>::operator<<*/
-		//template<typename Type>
-			//Write& operator<<(Array2D<Type> const& arr);
-		/*!Stream operator that writes strings*/
-		Write& operator<<(std::string const& s);
-		//Write& operator<<(Array2D<std::string> const& arr);
-
-		/*!To be used with a default constructor : opens a file named "filename", reads from the filename the type of file*/
+		/*!To be used with a default constructor : opens a file named
+		 * "filename", reads from the filename the type of file*/
 		void open(std::string filename);
 
+		/*!Stream operator that writes datas without formatting \warning
+		 * doesn't work if Type=std::string => template specialization in the
+		 * cpp file*/
+		template<typename Type>
+			Write& operator<<(Type const& t);	
+		/*!\warning don't understand why i need to declare this method. simply
+		 * specializing  the template should work*/
+		Write& operator<<(std::string const& t);	
+		/*!Stream operator that writes matrices, uses Matrix<Type>::operator<<
+		 * \warning doesn't work if Type=std::string => template specialization
+		 * in the cpp file*/
+		template<typename Type>
+			Write& operator<<(Matrix<Type> const& mat);
+		/*!\warning don't understand why i need to declare this method. simply
+		 * specializing  the template should work*/
+		Write& operator<<(Matrix<std::string> const& mat);
+		/*!Allow to write in the header what will be written in the file*/
 		template<typename Type>
 			void operator()(std::string const& var, Type const& val);
 
-		void set_header(std::string s);
-
 		/*!Returns the filename in which the class in writing*/
 		std::string get_filename() const { return filename;};
+
+		void set_header(std::string s);
 
 		static std::string endl; //!<Gives a way to end lines
 
@@ -77,9 +78,6 @@ class Write{
 		/*!Subroutine needed to write a matrix in a binary file*/
 		template<typename M>
 			void write_binary_matrix(Matrix<M> const& mat);
-		/*!Subroutine needed to write a matrix in a binary file*/
-		//template<typename A>
-			//void write_binary_array2d(Array2D<A> const& arr);
 
 		std::string filename; //!< name of the file to write in
 		FILE *bfile; //!< pointer on the binery file to write in
@@ -89,7 +87,7 @@ class Write{
 		bool binary; //!< true if the file is binary
 };
 
-template<typename Type>//doesn't work with string (it seems)
+template<typename Type>//!\warning doesn't work if Type=std::string (to be checked) => template specialization in the cpp file
 Write& Write::operator<<(Type const& t){
 	if(unlocked){
 		if(binary){
@@ -104,7 +102,7 @@ Write& Write::operator<<(Type const& t){
 	return (*this);
 }
 
-template<typename Type>//!\warning doesn't work with string
+template<typename Type>
 Write& Write::operator<<(Matrix<Type> const& mat){
 	if(unlocked){
 		if(binary) { write_binary_matrix(mat); }
@@ -115,18 +113,7 @@ Write& Write::operator<<(Matrix<Type> const& mat){
 	return (*this);
 }
 
-//template<typename Type>
-//Write& Write::operator<<(Array2D<Type> const& arr){
-	//if(unlocked){
-		//if(binary) { write_binary_array2d(arr);}
-		//else { tfile<<arr<<std::flush; }
-	//} else {
-		//std::cerr<<"Write : the file "<< filename<< " is locked"<<std::endl;
-	//}
-	//return (*this);
-//}
-
-template<typename Type>//doesn't work with string
+template<typename Type>
 void Write::write_binary_matrix(Matrix<Type> const& mat){
 	unsigned int N_row(mat.row());
 	unsigned int N_col(mat.col());
@@ -135,17 +122,6 @@ void Write::write_binary_matrix(Matrix<Type> const& mat){
 	fwrite(mat.ptr(),sizeof(Type),N_row*N_col,bfile);
 	fflush(bfile);
 }
-
-//template<typename Type>//doesn't work with string
-//void Write::write_binary_array2d(Array2D<Type> const& arr){
-	//unsigned int N_row(arr.row());
-	//unsigned int N_col(arr.col());
-//
-	//fwrite(&N_row, sizeof(N_row), 1 ,bfile);
-	//fwrite(&N_col, sizeof(N_col), 1 ,bfile);
-	//fwrite(arr.ptr(), sizeof(Type), N_row*N_col ,bfile);
-	//fflush(bfile);
-//}
 
 template<typename Type>
 void Write::operator()(std::string const& var, Type const& val){

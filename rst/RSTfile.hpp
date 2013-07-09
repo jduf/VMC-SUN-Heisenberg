@@ -1,7 +1,6 @@
 #ifndef DEF_RSTFILE
 #define DEF_RSTFILE
 
-#include"RST.hpp"
 #include"Write.hpp"
 #include"Linux.hpp"
 

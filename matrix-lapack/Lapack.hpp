@@ -122,12 +122,14 @@ extern "C" void dorgqr_(
 template<typename Type>
 class Lapack{
 	public:
-		/*!Constructor that copy the input matrix, if del=false, the input matrix will be modified*/
+		/*!Constructor that copy the input matrix, if del=false, the input
+		 * matrix will be modified*/
 		Lapack(Matrix<Type> *m, bool del, char matrix_type);
 		/*!Destructor (delete if del==true)*/
 		~Lapack();
 
-		/*!Specialized routine that computes the eigenvalues and the eigenvectors if EVec==true*/
+		/*!Specialized routine that computes the eigenvalues and the
+		 * eigenvectors if EVec==true*/
 		void eigensystem(Matrix<double>& EVal, bool EVec=true); 
 		/*!Compute the determinant*/
 		Type det();
@@ -136,11 +138,12 @@ class Lapack{
 		/*!Compute the QR decomposition*/
 		void qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation=false);
 		/*!Compute the inverse*/
-		void inv();
-		/*!Compute the condition number*/
-		void cond();
+		void inv(); 
+		void inv(Matrix<int>& ipiv);
 		/*!Compute the norm of the matrix*/
 		double norm();
+		/*!Check if a matrix is singular*/
+		Matrix<int> is_singular();
 
 		Matrix<Type>* get_mat(){ return mat; }
 		
@@ -151,10 +154,10 @@ class Lapack{
 		
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * LU decomposition*/
-		void getrf(int *ipiv);
+		void getrf(Matrix<int>& ipiv);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * inverse after the call of getrf*/
-		void getri(int *ipiv);
+		void getri(Matrix<int>& ipiv);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * QR decomposition*/
 		void geqp3(double* tau, int* jpvt);
@@ -173,6 +176,7 @@ class Lapack{
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * condition number of an general real matrix*/
 		double gecon(double anorm) ; 
+
 
 		/*!Forbids default constructor*/
 		Lapack();
@@ -216,31 +220,39 @@ Type Lapack<Type>::det()  {
 		 * */
 		Type d(1.0);
 		unsigned int N(mat->row());
-		int* ipiv(new int[N]);
+		Matrix<int> ipiv(N,1);
 		getrf(ipiv);
 		for(unsigned int i(0); i<N; i++){
-			if(ipiv[i] != int(i+1)){ //! \note ipiv return value between [1,N]
+			if(ipiv(i) != int(i+1)){ //! \note ipiv return value between [1,N]
 				d *= - (*mat)(i,i);
 			} else {
 				d *= (*mat)(i,i);
 			}
 		}
-		delete[] ipiv;
 		return d;
 	}
 }
 
 template<typename Type>
-void Lapack<Type>::inv()  {
+void Lapack<Type>::inv(Matrix<int>& ipiv) {
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : inv : the only matrix type implemented is G"<<std::endl;
 	} else {
-		unsigned int N(mat->row());
-		int* ipiv(new int[N]);
+		if(ipiv.ptr()){ getri(ipiv); }
+		else { std::cerr<<"Lapack : inv : the matrix is singular"<<std::endl;}
+	}
+}
+
+template<typename Type>
+void Lapack<Type>::inv() {
+	if (matrix_type != 'G'){
+		std::cerr<<"Lapack : inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
+		std::cerr<<"Lapack : inv : the only matrix type implemented is G"<<std::endl;
+	} else {
+		Matrix<int> ipiv(mat->row(),1);
 		getrf(ipiv);
-		getri(ipiv);	
-		delete[] ipiv;
+		getri(ipiv);
 	}
 }
 
@@ -252,20 +264,20 @@ void Lapack<Type>::lu(Matrix<Type>& L, Matrix<Type>& U)  {
 	} else if (mat->row()!=mat->col()){
 		std::cerr<<"Lapack : lu : works for square matrix only"<<std::endl;
 	} else  {
+		std::cerr<<"Lapack : lu : could return P instead of having a void method"<<std::endl;
 		unsigned int N(mat->row());
 		L=Matrix<Type>(N,N);
 		U=Matrix<Type>(N,N);
-		int* ipiv(new int[N]);
+		Matrix<int> ipiv(N,1);
 		getrf(ipiv);
 		for(unsigned int i(0); i<N; i++){
 			L(i,i)=1.0;
-			U(i,i)=(*mat)[i+i*N];
+			U(i,i)=(*mat)(i,i);
 			for(unsigned int j(i+1); j<N; j++){
-				U(i,j) = (*mat)[i+j*N];
-				L(j,i) = (*mat)[j+i*N];
+				U(i,j) = (*mat)(i,j);
+				L(j,i) = (*mat)(j,i);
 			}
 		}
-		delete[] ipiv;
 	}
 }
 
@@ -319,14 +331,22 @@ void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation)  {
 }
 
 template<typename Type>
-void Lapack<Type>::cond()  {
+Matrix<int> Lapack<Type>::is_singular(){
+	Matrix<int> ipiv(mat->row(),1);
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : cond : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : cond : the only matrix type implemented is G"<<std::endl;
-		return 0;
+		ipiv.set();
 	} else {
-		return gecon(lange());
+		double m_norm(lange());
+		getrf(ipiv);
+		double rcond(gecon(m_norm));
+		if(rcond<1e-10){
+			std::cerr<<"rcond="<<rcond<<std::endl;
+			ipiv.set();
+		}
 	}
+	return ipiv;
 }
 
 template<typename Type> 

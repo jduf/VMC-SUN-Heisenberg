@@ -1,26 +1,18 @@
 /*!  @file jdtags.cpp */
 
-#include "Linux.hpp"
 #include "Read.hpp"
 #include "RSTfile.hpp"
-#include "Array2D.hpp"
 #include "Parseur.hpp"
-
-#include <dirent.h>// not useful but need to find the correct include to let getcwd work
-#include <string>
-#include <vector>
-#include <iostream>
 
 void search_tag(std::string save_in, int argc, char* argv[]);
 
 int main(int argc, char* argv[]){
 	if(argc > 1){
 		Linux command;
-		char buff[PATH_MAX];
-		getcwd(buff,PATH_MAX);
-		std::string save_in(std::string(buff) + "/info/");
+		std::string save_in(command.pwd() + "info/");
 		std::string list_tags("");
 
+		std::cout<<save_in<<std::endl;
 		search_tag(save_in,argc,argv);
 
 		command("firefox " +save_in + "TAGS.html");
@@ -39,9 +31,10 @@ void search_tag(std::string save_in, int argc, char* argv[]){
 	RSTfile rst("TAGS",save_in);
 	rst.title("File with tag *"+list_tags+"*","+");
 
-	Array2D<std::string> DF;
+	Matrix<std::string> DF;
 	Read r(save_in + "TAGS.bin");
 	r>>DF;
+
 	for(int i(1);i<argc;i++){
 		for(unsigned int j(0);j<DF.row();j++){
 			if(DF(j,0).find(argv[i]) != std::string::npos){

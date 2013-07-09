@@ -3,13 +3,7 @@
 #include "Directory.hpp"
 #include "Parseur.hpp"
 #include "Read.hpp"
-#include "Write.hpp"
 #include "RSTfile.hpp"
-
-#include <string>
-#include <vector>
-#include <cstdlib> // system(std::string commad)
-
 
 void update_readme(Directory const& d, std::string const& directory_name);
 
@@ -18,24 +12,14 @@ int main(int argc, char* argv[]){
 	std::string directory_name(P.get<std::string>("0"));
 	if(!P.status()){
 		Linux command;
-		char buff[PATH_MAX];
-		getcwd(buff,PATH_MAX);
 		std::string save_in("");
 
-		if(directory_name == "."){
-			directory_name = buff;
-			if(directory_name[directory_name.size()-1] != '/'){
-				directory_name = directory_name + "/";
-			}
-			save_in = directory_name + "info/";
-		} else {
-			directory_name ="/"+directory_name;
-			directory_name = buff+directory_name;
-			if(directory_name[directory_name.size()-1] != '/'){
-				directory_name = directory_name + "/";
-			}
-			save_in = directory_name + "info/";
-		}
+		if(directory_name == "."){ directory_name = command.pwd(); }
+		else { directory_name = command.pwd()+directory_name; }
+
+		if(directory_name[directory_name.size()-1] != '/'){ directory_name += "/"; }
+		save_in = directory_name + "info/";
+
 		Directory d;
 		d.search_file_ext(".png",directory_name,false);
 		d.sort();
@@ -45,7 +29,7 @@ int main(int argc, char* argv[]){
 		command("firefox " + save_in + "README.html &");
 	} else {
 		std::cerr<<"need to give a directory"<<std::endl;
-	 }
+	}
 }
 
 void update_readme(Directory const& d, std::string const& directory_name){

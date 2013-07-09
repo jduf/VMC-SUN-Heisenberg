@@ -48,6 +48,8 @@ class Matrix{
 		Matrix<Type>& operator*=(Type const& d);
 		Matrix<Type> operator*(Type const& d) const;
 
+		/*!Set the matrix to 0*/
+		void set();
 		/*!Set the matrix to val*/
 		void set(Type const& val);
 		/*!Set a N_row x N_col matrix  */
@@ -305,6 +307,15 @@ inline void Matrix<std::complex<double> >::chop(double precision){
 }
 
 template<typename Type>
+void Matrix<Type>::set(){
+	if(m){ delete[] m; }
+	m = NULL;
+	this->N_row = 0;
+	this->N_col = 0;
+	this->N_total = 0;
+}
+
+template<typename Type>
 void Matrix<Type>::set(Type const& val){
 	for(unsigned int i(0); i<N_total; i++){
 		m[i] = val;
@@ -313,7 +324,7 @@ void Matrix<Type>::set(Type const& val){
 
 template<typename Type>
 void Matrix<Type>::set(unsigned int N_row, unsigned int N_col){
-	if(m){ delete[]  m; }
+	if(m){ delete[] m; }
 	m = new Type[N_row*N_col];
 	this->N_row = N_row;
 	this->N_col = N_col;

@@ -37,29 +37,6 @@ Read::~Read(){
 
 /*operators*/
 /*{*/
-//Read& Read::operator>>(Array2D<std::string>& arr){
-	//if(unlocked){
-		//if(binary){ 
-			//unsigned int row(0);
-			//unsigned int col(0);
-			//reading_point = fread(&row,sizeof(row),1,bfile);
-			//reading_point = fread(&col,sizeof(col),1,bfile);
-			//if(arr.row() != row || arr.col() != col){
-				//Array2D<std::string> arr_tmp(row,col);
-				//arr = arr_tmp;
-			//} 
-			//for(unsigned int i(0);i<row*col;i++){
-				//(*this)>>(arr.ptr())[i];
-			//}			
-		//} else {
-			//std::cerr<<"Read : << for Array2D<std::string> is not implemented"<<std::endl;
-		//}
-	//} else {
-		//std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
-	//}
-	//return (*this);
-//}
-
 Read& Read::operator>>(std::string& s){
 	if(unlocked){
 		if(binary){ 
@@ -76,6 +53,26 @@ Read& Read::operator>>(std::string& s){
 				getline(tfile,tmp);
 				s += tmp + "\n";
 			}
+		}
+	} else {
+		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
+	}
+	return (*this);
+}
+
+Read& Read::operator>>(Matrix<std::string>& mat){
+	if(unlocked){
+		if(binary){ 
+			unsigned int N_row(0);
+			unsigned int N_col(0);
+			reading_point = fread(&N_row,sizeof(N_row),1,bfile);
+			reading_point = fread(&N_col,sizeof(N_col),1,bfile);
+			if(mat.row() != N_row || mat.col() != N_col){ mat.set(N_row,N_col); } 
+			for(unsigned int i(0);i<N_row*N_col;i++){
+				(*this)>>(mat.ptr())[i];
+			}			
+		} else {
+			std::cerr<<"Read : << for Array2D<std::string> is not implemented"<<std::endl;
 		}
 	} else {
 		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;

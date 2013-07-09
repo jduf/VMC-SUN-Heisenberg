@@ -1,7 +1,6 @@
 #include "Read.hpp"
 #include "Write.hpp"
 #include "Matrix.hpp"
-//#include "Array2D.hpp"
 #include <complex>
 
 void write_bin(){
@@ -12,10 +11,9 @@ void write_bin(){
 	Matrix<double> M(5,3,2.5);
 	std::complex<double> c(3.1,0.20);
 	Matrix<std::complex<double> > C(2,3,c);
-	//Array2D<std::string> tab_str(5,2,"bla");
-	//tab_str(2,1) = "nouvelle string";	
-	//write<<M<<str<<C<<a<<c<<tab_str;
-	write<<M<<str<<C<<a<<c;
+	Matrix<std::string> tab_str(5,2,"bla");
+	tab_str(2,1) = "nouvelle string";	
+	write<<M<<str<<C<<a<<c<<tab_str;
 }
 
 void read_bin(){
@@ -30,26 +28,24 @@ void read_bin(){
 	std::complex<double> c(0.0);
 	Matrix<std::complex<double> > C1(2,3);
 	Matrix<std::complex<double> > C2;
-	//Array2D<std::string> tab_str1(5,2);
-	//Array2D<std::string> tab_str2;
-	//read_1>>M1>>str1>>C1>>a>>c>>tab_str1;
+	Matrix<std::string> tab_str1(5,2);
+	Matrix<std::string> tab_str2;
+	read_1>>M1>>str1>>C1>>a>>c>>tab_str1;
 
-	read_1>>M1>>str1>>C1>>a>>c;
 	std::cout<<M1<<std::endl;
 	std::cout<<str1<<std::endl;
 	std::cout<<C1<<std::endl;
 	std::cout<<a<<" "<<c<<std::endl;
-	//std::cout<<tab_str1<<std::endl;
+	std::cout<<tab_str1<<std::endl;
 
-	std::cout<<"deuxième lecture"<<std::endl;
+	std::cout<<"deuxième lecture sans mettre les dimensions aux matrix"<<std::endl;
 
-	//read_2>>M2>>str2>>C2>>a>>c>>tab_str2;
-	read_2>>M2>>str2>>C2>>a>>c;
+	read_2>>M2>>str2>>C2>>a>>c>>tab_str2;
 	std::cout<<M2<<std::endl;
 	std::cout<<str2<<std::endl;
 	std::cout<<C2<<std::endl;
 	std::cout<<a<<" "<<c<<std::endl;
-	//std::cout<<tab_str2<<std::endl;
+	std::cout<<tab_str2<<std::endl;
 }
 
 ////void write_txt(){

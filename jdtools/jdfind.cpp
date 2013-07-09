@@ -1,16 +1,9 @@
 /*!  @file jdfind.cpp */
 
-#include "Linux.hpp"
 #include "Directory.hpp"
 #include "Parseur.hpp"
 #include "Read.hpp"
-#include "Write.hpp"
 #include "RSTfile.hpp"
-#include "Array2D.hpp"
-
-#include <string>
-#include <vector>
-
 
 void create_readme(std::string const& directory_name);
 void list_all_simulation_files(Directory const& d, std::string const& save_in);
@@ -22,24 +15,14 @@ int main(int argc, char* argv[]){
 	std::string directory_name(P.get<std::string>("0"));
 	if(!P.status()){
 		Linux command;
-		char buff[PATH_MAX];
-		getcwd(buff,PATH_MAX);
 		std::string save_in("");
 
-		if(directory_name == "."){
-			directory_name = buff;
-			if(directory_name[directory_name.size()-1] != '/'){
-				directory_name += "/";
-			}
-			save_in = directory_name + "info/";
-		} else {
-			directory_name ="/"+directory_name;
-			directory_name = buff+directory_name;
-			if(directory_name[directory_name.size()-1] != '/'){
-				directory_name += "/";
-			}
-			save_in = directory_name + "info/";
-		}
+		if(directory_name == "."){ directory_name = command.pwd(); }
+		else { directory_name = command.pwd()+directory_name; }
+
+		if(directory_name[directory_name.size()-1] != '/'){ directory_name += "/"; }
+		save_in = directory_name + "info/";
+
 		Directory d;
 		d.search_file_ext(".jdbin",directory_name,false);
 		d.sort();
@@ -51,7 +34,6 @@ int main(int argc, char* argv[]){
 		create_tag_list(d,save_in);
 
 		command("firefox " + save_in + "README.html &");
-		
 	} else {
 		std::cerr<<"need to give a directory"<<std::endl;
 	}
@@ -115,7 +97,7 @@ void create_tag_list(Directory const& d, std::string const& save_in){
 		df.push_back(s);
 		df.push_back(save_in + d.get_name(i));
 	}
-	Array2D<std::string> DF(df.size()/2,2);
+	Matrix<std::string> DF(df.size()/2,2,"");
 	for(unsigned int i(0);i<df.size()/2;i++){
 		for(unsigned int j(0);j<2;j++){
 			DF(i,j) = df[2*i+j];

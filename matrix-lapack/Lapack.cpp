@@ -6,16 +6,16 @@
 /*compute lu factorization : dgetrf zgetrf*/
 /*{*/
 template<>
-void Lapack<double>::getrf(int *ipiv){
+void Lapack<double>::getrf(Matrix<int>& ipiv){
 	int info(1);
-	dgetrf_(mat->row(), mat->col(), mat->ptr(), mat->row(), ipiv, info);
+	dgetrf_(mat->row(), mat->col(), mat->ptr(), mat->row(), ipiv.ptr(), info);
 	if(info !=0){std::cerr<<"Lapack : getrf<double> : info="<<info<<std::endl; }
 }
 
 template<>
-void Lapack<std::complex<double> >::getrf(int *ipiv){
+void Lapack<std::complex<double> >::getrf(Matrix<int>& ipiv){
 	int info(1);
-	zgetrf_(mat->row(), mat->col(), mat->ptr(), mat->row(), ipiv, info);
+	zgetrf_(mat->row(), mat->col(), mat->ptr(), mat->row(), ipiv.ptr(), info);
 	if(info !=0){std::cerr<<"Lapack : getrf<complex> : info="<<info<<std::endl; }
 }
 /*}*/
@@ -29,7 +29,6 @@ void Lapack<double>::geqp3(double* tau, int* jpvt){
 	double* work(new double[lwork]);
 	
 	dgeqp3_(mat->row(), mat->col(), mat->ptr(), mat->row(), jpvt,tau, work, lwork, info);
-	//std::cout<<std::endl;	
 	if(info !=0){std::cerr<<"Lapack : getrf<double> : info="<<info<<std::endl;}
 	delete[] work;
 }
@@ -64,27 +63,28 @@ void Lapack<std::complex<double> >::gqr(unsigned int k, double* tau){
 	std::cerr<<"Lapack : gqr : not implemented for Matrix<complex>"<<std::endl;
 }
 /*}*/
+/*}*/
 
 /*compute inverse of a matrix after using a lu decomposition : dgetri zgetri*/
 /*{*/
 template<>
-void Lapack<double>::getri(int *ipiv){
+void Lapack<double>::getri(Matrix<int>& ipiv){
 	unsigned int N(mat->row());
 	unsigned int const lwork(3*N);
 	double* work(new double[lwork]);
 	int info(1);
-	dgetri_(N, mat->ptr(), N, ipiv, work, lwork, info);
+	dgetri_(N, mat->ptr(), N, ipiv.ptr(), work, lwork, info);
 	if(info !=0){std::cerr<<"Lapack : getri<double> : info="<<info<<std::endl;}
 	delete[] work;
 }
 
 template<>
-void Lapack<std::complex<double> >::getri(int *ipiv) {
+void Lapack<std::complex<double> >::getri(Matrix<int>& ipiv) {
 	unsigned int N(mat->row());
 	unsigned int const lwork(3*N);
 	std::complex<double>* work(new std::complex<double>[lwork]);
 	int info(1);
-	zgetri_(N, mat->ptr(), N, ipiv, work, lwork, info);
+	zgetri_(N, mat->ptr(), N, ipiv.ptr(), work, lwork, info);
 
 	if(info !=0){std::cerr<<"Lapack : getri<complex> : info="<<info<<std::endl;}
 	delete[] work;
@@ -100,7 +100,7 @@ double Lapack<double>::gecon(double anorm) {
 	double rcond(0);
 	double* work(new double[4*N]);
 	int* iwork(new int[N]);
-	dgecon_('0', N, mat->ptr(), N, anorm, rcond, work, iwork, info);
+	dgecon_('1', N, mat->ptr(), N, anorm, rcond, work, iwork, info);
 	delete[] work;
 	delete[] iwork;
 	if(info !=0){
@@ -123,7 +123,7 @@ double Lapack<std::complex<double> >::gecon(double anorm) {
 template<>
 double Lapack<double>::lange() {
 	double *work(new double[4*mat->row()]);
-	return dlange_('0', mat->row() , mat->col(), mat->ptr(), mat->row(), work);
+	return dlange_('1', mat->row() , mat->col(), mat->ptr(), mat->row(), work);
 	delete[] work;
 }
 
@@ -136,6 +136,7 @@ double Lapack<std::complex<double> >::lange() {
 /*}*/
 
 /*public methods that depend on the type, used to call lapack*/
+/*{*/
 template<> 
 void Lapack<double>::eigensystem(Matrix<double>& EVal, bool EVec) {
 	char jobz('N');
@@ -144,6 +145,7 @@ void Lapack<double>::eigensystem(Matrix<double>& EVal, bool EVec) {
 		case 'S':
 			{
 				unsigned int N(mat->row());
+				EVal.set(N,1);
 				int const lwork(3*N);
 				double* work(new double[lwork]);
 				int info(1);
@@ -169,6 +171,7 @@ void Lapack<std::complex<double> >::eigensystem(Matrix<double>& EVal, bool EVec)
 		case 'H':
 			{
 				unsigned int N(mat->row());
+				EVal.set(N,1);
 				int const lwork(2*N);
 				std::complex<double>* work(new std::complex<double>[lwork]);
 				double* rwork(new double[3*N-2]);
@@ -187,3 +190,4 @@ void Lapack<std::complex<double> >::eigensystem(Matrix<double>& EVal, bool EVec)
 			}
 	}
 }
+/*}*/
