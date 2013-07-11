@@ -4,8 +4,6 @@
 #include "Lapack.hpp"
 #include "Rand.hpp"
 
-#include <cmath>
-
 /*!Class that contains the information on the state
  * 
  *
@@ -245,12 +243,13 @@ void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<double> 
 		Ainv[i] = A[i];
 		Lapack<Type> A_(&A[i],false,'G');
 		A_.inv();
-		//Matrix<T> check(Ainv[i]*A[i]);
-		//T t(0);
-		//for(unsigned int j(0);j<check.size();j++){
-			//t+= std::abs(check(j,j))-1.0;
-		//}
-		//std::cout<< i <<": trace of Ainv.A="<<t<<std::endl;
+
+		Matrix<Type> check(Ainv[i]*A[i]);
+		Type t(0);
+		for(unsigned int j(0);j<check.row();j++){
+			t+= std::abs(check(j,j))-1.0;
+		}
+		std::cout<< i <<": trace of Ainv.A="<<t<<std::endl;
 	}
 
 	delete[] available_sites;
@@ -315,6 +314,15 @@ void System<Type>::update(){
 		}
 		Ainv[mc[m]] -= tmp_m[m];
 	}
+	//for(unsigned int i(0);i<N_spin;i++){
+		//Matrix<Type> check(Ainv[i]*A[i]);
+		//Type t(0);
+		//for(unsigned int j(0);j<check.row();j++){
+			//t+= std::abs(check(j,j))-1.0;
+		//}
+		//std::cout<< i <<": trace of Ainv.A="<<t<<std::endl;
+	//}
 }
+
 /*}*/
 #endif

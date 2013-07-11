@@ -24,14 +24,14 @@ void check(std::string filename){
 	Matrix<double> H;
 	r>>sts>>H;
 	std::cout<<"N_spin="<<N_spin<<" N_m="<<N_m<<std::endl;
-	H.chop();
-	std::cout<<"H="<<std::endl;
-	std::cout<<H<<std::endl;
 	std::cout<<"sts="<<std::endl;
 	for(unsigned int i(0);i<sts.row();i++){
 		//std::cout<<sts(i,0)<<" "<<sts(i,1)<<" "<<H(sts(i,0),sts(i,1))<<std::endl;
 		std::cout<<sts(i,0)<<" "<<sts(i,1)<<" "<<std::endl;
 	}
+	H.chop();
+	std::cout<<"H="<<std::endl;
+	std::cout<<H<<std::endl;
 	if(is_complex){
 		Matrix<std::complex<double> > EVec(N_m*N_spin,N_m*N_spin);
 		r>>EVec;

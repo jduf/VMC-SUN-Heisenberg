@@ -19,7 +19,7 @@ all:mc cs check
 mc:mc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Chrono.o 
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-mc.o:mc.cpp Parseur.hpp MonteCarlo.hpp Read.hpp Matrix.hpp  
+mc.o:mc.cpp Parseur.hpp MonteCarlo.hpp System.hpp Read.hpp Matrix.hpp  
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
 
 Rand.o:Rand.cpp Rand.hpp
@@ -84,3 +84,4 @@ clean:
 
 ref:
 	doxygen Doxyfile
+	firefox html/files.html

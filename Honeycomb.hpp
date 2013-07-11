@@ -2,7 +2,6 @@
 #define DEF_HONEYCOMB
 
 #include "CreateSystem.hpp"
-#include "Parseur.hpp"
 
 class Honeycomb: public CreateSystem<double>{
 	public:

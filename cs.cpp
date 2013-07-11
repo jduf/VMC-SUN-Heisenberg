@@ -3,7 +3,6 @@
 #include "Chain.hpp"
 #include "Square.hpp"
 #include "Honeycomb.hpp"
-#include "Parseur.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);

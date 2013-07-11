@@ -2,7 +2,6 @@
 #define DEF_CHAIN
 
 #include "CreateSystem.hpp"
-#include "Parseur.hpp"
 
 class Chain: public CreateSystem<double>{
 	public:

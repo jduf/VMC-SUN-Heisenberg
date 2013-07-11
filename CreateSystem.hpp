@@ -4,11 +4,7 @@
 #include "Parseur.hpp"
 #include "Write.hpp"
 #include "Read.hpp"
-#include "Matrix.hpp"
 #include "Lapack.hpp"
-#include "RST.hpp"
-
-#include <cmath> // for the abs(complex) and abs(double)
 
 /*!Class that creates a file containing all the necessary information to run a
  * Monte-Carlo simulation.

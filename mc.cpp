@@ -4,8 +4,6 @@
 #include "Read.hpp"
 #include "MonteCarlo.hpp"
 
-#include<string>
-#include<iostream>
 #include<omp.h>
 
 void run(Parseur& P);
