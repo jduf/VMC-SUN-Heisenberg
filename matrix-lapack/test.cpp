@@ -171,8 +171,8 @@ int main(){
 	std::cout<<"T1 : well defined"<<std::endl;
 	std::cout<<T1<<std::endl;
 	Lapack<double> Over(&T1inv,false,'G'); // Tinv va être écrasé
-	
-	Matrix<int> P1(Over.is_singular());
+	double rcond(0.0);	
+	Matrix<int> P1(Over.is_singular(rcond));
 	Over.inv(P1);
 
 	std::cout<<"Tinv"<<std::endl;
@@ -196,7 +196,7 @@ int main(){
 
 	Lapack<double> Keep(&T2,true,'G'); // T va être conservé
 	std::cout<<"T2 looks singular"<<std::endl;
-	Matrix<int> P2(Keep.is_singular());
+	Matrix<int> P2(Keep.is_singular(rcond));
 	Keep.inv(P2);
 	Matrix<double> T2inv_lapack(Keep.get_mat());
 
