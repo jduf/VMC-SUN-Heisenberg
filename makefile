@@ -1,7 +1,7 @@
 CXX = g++ 
 CC = $(CXX) 
 
-NOASSERT = -DNDEBUG
+NOASSERT =# -DNDEBUG
 ERRORS = -Wall -Wextra -pedantic
 LAPACK = -llapack -lblas
 OPTION = -O3 -fopenmp
@@ -19,7 +19,7 @@ all:mc cs check
 mc:mc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Chrono.o 
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-mc.o:mc.cpp Parseur.hpp MonteCarlo.hpp Read.hpp Matrice.hpp Array2D.hpp 
+mc.o:mc.cpp Parseur.hpp MonteCarlo.hpp Read.hpp Matrix.hpp  
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
 
 Rand.o:Rand.cpp Rand.hpp
@@ -52,7 +52,7 @@ Honeycomb.o:Honeycomb.cpp Honeycomb.hpp CreateSystem.hpp Parseur.hpp
 check:check.o Read.o Header.o RST.o Write.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-check.o:check.cpp Read.hpp Matrice.hpp Array2D.hpp
+check.o:check.cpp Read.hpp Matrix.hpp 
 	$(CXX) -c $(CXXFLAGS) $^
 	
 ########
@@ -61,19 +61,19 @@ check.o:check.cpp Read.hpp Matrice.hpp Array2D.hpp
 Parseur.o:Parseur.cpp Parseur.hpp 
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
-Write.o:Write.cpp Write.hpp Header.hpp Matrice.hpp Array2D.hpp
+Write.o:Write.cpp Write.hpp Header.hpp Matrix.hpp 
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
-Read.o:Read.cpp Read.hpp Header.hpp Matrice.hpp Array2D.hpp
+Read.o:Read.cpp Read.hpp Header.hpp Matrix.hpp 
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 	
-Header.o:Header.cpp Header.hpp Matrice.hpp Array2D.hpp
+Header.o:Header.cpp Header.hpp Matrix.hpp 
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
 RST.o:RST.cpp RST.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
-Lapack.o:Lapack.cpp Lapack.hpp Matrice.hpp Vecteur.hpp 
+Lapack.o:Lapack.cpp Lapack.hpp Matrix.hpp  
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
 ########

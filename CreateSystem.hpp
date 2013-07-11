@@ -4,8 +4,7 @@
 #include "Parseur.hpp"
 #include "Write.hpp"
 #include "Read.hpp"
-#include "Array2D.hpp"
-#include "Matrice.hpp"
+#include "Matrix.hpp"
 #include "Lapack.hpp"
 #include "RST.hpp"
 
@@ -26,9 +25,9 @@ class CreateSystem{
 	protected:
 		unsigned int const N_m, N_spin, N_site;//!<
 		double bc;//!<
-		Array2D<unsigned int> sts;//!< 
-		Matrice<double> H;//!< hopping matrix
-		Matrice<Type> T;//!< eigenvectors matrix (transfer matrix)
+		Matrix<unsigned int> sts;//!< 
+		Matrix<double> H;//!< hopping matrix
+		Matrix<Type> T;//!< eigenvectors matrix (transfer matrix)
 		bool successful;//!<
 		bool is_complex;//!<
 		RST rst;//!< will be added before the values in the header
@@ -51,8 +50,8 @@ CreateSystem<Type>::CreateSystem(Parseur& P, unsigned int N_n):
 	N_site(N_spin*N_m),
 	bc(0),
 	sts(N_spin*N_m*N_n/2,2),
-	H(N_spin*N_m,0.0),
-	T(N_spin*N_m,0.0),
+	H(N_spin*N_m,N_spin*N_m,0.0),
+	T(N_spin*N_m,N_spin*N_m,0.0),
 	successful(false),
 	is_complex(false),
 	rst(),
@@ -83,8 +82,8 @@ void CreateSystem<Type>::compute_sts(){
 template<typename Type>
 void CreateSystem<Type>::compute_EVec(){
 	successful = false;
-	Lapack<Type> ES(T.ptr(),N_site, mat_type);
-	Vecteur<double> EVal(N_site);
+	Lapack<Type> ES(&T,false, mat_type);
+	Matrix<double> EVal;
 	ES.eigensystem(EVal);
 	if(std::abs(EVal(N_m) - EVal(N_m-1))>1e-10){ successful = true; }
 }

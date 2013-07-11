@@ -1,1 +1,1 @@
-/home/jdufour/travail/cpp-dev/matrice-vecteur-lapack-template/Lapack.cpp
+/home/jdufour/travail/cpp-dev/matrix-lapack/Lapack.cpp

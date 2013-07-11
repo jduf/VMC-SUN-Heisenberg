@@ -1,8 +1,6 @@
 #ifndef DEF_SYSTEM
 #define DEF_SYSTEM
 
-#include "Matrice.hpp"
-#include "Array2D.hpp"
 #include "Lapack.hpp"
 #include "Rand.hpp"
 
@@ -28,11 +26,11 @@ class System{
 		 * - sets N_spin, N_m, N_site, H and sts
 		 * - allocates memory for A, Ainv and wis
 		 * - sest a different random number generator for each thread
-		 * - creates an random initial state and computes its related matrices
+		 * - creates an random initial state and computes its related Matrixs
 		 * - set w, cc, mc and tmp_m
 		 */
 		//}
-		void init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> const& H_, Array2D<unsigned int> const& sts_, Matrice<Type> const& EVec, unsigned int thread);
+		void init(unsigned int N_spin_, unsigned int N_m_, Matrix<double> const& H_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread);
 		/*!exchanges two particles of different color */
 		void swap();
 		/*!exchanges particle on site s1 with the one on site s2*/
@@ -43,7 +41,7 @@ class System{
 		 *
 		 * - when one matrix is modified, two of its columns are exchanged and
 		 *   therefore a minus sign arises 
-		 * - when two matrices are modified, one computes the ratio using the
+		 * - when two Matrixs are modified, one computes the ratio using the
 		 *   determinant lemma
 		 */
 		//}
@@ -52,8 +50,8 @@ class System{
 		/*!Updates the state if the condition given by the System::ratio()
 		 * method is accepted. The update consists of :
 		 *
-		 * - computes the new matrices
-		 * - computes the new inverse matrices with the Sherman-Morisson formula
+		 * - computes the new Matrixs
+		 * - computes the new inverse Matrixs with the Sherman-Morisson formula
 		 * - updates the configuration (wis)
 		 */
 		//}
@@ -79,16 +77,16 @@ class System{
 		System& operator=(System const& S);
 
 		Rand* rnd;			//!< generator of random numbers 
-		Matrice<Type> *A;      //!< det(A) <=> <GS|a>
-		Matrice<Type> *Ainv;   //!< inverse of A
-		Matrice<Type> tmp_m[2];//!< temporary matrices used during the update 
+		Matrix<Type> *A;      //!< det(A) <=> <GS|a>
+		Matrix<Type> *Ainv;   //!< inverse of A
+		Matrix<Type> tmp_m[2];//!< temporary Matrixs used during the update 
 		Type w[2];             //!< determinant ratios : <GS|a>/<GS|b>
 		unsigned int a,b;	//!< two exchanged site by swap()
 		unsigned int *wis;  //!< wis[i] = j : on ith site there is the j particle
-		unsigned int mc[2]; //!< matrices (colors) that are modified 
-		unsigned int cc[2]; //!< column's matrices (~band) that are exchanged 
-		Matrice<double> H;	//!< Hamiltonian
-		Array2D<unsigned int> sts; //!< sts(i,0) is a site that can be exchanged with sts(i,1)
+		unsigned int mc[2]; //!< Matrixs (colors) that are modified 
+		unsigned int cc[2]; //!< column's Matrixs (~band) that are exchanged 
+		Matrix<double> H;	//!< Hamiltonian
+		Matrix<unsigned int> sts; //!< sts(i,0) is a site that can be exchanged with sts(i,1)
 };
 
 
@@ -129,10 +127,10 @@ System<Type>::System():
 template<typename Type>
 System<Type>::~System(){
 	//for(unsigned int i(0);i<N_spin;i++){
-		//Matrice<T> Ainv_check(A[i]);
+		//Matrix<T> Ainv_check(A[i]);
 		//Lapack<T> A_(Ainv_check.ptr(),Ainv_check.size(),'G');
 		//A_.inv();
-		//Matrice<T> check(Ainv_check*A[i]);
+		//Matrix<T> check(Ainv_check*A[i]);
 		//T t(0);
 		//for(unsigned int j(0);j<check.size();j++){
 			//t+= std::abs(check(j,j))-1.0;
@@ -209,7 +207,7 @@ void System<Type>::print(){
 /*methods that modify the class*/
 /*{*/
 template<typename Type>
-void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double> const& H_, Array2D<unsigned int> const& sts_, Matrice<Type> const& EVec, unsigned int thread){
+void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<double> const& H_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread){
 	N_spin = N_spin_;
 	N_m = N_m_;
 	N_site = N_spin*N_m;
@@ -217,8 +215,8 @@ void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double>
 	H = H_;
 	sts = sts_;
 
-	A = new Matrice<Type>[N_spin];
-	Ainv = new Matrice<Type>[N_spin];
+	A = new Matrix<Type>[N_spin];
+	Ainv = new Matrix<Type>[N_spin];
 	wis = new unsigned int[N_site];
 	rnd = new Rand(10,thread);
 
@@ -231,8 +229,8 @@ void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double>
 	}
 
 	for(unsigned int i(0); i < N_spin; i++){
-		A[i] = Matrice<Type> (N_m);
-		Ainv[i] = Matrice<Type> (N_m);
+		A[i] = Matrix<Type> (N_m,N_m);
+		Ainv[i] = Matrix<Type> (N_m,N_m);
 		for(unsigned int j(0); j < N_m; j++){
 			site = rnd->get(N_as);
 			wis[available_sites[site]] = i*N_m+j; 	
@@ -245,9 +243,9 @@ void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double>
 			N_as--;
 		}
 		Ainv[i] = A[i];
-		Lapack<Type> A_(Ainv[i].ptr(),Ainv[i].size(),'G');
+		Lapack<Type> A_(&A[i],false,'G');
 		A_.inv();
-		//Matrice<T> check(Ainv[i]*A[i]);
+		//Matrix<T> check(Ainv[i]*A[i]);
 		//T t(0);
 		//for(unsigned int j(0);j<check.size();j++){
 			//t+= std::abs(check(j,j))-1.0;
@@ -261,7 +259,7 @@ void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrice<double>
 		w[i] = 0;
 		cc[i] = 0;
 		mc[i] = 0;
-		tmp_m[i] = Matrice<Type>(N_m);
+		tmp_m[i] = Matrix<Type>(N_m,N_m);
 	}
 }
 

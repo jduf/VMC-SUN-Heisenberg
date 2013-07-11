@@ -2,10 +2,10 @@
 #define DEF_MONTECARLO
 
 #include "System.hpp"
-#include "Array2D.hpp"
 #include "Write.hpp"
 #include "Rand.hpp"
 #include "Chrono.hpp"
+#include "Matrix.hpp"
 
 #include <vector>
 #include <cmath>
@@ -38,7 +38,7 @@ class MonteCarlo{
 		//}
 		void run(unsigned int const& thread);
 		/*!Initializes a different System for each thread*/
-		void init(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<Type> EVec);
+		void init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<double> const& H, Matrix<unsigned int> const& sts, Matrix<Type> EVec);
 		/*!Saves the essential data in the "result" file*/
 		void save();
 		
@@ -183,7 +183,7 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 }
 
 template<typename Type>
-void MonteCarlo<Type>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrice<double> const& H, Array2D<unsigned int> const& sts, Matrice<Type> EVec){
+void MonteCarlo<Type>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<double> const& H, Matrix<unsigned int> const& sts, Matrix<Type> EVec){
 	for(unsigned int thread(0);thread<nthreads;thread++){
 		S[thread].init(N_spin,N_m,H,sts,EVec,thread);
 		unsigned int j(0);
