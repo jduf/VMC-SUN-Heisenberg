@@ -122,10 +122,10 @@ extern "C" void dorgqr_(
 template<typename Type>
 class Lapack{
 	public:
-		/*!Constructor that copy the input matrix, if del=false, the input
+		/*!Constructor that copy the input matrix, if use_new_matrix=false, the input
 		 * matrix will be modified*/
-		Lapack(Matrix<Type> *m, bool del, char matrix_type);
-		/*!Destructor (delete if del==true)*/
+		Lapack(Matrix<Type> *m, bool use_new_matrix, char matrix_type);
+		/*!Destructor (delete m if use_new_matrix==true)*/
 		~Lapack();
 
 		/*!Specialized routine that computes the eigenvalues and the
@@ -143,13 +143,13 @@ class Lapack{
 		/*!Compute the norm of the matrix*/
 		double norm();
 		/*!Check if a matrix is singular*/
-		Matrix<int> is_singular();
+		Matrix<int> is_singular(double& rcn=0.0);
 
 		Matrix<Type>* get_mat(){ return mat; }
 		
 	protected:
 		Matrix<Type> *mat; //!< pointer on a Matrix
-		bool del; //!< false if the original matrix will be overwritten by the LAPACK routines
+		bool use_new_matrix; //!< false if the original matrix will be overwritten by the LAPACK routines
 		char const matrix_type; //!< type of matrix (symmetric, hermitian, general,...)
 		
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
@@ -190,18 +190,18 @@ class Lapack{
 /*Constructors and destructor*/
 /*{*/
 template<typename Type>
-Lapack<Type>::Lapack(Matrix<Type> *m, bool del, char matrix_type):
+Lapack<Type>::Lapack(Matrix<Type> *m, bool use_new_matrix, char matrix_type):
 	mat(NULL),
-	del(del),
+	use_new_matrix(use_new_matrix),
 	matrix_type(matrix_type)
 {
-	if(del){ this->mat = new Matrix<Type>(*m); }
+	if(use_new_matrix){ this->mat = new Matrix<Type>(*m); }
 	else { this->mat = m; }
 }
 
 template<typename Type>
 Lapack<Type>::~Lapack(){
-	if(del){ delete this->mat; } 
+	if(use_new_matrix){ delete this->mat; } 
 }
 /*}*/
 
@@ -331,18 +331,19 @@ void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation)  {
 }
 
 template<typename Type>
-Matrix<int> Lapack<Type>::is_singular(){
+Matrix<int> Lapack<Type>::is_singular(double& rcn){
 	Matrix<int> ipiv(mat->row(),1);
 	if (matrix_type != 'G'){
-		std::cerr<<"Lapack : cond : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
-		std::cerr<<"Lapack : cond : the only matrix type implemented is G"<<std::endl;
+		std::cerr<<"Lapack : is_singular : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
+		std::cerr<<"Lapack : is_singular : the only matrix type implemented is G"<<std::endl;
 		ipiv.set();
 	} else {
 		double m_norm(lange());
 		getrf(ipiv);
-		double rcond(gecon(m_norm));
-		if(rcond<1e-10){
-			std::cerr<<"rcond="<<rcond<<std::endl;
+
+		rcn = gecon(m_norm);
+		if(rcn<1e-10){
+			std::cerr<<"Lapack : is_singular : reciproc_cond_numb="<<rcn<<std::endl;
 			ipiv.set();
 		}
 	}

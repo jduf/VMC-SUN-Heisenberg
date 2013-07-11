@@ -36,7 +36,7 @@ class Rand{
 			return rvec[pos];
 		}
 
-		inline float get(unsigned int max) {
+		inline unsigned int get(unsigned int max) {
 			++ pos;
 			if (pos == len){ ranvec();}
 			return floor(rvec[pos] * max);

@@ -67,6 +67,8 @@ class Matrix{
 		Matrix<Type> trans_conj() const;
 		/*!Returns the diagonal elements in an vector*/
 		Matrix<Type> diag() const;
+		/*!Returns the trace*/
+		Type trace() const;
 
 		/*!Returns the pointer to the matrix*/
 		Type* ptr() const { return m; }
@@ -387,6 +389,17 @@ Matrix<Type> Matrix<Type>::diag() const{
 		v[i] = this->m[i*(this->N_row+1)];
 	}
 	return v;
+}
+
+template<typename Type>
+Type Matrix<Type>::trace() const {
+	unsigned int k(std::min(N_row,N_col));
+	Type t(0.0);
+	std::cout<<"Matrix : trace : need to be checked"<<std::endl;
+	for(unsigned int i(0);i<k;i++){
+		t += this->m[i*(N_row+1)];
+	}
+	return t;
 }
 /*}*/
 #endif
