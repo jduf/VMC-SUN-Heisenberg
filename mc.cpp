@@ -28,10 +28,9 @@ void run(Parseur& P){
 		Matrix<unsigned int> sts;
 		Matrix<double> H;
 		r>>sts>>H;
-		std::cout<<H<<std::endl;
 		if(is_complex){
 			std::cerr<<"the simulation will be lunched for complex numbers"<<std::endl;
-			Matrix<std::complex<double> > T(N_m*N_spin,N_m*N_spin);
+			Matrix<std::complex<double> > T;
 			MonteCarlo<std::complex<double> > sim(filename,nthreads);
 			r>>T;
 			sim.init(N_spin,N_m,H,sts,T);
@@ -43,7 +42,7 @@ void run(Parseur& P){
 			sim.save();
 		} else {
 			std::cerr<<"the simulation will be lunched for real numbers"<<std::endl;
-			Matrix<double> T(N_m*N_spin,N_m*N_spin);
+			Matrix<double> T;
 			MonteCarlo<double> sim(filename,nthreads);
 			r>>T;
 			sim.init(N_spin,N_m,H,sts,T);

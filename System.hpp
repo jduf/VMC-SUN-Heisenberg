@@ -24,7 +24,7 @@ class System{
 		 * - sets N_spin, N_m, N_site, H and sts
 		 * - allocates memory for A, Ainv and wis
 		 * - sest a different random number generator for each thread
-		 * - creates an random initial state and computes its related Matrixs
+		 * - creates an random initial state and computes its related matrices
 		 * - set w, cc, mc and tmp_m
 		 */
 		//}
@@ -39,7 +39,7 @@ class System{
 		 *
 		 * - when one matrix is modified, two of its columns are exchanged and
 		 *   therefore a minus sign arises 
-		 * - when two Matrixs are modified, one computes the ratio using the
+		 * - when two matrices are modified, one computes the ratio using the
 		 *   determinant lemma
 		 */
 		//}
@@ -48,8 +48,8 @@ class System{
 		/*!Updates the state if the condition given by the System::ratio()
 		 * method is accepted. The update consists of :
 		 *
-		 * - computes the new Matrixs
-		 * - computes the new inverse Matrixs with the Sherman-Morisson formula
+		 * - computes the new matrices
+		 * - computes the new inverse matrices with the Sherman-Morisson formula
 		 * - updates the configuration (wis)
 		 */
 		//}
@@ -77,12 +77,12 @@ class System{
 		Rand* rnd;			//!< generator of random numbers 
 		Matrix<Type> *A;      //!< det(A) <=> <GS|a>
 		Matrix<Type> *Ainv;   //!< inverse of A
-		Matrix<Type> tmp_m[2];//!< temporary Matrixs used during the update 
+		Matrix<Type> tmp_m[2];//!< temporary matrices used during the update 
 		Type w[2];             //!< determinant ratios : <GS|a>/<GS|b>
 		unsigned int a,b;	//!< two exchanged site by swap()
 		unsigned int *wis;  //!< wis[i] = j : on ith site there is the j particle
-		unsigned int mc[2]; //!< Matrixs (colors) that are modified 
-		unsigned int cc[2]; //!< column's Matrixs (~band) that are exchanged 
+		unsigned int mc[2]; //!< matrices (colors) that are modified 
+		unsigned int cc[2]; //!< column's matrices (~band) that are exchanged 
 		Matrix<double> H;	//!< Hamiltonian
 		Matrix<unsigned int> sts; //!< sts(i,0) is a site that can be exchanged with sts(i,1)
 };
@@ -243,13 +243,12 @@ void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<double> 
 		Ainv[i] = A[i];
 		Lapack<Type> A_(&A[i],false,'G');
 		A_.inv();
-
-		Matrix<Type> check(Ainv[i]*A[i]);
-		Type t(0);
-		for(unsigned int j(0);j<check.row();j++){
-			t+= std::abs(check(j,j))-1.0;
-		}
-		std::cout<< i <<": trace of Ainv.A="<<t<<std::endl;
+		//Matrix<Type> check(Ainv[i]*A[i]);
+		//Type t(0);
+		//for(unsigned int j(0);j<check.row();j++){
+			//t+= std::abs(check(j,j))-1.0;
+		//}
+		//std::cout<< i <<": trace of Ainv.A="<<t<<std::endl;
 	}
 
 	delete[] available_sites;
@@ -323,6 +322,5 @@ void System<Type>::update(){
 		//std::cout<< i <<": trace of Ainv.A="<<t<<std::endl;
 	//}
 }
-
 /*}*/
 #endif
