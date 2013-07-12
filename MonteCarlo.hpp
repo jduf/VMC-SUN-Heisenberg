@@ -35,7 +35,7 @@ class MonteCarlo{
 		//}
 		void run(unsigned int const& thread);
 		/*!Initializes a different System for each thread*/
-		void init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<double> const& H, Matrix<unsigned int> const& sts, Matrix<Type> EVec);
+		void init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<unsigned int> const& sts, Matrix<Type> EVec);
 		/*!Saves the essential data in the "result" file*/
 		void save();
 		
@@ -130,6 +130,24 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*public void methods*/
 /*{*/
 template<typename Type>
+void MonteCarlo<Type>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<unsigned int> const& sts, Matrix<Type> EVec){
+	for(unsigned int thread(0);thread<nthreads;thread++){
+		S[thread].init(N_spin,N_m,sts,EVec,thread);
+		unsigned int j(0);
+		double ratio(0.0);
+		Rand rnd(1e4,thread);
+		do{
+			S[thread].swap();
+			ratio = norm_squared(S[thread].ratio());
+			if(ratio>1 || rnd.get() <ratio){
+				S[thread].update();
+				j++;
+			}
+		} while (j<10);
+	}
+}
+
+template<typename Type>
 void MonteCarlo<Type>::run(unsigned int const& thread){
 	unsigned int i(0);
 	double E_config(0);
@@ -168,32 +186,7 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 	}
 #pragma omp critical
 	{
-		//Write wb("bound-"+ tostring(thread) + ".dat");
 		test_convergence(thread);
-		//wb << S[thread].bound / sampling[thread].size()<<Write::endl;
-		//double a(0);
-		//for(unsigned int i(0); i< 108;i++){
-			//a+=S[thread].bound(i) / sampling[thread].size();
-		//}
-		//wb<<a<<Write::endl;
-	}
-}
-
-template<typename Type>
-void MonteCarlo<Type>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<double> const& H, Matrix<unsigned int> const& sts, Matrix<Type> EVec){
-	for(unsigned int thread(0);thread<nthreads;thread++){
-		S[thread].init(N_spin,N_m,H,sts,EVec,thread);
-		unsigned int j(0);
-		double ratio(0.0);
-		Rand rnd(1e4,thread);
-		do{
-			S[thread].swap();
-			ratio = norm_squared(S[thread].ratio());
-			if(ratio>1 || rnd.get() <ratio){
-				S[thread].update();
-				j++;
-			}
-		} while (j<10);
 	}
 }
 
@@ -219,14 +212,13 @@ void MonteCarlo<Type>::save(){
 template<typename Type>
 void MonteCarlo<Type>::test_convergence(unsigned int const& thread){
 	if( std::abs( E[thread] / sampling[thread].size() )  > 1e3 ){ 
-		std::cerr<<filename<< " : initial condition lead to a wrong value, restarting the simulation (E="<<E[thread]<<")"<<std::endl;
 		E[thread] = 0.0;
 		sampling[thread].clear();
+		std::cerr<<filename<< " : initial condition lead to a wrong value, restarting the simulation (E="<<E[thread]<<")"<<std::endl;
 	}  else {
 		if(keep_measuring && stop.time_limit_reached(time_limit)){
 			keep_measuring = false;
 			status = 2;
-			result<<"% the simulation was stopped because it reached the time limit"<<Write::endl;
 			std::cerr<<"the simulation was stopped because it reached the time limit"<<std::endl;
 		}
 

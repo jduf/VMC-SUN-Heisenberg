@@ -26,15 +26,13 @@ void run(Parseur& P){
 		r>>is_complex>>N_spin>>N_m;
 
 		Matrix<unsigned int> sts;
-		Matrix<double> H;
-		r>>sts>>H;
+		r>>sts;
 		if(is_complex){
 			std::cerr<<"the simulation will be lunched for complex numbers"<<std::endl;
 			Matrix<std::complex<double> > T;
 			MonteCarlo<std::complex<double> > sim(filename,nthreads);
 			r>>T;
-			sim.init(N_spin,N_m,H,sts,T);
-			//omp_set_nested(1);
+			sim.init(N_spin,N_m,sts,T);
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.run(omp_get_thread_num());
@@ -45,8 +43,7 @@ void run(Parseur& P){
 			Matrix<double> T;
 			MonteCarlo<double> sim(filename,nthreads);
 			r>>T;
-			sim.init(N_spin,N_m,H,sts,T);
-			//omp_set_nested(1);
+			sim.init(N_spin,N_m,sts,T);
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.run(omp_get_thread_num());

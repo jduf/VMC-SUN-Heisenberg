@@ -4,11 +4,7 @@
 #include "Lapack.hpp"
 #include "Rand.hpp"
 
-/*!Class that contains the information on the state
- * 
- *
- * 
-*/
+/*!Class that contains the information on the state*/
 template<typename Type>
 class System{
 	public:
@@ -28,11 +24,11 @@ class System{
 		 * - set w, cc, mc and tmp_m
 		 */
 		//}
-		void init(unsigned int N_spin_, unsigned int N_m_, Matrix<double> const& H_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread);
+		void init(unsigned int N_spin_, unsigned int N_m_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread);
 		/*!exchanges two particles of different color */
 		void swap();
 		/*!exchanges particle on site s1 with the one on site s2*/
-		void swap(unsigned int const& s1, unsigned int const& s2);
+		void swap(unsigned int const& s0, unsigned int const& s1);
 		//{Description
 		/*!Computes the ratio of the two determinants related to the current and next
 		 * configuration
@@ -83,7 +79,6 @@ class System{
 		unsigned int *wis;  //!< wis[i] = j : on ith site there is the j particle
 		unsigned int mc[2]; //!< matrices (colors) that are modified 
 		unsigned int cc[2]; //!< column's matrices (~band) that are exchanged 
-		Matrix<double> H;	//!< Hamiltonian
 		Matrix<unsigned int> sts; //!< sts(i,0) is a site that can be exchanged with sts(i,1)
 };
 
@@ -111,38 +106,17 @@ System<Type>::System():
 	N_spin(0),
 	N_m(0),
 	N_site(0),
-	//bound(108,0),
 	rnd(NULL),
 	A(NULL),
 	Ainv(NULL),
 	a(0),
 	b(0),
 	wis(NULL),
-	H(0,0),
 	sts(0,0)
 { }
 
 template<typename Type>
 System<Type>::~System(){
-	//for(unsigned int i(0);i<N_spin;i++){
-		//Matrix<T> Ainv_check(A[i]);
-		//Lapack<T> A_(Ainv_check.ptr(),Ainv_check.size(),'G');
-		//A_.inv();
-		//Matrix<T> check(Ainv_check*A[i]);
-		//T t(0);
-		//for(unsigned int j(0);j<check.size();j++){
-			//t+= std::abs(check(j,j))-1.0;
-		//}
-		//T m(0);
-		//for(unsigned int j(0);j<check.size();j++){
-			//for(unsigned int k(0);k<check.size();k++){
-				//m+= std::abs(Ainv[i](j,k)-Ainv_check(j,k));
-			//}
-		//}
-		//std::cout<< i <<": trace of Ainv.A="<<t<<std::endl;
-		//std::cout<< i <<": difference between Ainv and Ainv_check="<<m<<std::endl;
-	//}
-
 	delete[] A;
 	delete[] Ainv;
 	delete[] wis;
@@ -171,17 +145,9 @@ Type System<Type>::ratio(){
 template<typename Type>
 double System<Type>::compute_energy(){
 	double E_step(0.0);
-	//double a(0.0);
 	for(unsigned int j(0);j<sts.row();j++){
 		swap(sts(j,0),sts(j,1));
-		E_step += real(ratio() * H(sts(j,0),sts(j,1)));
-		//a = -real(ratio());
-		//E_step += a;
-		//if(std::abs(H(sts(j,0),sts(j,1))+1)<1e-4){//if true -> th
-			//bound(j) += a;
-		//} else {
-			//bound(j) += a;
-		//}
+		E_step -= real(ratio());
 	}
 	return E_step;
 }
@@ -205,12 +171,11 @@ void System<Type>::print(){
 /*methods that modify the class*/
 /*{*/
 template<typename Type>
-void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<double> const& H_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread){
+void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread){
 	N_spin = N_spin_;
 	N_m = N_m_;
 	N_site = N_spin*N_m;
 
-	H = H_;
 	sts = sts_;
 
 	A = new Matrix<Type>[N_spin];
@@ -276,11 +241,11 @@ void System<Type>::swap() {
 }
 
 template<typename Type>
-void System<Type>::swap(unsigned int const& s1, unsigned int const& s2) {
-	mc[0] = wis[s1] / N_m; //gives the color of particle on site s1
-	mc[1] = wis[s2] / N_m; //gives the color of particle on site s2
-	cc[0] = wis[s1] % N_m; //gives the band of particle on site s1
-	cc[1] = wis[s2] % N_m; //gives the band of particle on site s2
+void System<Type>::swap(unsigned int const& s0, unsigned int const& s1) {
+	mc[0] = wis[s0] / N_m; //gives the color of particle on site s1
+	mc[1] = wis[s1] / N_m; //gives the color of particle on site s2
+	cc[0] = wis[s0] % N_m; //gives the band of particle on site s1
+	cc[1] = wis[s1] % N_m; //gives the band of particle on site s2
 }
 
 template<typename Type>

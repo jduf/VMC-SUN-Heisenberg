@@ -94,7 +94,6 @@ void CreateSystem<Type>::save(){
 		(*w)("N_spin",N_spin);
 		(*w)("N_m",N_m);
 		(*w)("sts",sts);
-		(*w)("H",H);
 		(*w)("T",T);
 		(*w)("bc",bc);
 	}
