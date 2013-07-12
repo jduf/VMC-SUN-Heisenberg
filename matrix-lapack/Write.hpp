@@ -37,16 +37,12 @@ class Write{
 		 * cpp file*/
 		template<typename Type>
 			Write& operator<<(Type const& t);	
-		/*!\warning don't understand why i need to declare this method. simply
-		 * specializing  the template should work*/
-		Write& operator<<(std::string const& t);	
+		Write& operator<<(std::string const& s);
 		/*!Stream operator that writes matrices, uses Matrix<Type>::operator<<
 		 * \warning doesn't work if Type=std::string => template specialization
 		 * in the cpp file*/
 		template<typename Type>
 			Write& operator<<(Matrix<Type> const& mat);
-		/*!\warning don't understand why i need to declare this method. simply
-		 * specializing  the template should work*/
 		Write& operator<<(Matrix<std::string> const& mat);
 		/*!Allow to write in the header what will be written in the file*/
 		template<typename Type>
@@ -119,7 +115,7 @@ void Write::write_binary_matrix(Matrix<Type> const& mat){
 	unsigned int N_col(mat.col());
 	fwrite(&N_row, sizeof(N_row), 1 ,bfile);
 	fwrite(&N_col, sizeof(N_col), 1 ,bfile);
-	fwrite(mat.ptr(),sizeof(Type),N_row*N_col,bfile);
+	fwrite(mat.ptr(),sizeof(Type),mat.total(),bfile);
 	fflush(bfile);
 }
 

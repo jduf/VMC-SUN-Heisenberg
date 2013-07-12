@@ -58,9 +58,9 @@ Write& Write::operator<<(Matrix<std::string> const& mat){
 		if(binary){
 			unsigned int N_row(mat.row());
 			unsigned int N_col(mat.col());
-			fwrite(&N_row, sizeof(N_row), 1 ,bfile);
-			fwrite(&N_col, sizeof(N_col), 1 ,bfile);
-			for(unsigned int i(0); i<N_col*N_row; i++){
+			fwrite(&N_row, sizeof(N_row), 1, bfile);
+			fwrite(&N_col, sizeof(N_col), 1, bfile);
+			for(unsigned int i(0); i<mat.total(); i++){
 				(*this)<<(mat.ptr())[i];
 			}
 		} else {  

@@ -122,8 +122,8 @@ extern "C" void dorgqr_(
 template<typename Type>
 class Lapack{
 	public:
-		/*!Constructor that copy the input matrix, if use_new_matrix=false, the input
-		 * matrix will be modified*/
+		/*!Constructor that copy the input matrix, if use_new_matrix=false, the
+		 * input matrix will be modified*/
 		Lapack(Matrix<Type> *m, bool use_new_matrix, char matrix_type);
 		/*!Destructor (delete m if use_new_matrix==true)*/
 		~Lapack();
@@ -138,7 +138,7 @@ class Lapack{
 		/*!Compute the QR decomposition*/
 		void qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation=false);
 		/*!Compute the inverse*/
-		void inv(); 
+		void inv();
 		void inv(Matrix<int>& ipiv);
 		/*!Compute the norm of the matrix*/
 		double norm();
@@ -166,17 +166,16 @@ class Lapack{
 		void gqr(unsigned int k, double* tau);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * eigensystem of a symmetric real matrix*/
-		void syev(Matrix<double> & EVal) ;
+		void syev(Matrix<double> & EVal);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * eigensystem of an hermitian complex matrix*/
-		void heev(Matrix<double> & EVal) ; 
+		void heev(Matrix<double> & EVal); 
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * norm of an general real matrix*/
-		double lange() ; 
+		double lange(); 
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * condition number of an general real matrix*/
-		double gecon(double anorm) ; 
-
+		double gecon(double anorm); 
 
 		/*!Forbids default constructor*/
 		Lapack();
@@ -184,7 +183,6 @@ class Lapack{
 		Lapack(Lapack const& l);
 		/*!Forbids assertion operator*/
 		Lapack& operator=(Lapack const& l);
-
 };
 
 /*Constructors and destructor*/
@@ -214,10 +212,7 @@ Type Lapack<Type>::det()  {
 		std::cerr<<"Lapack : det : the only matrix type implemented is G"<<std::endl;
 		return 0;
 	} else {
-		/*!
-		 * \warning 
-		 * the determinant needs to be rewritten for rectangles matrices
-		 * */
+		/*! \warning the determinant needs to be rewritten for rectangles matrices  */
 		Type d(1.0);
 		unsigned int N(mat->row());
 		Matrix<int> ipiv(N,1);

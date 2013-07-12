@@ -121,10 +121,11 @@ double Lapack<std::complex<double> >::gecon(double anorm) {
 /*compute the norm : dlange zlange*/
 /*{*/
 template<>
-double Lapack<double>::lange() {
+double Lapack<double>::lange(){
 	double *work(new double[4*mat->row()]);
-	return dlange_('1', mat->row() , mat->col(), mat->ptr(), mat->row(), work);
+	double anorm(dlange_('1', mat->row(), mat->col(), mat->ptr(), mat->row(), work));
 	delete[] work;
+	return anorm;
 }
 
 template<>
@@ -145,10 +146,10 @@ void Lapack<double>::eigensystem(Matrix<double>& EVal, bool EVec) {
 		case 'S':
 			{
 				unsigned int N(mat->row());
-				EVal.set(N,1);
 				int const lwork(3*N);
 				double* work(new double[lwork]);
 				int info(1);
+				EVal.set(N,1);
 				dsyev_(jobz, 'U', N, mat->ptr(), N, EVal.ptr(), work, lwork, info);
 				if(info !=0) { std::cerr<<"Lapack : eigensystem<double> : info="<<info<<std::endl; }
 				delete[] work;
@@ -171,9 +172,9 @@ void Lapack<std::complex<double> >::eigensystem(Matrix<double>& EVal, bool EVec)
 		case 'H':
 			{
 				unsigned int N(mat->row());
-				EVal.set(N,1);
 				int const lwork(2*N);
 				std::complex<double>* work(new std::complex<double>[lwork]);
+				EVal.set(N,1);
 				double* rwork(new double[3*N-2]);
 				int info(1);
 				zheev_(jobz, 'U', N, mat->ptr(), N, EVal.ptr(), work, lwork, rwork, info);

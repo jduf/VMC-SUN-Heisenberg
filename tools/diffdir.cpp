@@ -33,16 +33,21 @@ int main(int argc, char* argv[]){
 		for(unsigned int i(0);i<d1.size();i++){
 			for(unsigned int j(0);j<d2.size();j++){
 				if(d1.get_name(i)==d2.get_name(j)){
-					std::cout<<"Do you want to compare " << d1.get_name(i) << d1.get_ext(i) << " ? [y/N] ";
-					std::getline(std::cin,answer);
-					if(answer=="y"){	
-						command("vimdiff " + d1[i] + " " + d2[j]);
+					command("diff -q " + d1[i] + " " + d2[j]);
+					if(command.status()){
+						std::cout<<"Do you want to compare " << d1.get_name(i) << d1.get_ext(i) << " ? [y/N] ";
+						std::getline(std::cin,answer);
+						if(answer=="y"){	
+							command("vimdiff " + d1[i] + " " + d2[j]);
+						}
 					}
+					else { std::cerr<<"the file "<<d1[i]<<" and "<<d2[i]<<" are identical"<<std::endl; }
+					j=d2.size();
 					match = true;
 				}
 			}
 			if(match){ match=false; }
-			else { std::cerr<<"the file "<<d1[i]<<" doesn't exist in "<< directory_name_2<<std::endl; }
+			else { std::cerr<<"----> the file "<<d1[i]<<" doesn't exist in "<< directory_name_2<<std::endl; }
 		}
 	} else {
 		std::cerr<<"diffdir : You need to precise the extension and the two directories that you want to compare"<<std::endl;

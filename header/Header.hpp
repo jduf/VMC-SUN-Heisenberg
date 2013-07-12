@@ -24,9 +24,6 @@ class Header{
 		void add(std::string const& s, Matrix<unsigned int> const& mat);
 		void add(std::string const& s, Matrix<double> const& mat);
 		void add(std::string const& s, Matrix<std::complex<double> > const& mat);
-		//void add(std::string const& s, Array2D<unsigned int> const& arr);
-		//void add(std::string const& s, Array2D<double> const& arr);
-		//void hyperlink(std::string const& display, std::string const& link);
 
 		void set(std::string const& s) { rst.set(s); };
 		RST get() const {return rst;};
@@ -36,7 +33,6 @@ class Header{
 
 		std::string when();
 };
-
 
 std::ostream& operator<<(std::ostream& flux, Header const& h);
 #endif

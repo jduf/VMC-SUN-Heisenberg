@@ -49,14 +49,6 @@ void Header::add(std::string const& s, Matrix<std::complex<double> > const& mat)
 	rst.def(s + "(" + tostring(mat.row()) + "x" + tostring(mat.col())+ ")","Matrix<complex>");
 }
 
-//void Header::add(std::string const& s, Array2D<unsigned int> const& arr){
-	//rst.def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<unsigned int>");
-//}
-
-//void Header::add(std::string const& s, Array2D<double> const& arr){
-	//rst.def(s + "(" + tostring(arr.row()) + "x" + tostring(arr.col())+ ")","Array2D<double>");
-//}
-
 std::string Header::when(){
 	time_t t(time(0));
 	struct tm* now(localtime(&t));
@@ -81,7 +73,3 @@ std::ostream& operator<<(std::ostream& flux, Header const& h){
 	flux<<h.get();
 	return flux;
 }
-
-//void Header::hyperlink(std::string const& display, std::string const& link) {
-	//rst.hyperlink(display,link);
-//}

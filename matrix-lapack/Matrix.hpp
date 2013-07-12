@@ -106,9 +106,7 @@ Matrix<Type>::Matrix():
 	N_row(0),
 	N_col(0),
 	N_total(0)
-{
-	//std::cout<<"called default"<<std::endl;
-}
+{ }
 
 template<typename Type>
 Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col):
@@ -116,9 +114,7 @@ Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col):
 	N_row(N_row),
 	N_col(N_col),
 	N_total(N_col*N_row)
-{
-	//std::cout<<"called N_row,N_col"<<std::endl;
-} 
+{ } 
 
 template<typename Type>
 Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col, Type val):
@@ -126,10 +122,7 @@ Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col, Type val):
 	N_row(N_row),
 	N_col(N_col),
 	N_total(N_col*N_row)
-{
-	//std::cout<<"called N_row,N_col,val"<<std::endl;
-	set(val);
-}
+{ set(val); }
 
 template<typename Type>
 Matrix<Type>::Matrix(Matrix<Type> const& mat):
@@ -138,7 +131,6 @@ Matrix<Type>::Matrix(Matrix<Type> const& mat):
 	N_col(mat.N_col),
 	N_total(mat.N_total)
 {
-	//std::cout<<"called copy"<<std::endl;
 	for(unsigned int i(0);i<N_total;i++){
 		this->m[i] = mat.m[i];
 	}
@@ -151,19 +143,15 @@ Matrix<Type>::Matrix(Matrix<Type> *mat):
 	N_col(mat->N_col),
 	N_total(mat->N_total)
 { 
-	//std::cout<<"called pointer"<<std::endl;
 	mat->set_null_pointer();
 }
 
 template<typename Type>
 Matrix<Type>::~Matrix(){
-	//std::cout<<"called destructeur";
 	if(m){
-		//std::cout<<" with delete";
 		delete[]  m;
 		m = NULL;
 	}
-	//std::cout<<std::endl;
 }
 /*}*/
 
@@ -173,7 +161,7 @@ template<typename Type>
 Matrix<Type>& Matrix<Type>::operator=(Matrix<Type> const& mat){
 	if(this->N_col != mat.N_col ||  this->N_row != mat.N_row){
 		if(this->m){ delete[] this->m;}
-		this->m = new Type[mat.N_row*mat.N_col];
+		this->m = new Type[mat.N_total];
 		this->N_total = mat.N_total;
 		this->N_row = mat.N_row;
 		this->N_col = mat.N_col;
@@ -186,7 +174,7 @@ Matrix<Type>& Matrix<Type>::operator=(Matrix<Type> const& mat){
 
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator+=(Matrix<Type> const& mat){
-	assert(N_row == mat.N_row && N_col == mat.N_col);
+	assert(this->N_row == mat.N_row && this->N_col == mat.N_col);
 	for(unsigned int i(0);i<N_total;i++){
 		this->m[i] += mat.m[i];
 	}
@@ -202,7 +190,7 @@ Matrix<Type> Matrix<Type>::operator+(Matrix<Type> const& mat) const{
 
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator-=(Matrix<Type> const& mat){
-	assert(N_row == mat.N_row && N_col == mat.N_col);
+	assert(this->N_row == mat.N_row && this->N_col == mat.N_col);
 	for(unsigned int i(0);i<N_total;i++){
 		this->m[i] -= mat.m[i];
 	}
@@ -295,14 +283,14 @@ Matrix<Type> Matrix<Type>::operator*(Type const& d) const{
 /*{*/
 template<>
 inline void Matrix<double>::chop(double precision){
-	for(unsigned int i(0);i<N_total;i++){
+	for(unsigned int i(0);i<this->N_total;i++){
 		if(std::abs(m[i]) < precision ){m[i]=0.0;}
 	}
 }
 
 template<>
 inline void Matrix<std::complex<double> >::chop(double precision){
-	for(unsigned int i(0);i<N_total;i++){
+	for(unsigned int i(0);i<this->N_total;i++){
 		if(std::abs(m[i].imag()) < precision ){m[i].imag()=0.0;}
 		if(std::abs(m[i].real()) < precision ){m[i].real()=0.0;}
 	}
@@ -319,7 +307,7 @@ void Matrix<Type>::set(){
 
 template<typename Type>
 void Matrix<Type>::set(Type const& val){
-	for(unsigned int i(0); i<N_total; i++){
+	for(unsigned int i(0); i<this->N_total; i++){
 		m[i] = val;
 	}
 }
@@ -365,6 +353,19 @@ Matrix<Type> Matrix<Type>::trans_conj() const{
 }
 
 template<typename Type>
+Matrix<Type> Matrix<Type>::diag() const{
+	unsigned int N(0);
+	if(this->N_row < this->N_col){N=N_col;}
+	else{N=N_row;}
+	Matrix<Type> v(N,1);
+	for(unsigned int i(0);i<N;i++){
+		v[i] = this->m[i*(this->N_row+1)];
+	}
+	std::cerr<<"Matrix : diag : to check"<<std::endl;
+	return v;
+}
+
+template<typename Type>
 void Matrix<Type>::print_mathematica(){
 	std::cout<<"{{";
 	for(unsigned int i(0);i<this->N_row-1;i++){
@@ -379,17 +380,6 @@ void Matrix<Type>::print_mathematica(){
 	std::cout<<this->m[this->N_total-1]<<"}}"<<std::endl;
 }
 
-template<typename Type>
-Matrix<Type> Matrix<Type>::diag() const{
-	unsigned int N(0);
-	if(this->N_row < this->N_col){N=N_col;}
-	else{N=N_row;}
-	Matrix<Type> v(N,1);
-	for(unsigned int i(0);i<N;i++){
-		v[i] = this->m[i*(this->N_row+1)];
-	}
-	return v;
-}
 
 template<typename Type>
 Type Matrix<Type>::trace() const {

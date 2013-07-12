@@ -30,20 +30,15 @@ class Read{
 		/*!To be used with a default constructor : opens a file named
 		 * "filename", reads from the filename the type of file*/
 		void open(std::string filename);
-		
+
 		/*!Stream operator that reads datas without formatting*/
 		template<typename Type>
 			Read& operator>>(Type& t);
-		/*!\warning don't understand why i need to declare this method. simply
-		 * specializing  the template should work*/
-		Read& operator>>(std::string& t);
+		Read& operator>>(std::string& s);
 		/*!Stream operator that reads matrices, uses
 		 * Matrix<Type>::operator>>*/
 		template<typename Type>
 			Read& operator>>(Matrix<Type>& mat);
-		/*!Stream operator that reads matrices of strings \warning don't
-		 * understand why i need to declare this method. simply specializing
-		 * the template should work*/
 		Read& operator>>(Matrix<std::string>& mat);
 
 
