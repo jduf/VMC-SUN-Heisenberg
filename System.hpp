@@ -241,8 +241,8 @@ void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<double> 
 			N_as--;
 		}
 		Ainv[i] = A[i];
-		Lapack<Type> A_(&A[i],false,'G');
-		A_.inv();
+		Lapack<Type> inv(&Ainv[i],false,'G');
+		inv.inv();
 		//Matrix<Type> check(Ainv[i]*A[i]);
 		//Type t(0);
 		//for(unsigned int j(0);j<check.row();j++){
