@@ -3,6 +3,7 @@
 
 #include "System.hpp"
 #include "Write.hpp"
+#include "Rand.hpp"
 #include "Chrono.hpp"
 
 #include <vector>
@@ -35,10 +36,10 @@ class MonteCarlo{
 		//}
 		void run(unsigned int const& thread);
 		/*!Initializes a different System for each thread*/
-		void init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<unsigned int> const& sts, Matrix<Type> EVec);
+		void init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<unsigned int> const& sts, Matrix<Type> const& EVec, unsigned int thread);
 		/*!Saves the essential data in the "result" file*/
-		void save();
-		
+		void save_in_file(Write& w, unsigned int thread);
+
 	private:
 		/*!Forbids the copy constructor*/
 		MonteCarlo(MonteCarlo const& mc);
@@ -62,22 +63,19 @@ class MonteCarlo{
 		/*!Computes the mean of a std::vector<double> */
 		double mean(std::vector<double> const& v);
 		/*!Compute the variance of a std::vector<double> */
-		double delta(std::vector<double> const& v, double m);
-
+		double delta(std::vector<double> const& v, double const& m);
 	
 		unsigned int const nthreads; //!< Number of independant chains that are lunched
 		unsigned int const N_MC; //!< Number of measure to do before doing a binning analysis
 		unsigned int const time_limit; //!< Time limit in second
-		unsigned int status; //!< Successful:0 Not lunched:1  Time elapsed:2
 		bool keep_measuring; //!< True if the code runs
 		Chrono stop; //!< To stop the simulation after time_limit seconds
-		std::string filename; //!< Name of the output file
-		Write output; //!< Text file of name "filename.out" that stores all the output of the MC algorithm
-		Write result; //!< Text file of name "filename.dat" that stores the final result
+		Write output; //!< Text file of name "filename-MC.out" that stores all the output of the MC algorithm
 		System<Type>* S; //!< Pointer to a system 
 		double* E; //!< Value that the MC algorithm tries to compute
 		double* err; //!< Error on E
 		std::vector<double>* sampling; //!< Stores all the values that MC considers
+		unsigned int* status; //!< Not Lunched:0 Lunched:1 Successful:2 Time elapsed:3
 };
 
 /*double norm_squared(T)*/
@@ -103,17 +101,14 @@ MonteCarlo<Type>::MonteCarlo(std::string filename, unsigned int const& nthreads)
 	nthreads(nthreads),
 	N_MC(1e4),
 	time_limit(nthreads*3600*2*24),
-	status(1),
 	keep_measuring(true),
-	filename(filename),
-	output(filename+".out"),
-	result(filename+".dat"),
+	output(filename+"-MC.out"),
 	S(new System<Type>[nthreads]),
 	E(new double[nthreads]),
 	err(new double[nthreads]),
-	sampling(new std::vector<double>[nthreads])
+	sampling(new std::vector<double>[nthreads]),
+	status(new unsigned int[nthreads])
 {
-	result<<"%N_spin "<<"N_m "<<"N_samples "<<"E_persite "<<"Delta_E "<<"Boundary_condition "<<"Status"<<Write::endl;
 	stop.tic();
 }
 
@@ -130,80 +125,59 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*public void methods*/
 /*{*/
 template<typename Type>
-void MonteCarlo<Type>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<unsigned int> const& sts, Matrix<Type> EVec){
-	for(unsigned int thread(0);thread<nthreads;thread++){
-		S[thread].init(N_spin,N_m,sts,EVec,thread);
-		unsigned int j(0);
-		double ratio(0.0);
-		Rand rnd(1e4,thread);
-		do{
-			S[thread].swap();
-			ratio = norm_squared(S[thread].ratio());
-			if(ratio>1 || rnd.get() <ratio){
-				S[thread].update();
-				j++;
-			}
-		} while (j<10);
-	}
+ void MonteCarlo<Type>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<unsigned int> const& sts, Matrix<Type> const& EVec, unsigned int thread) {
+	 status[thread] = S[thread].init(N_spin,N_m,sts,EVec,thread);
 }
 
 template<typename Type>
 void MonteCarlo<Type>::run(unsigned int const& thread){
-	unsigned int i(0);
-	double E_config(0);
-	double ratio(0.0);
-	Rand rnd(1e4,thread);
-	bool binning(true);
-	if(binning){
-		do{
-			S[thread].swap();
-			ratio = norm_squared(S[thread].ratio());
-			if( (ratio > 1.0) || (rnd.get() < ratio) ){
-				S[thread].update();
-				E_config = S[thread].compute_energy();
-				E[thread] += E_config;
-				sampling[thread].push_back(E_config);
-				i++;
-				if(i % N_MC == 0) {
-					test_convergence(thread);
-				}
-			}
-		} while(keep_measuring);
-	} else {
-		do{
-			S[thread].swap();
-			ratio = norm_squared(S[thread].ratio());
-			if(ratio>1 || rnd.get() <ratio){
-				i++;
-				if(i % N_MC == 0) {
+	if(status[thread]){
+		unsigned int i(0);
+		double E_config(0);
+		double ratio(0.0);
+		Rand rnd(1e4,thread);
+		bool bin(true);
+		if(bin){
+			do{
+				S[thread].swap();
+				ratio = norm_squared(S[thread].ratio());
+				if( ratio > 1.0 || rnd.get() < ratio ){
 					S[thread].update();
 					E_config = S[thread].compute_energy();
 					E[thread] += E_config;
 					sampling[thread].push_back(E_config);
+					i++;
+					if(i >= N_MC) {
+						test_convergence(thread);
+						i=0;
+					}
 				}
-			}
-		} while(i<1e10); 
-	}
-#pragma omp critical
-	{
+			} while(keep_measuring);
+		} else {
+			do{
+				S[thread].swap();
+				ratio = norm_squared(S[thread].ratio());
+				if(ratio>1 || rnd.get() <ratio){
+					i++;
+					//if(i % N_MC == 0) {
+					S[thread].update();
+					E_config = S[thread].compute_energy();
+					E[thread] += E_config;
+					sampling[thread].push_back(E_config);
+					//}
+				}
+			} while(i<N_MC); 
+		}
 		test_convergence(thread);
 	}
 }
 
 template<typename Type>
-void MonteCarlo<Type>::save(){
-	int bc(0);
-	if(filename.find("P") != std::string::npos ){ bc = 1;}
-	if(filename.find("A") != std::string::npos ){ bc = -1;}
-	for(unsigned int thread(0); thread<nthreads; thread++){
-		result<<S[thread].N_spin
-			<<" "<<S[thread].N_m
-			<<" "<<sampling[thread].size()
-			<<" "<<E[thread] / (sampling[thread].size() * S[thread].N_site)
-			<<" "<<err[thread]
-			<<" "<<bc
-			<<" "<<status <<Write::endl;
-	}
+void MonteCarlo<Type>::save_in_file(Write& w, unsigned int thread){
+	w<<" "<<sampling[thread].size()
+	<<" "<<E[thread] / (sampling[thread].size() * S[thread].N_site)
+	<<" "<<err[thread]
+	<<" "<<status[thread];
 }
 /*}*/
 
@@ -214,11 +188,11 @@ void MonteCarlo<Type>::test_convergence(unsigned int const& thread){
 	if( std::abs( E[thread] / sampling[thread].size() )  > 1e3 ){ 
 		E[thread] = 0.0;
 		sampling[thread].clear();
-		std::cerr<<filename<< " : initial condition lead to a wrong value, restarting the simulation (E="<<E[thread]<<")"<<std::endl;
+		std::cerr<<"the simulation is restarted, bad initial condition"<<std::endl;
 	}  else {
 		if(keep_measuring && stop.time_limit_reached(time_limit)){
 			keep_measuring = false;
-			status = 2;
+			status[thread] = 3;
 			std::cerr<<"the simulation was stopped because it reached the time limit"<<std::endl;
 		}
 
@@ -240,15 +214,13 @@ void MonteCarlo<Type>::test_convergence(unsigned int const& thread){
 		err[thread] = d[d.size()-1] / S[thread].N_site; 
 		if(cond/m<1e-3){ 
 			keep_measuring = false; 
-			status = 0;
+			status[thread] = 2;
 		}
 	
-		output<<S[thread].N_spin
-			<<" "<<S[thread].N_m
-			<<" "<<sampling[thread].size()
+		output<<sampling[thread].size()
 			<<" "<<E[thread] / (sampling[thread].size() * S[thread].N_site)
 			<<" "<<err[thread];
-		for(unsigned int i(0);i<d.size();i++){
+		for(unsigned int i(d.size()-4);i<d.size();i++){
 			output<<" "<<d[i];
 		}
 		output<<Write::endl;
@@ -286,7 +258,7 @@ double MonteCarlo<Type>::mean(std::vector<double> const& v){
 }
 
 template<typename Type>
-double MonteCarlo<Type>::delta(std::vector<double> const& v, double m){
+double MonteCarlo<Type>::delta(std::vector<double> const& v, double const& m){
 	double d(0.0);
 	unsigned int N(v.size());
 	for(unsigned int i(0);i<N;i++){

@@ -15,16 +15,15 @@ class System{
 
 		//{Description
 		/*! This method creates the system in function of the input parameters.
-		 * The steps are :
 		 *
 		 * - sets N_spin, N_m, N_site, H and sts
 		 * - allocates memory for A, Ainv and wis
-		 * - sest a different random number generator for each thread
+		 * - sets a different random number generator for each thread
 		 * - creates an random initial state and computes its related matrices
 		 * - set w, cc, mc and tmp_m
 		 */
 		//}
-		void init(unsigned int N_spin_, unsigned int N_m_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread);
+		unsigned int init(unsigned int N_spin_, unsigned int N_m_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread);
 		/*!exchanges two particles of different color */
 		void swap();
 		/*!exchanges particle on site s1 with the one on site s2*/
@@ -62,8 +61,6 @@ class System{
 		unsigned int N_m;	//!< number of each color
 		unsigned int N_site;//!< number of lattice site
 
-		//Vecteur<double> bound;
-
 	private:
 		/*!Forbids copy constructor*/
 		System(System const& S);
@@ -81,7 +78,6 @@ class System{
 		unsigned int cc[2]; //!< column's matrices (~band) that are exchanged 
 		Matrix<unsigned int> sts; //!< sts(i,0) is a site that can be exchanged with sts(i,1)
 };
-
 
 /*double real(T)*/
 /*{*/
@@ -154,28 +150,23 @@ double System<Type>::compute_energy(){
 
 template<typename Type>
 void System<Type>::print(){
-	for(unsigned int i(0); i<N_site; i++){
-	std::cout<<wis[i]<<" ";
+	//for(unsigned int i(0); i<N_site; i++){
+	//std::cout<<wis[i]<<" ";
+	//}
+	//std::cout<<std::endl;
+	for(unsigned int i(0); i < N_spin; i++){
+		std::cout<<(Ainv[i]*A[i]).diag()<<std::endl;;
 	}
-	std::cout<<std::endl;
-	//for(unsigned int i(0);i<2;i++){
-		//std::cout<<mc[i]<<" "<< cc[i]<<" "<<w[i]<<std::endl;
-	//}
-	//for(unsigned int i(0);i<N_spin;i++){
-		//std::cout<<std::endl;
-		//std::cout<<Ainv[i] * A[i]<<std::endl;
-	//}
 }
 /*}*/
 
 /*methods that modify the class*/
 /*{*/
 template<typename Type>
-void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread){
-	N_spin = N_spin_;
+unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread){
 	N_m = N_m_;
+	N_spin = N_spin_;
 	N_site = N_spin*N_m;
-
 	sts = sts_;
 
 	A = new Matrix<Type>[N_spin];
@@ -183,47 +174,65 @@ void System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<unsigned
 	wis = new unsigned int[N_site];
 	rnd = new Rand(10,thread);
 
-	unsigned int site(0);
-	unsigned int N_as(N_site);
-	unsigned int* available_sites(new unsigned int[N_site]);
-
-	for(unsigned int i(0); i < N_site; i++){
-		available_sites[i]  = i;	
-	}
-
 	for(unsigned int i(0); i < N_spin; i++){
 		A[i] = Matrix<Type> (N_m,N_m);
 		Ainv[i] = Matrix<Type> (N_m,N_m);
-		for(unsigned int j(0); j < N_m; j++){
-			site = rnd->get(N_as);
-			wis[available_sites[site]] = i*N_m+j; 	
-			for(unsigned int k(0); k < N_m; k++){
-				A[i](k,j) = EVec(available_sites[site],k);
-			}
-			for(unsigned int k(site); k < N_as-1; k++){
-				available_sites[k] = available_sites[k+1];
-			}
-			N_as--;
+	}
+
+	unsigned int N_available(N_site);
+	unsigned int spin(0);
+	unsigned int* available_spin(new unsigned int[N_site]);
+	Matrix<int> P;
+	unsigned int l(0);
+	unsigned int TRY_MAX(100);
+	double rcn(0.0);
+	do {
+		N_available = N_site;
+		for(unsigned int i(0); i < N_site; i++){
+			available_spin[i]  = i%N_spin;
 		}
-		Ainv[i] = A[i];
-		Lapack<Type> inv(&Ainv[i],false,'G');
-		inv.inv();
-		//Matrix<Type> check(Ainv[i]*A[i]);
-		//Type t(0);
-		//for(unsigned int j(0);j<check.row();j++){
-			//t+= std::abs(check(j,j))-1.0;
-		//}
-		//std::cout<< i <<": trace of Ainv.A="<<t<<std::endl;
-	}
 
-	delete[] available_sites;
+		for(unsigned int i(0); i < N_site; i++){
+			spin = rnd->get(N_available);
+			wis[i] = i+available_spin[spin]; 	
+			std::cout<<"test "<<i<<" "<<available_spin[spin]<<" "<<wis[i]<<std::endl;
+			for(unsigned int k(0); k < N_m; k++){
+				A[available_spin[spin]](k,i%N_m) = EVec(wis[i],k);
+			}
+			for(unsigned int k(spin); k < N_available-1; k++){
+				available_spin[k] = available_spin[k+1];
+			}
+			N_available--;
+		}
 
-	for(unsigned int i(0);i<2;i++){
-		w[i] = 0;
-		cc[i] = 0;
-		mc[i] = 0;
-		tmp_m[i] = Matrix<Type>(N_m,N_m);
-	}
+		for(unsigned int i(0);i<N_spin;i++){
+			Lapack<Type> inv(&A[i],true,'G');
+			P = inv.is_singular(rcn);
+			if(!P.ptr()){
+				i = N_spin;
+			} else {
+				inv.inv(P);
+				Ainv[i] = inv.get_mat();
+			}
+		}
+	} while (!P.ptr() && ++l<TRY_MAX);
+
+delete[] available_spin;
+
+for(unsigned int i(0);i<2;i++){
+	w[i] = 0;
+	cc[i] = 0;
+	mc[i] = 0;
+	tmp_m[i] = Matrix<Type>(N_m,N_m);
+}
+if(l==TRY_MAX){
+	std::cerr<<"sorry, the thread will not be lunched because no initial state was found"<<std::endl;
+	return 0;
+} else {
+	std::cerr<<"yeah ! initial state found, rcn="<<rcn<<std::endl;
+	print();
+	return 1;
+}
 }
 
 template<typename Type>
@@ -278,14 +287,6 @@ void System<Type>::update(){
 		}
 		Ainv[mc[m]] -= tmp_m[m];
 	}
-	//for(unsigned int i(0);i<N_spin;i++){
-		//Matrix<Type> check(Ainv[i]*A[i]);
-		//Type t(0);
-		//for(unsigned int j(0);j<check.row();j++){
-			//t+= std::abs(check(j,j))-1.0;
-		//}
-		//std::cout<< i <<": trace of Ainv.A="<<t<<std::endl;
-	//}
 }
 /*}*/
 #endif

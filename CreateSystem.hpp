@@ -93,9 +93,9 @@ void CreateSystem<Type>::save(){
 		(*w)("is_complex",is_complex);
 		(*w)("N_spin",N_spin);
 		(*w)("N_m",N_m);
+		(*w)("bc",bc);
 		(*w)("sts",sts);
 		(*w)("T",T);
-		(*w)("bc",bc);
 	}
 }
 #endif
