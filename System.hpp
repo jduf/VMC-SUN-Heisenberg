@@ -20,7 +20,7 @@ class System{
 		 * - allocates memory for A, Ainv and s
 		 * - sets a different random number generator for each thread
 		 * - creates an random initial state and computes its related matrices
-		 * - set w, cc, mc and tmp
+		 * - set cc, sc, w and tmp
 		 */
 		//}
 		unsigned int init(unsigned int N_spin_, unsigned int N_m_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread);
@@ -58,8 +58,8 @@ class System{
 		void print();
 
 		unsigned int N_spin;//!< number of different spin colors
-		unsigned int N_m;	//!< number of each color
 		unsigned int N_site;//!< number of lattice site
+		unsigned int N_m;	//!< number of each color
 
 	private:
 		/*!Forbids copy constructor*/
@@ -75,8 +75,8 @@ class System{
 		Type d;           //!< Det(W)
 		unsigned int *s;    //!< s[i] = j : on ith site there is the j particle
 		unsigned int new_s[2];//!< two sites exchanged by swap()
-		unsigned int mc[2]; //!< matrices (colors) that are modified 
-		unsigned int cc[2]; //!< column's matrices (~band) that are exchanged 
+		unsigned int sc[2]; //!< sites that are exchanged
+		unsigned int cc[2]; //!< colors that are exchanged 
 		Matrix<unsigned int> sts; //!< sts(i,0) is a site that can be exchanged with sts(i,1)
 };
 
@@ -101,14 +101,13 @@ inline double real(std::complex<double> const& x){
 template<typename Type>
 System<Type>::System():
 	N_spin(0),
-	N_m(0),
 	N_site(0),
+	N_m(0),
 	rnd(NULL),
 	A(NULL),
 	Ainv(NULL),
 	d(0.0),
-	s(NULL),
-	sts(0,0)
+	s(NULL)
 { }
 
 template<typename Type>
@@ -124,14 +123,14 @@ System<Type>::~System(){
 /*{*/
 template<typename Type> 
 Type System<Type>::ratio(){
-	if(mc[0] == mc[1]){
+	if(cc[0]==cc[1]){
 		return -1.0;
 	} else {
 		w[0] = 0.0;
 		w[1] = 0.0;
-		for(unsigned int i=0;i<N_m;i++){
-			w[0] += Ainv[mc[0]](cc[0],i)*A[mc[1]](i,cc[1]);
-			w[1] += Ainv[mc[1]](cc[1],i)*A[mc[0]](i,cc[0]);
+		for(unsigned int k=0;k<N_m;k++){
+			w[0] += A[cc[1]](sc[1],k)*Ainv[cc[0]](k,sc[0]);
+			w[1] += A[cc[0]](sc[0],k)*Ainv[cc[1]](k,sc[1]);
 		}
 		d=w[0]*w[1];
 		if( std::abs(d) < 1e-10 ){ return 0.0; }
@@ -168,7 +167,6 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 	N_spin = N_spin_;
 	N_m = N_m_;
 	N_site = N_spin*N_m;
-
 	sts = sts_;
 
 	A = new Matrix<Type>[N_spin];
@@ -189,7 +187,6 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 	unsigned int l(0);
 	unsigned int TRY_MAX(100);
 	double rcn(0.0);
-	std::cerr<<"System : init : save the A[i] in row instead of in columns => modify the update method"<<std::endl;
 	std::cerr<<"System : init : get rid of A[i] and save only Ainv[i] & EVec => modify swap and update"<<std::endl;
 	do {
 		N_as = N_site;
@@ -202,7 +199,7 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 				spin = rnd->get(N_as);
 				s[available_s[spin]] = i*N_m+j;
 				for(unsigned int k(0); k < N_m; k++){
-					A[i](k,j) = EVec(available_s[spin],k);
+					A[i](j,k) = EVec(available_s[spin],k);
 				}
 				for(unsigned int k(spin); k < N_as-1; k++){
 					available_s[k] = available_s[k+1];
@@ -225,11 +222,6 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 
 	delete[] available_s;
 
-	for(unsigned int i(0);i<2;i++){
-		w[i] = 0;
-		cc[i] = 0;
-		mc[i] = 0;
-	}
 	if(l==TRY_MAX){
 		std::cerr<<"sorry, the thread will not be lunched because no initial state was found"<<std::endl;
 		return 0;
@@ -241,25 +233,25 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 }
 
 template<typename Type>
-void System<Type>::swap() {
+void System<Type>::swap(){
 	new_s[0] = rnd->get(N_site);
 	new_s[1] = rnd->get(N_site);
-	mc[0] = s[new_s[0]] / N_m; //gives the color of particle on site a
-	mc[1] = s[new_s[1]] / N_m; //gives the color of particle on site b
-	while(mc[0]==mc[1]){
+	cc[0] = s[new_s[0]] / N_m; //gives the color of particle on site a
+	cc[1] = s[new_s[1]] / N_m; //gives the color of particle on site b
+	while(cc[0]==cc[1]){
 		new_s[1] = rnd->get(N_site);
-		mc[1] = s[new_s[1]] / N_m; //gives the color of particle on site b
+		cc[1] = s[new_s[1]] / N_m; //gives the color of particle on site b
 	}
-	cc[0] = s[new_s[0]] % N_m; //gives the band of particle on site a
-	cc[1] = s[new_s[1]] % N_m; //gives the band of particle on site b
+	sc[0] = s[new_s[0]] % N_m; //gives the band of particle on site a
+	sc[1] = s[new_s[1]] % N_m; //gives the band of particle on site b
 }
 
 template<typename Type>
 void System<Type>::swap(unsigned int const& s0, unsigned int const& s1) {
-	mc[0] = s[s0] / N_m; //gives the color of particle on site s1
-	mc[1] = s[s1] / N_m; //gives the color of particle on site s2
-	cc[0] = s[s0] % N_m; //gives the band of particle on site s1
-	cc[1] = s[s1] % N_m; //gives the band of particle on site s2
+	cc[0] = s[s0] / N_m; //gives the color of particle on site s1
+	cc[1] = s[s1] / N_m; //gives the color of particle on site s2
+	sc[0] = s[s0] % N_m; //gives the band of particle on site s1
+	sc[1] = s[s1] % N_m; //gives the band of particle on site s2
 }
 
 template<typename Type>
@@ -272,25 +264,25 @@ void System<Type>::update(){
 	// only of the columns that are echanged...
 	// exchange the two columns
 	Type t_tmp(0.0); 
-	for(unsigned int i(0); i<N_m; i++){
-		t_tmp = A[mc[0]](i,cc[0]);
-		A[mc[0]](i,cc[0]) = A[mc[1]](i,cc[1]);
-		A[mc[1]](i,cc[1]) = t_tmp;
+	for(unsigned int j(0); j<N_m; j++){
+		t_tmp = A[cc[0]](sc[0],j);
+		A[cc[0]](sc[0],j) = A[cc[1]](sc[1],j);
+		A[cc[1]](sc[1],j) = t_tmp;
 	}
 
 	//compute Ainv
 	for(unsigned int m=0;m<2;m++){
-		for(unsigned int i(0);i<N_m;i++){
-			if(cc[m] == i){ t_tmp = -1.0; }
+		for(unsigned int j(0);j<N_m;j++){
+			if(sc[m] == j){ t_tmp = -1.0; }
 			else { t_tmp = 0.0; }
-			for(unsigned int j(0);j<N_m;j++){
-				t_tmp += Ainv[mc[m]](i,j)*A[mc[m]](j,cc[m]);
+			for(unsigned int k(0);k<N_m;k++){
+				t_tmp += A[cc[m]](sc[m],k)*Ainv[cc[m]](k,j);
 			}
-			for(unsigned int j(0);j<N_m;j++){
-				tmp(i,j) = t_tmp*Ainv[mc[m]](cc[m],j)/w[m];
+			for(unsigned int i(0);i<N_m;i++){
+				tmp(i,j) = t_tmp*Ainv[cc[m]](i,sc[m])/w[m];
 			}
 		}
-		Ainv[mc[m]] -= tmp;
+		Ainv[cc[m]] -= tmp;
 	}
 }
 /*}*/
