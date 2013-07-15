@@ -17,10 +17,10 @@ class System{
 		/*! This method creates the system in function of the input parameters.
 		 *
 		 * - sets N_spin, N_m, N_site, H and sts
-		 * - allocates memory for A, Ainv and wis
+		 * - allocates memory for A, Ainv and s
 		 * - sets a different random number generator for each thread
 		 * - creates an random initial state and computes its related matrices
-		 * - set w, cc, mc and tmp_m
+		 * - set w, cc, mc and tmp
 		 */
 		//}
 		unsigned int init(unsigned int N_spin_, unsigned int N_m_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread);
@@ -45,7 +45,7 @@ class System{
 		 *
 		 * - computes the new matrices
 		 * - computes the new inverse matrices with the Sherman-Morisson formula
-		 * - updates the configuration (wis)
+		 * - updates the configuration (s)
 		 */
 		//}
 		void update();
@@ -70,10 +70,11 @@ class System{
 		Rand* rnd;			//!< generator of random numbers 
 		Matrix<Type> *A;      //!< det(A) <=> <GS|a>
 		Matrix<Type> *Ainv;   //!< inverse of A
-		Matrix<Type> tmp_m[2];//!< temporary matrices used during the update 
+		Matrix<Type> tmp;     //!< temporary matrix used during the update 
 		Type w[2];             //!< determinant ratios : <GS|a>/<GS|b>
-		unsigned int a,b;	//!< two exchanged site by swap()
-		unsigned int *wis;  //!< wis[i] = j : on ith site there is the j particle
+		Type d;           //!< Det(W)
+		unsigned int *s;    //!< s[i] = j : on ith site there is the j particle
+		unsigned int new_s[2];//!< two sites exchanged by swap()
 		unsigned int mc[2]; //!< matrices (colors) that are modified 
 		unsigned int cc[2]; //!< column's matrices (~band) that are exchanged 
 		Matrix<unsigned int> sts; //!< sts(i,0) is a site that can be exchanged with sts(i,1)
@@ -105,9 +106,8 @@ System<Type>::System():
 	rnd(NULL),
 	A(NULL),
 	Ainv(NULL),
-	a(0),
-	b(0),
-	wis(NULL),
+	d(0.0),
+	s(NULL),
 	sts(0,0)
 { }
 
@@ -115,7 +115,7 @@ template<typename Type>
 System<Type>::~System(){
 	delete[] A;
 	delete[] Ainv;
-	delete[] wis;
+	delete[] s;
 	delete rnd;
 }
 /*}*/
@@ -133,8 +133,9 @@ Type System<Type>::ratio(){
 			w[0] += Ainv[mc[0]](cc[0],i)*A[mc[1]](i,cc[1]);
 			w[1] += Ainv[mc[1]](cc[1],i)*A[mc[0]](i,cc[0]);
 		}
-		if( std::abs(w[0]*w[1]) < 1e-10 ){ return 0.0; }
-		else { return w[0]*w[1]; }
+		d=w[0]*w[1];
+		if( std::abs(d) < 1e-10 ){ return 0.0; }
+		else { return d; }
 	}
 }
 
@@ -151,12 +152,12 @@ double System<Type>::compute_energy(){
 template<typename Type>
 void System<Type>::print(){
 	//for(unsigned int i(0); i<N_site; i++){
-	//std::cout<<wis[i]<<" ";
+	//std::cout<<s[i]<<" ";
 	//}
 	//std::cout<<std::endl;
-	for(unsigned int i(0); i < N_spin; i++){
-		std::cout<<(Ainv[i]*A[i]).diag()<<std::endl;;
-	}
+	//for(unsigned int i(0); i < N_spin; i++){
+		//std::cout<<(Ainv[i]*A[i]).diag()<<std::endl;;
+	//}
 }
 /*}*/
 
@@ -164,45 +165,50 @@ void System<Type>::print(){
 /*{*/
 template<typename Type>
 unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread){
-	N_m = N_m_;
 	N_spin = N_spin_;
+	N_m = N_m_;
 	N_site = N_spin*N_m;
+
 	sts = sts_;
 
 	A = new Matrix<Type>[N_spin];
 	Ainv = new Matrix<Type>[N_spin];
-	wis = new unsigned int[N_site];
+	tmp.set(N_m,N_m);
+	s = new unsigned int[N_site];
 	rnd = new Rand(10,thread);
 
 	for(unsigned int i(0); i < N_spin; i++){
-		A[i] = Matrix<Type> (N_m,N_m);
-		Ainv[i] = Matrix<Type> (N_m,N_m);
+		A[i].set(N_m,N_m);
+		Ainv[i].set(N_m,N_m);
 	}
 
-	unsigned int N_available(N_site);
+	unsigned int N_as(N_site);
 	unsigned int spin(0);
-	unsigned int* available_spin(new unsigned int[N_site]);
+	unsigned int* available_s(new unsigned int[N_site]);
 	Matrix<int> P;
 	unsigned int l(0);
 	unsigned int TRY_MAX(100);
 	double rcn(0.0);
+	std::cerr<<"System : init : save the A[i] in row instead of in columns => modify the update method"<<std::endl;
+	std::cerr<<"System : init : get rid of A[i] and save only Ainv[i] & EVec => modify swap and update"<<std::endl;
 	do {
-		N_available = N_site;
+		N_as = N_site;
 		for(unsigned int i(0); i < N_site; i++){
-			available_spin[i]  = i%N_spin;
+			available_s[i] = i;
 		}
 
-		for(unsigned int i(0); i < N_site; i++){
-			spin = rnd->get(N_available);
-			wis[i] = i+available_spin[spin]; 	
-			std::cout<<"test "<<i<<" "<<available_spin[spin]<<" "<<wis[i]<<std::endl;
-			for(unsigned int k(0); k < N_m; k++){
-				A[available_spin[spin]](k,i%N_m) = EVec(wis[i],k);
+		for(unsigned int i(0); i < N_spin; i++){
+			for(unsigned int j(0); j < N_m; j++){
+				spin = rnd->get(N_as);
+				s[available_s[spin]] = i*N_m+j;
+				for(unsigned int k(0); k < N_m; k++){
+					A[i](k,j) = EVec(available_s[spin],k);
+				}
+				for(unsigned int k(spin); k < N_as-1; k++){
+					available_s[k] = available_s[k+1];
+				}
+				N_as--;
 			}
-			for(unsigned int k(spin); k < N_available-1; k++){
-				available_spin[k] = available_spin[k+1];
-			}
-			N_available--;
 		}
 
 		for(unsigned int i(0);i<N_spin;i++){
@@ -217,75 +223,74 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 		}
 	} while (!P.ptr() && ++l<TRY_MAX);
 
-delete[] available_spin;
+	delete[] available_s;
 
-for(unsigned int i(0);i<2;i++){
-	w[i] = 0;
-	cc[i] = 0;
-	mc[i] = 0;
-	tmp_m[i] = Matrix<Type>(N_m,N_m);
-}
-if(l==TRY_MAX){
-	std::cerr<<"sorry, the thread will not be lunched because no initial state was found"<<std::endl;
-	return 0;
-} else {
-	std::cerr<<"yeah ! initial state found, rcn="<<rcn<<std::endl;
-	print();
-	return 1;
-}
+	for(unsigned int i(0);i<2;i++){
+		w[i] = 0;
+		cc[i] = 0;
+		mc[i] = 0;
+	}
+	if(l==TRY_MAX){
+		std::cerr<<"sorry, the thread will not be lunched because no initial state was found"<<std::endl;
+		return 0;
+	} else {
+		std::cerr<<"yeah ! initial state found, rcn="<<rcn<<std::endl;
+		print();
+		return 1;
+	}
 }
 
 template<typename Type>
 void System<Type>::swap() {
-	a = rnd->get(N_site);
-	b = rnd->get(N_site);
-	mc[0] = wis[a] / N_m; //gives the color of particle on site a
-	mc[1] = wis[b] / N_m; //gives the color of particle on site b
+	new_s[0] = rnd->get(N_site);
+	new_s[1] = rnd->get(N_site);
+	mc[0] = s[new_s[0]] / N_m; //gives the color of particle on site a
+	mc[1] = s[new_s[1]] / N_m; //gives the color of particle on site b
 	while(mc[0]==mc[1]){
-		b = rnd->get(N_site);
-		mc[1] = wis[b] / N_m; //gives the color of particle on site b
+		new_s[1] = rnd->get(N_site);
+		mc[1] = s[new_s[1]] / N_m; //gives the color of particle on site b
 	}
-	cc[0] = wis[a] % N_m; //gives the band of particle on site a
-	cc[1] = wis[b] % N_m; //gives the band of particle on site b
+	cc[0] = s[new_s[0]] % N_m; //gives the band of particle on site a
+	cc[1] = s[new_s[1]] % N_m; //gives the band of particle on site b
 }
 
 template<typename Type>
 void System<Type>::swap(unsigned int const& s0, unsigned int const& s1) {
-	mc[0] = wis[s0] / N_m; //gives the color of particle on site s1
-	mc[1] = wis[s1] / N_m; //gives the color of particle on site s2
-	cc[0] = wis[s0] % N_m; //gives the band of particle on site s1
-	cc[1] = wis[s1] % N_m; //gives the band of particle on site s2
+	mc[0] = s[s0] / N_m; //gives the color of particle on site s1
+	mc[1] = s[s1] / N_m; //gives the color of particle on site s2
+	cc[0] = s[s0] % N_m; //gives the band of particle on site s1
+	cc[1] = s[s1] % N_m; //gives the band of particle on site s2
 }
 
 template<typename Type>
 void System<Type>::update(){
-	unsigned int s_tmp(wis[b]);
-	wis[b] = wis[a];
-	wis[a] = s_tmp;
+	unsigned int i_tmp(s[new_s[1]]);
+	s[new_s[1]] = s[new_s[0]];
+	s[new_s[0]] = i_tmp;
 
 	// there is a way to avoid this loop and its useless copy if one keeps track
 	// only of the columns that are echanged...
 	// exchange the two columns
-	Type tmp(0.0); 
+	Type t_tmp(0.0); 
 	for(unsigned int i(0); i<N_m; i++){
-		tmp = A[mc[0]](i,cc[0]);
+		t_tmp = A[mc[0]](i,cc[0]);
 		A[mc[0]](i,cc[0]) = A[mc[1]](i,cc[1]);
-		A[mc[1]](i,cc[1]) = tmp;
+		A[mc[1]](i,cc[1]) = t_tmp;
 	}
 
 	//compute Ainv
 	for(unsigned int m=0;m<2;m++){
 		for(unsigned int i(0);i<N_m;i++){
-			if(cc[m] == i){ tmp = -1.0; }
-			else { tmp = 0.0; }
+			if(cc[m] == i){ t_tmp = -1.0; }
+			else { t_tmp = 0.0; }
 			for(unsigned int j(0);j<N_m;j++){
-				tmp += Ainv[mc[m]](i,j)*A[mc[m]](j,cc[m]);
+				t_tmp += Ainv[mc[m]](i,j)*A[mc[m]](j,cc[m]);
 			}
 			for(unsigned int j(0);j<N_m;j++){
-				tmp_m[m](i,j) = tmp*Ainv[mc[m]](cc[m],j)/w[m];
+				tmp(i,j) = t_tmp*Ainv[mc[m]](cc[m],j)/w[m];
 			}
 		}
-		Ainv[mc[m]] -= tmp_m[m];
+		Ainv[mc[m]] -= tmp;
 	}
 }
 /*}*/
