@@ -19,7 +19,7 @@ void run(Parseur& P){
 		unsigned int nthreads(1);
 		P.set("nthreads",nthreads);
 
-		unsigned int N_spin(0), N_m(0),N_site(0);
+		unsigned int N_site(0), N_spin(0), N_m(0);
 		bool is_complex(false);
 		double bc(0);
 		Matrix<unsigned int> sts;
@@ -30,12 +30,12 @@ void run(Parseur& P){
 
 		if(is_complex){
 			std::cerr<<"the simulation will be lunched for complex numbers"<<std::endl;
-			Matrix<std::complex<double> > T;
+			Matrix<std::complex<double> > EVec;
 			MonteCarlo<std::complex<double> > sim(filename,nthreads);
-			r>>T>>bc;
+			r>>EVec>>bc;
 #pragma omp parallel num_threads(nthreads)
 			{
-				sim.init(N_spin,N_m,sts,T,omp_get_thread_num());
+				sim.init(N_spin,N_m,sts,EVec,omp_get_thread_num());
 				sim.run(omp_get_thread_num());
 			}
 			Write result(filename+".dat");
@@ -49,12 +49,12 @@ void run(Parseur& P){
 			}
 		} else {
 			std::cerr<<"the simulation will be lunched for real numbers"<<std::endl;
-			Matrix<double> T;
+			Matrix<double> EVec;
 			MonteCarlo<double> sim(filename,nthreads);
-			r>>T>>bc;
+			r>>EVec>>bc;
 #pragma omp parallel num_threads(nthreads)
 			{
-				sim.init(N_spin,N_m,sts,T,omp_get_thread_num());
+				sim.init(N_spin,N_m,sts,EVec,omp_get_thread_num());
 				sim.run(omp_get_thread_num());
 			}
 			Write result(filename+".dat");
@@ -68,7 +68,7 @@ void run(Parseur& P){
 			}
 		}
 	} else {
-		std::cerr<<"main : mc -sim filename.jdbin [-nthreads n]"<<std::endl;
+		fprintf(stderr,"main : ./mc -sim filename.jdbin -nthreads n\n");
 	}
 }
 

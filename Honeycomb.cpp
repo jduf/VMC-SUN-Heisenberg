@@ -350,7 +350,7 @@ void Honeycomb::save(std::string filename){
 	w("N_spin",N_spin);
 	w("N_m",N_m);
 	w("sts",sts);
-	w("EVec",T);
+	w("EVec",EVec);
 	w("bc",bc);
 	w("N_row",N_row);
 	w("N_col",N_col);

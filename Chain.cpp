@@ -46,6 +46,6 @@ void Chain::save(std::string filename){
 	w("N_spin",N_spin);
 	w("N_m",N_m);
 	w("sts",sts);
-	w("EVec",T);
+	w("EVec",EVec);
 	w("bc",bc);
 }

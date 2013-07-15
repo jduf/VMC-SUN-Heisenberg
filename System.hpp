@@ -16,11 +16,10 @@ class System{
 		//{Description
 		/*! This method creates the system in function of the input parameters.
 		 *
-		 * - sets N_spin, N_m, N_site, H and sts
-		 * - allocates memory for A, Ainv and s
+		 * - sets N_spin, N_site, sts, N_m and set tmp to the correct size 
+		 * - allocates memory for s, A and Ainv
 		 * - sets a different random number generator for each thread
 		 * - creates an random initial state and computes its related matrices
-		 * - set cc, sc, w and tmp
 		 */
 		//}
 		unsigned int init(unsigned int N_spin_, unsigned int N_m_, Matrix<unsigned int> const& sts_, Matrix<Type> const& EVec, unsigned int thread);
@@ -29,13 +28,13 @@ class System{
 		/*!exchanges particle on site s1 with the one on site s2*/
 		void swap(unsigned int const& s0, unsigned int const& s1);
 		//{Description
-		/*!Computes the ratio of the two determinants related to the current and next
-		 * configuration
+		/*!Computes the ratio of the two determinants related to the current
+		 * and next configuration
 		 *
 		 * - when one matrix is modified, two of its columns are exchanged and
 		 *   therefore a minus sign arises 
-		 * - when two matrices are modified, one computes the ratio using the
-		 *   determinant lemma
+		 * - when two different color are exchanged, one computes the ratio
+		 *   using the determinant lemma
 		 */
 		//}
 		Type ratio();
@@ -43,9 +42,8 @@ class System{
 		/*!Updates the state if the condition given by the System::ratio()
 		 * method is accepted. The update consists of :
 		 *
-		 * - computes the new matrices
-		 * - computes the new inverse matrices with the Sherman-Morisson formula
-		 * - updates the configuration (s)
+		 * - computes the new Ainv and A matrices
+		 * - updates the configuration : s
 		 */
 		//}
 		void update();
@@ -67,17 +65,18 @@ class System{
 		/*!Forbids assignment operator*/
 		System& operator=(System const& S);
 
-		Rand* rnd;			//!< generator of random numbers 
-		Matrix<Type> *A;    //!< det(A) <=> <GS|a>
-		Matrix<Type> *Ainv;   //!< inverse of A
-		Matrix<Type> tmp;     //!< temporary matrix used during the update 
-		Type w[2];             //!< determinant ratios : <GS|a>/<GS|b>
-		Type d;           //!< Det(W)
-		unsigned int *s;    //!< s[i] = j : on ith site there is the j particle
-		unsigned int new_s[2];//!< two sites exchanged by swap()
-		unsigned int sc[2]; //!< sites that are exchanged
-		unsigned int cc[2]; //!< colors that are exchanged 
-		Matrix<unsigned int> sts; //!< sts(i,0) is a site that can be exchanged with sts(i,1)
+		Rand* rnd;				//!< generator of random numbers 
+		Matrix<Type> *A;		//!< det(A) <=> <GS|a>
+		Matrix<Type> *Ainv;		//!< inverse of A
+		Matrix<Type> tmp;		//!< temporary matrix used during the update 
+		Type w[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b> ; W=(w11,0,0,w22)
+		Type d;					//!< Det(W)
+
+		unsigned int *s;		//!< s[i] = j : on ith site there is the j particle
+		unsigned int new_s[2];	//!< two sites exchanged by swap()
+		unsigned int sc[2];		//!< sites that are exchanged
+		unsigned int cc[2];		//!< colors that are exchanged 
+		Matrix<unsigned int> sts;//!< sts(i,0) is a site that can be exchanged with sts(i,1)
 };
 
 /*double real(T)*/
@@ -223,6 +222,7 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 		return 0;
 	} else {
 		std::cerr<<"yeah ! initial state found"<<std::endl;
+
 		print();
 		return 1;
 	}
@@ -243,7 +243,7 @@ void System<Type>::swap(){
 }
 
 template<typename Type>
-void System<Type>::swap(unsigned int const& s0, unsigned int const& s1) {
+void System<Type>::swap(unsigned int const& s0, unsigned int const& s1){
 	cc[0] = s[s0] / N_m; //gives the color of particle on site s1
 	cc[1] = s[s1] / N_m; //gives the color of particle on site s2
 	sc[0] = s[s0] % N_m; //gives the band of particle on site s1

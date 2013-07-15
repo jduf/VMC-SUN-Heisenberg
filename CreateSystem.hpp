@@ -3,7 +3,6 @@
 
 #include "Parseur.hpp"
 #include "Write.hpp"
-#include "Read.hpp"
 #include "Lapack.hpp"
 
 /*!Class that creates a file containing all the necessary information to run a
@@ -20,12 +19,13 @@ class CreateSystem{
 
 	protected:
 		unsigned int const N_m, N_spin, N_site;//!<
-		double bc;//!<
+		double bc;				//!<
 		Matrix<unsigned int> sts;//!< 
-		Matrix<int> H;//!< hopping matrix
-		Matrix<Type> T;//!< eigenvectors matrix (transfer matrix)
-		bool successful;//!<
-		char mat_type;//!<
+		Matrix<int> H;			//!< hopping matrix
+		Matrix<Type> T;			//!< Gutzwiller Hamiltonian
+		Matrix<Type> EVec;		//!< eigenvectors matrix (transfer matrix)
+		bool successful;		//!< no degeneracy at the fermi level
+		char mat_type;			//!< matrix type
 
 		/*!Compute the eigenvectors from the mean field hamiltonian*/
 		void compute_EVec();
@@ -42,6 +42,7 @@ CreateSystem<Type>::CreateSystem(Parseur& P, unsigned int N_n):
 	sts(N_spin*N_m*N_n/2,2),
 	H(N_spin*N_m,N_spin*N_m,0.0),
 	T(N_spin*N_m,N_spin*N_m,0.0),
+	EVec(N_spin*N_m,N_spin*N_m),
 	successful(false),
 	mat_type('U')
 { }
@@ -69,5 +70,6 @@ void CreateSystem<Type>::compute_EVec(){
 	Matrix<double> EVal;
 	ES.eigensystem(EVal);
 	if(std::abs(EVal(N_m) - EVal(N_m-1))>1e-10){ successful = true; }
+	EVec=T;
 }
 #endif

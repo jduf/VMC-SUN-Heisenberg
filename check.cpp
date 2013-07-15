@@ -22,6 +22,7 @@ void check(std::string filename){
 	Matrix<unsigned int> sts;
 
 	r>>is_complex>>N_spin>>N_m>>sts;
+	std::cout<<"sts="<<std::endl;
 	for(unsigned int i(0);i<sts.row();i++){
 		std::cout<<sts(i,0)<<" "<<sts(i,1)<<std::endl;
 	}
