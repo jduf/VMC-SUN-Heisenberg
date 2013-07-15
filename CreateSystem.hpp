@@ -22,21 +22,15 @@ class CreateSystem{
 		unsigned int const N_m, N_spin, N_site;//!<
 		double bc;//!<
 		Matrix<unsigned int> sts;//!< 
-		Matrix<double> H;//!< hopping matrix
+		Matrix<int> H;//!< hopping matrix
 		Matrix<Type> T;//!< eigenvectors matrix (transfer matrix)
 		bool successful;//!<
-		bool is_complex;//!<
-		RST rst;//!< will be added before the values in the header
-		Write* w;//!<output file that contains all the informations of the system
-		std::string filename; //!<
 		char mat_type;//!<
 
 		/*!Compute the eigenvectors from the mean field hamiltonian*/
 		void compute_EVec();
 		/*!Compute the array of pairs of swapping sites*/
 		void compute_sts();
-
-		void save();
 };
 
 template<typename Type>
@@ -49,24 +43,18 @@ CreateSystem<Type>::CreateSystem(Parseur& P, unsigned int N_n):
 	H(N_spin*N_m,N_spin*N_m,0.0),
 	T(N_spin*N_m,N_spin*N_m,0.0),
 	successful(false),
-	is_complex(false),
-	rst(),
-	w(NULL),
-	filename(""),
 	mat_type('U')
 { }
 
 template<typename Type>
-CreateSystem<Type>::~CreateSystem(){
-	if(w){ delete w; }
-}
+CreateSystem<Type>::~CreateSystem(){ }
 
 template<typename Type>
 void CreateSystem<Type>::compute_sts(){
 	unsigned int k(0);
 	for(unsigned int i(0); i<N_site;i++){
 		for(unsigned int j(i+1); j<N_site;j++){
-			if ( std::abs(H(i,j)) > 1e-4){
+			if ( H(i,j) != 0){
 				sts(k,0) = i;
 				sts(k,1) = j;
 				k++;
@@ -77,25 +65,9 @@ void CreateSystem<Type>::compute_sts(){
 
 template<typename Type>
 void CreateSystem<Type>::compute_EVec(){
-	successful = false;
 	Lapack<Type> ES(&T,false, mat_type);
 	Matrix<double> EVal;
 	ES.eigensystem(EVal);
 	if(std::abs(EVal(N_m) - EVal(N_m-1))>1e-10){ successful = true; }
-}
-
-template<typename Type>
-void CreateSystem<Type>::save(){
-	if(successful){
-		w = new Write(filename+".jdbin");
-		rst.title("Input values","~");
-		w->set_header(rst.get());
-		(*w)("is_complex",is_complex);
-		(*w)("N_spin",N_spin);
-		(*w)("N_m",N_m);
-		(*w)("bc",bc);
-		(*w)("sts",sts);
-		(*w)("T",T);
-	}
 }
 #endif

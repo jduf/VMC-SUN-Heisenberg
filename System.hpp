@@ -68,7 +68,7 @@ class System{
 		System& operator=(System const& S);
 
 		Rand* rnd;			//!< generator of random numbers 
-		Matrix<Type> *A;      //!< det(A) <=> <GS|a>
+		Matrix<Type> *A;    //!< det(A) <=> <GS|a>
 		Matrix<Type> *Ainv;   //!< inverse of A
 		Matrix<Type> tmp;     //!< temporary matrix used during the update 
 		Type w[2];             //!< determinant ratios : <GS|a>/<GS|b>
@@ -104,7 +104,6 @@ System<Type>::System():
 	N_site(0),
 	N_m(0),
 	rnd(NULL),
-	A(NULL),
 	Ainv(NULL),
 	d(0.0),
 	s(NULL)
@@ -155,7 +154,7 @@ void System<Type>::print(){
 	//}
 	//std::cout<<std::endl;
 	//for(unsigned int i(0); i < N_spin; i++){
-		//std::cout<<(Ainv[i]*A[i]).diag()<<std::endl;;
+	//std::cout<<(Ainv[i]*A[i]).diag()<<std::endl;;
 	//}
 }
 /*}*/
@@ -206,9 +205,6 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 				}
 				N_as--;
 			}
-		}
-
-		for(unsigned int i(0);i<N_spin;i++){
 			Lapack<Type> inv(&A[i],true,'G');
 			P = inv.is_singular(rcn);
 			if(!P.ptr()){
@@ -226,7 +222,7 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 		std::cerr<<"sorry, the thread will not be lunched because no initial state was found"<<std::endl;
 		return 0;
 	} else {
-		std::cerr<<"yeah ! initial state found, rcn="<<rcn<<std::endl;
+		std::cerr<<"yeah ! initial state found"<<std::endl;
 		print();
 		return 1;
 	}

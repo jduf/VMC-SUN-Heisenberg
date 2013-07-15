@@ -11,6 +11,7 @@ class Chain: public CreateSystem<double>{
 	private:
 		/*!Compute the hopping matrix for a chain*/
 		void compute_T();
+		void save(std::string filename);
 };
 
 #endif

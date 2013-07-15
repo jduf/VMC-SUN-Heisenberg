@@ -12,6 +12,7 @@ class Honeycomb: public CreateSystem<double>{
 		unsigned int N_row, N_col;
 
 		void compute_T();
+		void save(std::string filename);
 };
 #endif
 

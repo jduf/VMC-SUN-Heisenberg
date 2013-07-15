@@ -14,6 +14,7 @@ class Square: public CreateSystem<std::complex<double> >{
 		unsigned int N_row, N_col;
 
 		void compute_T();
+		void save(std::string filename);
 };
 
 #endif

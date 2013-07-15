@@ -16,21 +16,15 @@ int main(int argc, char* argv[]){
 void check(std::string filename){
 	Read r(filename);
 	std::cout<<r.get_header()<<std::endl;
-	unsigned int N_spin(0), N_m(0);
+	unsigned int N_spin(0),N_row(0),N_col(0),N_m(0);
+	double bc(0.0);
 	bool is_complex;
-
-	r>>is_complex>>N_spin>>N_m;
 	Matrix<unsigned int> sts;
-	Matrix<double> H;
-	r>>sts>>H;
-	std::cout<<"N_spin="<<N_spin<<" N_m="<<N_m<<std::endl;
-	std::cout<<"sts="<<std::endl;
+
+	r>>is_complex>>N_spin>>N_m>>sts;
 	for(unsigned int i(0);i<sts.row();i++){
-		std::cout<<sts(i,0)<<" "<<sts(i,1)<<" "<<H(sts(i,0),sts(i,1))<<std::endl;
+		std::cout<<sts(i,0)<<" "<<sts(i,1)<<std::endl;
 	}
-	std::cout<<"H="<<std::endl;
-	H.chop();
-	std::cout<<H<<std::endl;
 	if(is_complex){
 		Matrix<std::complex<double> > EVec;
 		r>>EVec;
@@ -44,4 +38,10 @@ void check(std::string filename){
 		std::cout<<"EVec="<<std::endl;
 		std::cout<<EVec<<std::endl;
 	}
+	r>>bc>>N_row>>N_col;	
+	std::cout<<"N_spin="<<N_spin
+		<<" N_site="<<N_m*N_spin
+		<<" N_row="<<N_row
+		<<" N_col="<<N_col
+		<<" bc="<<bc<<std::endl;
 }
