@@ -1,19 +1,15 @@
-#include "Square.hpp"
+#include "SquarePiFlux.hpp"
 
-Square::Square(Parseur& P):
-	CreateSystem<std::complex<double> >(P,4),
-	N_row(floor(sqrt(N_site))),
-	N_col(floor(sqrt(N_site)))
+SquarePiFlux::SquarePiFlux(Parseur& P):
+	Square<std::complex<double> >(P)
 {
-	P.set("bc",bc);
 	if(!P.status()){
 		if(N_site==N_row*N_col){
 			mat_type='H';
 			compute_T();
-			compute_sts();
 			compute_EVec();
 			if(successful){
-				std::string filename("square-csl");
+				std::string filename("SquarePiFlux-csl");
 				filename += "-N" + tostring(N_spin);
 				filename += "-S" + tostring(N_site);
 				filename += "-" + tostring(N_row) + "x" + tostring(N_col);
@@ -24,39 +20,28 @@ Square::Square(Parseur& P):
 				std::cerr<<"CreateSystem : degeneate"<<std::endl;
 			}
 		} else {
-			std::cerr<<"CreateSystem : the cluster is not a square"<<std::endl;
+			std::cerr<<"CreateSystem : the cluster is not a SquarePiFlux"<<std::endl;
 		}
 	}
 }
 
-Square::~Square(){}
+SquarePiFlux::~SquarePiFlux(){}
 
-void Square::compute_T(){
+void SquarePiFlux::compute_T(){
 	double t(-1.0);
 	double phi(2*M_PI/N_spin);
 	for(unsigned int i(0); i< N_row; i++){
 		for(unsigned int j(0); j< N_col; j++){
-			if(j+1 == N_col){
-				H( i*N_col , i*N_col + j) = -1;
-				T( i*N_col , i*N_col + j) = bc*t;
-			} else { 
-				H( i*N_col + j , i*N_col + j + 1) = -1;
-				T( i*N_col + j , i*N_col + j + 1) = t;
-			}
-			if(i+1 == N_row ){
-				H(j, i*N_col + j) = -1;
-				T(j, i*N_col + j) = bc*t*std::polar(1.0,-((j%N_spin)+1)*phi);
-			} else{
-				H(i*N_col + j, (i+1)*N_col + j) = -1;
-				T(i*N_col + j, (i+1)*N_col + j) = t*std::polar(1.0,((j%N_spin)+1)*phi);
-			}
+			if(j+1 == N_col){ T( i*N_col , i*N_col + j) = bc*t; }
+			else { T( i*N_col + j , i*N_col + j + 1) = t; }
+			if(i+1 == N_row ){ T(j, i*N_col + j) = bc*t*std::polar(1.0,-((j%N_spin)+1)*phi); } 
+			else{ T(i*N_col + j, (i+1)*N_col + j) = t*std::polar(1.0,((j%N_spin)+1)*phi); }
 		}
 	}
-	H += H.transpose();
 	T += T.trans_conj(); 
 }
 
-void Square::save(std::string filename){
+void SquarePiFlux::save(std::string filename){
 	Write w(filename+".jdbin");
 	RST rst;
 	rst.text("Chiral spin liquid, with 2pi/N flux per plaquette");

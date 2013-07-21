@@ -1,7 +1,7 @@
 /*!  @file cs.cpp */
 
 #include "Chain.hpp"
-#include "Square.hpp"
+#include "SquarePiFlux.hpp"
 #include "Honeycomb.hpp"
 
 int main(int argc, char* argv[]){
@@ -20,7 +20,7 @@ int main(int argc, char* argv[]){
 			}
 		case 4:
 			{
-				Square s(P);
+				SquarePiFlux s(P);
 				break;
 			}
 		default:
