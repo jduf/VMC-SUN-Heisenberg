@@ -21,9 +21,10 @@ void run(Parseur& P){
 		unsigned int nthreads(1);
 		P.set("nthreads",nthreads);
 
-		unsigned int N_site(0), N_spin(0), N_m(0);
+		unsigned int N_site(0), N_spin(0), N_m(0),N_row(0),N_col(0);
 		bool is_complex(false);
 		double bc(0);
+		double mu(0);
 		Matrix<unsigned int> sts;
 
 		Read r(filename.c_str());
@@ -34,7 +35,7 @@ void run(Parseur& P){
 			std::cerr<<"the simulation will be lunched for complex numbers"<<std::endl;
 			Matrix<std::complex<double> > EVec;
 			MonteCarlo<std::complex<double> > sim(filename,nthreads);
-			r>>EVec>>bc;
+			r>>EVec>>bc>>N_row>>N_col>>mu;
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.init(N_spin,N_m,sts,EVec,omp_get_thread_num());
@@ -45,7 +46,8 @@ void run(Parseur& P){
 			for(unsigned int thread(0);thread<nthreads;thread++){
 				result<<N_spin
 					<<" "<<N_site
-					<<" "<<bc;
+					<<" "<<bc
+					<<" "<<mu;
 				sim.save_in_file(result,thread);
 				result<<Write::endl;
 			}
@@ -53,7 +55,7 @@ void run(Parseur& P){
 			std::cerr<<"the simulation will be lunched for real numbers"<<std::endl;
 			Matrix<double> EVec;
 			MonteCarlo<double> sim(filename,nthreads);
-			r>>EVec>>bc;
+			r>>EVec>>bc>>N_row>>N_col>>mu;
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.init(N_spin,N_m,sts,EVec,omp_get_thread_num());
@@ -64,7 +66,8 @@ void run(Parseur& P){
 			for(unsigned int thread(0);thread<nthreads;thread++){
 				result<<N_spin
 					<<" "<<N_site
-					<<" "<<bc;
+					<<" "<<bc
+					<<" "<<mu;
 				sim.save_in_file(result,thread);
 				result<<Write::endl;
 			}

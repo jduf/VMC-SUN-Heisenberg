@@ -85,7 +85,7 @@ template<typename Type>
 MonteCarlo<Type>::MonteCarlo(std::string filename, unsigned int const& nthreads):
 	nthreads(nthreads),
 	N_MC(1e4),
-	time_limit(nthreads*3600*2*24),
+	time_limit(nthreads*3600*10),
 	keep_measuring(true),
 	output(filename+"-MC.out"),
 	S(new System<Type>[nthreads]),
@@ -252,10 +252,14 @@ double MonteCarlo<Type>::delta(std::vector<double> const& v, double const& m){
 	return sqrt(d / (N*(N-1))); 
 }
 /*}*/
+
 template<typename Type>
 void MonteCarlo<Type>::test(){
 	S[0].swap();
-	std::cout<<S[0].ratio()<<std::endl;
+	S[0].ratio();
+	S[0].update();
+	S[0].swap();
+	S[0].ratio();
 	S[0].update();
 }
 #endif

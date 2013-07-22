@@ -50,7 +50,7 @@ void SquareFermi::compute_EVec(){
 void SquareFermi::save(std::string filename){
 	Write w(filename+".jdbin");
 	RST rst;
-	rst.text("Stripe order : each color lives on its own sublattice");
+	rst.text("fermi : all colors experience the same Hamiltonian");
 	rst.np();
 	rst.title("Input values","~");
 

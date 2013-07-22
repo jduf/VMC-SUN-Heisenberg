@@ -12,9 +12,16 @@ Chain::Chain(Parseur& P):
 			filename += "-P";
 			bc = 1;
 		}
-		compute_EVec();
+		compute_H();
 		compute_sts();
 		compute_EVec();
+		for(unsigned int spin(0);spin<N_spin;spin++){
+			for(unsigned int i(0);i<N_site;i++){
+				for(unsigned int j(0);j<N_m;j++){
+					EVec(i+spin*N_site,j) = T(i,j);
+				}
+			}
+		}
 		save(filename);
 	}
 }

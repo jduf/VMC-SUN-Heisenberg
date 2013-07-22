@@ -326,7 +326,7 @@ void HoneycombSU4::compute_EVec(){
 		}
 	}
 	T += T.transpose();
-	diagonalize_EVec('H');
+	diagonalize_EVec('S');
 }
 
 void HoneycombSU4::save(std::string filename){

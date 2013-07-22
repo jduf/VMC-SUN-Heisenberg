@@ -67,7 +67,6 @@ void CreateSystem<Type>::diagonalize_EVec(char mat_type){
 	Lapack<Type> ES(&T,false, mat_type);
 	Matrix<double> EVal;
 	ES.eigensystem(EVal);
-	std::cout<<EVal.transpose().chop()<<std::endl;
 	if(std::abs(EVal(N_m) - EVal(N_m-1))>1e-10){ successful = true; }
 }
 #endif

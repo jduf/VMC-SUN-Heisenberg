@@ -131,6 +131,7 @@ double System<Type>::compute_energy(){
 
 template<typename Type>
 void System<Type>::print(){
+	std::cout<<"=========================="<<std::endl;
 	for(unsigned int spin(0);spin<N_spin;spin++){
 		Matrix<Type> A(N_m,N_m);
 		for(unsigned int i(0);i<N_m;i++){
@@ -153,7 +154,7 @@ void System<Type>::print(){
 	}
 	std::cout<<std::endl;
 
-	std::cout<<std::endl;
+	std::cout<<"=========================="<<std::endl;
 }
 /*}*/
 
@@ -182,7 +183,7 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 	unsigned int* available(new unsigned int[N_site]);
 	Matrix<int> P;
 	unsigned int l(0);
-	unsigned int TRY_MAX(1);
+	unsigned int TRY_MAX(100);
 	double rcn(0.0);
 	do {
 		N_as = N_site;
@@ -236,14 +237,11 @@ void System<Type>::swap(){
 	} while(color[0]==color[1]);
 	row[0] = s(new_s[0],1); 
 	row[1] = s(new_s[1],1); 
-	new_ev[0] = ev(color[1],row[1]);
-	new_ev[1] = ev(color[0],row[0]);
-	//std::cout<<"======"<<std::endl;
-	//std::cout<<"si co row old_ev new_ev"<<std::endl;
+	new_ev[0] = color[0]*N_site + new_s[1];
+	new_ev[1] = color[1]*N_site + new_s[0];
+	//std::cout<<"si co row new_ev"<<std::endl;
 	//std::cout<<new_s[0]<<" "<<color[0]<<" "<<row[0]<<" "<<new_ev[0]<<std::endl;
 	//std::cout<<new_s[1]<<" "<<color[1]<<" "<<row[1]<<" "<<new_ev[1]<<std::endl;
-	//std::cout<<"======"<<std::endl;
-	//std::cout<<std::endl;
 }
 
 template<typename Type>
@@ -252,8 +250,8 @@ void System<Type>::swap(unsigned int const& s0, unsigned int const& s1){
 	color[1] = s(s1,0);
 	row[0] = s(s0,1);
 	row[1] = s(s1,1); 
-	new_ev[0] = ev(color[1],row[1]);
-	new_ev[1] = ev(color[0],row[0]);
+	new_ev[0] = color[0]*N_site + s1;
+	new_ev[1] = color[1]*N_site + s0;
 }
 
 template<typename Type>
@@ -271,12 +269,13 @@ void System<Type>::update(){
 			}
 		}
 		Ainv[color[m]] -= tmp;
-		ev(color[m],row[m]) = color[m]*N_site+new_ev[m]%N_site;
+		ev(color[m],row[m]) = new_ev[m];
 	}
 	s(new_s[0],0) = color[1];
 	s(new_s[0],1) = row[1];
 	s(new_s[1],0) = color[0];
 	s(new_s[1],1) = row[0];
+
 	//print();
 }
 /*}*/

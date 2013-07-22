@@ -48,7 +48,7 @@ void SquareMu::compute_EVec(unsigned int spin){
 		else { T(i-(N_row-1)*N_col,i) = bc*t;}
 	}
 	//T += T.transpose();
-	show(T,spin%N_spin+1);
+	//show(T,spin%N_spin+1);
 	/*\warning if i take the transpose, the diagonal will be counted twice*/
 	diagonalize_EVec('S');
 }
@@ -67,9 +67,9 @@ void SquareMu::save(std::string filename){
 	w("sts",sts);
 	w("EVec",EVec);
 	w("bc",bc);
-	w("mu",mu);
 	w("N_row",N_row);
 	w("N_col",N_col);
+	w("mu",mu);
 }
 
 void SquareMu::show(Matrix<double> const& T,unsigned int spin){
