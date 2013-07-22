@@ -42,7 +42,7 @@ CreateSystem<Type>::CreateSystem(Parseur& P, unsigned int N_n):
 	sts(N_spin*N_m*N_n/2,2),
 	H(N_spin*N_m,N_spin*N_m,0.0),
 	T(N_spin*N_m,N_spin*N_m,0.0),
-	EVec(N_spin*N_m,N_spin*N_m),
+	EVec(N_spin*N_spin*N_m,N_m),
 	successful(false),
 	mat_type('U')
 { }
@@ -70,6 +70,5 @@ void CreateSystem<Type>::compute_EVec(){
 	Matrix<double> EVal;
 	ES.eigensystem(EVal);
 	if(std::abs(EVal(N_m) - EVal(N_m-1))>1e-10){ successful = true; }
-	EVec=T;
 }
 #endif

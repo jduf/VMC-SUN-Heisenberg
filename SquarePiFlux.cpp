@@ -8,8 +8,15 @@ SquarePiFlux::SquarePiFlux(Parseur& P):
 			mat_type='H';
 			compute_T();
 			compute_EVec();
+			for(unsigned int spin(0);spin<N_spin;spin++){
+				for(unsigned int i(0);i<N_site;i++){
+					for(unsigned int j(0);j<N_m;j++){
+						EVec(i+spin*N_site,j) = T(i,j);
+					}
+				}
+			}
 			if(successful){
-				std::string filename("SquarePiFlux-csl");
+				std::string filename("square-piflux");
 				filename += "-N" + tostring(N_spin);
 				filename += "-S" + tostring(N_site);
 				filename += "-" + tostring(N_row) + "x" + tostring(N_col);

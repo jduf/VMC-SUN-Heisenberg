@@ -39,6 +39,7 @@ class MonteCarlo{
 		void init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<unsigned int> const& sts, Matrix<Type> const& EVec, unsigned int thread);
 		/*!Saves the essential data in the "result" file*/
 		void save_in_file(Write& w, unsigned int thread);
+		void test();
 
 	private:
 		/*!Forbids the copy constructor*/
@@ -77,22 +78,6 @@ class MonteCarlo{
 		std::vector<double>* sampling; //!< Stores all the values that MC considers
 		unsigned int* status; //!< Not Lunched:0 Lunched:1 Successful:2 Time elapsed:3
 };
-
-/*double norm_squared(T)*/
-/*{*/
-template<typename Type>
-double norm_squared(Type x);
-
-template<>
-inline double norm_squared(double x){
-	return x*x;
-}
-
-template<>
-inline double norm_squared(std::complex<double> x){
-	return std::norm(x);
-}
-/*}*/
 
 /*constructors and destructor*/
 /*{*/
@@ -267,4 +252,10 @@ double MonteCarlo<Type>::delta(std::vector<double> const& v, double const& m){
 	return sqrt(d / (N*(N-1))); 
 }
 /*}*/
+template<typename Type>
+void MonteCarlo<Type>::test(){
+	S[0].swap();
+	std::cout<<S[0].ratio()<<std::endl;
+	S[0].update();
+}
 #endif
