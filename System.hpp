@@ -227,21 +227,6 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 }
 
 template<typename Type>
-//void System<Type>::swap(){
-	//color[0]=rnd->get(N_spin);
-	//do {
-		//color[1]=rnd->get(N_spin);
-	//} while(color[0]==color[1]);
-	//row[0] = rnd->get(N_m);
-	//row[1] = rnd->get(N_m);
-	//new_ev[0] = ev(color[1],row[1]);
-	//new_ev[1] = ev(color[0],row[0]);
-	//std::cout<<"======"<<std::endl;
-	//std::cout<<color[0]<<" "<<color[1]<<std::endl;
-	//std::cout<<row[0]<<" "<<row[1]<<std::endl;
-	//std::cout<<new_ev[0]<<" "<<new_ev[1]<<std::endl;
-	//std::cout<<"======"<<std::endl;
-//}
 void System<Type>::swap(){
 	new_s[0] = rnd->get(N_site);
 	color[0] = s(new_s[0],0);

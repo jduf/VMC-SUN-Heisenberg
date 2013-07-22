@@ -31,7 +31,7 @@ Chrono.o:Chrono.cpp Chrono.hpp
 ########
 # create
 ########
-cs:cs.o Chain.o SquarePiFlux.o Honeycomb.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o
+cs:cs.o Chain.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 cs.o:cs.cpp Parseur.hpp Chain.hpp Square.hpp Honeycomb.hpp
@@ -42,8 +42,14 @@ Chain.o:Chain.cpp Chain.hpp CreateSystem.hpp Parseur.hpp
 
 SquarePiFlux.o:SquarePiFlux.cpp SquarePiFlux.hpp Square.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
+	
+SquareMu.o:SquareMu.cpp SquareMu.hpp Square.hpp CreateSystem.hpp Parseur.hpp
+	$(CXX) -c $(CXXFLAGS) $^
 
-Honeycomb.o:Honeycomb.cpp Honeycomb.hpp CreateSystem.hpp Parseur.hpp
+SquareFermi.o:SquareFermi.cpp SquareFermi.hpp Square.hpp CreateSystem.hpp Parseur.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
+HoneycombSU4.o:HoneycombSU4.cpp HoneycombSU4.hpp Honeycomb.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 	
 #######

@@ -11,9 +11,8 @@ class SquarePiFlux: public Square<std::complex<double> >{
 		~SquarePiFlux();
 
 	protected:
-		void compute_T();
+		void compute_EVec();
 		void save(std::string filename);
 };
-
 #endif
 

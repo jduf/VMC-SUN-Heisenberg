@@ -4,7 +4,6 @@ Chain::Chain(Parseur& P):
 	CreateSystem<double>(P,2)
 {
 	if(!P.status()){
-		mat_type='S';
 		std::string filename("chain-N"+tostring(N_spin) + "-S" + tostring(N_site));
 		if(N_m % 2 == 0){ 
 			filename += "-A";
@@ -13,7 +12,7 @@ Chain::Chain(Parseur& P):
 			filename += "-P";
 			bc = 1;
 		}
-		compute_T();
+		compute_EVec();
 		compute_sts();
 		compute_EVec();
 		save(filename);
@@ -22,16 +21,22 @@ Chain::Chain(Parseur& P):
 
 Chain::~Chain(){ }
 
-void Chain::compute_T(){
-	double t(-1.0);
-	H(0, N_site -1 ) = t;
-	T(0, N_site -1 ) = bc*t;
+void Chain::compute_H(){
+	H(0, N_site -1 ) = 1;
 	for(unsigned int i(0); i< N_site-1; i++){
-		H(i,i+1) = -1;
-		T(i,i+1) = t;
+		H(i,i+1) = 1;
 	}
 	H += H.transpose();
+}
+
+void Chain::compute_EVec(){
+	double t(-1.0);
+	T(0, N_site -1 ) = bc*t;
+	for(unsigned int i(0); i< N_site-1; i++){
+		T(i,i+1) = t;
+	}
 	T += T.transpose();
+	diagonalize_EVec('S');
 }
 
 void Chain::save(std::string filename){

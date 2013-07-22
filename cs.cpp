@@ -2,7 +2,9 @@
 
 #include "Chain.hpp"
 #include "SquarePiFlux.hpp"
-#include "Honeycomb.hpp"
+#include "SquareMu.hpp"
+#include "SquareFermi.hpp"
+#include "HoneycombSU4.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
@@ -15,12 +17,17 @@ int main(int argc, char* argv[]){
 			}
 		case 3:
 			{
-				Honeycomb h(P);
+				HoneycombSU4 h(P);
 				break;
 			}
 		case 4:
 			{
-				SquarePiFlux s(P);
+				//double mu(0.0);
+				//P.set("mu",mu);
+				//if( std::abs(mu)<1e-14) { SquareFermi s(P); }
+				//else { SquareMu s(P); }
+				SquareMu s(P);
+				
 				break;
 			}
 		default:

@@ -1,41 +1,42 @@
-#include "Honeycomb.hpp"
+#include "HoneycombSU4.hpp"
 
-Honeycomb::Honeycomb(Parseur& P):
-	CreateSystem<double>(P,3),
-	N_row(floor(sqrt(N_m))),
-	N_col(floor(sqrt(N_m)))
+HoneycombSU4::HoneycombSU4(Parseur& P):
+	Honeycomb<double>(P)
 {
-	P.set("bc",bc);
 	if(!P.status()){
-	if(N_m==N_row*N_col){
-		mat_type='S';
-		compute_T();
-		compute_sts();
-		compute_EVec();
-		if(successful){
-			std::string filename("honeycomb");
-			filename +="-N" + tostring(N_spin);
-			filename +="-S" + tostring(N_site);
-			filename += "-" + tostring(N_row) +"x"+ tostring(N_col);
-			if(bc == 1){ filename += "-P";} 
-			else { filename += "-A";}
-			save(filename);
-		} else {
-			if(bc == 1){
-				std::cerr<<"CreateSystem : degeneate for PBC"<<std::endl;
-			} else {
-				std::cerr<<"CreateSystem : degeneate for APBC"<<std::endl;
+		if(N_m==N_row*N_col){
+			compute_EVec();
+			for(unsigned int spin(0);spin<N_spin;spin++){
+				for(unsigned int i(0);i<N_site;i++){
+					for(unsigned int j(0);j<N_m;j++){
+						EVec(i+spin*N_site,j) = T(i,j);
+					}
+				}
 			}
+			if(successful){
+				std::string filename("honeycomb");
+				filename +="-N" + tostring(N_spin);
+				filename +="-S" + tostring(N_site);
+				filename += "-" + tostring(N_row) +"x"+ tostring(N_col);
+				if(bc == 1){ filename += "-P";} 
+				else { filename += "-A";}
+				save(filename);
+			} else {
+				if(bc == 1){
+					std::cerr<<"HoneycombSU4 : degeneate for PBC"<<std::endl;
+				} else {
+					std::cerr<<"HoneycombSU4 : degeneate for APBC"<<std::endl;
+				}
+			}
+		} else {
+			std::cerr<<"HoneycombSU4 : the cluster is not a square"<<std::endl;
 		}
-	} else {
-		std::cerr<<"CreateSystem : the cluster is not a square"<<std::endl;
-	}
 	}
 }
 
-Honeycomb::~Honeycomb(){}
+HoneycombSU4::~HoneycombSU4(){}
 
-void Honeycomb::compute_T(){
+void HoneycombSU4::compute_EVec(){
 	double t(-1.0);
 	double th(1.0);
 	double td(t);
@@ -294,54 +295,45 @@ void Honeycomb::compute_T(){
 	//}
 	//}
 	//}
-	{//for SU(4) (pipipi) with 4 sites
+	{//for SU(4) (pipipi) with 4 sites per unitary cell
 		if(N_spin!=4){std::cerr<<"works only with SU(4)"<<std::endl;}
 		unsigned int i(0);
 		for(unsigned int l(0);l<N_row;l++){
 			for(unsigned int c(0);c<N_col;c++){
-				H(i,i+1) = -1; //0-1
 				T(i,i+1) = th;
-				H(i,i+3) = -1; //0-3
 				T(i,i+3) = th;
 				i++;//1
-				H(i,i+1) = -1; //1-2
 				T(i,i+1) = th; 
 				i++;//2
 				if(c+1==N_col){
-					H(i+1-c*4, i) = -1; // 2-3 b
 					T(i+1-c*4, i) = bc*th;  
 				} else {
-					H(i,i+5) = -1; 
 					T(i,i+5) = th;
 				}
 				if(l+1==N_row){
-					H(i-1-l*N_col*4,i) = -1; // 2-1 b
 					T(i-1-l*N_col*4,i) = bc*td; 
 				} else {
-					H(i,i-1+N_col*4) = -1; 
 					T(i,i-1+N_col*4) = td;
 				}
 				i++;//3
 				if(l+1==N_row){
-					H(i-3-l*N_col*4, i) = -1; // 3-0 b
 					T(i-3-l*N_col*4, i) = bc*th; 
 				} else {
-					H(i,i-3+N_col*4) = -1; 
 					T(i,i-3+N_col*4) = th;
 				}
 				i++;//4
 			}
 		}
 	}
-	H += H.transpose();
 	T += T.transpose();
+	diagonalize_EVec('H');
 }
 
-void Honeycomb::save(std::string filename){
+void HoneycombSU4::save(std::string filename){
 	Write w(filename+".jdbin");
 	std::cerr<<"detail what kind of honeycomb it is"<<std::endl;
 	RST rst;
-	rst.text("Honeycomb ");
+	rst.text("HoneycombSU4 ");
 	rst.np();
 	rst.title("Input values","~");
 
@@ -356,42 +348,3 @@ void Honeycomb::save(std::string filename){
 	w("N_col",N_col);
 }
 
-//{
-//filename="honeycomb"+filename;
-//Read r(hopfile);
-//Matrice<double> tmp(N_spin*N_m);
-//r>>tmp;
-//double t(-1.0);
-//double th(-1.0);
-//for(unsigned int i(0);i<N_site;i++){
-//for(unsigned int j(0);j<N_site;j++){
-//if(std::abs(tmp(i,j)+1.0) < 1e-4){//original file th=-1
-//H(i,j) = t;
-//T(i,j) = th;
-//}
-//if(std::abs(tmp(i,j)-2.0) < 1e-4){ //original file td=2
-//H(i,j) = t;
-//T(i,j) = td;
-//}
-//if(std::abs(tmp(i,j)-1.0) < 1e-4){
-//H(i,j) = t;
-//T(i,j) = bc*th;
-//}
-//if(std::abs(tmp(i,j)+2.0) < 1e-4){
-//H(i,j) = t;
-//T(i,j) = bc*td;
-//}
-//}
-//}
-//mat_type = 'S';
-//compute_sts();
-//compute_EVec();
-//if(successful){
-//save();
-//(*w)("th",th);
-//(*w)("td",td);
-//(*w)("bc",bc);
-//} else {
-//std::cerr<<"CreateSystem : degeneate"<<std::endl;
-//}
-//}

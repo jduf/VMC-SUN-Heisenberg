@@ -38,16 +38,15 @@ Square<Type>::~Square(){}
 
 template<typename Type>
 void Square<Type>::compute_H(){
-	for(unsigned int i(0); i< this->N_row; i++){
-		for(unsigned int j(0); j< this->N_col; j++){
-			if(j+1 == this->N_col){ this->H( i*this->N_col , i*this->N_col + j) = 1; }
-			else { this->H( i*this->N_col + j , i*this->N_col + j + 1) = 1; }
-			if(i+1 == this->N_row ){ this->H(j, i*this->N_col + j) = 1; }
-			else{ this->H(i*this->N_col + j, (i+1)*this->N_col + j) = 1; }
-		}
+	for(unsigned int i(0); i < this->N_site; i++){
+		/*horizontal hopping*/
+		if( (i+1) % this->N_col ){ this->H(i,i+1) = 1;}	
+		else { this->H(i+1-this->N_col,i) = 1;}
+		/*vertical hopping*/
+		if( i+this->N_col < this->N_site ){  this->H(i,i+this->N_col) = 1; } 
+		else { this->H(i-(this->N_row-1)*this->N_col,i) = 1;}
 	}
-	this->H += this->H.transpose();
+	//this->H += this->H.transpose();
 }
-
 #endif
 

@@ -25,10 +25,9 @@ class CreateSystem{
 		Matrix<Type> T;			//!< Gutzwiller Hamiltonian
 		Matrix<Type> EVec;		//!< eigenvectors matrix (transfer matrix)
 		bool successful;		//!< no degeneracy at the fermi level
-		char mat_type;			//!< matrix type
 
 		/*!Compute the eigenvectors from the mean field hamiltonian*/
-		void compute_EVec();
+		void diagonalize_EVec(char mat_type);
 		/*!Compute the array of pairs of swapping sites*/
 		void compute_sts();
 };
@@ -39,12 +38,11 @@ CreateSystem<Type>::CreateSystem(Parseur& P, unsigned int N_n):
 	N_spin(P.get<unsigned int>("N_spin")), 
 	N_site(N_spin*N_m),
 	bc(0),
-	sts(N_spin*N_m*N_n/2,2),
-	H(N_spin*N_m,N_spin*N_m,0.0),
-	T(N_spin*N_m,N_spin*N_m,0.0),
-	EVec(N_spin*N_spin*N_m,N_m),
-	successful(false),
-	mat_type('U')
+	sts(N_site*N_n/2,2),
+	H(N_site,N_site,0.0),
+	T(N_site,N_site,0.0),
+	EVec(N_spin*N_site,N_m),
+	successful(false)
 { }
 
 template<typename Type>
@@ -65,10 +63,11 @@ void CreateSystem<Type>::compute_sts(){
 }
 
 template<typename Type>
-void CreateSystem<Type>::compute_EVec(){
+void CreateSystem<Type>::diagonalize_EVec(char mat_type){
 	Lapack<Type> ES(&T,false, mat_type);
 	Matrix<double> EVal;
 	ES.eigensystem(EVal);
+	std::cout<<EVal.transpose().chop()<<std::endl;
 	if(std::abs(EVal(N_m) - EVal(N_m-1))>1e-10){ successful = true; }
 }
 #endif

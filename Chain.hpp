@@ -9,8 +9,8 @@ class Chain: public CreateSystem<double>{
 		~Chain();
 
 	private:
-		/*!Compute the hopping matrix for a chain*/
-		void compute_T();
+		void compute_H();
+		void compute_EVec();
 		void save(std::string filename);
 };
 

@@ -5,8 +5,6 @@ SquarePiFlux::SquarePiFlux(Parseur& P):
 {
 	if(!P.status()){
 		if(N_site==N_row*N_col){
-			mat_type='H';
-			compute_T();
 			compute_EVec();
 			for(unsigned int spin(0);spin<N_spin;spin++){
 				for(unsigned int i(0);i<N_site;i++){
@@ -24,17 +22,17 @@ SquarePiFlux::SquarePiFlux(Parseur& P):
 				else { filename += "-A";}
 				save(filename);
 			} else {
-				std::cerr<<"CreateSystem : degeneate"<<std::endl;
+				std::cerr<<"SquarePiFlux : degeneate"<<std::endl;
 			}
 		} else {
-			std::cerr<<"CreateSystem : the cluster is not a SquarePiFlux"<<std::endl;
+			std::cerr<<"SquarePiFlux : the cluster is not a SquarePiFlux"<<std::endl;
 		}
 	}
 }
 
 SquarePiFlux::~SquarePiFlux(){}
 
-void SquarePiFlux::compute_T(){
+void SquarePiFlux::compute_EVec(){
 	double t(-1.0);
 	double phi(2*M_PI/N_spin);
 	for(unsigned int i(0); i< N_row; i++){
@@ -46,6 +44,7 @@ void SquarePiFlux::compute_T(){
 		}
 	}
 	T += T.trans_conj(); 
+	diagonalize_EVec('H');
 }
 
 void SquarePiFlux::save(std::string filename){
