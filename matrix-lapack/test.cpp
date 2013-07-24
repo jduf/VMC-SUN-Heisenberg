@@ -55,17 +55,32 @@ int main(){
 	//std::cout<<m1<<std::endl;
 	// /*}*/
 	/*eigenvalue*/
+	/*{*/
+	unsigned int N_site(6);
+	Matrix<double> H(N_site,N_site,0.0);
+	H(0,1)=-1.0;
+	H(0,N_site-1)=1.0;
+	for(unsigned int i(1); i< N_site-1; i++){
+		H(i,i-1) = -1.0;
+		H(i,i+1) = -1.0;
+	}
+	H(N_site-1,0)=1.0;
+	H(N_site-1,N_site-2)=-1.0;
+	
+	Lapack<double> U_(&H,true,'S');
+	Matrix<double> EVal;
+	U_.eigensystem(EVal);
+	Matrix<double> U(U_.get_mat());
+	std::cout<<((U.transpose()*H*U).diag()).transpose();
+	std::cout<<EVal.transpose()<<std::endl;
+	Matrix<double> v0(N_site,1);
+	for(unsigned int i(0);i<N_site;i++){
+		v0(i) = U(i,0);
+	}
+	std::cout<<v0<<std::endl;
+	//std::cout<<(H-EVal(0))*v0<<std::endl;
+	std::cout<<(H*v0)-(v0*EVal(0))<<std::endl;
 	///*{*/
-	//unsigned int N_site(6);
-	//Matrix<double> H(N_site,N_site,0.0);
-	//H(0,1)=-1.0;
-	//H(0,N_site-1)=1.0;
-	//for(unsigned int i(1); i< N_site-1; i++){
-		//H(i,i-1) = -1.0;
-		//H(i,i+1) = -1.0;
-	//}
-	//H(N_site-1,0)=1.0;
-	//H(N_site-1,N_site-2)=-1.0;
 	//std::cout<<"Original matrix"<<std::endl;
 	//std::cout<<H<<std::endl;;
 	//Matrix<double> T(H);
@@ -96,14 +111,14 @@ int main(){
 //
 	//Matrix<std::complex<double> > M(3,3);
 	//M(0,0) = std::complex<double> (1,0); 
-	//M(0,1) = std::complex<double> (2,3); 
-	//M(0,2) = std::complex<double> (6,4); 
-	//M(1,0) = std::complex<double> (2,-3); 
 	//M(1,1) = std::complex<double> (4,0); 
-	//M(1,2) = std::complex<double> (-4,-6); 
-	//M(2,0) = std::complex<double> (6,-4); 
-	//M(2,1) = std::complex<double> (-4,6); 
 	//M(2,2) = std::complex<double> (5,0); 
+	//M(0,1) = std::complex<double> (2,3); 
+	//M(1,0) = std::complex<double> (2,-3); 
+	//M(0,2) = std::complex<double> (6,4); 
+	//M(2,0) = std::complex<double> (6,-4); 
+	//M(1,2) = std::complex<double> (-4,-6); 
+	//M(2,1) = std::complex<double> (-4,6); 
 //
 	//Lapack<std::complex<double> > M_(&M,false,'H');
 	//Matrix<double> EVal2(3,1);
@@ -112,6 +127,7 @@ int main(){
 	//std::cout<<M<<std::endl;;
 	//std::cout<<M.trans_conj()<<std::endl;;
 	///*}*/
+	/*}*/
 	/*lu et det*/
 	///*{*/
 	//Matrix<std::complex<double> > C(3,3);
@@ -155,74 +171,93 @@ int main(){
 	//std::cout<<L*U<<std::endl;;
 	///*}*/
 	//inverse
-	/*{*/
-	Matrix<double> T1(3,3);
-	T1(0,0)=-1.0;
-	T1(0,1)=2.5;
-	T1(0,2)=5;
-	T1(1,0)=0;
-	T1(1,1)=-12;
-	T1(1,2)=-145.42;
-	T1(2,0)=	7;
-	T1(2,1)=54;
-	T1(2,2)=47;
-	Matrix<double> T1inv(T1);
-
-	std::cout<<"T1 : well defined"<<std::endl;
-	std::cout<<T1<<std::endl;
-	Lapack<double> Over(&T1inv,false,'G'); // Tinv va être écrasé
-	double rcond(0.0);	
-	Matrix<int> P1(Over.is_singular(rcond));
-	Over.inv(P1);
-
-	std::cout<<"Tinv"<<std::endl;
-	std::cout<<T1inv<<std::endl;
-
-	std::cout<<"I"<<std::endl;
-	std::cout<<(T1*T1inv)<<std::endl;;
-	std::cout<<"I"<<std::endl;
-	std::cout<<(T1inv*T1)<<std::endl;;
-
-	Matrix<double> T2(3,3);
-	T2(0,0)=-1.0;
-	T2(0,1)=2.5;
-	T2(0,2)=2;
-	T2(1,0)=0;
-	T2(1,1)=-12;
-	T2(1,2)=-145.42;
-	T2(2,0)=0;
-	T2(2,1)=0;
-	T2(2,2)=1e-200;
-
-	Lapack<double> Keep(&T2,true,'G'); // T va être conservé
-	std::cout<<"T2 looks singular"<<std::endl;
-	Matrix<int> P2(Keep.is_singular(rcond));
-	Keep.inv(P2);
-	Matrix<double> T2inv_lapack(Keep.get_mat());
-
-	std::cout<<T2<<std::endl;
-	std::cout<<"get Tinv from lapack"<<std::endl;
-	std::cout<<T2inv_lapack<<std::endl;
-	std::cout<<T2inv_lapack*T2<<std::endl;
-
-	Lapack<double> Keep2(&T2,true,'G'); // T va être conservé
-	Keep2.inv();
-	std::cout<<"T2 looks singular but will be inverted anyway"<<std::endl;
-	Matrix<double> T2inv_lapack2(Keep2.get_mat());
-
-	std::cout<<"get Tinv2 from lapack"<<std::endl;
-	std::cout<<T2inv_lapack2<<std::endl;
-	std::cout<<T2inv_lapack2*T2<<std::endl;
-
-
-	//std::cout<<"check that there is no memory leaks"<<std::endl;;
-	//for(unsigned int i(0);i<10000000;i++){
-		//Lapack<double> Over(&T,true,'G'); 
-		//Over.inv();
-		//Matrix<double> Tinv_new(Over.get_mat());
-		////std::cout<<(Tinv_new*T)<<std::endl;;
-	//}
-	/*}*/
+	///*{*/
+	//Matrix<double> T1(3,3);
+	//T1(0,0)=-1.0;
+	//T1(0,1)=2.5;
+	//T1(0,2)=5;
+	//T1(1,0)=0;
+	//T1(1,1)=-12;
+	//T1(1,2)=-145.42;
+	//T1(2,0)=	7;
+	//T1(2,1)=54;
+	//T1(2,2)=47;
+	//Matrix<double> T1inv(T1);
+//
+	//std::cout<<"T1 : well defined"<<std::endl;
+	//std::cout<<T1<<std::endl;
+	//Lapack<double> Over(&T1inv,false,'G'); // Tinv va être écrasé
+	//double rcond(0.0);	
+	//Matrix<int> P1(Over.is_singular(rcond));
+	//Over.inv(P1);
+//
+	//std::cout<<"Tinv"<<std::endl;
+	//std::cout<<T1inv<<std::endl;
+//
+	//std::cout<<"I"<<std::endl;
+	//std::cout<<(T1*T1inv)<<std::endl;;
+	//std::cout<<"I"<<std::endl;
+	//std::cout<<(T1inv*T1)<<std::endl;;
+//
+	//Matrix<double> T2(3,3);
+	//T2(0,0)=-1.0;
+	//T2(0,1)=2.5;
+	//T2(0,2)=2;
+	//T2(1,0)=0;
+	//T2(1,1)=-12;
+	//T2(1,2)=-145.42;
+	//T2(2,0)=0;
+	//T2(2,1)=0;
+	//T2(2,2)=1e-200;
+//
+	//Lapack<double> Keep(&T2,true,'G'); // T va être conservé
+	//std::cout<<"T2 looks singular"<<std::endl;
+	//Matrix<int> P2(Keep.is_singular(rcond));
+	//Keep.inv(P2);
+	//Matrix<double> T2inv_lapack(Keep.get_mat());
+//
+	//std::cout<<T2<<std::endl;
+	//std::cout<<"get Tinv from lapack"<<std::endl;
+	//std::cout<<T2inv_lapack<<std::endl;
+	//std::cout<<T2inv_lapack*T2<<std::endl;
+//
+	//Lapack<double> Keep2(&T2,true,'G'); // T va être conservé
+	//Keep2.inv();
+	//std::cout<<"T2 looks singular but will be inverted anyway"<<std::endl;
+	//Matrix<double> T2inv_lapack2(Keep2.get_mat());
+//
+	//std::cout<<"get Tinv2 from lapack"<<std::endl;
+	//std::cout<<T2inv_lapack2<<std::endl;
+	//std::cout<<T2inv_lapack2*T2<<std::endl;
+//
+	//Matrix<std::complex<double> > C(3,3);
+	//C(0,0)=std::complex<double>(-1.0,3);
+	//C(0,1)=std::complex<double>(2.5,4);
+	//C(0,2)=std::complex<double>(2,5);
+	//C(1,0)=std::complex<double>(0,0);
+	//C(1,1)=std::complex<double>(-12,7);
+	//C(1,2)=std::complex<double>(-145.42,7);
+	//C(2,0)=std::complex<double>(0,0);
+	//C(2,1)=std::complex<double>(0,0);
+	//C(2,2)=std::complex<double>(1e-200,2);
+//
+//
+	//Lapack<std::complex<double> > inv(&C,true,'G');
+	//Matrix<int> P3(inv.is_singular(rcond));
+	//inv.inv(P3);
+	//
+	//Matrix<std::complex<double> > Cinv(inv.get_mat());
+	//std::cout<<C<<std::endl;
+	//std::cout<<Cinv<<std::endl;
+//
+	////std::cout<<"check that there is no memory leaks"<<std::endl;;
+	////for(unsigned int i(0);i<10000000;i++){
+		////Lapack<double> Over(&T,true,'G'); 
+		////Over.inv();
+		////Matrix<double> Tinv_new(Over.get_mat());
+		//////std::cout<<(Tinv_new*T)<<std::endl;;
+	////}
+	///*}*/
 	//qr factorisation
 	///*{*/
 	//Matrix<double> T;

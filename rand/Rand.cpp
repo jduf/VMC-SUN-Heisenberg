@@ -58,8 +58,8 @@ Rand::Rand(int len, int ij, int kl) {
 	if (kl < 0 || kl > 30081){ stop("ranmar: 1st seed must be between 0 and 30081\n");}
 	if (len < 0){ stop("ranmar: len < 0"); }
 
-	Rand::auto_save = false;
-	Rand::fn = "";
+	//Rand::auto_save = false;
+	//Rand::fn = "";
 
 	Rand::len = len;
 	rvec = new float[len];
@@ -111,8 +111,8 @@ Rand::Rand(int len) {
 		if (kl < 0 || kl > 30081){ stop("ranmar: 1st seed must be between 0 and 30081\n");}
 		if (len < 0){ stop("ranmar: len < 0");}
 
-		Rand::auto_save = false;
-		Rand::fn = "";
+		//Rand::auto_save = false;
+		//Rand::fn = "";
 
 		Rand::len = len;
 		rvec = new float[len];
@@ -144,7 +144,6 @@ Rand::Rand(int len) {
 			}
 			u[ii] = s;
 		}
-		Rand::auto_save=false;
 	}
 }
 
@@ -168,8 +167,8 @@ Rand::Rand(int len,int thread) {
 		if (kl < 0 || kl > 30081){ stop("ranmar: 1st seed must be between 0 and 30081\n");}
 		if (len < 0) {stop("ranmar: len < 0"); }
 
-		Rand::auto_save = false;
-		Rand::fn = "";
+		//Rand::auto_save = false;
+		//Rand::fn = "";
 
 		Rand::len = len;
 		rvec = new float[len];
@@ -201,7 +200,6 @@ Rand::Rand(int len,int thread) {
 			}
 			u[ii] = s;
 		}
-		Rand::auto_save=false;
 	}
 }
 
@@ -210,21 +208,21 @@ bool Rand::is_null() {
   return false;
 }
 
-Rand::Rand(std::string fn, bool auto_save) {
-    Rand::auto_save = auto_save;
-    Rand::fn = fn;
-    load_state(fn);
-}
+//Rand::Rand(std::string fn, bool auto_save) {
+//    Rand::auto_save = auto_save;
+//    Rand::fn = fn;
+//    load_state(fn);
+//}
 
 Rand::~Rand() {
 #pragma omp critical
-  if (auto_save) save_state(fn);
+//  if(auto_save){ save_state(fn);}
   if(rvec!=NULL){ delete[] rvec; rvec=NULL;}
 }
 
 void Rand::free() {
 #pragma omp critical
-  if (auto_save) save_state(fn);
+//  if(auto_save){ save_state(fn);}
   if(rvec!=NULL) { delete[] rvec; rvec=NULL;}
 }
 
@@ -256,67 +254,67 @@ void Rand::stop(std::string msg) {
     exit(0);
 }
 
-void Rand::save_state(std::string fn) {
-	std::ofstream ofs(fn.c_str());
+//void Rand::save_state(std::string fn) {
+	//std::ofstream ofs(fn.c_str());
+//
+	//if (!ofs){ stop("ranmar: Can't save restart file!");}
+	//ofs.precision(100);
+//
+	//ofs << len << '\n';
+	//ofs << pos << '\n';
+	//ofs << i97 << '\n';
+	//ofs << j97 << '\n';
+	//ofs << c << '\n';
+	//ofs << cd << '\n';
+	//ofs << cm << '\n';
+//
+	//for (int k = 0; k < 97; ++ k ) {
+		//ofs << u[k] << '\n';
+	//}
+	//for (int k = 0; k < len; ++ k ) {
+		//ofs << rvec[k] << '\n';
+	//}
+	//// release file
+	//if(ofs.is_open()){ ofs.close();}
+//}
 
-	if (!ofs){ stop("ranmar: Can't save restart file!");}
-	ofs.precision(100);
-
-	ofs << len << '\n';
-	ofs << pos << '\n';
-	ofs << i97 << '\n';
-	ofs << j97 << '\n';
-	ofs << c << '\n';
-	ofs << cd << '\n';
-	ofs << cm << '\n';
-
-	for (int k = 0; k < 97; ++ k ) {
-		ofs << u[k] << '\n';
-	}
-	for (int k = 0; k < len; ++ k ) {
-		ofs << rvec[k] << '\n';
-	}
-	// release file
-	if(ofs.is_open()){ ofs.close();}
-}
-
-bool Rand::load_state(std::string fn) {
-	/* quickcheck: len of file must be: len + 97 + 7 = len + 104 */
-	std::ifstream ifs(fn.c_str());
-
-	if (!ifs){
-		std::cerr << "ranmar: Can't load restart file!, take random seeds instead" << std::endl;
-		return false;
-	}
-
-	ifs >> len;
-	if (len < 0) {
-		std::cerr << "ranmar(restart file): len < 0, take random seeds instead" << std::endl; 
-		return false;
-	}
-
-	rvec = new float[len];
-	ifs >> pos;
-
-	ifs >> i97;
-	ifs >> j97;
-	ifs >> c;
-	ifs >> cd; 
-	ifs >> cm;
-
-
-	for (int k = 0; k < 97; ++ k ) 	{	
-		ifs >> u[k]; 
-	}
-
-	for (int k = 0; k < len; ++ k ) {
-		ifs >> rvec[k];
-	}
-
-	// release file
-	if(ifs.is_open()){ ifs.close();}
-	return true;
-}
+//bool Rand::load_state(std::string fn) {
+	///* quickcheck: len of file must be: len + 97 + 7 = len + 104 */
+	//std::ifstream ifs(fn.c_str());
+//
+	//if (!ifs){
+		//std::cerr << "ranmar: Can't load restart file!, take random seeds instead" << std::endl;
+		//return false;
+	//}
+//
+	//ifs >> len;
+	//if (len < 0) {
+		//std::cerr << "ranmar(restart file): len < 0, take random seeds instead" << std::endl; 
+		//return false;
+	//}
+//
+	//rvec = new float[len];
+	//ifs >> pos;
+//
+	//ifs >> i97;
+	//ifs >> j97;
+	//ifs >> c;
+	//ifs >> cd; 
+	//ifs >> cm;
+//
+//
+	//for (int k = 0; k < 97; ++ k ) 	{	
+		//ifs >> u[k]; 
+	//}
+//
+	//for (int k = 0; k < len; ++ k ) {
+		//ifs >> rvec[k];
+	//}
+//
+	//// release file
+	//if(ifs.is_open()){ ifs.close();}
+	//return true;
+//}
 
 
 /* I use the following procedure in TC to generate seeds:

@@ -16,7 +16,7 @@
  *
  *When used with a binary file
  * - many different kinds of datas can be saved together
- */
+*/
 //}
 class Write{
 	public:

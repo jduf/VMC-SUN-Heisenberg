@@ -76,11 +76,31 @@ extern "C" void dgecon_(
 		int const *iwork,
 		int& info
 		);
+extern "C" void zgecon_(
+		char const& norm,
+		unsigned int const& n,
+		std::complex<double> const *m, 
+		unsigned int const& lda,
+		double const& anorm, 
+		double& rcond, 
+		std::complex<double> *work,
+		double *rwork,
+		int& info
+		);
+
 extern "C" double dlange_(
 		char const& norm,
 		unsigned int const& row,
 		unsigned int const& col,
 		double const *m,
+		unsigned int const& lda,
+		double *work
+		);
+extern "C" double zlange_(
+		char const& norm,
+		unsigned int const& row,
+		unsigned int const& col,
+		std::complex<double> const *m,
 		unsigned int const& lda,
 		double *work
 		);
@@ -193,6 +213,7 @@ Lapack<Type>::Lapack(Matrix<Type> *m, bool use_new_matrix, char matrix_type):
 	use_new_matrix(use_new_matrix),
 	matrix_type(matrix_type)
 {
+	if(matrix_type == 'S' && m->row() != m->col()){ std::cerr<<"Lapack : constructor : the matix is not symmetric"<<std::endl; }
 	if(use_new_matrix){ this->mat = new Matrix<Type>(*m); }
 	else { this->mat = m; }
 }
@@ -257,7 +278,7 @@ void Lapack<Type>::lu(Matrix<Type>& L, Matrix<Type>& U)  {
 		std::cerr<<"Lapack : lu : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : lu : the only matrix type implemented is G"<<std::endl;
 	} else if (mat->row()!=mat->col()){
-		std::cerr<<"Lapack : lu : works for square matrix only"<<std::endl;
+		std::cerr<<"Lapack : lu : need to be implemented for rectangle matrix"<<std::endl;
 	} else  {
 		std::cerr<<"Lapack : lu : could return P instead of having a void method"<<std::endl;
 		unsigned int N(mat->row());
@@ -327,19 +348,21 @@ void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation)  {
 
 template<typename Type>
 Matrix<int> Lapack<Type>::is_singular(double& rcn){
-	Matrix<int> ipiv(mat->row(),1);
+	Matrix<int> ipiv;
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : is_singular : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : is_singular : the only matrix type implemented is G"<<std::endl;
-		ipiv.set();
+	} else if (mat->row()!=mat->col()){
+		std::cerr<<"Lapack : is_singular : need to be checked for rectangle matrix"<<std::endl;
 	} else {
+		ipiv.set(std::min(mat->row(),mat->col()),1);
 		double m_norm(lange());
 		getrf(ipiv);
 
 		rcn = gecon(m_norm);
 		if(rcn<1e-10){
 			std::cerr<<"Lapack : is_singular : reciproc_cond_numb="<<rcn<<std::endl;
-			ipiv.set();
+			ipiv.set();//!set the output matrix to NULL pointer
 		}
 	}
 	return ipiv;

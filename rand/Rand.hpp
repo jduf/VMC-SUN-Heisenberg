@@ -2,12 +2,10 @@
 #define __RANMAR__
 
 #include <cmath>
-#include <iostream>
 #include <cstdlib>
 #include <string>
-#include <fstream>
+#include <iostream>
 #include <ctime>
-#include <unistd.h>
 
 class Rand{
 	public:
@@ -21,7 +19,7 @@ class Rand{
 		Rand(int len, int ij, int kl);
 
 		// next constructor initialises from save file fn
-		Rand(std::string fn, bool auto_save = true);
+		//Rand(std::string fn, bool auto_save = true);
 
 		// last constructor initialises generator with length len from seeds determined from system time
 		Rand(int len);
@@ -39,18 +37,18 @@ class Rand{
 		inline unsigned int get(unsigned int max) {
 			++ pos;
 			if (pos == len){ ranvec();}
-			return floor(rvec[pos] * max);
+			return std::floor(rvec[pos] * max);
 		}
 
 		bool is_null();
 
-		void set_save(std::string fn) { Rand::fn = fn; auto_save = true; }
+		//void set_save(std::string fn) { Rand::fn = fn; auto_save = true; }
 
 		// saves the state into a file
-		void save_state(std::string fn);
+		//void save_state(std::string fn);
 
 		// loades the state from a file, returns true if succeeded, false otherwise
-		bool load_state(std::string fn);
+		//bool load_state(std::string fn);
 
 		// explicitly ask to shutdown
 		void free(); 
@@ -74,8 +72,8 @@ class Rand{
 		int pos;
 		float* rvec;
 
-		bool auto_save;
-		std::string fn;
+		//bool auto_save;
+		//std::string fn;
 };
 
 #endif 

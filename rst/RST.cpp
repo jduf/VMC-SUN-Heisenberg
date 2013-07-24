@@ -64,6 +64,7 @@ void RST::hyperlink(std::string display, std::string link){
 }
 
 void RST::figure(std::string image, std::string legend, unsigned int scale){
+	rst += RST_nl;
 	rst += ".. figure:: " + image + RST_nl;
 	rst += "   :scale: " + tostring(scale) + " %" + RST_nl;
 	rst += "   :align: center" + RST_np;

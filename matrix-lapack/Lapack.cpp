@@ -95,7 +95,7 @@ void Lapack<std::complex<double> >::getri(Matrix<int>& ipiv) {
 /*{*/
 template<>
 double Lapack<double>::gecon(double anorm) {
-	unsigned int N(mat->row());
+	unsigned int N(mat->col());
 	int info(1);
 	double rcond(0);
 	double* work(new double[4*N]);
@@ -113,8 +113,20 @@ double Lapack<double>::gecon(double anorm) {
 
 template<>
 double Lapack<std::complex<double> >::gecon(double anorm) {
-	std::cerr<<"Lapack : gecon<std::complex<double> > : not implemented"<<anorm<<std::endl;
-	return 0;
+	unsigned int N(mat->col());
+	int info(1);
+	double rcond(0);
+	std::complex<double> *work(new std::complex<double>[2*N]);
+	double *rwork(new double[2*N]);
+	zgecon_('1', N, mat->ptr(), N, anorm, rcond, work, rwork, info);
+	delete[] work;
+	delete[] rwork;
+	if(info !=0){
+		std::cerr<<"Lapack : gecon<double> : info="<<info<<std::endl;
+		return 0;
+	} else {
+		return rcond;
+	}
 }
 /*}*/
 
@@ -122,7 +134,7 @@ double Lapack<std::complex<double> >::gecon(double anorm) {
 /*{*/
 template<>
 double Lapack<double>::lange(){
-	double *work(new double[4*mat->row()]);
+	double *work(new double[mat->row()]);
 	double anorm(dlange_('1', mat->row(), mat->col(), mat->ptr(), mat->row(), work));
 	delete[] work;
 	return anorm;
@@ -130,8 +142,10 @@ double Lapack<double>::lange(){
 
 template<>
 double Lapack<std::complex<double> >::lange() {
-	std::cerr<<"Lapack : lange<std::complex<double> > : not implemented"<<std::endl;
-	return 0;
+	double *work(new double[mat->row()]);
+	double anorm(zlange_('1', mat->row(), mat->col(), mat->ptr(), mat->row(), work));
+	delete[] work;
+	return anorm;
 }
 /*}*/
 /*}*/
@@ -146,19 +160,22 @@ void Lapack<double>::eigensystem(Matrix<double>& EVal, bool EVec) {
 		case 'S':
 			{
 				unsigned int N(mat->row());
-				int const lwork(3*N);
-				double* work(new double[lwork]);
+				int lwork(-1);
+				double wopt;
 				int info(1);
 				EVal.set(N,1);
+				dsyev_(jobz, 'U', N, mat->ptr(), N, EVal.ptr(), &wopt, lwork, info);
+				lwork = int(wopt);
+				double* work(new double[lwork]);
 				dsyev_(jobz, 'U', N, mat->ptr(), N, EVal.ptr(), work, lwork, info);
-				if(info !=0) { std::cerr<<"Lapack : eigensystem<double> : info="<<info<<std::endl; }
+				if(info!=0) { std::cerr<<"Lapack : eigensystem<double> : info="<<info<<std::endl; }
 				delete[] work;
 				break;
 			}
 		default:
 			{
-				std::cerr<<"eigensystem : Matrix type "<<matrix_type<<" not implemented for real matrix"<<std::endl;
-				std::cerr<<"eigensystem : the only matrix type implemented is S"<<std::endl;
+				std::cerr<<"Lapack : eigensystem<double> : Matrix type "<<matrix_type<<" not implemented for real matrix"<<std::endl;
+				std::cerr<<"Lapack : eigensystem<double> : the only matrix type implemented is S"<<std::endl;
 				break;
 			}
 	}
@@ -172,21 +189,24 @@ void Lapack<std::complex<double> >::eigensystem(Matrix<double>& EVal, bool EVec)
 		case 'H':
 			{
 				unsigned int N(mat->row());
-				int const lwork(2*N);
-				std::complex<double>* work(new std::complex<double>[lwork]);
-				EVal.set(N,1);
+				int lwork(-1);
+				std::complex<double> wopt;
 				double* rwork(new double[3*N-2]);
 				int info(1);
+				EVal.set(N,1);
+				zheev_(jobz, 'U', N, mat->ptr(), N, EVal.ptr(), &wopt, lwork, rwork, info);
+				lwork = int(wopt.real());
+				std::complex<double>* work(new std::complex<double>[lwork]);
 				zheev_(jobz, 'U', N, mat->ptr(), N, EVal.ptr(), work, lwork, rwork, info);
 				delete[] work;
 				delete[] rwork;
-				if(info !=0) { std::cerr<<"Lapack : eigensystem<complex> : info="<<info<<std::endl; }
+				if(info!=0) { std::cerr<<"Lapack : eigensystem<complex> : info="<<info<<std::endl; }
 				break;
 			}
 		default:
 			{
-				std::cerr<<"eigensystem : Matrix type "<<matrix_type<<" not implemented for complex matrix"<<std::endl;
-				std::cerr<<"eigensystem : the only matrix type implemented is H"<<std::endl;
+				std::cerr<<"Lapack : eigensystem<complex> : Matrix type "<<matrix_type<<" not implemented for complex matrix"<<std::endl;
+				std::cerr<<"Lapack : eigensystem<complex> : the only matrix type implemented is H"<<std::endl;
 				break;
 			}
 	}

@@ -17,5 +17,4 @@ class Linux {
 		std::string command;
 		int st;
 };
-
 #endif
