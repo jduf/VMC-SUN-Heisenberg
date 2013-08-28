@@ -62,7 +62,8 @@ void create_rst_plot(unsigned int i, Directory const& d, std::string const& dire
 	rst.title(d.get_name(i),"=");
 	if(i==0){ rst.hyperlink(d.get_name(i+1), directory_name + d.get_name(i+1) + ".html");}
 	else if(i+1==d.size()){ rst.hyperlink(d.get_name(i-1), directory_name + d.get_name(i-1) + ".html"); }
-	else { rst.hyperlink(d.get_name(i+1), directory_name + d.get_name(i-1) + ".html"); rst.hyperlink(d.get_name(i-1), directory_name + d.get_name(i+1) + ".html"); }
+	else { rst.hyperlink(d.get_name(i-1), directory_name + d.get_name(i-1) + ".html"); rst.hyperlink(d.get_name(i+1), directory_name + d.get_name(i+1) + ".html"); }
+	rst.np();
 	rst.hyperlink(directory_name,directory_name + "README.html");
 	rst.figure(d[i],d[i],80);
 }

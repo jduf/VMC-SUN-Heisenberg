@@ -50,16 +50,15 @@ void Header::add(std::string const& s, Matrix<std::complex<double> > const& mat)
 }
 
 std::string Header::when(){
-	time_t t(time(0));
-	struct tm* now(localtime(&t));
+	Time t;
 	std::string h;
 	h = "Created on";
-	h += " " + tostring(now->tm_mday);
-	h += "." + tostring(now->tm_mon+1);
-	h += "." + tostring(now->tm_year+1900);
-	h += " at " + tostring(now->tm_hour);
-	h += ":" + tostring(now->tm_min);
-	h += ":" + tostring(now->tm_sec);
+	h += " " + tostring(t.day());
+	h += "." + tostring(t.month());
+	h += "." + tostring(t.year());
+	h += " at " + tostring(t.hour());
+	h += ":" + tostring(t.min());
+	h += ":" + tostring(t.sec());
 	return h;
 }
 

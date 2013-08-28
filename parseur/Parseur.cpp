@@ -51,6 +51,6 @@ void Parseur::init(unsigned int N, char* argv[]){
 			val.push_back(argv[i+1]);
 			j++;
 		}
-		used.push_back(true);
+		used.push_back(false);
 	}
 }

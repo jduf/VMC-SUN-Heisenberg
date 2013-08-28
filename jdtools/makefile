@@ -63,7 +63,7 @@ Read.o:Read.cpp Read.hpp Matrix.hpp Header.hpp
 Write.o:Write.cpp Write.hpp Matrix.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Header.o:Header.cpp Header.hpp RST.hpp Matrix.hpp 
+Header.o:Header.cpp Header.hpp RST.hpp Matrix.hpp Time.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 Directory.o:Directory.cpp Directory.hpp 

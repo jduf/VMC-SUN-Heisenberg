@@ -2,9 +2,9 @@
 #define DEF_HEADER
 
 #include "Matrix.hpp"
+#include "Time.hpp"
 #include "RST.hpp"
 
-#include <ctime> // -> time(0)
 
 class Header{
 	public:
