@@ -12,18 +12,18 @@ YoungTableau::YoungTableau(std::vector<unsigned int> a):
 			boxes_in_col[j]++;
 		}
 	}
-	for(unsigned int i(0);i<boxes_in_row.size();i++){
-		std::cout<<boxes_in_row[i]<<std::endl;
-	}
-	std::cout<<std::endl;
-	for(unsigned int i(0);i<boxes_in_col.size();i++){
-		std::cout<<boxes_in_col[i]<<std::endl;
-	}
-	std::cout<<std::endl;
-	if(this->valid()){
-		std::cout<<"ok"<<std::endl;
-	}
-	std::cout<<"###################"<<std::endl;
+	//for(unsigned int i(0);i<boxes_in_row.size();i++){
+		//std::cout<<boxes_in_row[i]<<std::endl;
+	//}
+	//std::cout<<std::endl;
+	//for(unsigned int i(0);i<boxes_in_col.size();i++){
+		//std::cout<<boxes_in_col[i]<<std::endl;
+	//}
+	//std::cout<<std::endl;
+	//if(this->valid()){
+		//std::cout<<"ok"<<std::endl;
+	//}
+	//std::cout<<"###################"<<std::endl;
 	//for(unsigned int i(0); i<yt.size(); i++){ n_box += yt[i].size();}
 }
 
@@ -32,16 +32,16 @@ YoungTableau::~YoungTableau(){}
 std::vector<YoungTableau> YoungTableau::multiply(YoungTableau const& b, unsigned int r, unsigned int c) const{
 	std::vector<YoungTableau> list_tab;
 	std::vector<YoungTableau> out;
-	//std::cout<<"ok"<<std::endl;
-	for(unsigned int k(r); k<this->row()+1; k++){
+	for(unsigned int k(r); k<this->boxes_in_col[0]+1; k++){
 		YoungTableau tmp(*this);
 		tmp.add_box(k,(1+r));
-		if(tmp.valid()){ list_tab.push_back(tmp);}
+		if(tmp.valid()){ list_tab.push_back(tmp); }
 	}
-	//for(unsigned int k(0);k<list_tab.size();k++){
-		//list_tab[k].print();
-	//}
-	//std::cout<<"***************"<<std::endl;
+	for(unsigned int k(0);k<list_tab.size();k++){
+		std::cout<<"k="<<k<<std::endl;
+		list_tab[k].print();
+	}
+	std::cout<<"***************"<<std::endl;
 	//for(unsigned int i(0);i<list_tab.size();i++){list_tab[i].print();}
 	c++;
 	if(c == b.col(r)) {
@@ -70,17 +70,22 @@ std::vector<YoungTableau> YoungTableau::multiply(YoungTableau const& b, unsigned
 	}
 }
 
-void YoungTableau::add_box(unsigned int i,unsigned int j){
-	if( i<this->row() ){
-		yt[i].push_back(j);
+void YoungTableau::add_box(unsigned int row,unsigned int b_index){
+	if( this->boxes_in_row[0] > this->boxes_in_row[row] ){this->boxes_in_col[this->boxes_in_row[row]]++; }
+	else{ this->boxes_in_col.push_back(1); }
+	if( row < this->yt.size() ){
+		this->yt[row].push_back(b_index);
+		this->boxes_in_row[row]++;
 	} else {
-		yt.push_back(std::vector<unsigned int> (1,j));
+		this->yt.push_back(std::vector<unsigned int> (1,b_index));
+		this->boxes_in_row.push_back(1);
 	}
 }
 
 bool YoungTableau::valid(){
 	if(this->row()!=1){
 		if(boxes_in_col[0]>N){std::cout<<"p"<<std::endl;return false;}
+
 		for(unsigned int i(1);i<boxes_in_col[0];i++){
 			if(boxes_in_row[i]>boxes_in_row[i-1]){std::cout<<"q"<<std::endl;return false;}
 			if(yt[i][boxes_in_row[i]-1] != 0 && 
@@ -123,9 +128,15 @@ void YoungTableau::final_check(){
 }
 
 void YoungTableau::print(){
-	for(unsigned int i(0);i<boxes_in_col[0];i++){
-		for(unsigned int j(0);j<boxes_in_row[i];j++){
-			if(yt[i][j]){std::cout<<yt[i][j];}
+	std::cout<<" |";
+	for(unsigned int j(0);j<yt[0].size();j++){
+		std::cout<<boxes_in_col[j];
+	}
+	std::cout<<std::endl;
+	for(unsigned int i(0);i<yt.size();i++){
+		std::cout<<boxes_in_row[i]<<"|";
+		for(unsigned int j(0);j<yt[i].size();j++){
+			if(this->yt[i][j]){std::cout<<this->yt[i][j];}
 			else{std::cout<<"\u2B1C";}
 		}
 		std::cout<<std::endl;
@@ -146,7 +157,7 @@ double YoungTableau::dimension(){
 std::vector<YoungTableau> operator*(YoungTableau const& a, YoungTableau const& b){
 	std::vector<YoungTableau> out(a.multiply(b));
 	//for(unsigned int i(0); i<out.size(); i++){
-		//out[i].final_check();
+	//out[i].final_check();
 	//}
 	return out;
 }
