@@ -7,15 +7,15 @@ CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp
 #LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
 LDFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp
 
-all:test
+all:young
 
-test:test.o YoungTableau.o 
+young:young.o YoungTableau.o 
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-test.o:test.cpp YoungTableau.hpp 
+young.o:young.cpp YoungTableau.hpp 
 	$(CXX) -c  $(CXXFLAGS) $^
 	
-tYoungTableau.o:YoungTableau.cpp YoungTableau.hpp 
+YoungTableau.o:YoungTableau.cpp YoungTableau.hpp 
 	$(CXX) -c  $(CXXFLAGS) $^
 	
 clean:
