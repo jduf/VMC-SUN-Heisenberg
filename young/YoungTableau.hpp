@@ -11,13 +11,14 @@ class YoungTableau {
 		~YoungTableau();
 
 		void test();
-		void print();
+		void print(std::ostream& flux) const;
 
 		std::vector<YoungTableau> multiply(YoungTableau const& b, unsigned int r=0, unsigned int c=0) const;
 		bool operator==(YoungTableau const& b);
 
 		void final_check();
-		double dimension();
+		void reset();
+		double dimension() const;
 
 	private:
 		std::vector<std::vector<unsigned int> > yt;
@@ -30,4 +31,8 @@ class YoungTableau {
 };
 
 std::vector<YoungTableau> operator*(YoungTableau const& a, YoungTableau const& b);
+std::vector<YoungTableau> operator*(std::vector<YoungTableau> const& list_yt, YoungTableau const& b);
+
+std::ostream& operator<<(std::ostream& flux, YoungTableau const& yt);
+std::ostream& operator<<(std::ostream& flux, std::vector<YoungTableau> const& list_yt);
 #endif

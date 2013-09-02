@@ -44,6 +44,14 @@ YoungTableau::YoungTableau(std::vector<unsigned int> a, unsigned int N):
 
 YoungTableau::~YoungTableau(){}
 
+void YoungTableau::reset(){
+	for(unsigned int i(0);i<this->col[0];i++){
+		for(unsigned int j(0);j<this->row[i];j++){
+			this->yt[i][j]=0;
+		}
+	}
+}
+
 std::vector<YoungTableau> YoungTableau::multiply(YoungTableau const& b, unsigned int r, unsigned int c) const{
 	std::vector<YoungTableau> out;
 	for(unsigned int k(r); k<this->col[0]+1; k++){
@@ -114,18 +122,17 @@ bool YoungTableau::operator==(YoungTableau const& b){
 	return true;
 }
 
-void YoungTableau::print(){
+void YoungTableau::print(std::ostream& flux) const {
 	for(unsigned int i(0);i<this->col[0];i++){
 		for(unsigned int j(0);j<this->row[i];j++){
-			std::cout<<"\u2B1C";
+			flux<<"\u2B1C";
 		}
-		std::cout<<" ";
-		if(i==0){std::cout<<this->dimension();}
-		std::cout<<std::endl;
+		if(i==0){flux<<" "<<this->dimension();}
+		flux<<std::endl;
 	}
 }
 
-double YoungTableau::dimension(){
+double YoungTableau::dimension() const{
 	double out(1.0);
 	for(unsigned int i(0);i<col[0];i++){
 		for(unsigned int j(0);j<row[i];j++){
@@ -136,12 +143,38 @@ double YoungTableau::dimension(){
 }
 
 std::vector<YoungTableau> operator*(YoungTableau const& a, YoungTableau const& b){
-	//std::vector<YoungTableau> out(a.multiply(b));
-	//for(unsigned int i(0); i<out.size(); i++){
-	////out[i].final_check();
-	//}
-	//return out;
-	return a.multiply(b);
+	std::vector<YoungTableau> out(a.multiply(b));
+	for(unsigned int i(0); i<out.size(); i++){
+		//out[i].test();
+		out[i].reset();
+	}
+	return out;
+}
+
+std::vector<YoungTableau> operator*(std::vector<YoungTableau> const& list_yt, YoungTableau const& b){
+	std::vector<YoungTableau> out;
+	for(unsigned int i(0); i<list_yt.size();i++){
+		std::vector<YoungTableau> tmp(list_yt[i].multiply(b));
+		for(unsigned int j(0); j<tmp.size();j++){
+			//tmp[j].test();
+			out.push_back(tmp[j]);
+		}
+	}
+	return out;
+}
+
+std::ostream& operator<<(std::ostream& flux, YoungTableau const& yt){
+	yt.print(flux);
+	return flux;
+}
+
+std::ostream& operator<<(std::ostream& flux, std::vector<YoungTableau> const& list_yt){
+	for(unsigned int i(0); i<list_yt.size()-1; i++){
+		list_yt[i].print(flux);
+		flux<<" + "<<std::endl;
+	}
+	list_yt[list_yt.size()-1].print(flux);
+	return flux;
 }
 
 //{Uncomplete code : final_check && test
