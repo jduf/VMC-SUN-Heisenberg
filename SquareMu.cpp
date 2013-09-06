@@ -47,9 +47,9 @@ void SquareMu::compute_EVec(unsigned int spin){
 		if( i+N_col < N_site ){  T(i,i+N_col) = t; } 
 		else { T(i-(N_row-1)*N_col,i) = bc*t;}
 	}
+	/*\warning if I take the transpose, the diagonal will be counted twice*/
 	//T += T.transpose();
 	//show(T,spin%N_spin+1);
-	/*\warning if i take the transpose, the diagonal will be counted twice*/
 	diagonalize_EVec('S');
 }
 

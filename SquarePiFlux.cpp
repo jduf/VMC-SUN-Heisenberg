@@ -38,11 +38,15 @@ void SquarePiFlux::compute_EVec(){
 	for(unsigned int i(0); i< N_row; i++){
 		for(unsigned int j(0); j< N_col; j++){
 			if(j+1 == N_col){ T( i*N_col , i*N_col + j) = bc*t; }
-			else { T( i*N_col + j , i*N_col + j + 1) = t; }
-			if(i+1 == N_row ){ T(j, i*N_col + j) = bc*t*std::polar(1.0,-((j%N_spin)+1)*phi); } 
-			else{ T(i*N_col + j, (i+1)*N_col + j) = t*std::polar(1.0,((j%N_spin)+1)*phi); }
+			else{ T(i*N_col + j , i*N_col + j + 1) = t; }
+			if(i+1 == N_row ){ T(j, i*N_col + j) = std::polar(bc*t,-((j%N_spin)+1)*phi); } 
+			//if(i+1 == N_row ){ T(j, i*N_col + j) = std::polar(bc*t,-(j%N_spin)*phi); } 
+			else{ T(i*N_col + j, (i+1)*N_col + j)= std::polar(t,((j%N_spin)+1)*phi); }
 		}
 	}
+	std::cerr<<"SquarePiFlux : compute_EVec : new use of polar, check that it is correct"<<std::endl;
+	std::cerr<<"SquarePiFlux : compute_EVec : modified the flux disposition..."<<std::endl;
+	std::cout<<T<<std::endl;
 	T += T.trans_conj(); 
 	diagonalize_EVec('H');
 }
@@ -64,7 +68,6 @@ void SquarePiFlux::save(std::string filename){
 	w("N_row",N_row);
 	w("N_col",N_col);
 }
-
 
 	//{//csl for Vishvanath (uses majorana representation)
 		//for(unsigned int i(0); i< N_row; i++){

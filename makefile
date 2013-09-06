@@ -73,7 +73,7 @@ Write.o:Write.cpp Write.hpp Header.hpp Matrix.hpp
 Read.o:Read.cpp Read.hpp Header.hpp Matrix.hpp 
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 	
-Header.o:Header.cpp Header.hpp Matrix.hpp 
+Header.o:Header.cpp Header.hpp Matrix.hpp Time.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
 RST.o:RST.cpp RST.hpp

@@ -51,8 +51,7 @@ class System{
 		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
 		 * permutation */
 		//}
-		double compute_energy();
-
+		void measure(double& E_config, Matrix<unsigned int>& lattice);
 		void print();
 
 		unsigned int N_spin;//!< number of different spin colors
@@ -120,13 +119,15 @@ Type System<Type>::ratio(){
 }
 
 template<typename Type>
-double System<Type>::compute_energy(){
-	double E_step(0.0);
+void System<Type>::measure(double& E_config, Matrix<unsigned int>& lattice){
+	E_config = 0.0;
 	for(unsigned int j(0);j<sts.row();j++){
 		swap(sts(j,0),sts(j,1));
-		E_step -= real(ratio());
+		E_config -= real(ratio());
 	}
-	return E_step;
+	for(unsigned int i(0); i < N_site; i++){
+		lattice(i,s(i,0)) += 1;
+	}
 }
 
 template<typename Type>
@@ -222,7 +223,7 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 		return 0;
 	} else {
 		std::cerr<<"yeah ! initial state found"<<std::endl;
-		print();
+		//print();
 		return 1;
 	}
 }

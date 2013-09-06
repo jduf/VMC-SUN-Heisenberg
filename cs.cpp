@@ -26,7 +26,8 @@ int main(int argc, char* argv[]){
 				//P.set("mu",mu);
 				//if( std::abs(mu)<1e-14) { SquareFermi s(P); }
 				//else { SquareMu s(P); }
-				SquareMu s(P);
+				//SquareMu s(P);
+				SquarePiFlux s(P);
 				
 				break;
 			}
