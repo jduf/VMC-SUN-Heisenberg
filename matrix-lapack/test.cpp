@@ -56,29 +56,50 @@ int main(){
 	// /*}*/
 	/*eigenvalue*/
 	/*{*/
-	unsigned int N_site(6);
-	Matrix<double> H(N_site,N_site,0.0);
-	H(0,1)=-1.0;
-	H(0,N_site-1)=1.0;
-	for(unsigned int i(1); i< N_site-1; i++){
-		H(i,i-1) = -1.0;
-		H(i,i+1) = -1.0;
+	unsigned int N_site(7);
+	/*{*/
+	Matrix<double> P(N_site,N_site,0.0);
+	P(N_site-1,0)=1.0;
+	for(unsigned int i(0); i< N_site-1; i++){
+		P(i,i+1) = -1.0;
 	}
-	H(N_site-1,0)=1.0;
-	H(N_site-1,N_site-2)=-1.0;
-	
-	Lapack<double> U_(&H,true,'S');
-	Matrix<double> EVal;
-	U_.eigensystem(&EVal);
-	Matrix<double> U(U_.get_mat());
-	
-	std::cout<<((U.transpose()*H*U).diag()).transpose().chop()<<std::endl;
-	std::cout<<EVal.transpose().chop()<<std::endl;
-	Matrix<double> v0(N_site,1);
-	for(unsigned int i(0);i<N_site;i++){
-		v0(i) = U(i,0);
+	std::cout<<P<<std::endl;
+
+	Lapack<double> P_(&P,true,'G');
+	Matrix<std::complex<double> > vapx;
+	Matrix<std::complex<double> > vepx;
+	P_.eigensystem(vapx,vepx);
+	std::cout<<vapx.transpose().chop()<<std::endl;
+	Matrix<std::complex<double> > Pi(N_site,N_site);
+	for(unsigned int i(0);i<P.total();i++){
+		Pi.ptr()[i] = P.ptr()[i];
 	}
-	std::cout<<((H*v0)-(v0*EVal(0))).transpose().chop()<<std::endl;
+	std::cout<<(vepx.trans_conj()*Pi*vepx).chop()<<std::endl;
+	/*}*/
+	///*{*/
+	//Matrix<double> H(N_site,N_site,0.0);
+	//H(0,1)=-1.0;
+	//H(0,N_site-1)=1.0;
+	//for(unsigned int i(1); i< N_site-1; i++){
+		//H(i,i-1) = -1.0;
+		//H(i,i+1) = -1.0;
+	//}
+	//H(N_site-1,0)=1.0;
+	//H(N_site-1,N_site-2)=-1.0;
+	//
+	//Lapack<double> U_(&H,true,'S');
+	//Matrix<double> EVal;
+	//U_.eigensystem(EVal);
+	//Matrix<double> U(U_.get_mat());
+	//
+	//std::cout<<((U.transpose()*H*U).diag()).transpose().chop()<<std::endl;
+	//std::cout<<EVal.transpose().chop()<<std::endl;
+	//Matrix<double> v0(N_site,1);
+	//for(unsigned int i(0);i<N_site;i++){
+		//v0(i) = U(i,0);
+	//}
+	//std::cout<<((H*v0)-(v0*EVal(0))).transpose().chop()<<std::endl;
+	///*}*/
 	///*{*/
 	//std::cout<<"Original matrix"<<std::endl;
 	//std::cout<<H<<std::endl;;
@@ -89,7 +110,7 @@ int main(){
 	//Lapack<double> EVecNOW(&T,true,'S');
 	//Lapack<double> EVecOW(&T,false,'S');
 	//EVecNOW.eigensystem(EValNOW);
-	//EVecOW.eigensystem(EValOW,true);
+	//EVecOW.eigensystem(EValOW);
 	//EValNOW.chop();
 	//EValOW.chop();
 //
@@ -98,16 +119,17 @@ int main(){
 	//Matrix<double> vp(Tinv*H*T);
 //
 	//std::cout<<"Eigenvalues without overwriting the original matrix"<<std::endl;
-	//std::cout<<EValNOW<<std::endl;;
+	//std::cout<<EValNOW.chop()<<std::endl;;
 	//std::cout<<"Eigenvalues with overwriting the original matrix"<<std::endl;
-	//std::cout<<EValOW<<std::endl;;
+	//std::cout<<EValOW.chop()<<std::endl;;
 	//std::cout<<"Eigenvalues using the passage matrices"<<std::endl;
-	//std::cout<<vp.diag()<<std::endl;
+	//std::cout<<vp.diag().chop()<<std::endl;
 //
 	//T.chop();
 	//std::cout<<"Passage matrix : Tinv.H.T = eigenvalues"<<std::endl;
 	//std::cout<<T<<std::endl;;
-//
+	///*}*/
+	///*{*/
 	//Matrix<std::complex<double> > M(3,3);
 	//M(0,0) = std::complex<double> (1,0); 
 	//M(1,1) = std::complex<double> (4,0); 
@@ -121,8 +143,9 @@ int main(){
 //
 	//Lapack<std::complex<double> > M_(&M,false,'H');
 	//Matrix<double> EVal2(3,1);
-	//M_.eigensystem(EVal2,true);
-	//std::cout<<EVal2<<"true eigenvalue " << -7.72113<<" "<<3.4124<<" "<<14.3087<<std::endl;
+	//M_.eigensystem(EVal2);
+	//std::cout<<EVal2.transpose()<<std::endl;
+	//std::cout<<-7.72113<<" "<<3.4124<<" "<<14.3087<<" (true eigenvalues)" << std::endl;
 	//std::cout<<M<<std::endl;;
 	//std::cout<<M.trans_conj()<<std::endl;;
 	///*}*/
