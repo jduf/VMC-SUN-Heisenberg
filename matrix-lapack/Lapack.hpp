@@ -5,27 +5,44 @@
 
 //work for a symmetric matrix
 /*{*/
-extern "C" void dsyev_(
+extern "C" void dsyev_( /*eigensystem of a real symmetric matrix*/
 		char const& jobz,
 		char const& uplo,
 		unsigned int const& n,
 		double *m,
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		double *w,
 		double *work,
 		int const& lwork,
 		int& info
 		);
-extern "C" void zheev_(
+extern "C" void zheev_( /*eigensystem of a complex hermitian matrix*/
 		char const& jobz,
 		char const& uplo,
 		unsigned int const& n,
 		std::complex<double> *m,
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		double *w,
 		std::complex<double> *work,
 		int const& lwork,
 		double *rwork,
+		int& info
+		);
+extern "C" void dgeev_( /*eigensystem of a real general matrix*/
+		char const& jobvl,
+		char const& jobvr,
+		char const& uplo,
+		unsigned int const& n,
+		double *m,
+		unsigned int const& ldm,
+		double *wr,
+		double *wi,
+		double *vl,
+		unsigned int const& ldvl,
+		double *vr,
+		unsigned int const& ldvr,
+		double *work,
+		int const& lwork,
 		int& info
 		);
 
@@ -33,7 +50,7 @@ extern "C" void dgetrf_(
 		unsigned int const& row,
 		unsigned int const& col,
 		double *m,
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		int *ipiv,
 		int& info
 		);
@@ -41,7 +58,7 @@ extern "C" void zgetrf_(
 		unsigned int const& row,
 		unsigned int const& col,
 		std::complex<double> *m,
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		int *ipiv,
 		int& info
 		);
@@ -49,7 +66,7 @@ extern "C" void zgetrf_(
 extern "C" void dgetri_(
 		unsigned int const& n,
 		double *m,
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		int *ipiv,
 		double *work,
 		int const& lwork,
@@ -58,7 +75,7 @@ extern "C" void dgetri_(
 extern "C" void zgetri_(
 		unsigned int const& n,
 		std::complex<double> *m,
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		int *ipiv,
 		std::complex<double> *work,
 		int const& lwork,
@@ -69,7 +86,7 @@ extern "C" void dgecon_(
 		char const& norm,
 		unsigned int const& n,
 		double const *m, 
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		double const& anorm, 
 		double& rcond, 
 		double *work,
@@ -80,7 +97,7 @@ extern "C" void zgecon_(
 		char const& norm,
 		unsigned int const& n,
 		std::complex<double> const *m, 
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		double const& anorm, 
 		double& rcond, 
 		std::complex<double> *work,
@@ -93,7 +110,7 @@ extern "C" double dlange_(
 		unsigned int const& row,
 		unsigned int const& col,
 		double const *m,
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		double *work
 		);
 extern "C" double zlange_(
@@ -101,7 +118,7 @@ extern "C" double zlange_(
 		unsigned int const& row,
 		unsigned int const& col,
 		std::complex<double> const *m,
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		double *work
 		);
 
@@ -110,7 +127,7 @@ extern "C" void dgeqp3_(
 		unsigned int const& row,
 		unsigned int const& col,
 		double *m,
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		int *jpvt,
 		double *tau,
 		double *work,
@@ -123,7 +140,7 @@ extern "C" void dorgqr_(
 		unsigned int const& col,
 		unsigned int const& k,
 		double *m,
-		unsigned int const& lda,
+		unsigned int const& ldm,
 		double *tau,
 		double *work,
 		int const& lwork,
@@ -150,7 +167,10 @@ class Lapack{
 
 		/*!Specialized routine that computes the eigenvalues and the
 		 * eigenvectors if EVec==true*/
-		void eigensystem(Matrix<double>& EVal, bool EVec=true); 
+		//template<typename M>
+		//void eigensystem(Matrix<M>& EVal); 
+		template<typename M>
+		void eigensystem(Matrix<M>* EVal, Matrix<M>* compute_EVec = NULL); 
 		/*!Compute the determinant*/
 		Type det();
 		/*!Compute the LU decomposition*/
@@ -186,10 +206,10 @@ class Lapack{
 		void gqr(unsigned int k, double* tau);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * eigensystem of a symmetric real matrix*/
-		void syev(Matrix<double> & EVal);
+		void syev(Matrix<double>* EVal, char job);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * eigensystem of an hermitian complex matrix*/
-		void heev(Matrix<double> & EVal); 
+		void heev(Matrix<double>* EVal, char job); 
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * norm of an general real matrix*/
 		double lange(); 
@@ -378,5 +398,114 @@ double Lapack<Type>::norm()  {
 		return lange();
 	}
 }
+/*}*/
+
+/*public methods that depend on the type, used to call lapack*/
+/*{*/
+//template<typename Type>
+//template<typename M>
+//void Lapack<Type>::eigensystem(Matrix<M>& EVal) {
+	//switch(matrix_type){
+		//case 'S':
+			//{
+				//syev(EVal, 'N');
+				//break;
+			//}
+		//case 'H':
+			//{
+				//heev(EVal,'N');
+				//break;
+			//}
+		////case 'G':
+			////{
+				////if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem<double> : mat_type = 'S' : the matrix is not square"<<std::endl;}
+				////unsigned int N(mat->row());
+				////double* wr(new double[N]);
+				////double* wi(new double[N]);
+				////double* vl(new double[N]); /*not used if jobvl='N'*/
+				////double* vr(new double[N]); /*not used if jobvr='N'*/
+				////int lwork(-1);
+				////double wopt;
+				////int info(1);
+				////dgeev_('N', job, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, &wopt, lwork, info); 
+				////lwork = int(wopt);
+				////double* work(new double[lwork]);
+				////dgeev_('N', job, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, work, lwork, info); 
+				////delete[] wr;
+				////delete[] wi;
+				////delete[] vl;
+				////delete[] vr;
+				////delete[] work;
+				////break;
+			////}
+		//default:
+			//{
+				//std::cerr<<"Lapack : eigensystem<double> : Matrix type "<<matrix_type<<" not implemented for real matrix"<<std::endl;
+				//std::cerr<<"Lapack : eigensystem<double> : the only matrix type implemented are G,S"<<std::endl;
+				//break;
+			//}
+	//}
+//}
+
+template<typename Type>
+template<typename M>
+void Lapack<Type>::eigensystem(Matrix<M>* EVal, Matrix<M>* EVec) {
+	switch(matrix_type){
+		case 'S':
+			{
+				if(EVec){ syev(EVal,'N');}
+				else { syev(EVal,'V');}
+				break;
+			}
+		case 'H':
+			{
+				if(EVec){ heev(EVal,'N');}
+				else { heev(EVal,'V');}
+				break;
+			}
+		//case 'G':
+			//{
+				//if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem<double> : mat_type = 'S' : the matrix is not square"<<std::endl;}
+				//unsigned int N(mat->row());
+				//double* wr(new double[N]);
+				//double* wi(new double[N]);
+				//double* vl(new double[N]); /*not used if jobvl='N'*/
+				//double* vr(new double[N]); /*not used if jobvr='N'*/
+				//int lwork(-1);
+				//double wopt;
+				//int info(1);
+				//dgeev_('N', job, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, &wopt, lwork, info); 
+				//lwork = int(wopt);
+				//double* work(new double[lwork]);
+				//dgeev_('N', job, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, work, lwork, info); 
+				//delete[] wr;
+				//delete[] wi;
+				//delete[] vl;
+				//delete[] vr;
+				//delete[] work;
+				//break;
+			//}
+		default:
+			{
+				std::cerr<<"Lapack : eigensystem<double> : Matrix type "<<matrix_type<<" not implemented for real matrix"<<std::endl;
+				std::cerr<<"Lapack : eigensystem<double> : the only matrix type implemented are G,S"<<std::endl;
+				break;
+			}
+	}
+}
+
+//template<> 
+//void Lapack<std::complex<double> >::eigensystem(Matrix<double>& EVal, bool EVec) {
+	//char jobz('N');
+	//if(EVec){jobz='V';}
+	//switch(matrix_type){
+		//default:
+			//{
+				//std::cerr<<"Lapack : eigensystem<complex> : Matrix type "<<matrix_type<<" not implemented for complex matrix"<<std::endl;
+				//std::cerr<<"Lapack : eigensystem<complex> : the only matrix type implemented is H"<<std::endl;
+				//break;
+			//}
+	//}
+//}
 /*}*/
 #endif

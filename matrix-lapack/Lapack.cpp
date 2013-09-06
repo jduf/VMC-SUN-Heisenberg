@@ -148,67 +148,49 @@ double Lapack<std::complex<double> >::lange() {
 	return anorm;
 }
 /*}*/
-/*}*/
 
-/*public methods that depend on the type, used to call lapack*/
-/*{*/
-template<> 
-void Lapack<double>::eigensystem(Matrix<double>& EVal, bool EVec) {
-	char jobz('N');
-	if(EVec){jobz='V';}
-	switch(matrix_type){
-		case 'S':
-			{
-				unsigned int N(mat->row());
-				int lwork(-1);
-				double wopt;
-				int info(1);
-				EVal.set(N,1);
-				dsyev_(jobz, 'U', N, mat->ptr(), N, EVal.ptr(), &wopt, lwork, info);
-				lwork = int(wopt);
-				double* work(new double[lwork]);
-				dsyev_(jobz, 'U', N, mat->ptr(), N, EVal.ptr(), work, lwork, info);
-				if(info!=0) { std::cerr<<"Lapack : eigensystem<double> : info="<<info<<std::endl; }
-				delete[] work;
-				break;
-			}
-		default:
-			{
-				std::cerr<<"Lapack : eigensystem<double> : Matrix type "<<matrix_type<<" not implemented for real matrix"<<std::endl;
-				std::cerr<<"Lapack : eigensystem<double> : the only matrix type implemented is S"<<std::endl;
-				break;
-			}
-	}
+template<>
+void Lapack<double>::syev(Matrix<double>* EVal, char job){
+	unsigned int N(mat->row());
+	int lwork(-1);
+	double wopt;
+	int info(1);
+	EVal->set(N,1);
+	dsyev_(job, 'U', N, mat->ptr(), N, EVal->ptr(), &wopt, lwork, info);
+	lwork = int(wopt);
+	double* work(new double[lwork]);
+	dsyev_(job, 'U', N, mat->ptr(), N, EVal->ptr(), work, lwork, info);
+	if(info!=0) { std::cerr<<"Lapack : eigensystem<double> : info="<<info<<std::endl; }
+	delete[] work;
 }
 
-template<> 
-void Lapack<std::complex<double> >::eigensystem(Matrix<double>& EVal, bool EVec) {
-	char jobz('N');
-	if(EVec){jobz='V';}
-	switch(matrix_type){
-		case 'H':
-			{
-				unsigned int N(mat->row());
-				int lwork(-1);
-				std::complex<double> wopt;
-				double* rwork(new double[3*N-2]);
-				int info(1);
-				EVal.set(N,1);
-				zheev_(jobz, 'U', N, mat->ptr(), N, EVal.ptr(), &wopt, lwork, rwork, info);
-				lwork = int(wopt.real());
-				std::complex<double>* work(new std::complex<double>[lwork]);
-				zheev_(jobz, 'U', N, mat->ptr(), N, EVal.ptr(), work, lwork, rwork, info);
-				delete[] work;
-				delete[] rwork;
-				if(info!=0) { std::cerr<<"Lapack : eigensystem<complex> : info="<<info<<std::endl; }
-				break;
-			}
-		default:
-			{
-				std::cerr<<"Lapack : eigensystem<complex> : Matrix type "<<matrix_type<<" not implemented for complex matrix"<<std::endl;
-				std::cerr<<"Lapack : eigensystem<complex> : the only matrix type implemented is H"<<std::endl;
-				break;
-			}
-	}
+//template<>
+//void Lapack<std::complex<double> >::syev(Matrix<double>& EVal, char job){
+	//EVal.set();
+	//std::cerr<<"Lapack<double> : syev : a complex symmetric is not implemented"<<std::endl;
+//}
+
+template<>
+void Lapack<std::complex<double> >::heev(Matrix<double>* EVal, char job){
+	unsigned int N(mat->row());
+	int lwork(-1);
+	std::complex<double> wopt;
+	double* rwork(new double[3*N-2]);
+	int info(1);
+	EVal->set(N,1);
+	zheev_(job, 'U', N, mat->ptr(), N, EVal->ptr(), &wopt, lwork, rwork, info);
+	lwork = int(wopt.real());
+	std::complex<double>* work(new std::complex<double>[lwork]);
+	zheev_(job, 'U', N, mat->ptr(), N, EVal->ptr(), work, lwork, rwork, info);
+	delete[] work;
+	delete[] rwork;
+	if(info!=0) { std::cerr<<"Lapack : eigensystem<complex> : info="<<info<<std::endl; }
+}
+
+template<>
+void Lapack<double>::heev(Matrix<double>* EVal, char job){
+	EVal->set();
+	std::cerr<<"Lapack<double> : heev : a real Hermitian matrix can't be evaluated"<<std::endl;
 }
 /*}*/
+

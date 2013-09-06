@@ -18,7 +18,8 @@ class YoungTableau {
 
 		void final_check();
 		void reset();
-		double dimension() const;
+		unsigned int dimension() const;
+		std::vector<unsigned int> multiplet() const;
 
 	private:
 		std::vector<std::vector<unsigned int> > yt;

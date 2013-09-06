@@ -8,7 +8,6 @@ YoungTableau::YoungTableau(unsigned int N):
 	unsigned int i(0);
 	unsigned int tmp(0);
 
-	std::cout<<"to end the creation of a tableau, enter 0 or a non-numerical character"<<std::endl;
 	do{
 		std::cout<<"number of box in the "<<++i<<" row : ";
 		std::cin>>tmp;
@@ -24,7 +23,7 @@ YoungTableau::YoungTableau(unsigned int N):
 				i--;
 			}
 		}
-	} while (add_row);
+	} while (add_row && i<N);
 
 	(*this) = YoungTableau(a,N);
 }
@@ -50,6 +49,38 @@ void YoungTableau::reset(){
 			this->yt[i][j]=0;
 		}
 	}
+}
+
+bool YoungTableau::is_tableau_valid(){
+	if(this->col[0]!=1){
+		if(col[0]>N){return false;}
+		for(unsigned int i(1);i<col[0];i++){
+			if(row[i]>row[i-1]){return false;}
+			if(yt[i][row[i]-1] != 0 && 
+					yt[i][row[i]-1] == yt[i-1][row[i]-1]) {return false;}
+		}
+	}
+	return true;
+}
+
+unsigned int YoungTableau::dimension() const{
+	double out(1.0);
+	for(unsigned int i(0);i<col[0];i++){
+		for(unsigned int j(0);j<row[i];j++){
+			out *= (N-i+j) / ((row[i]-j-1.0)+(col[j]-i-1.0)+1.0);
+		}
+	}
+	return out;
+}
+
+std::vector<unsigned int> YoungTableau::multiplet() const{
+	std::vector<unsigned int> out(this->N-1,0);
+	if(this->N < this->col[0]) {std::cerr<<"YoungTableau : there's an error somewhere"<<std::endl;}
+	for(unsigned int i(0);i<this->col[0]-1;i++){
+		out[i] = this->row[i] - this->row[i+1];
+	}
+	out[this->col[0]-1] = this->row[this->col[0]-1];
+	return out;
 }
 
 std::vector<YoungTableau> YoungTableau::multiply(YoungTableau const& b, unsigned int r, unsigned int c) const{
@@ -99,16 +130,21 @@ YoungTableau YoungTableau::add_box(unsigned int row, unsigned int b_index) const
 	return tmp;
 }
 
-bool YoungTableau::is_tableau_valid(){
-	if(this->col[0]!=1){
-		if(col[0]>N){return false;}
-		for(unsigned int i(1);i<col[0];i++){
-			if(row[i]>row[i-1]){return false;}
-			if(yt[i][row[i]-1] != 0 && 
-					yt[i][row[i]-1] == yt[i-1][row[i]-1]) {return false;}
+void YoungTableau::print(std::ostream& flux) const {
+	for(unsigned int i(0);i<this->col[0];i++){
+		for(unsigned int j(0);j<this->row[i];j++){
+			flux<<"\u2B1C";
 		}
+		if(i==0){
+			std::cout<<" "<<this->dimension()<<" (";
+			std::vector<unsigned int> mult(this->multiplet());
+			for(unsigned int i(0);i<mult.size()-1;i++){
+				std::cout<<mult[i]<<",";
+			}
+			std::cout<<mult[mult.size()-1]<<")";
+		}
+		flux<<std::endl;
 	}
-	return true;
 }
 
 bool YoungTableau::operator==(YoungTableau const& b){
@@ -120,26 +156,6 @@ bool YoungTableau::operator==(YoungTableau const& b){
 		}
 	}
 	return true;
-}
-
-void YoungTableau::print(std::ostream& flux) const {
-	for(unsigned int i(0);i<this->col[0];i++){
-		for(unsigned int j(0);j<this->row[i];j++){
-			flux<<"\u2B1C";
-		}
-		if(i==0){flux<<" "<<this->dimension();}
-		flux<<std::endl;
-	}
-}
-
-double YoungTableau::dimension() const{
-	double out(1.0);
-	for(unsigned int i(0);i<col[0];i++){
-		for(unsigned int j(0);j<row[i];j++){
-			out *= (N-i+j) / ((row[i]-j-1.0)+(col[j]-i-1.0)+1.0);
-		}
-	}
-	return out;
 }
 
 std::vector<YoungTableau> operator*(YoungTableau const& a, YoungTableau const& b){
@@ -177,7 +193,32 @@ std::ostream& operator<<(std::ostream& flux, std::vector<YoungTableau> const& li
 	return flux;
 }
 
-//{Uncomplete code : final_check && test
+void YoungTableau::test(){
+	std::cout<<" |";
+	for(unsigned int j(0);j<yt[0].size();j++){
+		std::cout<<col[j];
+	}
+	std::cout<<std::endl;
+	for(unsigned int i(0);i<yt.size();i++){
+		std::cout<<row[i]<<"|";
+		for(unsigned int j(0);j<yt[i].size();j++){
+			if(this->yt[i][j]){std::cout<<this->yt[i][j];}
+			else{std::cout<<"\u2B1C";}
+		}
+		if(i==0){
+			std::cout<<" "<<this->dimension()<<" (";
+			std::vector<unsigned int> mult(this->multiplet());
+			for(unsigned int i(0);i<mult.size()-1;i++){
+				std::cout<<mult[i]<<",";
+			}
+			std::cout<<mult[mult.size()-1]<<")";
+		}
+		std::cout<<std::endl;
+	}
+	std::cout<<std::endl;
+}
+
+//{Uncomplete code : final_check 
 /*! 
   void YoungTableau::final_check(){
   std::cerr<<"YoungTableau : final_check has not been checked"<<std::endl;
@@ -196,22 +237,5 @@ std::ostream& operator<<(std::ostream& flux, std::vector<YoungTableau> const& li
   yt=tmp;
   } 
   }
-  */
-void YoungTableau::test(){
-	std::cout<<" |";
-	for(unsigned int j(0);j<yt[0].size();j++){
-		std::cout<<col[j];
-	}
-	std::cout<<std::endl;
-	for(unsigned int i(0);i<yt.size();i++){
-		std::cout<<row[i]<<"|";
-		for(unsigned int j(0);j<yt[i].size();j++){
-			if(this->yt[i][j]){std::cout<<this->yt[i][j];}
-			else{std::cout<<"\u2B1C";}
-		}
-		std::cout<<std::endl;
-	}
-	std::cout<<std::endl;
-}
-
+*/
 //}

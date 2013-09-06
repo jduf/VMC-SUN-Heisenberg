@@ -69,17 +69,16 @@ int main(){
 	
 	Lapack<double> U_(&H,true,'S');
 	Matrix<double> EVal;
-	U_.eigensystem(EVal);
+	U_.eigensystem(&EVal);
 	Matrix<double> U(U_.get_mat());
-	std::cout<<((U.transpose()*H*U).diag()).transpose();
-	std::cout<<EVal.transpose()<<std::endl;
+	
+	std::cout<<((U.transpose()*H*U).diag()).transpose().chop()<<std::endl;
+	std::cout<<EVal.transpose().chop()<<std::endl;
 	Matrix<double> v0(N_site,1);
 	for(unsigned int i(0);i<N_site;i++){
 		v0(i) = U(i,0);
 	}
-	std::cout<<v0<<std::endl;
-	//std::cout<<(H-EVal(0))*v0<<std::endl;
-	std::cout<<(H*v0)-(v0*EVal(0))<<std::endl;
+	std::cout<<((H*v0)-(v0*EVal(0))).transpose().chop()<<std::endl;
 	///*{*/
 	//std::cout<<"Original matrix"<<std::endl;
 	//std::cout<<H<<std::endl;;
