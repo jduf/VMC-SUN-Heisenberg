@@ -152,93 +152,96 @@ double Lapack<std::complex<double> >::lange() {
 /*compute the eigensystem : syev heev geev*/
 /*{*/
 template<>
-void Lapack<double>::syev(Matrix<double>& EVal, char job){
+void Lapack<double>::syev(Matrix<double>* EVal, char job){
 	unsigned int N(mat->row());
-	EVal.set(N,1);
+	EVal->set(N,1);
 	int lwork(-1);
 	double wopt;
 	int info(1);
-	dsyev_(job, 'U', N, mat->ptr(), N, EVal.ptr(), &wopt, lwork, info);
+	dsyev_(job, 'U', N, mat->ptr(), N, EVal->ptr(), &wopt, lwork, info);
 	lwork = int(wopt);
 	double* work(new double[lwork]);
-	dsyev_(job, 'U', N, mat->ptr(), N, EVal.ptr(), work, lwork, info);
-	if(info!=0) { std::cerr<<"Lapack : eigensystem<double> : info="<<info<<std::endl; }
+	dsyev_(job, 'U', N, mat->ptr(), N, EVal->ptr(), work, lwork, info);
+	if(info) { std::cerr<<"Lapack : syev : info="<<info<<std::endl; }
 	delete[] work;
 }
 
 template<>
-void Lapack<std::complex<double> >::syev(Matrix<double>& EVal, char job){
-	EVal.set();
+void Lapack<std::complex<double> >::syev(Matrix<double>* EVal, char job){
 	std::cerr<<"Lapack<double> : syev : complex symmetric not implemented"<<std::endl;
 }
 
 template<>
-void Lapack<std::complex<double> >::heev(Matrix<double>& EVal, char job){
+void Lapack<std::complex<double> >::heev(Matrix<double>* EVal, char job){
 	unsigned int N(mat->row());
-	EVal.set(N,1);
+	EVal->set(N,1);
 	int lwork(-1);
 	std::complex<double> wopt;
 	double* rwork(new double[3*N-2]);
 	int info(1);
-	zheev_(job, 'U', N, mat->ptr(), N, EVal.ptr(), &wopt, lwork, rwork, info);
+	zheev_(job, 'U', N, mat->ptr(), N, EVal->ptr(), &wopt, lwork, rwork, info);
 	lwork = int(wopt.real());
 	std::complex<double>* work(new std::complex<double>[lwork]);
-	zheev_(job, 'U', N, mat->ptr(), N, EVal.ptr(), work, lwork, rwork, info);
+	zheev_(job, 'U', N, mat->ptr(), N, EVal->ptr(), work, lwork, rwork, info);
 	delete[] work;
 	delete[] rwork;
-	if(info!=0) { std::cerr<<"Lapack : eigensystem<complex> : info="<<info<<std::endl; }
+	if(info) { std::cerr<<"Lapack : heev : info="<<info<<std::endl; }
 }
 
 template<>
-void Lapack<double>::heev(Matrix<double>& EVal, char job){
+void Lapack<double>::heev(Matrix<double>* EVal, char job){
 	std::cerr<<"Lapack<double> : heev : real Hermitian is not implemented"<<std::endl;
 }
 
 template<>
-void Lapack<double>::geev(Matrix<std::complex<double> >& EVal, char job, Matrix<std::complex<double> >& EVec){
+void Lapack<double>::geev(Matrix<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec){
 	unsigned int N(mat->row());
-	EVal.set(N,1);
 	double* wr(new double[N]);
 	double* wi(new double[N]);
-	double* vl(new double[N]); /*not used if jobvl='N'*/
-	Matrix<double> vr(N,N); /*not used if jobvr='N'*/
+	double* vl(new double[N]);
+	double* vr(new double[N*N]);
 	int lwork(-1);
 	double wopt;
 	int info(1);
 
-	dgeev_('N', job, N, mat->ptr(), N, wr, wi, vl, 1, vr.ptr(), N, &wopt, lwork, info); 
+	dgeev_('N', job, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, &wopt, lwork, info); 
 	lwork = int(wopt);
-	std::cout<<lwork<<std::endl;
 	double* work(new double[lwork]);
-	dgeev_('N', job, N, mat->ptr(), N, wr, wi, vl, 1, vr.ptr(), N, work, lwork, info); 
+	dgeev_('N', job, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, work, lwork, info); 
 
+	EVal->set(N,1);
 	for(unsigned int i(0);i<N;i++){
-		EVal(i) = std::complex<double>(wr[i],wi[i]);
+		(*EVal)(i) = std::complex<double>(wr[i],wi[i]);
 	}
 
-	EVec.set(N,N);
-	for(unsigned int i(0);i<N;i++){
-		if( std::abs(EVal(i).imag())<1e-14){
-			for(unsigned int j(0);j<N;j++){
-				EVec(j,i) = vr(j,i);
+	if(EVec){
+		EVec->set(N,N);
+		for(unsigned int j(0);j<N;j++){
+			if( std::abs(wi[j])<1e-14 ){
+				for(unsigned int i(0);i<N;i++){
+					(*EVec)(i,j) = vr[i+j*N];
+				}
+			} else {
+				for(unsigned int i(0);i<N;i++){
+					(*EVec)(i,j) = std::complex<double>(vr[i+j*N],vr[i+(1+j)*N]);
+					(*EVec)(i,j+1) = std::complex<double>(vr[i+j*N],-vr[i+(1+j)*N]);
+				}
+				j++;
 			}
-		} else {
-			for(unsigned int j(0);j<N;j++){
-				EVec(j,i) = std::complex<double>(vr(j,i),vr(j,(1+i)));
-				EVec(j,i+1) = std::complex<double>(vr(j,i),-vr(j,(1+i)));
-			}
-			i++;
 		}
 	}
 
 	delete[] wr;
 	delete[] wi;
 	delete[] vl;
+	delete[] vr;
 	delete[] work;
+
+	if(info) { std::cerr<<"Lapack : geev : info="<<info<<std::endl; }
 }
 
 template<>
-void Lapack<std::complex<double> >::geev(Matrix<std::complex<double> >& EVal, char job, Matrix<std::complex<double> >& EVec){
+void Lapack<std::complex<double> >::geev(Matrix<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec){
 	std::cerr<<"Lapack<double> : geev : complex general is not implemented"<<std::endl;
 }
 /*}*/

@@ -164,14 +164,9 @@ class Lapack{
 		/*!Destructor (delete m if use_new_matrix==true)*/
 		~Lapack();
 
-		/*!Specialized routine that computes the eigenvalues and the
-		 * eigenvectors if EVec==true*/
-		//template<typename M>
-		//void eigensystem(Matrix<M>& EVal); 
-		void eigensystem(Matrix<double>& EVal); 
-		void eigensystem(Matrix<std::complex<double> >& EVal, Matrix<std::complex<double> >& EVec); 
-		void eigenvalues(Matrix<double>& EVal); 
-		void eigenvalues(Matrix<std::complex<double> >& EVal); 
+		/*!Specialized routine that computes the eigensystem*/
+		void eigensystem(Matrix<double>* EVal, bool compute_EVec=false); 
+		void eigensystem(Matrix<std::complex<double> >* EVal, Matrix<std::complex<double> >* EVec = NULL); 
 		/*!Compute the determinant*/
 		Type det();
 		/*!Compute the LU decomposition*/
@@ -207,11 +202,11 @@ class Lapack{
 		void gqr(unsigned int k, double* tau);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * eigensystem of a symmetric real matrix*/
-		void syev(Matrix<double>& EVal, char job);
+		void syev(Matrix<double>* EVal, char job);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * eigensystem of an hermitian complex matrix*/
-		void heev(Matrix<double>& EVal, char job); 
-		void geev(Matrix<std::complex<double> >& EVal, char job, Matrix<std::complex<double> >& EVec);
+		void heev(Matrix<double>* EVal, char job); 
+		void geev(Matrix<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * norm of an general real matrix*/
 		double lange(); 
@@ -365,6 +360,8 @@ void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation)  {
 		}
 
 		delete[] tau;
+		delete[] jpvt;
+		std::cerr<<"Lapack : QR : delete jpvt may cause trouble"<<std::endl;
 	}
 }
 
@@ -402,17 +399,19 @@ double Lapack<Type>::norm()  {
 }
 
 template<typename Type>
-void Lapack<Type>::eigenvalues(Matrix<double>& EVal) {
+void Lapack<Type>::eigensystem(Matrix<double>* EVal, bool compute_EVec) {
 	if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem : matrix is not square"<<std::endl;}
+	char job('N');
+	if(compute_EVec){job = 'V';}
 	switch(matrix_type){
 		case 'S':
 			{
-				syev(EVal,'N');
+				syev(EVal,job);
 				break;
 			}
 		case 'H':
 			{
-				heev(EVal,'N');
+				heev(EVal,job);
 				break;
 			}
 		default:
@@ -425,54 +424,14 @@ void Lapack<Type>::eigenvalues(Matrix<double>& EVal) {
 }
 
 template<typename Type>
-void Lapack<Type>::eigenvalues(Matrix<std::complex<double> >& EVal) {
+void Lapack<Type>::eigensystem(Matrix<std::complex<double> >* EVal, Matrix<std::complex<double> >* EVec) {
 	if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem : matrix is not square"<<std::endl;}
+	char job('N');
+	if(EVec){job = 'V';}
 	switch(matrix_type){
 		case 'G':
 			{
-				Matrix<std::complex<double> > tmp; /*not used if jobvr='N'*/
-				geev(EVal,'N',tmp);
-				break;
-			}
-		default:
-			{
-				std::cerr<<"Lapack : eigensystem<double> : Matrix type "<<matrix_type<<" not implemented for real matrix"<<std::endl;
-				std::cerr<<"Lapack : eigensystem<double> : the only matrix type implemented are G,S"<<std::endl;
-				break;
-			}
-	}
-}
-
-template<typename Type>
-void Lapack<Type>::eigensystem(Matrix<double>& EVal) {
-	if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem : matrix is not square"<<std::endl;}
-	switch(matrix_type){
-		case 'S':
-			{
-				syev(EVal,'V');
-				break;
-			}
-		case 'H':
-			{
-				heev(EVal,'V');
-				break;
-			}
-		default:
-			{
-				std::cerr<<"Lapack : eigensystem<double> : Matrix type "<<matrix_type<<" not implemented for real matrix"<<std::endl;
-				std::cerr<<"Lapack : eigensystem<double> : the only matrix type implemented are G,S"<<std::endl;
-				break;
-			}
-	}
-}
-
-template<typename Type>
-void Lapack<Type>::eigensystem(Matrix<std::complex<double> >& EVal, Matrix<std::complex<double> >& EVec) {
-	if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem : matrix is not square"<<std::endl;}
-	switch(matrix_type){
-		case 'G':
-			{
-				geev(EVal,'V',EVec);
+				geev(EVal,job,EVec);
 				break;
 			}
 		default:

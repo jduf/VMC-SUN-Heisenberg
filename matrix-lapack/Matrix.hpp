@@ -435,6 +435,7 @@ inline double real(double const& x){ return x; }
 
 inline double real(std::complex<double> const& x){ return std::real(x); }
 /*}*/
+
 /*double norm_squared(T)*/
 /*{*/
 inline double norm_squared(double x){
