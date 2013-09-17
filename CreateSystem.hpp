@@ -30,6 +30,8 @@ class CreateSystem{
 		void diagonalize_EVec(char mat_type);
 		/*!Compute the array of pairs of swapping sites*/
 		void compute_sts();
+
+		std::complex<double> projection(Matrix<double> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket);
 };
 
 template<typename Type>
@@ -66,8 +68,23 @@ template<typename Type>
 void CreateSystem<Type>::diagonalize_EVec(char mat_type){
 	Lapack<Type> ES(&T,false, mat_type);
 	Matrix<double> EVal;
-	ES.eigensystem(EVal);
+	ES.eigensystem(&EVal,true);
 	//std::cout<<EVal<<std::endl;
 	if(std::abs(EVal(N_m) - EVal(N_m-1))>1e-10){ successful = true; }
+}
+
+template<typename Type>
+std::complex<double> CreateSystem<Type>::projection(Matrix<double> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket){
+	Matrix<std::complex<double> > tmp(N_site,1,0.0);
+	std::complex<double> out(0.0);;
+	for(unsigned int i(0);i<N_site;i++){
+		for(unsigned int j(0);j<N_site;j++){
+			tmp(i) += O(i,j)*base(j,ket);
+		}
+	}
+	for(unsigned int i(0);i<N_site;i++){
+		out += tmp(i)*std::conj(base(i,bra));
+	}
+	return out;
 }
 #endif

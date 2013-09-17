@@ -11,6 +11,10 @@ class Square: public CreateSystem<Type>{
 
 	protected:
 		unsigned int N_row, N_col;
+		Matrix<Type> Px;
+		Matrix<Type> Py;
+		unsigned int a[2];
+		unsigned int b[2];
 
 		void compute_H();
 		void save(std::string filename);
@@ -20,7 +24,9 @@ template<typename Type>
 Square<Type>::Square(Parseur& P):
 	CreateSystem<Type>(P,4),
 	N_row(floor(sqrt(this->N_site))),
-	N_col(floor(sqrt(this->N_site)))
+	N_col(floor(sqrt(this->N_site))),
+	Px(this->N_site,this->N_site,0.0),
+	Py(this->N_site,this->N_site,0.0)
 {
 	P.set("bc",this->bc);
 	if(!P.status()){
@@ -46,7 +52,8 @@ void Square<Type>::compute_H(){
 		if( i+this->N_col < this->N_site ){  this->H(i,i+this->N_col) = 1; } 
 		else { this->H(i-(this->N_row-1)*this->N_col,i) = 1;}
 	}
-	//this->H += this->H.transpose();
+	this->H += this->H.transpose();
 }
+
 #endif
 
