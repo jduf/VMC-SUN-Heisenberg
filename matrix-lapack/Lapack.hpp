@@ -442,6 +442,5 @@ void Lapack<Type>::eigensystem(Matrix<std::complex<double> >* EVal, Matrix<std::
 			}
 	}
 }
-
 /*}*/
 #endif

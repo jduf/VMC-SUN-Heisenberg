@@ -298,8 +298,8 @@ template<>
 inline Matrix<std::complex<double> > Matrix<std::complex<double> >::chop(double precision){
 	Matrix<std::complex<double> > tmp(*this);
 	for(unsigned int i(0);i<tmp.N_total;i++){
-		if(std::abs(tmp[i].imag()) < precision ){tmp[i].imag()=0.0;}
-		if(std::abs(tmp[i].real()) < precision ){tmp[i].real()=0.0;}
+		if(std::abs(tmp[i].imag()) < precision ){tmp[i].imag(0.0);}
+		if(std::abs(tmp[i].real()) < precision ){tmp[i].real(0.0);}
 	}
 	return tmp;
 }

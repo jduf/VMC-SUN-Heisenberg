@@ -195,6 +195,7 @@ void Lapack<double>::heev(Matrix<double>* EVal, char job){
 
 template<>
 void Lapack<double>::geev(Matrix<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec){
+	std::cerr<<"Lapack : geev : understand why slower than mathematica"<<std::endl;
 	unsigned int N(mat->row());
 	double* wr(new double[N]);
 	double* wi(new double[N]);

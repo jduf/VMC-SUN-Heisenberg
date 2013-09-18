@@ -3,8 +3,8 @@
 #include<iostream>
 
 int main(){
-	Matrix<double> x(50,1,0.0);
-	Matrix<double> y(30,1,0.0);
+	Matrix<double> x(100,1,0.0);
+	Matrix<double> y(300,1,0.0);
 	Matrix<double> m(x.total(),y.total(),0.0);
 	for(unsigned int i(0);i<x.total();i++){
 		x(i)=i*2*M_PI/x.total();
