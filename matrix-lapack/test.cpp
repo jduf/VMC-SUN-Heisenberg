@@ -1,6 +1,6 @@
 /**
-@file test.cpp 
-*/
+  @file test.cpp 
+  */
 
 #include "Gnuplot.hpp"
 #include "Matrix.hpp"
@@ -80,52 +80,52 @@ int main(){
 	//Matrix<double> P(N_site,N_site,0.0);
 	//P(N_site-1,0)=-1.0;
 	//for(unsigned int i(0); i< N_site-1; i++){
-		//P(i,i+1) = 1.0;
+	//P(i,i+1) = 1.0;
 	//}
 	//Matrix<double> H(N_site,N_site,0.0);
 	//H(0,1)=-1.0;
 	//H(0,N_site-1)=1.0;
 	//for(unsigned int i(1); i< N_site-1; i++){
-		//H(i,i-1) = -1.0;
-		//H(i,i+1) = -1.0;
+	//H(i,i-1) = -1.0;
+	//H(i,i+1) = -1.0;
 	//}
 	//H(N_site-1,0)=1.0;
 	//H(N_site-1,N_site-2)=-1.0;
-//
+	//
 	////std::cout<<H<<std::endl;
 	////std::cout<<std::endl;
 	////std::cout<<P<<std::endl;
 	////std::cout<<std::endl;
 	////std::cout<<H*P-P*H<<std::endl;
 	////std::cout<<std::endl;
-//
+	//
 	///*{*/
 	//Matrix<double> HP(H+P);
 	//Lapack<double> HP_(&HP,true,'G');
 	//Matrix<std::complex<double> > eve;
 	//Matrix<std::complex<double> > eva;
 	//HP_.eigensystem(&eva,&eve);
-//
+	//
 	//Matrix<double> k(N_site,1);
 	//Matrix<double> E(N_site,1);
 	//for(unsigned int i(0);i<N_site;i++){
-		//k(i) = log(projection(P,eve,i,i)).imag();
-		//E(i) = projection(H,eve,i,i).real();
+	//k(i) = log(projection(P,eve,i,i)).imag();
+	//E(i) = projection(H,eve,i,i).real();
 	//}
-//
+	//
 	//Gnuplot gp("spectrum","1D");
 	//gp.data(k,E);
 	//gp.save();
-//
-//
+	//
+	//
 	////for(unsigned int i(0);i<N_site;i++){
 	////data(i,0)=-log(eva(i)).imag();
 	////data(i,1)= eva(i);
 	////}
 	////std::cout<<data<<std::endl;
-//
+	//
 	///*}*/
-//
+	//
 	/////*{*/
 	////Lapack<double> P_(&P,true,'G');
 	////Matrix<std::complex<double> > vapx;
@@ -389,26 +389,23 @@ int main(){
 	//wr<<R;
 	///*}*/
 	srand(time(NULL));
-	//Matrix<double> x(10,1);
-	int* x(new int[10]);
+	Matrix<double> x(10,1);
 	for(unsigned int i(0);i<10;i++){
-		//x(i) = rand() % 10 + 1;
-		x[i] = rand() % 10 + 1;
+		x(i) = rand() % 10 + 1;
 	}
-	//std::cout<<x.transpose()<<std::endl;
-	for(unsigned int i(0);i<10;i++){
-		std::cout<<x[i] <<" ";
+	Matrix<double> x_sorted(x);
+	Matrix<unsigned int> index(tri(x_sorted));
+	std::cout<<x.transpose()<<std::endl;
+	std::cout<<x_sorted.transpose()<<std::endl;
+	for(unsigned int i(0);i<x.row();i++){
+		std::cout<<x(index(i))<<" ";
 	}
 	std::cout<<std::endl;
-	//std::sort(std::begin(x),std::end(x));
-	std::sort(std::begin(*x),std::end(*x));
-	//std::cout<<x.transpose()<<std::endl;
-	delete[] x;
 
 	//for(unsigned int i(0);i<10;i++){
-		//std::cout<<x[i] <<" ";
+	//std::cout<<x[i] <<" ";
 	//}
-	//std::cout<<std::endl;
 	//std::cout<<x.sort().transpose()<<std::endl;
 }
+
 

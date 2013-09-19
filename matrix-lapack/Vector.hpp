@@ -46,8 +46,8 @@ class Vector{
 		void set(Type const& val);
 		/*!Sets the entries to zero if they are close to 0*/
 		void chop(double precision = 1e-10);
-		/*!Print the vecrice for vechevecica*/
-		void print_vechevecica();
+		/*!Print the vector for vechevecica*/
+		void print_mathematica();
 
 		/*!Returns the transpose of any Vector*/
 		Vector<Type> transpose() const;

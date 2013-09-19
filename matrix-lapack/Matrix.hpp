@@ -60,8 +60,12 @@ class Matrix{
 		void set(unsigned int N_row, unsigned int N_col, Type val);
 		/*!Sets the entries to zero if they are close to 0*/
 		Matrix<Type> chop(double precision = 1e-10);
-		/*!Print the matrice for mathematica*/
+		void apply_index(Matrix<unsigned int> const& index);
+
+		/*!Print the matrix for mathematica*/
 		void print_mathematica() const;
+
+		Matrix<Type> range(unsigned int min, unsigned int max);
 
 		/*!Returns the transpose of any matrix*/
 		Matrix<Type> transpose() const;
@@ -334,6 +338,24 @@ void Matrix<Type>::set(unsigned int N_row, unsigned int N_col, Type val){
 	this->set(N_row,N_col);
 	this->set(val);
 }
+
+template<typename Type>
+void Matrix<Type>::apply_index(Matrix<unsigned int> const& index){
+	Matrix<Type> tmp(*this);
+	for(unsigned int i(0);i<this->N_row;i++){
+		(*this)(i) = tmp(index(i));
+	}
+}
+
+template<typename Type>
+Matrix<Type> Matrix<Type>::range(unsigned int min, unsigned int max){
+	Matrix<Type> out(max-min,1);
+	for(unsigned int i(0);i<max-min;i++){
+		out(i) = m[i];
+	}
+
+	return out;
+}
 /*}*/
 
 /*methods that return something related to the class*/
@@ -445,5 +467,50 @@ inline double norm_squared(double x){
 inline double norm_squared(std::complex<double> x){
 	return std::norm(x);
 }
+/*}*/
+
+/*Sort*/
+/*{*/
+template<typename Type>
+bool check(Matrix<Type> const& M){
+	for(unsigned int i(0);i<M.row()-1;i++)
+	{
+		if(M(i)>M(i+1))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+template<typename Type>
+void swap(Type& a, Type& b){
+	Type tmp(a);
+	a = b;
+	b = tmp;
+}
+
+template<typename Type>
+Matrix<unsigned int> sort(Matrix<Type>& M){
+	Matrix<unsigned int> index(M.row(),1);
+	for(unsigned int i(0);i<M.row();i++)
+	{
+		index(i) = i;
+	}
+	while(check(M))
+	{
+		for(unsigned int i(0);i<M.row()-1;i++)
+		{
+			if(M(i)>M(i+1))
+			{
+				swap(M(i),M(i+1));
+				swap(index(i),index(i+1));
+			}
+
+		}
+	}
+	return index;
+}
+
 /*}*/
 #endif
