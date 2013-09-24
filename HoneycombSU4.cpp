@@ -4,25 +4,25 @@ HoneycombSU4::HoneycombSU4(Parseur& P):
 	Honeycomb<double>(P)
 {
 	if(!P.status()){
-		if(N_m==N_row*N_col){
+		if(m_==Ly_*Lx_){
 			compute_EVec();
-			for(unsigned int spin(0);spin<N_spin;spin++){
-				for(unsigned int i(0);i<N_site;i++){
-					for(unsigned int j(0);j<N_m;j++){
-						EVec(i+spin*N_site,j) = T(i,j);
+			for(unsigned int spin(0);spin<N_;spin++){
+				for(unsigned int i(0);i<n_;i++){
+					for(unsigned int j(0);j<m_;j++){
+						EVec_(i+spin*n_,j) = T_(i,j);
 					}
 				}
 			}
-			if(successful){
+			if(successful_){
 				std::string filename("honeycomb");
-				filename +="-N" + tostring(N_spin);
-				filename +="-S" + tostring(N_site);
-				filename += "-" + tostring(N_row) +"x"+ tostring(N_col);
-				if(bc == 1){ filename += "-P";} 
+				filename +="-N" + tostring(N_);
+				filename +="-S" + tostring(n_);
+				filename += "-" + tostring(Ly_) +"x"+ tostring(Lx_);
+				if(bc_ == 1){ filename += "-P";} 
 				else { filename += "-A";}
 				save(filename);
 			} else {
-				if(bc == 1){
+				if(bc_ == 1){
 					std::cerr<<"HoneycombSU4 : degeneate for PBC"<<std::endl;
 				} else {
 					std::cerr<<"HoneycombSU4 : degeneate for APBC"<<std::endl;
@@ -43,80 +43,80 @@ void HoneycombSU4::compute_EVec(){
 	//{//for SU(3) with 12 sites
 	//unsigned int i(0);
 	//unsigned int j(0);
-	//for(unsigned int ix(0);ix<N_col;ix++){
+	//for(unsigned int ix(0);ix<Lx_;ix++){
 	//i = j;
-	//j = N_row*(2*ix+1)*6;
-	//for(unsigned int iy(0);iy<N_row;iy++){ 
+	//j = Ly_*(2*ix+1)*6;
+	//for(unsigned int iy(0);iy<Ly_;iy++){ 
 	////cell (A)
-	//H(i,j) = t;
-	//H(i,i+1) = t;
-	//H(j,j+1) = t;
-	//T(i,j) = th;
-	//T(i,i+1) = th;
-	//T(j,j+1) = th;
+	//H_(i,j) = t;
+	//H_(i,i+1) = t;
+	//H_(j,j+1) = t;
+	//T_(i,j) = th;
+	//T_(i,i+1) = th;
+	//T_(j,j+1) = th;
 	//i++;
 	//j++;
-	//if( j+N_row*6>N_site ){
-	//H(j%(N_row*6),j)= bc*t; 
-	//T(j%(N_row*6),j)= bc*td; 
+	//if( j+Ly_*6>n_ ){
+	//H_(j%(Ly_*6),j)= bc_*t; 
+	//T_(j%(Ly_*6),j)= bc_*td; 
 	//} else { 
-	//H(j,j+N_row*6) = t; 
-	//T(j,j+N_row*6) = td; 
+	//H_(j,j+Ly_*6) = t; 
+	//T_(j,j+Ly_*6) = td; 
 	//}
-	//H(i,i+1) = t;
-	//H(j,j+1) = t;
-	//T(i,i+1) = th;
-	//T(j,j+1) = th;
+	//H_(i,i+1) = t;
+	//H_(j,j+1) = t;
+	//T_(i,i+1) = th;
+	//T_(j,j+1) = th;
 	//i++;
 	//j++;			
 	////cell (B)
-	//H(i,j) = t;
-	//H(i,i+1) = t;
-	//H(j,j+1) = t;
-	//T(i,j) = th;
-	//T(i,i+1) = td;
-	//T(j,j+1) = td;
+	//H_(i,j) = t;
+	//H_(i,i+1) = t;
+	//H_(j,j+1) = t;
+	//T_(i,j) = th;
+	//T_(i,i+1) = td;
+	//T_(j,j+1) = td;
 	//i++;
 	//j++;
-	//if( j+N_row*6>N_site ){
-	//H(j%(N_row*6),j)= bc*t; 
-	//T(j%(N_row*6),j)= bc*th; 
+	//if( j+Ly_*6>n_ ){
+	//H_(j%(Ly_*6),j)= bc_*t; 
+	//T_(j%(Ly_*6),j)= bc_*th; 
 	//} else {
-	//H(j,j+N_row*6) = t; 
-	//T(j,j+N_row*6) = th; 
+	//H_(j,j+Ly_*6) = t; 
+	//T_(j,j+Ly_*6) = th; 
 	//}
-	//H(i,i+1) = t;
-	//H(j,j+1) = t;
-	//T(i,i+1) = th;
-	//T(j,j+1) = th;
+	//H_(i,i+1) = t;
+	//H_(j,j+1) = t;
+	//T_(i,i+1) = th;
+	//T_(j,j+1) = th;
 	//i++;
 	//j++;			
 	////cell (C)
-	//H(i,j) = t;
-	//H(i,i+1) = t;
-	//H(j,j+1) = t;
-	//T(i,j) = td;
-	//T(i,i+1) = th;
-	//T(j,j+1) = th;
+	//H_(i,j) = t;
+	//H_(i,i+1) = t;
+	//H_(j,j+1) = t;
+	//T_(i,j) = td;
+	//T_(i,i+1) = th;
+	//T_(j,j+1) = th;
 	//i++;
 	//j++;
-	//if( j+N_row*6>N_site ){
-	//H(j%(N_row*6),j)= bc*t; 
-	//T(j%(N_row*6),j)= bc*th; 
+	//if( j+Ly_*6>n_ ){
+	//H_(j%(Ly_*6),j)= bc_*t; 
+	//T_(j%(Ly_*6),j)= bc_*th; 
 	//} else{
-	//H(j,j+N_row*6) = t;
-	//T(j,j+N_row*6) = th;
+	//H_(j,j+Ly_*6) = t;
+	//T_(j,j+Ly_*6) = th;
 	//}
-	//if( iy+1 == N_row  ){ // link (A)-(C)
-	//H(i+1,j)= bc*t; 
-	//H((i+1)-N_row*6,i) = bc*t; 
-	//T(i+1,j)= bc*td; 
-	//T((i+1)-N_row*6,i) = bc*td; 
+	//if( iy+1 == Ly_  ){ // link (A)-(C)
+	//H_(i+1,j)= bc_*t; 
+	//H_((i+1)-Ly_*6,i) = bc_*t; 
+	//T_(i+1,j)= bc_*td; 
+	//T_((i+1)-Ly_*6,i) = bc_*td; 
 	//} else { // link (A)-(C)
-	//H(i,i+1) = t; 
-	//H(j,j+1) = t; 
-	//T(i,i+1) = td; 
-	//T(j,j+1) = td; 
+	//H_(i,i+1) = t; 
+	//H_(j,j+1) = t; 
+	//T_(i,i+1) = td; 
+	//T_(j,j+1) = td; 
 	//}
 	//i++;
 	//j++;
@@ -125,52 +125,52 @@ void HoneycombSU4::compute_EVec(){
 	//}
 	//{//for SU(3) (0pipi) with 6 sites
 	//unsigned int i(0);
-	//for(unsigned int l(0);l<N_row;l++){
-	//for(unsigned int c(0);c<N_col;c++){
+	//for(unsigned int l(0);l<Ly_;l++){
+	//for(unsigned int c(0);c<Lx_;c++){
 	////std::cout<<i<<std::endl;
-	//H(i,i+1) = t; //0-1
-	//T(i,i+1) = th; //0-1
+	//H_(i,i+1) = t; //0-1
+	//T_(i,i+1) = th; //0-1
 	//i++;//1
-	//H(i,i+1) = t; //1-2
-	//T(i,i+1) = th; //1-2
+	//H_(i,i+1) = t; //1-2
+	//T_(i,i+1) = th; //1-2
 	//i++;//2
-	//H(i,i+1) = t; //2-3
-	//T(i,i+1) = td; //2-3
-	//H(i,i+2) = t; //2-4
-	//T(i,i+2) = th; //2-4
+	//H_(i,i+1) = t; //2-3
+	//T_(i,i+1) = td; //2-3
+	//H_(i,i+2) = t; //2-4
+	//T_(i,i+2) = th; //2-4
 	//i++;//3
-	//H(i,i+2) = t; //3-5
-	//T(i,i+2) = th; //3-5
-	//if(c+1==N_col){
-	//H((i+3) - N_col*6, i) = t; // 0-3 b
-	//T((i+3) - N_col*6, i) = bc*th; // 0-3 b
+	//H_(i,i+2) = t; //3-5
+	//T_(i,i+2) = th; //3-5
+	//if(c+1==Lx_){
+	//H_((i+3) - Lx_*6, i) = t; // 0-3 b
+	//T_((i+3) - Lx_*6, i) = bc_*th; // 0-3 b
 	//} else {
-	//H(i,i+3) = t; //3-6
-	//T(i,i+3) = th; //3-6
+	//H_(i,i+3) = t; //3-6
+	//T_(i,i+3) = th; //3-6
 	//}
 	//i++;//4
-	//if(l+1==N_row){
-	//H(i-4-l*N_col*6,i) = t; // 0-4 b
-	//T(i-4-l*N_col*6,i) = bc*td; // 0-4 b
+	//if(l+1==Ly_){
+	//H_(i-4-l*Lx_*6,i) = t; // 0-4 b
+	//T_(i-4-l*Lx_*6,i) = bc_*td; // 0-4 b
 	//} else {
-	//H(i,i-4+N_col*6) = t; // 4-18
-	//T(i,i-4+N_col*6) = td; // 4-18
+	//H_(i,i-4+Lx_*6) = t; // 4-18
+	//T_(i,i-4+Lx_*6) = td; // 4-18
 	//}
 	//i++;//5
-	//if(l+1==N_row){
-	//H(i-4-l*N_col*6,i) = t; // 1-5 b
-	//T(i-4-l*N_col*6,i) = bc*td; // 1-5 b
+	//if(l+1==Ly_){
+	//H_(i-4-l*Lx_*6,i) = t; // 1-5 b
+	//T_(i-4-l*Lx_*6,i) = bc_*td; // 1-5 b
 	//} else {
-	//H(i,i-4+N_col*6) = t; // 5-19
-	//T(i,i-4+N_col*6) = td; // 5-19
+	//H_(i,i-4+Lx_*6) = t; // 5-19
+	//T_(i,i-4+Lx_*6) = td; // 5-19
 	//}
 	////std::cout<<i<<std::endl;
-	//if(c+1==N_col){
-	//H((i+5) - N_col*6, i) = t; // 4-5 b
-	//T((i+5) - N_col*6, i) = bc*th; // 4-5 b
+	//if(c+1==Lx_){
+	//H_((i+5) - Lx_*6, i) = t; // 4-5 b
+	//T_((i+5) - Lx_*6, i) = bc_*th; // 4-5 b
 	//} else {
-	//H(i,i+5) = t; //5-10
-	//T(i,i+5) = th; //5-10
+	//H_(i,i+5) = t; //5-10
+	//T_(i,i+5) = th; //5-10
 	//}
 	//i++;//6
 	//}
@@ -178,52 +178,52 @@ void HoneycombSU4::compute_EVec(){
 	//}
 	//{//for SU(3) (0pipi) with 6 sites
 	//unsigned int i(0);
-	//for(unsigned int l(0);l<N_row;l++){
-	//for(unsigned int c(0);c<N_col;c++){
+	//for(unsigned int l(0);l<Ly_;l++){
+	//for(unsigned int c(0);c<Lx_;c++){
 	//std::cout<<i<<std::endl;
-	//H(i,i+1) = t; //0-1
-	//T(i,i+1) = th; //0-1
+	//H_(i,i+1) = t; //0-1
+	//T_(i,i+1) = th; //0-1
 	//i++;//1
-	//H(i,i+1) = t; //1-2
-	//T(i,i+1) = th; //1-2
+	//H_(i,i+1) = t; //1-2
+	//T_(i,i+1) = th; //1-2
 	//i++;//2
-	//H(i,i+1) = t; //2-3
-	//T(i,i+1) = td; //2-3
-	//H(i,i+2) = t; //2-4
-	//T(i,i+2) = th; //2-4
+	//H_(i,i+1) = t; //2-3
+	//T_(i,i+1) = td; //2-3
+	//H_(i,i+2) = t; //2-4
+	//T_(i,i+2) = th; //2-4
 	//i++;//3
-	//H(i,i+2) = t; //3-5
-	//T(i,i+2) = th; //3-5
-	//if(c+1==N_col){
-	//H((i+3) - N_col*6, i) = t; // 0-3 b
-	//T((i+3) - N_col*6, i) = bc*th; // 0-3 b
+	//H_(i,i+2) = t; //3-5
+	//T_(i,i+2) = th; //3-5
+	//if(c+1==Lx_){
+	//H_((i+3) - Lx_*6, i) = t; // 0-3 b
+	//T_((i+3) - Lx_*6, i) = bc_*th; // 0-3 b
 	//} else {
-	//H(i,i+3) = t; //3-6
-	//T(i,i+3) = th; //3-6
+	//H_(i,i+3) = t; //3-6
+	//T_(i,i+3) = th; //3-6
 	//}
 	//i++;//4
-	//if(l+1==N_row){
-	//H(i-4-l*N_col*6,i) = t; // 0-4 b
-	//T(i-4-l*N_col*6,i) = bc*td; // 0-4 b
+	//if(l+1==Ly_){
+	//H_(i-4-l*Lx_*6,i) = t; // 0-4 b
+	//T_(i-4-l*Lx_*6,i) = bc_*td; // 0-4 b
 	//} else {
-	//H(i,i-4+N_col*6) = t; // 4-18
-	//T(i,i-4+N_col*6) = td; // 4-18
+	//H_(i,i-4+Lx_*6) = t; // 4-18
+	//T_(i,i-4+Lx_*6) = td; // 4-18
 	//}
 	//i++;//5
-	//if(l+1==N_row){
-	//H(i-4-l*N_col*6,i) = t; // 1-5 b
-	//T(i-4-l*N_col*6,i) = bc*td; // 1-5 b
+	//if(l+1==Ly_){
+	//H_(i-4-l*Lx_*6,i) = t; // 1-5 b
+	//T_(i-4-l*Lx_*6,i) = bc_*td; // 1-5 b
 	//} else {
-	//H(i,i-4+N_col*6) = t; // 5-19
-	//T(i,i-4+N_col*6) = td; // 5-19
+	//H_(i,i-4+Lx_*6) = t; // 5-19
+	//T_(i,i-4+Lx_*6) = td; // 5-19
 	//}
 	//std::cout<<i<<std::endl;
-	//if(c+1==N_col){
-	//H((i+5) - N_col*6, i) = t; // 4-5 b
-	//T((i+5) - N_col*6, i) = bc*th; // 4-5 b
+	//if(c+1==Lx_){
+	//H_((i+5) - Lx_*6, i) = t; // 4-5 b
+	//T_((i+5) - Lx_*6, i) = bc_*th; // 4-5 b
 	//} else {
-	//H(i,i+5) = t; //5-10
-	//T(i,i+5) = th; //5-10
+	//H_(i,i+5) = t; //5-10
+	//T_(i,i+5) = th; //5-10
 	//}
 	//i++;//6
 	//}
@@ -231,101 +231,101 @@ void HoneycombSU4::compute_EVec(){
 	//}
 	//{//for SU(3) si cellule pi au milieu (vérifier que tout fonctionne) with 6 sites
 	//unsigned int i(0);
-	//for(unsigned int l(0);l<N_row;l++){
-	//for(unsigned int c(0);c<N_col;c++){
+	//for(unsigned int l(0);l<Ly_;l++){
+	//for(unsigned int c(0);c<Lx_;c++){
 	////std::cout<<i<<std::endl;
 	////0
-	//H(i,i+1) = t; //0-1
-	//T(i,i+1) = td; 
+	//H_(i,i+1) = t; //0-1
+	//T_(i,i+1) = td; 
 	//i++;//1
-	//H(i,i+1) = t; //1-2
-	//T(i,i+1) = th; 
-	//if(l != 0 && l+1 != N_row && c+1 != N_col){
-	//H(i-9,i) = t; //1-4
-	//T(i-9,i) = th; 
+	//H_(i,i+1) = t; //1-2
+	//T_(i,i+1) = th; 
+	//if(l != 0 && l+1 != Ly_ && c+1 != Lx_){
+	//H_(i-9,i) = t; //1-4
+	//T_(i-9,i) = th; 
 	//} else {
-	//if(c+1==N_col){
+	//if(c+1==Lx_){
 	//if(l==0){
-	//H(i,N_site-2-c*6) = t; // 1-4 bc bc
-	//T(i,N_site-2-c*6) = th; // 1-4 bc bc
+	//H_(i,n_-2-c*6) = t; // 1-4 bc_ bc_
+	//T_(i,n_-2-c*6) = th; // 1-4 bc_ bc_
 	//} else {
-	//H(i+3-(2*N_col-1)*6,i) = t; //1-4
-	//T(i+3-(2*N_col-1)*6,i) = th; 
+	//H_(i+3-(2*Lx_-1)*6,i) = t; //1-4
+	//T_(i+3-(2*Lx_-1)*6,i) = th; 
 	//}
 	//} else {
 	//if(l==0){
-	//H(i,i+3+((N_row-1)*N_col+1)*6) = t; //1-4 bc
-	//T(i,i+3+((N_row-1)*N_col+1)*6) = bc*th; 
-	//} else {//l+1==N_row
-	//H(i-9,i) = t; //1-4
-	//T(i-9,i) = th; 
+	//H_(i,i+3+((Ly_-1)*Lx_+1)*6) = t; //1-4 bc_
+	//T_(i,i+3+((Ly_-1)*Lx_+1)*6) = bc_*th; 
+	//} else {//l+1==Ly_
+	//H_(i-9,i) = t; //1-4
+	//T_(i-9,i) = th; 
 	//}
 	//
 	//}
 	//}
 	//i++;//2
 	////std::cout<<i<<std::endl;
-	//H(i,i+1) = t; //2-3
-	//T(i,i+1) = td;
-	//if(c+1 == N_col){
-	//H(i+3-c*6,i) = t; //2-5 bc
-	//T(i+3-c*6,i) = bc*th;
+	//H_(i,i+1) = t; //2-3
+	//T_(i,i+1) = td;
+	//if(c+1 == Lx_){
+	//H_(i+3-c*6,i) = t; //2-5 bc_
+	//T_(i+3-c*6,i) = bc_*th;
 	//} else {
-	//H(i,i+9) = t;//2-5
-	//T(i,i+9) = th;
+	//H_(i,i+9) = t;//2-5
+	//T_(i,i+9) = th;
 	//}
 	//i++;//3
-	//H(i,i+1) = t; //3-4
-	//T(i,i+1) = th;
-	//if(l+1==N_row){
-	//H(i-3-l*N_col*6,i) = t;//3-0 bc
-	//T(i-3-l*N_col*6,i) = bc*th;
+	//H_(i,i+1) = t; //3-4
+	//T_(i,i+1) = th;
+	//if(l+1==Ly_){
+	//H_(i-3-l*Lx_*6,i) = t;//3-0 bc_
+	//T_(i-3-l*Lx_*6,i) = bc_*th;
 	//} else {
-	//H(i,i-3+N_col*6) = t;//3-0
-	//T(i,i-3+N_col*6) = th;
+	//H_(i,i-3+Lx_*6) = t;//3-0
+	//T_(i,i-3+Lx_*6) = th;
 	//}
 	//i++;//4
-	//H(i,i+1) = t; //4-5
-	//T(i,i+1) = td; 
+	//H_(i,i+1) = t; //4-5
+	//T_(i,i+1) = td; 
 	//i++;//5
-	//H(i-5,i) = t; //0-5
-	//T(i-5,i) = th; 
+	//H_(i-5,i) = t; //0-5
+	//T_(i-5,i) = th; 
 	////std::cout<<i<<std::endl;
 	//i++;//6
 	//}
 	//}
 	//}
 	{//for SU(4) (pipipi) with 4 sites per unitary cell
-		if(N_spin!=4){std::cerr<<"works only with SU(4)"<<std::endl;}
+		if(N_!=4){std::cerr<<"works only with SU(4)"<<std::endl;}
 		unsigned int i(0);
-		for(unsigned int l(0);l<N_row;l++){
-			for(unsigned int c(0);c<N_col;c++){
-				T(i,i+1) = th;
-				T(i,i+3) = th;
+		for(unsigned int l(0);l<Ly_;l++){
+			for(unsigned int c(0);c<Lx_;c++){
+				T_(i,i+1) = th;
+				T_(i,i+3) = th;
 				i++;//1
-				T(i,i+1) = th; 
+				T_(i,i+1) = th; 
 				i++;//2
-				if(c+1==N_col){
-					T(i+1-c*4, i) = bc*th;  
+				if(c+1==Lx_){
+					T_(i+1-c*4, i) = bc_*th;  
 				} else {
-					T(i,i+5) = th;
+					T_(i,i+5) = th;
 				}
-				if(l+1==N_row){
-					T(i-1-l*N_col*4,i) = bc*td; 
+				if(l+1==Ly_){
+					T_(i-1-l*Lx_*4,i) = bc_*td; 
 				} else {
-					T(i,i-1+N_col*4) = td;
+					T_(i,i-1+Lx_*4) = td;
 				}
 				i++;//3
-				if(l+1==N_row){
-					T(i-3-l*N_col*4, i) = bc*th; 
+				if(l+1==Ly_){
+					T_(i-3-l*Lx_*4, i) = bc_*th; 
 				} else {
-					T(i,i-3+N_col*4) = th;
+					T_(i,i-3+Lx_*4) = th;
 				}
 				i++;//4
 			}
 		}
 	}
-	T += T.transpose();
+	T_ += T_.transpose();
 	diagonalize_EVec('S');
 }
 
@@ -339,12 +339,12 @@ void HoneycombSU4::save(std::string filename){
 
 	w.set_header(rst.get());
 	w("is_complex",false);
-	w("N_spin",N_spin);
-	w("N_m",N_m);
-	w("sts",sts);
-	w("EVec",EVec);
-	w("bc",bc);
-	w("N_row",N_row);
-	w("N_col",N_col);
+	w("N_",N_);
+	w("m_",m_);
+	w("sts",sts_);
+	w("EVec",EVec_);
+	w("bc_",bc_);
+	w("Ly_",Ly_);
+	w("Lx_",Lx_);
 }
 

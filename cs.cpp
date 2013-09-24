@@ -22,13 +22,11 @@ int main(int argc, char* argv[]){
 			}
 		case 4:
 			{
-				//double mu(0.0);
-				//P.set("mu",mu);
-				//if( std::abs(mu)<1e-14) { SquareFermi s(P); }
-				//else { SquareMu s(P); }
-				//SquareMu s(P);
+				double mu(0.0);
+				P.set("mu",mu);
+				if( std::abs(mu)<1e-14) { SquareFermi s(P); }
+				else { SquareMu s(P); }
 				//SquarePiFlux s(P);
-				SquareFermi s(P);
 				
 				break;
 			}

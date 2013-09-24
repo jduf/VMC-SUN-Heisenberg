@@ -4,23 +4,23 @@ SquareFermi::SquareFermi(Parseur& P):
 	Square<double>(P)
 {
 	if(!P.status()){
-		if(N_site==N_row*N_col){
-			compute_EVec();
+		if(n_==Ly_*Lx_){
+			compute_T();
 			compute_P();
-			//for(unsigned int spin(0);spin<N_spin;spin++){
-				//for(unsigned int i(0);i<N_site;i++){
-					//for(unsigned int j(0);j<N_m;j++){
-						//EVec(i+spin*N_site,j) = T(i,j);
+			compute_band_structure();
+			//for(unsigned int spin(0);spin<N_;spin++){
+				//for(unsigned int i(0);i<n_;i++){
+					//for(unsigned int j(0);j<m_;j++){
+						//EVec(i+spin*n_,j) = T(i,j);
 					//}
 				//}
 			//}
-			compute_spectrum();
-			if(successful){
+			if(successful_){
 				std::string filename("square-fermi");
-				filename += "-N" + tostring(N_spin);
-				filename += "-S" + tostring(N_site);
-				filename += "-" + tostring(N_row) + "x" + tostring(N_col);
-				if(bc == 1){ filename += "-P";} 
+				filename += "-N" + tostring(N_);
+				filename += "-S" + tostring(n_);
+				filename += "-" + tostring(Ly_) + "x" + tostring(Lx_);
+				if(bc_ == 1){ filename += "-P";} 
 				else { filename += "-A";}
 				save(filename);
 			} else {
@@ -34,57 +34,33 @@ SquareFermi::SquareFermi(Parseur& P):
 
 SquareFermi::~SquareFermi(){}
 
-void SquareFermi::compute_EVec(){
-	T.set(N_site,N_site,0.0);
+void SquareFermi::compute_T(){
+	T_.set(n_,n_,0.0);
 	double t(-1.0);
-	for(unsigned int i(0); i < N_site; i++){
+	for(unsigned int i(0); i < n_; i++){
 		/*horizontal hopping*/
-		if( (i+1) % N_col ){ T(i,i+1) = t;}	
-		else { T(i+1-N_col,i) = bc*t;}
+		if( (i+1) % Lx_ ){ T_(i,i+1) = t;}	
+		else { T_(i+1-Lx_,i) = bc_*t;}
 		/*vertical hopping*/
-		if( i+N_col < N_site ){  T(i,i+N_col) = t; } 
-		else { T(i-(N_row-1)*N_col,i) = bc*t;}
+		if( i+Lx_ < n_ ){  T_(i,i+Lx_) = t; } 
+		else { T_(i-(Ly_-1)*Lx_,i) = bc_*t;}
 	}
-	T += T.transpose();
+	T_ += T_.transpose();
 }
 
 void SquareFermi::compute_P(){
-	for(unsigned int i(0); i < this->N_site; i++){
+	for(unsigned int i(0); i < n_; i++){
 		/*horizontal hopping*/
-		if( (i+1) % N_col ){
-			this->Px(i,i+1) = 1;
-		} else {
-			this->Px(i,i+1-N_col) = bc;
-		}
+		if( (i % Ly_)  < Ly_ - 1 ){ Px_(i,i+1) = 1; }
+		else { Px_(i,i+1-Lx_) = bc_; }
 		/*vertical hopping*/
-		if( i+this->N_col < this->N_site ){
-			this->Py(i,i+this->N_col) = 1; 
-		} else {
-			this->Py(i,i-(this->N_row-1)*this->N_col) = bc;
-		}
+		if( i+Lx_ < n_ ){ Py_(i,i+Lx_) = 1; }
+		else { Py_(i,i-(Ly_-1)*Lx_) = bc_; }
 	}
+	//std::cout<<T_*Px_-Px_*T_<<std::endl;
+	//std::cout<<T_*Py_-Py_*T_<<std::endl;
 }
 
-void SquareFermi::compute_spectrum(){
-	Matrix<double> TP(T+Px*3+Py*7);
-	Matrix<std::complex<double> > EVal;
-	Matrix<std::complex<double> > EVec;
-	Lapack<double> ES(&TP,false,'G');
-	ES.eigensystem(&EVal,&EVec);
-	Matrix<double> kx(N_site,1);
-	Matrix<double> ky(N_site,1);
-	Matrix<double> E(N_site,1);
-	for(unsigned int i(0);i<N_site;i++){
-		kx(i) = log(projection(Px,EVec,i,i)).imag();
-		ky(i) = log(projection(Py,EVec,i,i)).imag();
-		E(i) = projection(T,EVec,i,i).real();
-	}
-	Gnuplot gp("spectrum","3D");
-	gp.save_data("spectrum-tot",kx,ky,E);
-	gp.code(" ,\\\n");
-	gp.save_data("spectrum-min",kx,ky,E);
-	gp.save_code();
-}
 
 void SquareFermi::save(std::string filename){
 	Write w(filename+".jdbin");
@@ -95,12 +71,12 @@ void SquareFermi::save(std::string filename){
 
 	w.set_header(rst.get());
 	w("is_complex",false);
-	w("N_spin",N_spin);
-	w("N_m",N_m);
-	w("sts",sts);
-	w("EVec",EVec);
-	w("bc",bc);
-	w("N_row",N_row);
-	w("N_col",N_col);
+	w("N_",N_);
+	w("m_",m_);
+	w("sts",sts_);
+	w("EVec",EVec_);
+	w("bc_",bc_);
+	w("Ly_",Ly_);
+	w("Lx_",Lx_);
 }
 

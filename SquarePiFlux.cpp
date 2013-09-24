@@ -4,21 +4,21 @@ SquarePiFlux::SquarePiFlux(Parseur& P):
 	Square<std::complex<double> >(P)
 {
 	if(!P.status()){
-		if(N_site==N_row*N_col){
+		if(n_==Ly_*Lx_){
 			compute_EVec();
-			for(unsigned int spin(0);spin<N_spin;spin++){
-				for(unsigned int i(0);i<N_site;i++){
-					for(unsigned int j(0);j<N_m;j++){
-						EVec(i+spin*N_site,j) = T(i,j);
+			for(unsigned int spin(0);spin<N_;spin++){
+				for(unsigned int i(0);i<n_;i++){
+					for(unsigned int j(0);j<m_;j++){
+						EVec_(i+spin*n_,j) = T_(i,j);
 					}
 				}
 			}
-			if(successful){
+			if(successful_){
 				std::string filename("square-piflux");
-				filename += "-N" + tostring(N_spin);
-				filename += "-S" + tostring(N_site);
-				filename += "-" + tostring(N_row) + "x" + tostring(N_col);
-				if(bc == 1){ filename += "-P";} 
+				filename += "-N" + tostring(N_);
+				filename += "-S" + tostring(n_);
+				filename += "-" + tostring(Ly_) + "x" + tostring(Lx_);
+				if(bc_ == 1){ filename += "-P";} 
 				else { filename += "-A";}
 				save(filename);
 			} else {
@@ -34,20 +34,20 @@ SquarePiFlux::~SquarePiFlux(){}
 
 void SquarePiFlux::compute_EVec(){
 	double t(-1.0);
-	double phi(2*M_PI/N_spin);
-	for(unsigned int i(0); i< N_row; i++){
-		for(unsigned int j(0); j< N_col; j++){
-			if(j+1 == N_col){ T( i*N_col , i*N_col + j) = bc*t; }
-			else{ T(i*N_col + j , i*N_col + j + 1) = t; }
-			if(i+1 == N_row ){ T(j, i*N_col + j) = std::polar(bc*t,-((j%N_spin)+1)*phi); } 
-			//if(i+1 == N_row ){ T(j, i*N_col + j) = std::polar(bc*t,-(j%N_spin)*phi); } 
-			else{ T(i*N_col + j, (i+1)*N_col + j)= std::polar(t,((j%N_spin)+1)*phi); }
+	double phi(2*M_PI/N_);
+	for(unsigned int i(0); i< Ly_; i++){
+		for(unsigned int j(0); j< Lx_; j++){
+			if(j+1 == Lx_){ T_( i*Lx_ , i*Lx_ + j) = bc_*t; }
+			else{ T_(i*Lx_ + j , i*Lx_ + j + 1) = t; }
+			if(i+1 == Ly_ ){ T_(j, i*Lx_ + j) = std::polar(bc_*t,-((j%N_)+1)*phi); } 
+			//if(i+1 == Ly_ ){ T(j, i*Lx_ + j) = std::polar(bc_*t,-(j%N_)*phi); } 
+			else{ T_(i*Lx_ + j, (i+1)*Lx_ + j)= std::polar(t,((j%N_)+1)*phi); }
 		}
 	}
 	std::cerr<<"SquarePiFlux : compute_EVec : new use of polar, check that it is correct"<<std::endl;
 	std::cerr<<"SquarePiFlux : compute_EVec : modified the flux disposition..."<<std::endl;
-	std::cout<<T<<std::endl;
-	T += T.trans_conj(); 
+	std::cout<<T_<<std::endl;
+	T_ += T_.trans_conj(); 
 	diagonalize_EVec('H');
 }
 
@@ -60,39 +60,39 @@ void SquarePiFlux::save(std::string filename){
 
 	w.set_header(rst.get());
 	w("is_complex",true);
-	w("N_spin",N_spin);
-	w("N_m",N_m);
-	w("sts",sts);
-	w("EVec",EVec);
-	w("bc",bc);
-	w("N_row",N_row);
-	w("N_col",N_col);
+	w("N_",N_);
+	w("m_",m_);
+	w("sts",sts_);
+	w("EVec",EVec_);
+	w("bc_",bc_);
+	w("Ly_",Ly_);
+	w("Lx_",Lx_);
 }
 
 	//{//csl for Vishvanath (uses majorana representation)
-		//for(unsigned int i(0); i< N_row; i++){
-			//for(unsigned int j(0); j< N_col; j++){
-				//if(j+1 == N_col){// x hopping
-					//H(i*N_col , i*N_col + j) = t;
+		//for(unsigned int i(0); i< Ly_; i++){
+			//for(unsigned int j(0); j< Lx_; j++){
+				//if(j+1 == Lx_){// x hopping
+					//H(i*Lx_ , i*Lx_ + j) = t;
 					//if(i % 2 == 0){
-						//T(i*N_col , i*N_col + j) = bc*t;
+						//T(i*Lx_ , i*Lx_ + j) = bc_*t;
 					//} else {
-						//T(i*N_col , i*N_col + j) = -bc*t;
+						//T(i*Lx_ , i*Lx_ + j) = -bc_*t;
 					//}
 				//} else {
-					//H( i*N_col + j , i*N_col + j + 1) = t; 
+					//H( i*Lx_ + j , i*Lx_ + j + 1) = t; 
 					//if(i % 2 == 0){
-						//T( i*N_col + j , i*N_col + j + 1) = t; 
+						//T( i*Lx_ + j , i*Lx_ + j + 1) = t; 
 					//} else {
-						//T( i*N_col + j , i*N_col + j + 1) = -t; 
+						//T( i*Lx_ + j , i*Lx_ + j + 1) = -t; 
 					//}
 				//}
-				//if(i+1 == N_row ){// y hopping
-					//H(j, i*N_col + j) = t;
-					//T(j, i*N_col + j) = bc*t;
+				//if(i+1 == Ly_ ){// y hopping
+					//H(j, i*Lx_ + j) = t;
+					//T(j, i*Lx_ + j) = bc_*t;
 				//} else{
-					//H(i*N_col + j, (i+1)*N_col + j) = t;
-					//T(i*N_col + j, (i+1)*N_col + j) = t;
+					//H(i*Lx_ + j, (i+1)*Lx_ + j) = t;
+					//T(i*Lx_ + j, (i+1)*Lx_ + j) = t;
 				//}
 			//}
 		//}

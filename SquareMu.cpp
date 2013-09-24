@@ -2,26 +2,29 @@
 
 SquareMu::SquareMu(Parseur& P):
 	Square<double>(P),
-	mu(P.get<double>("mu"))
+	mu_(P.get<double>("mu"))
 {
 	if(!P.status()){
-		if(N_site==N_row*N_col){
-			for(unsigned int spin(0);spin<N_spin;spin++){
-				compute_EVec(spin);
-				for(unsigned int i(0);i<N_site;i++){
-					for(unsigned int j(0);j<N_m;j++){
-						EVec(i+spin*N_site,j) = T(i,j);
-					}
-				}
-			}
-			if(successful){
+		if(n_==Ly_*Lx_){
+			compute_T(0);
+			compute_P();	
+			compute_band_structure();	
+			//for(unsigned int spin(0);spin<N_;spin++){
+				//compute_EVec(spin);
+				//for(unsigned int i(0);i<n_;i++){
+					//for(unsigned int j(0);j<m_;j++){
+						//EVec_(i+spin*n_,j) = T_(i,j);
+					//}
+				//}
+			//}
+			if(successful_){
 				std::string filename("square-stripe");
-				filename += "-N" + tostring(N_spin);
-				filename += "-S" + tostring(N_site);
-				filename += "-" + tostring(N_row) + "x" + tostring(N_col);
-				if(bc == 1){ filename += "-P";} 
+				filename += "-N" + tostring(N_);
+				filename += "-S" + tostring(n_);
+				filename += "-" + tostring(Ly_) + "x" + tostring(Lx_);
+				if(bc_ == 1){ filename += "-P";} 
 				else { filename += "-A";}
-				filename += "-mu" + tostring(mu);
+				filename += "-mu_" + tostring(mu_);
 				save(filename);
 			} else {
 				std::cerr<<"SquareMu : degeneate"<<std::endl;
@@ -34,23 +37,41 @@ SquareMu::SquareMu(Parseur& P):
 
 SquareMu::~SquareMu(){}
 
-void SquareMu::compute_EVec(unsigned int spin){
-	T.set(N_site,N_site,0.0);
+void SquareMu::compute_T(unsigned int spin){
+	T_.set(n_,n_,0.0);
 	double t(-1.0);
-	for(unsigned int i(0); i < N_site; i++){
+	for(unsigned int i(0); i < n_; i++){
 		/*chemical potential*/
-		if( (i-spin) % N_spin == 0 && i >= spin){ T(i,i) = mu; }
+		if( (i-spin) % N_ == 0 && i >= spin){ T_(i,i) = mu_/2; }
 		/*horizontal hopping*/
-		if( (i+1) % N_col ){ T(i,i+1) = t;}	
-		else { T(i+1-N_col,i) = bc*t;  spin++; }
+		if( (i+1) % Lx_ ){ T_(i,i+1) = t;}	
+		else { T_(i+1-Lx_,i) = bc_*t;  spin++; }
 		/*vertical hopping*/
-		if( i+N_col < N_site ){  T(i,i+N_col) = t; } 
-		else { T(i-(N_row-1)*N_col,i) = bc*t;}
+		if( i+Lx_ < n_ ){  T_(i,i+Lx_) = t; } 
+		else { T_(i-(Ly_-1)*Lx_,i) = bc_*t;}
 	}
 	/*\warning if I take the transpose, the diagonal will be counted twice*/
-	//T += T.transpose();
-	//show(T,spin%N_spin+1);
-	diagonalize_EVec('S');
+	T_ += T_.transpose();
+	//show(T,spin%N_+1);
+	//diagonalize_EVec('S');
+}
+
+void SquareMu::compute_P(){
+	for(unsigned int i(0); i < n_; i++){
+		/*horizontal hopping*/
+		if( (i % Ly_)  < Ly_ - N_ ){Px_(i,i+N_) = 1; }
+		else{ Px_(i,i-Ly_+N_) = bc_; }
+		/*vertical hopping*/
+		if( i+Lx_ < n_ ){
+			if( (i+1) % Lx_ ){Py_(i,i+Lx_+1) = 1; }
+			else { Py_(i,i+1) = bc_;}
+		} else {
+			if( (i+1) % Lx_ ) {  Py_(i,i-(Ly_-1)*Lx_+1) = bc_;}
+			else { Py_(i,0) = bc_*bc_;}
+		}
+	}
+	std::cout<<T_*Px_-Px_*T_<<std::endl;
+	std::cout<<T_*Py_-Py_*T_<<std::endl;
 }
 
 void SquareMu::save(std::string filename){
@@ -62,23 +83,23 @@ void SquareMu::save(std::string filename){
 
 	w.set_header(rst.get());
 	w("is_complex",false);
-	w("N_spin",N_spin);
-	w("N_m",N_m);
-	w("sts",sts);
-	w("EVec",EVec);
-	w("bc",bc);
-	w("N_row",N_row);
-	w("N_col",N_col);
-	w("mu",mu);
+	w("N_",N_);
+	w("m_",m_);
+	w("sts",sts_);
+	w("EVec",EVec_);
+	w("bc_",bc_);
+	w("Ly_",Ly_);
+	w("Lx_",Lx_);
+	w("mu_",mu_);
 }
 
 void SquareMu::show(Matrix<double> const& T,unsigned int spin){
 	std::cout<<"T="<<std::endl;
 	std::cout<<T<<std::endl;
 	std::cout<<"favored sites :"<<std::endl;
-	for(unsigned int i(0);i<N_row;i++){
-		for(unsigned int j(0);j<N_col;j++){
-			if(T(i+j*N_row,i+j*N_row)!=0){
+	for(unsigned int i(0);i<Ly_;i++){
+		for(unsigned int j(0);j<Lx_;j++){
+			if(T(i+j*Ly_,i+j*Ly_)!=0){
 				std::cout<<spin<<" ";
 			} else { 
 				std::cout<<0<<" ";

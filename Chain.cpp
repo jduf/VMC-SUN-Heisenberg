@@ -2,26 +2,27 @@
 
 Chain::Chain(Parseur& P):
 	CreateSystem<double>(P,2),
-	Px(this->N_site,this->N_site)
+	Px_(n_,n_)
 {
 	if(!P.status()){
-		std::string filename("chain-N"+tostring(N_spin) + "-S" + tostring(N_site));
-		if(N_m % 2 == 0){ 
+		std::string filename("chain-N"+tostring(N_) + "-S" + tostring(n_));
+		if(m_ % 2 == 0){ 
 			filename += "-A";
-			bc = -1;
+			bc_ = -1;
 		} else {
 			filename += "-P";
-			bc = 1;
+			bc_ = 1;
 		}
 		compute_H();
 		compute_P();
+		compute_T();
 		compute_sts();
-		//compute_EVec();
-		compute_spectrum();
-		for(unsigned int spin(0);spin<N_spin;spin++){
-			for(unsigned int i(0);i<N_site;i++){
-				for(unsigned int j(0);j<N_m;j++){
-					EVec(i+spin*N_site,j) = T(i,j);
+		//compute_EVec_();
+		compute_band_structure();
+		for(unsigned int spin(0);spin<N_;spin++){
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<m_;j++){
+					EVec_(i+spin*n_,j) = T_(i,j);
 				}
 			}
 		}
@@ -32,53 +33,57 @@ Chain::Chain(Parseur& P):
 Chain::~Chain(){ }
 
 void Chain::compute_H(){
-	H(0, N_site -1 ) = 1;
-	for(unsigned int i(0); i< N_site-1; i++){
-		H(i,i+1) = 1;
+	H_(0, n_ -1 ) = 1;
+	for(unsigned int i(0); i< n_-1; i++){
+		H_(i,i+1) = 1;
 	}
-	H += H.transpose();
+	H_ += H_.transpose();
 }
 
 void Chain::compute_T(){
 	double t(-1.0);
-	T(0, N_site -1 ) = bc*t;
-	for(unsigned int i(0); i< N_site-1; i++){
-		T(i,i+1) = t;
+	T_(0, n_ -1 ) = bc_*t;
+	for(unsigned int i(0); i< n_-1; i++){
+		T_(i,i+1) = t;
 	}
-	T += T.transpose();
+	T_ += T_.transpose();
 }
 
 void Chain::compute_P(){
-	Px(N_site -1,0) = bc;
-	for(unsigned int i(0); i< N_site-1; i++){
-		Px(i,i+1) = 1.0;
+	Px_(n_ -1,0) = bc_;
+	for(unsigned int i(0); i< n_-1; i++){
+		Px_(i,i+1) = 1.0;
 	}
 }
 
 void Chain::compute_EVec(){
 	double t(-1.0);
-	T(0, N_site -1 ) = bc*t;
-	for(unsigned int i(0); i< N_site-1; i++){
-		T(i,i+1) = t;
+	T_(0, n_ -1 ) = bc_*t;
+	for(unsigned int i(0); i< n_-1; i++){
+		T_(i,i+1) = t;
 	}
-	T += T.transpose();
+	T_ += T_.transpose();
 	diagonalize_EVec('S');
 }
 
-void Chain::compute_spectrum(){
-	Matrix<double> TP(T+Px);
-	Matrix<std::complex<double> > EVal;
-	Matrix<std::complex<double> > EVec;
+void Chain::compute_band_structure(){
+	Matrix<double> TP(T_+Px_);
+	Vector<std::complex<double> > eval;
+	Matrix<std::complex<double> > evec;
 	Lapack<double> ES(&TP,false,'G');
-	ES.eigensystem(&EVal,&EVec);
-	Matrix<double> k(N_site,1);
-	Matrix<double> E(N_site,1);
-	for(unsigned int i(0);i<N_site;i++){
-		k(i) = log(projection(Px,EVec,i,i)).imag();
-		E(i) = projection(T,EVec,i,i).real();
+	ES.eigensystem(&eval,&evec);
+	Vector<double> k(n_,1);
+	Vector<double> E(n_,1);
+	for(unsigned int i(0);i<n_;i++){
+		k(i) = log(projection(Px_,evec,i,i)).imag();
+		E(i) = projection(T_,evec,i,i).real();
 	}
 	Gnuplot gp("spectrum","1D");
 	gp.save_data("spectrum-tot",k,E);
+	gp.code(",\\\n");
+	Vector<unsigned int> index(E.sort());
+	k.sort(index);
+	gp.save_data("spectrum-sel",k.range(0,m_),E.range(0,m_));
 	gp.save_code();
 }
 
@@ -91,9 +96,9 @@ void Chain::save(std::string filename){
 
 	w.set_header(rst.get());
 	w("is_complex",false);
-	w("N_spin",N_spin);
-	w("N_m",N_m);
-	w("sts",sts);
-	w("EVec",EVec);
-	w("bc",bc);
+	w("N_",N_);
+	w("m_",m_);
+	w("sts",sts_);
+	w("EVec_",EVec_);
+	w("bc_",bc_);
 }

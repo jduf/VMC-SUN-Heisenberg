@@ -1,4 +1,4 @@
-CXX = g++ 
+CXX = g++
 CC = $(CXX) 
 
 NOASSERT = #-DNDEBUG
@@ -37,7 +37,7 @@ cs:cs.o Chain.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU4.o Parseur.o
 cs.o:cs.cpp Parseur.hpp Chain.hpp Square.hpp Honeycomb.hpp 
 	$(CXX) -c $(CXXFLAGS) $^
 
-Chain.o:Chain.cpp Chain.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp
+Chain.o:Chain.cpp Chain.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 SquarePiFlux.o:SquarePiFlux.cpp SquarePiFlux.hpp Square.hpp CreateSystem.hpp Parseur.hpp
@@ -46,13 +46,13 @@ SquarePiFlux.o:SquarePiFlux.cpp SquarePiFlux.hpp Square.hpp CreateSystem.hpp Par
 SquareMu.o:SquareMu.cpp SquareMu.hpp Square.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-SquareFermi.o:SquareFermi.cpp SquareFermi.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp
+SquareFermi.o:SquareFermi.cpp SquareFermi.hpp Square.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 HoneycombSU4.o:HoneycombSU4.cpp HoneycombSU4.hpp Honeycomb.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-Gnuplot.o:Gnuplot.cpp Gnuplot.hpp Write.hpp RST.hpp Header.hpp Time.hpp Matrix.hpp 
+Gnuplot.o:Gnuplot.cpp Gnuplot.hpp Write.hpp RST.hpp Header.hpp Time.hpp Matrix.hpp Vector.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 	
 #######

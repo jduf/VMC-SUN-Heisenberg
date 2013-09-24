@@ -9,9 +9,10 @@ class SquareMu: public Square<double>{
 		~SquareMu();
 
 	protected:
-		double mu;
+		double mu_;
 
-		void compute_EVec(unsigned int spin);
+		void compute_T(unsigned int spin);
+		void compute_P();
 		void save(std::string filename);
 		void show(Matrix<double> const& T,unsigned int spin);
 };

@@ -2,7 +2,6 @@
 #define DEF_CHAIN
 
 #include "CreateSystem.hpp"
-#include "Gnuplot.hpp"
 
 class Chain: public CreateSystem<double>{
 	public:
@@ -14,9 +13,9 @@ class Chain: public CreateSystem<double>{
 		void compute_P();
 		void compute_T();
 		void compute_EVec();
-		void compute_spectrum();
+		void compute_band_structure();
 		void save(std::string filename);
 
-		Matrix<double> Px;
+		Matrix<double> Px_;
 };
 #endif

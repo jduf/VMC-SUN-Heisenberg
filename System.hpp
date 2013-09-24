@@ -154,7 +154,6 @@ void System<Type>::print(){
 		//std::cout<<s(i,0)<<" ";
 	}
 	std::cout<<std::endl;
-
 	std::cout<<"=========================="<<std::endl;
 }
 /*}*/
@@ -182,7 +181,7 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 	unsigned int N_as(N_site);
 	unsigned int site(0);
 	unsigned int* available(new unsigned int[N_site]);
-	Matrix<int> P;
+	Vector<int> P;
 	unsigned int l(0);
 	unsigned int TRY_MAX(100);
 	double rcn(0.0);
