@@ -14,38 +14,47 @@
 template<typename Type>
 class CreateSystem{
 	public:
-		CreateSystem(Parseur& P,unsigned int N_n);
+		/*!Parseur needs N and m, z is the coordination number*/
+		CreateSystem(Parseur& P, unsigned int z); 
 		~CreateSystem();
 
 	protected:
-		unsigned int const m_, N_, n_;//!<
-		double bc_;				//!<
-		Matrix<unsigned int> sts_;//!< 
-		Matrix<int> H_;			//!< H_opping Matrix
-		Matrix<Type> T_;			//!< GuT_zwiller H_amilT_onian
-		Matrix<Type> EVec_;		//!< eigenVectors Matrix (transfer Matrix)
-		bool successful_;		//!< no degeneracy aT_ T_H_e fermi level
+		std::string wf_;			//!< type of wavefunction
+		unsigned int const m_;		//!< number of unit cell
+		unsigned int const N_;		//!< N of SU(N)
+		unsigned int const n_;		//!< number of sites
+		double bc_;					//!< boundary condition
+		Matrix<unsigned int> sts_;	//!< list of connected sites
+		Matrix<int> H_;				//!< SU(N) Matrix
+		Matrix<Type> T_;			//!< Gutzwiller Hamiltonian
+		Matrix<Type> EVec_;			//!< eigenvectors Matrix (transfer Matrix)
+		bool successful_;			//!< no degeneracy at the fermi level
+		bool study_system_;		//!< no degeneracy at the fermi level
 
-		/*!compute T_H_e eigenVectors from T_H_e mean field H_amilT_onian*/
-		void diagonalize_EVec(char mat_type);
-		/*!compute T_H_e array of pairs of swapping siT_es*/
+		/*!compute the eigenvectors from the mean field Hamiltonian*/
+		void diagonalize_T(char mat_type);
+		/*!compute the array of pairs of swapping sites*/
 		void compute_sts();
-
+		/*!Evaluate the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<double> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket);
 };
 
 template<typename Type>
-CreateSystem<Type>::CreateSystem(Parseur& P, unsigned int N_n):
-	m_(P.get<unsigned int>("N_m")),
-	N_(P.get<unsigned int>("N_spin")), 
+CreateSystem<Type>::CreateSystem(Parseur& P, unsigned int z): 
+	wf_(P.get<std::string>("wf")),
+	m_(P.get<unsigned int>("m")),
+	N_(P.get<unsigned int>("N")), 
 	n_(N_*m_),
 	bc_(0),
-	sts_(n_*N_n/2,2),
+	sts_(n_*z/2,2),
 	H_(n_,n_,0.0),
 	T_(n_,n_,0.0),
 	EVec_(N_*n_,m_),
-	successful_(false)
-{ }
+	successful_(false),
+	study_system_(false)
+{
+	P.set("study",study_system_);
+}
 
 template<typename Type>
 CreateSystem<Type>::~CreateSystem(){ }
@@ -65,7 +74,7 @@ void CreateSystem<Type>::compute_sts(){
 }
 
 template<typename Type>
-void CreateSystem<Type>::diagonalize_EVec(char mat_type){
+void CreateSystem<Type>::diagonalize_T(char mat_type){
 	Lapack<Type> ES(&T_,false, mat_type);
 	Vector<double> EVal;
 	ES.eigensystem(&EVal,true);

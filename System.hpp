@@ -99,65 +99,6 @@ System<Type>::~System(){
 }
 /*}*/
 
-/*methods that return something related to the class*/
-/*{*/
-template<typename Type> 
-Type System<Type>::ratio(){
-	if(color[0]==color[1]){
-		return -1.0;
-	} else {
-		for(unsigned int i(0);i<2;i++){
-			w[i] = 0.0;
-			for(unsigned int k(0);k<N_m;k++){
-				w[i] += EVec(new_ev[i],k)*Ainv[color[i]](k,row[i]);
-			}
-		}
-		d=w[0]*w[1];
-		if( std::abs(d) < 1e-10 ){ return 0.0; }
-		else { return d; }
-	}
-}
-
-template<typename Type>
-void System<Type>::measure(double& E_config, Matrix<unsigned int>& lattice){
-	E_config = 0.0;
-	for(unsigned int j(0);j<sts.row();j++){
-		swap(sts(j,0),sts(j,1));
-		E_config -= real(ratio());
-	}
-	for(unsigned int i(0); i < N_site; i++){
-		lattice(i,s(i,0)) += 1;
-	}
-}
-
-template<typename Type>
-void System<Type>::print(){
-	std::cout<<"=========================="<<std::endl;
-	for(unsigned int spin(0);spin<N_spin;spin++){
-		Matrix<Type> A(N_m,N_m);
-		for(unsigned int i(0);i<N_m;i++){
-			for(unsigned int j(0);j<N_m;j++){
-				A(i,j) = EVec(ev(spin,i),j);
-			}
-		}
-		std::cout<<(A*Ainv[spin]).diag().transpose().chop()<<std::endl;
-	}
-	std::cout<<"EVec"<<std::endl;
-	for(unsigned int spin(0);spin<N_spin;spin++){
-		for(unsigned int i(0); i<N_m; i++){
-			std::cout<<ev(spin,i)<<" ";
-		}
-		std::cout<<std::endl;
-	}
-	for(unsigned int i(0); i < N_site; i++){
-		std::cout<<"("<<s(i,0)<<","<<s(i,1)<<") ";
-		//std::cout<<s(i,0)<<" ";
-	}
-	std::cout<<std::endl;
-	std::cout<<"=========================="<<std::endl;
-}
-/*}*/
-
 /*methods that modify the class*/
 /*{*/
 template<typename Type>
@@ -222,7 +163,6 @@ unsigned int System<Type>::init(unsigned int N_spin_, unsigned int N_m_, Matrix<
 		return 0;
 	} else {
 		std::cerr<<"yeah ! initial state found"<<std::endl;
-		//print();
 		return 1;
 	}
 }
@@ -275,8 +215,65 @@ void System<Type>::update(){
 	s(new_s[0],1) = row[1];
 	s(new_s[1],0) = color[0];
 	s(new_s[1],1) = row[0];
+}
+/*}*/
 
-	//print();
+/*methods that return something related to the class*/
+/*{*/
+template<typename Type> 
+Type System<Type>::ratio(){
+	if(color[0]==color[1]){
+		return -1.0;
+	} else {
+		for(unsigned int i(0);i<2;i++){
+			w[i] = 0.0;
+			for(unsigned int k(0);k<N_m;k++){
+				w[i] += EVec(new_ev[i],k)*Ainv[color[i]](k,row[i]);
+			}
+		}
+		d=w[0]*w[1];
+		if( std::abs(d) < 1e-10 ){ return 0.0; }
+		else { return d; }
+	}
+}
+
+template<typename Type>
+void System<Type>::measure(double& E_config, Matrix<unsigned int>& lattice){
+	E_config = 0.0;
+	for(unsigned int j(0);j<sts.row();j++){
+		swap(sts(j,0),sts(j,1));
+		E_config -= real(ratio());
+	}
+	for(unsigned int i(0); i < N_site; i++){
+		lattice(i,s(i,0)) += 1;
+	}
+}
+
+template<typename Type>
+void System<Type>::print(){
+	std::cout<<"=========================="<<std::endl;
+	for(unsigned int spin(0);spin<N_spin;spin++){
+		Matrix<Type> A(N_m,N_m);
+		for(unsigned int i(0);i<N_m;i++){
+			for(unsigned int j(0);j<N_m;j++){
+				A(i,j) = EVec(ev(spin,i),j);
+			}
+		}
+		std::cout<<(A*Ainv[spin]).diag().transpose().chop()<<std::endl;
+	}
+	std::cout<<"EVec"<<std::endl;
+	for(unsigned int spin(0);spin<N_spin;spin++){
+		for(unsigned int i(0); i<N_m; i++){
+			std::cout<<ev(spin,i)<<" ";
+		}
+		std::cout<<std::endl;
+	}
+	for(unsigned int i(0); i < N_site; i++){
+		std::cout<<"("<<s(i,0)<<","<<s(i,1)<<") ";
+		//std::cout<<s(i,0)<<" ";
+	}
+	std::cout<<std::endl;
+	std::cout<<"=========================="<<std::endl;
 }
 /*}*/
 #endif

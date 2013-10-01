@@ -10,24 +10,23 @@ class Square: public CreateSystem<Type>{
 		~Square();
 
 	protected:
-		unsigned int Ly_, Lx_;
-		Matrix<Type> Px_;
-		Matrix<Type> Py_;
+		unsigned int Lx_;//!< dimension of the lattice along x-axis
+		unsigned int Ly_;//!< dimension of the lattice along y-axis
+		Matrix<Type> Px_;//!< translation operator along x-axis 
+		Matrix<Type> Py_;//!< translation operator along y-axis 
 
 		void compute_H();
+		void study_system();
 		void save(std::string filename);
-		void compute_band_structure();
 };
 
 template<typename Type>
 Square<Type>::Square(Parseur& P):
 	CreateSystem<Type>(P,4),
-	Ly_(floor(sqrt(this->n_))),
 	Lx_(floor(sqrt(this->n_))),
-	Px_(this->n_,this->n_,0.0),
-	Py_(this->n_,this->n_,0.0)
+	Ly_(floor(sqrt(this->n_)))
 {
-	P.set("bc",this->bc_);
+	this->bc_= P.get<double>("bc");
 	if(!P.status()){
 		if(this->n_==Ly_*Lx_){
 			compute_H();
@@ -55,26 +54,40 @@ void Square<Type>::compute_H(){
 }
 
 template<typename Type>
-void Square<Type>::compute_band_structure(){
-	Matrix<double> TP(this->T_+3.*Px_+7.*Py_);
-	Vector<std::complex<double> > eval;
-	Matrix<std::complex<double> > evec;
-	Lapack<double> ES(&TP,false,'G');
-	ES.eigensystem(&eval,&evec);
-	Vector<double> kx(this->n_,1);
-	Vector<double> ky(this->n_,1);
-	Vector<double> E(this->n_,1);
-	for(unsigned int i(0);i<this->n_;i++){
-		kx(i) = log(projection(Px_,evec,i,i)).imag();
-		ky(i) = log(projection(Py_,evec,i,i)).imag();
-		E(i) = projection(this->T_,evec,i,i).real();
+void Square<Type>::study_system(){
+	Matrix<double> ad_ia_i(Lx_,Ly_,0);
+
+	for(unsigned int i(0);i<Ly_;i++){
+		for(unsigned int j(0);j<Lx_;j++){
+			for(unsigned int k(0);k<this->m_;k++){
+				ad_ia_i(i,j) += norm_squared(this->T_(i+j*Lx_,k));
+			}
+		}
 	}
-	Gnuplot gp("spectrum","3D");
-	gp.save_data("spectrum",kx,ky,E);
-	gp.code(" ,\\\n");
-	Vector<unsigned int> index(E.sort());
-	gp.save_data("spectrum-sorted",kx.sort(index).range(0,this->m_),ky.sort(index).range(0,this->m_),E.range(0,this->m_));
-	gp.save_code();
+	double max(0.);
+	double min(0.);
+	for(unsigned int i(0);i<Ly_;i++){
+		for(unsigned int j(0);j<Lx_;j++){
+			if(ad_ia_i(i,j) > max){ max = ad_ia_i(i,j); }
+			if(ad_ia_i(i,j) < min){ min = ad_ia_i(i,j); }
+		}
+	}
+	ad_ia_i -= min;
+	ad_ia_i /= max;
+
+	Vector<double> xy(Lx_);
+	for(unsigned int i(0);i<Lx_;i++){
+		xy(i) = i;
+	}
+	Gnuplot gp("AA","plot");
+	gp.preplot("set cbrange [0:1]");
+	gp.preplot("unset border");
+	gp.preplot("unset xtics");
+	gp.preplot("unset ytics");
+	gp.preplot("unset key");
+	gp.preplot("set size square");
+	gp.save_data("surf",xy,xy,ad_ia_i);
+	gp.add_plot_param("w image\n");
 }
 #endif
 

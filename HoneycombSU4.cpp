@@ -5,7 +5,9 @@ HoneycombSU4::HoneycombSU4(Parseur& P):
 {
 	if(!P.status()){
 		if(m_==Ly_*Lx_){
-			compute_EVec();
+			compute_T();
+			
+			diagonalize_T('S');
 			for(unsigned int spin(0);spin<N_;spin++){
 				for(unsigned int i(0);i<n_;i++){
 					for(unsigned int j(0);j<m_;j++){
@@ -17,7 +19,7 @@ HoneycombSU4::HoneycombSU4(Parseur& P):
 				std::string filename("honeycomb");
 				filename +="-N" + tostring(N_);
 				filename +="-S" + tostring(n_);
-				filename += "-" + tostring(Ly_) +"x"+ tostring(Lx_);
+				filename += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
 				if(bc_ == 1){ filename += "-P";} 
 				else { filename += "-A";}
 				save(filename);
@@ -36,7 +38,7 @@ HoneycombSU4::HoneycombSU4(Parseur& P):
 
 HoneycombSU4::~HoneycombSU4(){}
 
-void HoneycombSU4::compute_EVec(){
+void HoneycombSU4::compute_T(){
 	double t(-1.0);
 	double th(1.0);
 	double td(t);
@@ -326,7 +328,6 @@ void HoneycombSU4::compute_EVec(){
 		}
 	}
 	T_ += T_.transpose();
-	diagonalize_EVec('S');
 }
 
 void HoneycombSU4::save(std::string filename){
@@ -339,12 +340,12 @@ void HoneycombSU4::save(std::string filename){
 
 	w.set_header(rst.get());
 	w("is_complex",false);
-	w("N_",N_);
-	w("m_",m_);
+	w("N",N_);
+	w("m",m_);
 	w("sts",sts_);
 	w("EVec",EVec_);
-	w("bc_",bc_);
-	w("Ly_",Ly_);
-	w("Lx_",Lx_);
+	w("bc",bc_);
+	w("Ly",Ly_);
+	w("Lx",Lx_);
 }
 

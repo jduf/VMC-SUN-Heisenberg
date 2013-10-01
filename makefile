@@ -1,4 +1,4 @@
-CXX = g++
+CXX = g++ -g
 CC = $(CXX) 
 
 NOASSERT = #-DNDEBUG
@@ -82,7 +82,7 @@ Header.o:Header.cpp Header.hpp Matrix.hpp Time.hpp
 RST.o:RST.cpp RST.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
-Lapack.o:Lapack.cpp Lapack.hpp Matrix.hpp  
+Lapack.o:Lapack.cpp Lapack.hpp Matrix.hpp Vector.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
 ########

@@ -12,10 +12,9 @@ class Chain: public CreateSystem<double>{
 		void compute_H();
 		void compute_P();
 		void compute_T();
-		void compute_EVec();
 		void compute_band_structure();
 		void save(std::string filename);
 
-		Matrix<double> Px_;
+		Matrix<double> Px_;//!< translation operator along x-axis 
 };
 #endif

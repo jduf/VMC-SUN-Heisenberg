@@ -11,6 +11,8 @@ class SquareFermi: public Square<double>{
 	protected:
 		void compute_T();
 		void compute_P();
+		void compute_band_structure();
+
 		void save(std::string filename);
 };
 #endif

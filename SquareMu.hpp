@@ -13,6 +13,8 @@ class SquareMu: public Square<double>{
 
 		void compute_T(unsigned int spin);
 		void compute_P();
+		void compute_band_structure(unsigned int spin);
+
 		void save(std::string filename);
 		void show(Matrix<double> const& T,unsigned int spin);
 };

@@ -9,7 +9,7 @@ class HoneycombSU4: public Honeycomb<double>{
 		~HoneycombSU4();
 
 	protected:
-		void compute_EVec();
+		void compute_T();
 		void save(std::string filename);
 };
 #endif

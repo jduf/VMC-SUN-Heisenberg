@@ -14,11 +14,11 @@ Chain::Chain(Parseur& P):
 			bc_ = 1;
 		}
 		compute_H();
-		compute_P();
-		compute_T();
 		compute_sts();
-		//compute_EVec_();
+		compute_T();
 		compute_band_structure();
+
+		diagonalize_T('S');
 		for(unsigned int spin(0);spin<N_;spin++){
 			for(unsigned int i(0);i<n_;i++){
 				for(unsigned int j(0);j<m_;j++){
@@ -56,17 +56,11 @@ void Chain::compute_P(){
 	}
 }
 
-void Chain::compute_EVec(){
-	double t(-1.0);
-	T_(0, n_ -1 ) = bc_*t;
-	for(unsigned int i(0); i< n_-1; i++){
-		T_(i,i+1) = t;
-	}
-	T_ += T_.transpose();
-	diagonalize_EVec('S');
-}
-
 void Chain::compute_band_structure(){
+	compute_P();
+	
+	//std::cout<<T_*Px_-Px_*T_<<std::endl;
+	
 	Matrix<double> TP(T_+Px_);
 	Vector<std::complex<double> > eval;
 	Matrix<std::complex<double> > evec;
@@ -79,12 +73,10 @@ void Chain::compute_band_structure(){
 		E(i) = projection(T_,evec,i,i).real();
 	}
 	Gnuplot gp("spectrum","1D");
-	gp.save_data("spectrum-tot",k,E);
-	gp.code(",\\\n");
+	gp.save_data("spectrum",k,E);
+	gp.add_plot_param(" ,\\\n");
 	Vector<unsigned int> index(E.sort());
-	k.sort(index);
-	gp.save_data("spectrum-sel",k.range(0,m_),E.range(0,m_));
-	gp.save_code();
+	gp.save_data("spectrum-sorted",k.sort(index).range(0,m_),E.range(0,m_));
 }
 
 void Chain::save(std::string filename){
@@ -95,10 +87,10 @@ void Chain::save(std::string filename){
 	rst.title("Input values","~");
 
 	w.set_header(rst.get());
-	w("is_complex",false);
-	w("N_",N_);
-	w("m_",m_);
-	w("sts",sts_);
-	w("EVec_",EVec_);
-	w("bc_",bc_);
+	w("wf (wave function)",wf_);
+	w("N (N of SU(N))",N_);
+	w("m (number of unit cell)",m_);
+	w("sts (connected sites)",sts_);
+	w("EVec (unitary matrix)",EVec_);
+	w("bc (boundary condition)",bc_);
 }

@@ -19,55 +19,102 @@ void run(Parseur& P){
 		unsigned int nthreads(1);
 		P.set("nthreads",nthreads);
 
-		unsigned int N_site(0), N_spin(0), N_m(0),N_row(0),N_col(0);
-		bool is_complex(false);
+		std::string wf;
+		unsigned int n(0), N(0), m(0);
 		double bc(0);
-		double mu(0);
 		Matrix<unsigned int> sts;
 
 		Read r(filename.c_str());
-		r>>is_complex>>N_spin>>N_m>>sts;
-		N_site = N_m*N_spin;
-
-		if(is_complex){
-			std::cerr<<"the simulation will be lunched for complex numbers"<<std::endl;
-			Matrix<std::complex<double> > EVec;
-			MonteCarlo<std::complex<double> > sim(filename,nthreads);
-			r>>EVec>>bc>>N_row>>N_col>>mu;
+		r>>wf>>N>>m>>sts;
+		if( wf == "chain" ){
+			std::cerr<<"1D chain"<<std::endl;
+			Matrix<double> EVec;
+			MonteCarlo<double> sim(filename,nthreads);
+			r>>EVec>>bc;
 #pragma omp parallel num_threads(nthreads)
 			{
-				sim.init(N_spin,N_m,sts,EVec,omp_get_thread_num());
+				sim.init(N,m,sts,EVec,omp_get_thread_num());
 				sim.run(omp_get_thread_num());
 			}
 			Write result(filename+".dat");
-			result<<"%N_spin N_site bc N_samples E_persite Delta_e Status"<<Write::endl;
+			result<<"%N n N_samples E_persite Delta_e Status bc"<<Write::endl;
 			for(unsigned int thread(0);thread<nthreads;thread++){
-				result<<N_spin
-					<<" "<<N_site
-					<<" "<<bc
-					<<" "<<mu;
+				result<<N
+					<<" "<<n;
 				sim.save_in_file(result,thread);
-				result<<Write::endl;
+				result<<" "<<bc
+					<<Write::endl;
 			}
-		} else {
+		}
+		if( wf == "fermi" ){
 			std::cerr<<"the simulation will be lunched for real numbers"<<std::endl;
+
+			unsigned int N_row(0),N_col(0);
+
+			Matrix<double> EVec;
+			MonteCarlo<double> sim(filename,nthreads);
+			r>>EVec>>bc>>N_row>>N_col;
+#pragma omp parallel num_threads(nthreads)
+			{
+				sim.init(N,m,sts,EVec,omp_get_thread_num());
+				sim.run(omp_get_thread_num());
+			}
+			Write result(filename+".dat");
+			result<<"%N n N_samples E_persite Delta_e Status bc"<<Write::endl;
+			for(unsigned int thread(0);thread<nthreads;thread++){
+				result<<N
+					<<" "<<n;
+				sim.save_in_file(result,thread);
+				result<<" "<<bc
+					<<Write::endl;
+			}
+		}
+		if( wf == "mu" ){
+			std::cerr<<"the simulation will be lunched for real numbers"<<std::endl;
+
+			unsigned int N_row(0),N_col(0);
+			double mu(0);
+
 			Matrix<double> EVec;
 			MonteCarlo<double> sim(filename,nthreads);
 			r>>EVec>>bc>>N_row>>N_col>>mu;
 #pragma omp parallel num_threads(nthreads)
 			{
-				sim.init(N_spin,N_m,sts,EVec,omp_get_thread_num());
+				sim.init(N,m,sts,EVec,omp_get_thread_num());
 				sim.run(omp_get_thread_num());
 			}
 			Write result(filename+".dat");
-			result<<"%N_spin N_site bc N_samples E_persite Delta_e Status"<<Write::endl;
+			result<<"%N n N_samples E_persite Delta_e Status bc mu"<<Write::endl;
 			for(unsigned int thread(0);thread<nthreads;thread++){
-				result<<N_spin
-					<<" "<<N_site
-					<<" "<<bc
-					<<" "<<mu;
+				result<<N
+					<<" "<<n;
 				sim.save_in_file(result,thread);
-				result<<Write::endl;
+				result<<" "<<bc
+					<<" "<<mu
+					<<Write::endl;
+			}
+		}
+		if( wf == "csl" ){
+			std::cerr<<"CSL on the square lattice"<<std::endl;
+
+			unsigned int N_row(0),N_col(0);
+
+			Matrix<std::complex<double> > EVec;
+			MonteCarlo<std::complex<double> > sim(filename,nthreads);
+			r>>EVec>>bc>>N_row>>N_col;
+#pragma omp parallel num_threads(nthreads)
+			{
+				sim.init(N,m,sts,EVec,omp_get_thread_num());
+				sim.run(omp_get_thread_num());
+			}
+			Write result(filename+".dat");
+			result<<"%N n N_samples E_persite Delta_e Status bc"<<Write::endl;
+			for(unsigned int thread(0);thread<nthreads;thread++){
+				result<<N
+					<<" "<<n;
+				sim.save_in_file(result,thread);
+				result<<" "<<bc
+					<<Write::endl;
 			}
 		}
 	} else {

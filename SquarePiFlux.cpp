@@ -5,7 +5,9 @@ SquarePiFlux::SquarePiFlux(Parseur& P):
 {
 	if(!P.status()){
 		if(n_==Ly_*Lx_){
-			compute_EVec();
+			compute_T();
+
+			diagonalize_T('H');
 			for(unsigned int spin(0);spin<N_;spin++){
 				for(unsigned int i(0);i<n_;i++){
 					for(unsigned int j(0);j<m_;j++){
@@ -17,7 +19,7 @@ SquarePiFlux::SquarePiFlux(Parseur& P):
 				std::string filename("square-piflux");
 				filename += "-N" + tostring(N_);
 				filename += "-S" + tostring(n_);
-				filename += "-" + tostring(Ly_) + "x" + tostring(Lx_);
+				filename += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 				if(bc_ == 1){ filename += "-P";} 
 				else { filename += "-A";}
 				save(filename);
@@ -32,7 +34,7 @@ SquarePiFlux::SquarePiFlux(Parseur& P):
 
 SquarePiFlux::~SquarePiFlux(){}
 
-void SquarePiFlux::compute_EVec(){
+void SquarePiFlux::compute_T(){
 	double t(-1.0);
 	double phi(2*M_PI/N_);
 	for(unsigned int i(0); i< Ly_; i++){
@@ -45,10 +47,9 @@ void SquarePiFlux::compute_EVec(){
 		}
 	}
 	std::cerr<<"SquarePiFlux : compute_EVec : new use of polar, check that it is correct"<<std::endl;
-	std::cerr<<"SquarePiFlux : compute_EVec : modified the flux disposition..."<<std::endl;
-	std::cout<<T_<<std::endl;
+	std::cerr<<"                            : modified the flux disposition..."<<std::endl;
+	//std::cout<<T_<<std::endl;
 	T_ += T_.trans_conj(); 
-	diagonalize_EVec('H');
 }
 
 void SquarePiFlux::save(std::string filename){
@@ -59,14 +60,14 @@ void SquarePiFlux::save(std::string filename){
 	rst.title("Input values","~");
 
 	w.set_header(rst.get());
-	w("is_complex",true);
-	w("N_",N_);
-	w("m_",m_);
-	w("sts",sts_);
-	w("EVec",EVec_);
-	w("bc_",bc_);
-	w("Ly_",Ly_);
-	w("Lx_",Lx_);
+	w("wf (wave function)",wf_);
+	w("N (N of SU(N))",N_);
+	w("m (number of unit cell)",m_);
+	w("sts (connected sites)",sts_);
+	w("EVec (unitary matrix)",EVec_);
+	w("bc (boundary condition)",bc_);
+	w("Lx (x-dimension)",Lx_);
+	w("Ly (y-dimension)",Ly_);
 }
 
 	//{//csl for Vishvanath (uses majorana representation)
