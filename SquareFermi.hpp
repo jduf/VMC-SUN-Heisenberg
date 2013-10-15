@@ -9,6 +9,7 @@ class SquareFermi: public Square<double>{
 		~SquareFermi();
 
 	protected:
+		/*! \image html fermi-sea-schema.png*/
 		void compute_T();
 		void compute_P();
 		void compute_band_structure();

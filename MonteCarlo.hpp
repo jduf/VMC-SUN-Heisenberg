@@ -84,7 +84,7 @@ template<typename Type>
 MonteCarlo<Type>::MonteCarlo(std::string filename, unsigned int const& nthreads):
 	nthreads(nthreads),
 	N_MC(1e4),
-	time_limit(nthreads*3600*10),
+	time_limit(nthreads*5*60),
 	keep_measuring(true),
 	output(filename+"-MC.out"),
 	S(new System<Type>[nthreads]),
@@ -113,17 +113,19 @@ MonteCarlo<Type>::~MonteCarlo(){
 template<typename Type>
 void MonteCarlo<Type>::init(unsigned int const& N_spin, unsigned int const& N_m, Matrix<unsigned int> const& sts, Matrix<Type> const& EVec, unsigned int thread) {
 	status[thread] = S[thread].init(N_spin,N_m,sts,EVec,thread);
-	std::cerr<<"thermalization "<<std::flush;
-	unsigned int i(0);
-	while( i<1e5 ){
-		S[thread].swap();
-		if( std::abs(S[thread].ratio())>1e-10 ){
-			i++;
-			S[thread].update();
+	if(status[thread]){
+		std::cerr<<"thermalization "<<std::flush;
+		unsigned int i(0);
+		while( i<1e5 ){
+			S[thread].swap();
+			if( std::abs(S[thread].ratio())>1e-10 ){
+				i++;
+				S[thread].update();
+			}
 		}
+		std::cerr<<"completed"<<std::endl;
+		lattice[thread].set(N_spin*N_m,N_spin,0);
 	}
-	std::cerr<<"completed"<<std::endl;
-	lattice[thread].set(N_spin*N_m,N_spin,0);
 }
 
 template<typename Type>
@@ -133,8 +135,27 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 		double E_config(0);
 		double ratio(0.0);
 		Rand rnd(1e4,thread);
-		bool bin(false);
+		bool bin(true);
 		if(bin){
+			//do{
+				//S[thread].swap();
+				//ratio = norm_squared(S[thread].ratio());
+				//if( ratio > 1.0 || rnd.get() < ratio ){
+					//S[thread].update();
+					//S[thread].measure(E_config,lattice[thread]);
+					//E[thread] += E_config;
+					//sampling[thread].push_back(E_config);
+					//i++;
+					//if(i >= N_MC) {
+						//i=0;
+						//test_convergence(thread);
+						//output<<sampling[thread].size()
+							//<<" "<<E[thread] / (sampling[thread].size() * S[thread].N_site)
+							//<<" "<<err[thread]
+							//<<Write::endl;
+					//}
+				//}
+			//} while(keep_measuring);
 			do{
 				S[thread].swap();
 				ratio = norm_squared(S[thread].ratio());
@@ -143,30 +164,37 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 					S[thread].measure(E_config,lattice[thread]);
 					E[thread] += E_config;
 					sampling[thread].push_back(E_config);
-					i++;
-					if(i >= N_MC) {
-						i=0;
-						test_convergence(thread);
-
-						output<<sampling[thread].size()
-							<<" "<<E[thread] / (sampling[thread].size() * S[thread].N_site)
-							<<" "<<err[thread]
-							<<Write::endl;
-					}
+				} else {
+					E[thread] += E_config;
+					sampling[thread].push_back(E_config);
+				}
+				i++;
+				if(i >= N_MC) {
+					i=0;
+					test_convergence(thread);
+					output<<sampling[thread].size()
+						<<" "<<E[thread] / (sampling[thread].size() * S[thread].N_site)
+						<<" "<<err[thread]
+						<<Write::endl;
 				}
 			} while(keep_measuring);
 		} else {
+			double a(0.0);
 			do{
 				S[thread].swap();
 				ratio = norm_squared(S[thread].ratio());
-				if(ratio>1 || rnd.get() <ratio){
-					i++;
+				a = rnd.get();
+				i++;
+				if(ratio>1 || a <ratio){
 					S[thread].update();
 					S[thread].measure(E_config,lattice[thread]);
 					E[thread] += E_config;
 					sampling[thread].push_back(E_config);
+					std::cout<<i<<" "<<a<<" "<<ratio<<" "<<E_config<<std::endl;
+				} else {
+					E[thread] += E_config;
 				}
-			} while(i<1e6); 
+			} while(i<1e4); 
 			output<<lattice[thread]<<Write::endl;
 		}
 		test_convergence(thread);

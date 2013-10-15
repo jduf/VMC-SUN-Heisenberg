@@ -92,5 +92,5 @@ clean:
 	rm *.o *.gch mc cs check
 
 ref:
-	doxygen Doxyfile
-	firefox html/files.html
+	doxygen doxygen/Doxyfile
+	firefox doxygen/html/files.html

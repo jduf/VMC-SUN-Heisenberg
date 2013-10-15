@@ -34,39 +34,54 @@ void check(std::string filename){
 			<<std::endl;
 	}
 	if( wf == "fermi" ){
-		unsigned int N_row(0),N_col(0);
+		unsigned int Lx(0),Ly(0);
 		Matrix<double> EVec;
-		r>>EVec>>bc>>N_row>>N_col;
+		r>>EVec>>bc>>Lx>>Ly;
 		std::cout<<"N_spin="<<N
 			<<" N_site="<<m*N
-			<<" N_row="<<N_row
-			<<" N_col="<<N_col
+			<<" Lx="<<Lx
+			<<" Ly="<<Ly
 			<<" bc="<<bc
 			<<std::endl;
 	}
 	if( wf == "mu" ){
-		unsigned int N_row(0),N_col(0);
+		unsigned int Lx(0),Ly(0);
 		double mu(0);
 		Matrix<double> EVec;
-		r>>EVec>>bc>>N_row>>N_col>>mu;
+		r>>EVec>>bc>>Lx>>Ly>>mu;
 		std::cout<<"N_spin="<<N
 			<<" N_site="<<m*N
-			<<" N_row="<<N_row
-			<<" N_col="<<N_col
+			<<" Lx="<<Lx
+			<<" Ly="<<Ly
 			<<" bc="<<bc
 			<<" mu="<<mu
 			<<std::endl;
 		std::cout<<EVec.chop()<<std::endl;
 	}
 	if( wf == "csl" ){
-		unsigned int N_row(0),N_col(0);
+		unsigned int Lx(0),Ly(0);
 		Matrix<std::complex<double> > EVec;
-		r>>EVec>>bc>>N_row>>N_col;
+		r>>EVec>>bc>>Lx>>Ly;
 		std::cout<<"N_spin="<<N
 			<<" N_site="<<m*N
-			<<" N_row="<<N_row
-			<<" N_col="<<N_col
+			<<" Lx="<<Lx
+			<<" Ly="<<Ly
 			<<" bc="<<bc
+			<<std::endl;
+	}
+	if( wf == "honeycomb" ){
+		unsigned int Lx(0),Ly(0);
+		Matrix<double> EVec;
+		r>>EVec>>bc>>Lx>>Ly;
+		std::cout<<"N_spin="<<N
+			<<" N_site="<<m*N
+			<<" Lx="<<Lx
+			<<" Ly="<<Ly
+			<<" bc="<<bc
+			<<std::endl
+			<<" U="
+			<<std::endl
+			<<EVec
 			<<std::endl;
 	}
 }

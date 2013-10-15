@@ -21,7 +21,7 @@ Honeycomb<Type>::Honeycomb(Parseur& P):
 	Ly_(floor(sqrt(this->m_))),
 	Lx_(floor(sqrt(this->m_)))
 {
-	P.set("bc",this->bc_);
+	this->bc_= P.get<double>("bc");
 	if(!P.status()){
 		if(this->m_==Ly_*Lx_){
 			compute_H();
@@ -40,28 +40,27 @@ void Honeycomb<Type>::compute_H(){
 	unsigned int i(0);
 	for(unsigned int l(0);l<Ly_;l++){
 		for(unsigned int c(0);c<Lx_;c++){
+			//0
 			this->H_(i,i+1) = 1;
-			this->H_(i,i+3) = 1;
-			i++;//1
+			if(l+1<Ly_){
+				this->H_(i,i+1+Lx_*4) = 1;
+			} else {
+				this->H_(i+1-l*Lx_*4,i) = 1;
+			}
+			if(c==0){
+				this->H_(i,i+Lx_*4-1) = 1;
+			} else {
+				this->H_(i-1,i) = 1;
+			}
+			i+=2;//2
+			this->H_(i,i-1) = 1;
 			this->H_(i,i+1) = 1; 
-			i++;//2
-			if(c+1==Lx_){
-				this->H_(i+1-c*4, i) = 1;
+			if(l==0){
+				this->H_(i,i+1+(Ly_-1)*Lx_*4) = 1;
 			} else {
-				this->H_(i,i+5) = 1;
+				this->H_(i,i+1-Lx_*4) = 1;
 			}
-			if(l+1==Ly_){
-				this->H_(i-1-l*Lx_*4,i) = 1; 
-			} else {
-				this->H_(i,i-1+Lx_*4) = 1;
-			}
-			i++;//3
-			if(l+1==Ly_){
-				this->H_(i-3-l*Lx_*4, i) = 1; 
-			} else {
-				this->H_(i,i-3+Lx_*4) = 1;
-			}
-			i++;//4
+			i+=2;//4
 		}
 	}
 	this->H_ += this->H_.transpose();

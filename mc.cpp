@@ -49,11 +49,11 @@ void run(Parseur& P){
 		if( wf == "fermi" ){
 			std::cerr<<"the simulation will be lunched for real numbers"<<std::endl;
 
-			unsigned int N_row(0),N_col(0);
+			unsigned int Lx(0),Ly(0);
 
 			Matrix<double> EVec;
 			MonteCarlo<double> sim(filename,nthreads);
-			r>>EVec>>bc>>N_row>>N_col;
+			r>>EVec>>bc>>Lx>>Ly;
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.init(N,m,sts,EVec,omp_get_thread_num());
@@ -72,12 +72,12 @@ void run(Parseur& P){
 		if( wf == "mu" ){
 			std::cerr<<"the simulation will be lunched for real numbers"<<std::endl;
 
-			unsigned int N_row(0),N_col(0);
+			unsigned int Lx(0),Ly(0);
 			double mu(0);
 
 			Matrix<double> EVec;
 			MonteCarlo<double> sim(filename,nthreads);
-			r>>EVec>>bc>>N_row>>N_col>>mu;
+			r>>EVec>>bc>>Lx>>Ly>>mu;
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.init(N,m,sts,EVec,omp_get_thread_num());
@@ -97,11 +97,34 @@ void run(Parseur& P){
 		if( wf == "csl" ){
 			std::cerr<<"CSL on the square lattice"<<std::endl;
 
-			unsigned int N_row(0),N_col(0);
+			unsigned int Lx(0),Ly(0);
 
 			Matrix<std::complex<double> > EVec;
 			MonteCarlo<std::complex<double> > sim(filename,nthreads);
-			r>>EVec>>bc>>N_row>>N_col;
+			r>>EVec>>bc>>Lx>>Ly;
+#pragma omp parallel num_threads(nthreads)
+			{
+				sim.init(N,m,sts,EVec,omp_get_thread_num());
+				sim.run(omp_get_thread_num());
+			}
+			Write result(filename+".dat");
+			result<<"%N n N_samples E_persite Delta_e Status bc"<<Write::endl;
+			for(unsigned int thread(0);thread<nthreads;thread++){
+				result<<N
+					<<" "<<n;
+				sim.save_in_file(result,thread);
+				result<<" "<<bc
+					<<Write::endl;
+			}
+		}
+		if( wf == "honeycomb" ){
+			std::cerr<<"SU4 honeycomb"<<std::endl;
+
+			unsigned int Lx(0),Ly(0);
+
+			Matrix<double> EVec;
+			MonteCarlo<double> sim(filename,nthreads);
+			r>>EVec>>bc>>Lx>>Ly;
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.init(N,m,sts,EVec,omp_get_thread_num());
