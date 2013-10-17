@@ -1,4 +1,4 @@
-CXX = g++
+CXX = g++ -g
 CC = $(CXX)
 
 #CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2

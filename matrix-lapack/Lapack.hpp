@@ -2,6 +2,7 @@
 #define DEF_MLAPACK
 
 #include "Matrix.hpp"
+#include "Vector.hpp"
 
 //work for a symmetric matrix
 /*{*/
@@ -165,8 +166,8 @@ class Lapack{
 		~Lapack();
 
 		/*!Specialized routine that computes the eigensystem*/
-		void eigensystem(Matrix<double>* EVal, bool compute_EVec=false); 
-		void eigensystem(Matrix<std::complex<double> >* EVal, Matrix<std::complex<double> >* EVec = NULL); 
+		void eigensystem(Vector<double>* EVal, bool compute_EVec=false); 
+		void eigensystem(Vector<std::complex<double> >* EVal, Matrix<std::complex<double> >* EVec = NULL); 
 		/*!Compute the determinant*/
 		Type det();
 		/*!Compute the LU decomposition*/
@@ -175,11 +176,11 @@ class Lapack{
 		void qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation=false);
 		/*!Compute the inverse*/
 		void inv();
-		void inv(Matrix<int>& ipiv);
+		void inv(Vector<int>& ipiv);
 		/*!Compute the norm of the matrix*/
 		double norm();
 		/*!Check if a matrix is singular*/
-		Matrix<int> is_singular(double& rcn=0.0);
+		Vector<int> is_singular(double& rcn=0.0);
 
 		Matrix<Type>* get_mat(){ return mat; }
 		
@@ -190,10 +191,10 @@ class Lapack{
 		
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * LU decomposition*/
-		void getrf(Matrix<int>& ipiv);
+		void getrf(Vector<int>& ipiv);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * inverse after the call of getrf*/
-		void getri(Matrix<int>& ipiv);
+		void getri(Vector<int>& ipiv);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * QR decomposition*/
 		void geqp3(double* tau, int* jpvt);
@@ -202,11 +203,11 @@ class Lapack{
 		void gqr(unsigned int k, double* tau);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * eigensystem of a symmetric real matrix*/
-		void syev(Matrix<double>* EVal, char job);
+		void syev(Vector<double>* EVal, char job);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * eigensystem of an hermitian complex matrix*/
-		void heev(Matrix<double>* EVal, char job); 
-		void geev(Matrix<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec);
+		void heev(Vector<double>* EVal, char job); 
+		void geev(Vector<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * norm of an general real matrix*/
 		double lange(); 
@@ -253,7 +254,7 @@ Type Lapack<Type>::det()  {
 		/*! \warning the determinant needs to be rewritten for rectangles matrices  */
 		Type d(1.0);
 		unsigned int N(mat->row());
-		Matrix<int> ipiv(N,1);
+		Vector<int> ipiv(N);
 		getrf(ipiv);
 		for(unsigned int i(0); i<N; i++){
 			if(ipiv(i) != int(i+1)){ //! \note ipiv return value between [1,N]
@@ -267,7 +268,7 @@ Type Lapack<Type>::det()  {
 }
 
 template<typename Type>
-void Lapack<Type>::inv(Matrix<int>& ipiv) {
+void Lapack<Type>::inv(Vector<int>& ipiv) {
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : inv : the only matrix type implemented is G"<<std::endl;
@@ -283,7 +284,7 @@ void Lapack<Type>::inv() {
 		std::cerr<<"Lapack : inv : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : inv : the only matrix type implemented is G"<<std::endl;
 	} else {
-		Matrix<int> ipiv(mat->row(),1);
+		Vector<int> ipiv(mat->row());
 		getrf(ipiv);
 		getri(ipiv);
 	}
@@ -301,7 +302,7 @@ void Lapack<Type>::lu(Matrix<Type>& L, Matrix<Type>& U)  {
 		unsigned int N(mat->row());
 		L=Matrix<Type>(N,N);
 		U=Matrix<Type>(N,N);
-		Matrix<int> ipiv(N,1);
+		Vector<int> ipiv(N);
 		getrf(ipiv);
 		for(unsigned int i(0); i<N; i++){
 			L(i,i)=1.0;
@@ -366,15 +367,15 @@ void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation)  {
 }
 
 template<typename Type>
-Matrix<int> Lapack<Type>::is_singular(double& rcn){
-	Matrix<int> ipiv;
+Vector<int> Lapack<Type>::is_singular(double& rcn){
+	Vector<int> ipiv;
 	if (matrix_type != 'G'){
 		std::cerr<<"Lapack : is_singular : Matrix type "<<matrix_type<<" not implemented"<<std::endl;
 		std::cerr<<"Lapack : is_singular : the only matrix type implemented is G"<<std::endl;
-	} else if (mat->row()!=mat->col()){
+	} else if (mat->row() != mat->col()){
 		std::cerr<<"Lapack : is_singular : need to be checked for rectangle matrix"<<std::endl;
 	} else {
-		ipiv.set(std::min(mat->row(),mat->col()),1);
+		ipiv.set(std::min(mat->row(),mat->col()));
 		double m_norm(lange());
 		getrf(ipiv);
 
@@ -399,7 +400,7 @@ double Lapack<Type>::norm()  {
 }
 
 template<typename Type>
-void Lapack<Type>::eigensystem(Matrix<double>* EVal, bool compute_EVec) {
+void Lapack<Type>::eigensystem(Vector<double>* EVal, bool compute_EVec) {
 	if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem : matrix is not square"<<std::endl;}
 	char job('N');
 	if(compute_EVec){job = 'V';}
@@ -424,7 +425,7 @@ void Lapack<Type>::eigensystem(Matrix<double>* EVal, bool compute_EVec) {
 }
 
 template<typename Type>
-void Lapack<Type>::eigensystem(Matrix<std::complex<double> >* EVal, Matrix<std::complex<double> >* EVec) {
+void Lapack<Type>::eigensystem(Vector<std::complex<double> >* EVal, Matrix<std::complex<double> >* EVec) {
 	if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem : matrix is not square"<<std::endl;}
 	char job('N');
 	if(EVec){job = 'V';}

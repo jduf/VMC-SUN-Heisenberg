@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
 		Directory d;
 		d.search_file_ext(".png",directory_name,false);
 		d.sort();
-		
+
 		update_readme(d,directory_name);
 
 		command("firefox " + save_in + "README.html &");
@@ -44,15 +44,14 @@ void update_readme(Directory const& d, std::string const& directory_name){
 	rst.np();
 	rst.title("PLOTS","=");
 	if(d.size()<10){
-	for(unsigned int i(0);i<d.size();i++){
-		rst.figure(d[i],d[i],80);
-	}
+		for(unsigned int i(0);i<d.size();i++){
+			rst.figure(d[i],d[i],80);
+		}
 	} else {
 		for(unsigned int i(0);i<d.size();i++){
 			create_rst_plot(i,d,directory_name + "info/");
 			rst.hyperlink(d.get_name(i), directory_name + "info/" + d.get_name(i) + ".html");
 		}
-
 	}
 	rst.pdf(true);
 }

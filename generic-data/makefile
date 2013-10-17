@@ -1,3 +1,4 @@
+
 CXX = g++
 CC = $(CXX)
 
@@ -7,13 +8,10 @@ LDFLAGS =  -pedantic -Wall -Wextra -llapack -lblas
 
 all:test
 
-test.o:test.cpp Matrix.hpp Lapack.hpp Read.hpp Gnuplot.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Lapack.o:Lapack.cpp Lapack.hpp Matrix.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
 Read.o:Read.cpp Read.hpp Header.hpp Matrix.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+	
+Parseur.o:Parseur.cpp Parseur.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 Write.o:Write.cpp Write.hpp Header.hpp Matrix.hpp
@@ -25,10 +23,13 @@ Header.o:Header.cpp Header.hpp RST.hpp Matrix.hpp Time.hpp
 RST.o:RST.cpp RST.hpp  
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Gnuplot.o:Gnuplot.cpp Gnuplot.hpp Write.hpp RST.hpp Header.hpp Time.hpp Matrix.hpp 
+Time.o:Time.cpp Time.hpp  
 	$(CXX) -c  $(CXXFLAGS) $^
 
-test:test.o Lapack.o Read.o Write.o Header.o RST.o Gnuplot.o
+test.o:test.cpp Data.hpp Read.hpp Header.hpp RST.hpp Parseur.hpp Time.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+
+test:test.o Read.o Header.o RST.o Parseur.o Time.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 ref:

@@ -41,8 +41,8 @@ Write& Write::operator<<(std::string const& s){
 	if(unlocked){
 		if(binary){
 			unsigned int N(s.size());
-			fwrite(&N,sizeof(N), 1 ,bfile);
-			fwrite(s.c_str(),1, N ,bfile);
+			fwrite(&N,sizeof(N), 1, bfile);
+			fwrite(s.c_str(),1, N, bfile);
 			fflush(bfile);
 		} else {  
 			tfile<<s<<std::flush;
@@ -60,7 +60,7 @@ Write& Write::operator<<(Matrix<std::string> const& mat){
 			unsigned int N_col(mat.col());
 			fwrite(&N_row, sizeof(N_row), 1, bfile);
 			fwrite(&N_col, sizeof(N_col), 1, bfile);
-			for(unsigned int i(0); i<mat.total(); i++){
+			for(unsigned int i(0); i<mat.size(); i++){
 				(*this)<<(mat.ptr())[i];
 			}
 		} else {  

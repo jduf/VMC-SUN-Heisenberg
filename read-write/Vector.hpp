@@ -6,11 +6,6 @@
 #include <cmath> //allow abs(double) and abs(complex) 
 #include <complex>
 
-//#include "Matrix.hpp"
-
-template<typename Type>
-class Matrix;
-
 /*!Class that implement a static array as a Vector
  *
  * - can be saved with Write.hpp 
@@ -45,10 +40,8 @@ class Vector{
 		/*!Substracts this vecrice from another (m1 -= m2 : m1 = m1-m2)*/
 		Vector<Type>& operator-=(Vector<Type> const& vec);
 		Vector<Type> operator-(Vector<Type> const& vec) const;
-		/*!Multiplies two vectors (v1 *= v2 : v1 = v1*v2)*/
+		/*!Multiplies two vecrices (m1 *= m2 : m1 = m1*m2)*/
 		Vector<Type> operator*(Vector<Type> const& vec) const;
-		/*!Multiplies two vectors and get a matrix*/
-		Matrix<Type> operator^(Vector<Type> const& vec) const;
 
 		/*!Set the whole Vector to val*/
 		void set(unsigned int N, Type const& val);
@@ -56,7 +49,7 @@ class Vector{
 		void set(unsigned int N);
 		void set();
 		/*!Sets the entries to zero if they are close to 0*/
-		Vector<Type> chop(double precision = 1e-10) const;
+		void chop(double precision = 1e-10);
 		/*!Print the vector for vechevecica*/
 		void print_mathematica();
 
@@ -127,17 +120,13 @@ Vector<Type>::~Vector(){
 /*{*/
 template<typename Type>
 Vector<Type>& Vector<Type>::operator=(Vector<Type> const& vec){
-	if(!vec.m_){
-		set();
-	} else {
-		if(N_ != vec.N_){
-			if(m_){ delete[] m_;}
-			m_ = new Type[vec.N_];
-			N_ = vec.N_;
-		}
-		for(unsigned int i(0); i<N_; i++){
-			m_[i] = vec.m_[i];
-		}
+	if(N_ != vec.N_){
+		if(m_){ delete[] m_;}
+		m_ = new Type[vec.N_];
+		N_ = vec.N_;
+	}
+	for(unsigned int i(0); i<N_; i++){
+		m_[i] = vec.m_[i];
 	}
 	return (*this);
 }
@@ -178,18 +167,7 @@ template<typename Type>
 Vector<Type> Vector<Type>::operator*(Vector<Type> const& vec) const{
 	Type out(0.0);
 	for(unsigned int i(0);i<N_;i++){
-		out += m_[i] * vec.m_[i];
-	}
-	return out;
-}
-
-template<typename Type>
-Matrix<Type> Vector<Type>::operator^(Vector<Type> const& vec) const{
-	Matrix<Type> out(vec.size(),vec.size());
-	for(unsigned int i(0);i<N_;i++){
-		for(unsigned int j(0);j<N_;j++){
-			out(i,j) = m_[i] * vec.m_[j];
-		}
+			out += m_[i] * vec.m_[i];
 	}
 	return out;
 }
@@ -214,22 +192,18 @@ std::istream& operator>>(std::istream& flux, Vector<Type>& vec){
 /*methods that modify the class*/
 /*{*/
 template<>
-inline Vector<double> Vector<double>::chop(double precision) const {
-	Vector<double > tmp(*this);
+inline void Vector<double>::chop(double precision){
 	for(unsigned int i(0);i<N_;i++){
-		if(std::abs(tmp.m_[i]) < precision ){tmp.m_[i]=0.0;}
+		if(std::abs(m_[i]) < precision ){m_[i]=0.0;}
 	}
-	return tmp;
 }
 
 template<>
-inline Vector<std::complex<double> > Vector<std::complex<double> >::chop(double precision) const{
-	Vector<std::complex<double> > tmp(*this);
+inline void Vector<std::complex<double> >::chop(double precision){
 	for(unsigned int i(0);i<N_;i++){
-		if(std::abs(tmp.m_[i].imag()) < precision ){tmp.m_[i].imag(0.0);}
-		if(std::abs(tmp.m_[i].real()) < precision ){tmp.m_[i].real(0.0);}
+		if(std::abs(m_[i].imag()) < precision ){m_[i].imag(0.0);}
+		if(std::abs(m_[i].real()) < precision ){m_[i].real(0.0);}
 	}
-	return tmp;
 }
 
 template<typename Type>

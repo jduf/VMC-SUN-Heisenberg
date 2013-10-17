@@ -23,8 +23,8 @@ class YoungTableau {
 
 	private:
 		std::vector<std::vector<unsigned int> > yt;
-		std::vector<unsigned int> row;
-		std::vector<unsigned int> col;
+		std::vector<unsigned int> row_; //!< number of element in row[i]
+		std::vector<unsigned int> col_; //!< number of element in col[i]
 		unsigned int N;
 
 		YoungTableau add_box(unsigned int row,unsigned int b_index) const;

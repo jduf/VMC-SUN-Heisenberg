@@ -9,28 +9,28 @@ void Header::add(std::string const& s){
 }
 
 void Header::add(std::string const& s, double const& d){
-	rst.def(s + "=" + tostring(d), "double");
+	rst.def(s + " = " + tostring(d), "double");
 }
 
 void Header::add(std::string const& s, bool const& d){
-	if(d){rst.def(s + "=true", "bool");}
-	else{rst.def(s + "=false", "bool");}
+	if(d){rst.def(s + " = true", "bool");}
+	else{rst.def(s + " = false", "bool");}
 }
 
 void Header::add(std::string const& s, std::string const& d){
-	rst.def(s + "=" + d, "string");
+	rst.def(s + " = " + d, "string");
 }
 
 void Header::add(std::string const& s, unsigned int const& d){
-	rst.def(s + "=" + tostring(d), "unsigned int");
+	rst.def(s + " = " + tostring(d), "unsigned int");
 }
 
 void Header::add(std::string const& s, int const& d){
-	rst.def(s + "=" + tostring(d), "int");
+	rst.def(s + " = " + tostring(d), "int");
 }
 
 void Header::add(std::string const& s, std::complex<double> const& d){
-	rst.def(s + "=" + tostring(d), "complex");
+	rst.def(s + " = " + tostring(d), "complex");
 }
 
 void Header::add(std::string const& s, Matrix<int> const& mat){

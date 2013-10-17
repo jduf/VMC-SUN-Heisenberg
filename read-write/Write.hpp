@@ -2,7 +2,6 @@
 #define DEF_WRITE
 
 #include "Header.hpp"
-
 #include <fstream>
 
 //{Description
@@ -87,10 +86,10 @@ template<typename Type>//!\warning doesn't work if Type=std::string (to be check
 Write& Write::operator<<(Type const& t){
 	if(unlocked){
 		if(binary){
-			fwrite(&t, sizeof(t), 1 ,bfile);
+			fwrite(&t, sizeof(t), 1, bfile);
 			fflush(bfile);
 		} else {
-			tfile<< t<<std::flush; 
+			tfile<<t<<std::flush; 
 		}
 	} else {
 		std::cerr<<"Write : the file "<< filename<< " is locked"<<std::endl;
@@ -115,7 +114,7 @@ void Write::write_binary_matrix(Matrix<Type> const& mat){
 	unsigned int N_col(mat.col());
 	fwrite(&N_row, sizeof(N_row), 1 ,bfile);
 	fwrite(&N_col, sizeof(N_col), 1 ,bfile);
-	fwrite(mat.ptr(),sizeof(Type),mat.total(),bfile);
+	fwrite(mat.ptr(),sizeof(Type),mat.size(),bfile);
 	fflush(bfile);
 }
 

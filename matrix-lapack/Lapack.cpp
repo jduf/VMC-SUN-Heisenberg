@@ -6,17 +6,17 @@
 /*compute lu factorization : dgetrf zgetrf*/
 /*{*/
 template<>
-void Lapack<double>::getrf(Matrix<int>& ipiv){
+void Lapack<double>::getrf(Vector<int>& ipiv){
 	int info(1);
 	dgetrf_(mat->row(), mat->col(), mat->ptr(), mat->row(), ipiv.ptr(), info);
-	if(info !=0){std::cerr<<"Lapack : getrf<double> : info="<<info<<std::endl; }
+	if(info !=0){std::cerr<<"Lapack : getrf<double> : info="<<info<<std::endl;}
 }
 
 template<>
-void Lapack<std::complex<double> >::getrf(Matrix<int>& ipiv){
+void Lapack<std::complex<double> >::getrf(Vector<int>& ipiv){
 	int info(1);
 	zgetrf_(mat->row(), mat->col(), mat->ptr(), mat->row(), ipiv.ptr(), info);
-	if(info !=0){std::cerr<<"Lapack : getrf<complex> : info="<<info<<std::endl; }
+	if(info !=0){std::cerr<<"Lapack : getrf<complex> : info="<<info<<std::endl;}
 }
 /*}*/
 
@@ -28,7 +28,7 @@ void Lapack<double>::geqp3(double* tau, int* jpvt){
 	int const lwork(4*mat->col());
 	double* work(new double[lwork]);
 	
-	dgeqp3_(mat->row(), mat->col(), mat->ptr(), mat->row(), jpvt,tau, work, lwork, info);
+	dgeqp3_(mat->row(), mat->col(), mat->ptr(), mat->row(), jpvt, tau, work, lwork, info);
 	if(info !=0){std::cerr<<"Lapack : getrf<double> : info="<<info<<std::endl;}
 	delete[] work;
 }
@@ -68,7 +68,7 @@ void Lapack<std::complex<double> >::gqr(unsigned int k, double* tau){
 /*compute inverse of a matrix after using a lu decomposition : dgetri zgetri*/
 /*{*/
 template<>
-void Lapack<double>::getri(Matrix<int>& ipiv){
+void Lapack<double>::getri(Vector<int>& ipiv){
 	unsigned int N(mat->row());
 	unsigned int const lwork(3*N);
 	double* work(new double[lwork]);
@@ -79,7 +79,7 @@ void Lapack<double>::getri(Matrix<int>& ipiv){
 }
 
 template<>
-void Lapack<std::complex<double> >::getri(Matrix<int>& ipiv) {
+void Lapack<std::complex<double> >::getri(Vector<int>& ipiv) {
 	unsigned int N(mat->row());
 	unsigned int const lwork(3*N);
 	std::complex<double>* work(new std::complex<double>[lwork]);
@@ -152,9 +152,9 @@ double Lapack<std::complex<double> >::lange() {
 /*compute the eigensystem : syev heev geev*/
 /*{*/
 template<>
-void Lapack<double>::syev(Matrix<double>* EVal, char job){
+void Lapack<double>::syev(Vector<double>* EVal, char job){
 	unsigned int N(mat->row());
-	EVal->set(N,1);
+	EVal->set(N);
 	int lwork(-1);
 	double wopt;
 	int info(1);
@@ -167,14 +167,14 @@ void Lapack<double>::syev(Matrix<double>* EVal, char job){
 }
 
 template<>
-void Lapack<std::complex<double> >::syev(Matrix<double>* EVal, char job){
+void Lapack<std::complex<double> >::syev(Vector<double>* EVal, char job){
 	std::cerr<<"Lapack<double> : syev : complex symmetric not implemented"<<std::endl;
 }
 
 template<>
-void Lapack<std::complex<double> >::heev(Matrix<double>* EVal, char job){
+void Lapack<std::complex<double> >::heev(Vector<double>* EVal, char job){
 	unsigned int N(mat->row());
-	EVal->set(N,1);
+	EVal->set(N);
 	int lwork(-1);
 	std::complex<double> wopt;
 	double* rwork(new double[3*N-2]);
@@ -189,12 +189,12 @@ void Lapack<std::complex<double> >::heev(Matrix<double>* EVal, char job){
 }
 
 template<>
-void Lapack<double>::heev(Matrix<double>* EVal, char job){
+void Lapack<double>::heev(Vector<double>* EVal, char job){
 	std::cerr<<"Lapack<double> : heev : real Hermitian is not implemented"<<std::endl;
 }
 
 template<>
-void Lapack<double>::geev(Matrix<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec){
+void Lapack<double>::geev(Vector<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec){
 	std::cerr<<"Lapack : geev : understand why slower than mathematica"<<std::endl;
 	unsigned int N(mat->row());
 	double* wr(new double[N]);
@@ -210,7 +210,7 @@ void Lapack<double>::geev(Matrix<std::complex<double> >* EVal, char job, Matrix<
 	double* work(new double[lwork]);
 	dgeev_('N', job, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, work, lwork, info); 
 
-	EVal->set(N,1);
+	EVal->set(N);
 	for(unsigned int i(0);i<N;i++){
 		(*EVal)(i) = std::complex<double>(wr[i],wi[i]);
 	}
@@ -242,7 +242,7 @@ void Lapack<double>::geev(Matrix<std::complex<double> >* EVal, char job, Matrix<
 }
 
 template<>
-void Lapack<std::complex<double> >::geev(Matrix<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec){
+void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec){
 	std::cerr<<"Lapack<double> : geev : complex general is not implemented"<<std::endl;
 }
 /*}*/
