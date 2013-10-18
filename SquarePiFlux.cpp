@@ -63,11 +63,11 @@ void SquarePiFlux::save(std::string filename){
 	w("wf (wave function)",wf_);
 	w("N (N of SU(N))",N_);
 	w("m (number of unit cell)",m_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
+	w("sts (connected sites)",sts_);
+	w("EVec (unitary matrix)",EVec_);
 }
 
 	//{//csl for Vishvanath (uses majorana representation)

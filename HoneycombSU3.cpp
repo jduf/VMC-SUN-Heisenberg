@@ -339,13 +339,13 @@ void HoneycombSU4::save(std::string filename){
 	rst.title("Input values","~");
 
 	w.set_header(rst.get());
-	w("is_complex",false);
-	w("N",N_);
-	w("m",m_);
-	w("sts",sts_);
-	w("EVec",EVec_);
-	w("bc",bc_);
-	w("Ly",Ly_);
-	w("Lx",Lx_);
+	w("wf (wave function)",wf_);
+	w("N (N of SU(N))",N_);
+	w("m (number of unit cell)",m_);
+	w("bc (boundary condition)",bc_);
+	w("Lx (x-dimension)",Lx_);
+	w("Ly (y-dimension)",Ly_);
+	w("sts (connected sites)",sts_);
+	w("EVec (unitary matrix)",EVec_);
 }
 

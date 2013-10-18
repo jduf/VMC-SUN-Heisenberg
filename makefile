@@ -19,7 +19,7 @@ all:mc cs check
 mc:mc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Chrono.o 
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-mc.o:mc.cpp Parseur.hpp MonteCarlo.hpp System.hpp Read.hpp Matrix.hpp Lapack.hpp
+mc.o:mc.cpp Parseur.hpp MonteCarlo.hpp System.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
 
 Rand.o:Rand.cpp Rand.hpp
@@ -61,7 +61,7 @@ Gnuplot.o:Gnuplot.cpp Gnuplot.hpp Write.hpp RST.hpp Header.hpp Time.hpp Matrix.h
 check:check.o Read.o Header.o RST.o Write.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-check.o:check.cpp Read.hpp Matrix.hpp 
+check.o:check.cpp Read.hpp Matrix.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 	
 ########

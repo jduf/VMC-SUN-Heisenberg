@@ -1,5 +1,5 @@
 #include "Read.hpp"
-#include "Matrix.hpp"
+#include "Container.hpp"
 
 #include <string>
 #include <iostream>
@@ -16,72 +16,41 @@ int main(int argc, char* argv[]){
 void check(std::string filename){
 	Read r(filename);
 	std::cout<<r.get_header()<<std::endl;
-	unsigned int N(0),m(0);
-	double bc(0.0);
+	FileParser file(filename);
+	Container param(false);
 	std::string wf;
-	Matrix<unsigned int> sts;
-	r>>wf>>N>>m>>sts;
-	std::cout<<"sts="<<std::endl;
-	for(unsigned int i(0);i<sts.row();i++){
-		std::cout<<sts(i,0)<<" "<<sts(i,1)<<std::endl;
+	file.extract<std::string>(wf);
+	file.extract<unsigned int>("N",param);
+	file.extract<unsigned int>("m",param);
+	file.extract<double>("bc",param);
+
+	std::cout<<"wf="<<wf
+	<<" N="<<param.get<unsigned int>("N")
+	<<" m="<<param.get<unsigned int>("m")
+	<<" bc="<<param.get<double>("bc");
+	
+	if( wf != "chain" ){
+		file.extract<unsigned int>("Lx",param);
+		file.extract<unsigned int>("Ly",param);
+		std::cout<<" Lx="<<param.get<unsigned int>("Lx")
+		<<" Ly="<<param.get<unsigned int>("Ly");
+		if(wf == "mu"){
+			file.extract<double>("mu",param);
+			std::cout<<" mu="<<param.get<double>("mu");
+		}
 	}
-	if( wf == "chain" ){
-		Matrix<double> EVec;
-		r>>EVec>>bc;
-		std::cout<<"N_spin="<<N
-			<<" N_site="<<m*N
-			<<" bc="<<bc
-			<<std::endl;
+
+	file.extract<Matrix<unsigned int> >("sts",param);
+	std::cout<<std::endl<<"sts=" <<std::endl
+		<<param.get<Matrix<unsigned int> >("sts")<<std::endl;
+	if( wf != "csl"){
+		file.extract<Matrix<double> >("EVec",param);
+		std::cout<<"EVec="<<std::endl
+			<<param.get<Matrix<double> >("EVec")<<std::endl;
+	} else {
+		file.extract<Matrix<std::complex<double> > >("EVec",param);
+		std::cout<<"EVec="<<std::endl
+			<<param.get<Matrix<std::complex<double> > >("EVec")<<std::endl;
 	}
-	if( wf == "fermi" ){
-		unsigned int Lx(0),Ly(0);
-		Matrix<double> EVec;
-		r>>EVec>>bc>>Lx>>Ly;
-		std::cout<<"N_spin="<<N
-			<<" N_site="<<m*N
-			<<" Lx="<<Lx
-			<<" Ly="<<Ly
-			<<" bc="<<bc
-			<<std::endl;
-	}
-	if( wf == "mu" ){
-		unsigned int Lx(0),Ly(0);
-		double mu(0);
-		Matrix<double> EVec;
-		r>>EVec>>bc>>Lx>>Ly>>mu;
-		std::cout<<"N_spin="<<N
-			<<" N_site="<<m*N
-			<<" Lx="<<Lx
-			<<" Ly="<<Ly
-			<<" bc="<<bc
-			<<" mu="<<mu
-			<<std::endl;
-		std::cout<<EVec.chop()<<std::endl;
-	}
-	if( wf == "csl" ){
-		unsigned int Lx(0),Ly(0);
-		Matrix<std::complex<double> > EVec;
-		r>>EVec>>bc>>Lx>>Ly;
-		std::cout<<"N_spin="<<N
-			<<" N_site="<<m*N
-			<<" Lx="<<Lx
-			<<" Ly="<<Ly
-			<<" bc="<<bc
-			<<std::endl;
-	}
-	if( wf == "honeycomb" ){
-		unsigned int Lx(0),Ly(0);
-		Matrix<double> EVec;
-		r>>EVec>>bc>>Lx>>Ly;
-		std::cout<<"N_spin="<<N
-			<<" N_site="<<m*N
-			<<" Lx="<<Lx
-			<<" Ly="<<Ly
-			<<" bc="<<bc
-			<<std::endl
-			<<" U="
-			<<std::endl
-			<<EVec
-			<<std::endl;
-	}
+
 }
