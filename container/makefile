@@ -26,7 +26,7 @@ RST.o:RST.cpp RST.hpp
 Time.o:Time.cpp Time.hpp  
 	$(CXX) -c  $(CXXFLAGS) $^
 
-test.o:test.cpp Data.hpp Read.hpp Header.hpp RST.hpp Parseur.hpp Time.hpp
+test.o:test.cpp Container.hpp Read.hpp Header.hpp RST.hpp Parseur.hpp Time.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 test:test.o Read.o Header.o RST.o Parseur.o Time.o

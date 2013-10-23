@@ -9,7 +9,7 @@ LDFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp
 
 all:test
 
-test:test.o Time.o 
+test:test.o 
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 test.o:test.cpp Time.hpp 

@@ -82,16 +82,16 @@ int main(){
 	/*Matrix initialization*/
 	/*{*/
 
-	unsigned int N_site(11);
-	Matrix<double> H(N_site,N_site,0.0);
-	H(0,1)=-1.0;
-	H(0,N_site-1)=1.0;
-	for(unsigned int i(1); i< N_site-1; i++){
-		H(i,i-1) = -1.0;
-		H(i,i+1) = -1.0;
-	}
-	H(N_site-1,0)=1.0;
-	H(N_site-1,N_site-2)=-1.0;
+	//unsigned int N_site(11);
+	//Matrix<double> H(N_site,N_site,0.0);
+	//H(0,1)=-1.0;
+	//H(0,N_site-1)=1.0;
+	//for(unsigned int i(1); i< N_site-1; i++){
+		//H(i,i-1) = -1.0;
+		//H(i,i+1) = -1.0;
+	//}
+	//H(N_site-1,0)=1.0;
+	//H(N_site-1,N_site-2)=-1.0;
 	/*}*/
 
 	/*projection <ket|O|bra>*/
@@ -135,24 +135,24 @@ int main(){
 	//std::cout<<((H*v0)-(v0*EVal(0))).transpose().chop()<<std::endl;
 	///*}*/
 	/*check how eigenvectors are stored*/
-	/*{*/
-	std::cout<<"Original matrix"<<std::endl;
-	std::cout<<H<<std::endl;;
-	Matrix<double> T(H);
-	Vector<double> eval;
-	Lapack<double> ES(&T,false,'S');
-	ES.eigensystem(&eval,true);
-
-	Matrix<double> Tinv(T); // T is now the passage matrix
-	Lapack<double> Tinv_(&Tinv,false,'G'); 
-	Tinv_.inv();
-	Matrix<double> vp(Tinv*H*T);
-
-	std::cout<<"Eigenvalues"<<std::endl;
-	std::cout<<eval.chop()<<std::endl;;
-	std::cout<<"Eigenvalues using the passage matrices"<<std::endl;
-	std::cout<<vp.diag().chop()<<std::endl;
-	/*}*/
+	///*{*/
+	//std::cout<<"Original matrix"<<std::endl;
+	//std::cout<<H<<std::endl;;
+	//Matrix<double> T(H);
+	//Vector<double> eval;
+	//Lapack<double> ES(&T,false,'S');
+	//ES.eigensystem(&eval,true);
+//
+	//Matrix<double> Tinv(T); // T is now the passage matrix
+	//Lapack<double> Tinv_(&Tinv,false,'G'); 
+	//Tinv_.inv();
+	//Matrix<double> vp(Tinv*H*T);
+//
+	//std::cout<<"Eigenvalues"<<std::endl;
+	//std::cout<<eval.chop()<<std::endl;;
+	//std::cout<<"Eigenvalues using the passage matrices"<<std::endl;
+	//std::cout<<vp.diag().chop()<<std::endl;
+	///*}*/
 	///*{*/
 	//std::cout<<"Original matrix"<<std::endl;
 	//std::cout<<H<<std::endl;;
@@ -204,6 +204,26 @@ int main(){
 	//std::cout<<EVal2<<std::endl;
 	//std::cout<<-7.72113<<" "<<3.4124<<" "<<14.3087<<" (true eigenvalues)" << std::endl;
 	///*}*/
+	/*complex general matrix*/
+	/*{*/
+	Matrix<std::complex<double> > M(3,3);
+	M(0,0) = std::complex<double> (1,0); 
+	M(1,1) = std::complex<double> (4,0); 
+	M(2,2) = std::complex<double> (5,0); 
+	M(0,1) = std::complex<double> (2,3); 
+	M(1,0) = std::complex<double> (2,3); 
+	M(0,2) = std::complex<double> (10,4); 
+	M(2,0) = std::complex<double> (6,4); 
+	M(1,2) = std::complex<double> (4,1); 
+	M(2,1) = std::complex<double> (-2,6); 
+
+	Lapack<std::complex<double> > M_(&M,false,'G');
+	Matrix<std::complex<double> > EVec(3,3);
+	Vector<std::complex<double> > EVal(3);
+	M_.eigensystem(&EVal,&EVec);
+	std::cout<<"eval of a genral complex matrix"<<std::endl;;
+	std::cout<<EVal<<std::endl;
+	/*}*/
 	/*}*/
 	/*lu et det*/
 	///*{*/

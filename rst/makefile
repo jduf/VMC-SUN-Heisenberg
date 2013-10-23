@@ -11,7 +11,7 @@ LDFLAGS = -pedantic -Wall -Wextra
 
 all:test
 
-test.o:test.cpp Read.hpp Write.hpp Header.hpp Directory.hpp RST.hpp RSTfile.hpp
+test.o:test.cpp Read.hpp Write.hpp Header.hpp Directory.hpp RST.hpp RSTfile.hpp Time.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 Read.o:Read.cpp Read.hpp  Header.hpp Matrix.hpp

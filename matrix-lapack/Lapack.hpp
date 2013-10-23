@@ -45,6 +45,22 @@ extern "C" void dgeev_( /*eigensystem of a real general matrix*/
 		int const& lwork,
 		int& info
 		);
+extern "C" void zgeev_( /*eigensystem of a complex general matrix*/
+		char const& jobvl,
+		char const& jobvr,
+		unsigned int const& n,
+		std::complex<double> *m,
+		unsigned int const& ldm,
+		std::complex<double> *w,
+		std::complex<double> *vl,
+		unsigned int const& ldvl,
+		std::complex<double> *vr,
+		unsigned int const& ldvr,
+		std::complex<double> *work,
+		int const& lwork,
+		double *rwork,
+		int& info
+		);
 
 extern "C" void dgetrf_(
 		unsigned int const& row,
@@ -207,7 +223,7 @@ class Lapack{
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * eigensystem of an hermitian complex matrix*/
 		void heev(Vector<double>* EVal, char job); 
-		void geev(Vector<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec);
+		void geev(Vector<std::complex<double> >* EVal, char jobvr, Matrix<std::complex<double> >* EVec);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * norm of an general real matrix*/
 		double lange(); 
@@ -402,17 +418,17 @@ double Lapack<Type>::norm()  {
 template<typename Type>
 void Lapack<Type>::eigensystem(Vector<double>* EVal, bool compute_EVec) {
 	if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem : matrix is not square"<<std::endl;}
-	char job('N');
-	if(compute_EVec){job = 'V';}
+	char jobvr('N');
+	if(compute_EVec){jobvr = 'V';}
 	switch(matrix_type){
 		case 'S':
 			{
-				syev(EVal,job);
+				syev(EVal,jobvr);
 				break;
 			}
 		case 'H':
 			{
-				heev(EVal,job);
+				heev(EVal,jobvr);
 				break;
 			}
 		default:
@@ -427,12 +443,12 @@ void Lapack<Type>::eigensystem(Vector<double>* EVal, bool compute_EVec) {
 template<typename Type>
 void Lapack<Type>::eigensystem(Vector<std::complex<double> >* EVal, Matrix<std::complex<double> >* EVec) {
 	if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem : matrix is not square"<<std::endl;}
-	char job('N');
-	if(EVec){job = 'V';}
+	char jobvr('N');
+	if(EVec){jobvr = 'V';}
 	switch(matrix_type){
 		case 'G':
 			{
-				geev(EVal,job,EVec);
+				geev(EVal,jobvr,EVec);
 				break;
 			}
 		default:

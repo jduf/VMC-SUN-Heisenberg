@@ -194,8 +194,8 @@ void Lapack<double>::heev(Vector<double>* EVal, char job){
 }
 
 template<>
-void Lapack<double>::geev(Vector<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec){
-	std::cerr<<"Lapack : geev : understand why slower than mathematica"<<std::endl;
+void Lapack<double>::geev(Vector<std::complex<double> >* EVal, char jobvr, Matrix<std::complex<double> >* EVec){
+	std::cerr<<"Lapack : geev <double>: understand why slower than mathematica"<<std::endl;
 	unsigned int N(mat->row());
 	double* wr(new double[N]);
 	double* wi(new double[N]);
@@ -205,10 +205,11 @@ void Lapack<double>::geev(Vector<std::complex<double> >* EVal, char job, Matrix<
 	double wopt;
 	int info(1);
 
-	dgeev_('N', job, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, &wopt, lwork, info); 
+	char jobvl('N');/*don't compute the left eigenvector*/
+	dgeev_(jobvl, jobvr, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, &wopt, lwork, info); 
 	lwork = int(wopt);
 	double* work(new double[lwork]);
-	dgeev_('N', job, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, work, lwork, info); 
+	dgeev_(jobvl, jobvr, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, work, lwork, info); 
 
 	EVal->set(N);
 	for(unsigned int i(0);i<N;i++){
@@ -238,12 +239,34 @@ void Lapack<double>::geev(Vector<std::complex<double> >* EVal, char job, Matrix<
 	delete[] vr;
 	delete[] work;
 
-	if(info) { std::cerr<<"Lapack : geev : info="<<info<<std::endl; }
+	if(info) { std::cerr<<"Lapack : geev<double> : info="<<info<<std::endl; }
 }
 
 template<>
-void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >* EVal, char job, Matrix<std::complex<double> >* EVec){
-	std::cerr<<"Lapack<double> : geev : complex general is not implemented"<<std::endl;
+void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >* EVal, char jobvr, Matrix<std::complex<double> >* EVec){
+	std::cerr<<"Lapack : geev <complex>: understand why slower than mathematica"<<std::endl;
+	unsigned int N(mat->row());
+	EVal->set(N);
+	std::complex<double>* vl(NULL);
+	unsigned int ldvl(1);
+	EVec->set(N,N);
+	unsigned int ldvr(N);
+	std::complex<double>* vr(new std::complex<double>[N]);
+	std::complex<double> wopt;
+	int lwork(-1);
+	double* rwork(new double[2*N]);
+	int info(1);
+
+	char jobvl('N');/*don't compute the left eigenvector*/
+	zgeev_(jobvl, jobvr, N, mat->ptr(), N, EVal->ptr(), vl, ldvl, EVec->ptr(), ldvr, &wopt, lwork, rwork, info); 
+	lwork = int(wopt.real());
+	std::complex<double>* work(new std::complex<double>[N*N]);
+	zgeev_(jobvl, jobvr, N, mat->ptr(), N, EVal->ptr(), vl, ldvl, EVec->ptr(), ldvr, work, lwork, rwork, info); 
+
+	delete[] vr;
+	delete[] work;
+
+	if(info) { std::cerr<<"Lapack : geev<complex> : info="<<info<<std::endl; }
 }
 /*}*/
 /*}*/

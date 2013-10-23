@@ -9,12 +9,11 @@ class RSTfile:public RST{
 		RSTfile(std::string filename, std::string path="");
 		~RSTfile();
 
-		void pdf(bool c_pdf) { create_pdf=c_pdf; }
+		void pdf(bool c_pdf) { create_pdf_=c_pdf; }
 
 	private:
-		std::string path;
-		std::string filename;
-		Write w;
-		bool create_pdf;
+		std::string path_;
+		std::string filename_;
+		bool create_pdf_;
 };
 #endif
