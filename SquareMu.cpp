@@ -5,39 +5,35 @@ SquareMu::SquareMu(Parseur& P):
 	mu_(P.get<double>("mu"))
 {
 	if(!P.status()){
-		if(n_==Ly_*Lx_){
-			if(study_system_){
-				std::cerr<<"cs : SquareMu : will not create jdbin file"<<std::endl;
-				compute_T(0);
-				unsigned int color(P.get<bool>("color"));
-				compute_band_structure(color);
+		if(study_system_){
+			compute_T(0);
+			unsigned int color(P.get<bool>("color"));
+			compute_band_structure(color);
+			diagonalize_T('S');
+			study_system();
+		} else {
+			for(unsigned int color(0);color<N_;color++){
+				compute_T(color);
 				diagonalize_T('S');
-				study_system();
-			} else {
-				for(unsigned int color(0);color<N_;color++){
-					compute_T(color);
-					diagonalize_T('S');
-					for(unsigned int i(0);i<n_;i++){
-						for(unsigned int j(0);j<m_;j++){
-							EVec_(i+color*n_,j) = T_(i,j);
-						}
+				for(unsigned int i(0);i<n_;i++){
+					for(unsigned int j(0);j<m_;j++){
+						EVec_(i+color*n_,j) = T_(i,j);
 					}
 				}
-				if(successful_){
-					std::string filename("square-stripe");
-					filename += "-N" + tostring(N_);
-					filename += "-S" + tostring(n_);
-					filename += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-					if(bc_ == 1){ filename += "-P";} 
-					else { filename += "-A";}
-					filename += "-mu" + tostring(mu_);
-					save(filename);
-				} else {
-					std::cerr<<"SquareMu : degeneate"<<std::endl;
-				}
+				T_.set(n_,n_,0.0);
 			}
-		} else {
-			std::cerr<<"SquareMu : the cluster is not a square"<<std::endl;
+			if(successful_){
+				std::string filename("square-stripe");
+				filename += "-N" + tostring(N_);
+				filename += "-S" + tostring(n_);
+				filename += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+				if(bc_ == 1){ filename += "-P";} 
+				else { filename += "-A";}
+				filename += "-mu" + tostring(mu_);
+				save(filename);
+			} else {
+				std::cerr<<"SquareMu : degeneate"<<std::endl;
+			}
 		}
 	}
 }
@@ -45,7 +41,6 @@ SquareMu::SquareMu(Parseur& P):
 SquareMu::~SquareMu(){}
 
 void SquareMu::compute_T(unsigned int color){
-	T_.set(n_,n_,0.0);
 	double t(-1.0);
 	for(unsigned int i(0); i < n_; i++){
 		/*chemical potential*/
@@ -90,22 +85,20 @@ void SquareMu::compute_band_structure(unsigned int color){
 	Matrix<std::complex<double> > evec;
 	Lapack<double> ES(&TP,false,'G');
 	ES.eigensystem(&eval,&evec);
-	Vector<double> kx(n_,1);
-	Vector<double> ky(n_,1);
-	Vector<double> E(n_,1);
+	Vector<double> kx(n_);
+	Vector<double> ky(n_);
+	Vector<double> E(n_);
 	for(unsigned int i(0);i<n_;i++){
 		kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
 		ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
 		E(i) = projection(T_,evec,i,i).real();
 	}
-	std::stringstream ss;
-	ss<<color;
-	std::string s("-"+ss.str());
-	Gnuplot gp("spectrum" + s,"splot");
-	gp.save_data("spectrum" + s,kx,ky,E);
+	std::string gnuplot_filename("square-band-structure-mu-"+tostring(color));
+	Gnuplot gp(gnuplot_filename,"splot");
+	gp.save_data("spectrum",kx,ky,E);
 	gp.add_plot_param(" ,\\\n");
 	Vector<unsigned int> index(E.sort());
-	gp.save_data("spectrum-sorted" + s,kx.sort(index).range(0,m_),ky.sort(index).range(0,m_),E.range(0,m_));
+	gp.save_data("spectrum-sorted",kx.sort(index).range(0,m_),ky.sort(index).range(0,m_),E.range(0,m_));
 }
 
 void SquareMu::save(std::string filename){

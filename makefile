@@ -31,30 +31,42 @@ Chrono.o:Chrono.cpp Chrono.hpp
 ########
 # create
 ########
-cs:cs.o Chain.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o
+cs:cs.o Chain.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-cs.o:cs.cpp Parseur.hpp Chain.hpp Square.hpp Honeycomb.hpp 
+cs.o:cs.cpp Parseur.hpp Chain.hpp Square.hpp Honeycomb.hpp Triangle.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 Chain.o:Chain.cpp Chain.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-SquarePiFlux.o:SquarePiFlux.cpp SquarePiFlux.hpp Square.hpp CreateSystem.hpp Parseur.hpp
+SquarePiFlux.o:SquarePiFlux.cpp SquarePiFlux.hpp Square.hpp CreateSystem.hpp Parseur.hpp PSTricks.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 	
+SquareSU2Phiflux.o:SquareSU2PhiFlux.cpp SquareSU2PhiFlux.hpp Square.hpp CreateSystem.hpp Parseur.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
 SquareMu.o:SquareMu.cpp SquareMu.hpp Square.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 SquareFermi.o:SquareFermi.cpp SquareFermi.hpp Square.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
+TriangleFermi.o:TriangleFermi.cpp TriangleFermi.hpp Triangle.hpp CreateSystem.hpp Parseur.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
+TriangleMu.o:TriangleMu.cpp TriangleMu.hpp Triangle.hpp CreateSystem.hpp Parseur.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
 HoneycombSU4.o:HoneycombSU4.cpp HoneycombSU4.hpp Honeycomb.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 Gnuplot.o:Gnuplot.cpp Gnuplot.hpp Write.hpp RST.hpp Header.hpp Time.hpp Matrix.hpp Vector.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+	$(CXX) -c $(CXXFLAGS) $^
 	
+PSTricks.o:PSTricks.cpp PSTricks.hpp Write.hpp Linux.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
 #######
 # check
 #######

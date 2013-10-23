@@ -23,8 +23,8 @@ class Square: public CreateSystem<Type>{
 template<typename Type>
 Square<Type>::Square(Parseur& P):
 	CreateSystem<Type>(P,4),
-	Lx_(floor(sqrt(this->n_))),
-	Ly_(floor(sqrt(this->n_)))
+	Lx_(std::floor(std::sqrt(this->n_))),
+	Ly_(std::floor(std::sqrt(this->n_)))
 {
 	this->bc_= P.get<double>("bc");
 	if(!P.status()){
@@ -45,10 +45,10 @@ void Square<Type>::compute_H(){
 	for(unsigned int i(0); i < this->n_; i++){
 		/*horizontal hopping*/
 		if( (i+1) % Lx_ ){ this->H_(i,i+1) = 1;}	
-		else { this->H_(i+1-Lx_,i) = 1;}
+		else { this->H_(i+1-Lx_,i) = -1;}
 		/*vertical hopping*/
 		if( i+Lx_ < this->n_ ){  this->H_(i,i+Lx_) = 1; } 
-		else { this->H_(i-(Ly_-1)*Lx_,i) = 1;}
+		else { this->H_(i-(Ly_-1)*Lx_,i) = -2;}
 	}
 	this->H_ += this->H_.transpose();
 }

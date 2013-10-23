@@ -1,10 +1,16 @@
 /*!  @file cs.cpp */
 
 #include "Chain.hpp"
-#include "SquarePiFlux.hpp"
-#include "SquareMu.hpp"
+
 #include "SquareFermi.hpp"
+#include "SquareMu.hpp"
+#include "SquarePiFlux.hpp"
+#include "SquareSU2PhiFlux.hpp"
+
 #include "HoneycombSU4.hpp"
+
+#include "TriangleFermi.hpp"
+#include "TriangleMu.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
@@ -23,6 +29,15 @@ int main(int argc, char* argv[]){
 	}
 	if( wf == "honeycomb" ){
 		HoneycombSU4 h(P);
+	}
+	if( wf == "phi" ){
+		SquareSU2PhiFlux s(P);
+	}
+	if(wf == "triangle" ){
+		TriangleFermi s(P);
+	}
+	if(wf == "trianglemu" ){
+		TriangleMu s(P);
 	}
 }
 

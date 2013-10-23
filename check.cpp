@@ -33,8 +33,8 @@ void check(std::string filename){
 		file.extract<unsigned int>("Lx",param);
 		file.extract<unsigned int>("Ly",param);
 		std::cout<<" Lx="<<param.get<unsigned int>("Lx")
-		<<" Ly="<<param.get<unsigned int>("Ly");
-		if(wf == "mu"){
+			<<" Ly="<<param.get<unsigned int>("Ly");
+		if(wf == "mu" || wf == "trianglemu"){
 			file.extract<double>("mu",param);
 			std::cout<<" mu="<<param.get<double>("mu");
 		}

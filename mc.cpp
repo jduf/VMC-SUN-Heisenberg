@@ -36,21 +36,26 @@ int main(int argc, char* argv[]){
 		if( wf != "chain" ){
 			file.extract<unsigned int>("Lx",param);
 			file.extract<unsigned int>("Ly",param);
-			if(wf == "mu"){
+			if(wf == "mu" || wf == "trianglemu"){
 				file.extract<double>("mu",param);
+			}
+			if(wf == "phi"){
+				file.extract<double>("phi",param);
 			}
 		}
 
 		Write results(filename+".dat");
 		file.extract<Matrix<unsigned int> >("sts",input);
-		if( wf != "csl"){
+		if( wf != "csl" && wf != "phi"){
 			MonteCarlo<double> sim(filename,nthreads);
 			file.extract<Matrix<double> >("EVec",input);
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.init(input,omp_get_thread_num());
 				sim.run(omp_get_thread_num());
-				save(param,sim.save(omp_get_thread_num()),results);
+			}
+			for(unsigned int thread(0); thread<nthreads; thread++){
+				save(param,sim.save(thread),results);
 			}
 		} else {
 			MonteCarlo<std::complex<double> > sim(filename,nthreads);
@@ -59,7 +64,9 @@ int main(int argc, char* argv[]){
 			{
 				sim.init(input,omp_get_thread_num());
 				sim.run(omp_get_thread_num());
-				save(param,sim.save(omp_get_thread_num()),results);
+			}
+			for(unsigned int thread(0); thread<nthreads; thread++){
+				save(param,sim.save(thread),results);
 			}
 		}
 		
@@ -67,7 +74,6 @@ int main(int argc, char* argv[]){
 		fprintf(stderr,"main : ./mc -sim filename.jdbin -nthreads n\n");
 	}
 }
-
 
 void save(Container const& param, Container const& output, Write& w){
 	w<<"%";

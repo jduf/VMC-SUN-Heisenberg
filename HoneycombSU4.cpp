@@ -86,6 +86,11 @@ void HoneycombSU4::compute_T(){
 	T_ += T_.transpose();
 }
 
+void HoneycombSU4::compute_P(){
+	Px_.set(n_,n_,0.0);
+	Py_.set(n_,n_,0.0);
+}
+
 void HoneycombSU4::save(std::string filename){
 	Write w(filename+".jdbin");
 	RST rst;

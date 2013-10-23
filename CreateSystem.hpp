@@ -36,7 +36,7 @@ class CreateSystem{
 		/*!compute the array of pairs of swapping sites*/
 		void compute_sts();
 		/*!Evaluate the value of an operator O as <bra|O|ket>*/
-		std::complex<double> projection(Matrix<double> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket);
+		std::complex<double> projection(Matrix<Type> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket);
 };
 
 template<typename Type>
@@ -83,7 +83,7 @@ void CreateSystem<Type>::diagonalize_T(char mat_type){
 }
 
 template<typename Type>
-std::complex<double> CreateSystem<Type>::projection(Matrix<double> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket){
+std::complex<double> CreateSystem<Type>::projection(Matrix<Type> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket){
 	Vector<std::complex<double> > tmp(n_,0.0);
 	std::complex<double> out(0.0);
 	for(unsigned int i(0);i<n_;i++){

@@ -10,7 +10,10 @@ class Honeycomb: public CreateSystem<Type>{
 		~Honeycomb();
 
 	protected:
-		unsigned int Ly_, Lx_;
+		unsigned int Lx_;//!< dimension of the lattice along x-axis
+		unsigned int Ly_;//!< dimension of the lattice along y-axis
+		Matrix<Type> Px_;//!< translation operator along x-axis 
+		Matrix<Type> Py_;//!< translation operator along y-axis 
 
 		void compute_H();
 };
@@ -18,8 +21,8 @@ class Honeycomb: public CreateSystem<Type>{
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Parseur& P):
 	CreateSystem<Type>(P,3),
-	Ly_(floor(sqrt(this->m_))),
-	Lx_(floor(sqrt(this->m_)))
+	Lx_(floor(sqrt(this->m_))),
+	Ly_(floor(sqrt(this->m_)))
 {
 	this->bc_= P.get<double>("bc");
 	if(!P.status()){

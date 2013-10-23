@@ -4,38 +4,34 @@ SquareFermi::SquareFermi(Parseur& P):
 	Square<double>(P)
 {
 	if(!P.status()){
-		if(n_==Ly_*Lx_){
-			if(study_system_){
-				std::cerr<<"cs : SquareMu : will not create jdbin file"<<std::endl;
-				compute_T();
-				compute_band_structure();
-				diagonalize_T('S');
-				study_system();
-			} else {
-				compute_T();
-				diagonalize_T('S');
+		if(study_system_){
+			std::cerr<<"cs : SquareFermi : will not create jdbin file"<<std::endl;
+			compute_T();
+			compute_band_structure();
+			diagonalize_T('S');
+			study_system();
+		} else {
+			compute_T();
+			diagonalize_T('S');
 
-				for(unsigned int spin(0);spin<N_;spin++){
-					for(unsigned int i(0);i<n_;i++){
-						for(unsigned int j(0);j<m_;j++){
-							EVec_(i+spin*n_,j) = T_(i,j);
-						}
+			for(unsigned int spin(0);spin<N_;spin++){
+				for(unsigned int i(0);i<n_;i++){
+					for(unsigned int j(0);j<m_;j++){
+						EVec_(i+spin*n_,j) = T_(i,j);
 					}
 				}
-				if(successful_){
-					std::string filename("square-fermi");
-					filename += "-N" + tostring(N_);
-					filename += "-S" + tostring(n_);
-					filename += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-					if(bc_ == 1){ filename += "-P";} 
-					else { filename += "-A";}
-					save(filename);
-				} else {
-					std::cerr<<"SquareFermi : degeneate"<<std::endl;
-				}
 			}
-		} else {
-			std::cerr<<"SquareFermi : the cluster is not a square"<<std::endl;
+			if(successful_){
+				std::string filename("square-fermi");
+				filename += "-N" + tostring(N_);
+				filename += "-S" + tostring(n_);
+				filename += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+				if(bc_ == 1){ filename += "-P";} 
+				else { filename += "-A";}
+				save(filename);
+			} else {
+				std::cerr<<"SquareFermi : degeneate"<<std::endl;
+			}
 		}
 	}
 }
@@ -43,7 +39,6 @@ SquareFermi::SquareFermi(Parseur& P):
 SquareFermi::~SquareFermi(){}
 
 void SquareFermi::compute_T(){
-	T_.set(n_,n_,0.0);
 	double t(-1.0);
 	for(unsigned int i(0); i < n_; i++){
 		/*horizontal hopping*/
