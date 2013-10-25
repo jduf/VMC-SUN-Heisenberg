@@ -38,12 +38,16 @@ void check(std::string filename){
 			file.extract<double>("mu",param);
 			std::cout<<" mu="<<param.get<double>("mu");
 		}
+		if(wf == "phi" || wf == "trianglephi"){
+			file.extract<double>("phi",param);
+			std::cout<<" phi="<<param.get<double>("phi");
+		}
 	}
 
 	file.extract<Matrix<unsigned int> >("sts",param);
 	std::cout<<std::endl<<"sts=" <<std::endl
 		<<param.get<Matrix<unsigned int> >("sts")<<std::endl;
-	if( wf != "csl"){
+	if( wf != "csl" && wf != "phi" && wf != "trianglephi"){
 		file.extract<Matrix<double> >("EVec",param);
 		std::cout<<"EVec="<<std::endl
 			<<param.get<Matrix<double> >("EVec")<<std::endl;

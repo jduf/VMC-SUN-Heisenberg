@@ -11,13 +11,12 @@ class SquareMu: public Square<double>{
 	protected:
 		double mu_;
 
-		/*! \image html stripe-order-brillouin.png*/
-		void compute_T(unsigned int spin);
-		void compute_P();
-		void compute_band_structure(unsigned int spin);
+		void compute_T(unsigned int alpha);
+		void save();
 
-		void save(std::string filename);
-		void show(Matrix<double> const& T,unsigned int spin);
+		void compute_P();
+		void lattice();
+		void band_structure();
 };
 #endif
 

@@ -1,14 +1,14 @@
 #include "SquareSU2PhiFlux.hpp"
 
 SquareSU2PhiFlux::SquareSU2PhiFlux(Parseur& P):
-	Square<std::complex<double> >(P),
+	Square<std::complex<double> >(P,"square-phi-flux"),
 	phi_(M_PI*P.get<double>("phi"))
 {
-	if(!P.status()){
+	if(!P.status() && N_ == 2){
 		if(study_system_){
 			compute_T();
-			compute_band_structure();
-			show_bound();
+			band_structure();
+			lattice();
 		} else {
 			compute_T();
 			diagonalize_T('H');
@@ -20,19 +20,20 @@ SquareSU2PhiFlux::SquareSU2PhiFlux(Parseur& P):
 				}
 			}
 			if(successful_){
-				std::string filename("square-phi-flux");
-				filename += "-N" + tostring(N_);
-				filename += "-S" + tostring(n_);
-				filename += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-				if(bc_ == 1){ filename += "-P";} 
-				else { filename += "-A";}
-				filename += "-phi+" + tostring(P.get<double>("phi"));
+				filename_ += "-N" + tostring(N_);
+				filename_ += "-S" + tostring(n_);
+				filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+				if(bc_ == 1){ filename_ += "-P";} 
+				else { filename_ += "-A";}
+				filename_ += "-phi+" + tostring(P.get<double>("phi"));
 
-				save(filename);
+				save();
 			} else {
 				std::cerr<<"SquareSU2PhiFlux : degeneate"<<std::endl;
 			}
 		}
+	} else {
+		std::cerr<<"SquareSU2PhiFlux : this wavefunction is appropriate for N=2"<<std::endl;
 	}
 }
 
@@ -57,6 +58,25 @@ void SquareSU2PhiFlux::compute_T(){
 	T_ += T_.trans_conj(); 
 }
 
+void SquareSU2PhiFlux::save(){
+	Write w(filename_+".jdbin");
+	RST rst;
+	rst.text("new test with +- phi flux per plaquette");
+	rst.np();
+	rst.title("Input values","~");
+
+	w.set_header(rst.get());
+	w("wf (wave function)",wf_);
+	w("N (N of SU(N))",N_);
+	w("m (m=n/N)",m_);
+	w("bc (boundary condition)",bc_);
+	w("Lx (x-dimension)",Lx_);
+	w("Ly (y-dimension)",Ly_);
+	w("phi/pi (phi-flux)",phi_/M_PI);
+	w("sts (connected sites)",sts_);
+	w("EVec (unitary matrix)",EVec_);
+}
+
 void SquareSU2PhiFlux::compute_P(){
 	Px_.set(n_,n_,0.0);
 	Py_.set(n_,n_,0.0);
@@ -75,8 +95,8 @@ void SquareSU2PhiFlux::compute_P(){
 	}
 }
 
-void SquareSU2PhiFlux::compute_band_structure(){
-	compute_P();	
+void SquareSU2PhiFlux::band_structure(){
+	compute_P();
 
 	//std::cout<<T_*Px_-Px_*T_<<std::endl;
 	//std::cout<<T_*Py_-Py_*T_<<std::endl;
@@ -94,24 +114,18 @@ void SquareSU2PhiFlux::compute_band_structure(){
 		ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
 		E(i) = projection(T_,evec,i,i).real();
 	}
-	std::string gnuplot_filename("square-band-structure-phi-flux");
-	Gnuplot gp(gnuplot_filename,"splot");
-	gp.save_data("spectrum",kx,ky,E);
-	gp.add_plot_param(" ,\\\n");
-	Vector<unsigned int> index(E.sort());
-	gp.save_data("spectrum-sorted",kx.sort(index).range(0,m_),ky.sort(index).range(0,m_),E.range(0,m_));
+	save_band_structure(kx,ky,E);
 }
 
-void SquareSU2PhiFlux::show_bound(){
-	PSTricks ps("square-lattice-phi-flux");
-	ps.add("\\begin{pspicture}(-5,-5)(5,5)%square-lattice-phi-flux");
+void SquareSU2PhiFlux::lattice(){
+	PSTricks ps(filename_+"-lattice");
+	ps.add("\\begin{pspicture}l(15,15)%"+filename_+"-lattice");
 	double prop(0.0);
 	std::string color("");
 	for(unsigned int i(0);i<sts_.row();i++){
-		prop = std::abs(T_(sts_(i,0),sts_(i,1)).imag())*7;
+		prop = round(std::abs(T_(sts_(i,0),sts_(i,1)).imag())*7,7);
 		if(std::abs(prop)<1e-14){ color = "blue";}
 		else{color = "green";}
-		std::cout<<prop<<std::endl;
 		switch(H_(sts_(i,0),sts_(i,1))){
 			case 1:
 				{
@@ -138,26 +152,22 @@ void SquareSU2PhiFlux::show_bound(){
 		ps.put(i%Lx_,i/Ly_,"\\tiny{"+tostring(i)+"}");
 	}
 	
+	Vector<double> ada(n_,0);
+	diagonalize_T('H');
+
+	double r(0.2);
+	Vector<double> tmp(2);
+	double max(occupation_number(ada));
+	for(unsigned int i(0);i<n_;i++){
+		tmp(0) = round(ada(i),7);
+		tmp(1) = round((max-ada(i))/max,7);
+		ps.add("\\rput("+tostring(i%Lx_)+","+tostring(i/Ly_)+"){%");
+		ps.pie(tmp,r,"chartColor=color,userColor={blue,white}");
+		ps.add("}");
+		ps.put(i%Lx_+r*0.5, i/Ly_+r*1.2, "\\tiny{"+tostring(i)+"}");
+	}
+
 	ps.frame(-0.5,-0.5,Lx_-0.5,Ly_-0.5,"linecolor=red");
+	ps.frame(-0.5,-0.5,1.5,0.5,"linecolor=red,linestyle=dashed");
 	ps.add("\\end{pspicture}");
 }
-
-void SquareSU2PhiFlux::save(std::string filename){
-	Write w(filename+".jdbin");
-	RST rst;
-	rst.text("new test with +- phi flux per plaquette");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("wf (wave function)",wf_);
-	w("N (N of SU(N))",N_);
-	w("m (number of unit cell)",m_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
-	w("phi/pi (phi-flux)",phi_/M_PI);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
-}
-

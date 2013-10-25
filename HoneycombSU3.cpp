@@ -1,9 +1,9 @@
 #include "HoneycombSU4.hpp"
 
 HoneycombSU4::HoneycombSU4(Parseur& P):
-	Honeycomb<double>(P)
+	Honeycomb<double>(P,"honeycomb")
 {
-	if(!P.status()){
+	if(!P.status() || N_ != 3){
 		if(m_==Ly_*Lx_){
 			compute_T();
 			
@@ -16,13 +16,12 @@ HoneycombSU4::HoneycombSU4(Parseur& P):
 				}
 			}
 			if(successful_){
-				std::string filename("honeycomb");
-				filename +="-N" + tostring(N_);
-				filename +="-S" + tostring(n_);
-				filename += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
-				if(bc_ == 1){ filename += "-P";} 
-				else { filename += "-A";}
-				save(filename);
+				filename_ +="-N" + tostring(N_);
+				filename_ +="-S" + tostring(n_);
+				filename_ += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
+				if(bc_ == 1){ filename_ += "-P";} 
+				else { filename_ += "-A";}
+				save();
 			} else {
 				if(bc_ == 1){
 					std::cerr<<"HoneycombSU4 : degeneate for PBC"<<std::endl;
@@ -330,8 +329,8 @@ void HoneycombSU4::compute_T(){
 	T_ += T_.transpose();
 }
 
-void HoneycombSU4::save(std::string filename){
-	Write w(filename+".jdbin");
+void HoneycombSU4::save(){
+	Write w(filename_+".jdbin");
 	std::cerr<<"detail what kind of honeycomb it is"<<std::endl;
 	RST rst;
 	rst.text("HoneycombSU4 ");

@@ -2,9 +2,6 @@
 #define DEF_SQUARESU2PHIFLUX
 
 #include "Square.hpp"
-#include "PSTricks.hpp"
-
-#include <complex>
 
 class SquareSU2PhiFlux: public Square<std::complex<double> >{
 	public:
@@ -13,11 +10,13 @@ class SquareSU2PhiFlux: public Square<std::complex<double> >{
 
 	protected:
 		double const phi_;
+
 		void compute_T();
+		void save();
+
 		void compute_P();
-		void compute_band_structure();
-		void show_bound();
-		void save(std::string filename);
+		void band_structure();
+		void lattice();
 };
 #endif
 

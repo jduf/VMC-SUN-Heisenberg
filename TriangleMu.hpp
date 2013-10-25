@@ -10,9 +10,13 @@ class TriangleMu: public Triangle<double>{
 
 	protected:
 		double mu_;
-		
-		void compute_T(unsigned int spin);
-		void save(std::string filename);
+
+		void compute_T(unsigned int alpha);
+		void save();
+
+		void compute_P();
+		void lattice();
+		void band_structure();
 };
 #endif
 

@@ -1,19 +1,17 @@
 #include "SquareFermi.hpp"
 
 SquareFermi::SquareFermi(Parseur& P):
-	Square<double>(P)
+	Square<double>(P,"square-fermi")
 {
 	if(!P.status()){
 		if(study_system_){
-			std::cerr<<"cs : SquareFermi : will not create jdbin file"<<std::endl;
 			compute_T();
-			compute_band_structure();
-			diagonalize_T('S');
-			study_system();
+			compute_P();
+			band_structure();
+			lattice();
 		} else {
 			compute_T();
 			diagonalize_T('S');
-
 			for(unsigned int spin(0);spin<N_;spin++){
 				for(unsigned int i(0);i<n_;i++){
 					for(unsigned int j(0);j<m_;j++){
@@ -22,13 +20,12 @@ SquareFermi::SquareFermi(Parseur& P):
 				}
 			}
 			if(successful_){
-				std::string filename("square-fermi");
-				filename += "-N" + tostring(N_);
-				filename += "-S" + tostring(n_);
-				filename += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-				if(bc_ == 1){ filename += "-P";} 
-				else { filename += "-A";}
-				save(filename);
+				filename_ += "-N" + tostring(N_);
+				filename_ += "-S" + tostring(n_);
+				filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+				if(bc_ == 1){ filename_ += "-P";} 
+				else { filename_ += "-A";}
+				save();
 			} else {
 				std::cerr<<"SquareFermi : degeneate"<<std::endl;
 			}
@@ -51,6 +48,24 @@ void SquareFermi::compute_T(){
 	T_ += T_.transpose();
 }
 
+void SquareFermi::save(){
+	Write w(filename_+".jdbin");
+	RST rst;
+	rst.text("fermi : all colors experience the same Hamiltonian");
+	rst.np();
+	rst.title("Input values","~");
+
+	w.set_header(rst.get());
+	w("wf (wave function)",wf_);
+	w("N (N of SU(N))",N_);
+	w("m (m=n/N)",m_);
+	w("bc (boundary condition)",bc_);
+	w("Lx (x-dimension)",Lx_);
+	w("Ly (y-dimension)",Ly_);
+	w("sts (connected sites)",sts_);
+	w("EVec (unitary matrix)",EVec_);
+}
+
 void SquareFermi::compute_P(){
 	Px_.set(n_,n_,0.0);
 	Py_.set(n_,n_,0.0);
@@ -64,13 +79,10 @@ void SquareFermi::compute_P(){
 	}
 }
 
-void SquareFermi::compute_band_structure(){
-	compute_P();
-	
+void SquareFermi::band_structure(){
 	//std::cout<<T_*Px_-Px_*T_<<std::endl;
 	//std::cout<<T_*Py_-Py_*T_<<std::endl;
-	//std::cout<<Px_<<std::endl;
-	
+
 	Matrix<double> TP(T_+3.*Px_+7.*Py_);
 	Vector<std::complex<double> > eval;
 	Matrix<std::complex<double> > evec;
@@ -84,27 +96,54 @@ void SquareFermi::compute_band_structure(){
 		ky(i) = log(projection(Py_,evec,i,i)).imag();
 		E(i) = projection(T_,evec,i,i).real();
 	}
-	Gnuplot gp("spectrum","splot");
-	gp.save_data("spectrum",kx,ky,E);
-	gp.add_plot_param(" ,\\\n");
-	Vector<unsigned int> index(E.sort());
-	gp.save_data("spectrum-sorted",kx.sort(index).range(0,m_),ky.sort(index).range(0,m_),E.range(0,m_));
+	save_band_structure(kx,ky,E);
 }
 
-void SquareFermi::save(std::string filename){
-	Write w(filename+".jdbin");
-	RST rst;
-	rst.text("fermi : all colors experience the same Hamiltonian");
-	rst.np();
-	rst.title("Input values","~");
+void SquareFermi::lattice(){
+	PSTricks ps(filename_+"-lattice");
+	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
+	std::string color("black");
+	double prop(1);
+	for(unsigned int i(0);i<sts_.row();i++){
+		switch(H_(sts_(i,0),sts_(i,1))){
+			case 1:
+				{
+					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
+					break;
+				}			
+			case -1:
+				{
+					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_,-1, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor=yellow");
+					break;
+				}
+			case -2:
+				{
+					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, -1, "linewidth="+tostring(prop)+"pt,linecolor=green");
+					break;
+				}
+			default:
+				{
+					std::cerr<<"une conditon au bord n'est pas correctement définie"<<std::endl;
+				}
+		}
+	}
 
-	w.set_header(rst.get());
-	w("wf (wave function)",wf_);
-	w("N (N of SU(N))",N_);
-	w("m (number of unit cell)",m_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
+	diagonalize_T('S');
+
+	double r(0.2);
+	Vector<double> ada(n_,0);
+	double max(occupation_number(ada));
+	Vector<double> tmp(2);
+	for(unsigned int i(0);i<n_;i++){
+		tmp(0) = round(ada(i),7);
+		tmp(1) = round((max-ada(i))/max,7);
+		ps.add("\\rput("+tostring(i%Lx_)+","+tostring(i/Ly_)+"){%");
+		ps.pie(tmp,r,"chartColor=color,userColor={blue,white}");
+		ps.add("}");
+		ps.put(i%Lx_+r*0.5, i/Ly_+r*1.2, "\\tiny{"+tostring(i)+"}");
+	}
+
+	ps.frame(-0.5,-0.5,Lx_-0.5,Ly_-0.5,"linecolor=red");
+	ps.frame(-0.5,-0.5,0.5,0.5,"linecolor=red,linestyle=dashed");
+	ps.add("\\end{pspicture}");
 }

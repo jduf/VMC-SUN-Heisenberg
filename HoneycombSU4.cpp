@@ -1,7 +1,7 @@
 #include "HoneycombSU4.hpp"
 
 HoneycombSU4::HoneycombSU4(Parseur& P):
-	Honeycomb<double>(P)
+	Honeycomb<double>(P,"honeycomb-pi-flux")
 {
 	if(!P.status() || N_ != 4){
 		if(m_==Ly_*Lx_){
@@ -16,13 +16,12 @@ HoneycombSU4::HoneycombSU4(Parseur& P):
 				}
 			}
 			if(successful_){
-				std::string filename("honeycomb");
-				filename +="-N" + tostring(N_);
-				filename +="-S" + tostring(n_);
-				filename += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
-				if(bc_ == 1){ filename += "-P";} 
-				else { filename += "-A";}
-				save(filename);
+				filename_ +="-N" + tostring(N_);
+				filename_ +="-S" + tostring(n_);
+				filename_ += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
+				if(bc_ == 1){ filename_ += "-P";} 
+				else { filename_ += "-A";}
+				save();
 			} else {
 				if(bc_ == 1){
 					std::cerr<<"HoneycombSU4 : degeneate for PBC"<<std::endl;
@@ -91,8 +90,8 @@ void HoneycombSU4::compute_P(){
 	Py_.set(n_,n_,0.0);
 }
 
-void HoneycombSU4::save(std::string filename){
-	Write w(filename+".jdbin");
+void HoneycombSU4::save(){
+	Write w(filename_+".jdbin");
 	RST rst;
 	rst.title("SU(4) Honeycomb lattice","~");
 	rst.item("pi-flux configuration");
@@ -104,7 +103,7 @@ void HoneycombSU4::save(std::string filename){
 	w.set_header(rst.get());
 	w("wf (wave function)",wf_);
 	w("N (N of SU(N))",N_);
-	w("m (number of unit cell)",m_);
+	w("m (m=n/N)",m_);
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);

@@ -1,7 +1,7 @@
 #include "SquarePiFlux.hpp"
 
 SquarePiFlux::SquarePiFlux(Parseur& P):
-	Square<std::complex<double> >(P)
+	Square<std::complex<double> >(P,"square-csl")
 {
 	if(!P.status()){
 		if(n_==Ly_*Lx_){
@@ -16,13 +16,12 @@ SquarePiFlux::SquarePiFlux(Parseur& P):
 				}
 			}
 			if(successful_){
-				std::string filename("square-piflux");
-				filename += "-N" + tostring(N_);
-				filename += "-S" + tostring(n_);
-				filename += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-				if(bc_ == 1){ filename += "-P";} 
-				else { filename += "-A";}
-				save(filename);
+				filename_ += "-N" + tostring(N_);
+				filename_ += "-S" + tostring(n_);
+				filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+				if(bc_ == 1){ filename_ += "-P";} 
+				else { filename_ += "-A";}
+				save();
 			} else {
 				std::cerr<<"SquarePiFlux : degeneate"<<std::endl;
 			}
@@ -52,8 +51,8 @@ void SquarePiFlux::compute_T(){
 	T_ += T_.trans_conj(); 
 }
 
-void SquarePiFlux::save(std::string filename){
-	Write w(filename+".jdbin");
+void SquarePiFlux::save(){
+	Write w(filename_+".jdbin");
 	RST rst;
 	rst.text("Chiral spin liquid, with 2pi/N flux per plaquette");
 	rst.np();
@@ -62,7 +61,7 @@ void SquarePiFlux::save(std::string filename){
 	w.set_header(rst.get());
 	w("wf (wave function)",wf_);
 	w("N (N of SU(N))",N_);
-	w("m (number of unit cell)",m_);
+	w("m (m=n/N)",m_);
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);

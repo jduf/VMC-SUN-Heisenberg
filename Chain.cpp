@@ -1,7 +1,7 @@
 #include"Chain.hpp"
 
 Chain::Chain(Parseur& P):
-	CreateSystem<double>(P,2),
+	CreateSystem<double>(P,2,"chain"),
 	Px_(n_,n_)
 {
 	if(!P.status()){
@@ -72,11 +72,11 @@ void Chain::compute_band_structure(){
 		k(i) = log(projection(Px_,evec,i,i)).imag();
 		E(i) = projection(T_,evec,i,i).real();
 	}
-	Gnuplot gp("spectrum","1D");
-	gp.save_data("spectrum",k,E);
+	Gnuplot gp(filename_+"-band-structure","plot");
+	gp.save_data(filename_+"-spectrum",k,E);
 	gp.add_plot_param(" ,\\\n");
 	Vector<unsigned int> index(E.sort());
-	gp.save_data("spectrum-sorted",k.sort(index).range(0,m_),E.range(0,m_));
+	gp.save_data(filename_+"-spectrum-sorted",k.sort(index).range(0,m_),E.range(0,m_));
 }
 
 void Chain::save(std::string filename){
@@ -89,7 +89,7 @@ void Chain::save(std::string filename){
 	w.set_header(rst.get());
 	w("wf (wave function)",wf_);
 	w("N (N of SU(N))",N_);
-	w("m (number of unit cell)",m_);
+	w("m (m=n/N)",m_);
 	w("bc (boundary condition)",bc_);
 	w("sts (connected sites)",sts_);
 	w("EVec (unitary matrix)",EVec_);

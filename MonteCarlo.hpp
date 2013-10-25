@@ -3,7 +3,7 @@
 
 #include "System.hpp"
 #include "Write.hpp"
-#include "Chrono.hpp"
+#include "Time.hpp"
 
 #include <vector>
 
@@ -23,7 +23,7 @@ class MonteCarlo{
 	public:
 		/*!Allocate memory with new[] and starts the chronometer*/
 		MonteCarlo(std::string filename, unsigned int const& nthreads); 
-		/*!Free allocated memory with delete[] and stops the chronometer*/
+		/*!Free allocated memory with delete[]*/
 		~MonteCarlo();
 
 		//{Public methods, core of the Monte-Carlo simulation
@@ -66,9 +66,9 @@ class MonteCarlo{
 	
 		unsigned int const nthreads; //!< Number of independant chains that are lunched
 		unsigned int const N_MC; //!< Number of measure to do before doing a binning analysis
-		unsigned int const time_limit; //!< Time limit in second
+		unsigned int t_max; //!< Time limit in second, by default 5min
 		bool keep_measuring; //!< True if the code runs
-		Chrono stop; //!< To stop the simulation after time_limit seconds
+		Time stop; //!< To stop the simulation after time_limit seconds
 		Write output; //!< Text file of name "filename-MC.out" that stores all the output of the MC algorithm
 		System<Type>* S; //!< Pointer to a system 
 		double* E; //!< Value that the MC algorithm tries to compute
@@ -83,17 +83,15 @@ template<typename Type>
 MonteCarlo<Type>::MonteCarlo(std::string filename, unsigned int const& nthreads):
 	nthreads(nthreads),
 	N_MC(1e4),
-	time_limit(nthreads*20*3600),
+	t_max(5*60),
 	keep_measuring(true),
-	output(filename+"-MC.out"),
+	output(filename+".out"),
 	S(new System<Type>[nthreads]),
 	E(new double[nthreads]),
 	err(new double[nthreads]),
 	sampling(new std::vector<double>[nthreads]),
 	status(new unsigned int[nthreads])
-{
-	stop.tic();
-}
+{ }
 
 template<typename Type>
 MonteCarlo<Type>::~MonteCarlo(){
@@ -101,7 +99,6 @@ MonteCarlo<Type>::~MonteCarlo(){
 	delete[] sampling;
 	delete[] E;
 	delete[] err;
-	stop.tac();
 }
 /*}*/
 
@@ -109,6 +106,7 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*{*/
 template<typename Type>
 void MonteCarlo<Type>::init(Container const& input, unsigned int const& thread) {
+	t_max = input.get<unsigned int>("t_max");
 	status[thread] = S[thread].init(input,thread);
 	if(status[thread]){
 		std::cerr<<"thermalization "<<std::flush;
@@ -196,7 +194,7 @@ void MonteCarlo<Type>::test_convergence(unsigned int const& thread){
 		sampling[thread].clear();
 		std::cerr<<"the simulation is restarted, bad initial condition"<<std::endl;
 	}  else {
-		if(keep_measuring && stop.time_limit_reached(time_limit)){
+		if(keep_measuring && stop.time_limit_reached(t_max)){
 			keep_measuring = false;
 			status[thread] = 3;
 			std::cerr<<"the simulation was stopped because it reached the time limit"<<std::endl;

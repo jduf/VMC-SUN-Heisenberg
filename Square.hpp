@@ -2,11 +2,12 @@
 #define DEF_SQUARE
 
 #include "CreateSystem.hpp"
+#include "PSTricks.hpp"
 
 template<typename Type>
 class Square: public CreateSystem<Type>{
 	public:
-		Square(Parseur& P);
+		Square(Parseur& P, std::string filename);
 		~Square();
 
 	protected:
@@ -16,13 +17,12 @@ class Square: public CreateSystem<Type>{
 		Matrix<Type> Py_;//!< translation operator along y-axis 
 
 		void compute_H();
-		void study_system();
-		void save(std::string filename);
+		double occupation_number(Vector<double>& ni);
 };
 
 template<typename Type>
-Square<Type>::Square(Parseur& P):
-	CreateSystem<Type>(P,4),
+Square<Type>::Square(Parseur& P, std::string filename):
+	CreateSystem<Type>(P,4,filename),
 	Lx_(std::floor(std::sqrt(this->n_))),
 	Ly_(std::floor(std::sqrt(this->n_)))
 {
@@ -54,40 +54,16 @@ void Square<Type>::compute_H(){
 }
 
 template<typename Type>
-void Square<Type>::study_system(){
-	Matrix<double> ad_ia_i(Lx_,Ly_,0);
-
-	for(unsigned int i(0);i<Ly_;i++){
-		for(unsigned int j(0);j<Lx_;j++){
-			for(unsigned int k(0);k<this->m_;k++){
-				ad_ia_i(i,j) += norm_squared(this->T_(i+j*Lx_,k));
-			}
-		}
-	}
-	double max(0.);
-	double min(0.);
-	for(unsigned int i(0);i<Ly_;i++){
-		for(unsigned int j(0);j<Lx_;j++){
-			if(ad_ia_i(i,j) > max){ max = ad_ia_i(i,j); }
-			if(ad_ia_i(i,j) < min){ min = ad_ia_i(i,j); }
-		}
-	}
-	ad_ia_i -= min;
-	ad_ia_i /= max;
-
-	Vector<double> xy(Lx_);
+double Square<Type>::occupation_number(Vector<double>& ni){
+	double max(0);
 	for(unsigned int i(0);i<Lx_;i++){
-		xy(i) = i;
+		for(unsigned int j(0);j<Ly_;j++){
+			for(unsigned int k(0);k<this->m_;k++){
+				ni(i+j*Lx_) += norm_squared(this->T_(i+j*Lx_,k));
+			}
+			if(ni(i+j*Lx_) > max){max = ni(i+j*Lx_);}
+		}
 	}
-	Gnuplot gp("AA","plot");
-	gp.preplot("set cbrange [0:1]");
-	gp.preplot("unset border");
-	gp.preplot("unset xtics");
-	gp.preplot("unset ytics");
-	gp.preplot("unset key");
-	gp.preplot("set size square");
-	gp.save_data("surf",xy,xy,ad_ia_i);
-	gp.add_plot_param("w image\n");
+	return max;
 }
 #endif
-

@@ -15,9 +15,12 @@ int main(int argc, char* argv[]){
 		Container input;
 		Container param(true);
 		std::string wf;
-		unsigned int m(0),N(0),nthreads(1);
+		unsigned int m(0),N(0),nthreads(1), t_max;
 
 		P.set("nthreads",nthreads);
+		P.set("t_max",t_max);
+
+		Write results(filename+".dat");
 
 		FileParser file(filename);
 		file.extract<std::string>(wf);
@@ -27,6 +30,7 @@ int main(int argc, char* argv[]){
 		input.set("N",N);
 		input.set("m",m);
 		input.set("n",N*m);
+		input.set("t_max",t_max);
 
 		param.set("N",N);
 		param.set("m",m);
@@ -39,14 +43,13 @@ int main(int argc, char* argv[]){
 			if(wf == "mu" || wf == "trianglemu"){
 				file.extract<double>("mu",param);
 			}
-			if(wf == "phi"){
+			if(wf == "phi" || wf == "trianglephi"){
 				file.extract<double>("phi",param);
 			}
 		}
-
-		Write results(filename+".dat");
 		file.extract<Matrix<unsigned int> >("sts",input);
-		if( wf != "csl" && wf != "phi"){
+
+		if( wf != "csl" && wf != "phi" && wf != "trianglephi"){
 			MonteCarlo<double> sim(filename,nthreads);
 			file.extract<Matrix<double> >("EVec",input);
 #pragma omp parallel num_threads(nthreads)
@@ -58,6 +61,7 @@ int main(int argc, char* argv[]){
 				save(param,sim.save(thread),results);
 			}
 		} else {
+			std::cout<<"complex"<<std::endl;
 			MonteCarlo<std::complex<double> > sim(filename,nthreads);
 			file.extract<Matrix<std::complex<double> > >("EVec",input);
 #pragma omp parallel num_threads(nthreads)

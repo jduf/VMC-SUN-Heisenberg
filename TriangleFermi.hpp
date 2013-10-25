@@ -10,9 +10,10 @@ class TriangleFermi: public Triangle<double>{
 
 	protected:
 		void compute_T();
+		void save();
 
-		void save(std::string filename);
+		void compute_P();
+		void lattice();
+		void band_structure();
 };
 #endif
-
-

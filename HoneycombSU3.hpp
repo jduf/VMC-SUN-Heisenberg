@@ -10,7 +10,7 @@ class HoneycombSU4: public Honeycomb<double>{
 
 	protected:
 		void compute_T();
-		void save(std::string filename);
+		void save();
 };
 #endif
 

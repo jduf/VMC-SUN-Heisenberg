@@ -11,6 +11,7 @@
 
 #include "TriangleFermi.hpp"
 #include "TriangleMu.hpp"
+#include "TrianglePhi.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
@@ -38,6 +39,9 @@ int main(int argc, char* argv[]){
 	}
 	if(wf == "trianglemu" ){
 		TriangleMu s(P);
+	}
+	if(wf == "trianglephi" ){
+		TrianglePhi s(P);
 	}
 }
 

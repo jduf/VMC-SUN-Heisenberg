@@ -6,7 +6,7 @@
 template<typename Type>
 class Honeycomb: public CreateSystem<Type>{
 	public:
-		Honeycomb(Parseur& P);
+		Honeycomb(Parseur& P, std::string filename);
 		~Honeycomb();
 
 	protected:
@@ -19,8 +19,8 @@ class Honeycomb: public CreateSystem<Type>{
 };
 
 template<typename Type>
-Honeycomb<Type>::Honeycomb(Parseur& P):
-	CreateSystem<Type>(P,3),
+Honeycomb<Type>::Honeycomb(Parseur& P, std::string filename):
+	CreateSystem<Type>(P,3,filename),
 	Lx_(floor(sqrt(this->m_))),
 	Ly_(floor(sqrt(this->m_)))
 {
