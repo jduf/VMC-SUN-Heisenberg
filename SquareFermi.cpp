@@ -4,7 +4,7 @@ SquareFermi::SquareFermi(Parseur& P):
 	Square<double>(P,"square-fermi")
 {
 	if(!P.status()){
-		if(study_system_){
+		if(P.get<bool>("study")){
 			compute_T();
 			compute_P();
 			band_structure();

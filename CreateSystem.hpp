@@ -16,6 +16,7 @@ class CreateSystem{
 	public:
 		/*!Parseur needs N and m, z is the coordination number*/
 		CreateSystem(Parseur& P, unsigned int z, std::string filename); 
+		/*Simple destructor*/
 		~CreateSystem();
 
 	protected:
@@ -29,7 +30,6 @@ class CreateSystem{
 		Matrix<Type> T_;			//!< Gutzwiller Hamiltonian
 		Matrix<Type> EVec_;			//!< eigenvectors Matrix (transfer Matrix)
 		bool successful_;			//!< no degeneracy at the fermi level
-		bool study_system_;			//!<  
 		std::string filename_;
 
 		/*!compute the eigenvectors from the mean field Hamiltonian*/
@@ -54,11 +54,8 @@ CreateSystem<Type>::CreateSystem(Parseur& P, unsigned int z, std::string filenam
 	T_(n_,n_,0.0),
 	EVec_(N_*n_,m_),
 	successful_(false),
-	study_system_(false),
 	filename_(filename)
-{
-	P.set("study",study_system_);
-}
+{ }
 
 template<typename Type>
 CreateSystem<Type>::~CreateSystem(){ }
@@ -104,7 +101,6 @@ std::complex<double> CreateSystem<Type>::projection(Matrix<Type> const& O, Matri
 template<typename Type>
 void CreateSystem<Type>::save_band_structure(Vector<double> kx, Vector<double> ky, Vector<double> E){
 	Gnuplot gp(filename_+"-band-structure","splot");
-
 	gp.save_data(filename_+"-spectrum",kx,ky,E);
 	gp.add_plot_param(" ,\\\n");
 	Vector<unsigned int> index(E.sort());

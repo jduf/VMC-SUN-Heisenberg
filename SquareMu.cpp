@@ -4,7 +4,7 @@ SquareMu::SquareMu(Parseur& P):
 	Square<double>(P,"square-mu"),
 	mu_(P.get<double>("mu"))
 {
-	if(study_system_){
+	if(P.get<bool>("study")){
 		unsigned int alpha(P.get<unsigned int>("alpha"));
 		if(!P.status()){
 			if(alpha<N_){

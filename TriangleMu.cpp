@@ -4,7 +4,7 @@ TriangleMu::TriangleMu(Parseur& P):
 	Triangle<double>(P,"triangle-mu"),
 	mu_(P.get<double>("mu"))
 {
-	if(study_system_){
+	if(P.get<bool>("study")){
 		unsigned int alpha(P.get<unsigned int>("alpha"));
 		if(!P.status()){
 			if(alpha<N_){
@@ -141,11 +141,56 @@ void TriangleMu::band_structure(){
 	Vector<double> E(n_);
 	for(unsigned int i(0);i<n_;i++){
 		kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
-		ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
+		ky(i) = log(projection(Py_,evec,i,i)).imag()+kx(i);
 		E(i) = projection(T_,evec,i,i).real();
 	}
 	save_band_structure(kx,ky,E);
 }
+//void TriangleMu::band_structure(){
+	////std::cout<<T_*Px_-Px_*T_<<std::endl;
+	////std::cout<<T_*Py_-Py_*T_<<std::endl;
+//
+	//Matrix<double> TP(T_+3.*Px_+7.*Py_);
+	//Vector<std::complex<double> > eval;
+	//Matrix<std::complex<double> > evec;
+	//Lapack<double> ES(&TP,false,'G');
+	//ES.eigensystem(&eval,&evec);
+	//Vector<double> kx(n_);
+	//Vector<double> ky(n_);
+	//Vector<double> E(n_);
+	//double kx_m(M_PI/N_-M_PI/(N_*Lx_));
+	//double ky_m(M_PI-M_PI/Ly_);
+	//for(unsigned int i(0);i<n_;i++){
+		//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
+		//ky(i) = log(projection(Py_,evec,i,i)).imag();
+		//E(i) = projection(T_,evec,i,i).real();
+		//if(kx(i)>kx_m){
+			//kx(i) = -kx(i);
+		//}
+		//if(ky(i)>ky_m){
+			//ky(i) = -ky(i);
+		//}
+	//}
+	//save_band_structure(kx,ky,E);
+//
+	//Gnuplot gp(filename_+"-band-structure","splot");
+	////gp.preplot("set view 0,0");
+	//gp.preplot("set xlabel '$k_x$'");
+	//gp.preplot("set ylabel '$k_y$'");
+//
+	//gp.preplot("set table 'test'");
+	//gp.preplot("set dgrid3d "+tostring(Lx_)+","+tostring(Ly_/N_));
+	//gp.preplot("splot '"+filename_+"-spectrum-sorted'");
+//
+	//gp.preplot("unset dgrid3d");
+	//gp.preplot("unset table");
+	//
+	//gp.save_data(filename_+"-spectrum",kx,ky,E);
+	//gp.add_plot_param("t '' ,\\\n");
+	//Vector<unsigned int> index(E.sort());
+	//gp.save_data(filename_+"-spectrum-sorted",kx.sort(index).range(0,m_),ky.sort(index).range(0,m_),E.range(0,m_));
+	//gp.add_plot_param("w p ps 2 pt 7 t '', 'test' w l");
+//}
 
 void TriangleMu::lattice(){
 	PSTricks ps(filename_+"-lattice");
@@ -210,5 +255,3 @@ void TriangleMu::lattice(){
 	ps.frame(-0.5,-0.5,N_-0.5,0.5,"linecolor=red,linestyle=dashed");
 	ps.add("\\end{pspicture}");
 }
-
-

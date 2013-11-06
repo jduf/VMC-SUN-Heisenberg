@@ -4,7 +4,7 @@ TriangleFermi::TriangleFermi(Parseur& P):
 	Triangle<double>(P,"triangle-fermi")
 {
 	if(!P.status()){
-		if(study_system_){
+		if(P.get<bool>("study")){
 			compute_T();
 			compute_P();
 			band_structure();

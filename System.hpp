@@ -11,15 +11,16 @@ class System{
 	public:
 		/*!create a System without any parameters set*/
 		System();
-		/*!delete all the variables dynamically allocated with new*/
+		/*!delete all the variables dynamically allocated*/
 		~System();
 
 		//{Description
 		/*! This method creates the system in function of the input parameters.
 		 *
-		 * - sets N, n, sts, m and set tmp to the correct size 
-		 * - allocates memory for s, A and Ainv
-		 * - sets a different random number generator for each thread
+		 * - for each thread the system is independantly initialized
+		 * - sets N, m, n, sts and set tmp to the correct size 
+		 * - allocates memory Ainv
+		 * - initialize the random number generator
 		 * - creates an random initial state and computes its related matrices
 		 */
 		//}
@@ -32,18 +33,19 @@ class System{
 		/*!Computes the ratio of the two determinants related to the current
 		 * and next configuration
 		 *
-		 * - when one matrix is modified, two of its columns are exchanged and
-		 *   therefore a minus sign arises 
-		 * - when two different color are exchanged, one computes the ratio
-		 *   using the determinant lemma
+		 * - when particle of the same color are exchanged, only one matrix is
+		 *   modified, two of its columns are exchanged and therefore a minus
+		 *   sign arises 
+		 * - when two different colors are exchanged, computes the ratio using
+		 *   the determinant lemma
 		 */
 		//}
 		Type ratio();
 		//{Description
 		/*!Updates the state if the condition given by the System::ratio()
-		 * method is acolorepted. The update consists of :
+		 * method is accepted. The update consists of :
 		 *
-		 * - computes the new Ainv and A matrices
+		 * - computes the Ainv matrices
 		 * - updates the configuration : s
 		 */
 		//}
@@ -55,7 +57,7 @@ class System{
 		void measure(double& E_config);
 		void print();
 
-		unsigned int N_;//!< number of different spin colors
+		unsigned int N_;//!< number of different colors
 		unsigned int n_;//!< number of lattice site
 		unsigned int m_;//!< number of each color
 
@@ -72,12 +74,12 @@ class System{
 		Type w[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b> ; W=(w11,0,0,w22)
 		Type d;					//!< Det(W)
 
-		unsigned int color[2];
-		unsigned int row[2];
-		unsigned int new_ev[2];
-		unsigned int new_s[2];
-		Matrix<unsigned int> ev;
-		Matrix<unsigned int> s;
+		unsigned int color[2];	//!< colors of the exchanged sites
+		unsigned int row[2];	//!< rows of the Ainv matrix that are modified (the rows of the related A matrix are modified)
+		unsigned int new_ev[2]; //!< new selected rows of the EVec matrix
+		unsigned int new_s[2];	//!< sites that are exchanged
+		Matrix<unsigned int> ev;//!< ev(color,row)=index of the row to select in EVec 
+		Matrix<unsigned int> s;	//!< on the i site : s(i,0)=color, s(i,1)=row
 		Matrix<unsigned int> sts;//!< sts(i,0) is a site that can be exchanged with sts(i,1)
 };
 
@@ -124,7 +126,7 @@ unsigned int System<Type>::init(Container const& input, unsigned int thread){
 	unsigned int N_as(n_);
 	unsigned int site(0);
 	unsigned int* available(new unsigned int[n_]);
-	Vector<int> P;
+	Vector<int> ipiv;
 	unsigned int l(0);
 	unsigned int TRY_MAX(100);
 	double rcn(0.0);
@@ -134,29 +136,29 @@ unsigned int System<Type>::init(Container const& input, unsigned int thread){
 			available[i] = i;
 		}
 
-		for(unsigned int spin(0); spin < N_; spin++){
+		for(unsigned int color(0); color < N_; color++){
 			for(unsigned int i(0); i < m_; i++){
 				site = rnd->get(N_as);
-				ev(spin,i) = spin*n_+available[site];
-				s(available[site],0) = spin;
+				ev(color,i) = color*n_+available[site];
+				s(available[site],0) = color;
 				s(available[site],1) = i;
 				for(unsigned int j(0); j < m_; j++){
-					Ainv[spin](i,j) = EVec(ev(spin,i),j);
+					Ainv[color](i,j) = EVec(ev(color,i),j);
 				}
 				for(unsigned int j(site); j+1 < N_as; j++){
 					available[j] = available[j+1];
 				}
 				N_as--;
 			}
-			Lapack<Type> inv(&Ainv[spin],false,'G');
-			P = inv.is_singular(rcn);
-			if(!P.ptr()){
-				spin = N_;
+			Lapack<Type> inv(&Ainv[color],false,'G');
+			ipiv = inv.is_singular(rcn);
+			if(!ipiv.ptr()){
+				color = N_;
 			} else {
-				inv.inv(P);
+				inv.inv(ipiv);
 			}
 		}
-	} while (!P.ptr() && ++l<TRY_MAX);
+	} while (!ipiv.ptr() && ++l<TRY_MAX);
 
 	delete[] available;
 
@@ -231,6 +233,7 @@ Type System<Type>::ratio(){
 			}
 		}
 		d=w[0]*w[1];
+		/*will simply need to multiply d by the jastrow*/
 		if( std::abs(d) < 1e-10 ){ return 0.0; }
 		else { return d; }
 	}
@@ -249,19 +252,19 @@ void System<Type>::measure(double& E_config){
 template<typename Type>
 void System<Type>::print(){
 	std::cout<<"=========================="<<std::endl;
-	for(unsigned int spin(0);spin<N_;spin++){
+	for(unsigned int color(0);color<N_;color++){
 		Matrix<Type> A(m_,m_);
 		for(unsigned int i(0);i<m_;i++){
 			for(unsigned int j(0);j<m_;j++){
-				A(i,j) = EVec(ev(spin,i),j);
+				A(i,j) = EVec(ev(color,i),j);
 			}
 		}
-		std::cout<<(A*Ainv[spin]).diag().chop()<<std::endl;
+		std::cout<<(A*Ainv[color]).diag().chop()<<std::endl;
 	}
 	std::cout<<"EVec"<<std::endl;
-	for(unsigned int spin(0);spin<N_;spin++){
+	for(unsigned int color(0);color<N_;color++){
 		for(unsigned int i(0); i<m_; i++){
-			std::cout<<ev(spin,i)<<" ";
+			std::cout<<ev(color,i)<<" ";
 		}
 		std::cout<<std::endl;
 	}

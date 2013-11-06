@@ -3,7 +3,6 @@
 #include "Parseur.hpp"
 #include "MonteCarlo.hpp"
 
-
 #include<omp.h>
 
 void save(Container const& param, Container const& output, Write& w);
@@ -15,10 +14,9 @@ int main(int argc, char* argv[]){
 		Container input;
 		Container param(true);
 		std::string wf;
-		unsigned int m(0),N(0),nthreads(1), t_max;
+		unsigned int m(0),N(0),nthreads(1);
 
-		P.set("nthreads",nthreads);
-		P.set("t_max",t_max);
+		P.get("nthreads",nthreads);
 
 		Write results(filename+".dat");
 
@@ -30,7 +28,9 @@ int main(int argc, char* argv[]){
 		input.set("N",N);
 		input.set("m",m);
 		input.set("n",N*m);
-		input.set("t_max",t_max);
+		if(P.check("t_max")){
+			input.set("t_max",P.get<unsigned int>("t_max"));
+		}
 
 		param.set("N",N);
 		param.set("m",m);
@@ -61,7 +61,6 @@ int main(int argc, char* argv[]){
 				save(param,sim.save(thread),results);
 			}
 		} else {
-			std::cout<<"complex"<<std::endl;
 			MonteCarlo<std::complex<double> > sim(filename,nthreads);
 			file.extract<Matrix<std::complex<double> > >("EVec",input);
 #pragma omp parallel num_threads(nthreads)

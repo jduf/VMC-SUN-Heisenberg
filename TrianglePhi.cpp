@@ -4,11 +4,13 @@ TrianglePhi::TrianglePhi(Parseur& P):
 	Triangle<std::complex<double> >(P,"triangle-phi"),
 	phi_(P.get<double>("phi"))
 {
-	if(!P.status()){
-		if(study_system_){
+	if(P.get<bool>("study")){
+		if(!P.status()){
 			compute_T();
 			compute_band_structure();
-		} else {
+		}
+	} else {
+		if(!P.status()){
 			compute_T();
 			diagonalize_T('H');
 			for(unsigned int color(0);color<N_;color++){

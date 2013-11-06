@@ -5,7 +5,7 @@ SquareSU2PhiFlux::SquareSU2PhiFlux(Parseur& P):
 	phi_(M_PI*P.get<double>("phi"))
 {
 	if(!P.status() && N_ == 2){
-		if(study_system_){
+		if(P.get<bool>("study")){
 			compute_T();
 			band_structure();
 			lattice();

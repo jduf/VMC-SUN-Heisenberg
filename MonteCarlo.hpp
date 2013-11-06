@@ -106,7 +106,7 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*{*/
 template<typename Type>
 void MonteCarlo<Type>::init(Container const& input, unsigned int const& thread) {
-	t_max = input.get<unsigned int>("t_max");
+	input.get("t_max",t_max);
 	status[thread] = S[thread].init(input,thread);
 	if(status[thread]){
 		std::cerr<<"thermalization "<<std::flush;
