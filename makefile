@@ -18,7 +18,7 @@ all:mc cs check
 mc:mc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o 
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-mc.o:mc.cpp Parseur.hpp MonteCarlo.hpp System.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp
+mc.o:mc.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
 
 Rand.o:Rand.cpp Rand.hpp
@@ -27,7 +27,7 @@ Rand.o:Rand.cpp Rand.hpp
 ########
 # create
 ########
-cs:cs.o Chain.o SquareSU2AF.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o
+cs:cs.o Chain.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 cs.o:cs.cpp Parseur.hpp Chain.hpp Square.hpp Honeycomb.hpp Triangle.hpp
@@ -42,7 +42,7 @@ SquarePiFlux.o:SquarePiFlux.cpp SquarePiFlux.hpp Square.hpp CreateSystem.hpp Par
 SquareSU2Phiflux.o:SquareSU2PhiFlux.cpp SquareSU2PhiFlux.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-SquareSU2AF.o:SquareSU2AF.cpp SquareSU2AF.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
+SquareJastrow.o:SquareJastrow.cpp SquareJastrow.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 SquareMu.o:SquareMu.cpp SquareMu.hpp Square.hpp CreateSystem.hpp Parseur.hpp  Gnuplot.hpp Lapack.hpp PSTricks.hpp

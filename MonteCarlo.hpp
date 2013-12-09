@@ -1,7 +1,8 @@
 #ifndef DEF_MONTECARLO
 #define DEF_MONTECARLO
 
-#include "System.hpp"
+#include "SystemBosonic.hpp"
+#include "SystemFermionic.hpp"
 #include "Write.hpp"
 #include "Time.hpp"
 
@@ -22,7 +23,7 @@ template <typename Type>
 class MonteCarlo{
 	public:
 		/*!Allocate memory with new[] and starts the chronometer*/
-		MonteCarlo(std::string filename, unsigned int const& nthreads); 
+		MonteCarlo(std::string filename, unsigned int const& nthreads, bool type); 
 		/*!Free allocated memory with delete[]*/
 		~MonteCarlo();
 
@@ -80,18 +81,20 @@ class MonteCarlo{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-MonteCarlo<Type>::MonteCarlo(std::string filename, unsigned int const& nthreads):
+MonteCarlo<Type>::MonteCarlo(std::string filename, unsigned int const& nthreads, bool type):
 	nthreads(nthreads),
 	N_MC(1e4),
 	t_max(5*60),
 	keep_measuring(true),
 	output(filename+".out"),
-	S(new System<Type>[nthreads]),
 	E(new double[nthreads]),
 	err(new double[nthreads]),
 	sampling(new std::vector<double>[nthreads]),
 	status(new unsigned int[nthreads])
-{ }
+{
+	if(type){ S=new SystemFermionic<Type>[nthreads]; }
+	else { S=new SystemBosonic<Type>[nthreads];}
+}
 
 template<typename Type>
 MonteCarlo<Type>::~MonteCarlo(){
@@ -109,11 +112,14 @@ void MonteCarlo<Type>::init(Container const& input, unsigned int const& thread) 
 	input.get("t_max",t_max);
 	status[thread] = S[thread].init(input,thread);
 	if(status[thread]){
-		std::cerr<<"thermalization "<<std::flush;
+		std::cerr<<"thermalization (has been changed)"<<std::flush;
 		unsigned int i(0);
+		double ratio(0.0);
+		Rand rnd(1e4,thread);
 		while( i<1e5 ){
 			S[thread].swap();
-			if( std::abs(S[thread].ratio())>1e-10 ){
+			ratio = norm_squared(S[thread].ratio());
+			if( ratio > rnd.get()){
 				i++;
 				S[thread].update();
 			}
@@ -129,20 +135,18 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 		double E_config(0);
 		double ratio(0.0);
 		Rand rnd(1e4,thread);
-		bool bin(true);
+		bool bin(false);
+		std::cerr<<"there is maybe a problem, for the first iterations, if the new state is rejected, I add a  0 contribution to the energy..."<<std::endl;
 		if(bin){
 			do{
 				S[thread].swap();
 				ratio = norm_squared(S[thread].ratio());
-				if( ratio > 1.0 || rnd.get() < ratio ){
+				if( ratio > 1.0 || ratio > rnd.get() ){
 					S[thread].update();
 					S[thread].measure(E_config);
-					E[thread] += E_config;
-					sampling[thread].push_back(E_config);
-				} else {
-					E[thread] += E_config;
-					sampling[thread].push_back(E_config);
 				}
+				E[thread] += E_config;
+				sampling[thread].push_back(E_config);
 				i++;
 				if(i >= N_MC) {
 					i=0;
@@ -154,21 +158,30 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 				}
 			} while(keep_measuring);
 		} else {
-			double a(0.0);
+			Vector<unsigned int> lattice(S[thread].n_,0); 
 			do{
 				S[thread].swap();
 				ratio = norm_squared(S[thread].ratio());
-				a = rnd.get();
-				i++;
-				if(ratio>1 || a <ratio){
+				if( ratio > rnd.get() ){
 					S[thread].update();
 					S[thread].measure(E_config);
-					E[thread] += E_config;
-					sampling[thread].push_back(E_config);
-				} else {
-					E[thread] += E_config;
 				}
-			} while(i<1e4); 
+				E[thread] += E_config;
+				sampling[thread].push_back(E_config);
+				i++;
+				/*to check the color organization*/
+				//for(unsigned int i(0);i<S[thread].n_;i++){ lattice(i) += S[thread].s(i,0); }
+			} while(i<1e5); 
+			//for(unsigned int i(0);i<int(sqrt(S[thread].n_));i++){
+				//for(unsigned int j(0);j<int(sqrt(S[thread].n_));j++){
+					//std::cout<<lattice(i+j*int(sqrt(S[thread].n_)))*1.0/1e5<<" ";
+				//}
+				//std::cout<<std::endl;
+			//}
+			//std::cout<<std::endl;
+			//for(unsigned int i(0);i<sampling[thread].size();i++){
+			//std::cout<<i<<" "<<sampling[thread][i]<<std::endl;
+			//}
 		}
 		test_convergence(thread);
 	}

@@ -6,7 +6,7 @@
 #include "SquareMu.hpp"
 #include "SquarePiFlux.hpp"
 #include "SquareSU2PhiFlux.hpp"
-#include "SquareSU2AF.hpp"
+#include "SquareJastrow.hpp"
 
 #include "HoneycombSU4.hpp"
 
@@ -35,8 +35,8 @@ int main(int argc, char* argv[]){
 	if( wf == "phi" ){
 		SquareSU2PhiFlux s(P);
 	}
-	if( wf == "AF" ){
-		SquareSU2AF s(P);
+	if( wf == "jastrow" ){
+		SquareJastrow s(P);
 	}
 	if(wf == "triangle" ){
 		TriangleFermi s(P);

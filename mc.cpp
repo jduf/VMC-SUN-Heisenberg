@@ -18,8 +18,6 @@ int main(int argc, char* argv[]){
 
 		P.get("nthreads",nthreads);
 
-		Write results(filename+".dat");
-
 		FileParser file(filename);
 		file.extract<std::string>(wf);
 		file.extract<unsigned int>(N);
@@ -28,13 +26,19 @@ int main(int argc, char* argv[]){
 		input.set("N",N);
 		input.set("m",m);
 		input.set("n",N*m);
+
 		if(P.check("t_max")){
 			input.set("t_max",P.get<unsigned int>("t_max"));
 		}
 
+		Write results(filename+".dat");
+
+
 		param.set("N",N);
 		param.set("m",m);
 		param.set("n",N*m);
+
+		bool fermionic(true);
 
 		file.extract<double>("bc",param);
 		if( wf != "chain" ){
@@ -46,12 +50,19 @@ int main(int argc, char* argv[]){
 			if(wf == "phi" || wf == "trianglephi"){
 				file.extract<double>("phi",param);
 			}
+			if( wf == "jastrow"){ 
+				file.extract<double>("nu",input);
+				fermionic=false;
+			}
 		}
 		file.extract<Matrix<unsigned int> >("sts",input);
 
 		if( wf != "csl" && wf != "phi" && wf != "trianglephi"){
-			MonteCarlo<double> sim(filename,nthreads);
-			file.extract<Matrix<double> >("EVec",input);
+			MonteCarlo<double> sim(filename,nthreads,fermionic);
+			if(fermionic){
+				file.extract<Matrix<double> >("EVec",input);
+				std::cout<<"pas ok"<<std::endl;
+			}
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.init(input,omp_get_thread_num());
@@ -61,7 +72,7 @@ int main(int argc, char* argv[]){
 				save(param,sim.save(thread),results);
 			}
 		} else {
-			MonteCarlo<std::complex<double> > sim(filename,nthreads);
+			MonteCarlo<std::complex<double> > sim(filename,nthreads,fermionic);
 			file.extract<Matrix<std::complex<double> > >("EVec",input);
 #pragma omp parallel num_threads(nthreads)
 			{
@@ -72,7 +83,6 @@ int main(int argc, char* argv[]){
 				save(param,sim.save(thread),results);
 			}
 		}
-		
 	} else {
 		fprintf(stderr,"main : ./mc -sim filename.jdbin -nthreads n\n");
 	}

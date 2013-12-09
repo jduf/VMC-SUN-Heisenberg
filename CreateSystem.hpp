@@ -85,15 +85,15 @@ void CreateSystem<Type>::diagonalize_T(char mat_type){
 
 template<typename Type>
 std::complex<double> CreateSystem<Type>::projection(Matrix<Type> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket){
-	Vector<std::complex<double> > tmp(n_,0.0);
+	Vector<std::complex<double> > tmp(O.row(),0.0);
 	std::complex<double> out(0.0);
-	for(unsigned int i(0);i<n_;i++){
-		for(unsigned int j(0);j<n_;j++){
+	for(unsigned int i(0);i<O.row();i++){
+		for(unsigned int j(0);j<O.col();j++){
 			tmp(i) += O(i,j)*base(j,ket);
 		}
 	}
-	for(unsigned int i(0);i<n_;i++){
-		out += tmp(i)*std::conj(base(i,bra));
+	for(unsigned int i(0);i<O.row();i++){
+		out += std::conj(base(i,bra))*tmp(i);
 	}
 	return out;
 }
