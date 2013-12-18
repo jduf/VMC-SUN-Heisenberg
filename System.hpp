@@ -11,46 +11,35 @@ class System{
 	public:
 		/*!create a System without any parameters set*/
 		System();
+
 		/*!delete all the variables dynamically allocated*/
 		virtual ~System();
 
 		//{Description
-		/*! This method creates the system in function of the input parameters.
+		/*! Creates the system in function of the input parameters.
 		 *
 		 * - for each thread the system is independantly initialized
 		 * - sets N, m, n, sts_ and set tmp to the correct size 
 		 * - allocates memory Ainv_
 		 * - initialize the random number generator
-		 * - creates an random initial state and computes its related matrices
-		 */
-		//}
+		 */ //}
 		virtual unsigned int init(Container const& input, unsigned int thread);
-		/*!exchanges two particles of different color */
+
+		/*!Exchanges two particles of different color */
 		virtual void swap();
-		/*!exchanges particle on site s1 with the one on site s2*/
+
+		/*!Exchanges particle on site s1 with the one on site s2*/
 		virtual void swap(unsigned int const& s0, unsigned int const& s1);
-		//{Description
-		/*!Computes the ratio of the two determinants related to the current
-		 * and next configuration
-		 *
-		 * - when particle of the same color are exchanged, only one matrix is
-		 *   modified, two of its columns are exchanged and therefore a minus
-		 *   sign arises 
-		 * - when two different colors are exchanged, computes the ratio using
-		 *   the determinant lemma
-		 */
-		//}
+
+		/*!Virtual method that is called by MonteCarlo */
 		virtual Type ratio()=0;
+
 		//{Description
-		/*!Updates the state if the condition given by the System::ratio()
-		 * method is accepted. The update consists of :
-		 *
-		 * - computes the Ainv_ matrices
-		 * - updates the configuration : s
-		 */
-		//}
-		
+		/*!Updates the configuration s_ if the condition given by the
+		 * System::ratio() method is accepted.
+		 */ //}
 		virtual void update();
+
 		//{Description
 		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
 		 * permutation */
@@ -89,7 +78,7 @@ System<Type>::System():
 
 template<typename Type>
 System<Type>::~System(){
-	if(rnd){ delete rnd;}
+	if(rnd){delete rnd;}
 }
 /*}*/
 
@@ -97,13 +86,14 @@ System<Type>::~System(){
 /*{*/
 template<typename Type>
 unsigned int System<Type>::init(Container const& input, unsigned int thread){
+	
 	N_ = input.get<unsigned int>("N");
 	m_ = input.get<unsigned int>("m");
 	n_ = input.get<unsigned int>("n");
 	sts_ = input.get<Matrix<unsigned int> >("sts");
+	s_.set(n_,2);
 
 	rnd = new Rand(100,thread);
-	s_.set(n_,2);
 
 	return 1;
 }
@@ -144,7 +134,8 @@ void System<Type>::measure(double& E_config){
 		swap(sts_(i,0),sts_(i,1));
 		/*!the minus sign is required because ∑<P_ij> is positive and this is
 		 * what is actually computed*/
-		E_config -= real(ratio());
+		/*not sur that this argument is correct so I removed the -1*/
+		E_config += real(ratio());
 	}
 }
 /*}*/

@@ -50,18 +50,23 @@ int main(int argc, char* argv[]){
 			if(wf == "phi" || wf == "trianglephi"){
 				file.extract<double>("phi",param);
 			}
-			if( wf == "jastrow"){ 
-				file.extract<double>("nu",input);
+			if( wf == "jastrow" || wf == "trianglejastrow" ){ 
+				double nu(0.0);
+				file.extract<double>(nu);
+				file.extract<Matrix<unsigned int> >("nn",input);
+				file.extract<Vector<unsigned int> >("sl",input);
+				file.extract<Matrix<std::complex<double> > >("omega",input);
 				fermionic=false;
+				input.set("nu",nu);
+				param.set("nu",nu);
 			}
 		}
 		file.extract<Matrix<unsigned int> >("sts",input);
 
-		if( wf != "csl" && wf != "phi" && wf != "trianglephi"){
+		if( wf != "csl" && wf != "phi" && wf != "trianglephi" && wf != "jastrow" && wf != "trianglejastrow"){
 			MonteCarlo<double> sim(filename,nthreads,fermionic);
 			if(fermionic){
 				file.extract<Matrix<double> >("EVec",input);
-				std::cout<<"pas ok"<<std::endl;
 			}
 #pragma omp parallel num_threads(nthreads)
 			{
@@ -72,8 +77,11 @@ int main(int argc, char* argv[]){
 				save(param,sim.save(thread),results);
 			}
 		} else {
+			std::cerr<<"complex"<<std::endl;
 			MonteCarlo<std::complex<double> > sim(filename,nthreads,fermionic);
-			file.extract<Matrix<std::complex<double> > >("EVec",input);
+			if(fermionic){
+				file.extract<Matrix<std::complex<double> > >("EVec",input);
+			}
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.init(input,omp_get_thread_num());

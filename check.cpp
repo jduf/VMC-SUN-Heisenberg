@@ -42,19 +42,35 @@ void check(std::string filename){
 			file.extract<double>("phi",param);
 			std::cout<<" phi="<<param.get<double>("phi");
 		}
+		if( wf == "jastrow" || wf == "trianglejastrow"){
+			double nu(0.0);
+			file.extract<double>(nu);
+			std::cout<<" nu="<<nu;
+			file.extract<Matrix<unsigned int> >("nn",param);
+			file.extract<Vector<unsigned int> >("sl",param);
+			file.extract<Matrix<std::complex<double> > >("omega",param);
+		}
 	}
 
 	file.extract<Matrix<unsigned int> >("sts",param);
 	std::cout<<std::endl<<"sts=" <<std::endl
 		<<param.get<Matrix<unsigned int> >("sts")<<std::endl;
-	if( wf != "csl" && wf != "phi" && wf != "trianglephi"){
+	if( wf == "mu" || wf == "chain"){
 		file.extract<Matrix<double> >("EVec",param);
 		std::cout<<"EVec="<<std::endl
 			<<param.get<Matrix<double> >("EVec")<<std::endl;
-	} else {
+	} 
+	if(  wf == "csl" || wf == "phi" || wf == "trianglephi" ){
 		file.extract<Matrix<std::complex<double> > >("EVec",param);
 		std::cout<<"EVec="<<std::endl
 			<<param.get<Matrix<std::complex<double> > >("EVec")<<std::endl;
 	}
-
+	if( wf == "jastrow" || wf == "trianglejastrow"){
+		std::cout<<"nn="<<std::endl;
+		std::cout<<param.get<Matrix<unsigned int> >("nn")<<std::endl;
+		std::cout<<"sl="<<std::endl;
+		std::cout<<param.get<Vector<unsigned int> >("sl")<<std::endl;
+		std::cout<<"omega="<<std::endl;
+		std::cout<<param.get<Matrix<std::complex<double> > >("omega")<<std::endl;
+	}
 }

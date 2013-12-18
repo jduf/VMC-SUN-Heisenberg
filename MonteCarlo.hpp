@@ -111,21 +111,27 @@ template<typename Type>
 void MonteCarlo<Type>::init(Container const& input, unsigned int const& thread) {
 	input.get("t_max",t_max);
 	status[thread] = S[thread].init(input,thread);
-	if(status[thread]){
-		std::cerr<<"thermalization (has been changed)"<<std::flush;
-		unsigned int i(0);
-		double ratio(0.0);
-		Rand rnd(1e4,thread);
-		while( i<1e5 ){
-			S[thread].swap();
-			ratio = norm_squared(S[thread].ratio());
-			if( ratio > rnd.get()){
-				i++;
-				S[thread].update();
-			}
-		}
-		std::cerr<<"completed"<<std::endl;
-	}
+	//if(status[thread]){
+	//std::cerr<<"thermalization (has been changed)"<<std::flush;
+	//double ratio(0.0);
+	//Rand rnd(1e4,thread);
+	//for(unsigned int i(0);i<1e5;i++){
+	//S[thread].swap();
+	//ratio = norm_squared(S[thread].ratio());
+	//if( ratio > rnd.get() ){
+	//S[thread].update();
+	//}
+	//}
+	//std::cerr<<"completed"<<std::endl;
+	//}
+	S[thread].print();
+	S[thread].swap();
+	S[thread].ratio();
+	S[thread].update();
+	double E_config(0);
+	S[thread].measure(E_config);
+	std::cout<<"Econf = "<<E_config<<std::endl;
+	S[thread].print();
 }
 
 template<typename Type>
@@ -135,20 +141,20 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 		double E_config(0);
 		double ratio(0.0);
 		Rand rnd(1e4,thread);
-		bool bin(false);
+		bool bin(true);
 		std::cerr<<"there is maybe a problem, for the first iterations, if the new state is rejected, I add a  0 contribution to the energy..."<<std::endl;
 		if(bin){
 			do{
 				S[thread].swap();
 				ratio = norm_squared(S[thread].ratio());
-				if( ratio > 1.0 || ratio > rnd.get() ){
+				if( ratio > rnd.get() ){
 					S[thread].update();
 					S[thread].measure(E_config);
 				}
 				E[thread] += E_config;
 				sampling[thread].push_back(E_config);
 				i++;
-				if(i >= N_MC) {
+				if(i >= N_MC){
 					i=0;
 					test_convergence(thread);
 					output<<sampling[thread].size()
@@ -173,10 +179,10 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 				//for(unsigned int i(0);i<S[thread].n_;i++){ lattice(i) += S[thread].s(i,0); }
 			} while(i<1e5); 
 			//for(unsigned int i(0);i<int(sqrt(S[thread].n_));i++){
-				//for(unsigned int j(0);j<int(sqrt(S[thread].n_));j++){
-					//std::cout<<lattice(i+j*int(sqrt(S[thread].n_)))*1.0/1e5<<" ";
-				//}
-				//std::cout<<std::endl;
+			//for(unsigned int j(0);j<int(sqrt(S[thread].n_));j++){
+			//std::cout<<lattice(i+j*int(sqrt(S[thread].n_)))*1.0/1e5<<" ";
+			//}
+			//std::cout<<std::endl;
 			//}
 			//std::cout<<std::endl;
 			//for(unsigned int i(0);i<sampling[thread].size();i++){

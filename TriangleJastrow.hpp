@@ -1,12 +1,12 @@
-#ifndef DEF_SQUAREJASTROW
-#define DEF_SQUAREJASTROW
+#ifndef DEF_TRIANGLEJASTROW
+#define DEF_TRIANGLEJASTROW
 
-#include "Square.hpp"
+#include "Triangle.hpp"
 
-class SquareJastrow: public Square<double>{
+class TriangleJastrow: public Triangle<double>{
 	public:
-		SquareJastrow(Parseur& P);
-		~SquareJastrow();
+		TriangleJastrow(Parseur& P);
+		~TriangleJastrow();
 
 	protected:
 		double nu_;

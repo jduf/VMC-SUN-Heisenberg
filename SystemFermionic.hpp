@@ -7,25 +7,29 @@
 template<typename Type>
 class SystemFermionic : public System<Type>{
 	public:
-		/*!create a SystemFermionic without any parameters set*/
+		/*!Creates a SystemFermionic without any parameters set*/
 		SystemFermionic();
+
 		/*!delete all the variables dynamically allocated*/
 		~SystemFermionic();
-
-		/*!exchanges two particles of different color */
-		void swap();
-		/*!exchanges particle on site s1 with the one on site s2*/
-		void swap(unsigned int const& s0, unsigned int const& s1);
 		//{Description
-		/*! This method creates the system in function of the input parameters.
+		/*! Creates the system in function of the input parameters.
 		 *
 		 * - for each thread the system is independantly initialized
-		 * - sets N, m, n, sts_ 
-		 * - initialize the random number generator
-		 * - creates an random initial state and computes
-		 */
-		//}
+		 * - calls System<Type>::init()
+		 * - sets tmp, U, Ut to the correct size 
+		 * - creates an random initial state
+		 * - if the sate is allowed, compute its related Ainv matrices
+		*/ //}
 		unsigned int init(Container const& input, unsigned int thread);
+
+		/*!Call System<Type>::swap() and set row and new_ev*/
+		void swap();
+
+		/*!Calls System<Type>::swap(unsigned int const& s0, unsigned int const&
+		 * s1) and set row and new_ev*/
+		void swap(unsigned int const& s0, unsigned int const& s1);
+
 		//{Description
 		/*!Computes the ratio of the two determinants related to the current
 		 * and next configuration
@@ -34,23 +38,17 @@ class SystemFermionic : public System<Type>{
 		 *   to conserve the Marshall-Peierls sign rule
 		 * - when two different colors are exchanged, computes the ratio using
 		 *   the determinant lemma
-		 */
-		//}
+		 */ //}
 		Type ratio();
+
 		//{Description
-		/*!Updates the state if the condition given by the System::ratio()
-		 * method is accepted. The update consists of :
+		/*!Calls System<Type>::update() and then
 		 *
-		 * - computes the Ainv_ matrices
-		 * - updates the configuration : s
-		 */
-		//}
+		 * - updates the Ainv_ matrices
+		 * - updates s_(new_s[i],1)
+		 */ //}
 		void update();
-		//{Description
-		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
-		 * permutation */
-		//}
-		void measure(double& E_config);
+
 		void print();
 
 	private:
@@ -59,7 +57,6 @@ class SystemFermionic : public System<Type>{
 		/*!Forbids assignment operator*/
 		SystemFermionic& operator=(SystemFermionic const& S);
 
-		Rand* rnd;				//!< generator of random numbers 
 		Matrix<Type> EVec_;		//!< det(A) <=> <GS|a>
 		Matrix<Type> Ainv_;		//!< inverse of A
 		Matrix<Type> U,Ut;		//!< temporary matrices used during the update 
@@ -79,10 +76,10 @@ template<typename Type>
 SystemFermionic<Type>::SystemFermionic():
 	System<Type>(),
 	d(0.0)
-{ }
+{}
 
 template<typename Type>
-SystemFermionic<Type>::~SystemFermionic(){ }
+SystemFermionic<Type>::~SystemFermionic(){}
 /*}*/
 
 /*methods that modify the class*/
@@ -92,15 +89,15 @@ unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int th
 	System<Type>::init(input,thread);
 	EVec_= input.get<Matrix<Type> >("EVec");
 	Ainv_.set(this->n_,this->n_);
-	tmp.set(this->n_,this->n_);
 	Lapack<Type> inv(&Ainv_,false,'G');
+	tmp.set(this->n_,this->n_);
 	U.set(this->n_,2);
 	Ut.set(2,this->n_);
 
 	Vector<unsigned int> available(this->n_);
-	Vector<int> ipiv;
 	unsigned int N_as(this->n_);
 	unsigned int site(0);
+	Vector<int> ipiv;
 	unsigned int TRY_MAX(100);
 	unsigned int l(0);
 	double rcn(0.0);
@@ -111,7 +108,7 @@ unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int th
 		}
 		for(unsigned int c(0); c < this->N_; c++){
 			for(unsigned int i(0); i < this->m_; i++){
-				site = rnd->get(N_as);
+				site = this->rnd->get(N_as);
 				ev(c*this->m_+i) = c*this->n_+available(site);
 				this->s_(available(site),0) = c;
 				this->s_(available(site),1) = c*this->m_+i;
@@ -234,7 +231,6 @@ Type SystemFermionic<Type>::ratio(){
 
 template<typename Type>
 void SystemFermionic<Type>::print(){
-	std::cout<<"=========================="<<std::endl;
 	Matrix<Type> A(this->n_,this->n_);
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(0);j<this->n_;j++){

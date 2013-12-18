@@ -24,6 +24,7 @@ class CreateSystem{
 		unsigned int const m_;		//!< number of unit cell
 		unsigned int const N_;		//!< N of SU(N)
 		unsigned int const n_;		//!< number of sites
+		unsigned int const z_;		//!< coordination number
 		double bc_;					//!< boundary condition
 		Matrix<unsigned int> sts_;	//!< list of connected sites
 		Matrix<int> H_;				//!< SU(N) Matrix
@@ -48,6 +49,7 @@ CreateSystem<Type>::CreateSystem(Parseur& P, unsigned int z, std::string filenam
 	m_(P.get<unsigned int>("m")),
 	N_(P.get<unsigned int>("N")), 
 	n_(N_*m_),
+	z_(z),
 	bc_(0),
 	sts_(n_*z/2,2),
 	H_(n_,n_,0.0),

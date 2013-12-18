@@ -1,43 +1,13 @@
-#include "SquareJastrow.hpp"
+#include "TriangleJastrow.hpp"
 
-SquareJastrow::SquareJastrow(Parseur& P):
-	Square<double>(P,"square-Jastrow"),
+TriangleJastrow::TriangleJastrow(Parseur& P):
+	Triangle<double>(P,"triangle-Jastrow"),
 	nu_(P.get<double>("nu")),
 	nn_(n_,z_),
 	sl_(n_),
 	omega_(N_,N_,1.0)
 {
 	if(!P.status()){
-		//if(P.get<bool>("study")){
-		//compute_T();
-		//band_structure();
-		//} else {
-		//compute_T();
-		//diagonalize_T('S');
-		//EVec_.set(N_*n_,n_,0.0);
-		//for(unsigned int i(0);i<N_*n_;i++){
-		//for(unsigned int j(0);j<n_;j++){
-		//EVec_(i,j) = T_(i,j);
-		//}
-		//}
-		//
-		//if(successful_){
-		//std::cout<<"prob"<<std::endl;
-		//}
-		////if(successful_){
-		//filename_ += "-N" + tostring(N_);
-		//filename_ += "-S" + tostring(n_);
-		//filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-		//if(bc_ == 1){ filename_ += "-P";} 
-		//else { filename_ += "-A";}
-		//filename_ += "-AF+" + tostring(P.get<double>("AF"));
-		//
-		//save();
-		////} else {
-		////std::cerr<<"SquareJastrow : degeneate"<<std::endl;
-		////}
-		//}
-
 		filename_ += "-N" + tostring(N_);
 		filename_ += "-S" + tostring(n_);
 		filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
@@ -50,16 +20,16 @@ SquareJastrow::SquareJastrow(Parseur& P):
 		compute_omega();
 		save();
 	} else {
-		std::cerr<<"SquareJastrow : need to provide nu"<<std::endl;
+		std::cerr<<"TriangleJastrow : need to provide nu"<<std::endl;
 	}
 }
 
-SquareJastrow::~SquareJastrow(){}
+TriangleJastrow::~TriangleJastrow(){}
 
-void SquareJastrow::save(){
+void TriangleJastrow::save(){
 	Write w(filename_+".jdbin");
 	RST rst;
-	rst.text("Staggered magnetic field, Becca's idea to mimic an on site chemical potential");
+	rst.text("Staggered magnetic field on the triangle lattice, Becca's idea to mimic an on site chemical potential");
 	rst.np();
 	rst.title("Input values","~");
 
@@ -77,7 +47,7 @@ void SquareJastrow::save(){
 	w("sts (connected sites)",sts_);
 }
 
-void SquareJastrow::compute_nn(){
+void TriangleJastrow::compute_nn(){
 	unsigned int k(0);
 	for(unsigned int i(0);i<n_;i++){
 		k=0;
@@ -90,7 +60,7 @@ void SquareJastrow::compute_nn(){
 	}
 }
 
-void SquareJastrow::compute_sublattice(){
+void TriangleJastrow::compute_sublattice(){
 	unsigned int k(0);
 	for(unsigned int i(0);i<n_;i++){
 		sl_(i) = k % N_;
@@ -101,7 +71,7 @@ void SquareJastrow::compute_sublattice(){
 	}
 }
 
-void SquareJastrow::compute_omega(){
+void TriangleJastrow::compute_omega(){
 	if(N_==2){
 		omega_(1,1) = -1.0;
 	}

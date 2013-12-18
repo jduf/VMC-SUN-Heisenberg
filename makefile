@@ -27,10 +27,10 @@ Rand.o:Rand.cpp Rand.hpp
 ########
 # create
 ########
-cs:cs.o Chain.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o
+cs:cs.o Chain.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-cs.o:cs.cpp Parseur.hpp Chain.hpp Square.hpp Honeycomb.hpp Triangle.hpp
+cs.o:cs.cpp Parseur.hpp Chain.hpp Square.hpp Honeycomb.hpp Triangle.hpp Write.hpp Read.hpp Header.hpp RST.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 Chain.o:Chain.cpp Chain.hpp CreateSystem.hpp Parseur.hpp
@@ -43,6 +43,9 @@ SquareSU2Phiflux.o:SquareSU2PhiFlux.cpp SquareSU2PhiFlux.hpp Square.hpp CreateSy
 	$(CXX) -c $(CXXFLAGS) $^
 
 SquareJastrow.o:SquareJastrow.cpp SquareJastrow.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
+TriangleJastrow.o:TriangleJastrow.cpp TriangleJastrow.hpp Triangle.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 SquareMu.o:SquareMu.cpp SquareMu.hpp Square.hpp CreateSystem.hpp Parseur.hpp  Gnuplot.hpp Lapack.hpp PSTricks.hpp
