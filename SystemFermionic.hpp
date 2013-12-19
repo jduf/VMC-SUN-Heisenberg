@@ -93,6 +93,7 @@ unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int th
 	tmp.set(this->n_,this->n_);
 	U.set(this->n_,2);
 	Ut.set(2,this->n_);
+	ev.set(this->n_);
 
 	Vector<unsigned int> available(this->n_);
 	unsigned int N_as(this->n_);

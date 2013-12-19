@@ -2,6 +2,7 @@
 #define DEF_TRIANGLEJASTROW
 
 #include "Triangle.hpp"
+#include "Read.hpp"
 
 class TriangleJastrow: public Triangle<double>{
 	public:
@@ -18,6 +19,7 @@ class TriangleJastrow: public Triangle<double>{
 		void save();
 		void compute_sublattice();
 		void compute_omega();
+		void lattice();
 };
 #endif
 

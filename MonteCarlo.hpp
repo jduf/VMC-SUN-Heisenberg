@@ -111,27 +111,19 @@ template<typename Type>
 void MonteCarlo<Type>::init(Container const& input, unsigned int const& thread) {
 	input.get("t_max",t_max);
 	status[thread] = S[thread].init(input,thread);
-	//if(status[thread]){
-	//std::cerr<<"thermalization (has been changed)"<<std::flush;
-	//double ratio(0.0);
-	//Rand rnd(1e4,thread);
-	//for(unsigned int i(0);i<1e5;i++){
-	//S[thread].swap();
-	//ratio = norm_squared(S[thread].ratio());
-	//if( ratio > rnd.get() ){
-	//S[thread].update();
-	//}
-	//}
-	//std::cerr<<"completed"<<std::endl;
-	//}
-	S[thread].print();
+	if(status[thread]){
+	std::cerr<<"thermalization (has been changed)"<<std::flush;
+	double ratio(0.0);
+	Rand rnd(1e4,thread);
+	for(unsigned int i(0);i<1e5;i++){
 	S[thread].swap();
-	S[thread].ratio();
+	ratio = norm_squared(S[thread].ratio());
+	if( ratio > rnd.get() ){
 	S[thread].update();
-	double E_config(0);
-	S[thread].measure(E_config);
-	std::cout<<"Econf = "<<E_config<<std::endl;
-	S[thread].print();
+	}
+	}
+	std::cerr<<"completed"<<std::endl;
+	}
 }
 
 template<typename Type>
@@ -164,7 +156,7 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 				}
 			} while(keep_measuring);
 		} else {
-			Vector<unsigned int> lattice(S[thread].n_,0); 
+			Matrix<unsigned int> lattice(S[thread].n_,S[thread].N_,0); 
 			do{
 				S[thread].swap();
 				ratio = norm_squared(S[thread].ratio());
@@ -176,15 +168,11 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 				sampling[thread].push_back(E_config);
 				i++;
 				/*to check the color organization*/
-				//for(unsigned int i(0);i<S[thread].n_;i++){ lattice(i) += S[thread].s(i,0); }
+				for(unsigned int i(0);i<S[thread].n_;i++){ 
+					lattice(i,S[thread].s_(i,0))++;
+				}
 			} while(i<1e5); 
-			//for(unsigned int i(0);i<int(sqrt(S[thread].n_));i++){
-			//for(unsigned int j(0);j<int(sqrt(S[thread].n_));j++){
-			//std::cout<<lattice(i+j*int(sqrt(S[thread].n_)))*1.0/1e5<<" ";
-			//}
-			//std::cout<<std::endl;
-			//}
-			//std::cout<<std::endl;
+			std::cout<<lattice<<std::endl;
 			//for(unsigned int i(0);i<sampling[thread].size();i++){
 			//std::cout<<i<<" "<<sampling[thread][i]<<std::endl;
 			//}
