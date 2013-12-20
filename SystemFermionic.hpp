@@ -58,10 +58,9 @@ class SystemFermionic : public System<Type>{
 		SystemFermionic& operator=(SystemFermionic const& S);
 
 		Matrix<Type> EVec_;		//!< det(A) <=> <GS|a>
-		Matrix<Type> Ainv_;		//!< inverse of A
-		Matrix<Type> U,Ut;		//!< temporary matrices used during the update 
+		Matrix<Type> *Ainv_;	//!< inverse of A
 		Matrix<Type> tmp;		//!< temporary matrix used during the update 
-		Type w[4];				//!< W=(w11,w12,w21,w22)
+		Type w[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b> ; W=(w11,0,0,w22)
 		Type d;					//!< d=Det(W) : determinant ratios of <GS|a>/<GS|b> 
 		unsigned int row[2];	//!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
 		unsigned int new_ev[2]; //!< new selected rows of the EVec matrix
@@ -75,11 +74,14 @@ class SystemFermionic : public System<Type>{
 template<typename Type>
 SystemFermionic<Type>::SystemFermionic():
 	System<Type>(),
+	Ainv_(NULL),
 	d(0.0)
 {}
 
 template<typename Type>
-SystemFermionic<Type>::~SystemFermionic(){}
+SystemFermionic<Type>::~SystemFermionic(){
+	delete[] Ainv_;
+}
 /*}*/
 
 /*methods that modify the class*/
@@ -88,11 +90,11 @@ template<typename Type>
 unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int thread){
 	System<Type>::init(input,thread);
 	EVec_= input.get<Matrix<Type> >("EVec");
-	Ainv_.set(this->n_,this->n_);
-	Lapack<Type> inv(&Ainv_,false,'G');
-	tmp.set(this->n_,this->n_);
-	U.set(this->n_,2);
-	Ut.set(2,this->n_);
+	Ainv_ = new Matrix<Type>[this->N_];
+	for(unsigned int i(0); i < this->N_; i++){
+		Ainv_[i].set(this->m_,this->m_);
+	}
+	tmp.set(this->m_,this->m_);
 	ev.set(this->n_);
 
 	Vector<unsigned int> available(this->n_);
@@ -112,27 +114,30 @@ unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int th
 				site = this->rnd->get(N_as);
 				ev(c*this->m_+i) = c*this->n_+available(site);
 				this->s_(available(site),0) = c;
-				this->s_(available(site),1) = c*this->m_+i;
+				this->s_(available(site),1) = i;
+				for(unsigned int j(0); j < this->m_; j++){
+					Ainv_[c](i,j) = EVec_(ev(c*this->m_+i),j);
+				}
 				for(unsigned int j(site); j+1 < N_as; j++){
 					available(j) = available(j+1);
 				}
 				N_as--;
 			}
-		}
-		for(unsigned int i(0); i < this->n_; i++){
-			for(unsigned int j(0); j < this->n_; j++){
-				Ainv_(i,j) = EVec_(ev(i),j);
+			Lapack<Type> inv(&Ainv_[c],false,'G');
+			ipiv = inv.is_singular(rcn);
+			if(!ipiv.ptr()){
+				c = this->N_;
+			} else {
+				inv.inv(ipiv);
 			}
 		}
-		ipiv = inv.is_singular(rcn);
 	} while (!ipiv.ptr() && ++l<TRY_MAX);
-	
+
 	if(l==TRY_MAX){
 		std::cerr<<"sorry, the thread will not be lunched because no initial state was found"<<std::endl;
 		return 0;
 	} else {
 		std::cerr<<"yeah ! initial state found"<<std::endl;
-		inv.inv(ipiv);
 		return 1;
 	}
 }
@@ -144,51 +149,23 @@ void SystemFermionic<Type>::update(){
 	s_(this->new_s[0],1) = row[1];
 	s_(this->new_s[1],1) = row[0];
 
-	/*compute the inverse of W*/
-	Type t;
-	t = w[0];
-	w[0] = w[3]/d;
-	w[3] = t/d;
-	w[1] = -w[1]/d;
-	w[2] = -w[2]/d;
-
-	/*apply the woodbury formula*/
-	for(unsigned int i(0);i<this->n_;i++){
-		for(unsigned int j(0);j<2;j++){
-			U(i,j) = 0.0;
-			for(unsigned int k(0);k<2;k++){
-				U(i,j) += Ainv_(i,row[k])*w[k+j*2]; // Ainv.U.Winv
+	Type t_tmp;
+	for(unsigned int c(0);c<2;c++){
+		for(unsigned int j(0);j<this->m_;j++){
+			if(row[c] == j){ t_tmp = -1.0; }
+			else { t_tmp = 0.0; }
+			for(unsigned int k(0);k<this->m_;k++){
+				t_tmp += EVec_(new_ev[c],k)*Ainv_[this->color[c]](k,j);
+			}
+			for(unsigned int i(0);i<this->m_;i++){
+				tmp(i,j) = t_tmp*Ainv_[this->color[c]](i,row[c])/w[c];
 			}
 		}
+		Ainv_[this->color[c]] -= tmp;
+		ev(this->color[c]*this->m_+row[c]) = new_ev[c];
 	}
-	for(unsigned int i(0);i<2;i++){
-		for(unsigned int j(0);j<this->n_;j++){
-			Ut(i,j) = 0.0;
-			for(unsigned int k(0);k<this->n_;k++){
-				Ut(i,j) += EVec_(new_ev[i],k)*Ainv_(k,j); // Ut.Ã.Ainv
-			}
-		}
-	}
-	Ut(0,row[0]) -= 1.0;
-	Ut(1,row[1]) -= 1.0;
-	for(unsigned int i(0);i<this->n_;i++){
-		for(unsigned int j(0);j<this->n_;j++){
-			tmp(i,j) = 0.0;
-			for(unsigned int k(0);k<2;k++){
-				tmp(i,j) += U(i,k)*Ut(k,j);
-			}
-		}
-	}
-	Ainv_ -= tmp;
-
-	/*is only useful for SystemFermionic::print() : */
-	ev(row[0]) = new_ev[0];
-	ev(row[1]) = new_ev[1];
 }
-/*}*/
 
-/*methods that return something related to the class*/
-/*{*/
 template<typename Type>
 void SystemFermionic<Type>::swap(){
 	System<Type>::swap();
@@ -206,44 +183,49 @@ void SystemFermionic<Type>::swap(unsigned int const& s0, unsigned int const& s1)
 	new_ev[0] = this->color[0]*this->n_ + s1;
 	new_ev[1] = this->color[1]*this->n_ + s0;
 }
+/*}*/
 
+/*methods that return something related to the class*/
+/*{*/
 template<typename Type> 
 Type SystemFermionic<Type>::ratio(){
-	/*if swap() allow exchanges of the same color, then w and d has to be
-	 * computed here*/
 	if(this->color[0] == this->color[1]){
-		/*!the minus sign is required because two particles are exchanged
-		 *(Marshall-Peirels sign rule)*/
-		return -1.0;
+		/*if swap() allow exchanges of the same color, then w and d has to be
+		 * computed here*/
+		return 1.0;
 	} else {
 		for(unsigned int i(0);i<2;i++){
-			for(unsigned int j(0);j<2;j++){
-				w[i+2*j] = 0.0;
-				for(unsigned int k(0);k<this->n_;k++){
-					w[i+j*2] += EVec_(new_ev[i],k) * Ainv_(k,row[j]);
-				}
+			w[i] = 0.0;
+			for(unsigned int k(0);k<this->m_;k++){
+				w[i] += EVec_(new_ev[i],k)*Ainv_[this->color[i]](k,row[i]);
 			}
 		}
-		d = w[0]*w[3]-w[1]*w[2];
-		if( std::abs(d) < 1e-14 ){ return 0.0; }
-		else { return d; }
+		d=w[0]*w[1];
+		/*will simply need to multiply d by the jastrow*/
+		if( std::abs(d) < 1e-10 ){ return 0.0; }
+		else { return -d; }
 	}
 }
 
 template<typename Type>
 void SystemFermionic<Type>::print(){
-	Matrix<Type> A(this->n_,this->n_);
-	for(unsigned int i(0);i<this->n_;i++){
-		for(unsigned int j(0);j<this->n_;j++){
-			A(i,j) = EVec_(ev(i),j);
+	std::cout<<"=========================="<<std::endl;
+	for(unsigned int c(0);c<this->N_;c++){
+		Matrix<Type> A(this->m_,this->m_);
+		for(unsigned int i(0);i<this->m_;i++){
+			for(unsigned int j(0);j<this->m_;j++){
+				A(i,j) = EVec_(ev(c*this->m_+i),j);
+			}
 		}
+		std::cout<<(A*Ainv_[c]).diag().chop()<<std::endl;
 	}
-	std::cout<<"inv "<<(A*Ainv_).diag().chop()<<std::endl;
-	//std::cout<<"ev :"<<ev<<std::endl;
-	//std::cout<<"s : ";
-	//for(unsigned int i(0); i < this->n_; i++){
-	//std::cout<<i<<"("<<s(i,0)<<","<<s(i,1)<<") ";
-	//}
+
+	std::cout<<"ev :"<<ev<<std::endl<<"s : ";
+	for(unsigned int i(0); i < this->n_; i++){
+		std::cout<<i<<"("<<this->s_(i,0)<<","<<this->s_(i,1)<<") ";
+	}
+	std::cout<<std::endl;
+	std::cout<<this->new_s[0]<<" "<<this->new_s[1]<<std::endl;
 	std::cout<<"=========================="<<std::endl;
 }
 /*}*/

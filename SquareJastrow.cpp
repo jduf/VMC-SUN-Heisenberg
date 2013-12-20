@@ -3,41 +3,11 @@
 SquareJastrow::SquareJastrow(Parseur& P):
 	Square<double>(P,"square-Jastrow"),
 	nu_(P.get<double>("nu")),
-	nn_(n_,z_),
+	nn_(n_,3*z_),
 	sl_(n_),
 	omega_(N_,N_,1.0)
 {
 	if(!P.status()){
-		//if(P.get<bool>("study")){
-		//compute_T();
-		//band_structure();
-		//} else {
-		//compute_T();
-		//diagonalize_T('S');
-		//EVec_.set(N_*n_,n_,0.0);
-		//for(unsigned int i(0);i<N_*n_;i++){
-		//for(unsigned int j(0);j<n_;j++){
-		//EVec_(i,j) = T_(i,j);
-		//}
-		//}
-		//
-		//if(successful_){
-		//std::cout<<"prob"<<std::endl;
-		//}
-		////if(successful_){
-		//filename_ += "-N" + tostring(N_);
-		//filename_ += "-S" + tostring(n_);
-		//filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-		//if(bc_ == 1){ filename_ += "-P";} 
-		//else { filename_ += "-A";}
-		//filename_ += "-AF+" + tostring(P.get<double>("AF"));
-		//
-		//save();
-		////} else {
-		////std::cerr<<"SquareJastrow : degeneate"<<std::endl;
-		////}
-		//}
-
 		filename_ += "-N" + tostring(N_);
 		filename_ += "-S" + tostring(n_);
 		filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
@@ -77,14 +47,37 @@ void SquareJastrow::save(){
 	w("sts (connected sites)",sts_);
 }
 
+Vector<unsigned int> SquareJastrow::get_neighbourg(unsigned int i){
+	Vector<unsigned int> neighbourg(z_);
+	/*+x neighbour*/
+	if((i+1)%Lx_!=0){ neighbourg(0) = i+1; } 
+	else { neighbourg(0) = (i/Lx_)*Lx_; }
+	/*+y neighbour*/
+	if(i<n_-Lx_){ neighbourg(1) = i+Lx_; }
+	else { neighbourg(1) = i-n_+Lx_; }
+	/*-x neighbour*/
+	if(i%Lx_){ neighbourg(2) = i-1; }
+	else { neighbourg(2) = i+Lx_-1; }
+	/*-y neighbour*/
+	if(i>=Lx_){ neighbourg(3) = i-Lx_; }
+	else { neighbourg(3) = n_-Lx_+i; }
+
+	return neighbourg;
+}
+
 void SquareJastrow::compute_nn(){
-	unsigned int k(0);
+	Vector<unsigned int> neighbourg;
 	for(unsigned int i(0);i<n_;i++){
-		k=0;
-		for(unsigned int j(0);j<n_;j++){
-			if(H_(i,j)){ 
-				nn_(i,k) = j;
-				k++;
+		neighbourg = get_neighbourg(i);
+		for(unsigned int j(0);j<z_;j++){
+			nn_(i,j) = neighbourg(j);
+		}
+		unsigned int l(z_);
+		for(unsigned int j(0);j<z_;j++){
+			neighbourg = get_neighbourg(nn_(i,j));
+			for(unsigned int k(j);k<j+2;k++){
+				nn_(i,l) = neighbourg(k%z_);
+				l++;
 			}
 		}
 	}

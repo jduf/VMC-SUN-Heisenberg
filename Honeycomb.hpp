@@ -24,6 +24,7 @@ Honeycomb<Type>::Honeycomb(Parseur& P, std::string filename):
 	Lx_(floor(sqrt(this->m_))),
 	Ly_(floor(sqrt(this->m_)))
 {
+	std::cerr<<"HoneycombSU3 will rewrite all the honeycomb things as a rectangular 12 sites unit cell"<<std::endl;
 	this->bc_= P.get<double>("bc");
 	if(!P.status()){
 		if(this->m_==Ly_*Lx_){
@@ -69,5 +70,3 @@ void Honeycomb<Type>::compute_H(){
 	this->H_ += this->H_.transpose();
 }
 #endif
-
-

@@ -27,7 +27,7 @@ Rand.o:Rand.cpp Rand.hpp
 ########
 # create
 ########
-cs:cs.o Chain.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o
+cs:cs.o Chain.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 cs.o:cs.cpp Parseur.hpp Chain.hpp Square.hpp Honeycomb.hpp Triangle.hpp Write.hpp Read.hpp Header.hpp RST.hpp
@@ -64,6 +64,9 @@ TrianglePhi.o:TrianglePhi.cpp TrianglePhi.hpp Triangle.hpp CreateSystem.hpp Pars
 	$(CXX) -c $(CXXFLAGS) $^
 
 HoneycombSU4.o:HoneycombSU4.cpp HoneycombSU4.hpp Honeycomb.hpp CreateSystem.hpp Parseur.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
+HoneycombSU3.o:HoneycombSU3.cpp HoneycombSU3.hpp Honeycomb.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 Gnuplot.o:Gnuplot.cpp Gnuplot.hpp Write.hpp RST.hpp Header.hpp Time.hpp Matrix.hpp Vector.hpp

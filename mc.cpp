@@ -68,6 +68,7 @@ int main(int argc, char* argv[]){
 			if(fermionic){
 				file.extract<Matrix<double> >("EVec",input);
 			}
+		//sim.test(input,0);
 #pragma omp parallel num_threads(nthreads)
 			{
 				sim.init(input,omp_get_thread_num());
@@ -82,14 +83,15 @@ int main(int argc, char* argv[]){
 			if(fermionic){
 				file.extract<Matrix<std::complex<double> > >("EVec",input);
 			}
-#pragma omp parallel num_threads(nthreads)
-			{
-				sim.init(input,omp_get_thread_num());
-				sim.run(omp_get_thread_num());
-			}
-			for(unsigned int thread(0); thread<nthreads; thread++){
-				save(param,sim.save(thread),results);
-			}
+		sim.test(input,0);
+//#pragma omp parallel num_threads(nthreads)
+			//{
+				//sim.init(input,omp_get_thread_num());
+				//sim.run(omp_get_thread_num());
+			//}
+			//for(unsigned int thread(0); thread<nthreads; thread++){
+				//save(param,sim.save(thread),results);
+			//}
 		}
 	} else {
 		fprintf(stderr,"main : ./mc -sim filename.jdbin -nthreads n\n");

@@ -40,6 +40,8 @@ class MonteCarlo{
 		/*!Saves the essential data in the "result" file*/
 		Container save(unsigned int const& thread);
 
+		void test(Container const& input, unsigned int const& thread);
+
 	private:
 		/*!Forbids the copy constructor*/
 		MonteCarlo(MonteCarlo const& mc);
@@ -108,21 +110,36 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*public methods*/
 /*{*/
 template<typename Type>
+void MonteCarlo<Type>::test(Container const& input, unsigned int const& thread) {
+	input.get("t_max",t_max);
+	status[thread] = S[thread].init(input,thread);
+	if(status[thread]){
+		S[thread].print();
+		for(unsigned int i(0);i<2;i++){
+			S[thread].swap();
+			S[thread].ratio();
+			S[thread].update();
+			S[thread].print();
+		}
+	}
+}
+
+template<typename Type>
 void MonteCarlo<Type>::init(Container const& input, unsigned int const& thread) {
 	input.get("t_max",t_max);
 	status[thread] = S[thread].init(input,thread);
 	if(status[thread]){
-	std::cerr<<"thermalization (has been changed)"<<std::flush;
-	double ratio(0.0);
-	Rand rnd(1e4,thread);
-	for(unsigned int i(0);i<1e5;i++){
-	S[thread].swap();
-	ratio = norm_squared(S[thread].ratio());
-	if( ratio > rnd.get() ){
-	S[thread].update();
-	}
-	}
-	std::cerr<<"completed"<<std::endl;
+		std::cerr<<"thermalization (has been changed)"<<std::flush;
+		double ratio(0.0);
+		Rand rnd(1e4,thread);
+		for(unsigned int i(0);i<1e5;i++){
+			S[thread].swap();
+			ratio = norm_squared(S[thread].ratio());
+			if( ratio > rnd.get() ){
+				S[thread].update();
+			}
+		}
+		std::cerr<<"completed"<<std::endl;
 	}
 }
 
@@ -133,7 +150,7 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 		double E_config(0);
 		double ratio(0.0);
 		Rand rnd(1e4,thread);
-		bool bin(true);
+		bool bin(false);
 		std::cerr<<"there is maybe a problem, for the first iterations, if the new state is rejected, I add a  0 contribution to the energy..."<<std::endl;
 		if(bin){
 			do{
@@ -173,6 +190,7 @@ void MonteCarlo<Type>::run(unsigned int const& thread){
 				}
 			} while(i<1e5); 
 			std::cout<<lattice<<std::endl;
+			S[thread].print();
 			//for(unsigned int i(0);i<sampling[thread].size();i++){
 			//std::cout<<i<<" "<<sampling[thread][i]<<std::endl;
 			//}

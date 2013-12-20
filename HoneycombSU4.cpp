@@ -6,7 +6,6 @@ HoneycombSU4::HoneycombSU4(Parseur& P):
 	if(!P.status() || N_ != 4){
 		if(m_==Ly_*Lx_){
 			compute_T();
-			
 			diagonalize_T('S');
 			for(unsigned int spin(0);spin<N_;spin++){
 				for(unsigned int i(0);i<n_;i++){
@@ -85,10 +84,7 @@ void HoneycombSU4::compute_T(){
 	T_ += T_.transpose();
 }
 
-void HoneycombSU4::compute_P(){
-	Px_.set(n_,n_,0.0);
-	Py_.set(n_,n_,0.0);
-}
+void HoneycombSU4::compute_P(){ }
 
 void HoneycombSU4::save(){
 	Write w(filename_+".jdbin");

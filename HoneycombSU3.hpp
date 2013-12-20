@@ -1,12 +1,12 @@
-#ifndef DEF_HONEYCOMBSU4
-#define DEF_HONEYCOMBSU4
+#ifndef DEF_HONEYCOMBSU3
+#define DEF_HONEYCOMBSU3
 
 #include "Honeycomb.hpp"
 
-class HoneycombSU4: public Honeycomb<double>{
+class HoneycombSU3: public Honeycomb<double>{
 	public:
-		HoneycombSU4(Parseur& P);
-		~HoneycombSU4();
+		HoneycombSU3(Parseur& P);
+		~HoneycombSU3();
 
 	protected:
 		void compute_T();

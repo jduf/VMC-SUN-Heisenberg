@@ -9,6 +9,7 @@
 #include "SquareJastrow.hpp"
 
 #include "HoneycombSU4.hpp"
+#include "HoneycombSU3.hpp"
 
 #include "TriangleFermi.hpp"
 #include "TriangleMu.hpp"
@@ -32,6 +33,9 @@ int main(int argc, char* argv[]){
 	}
 	if( wf == "honeycomb" ){
 		HoneycombSU4 h(P);
+	}
+	if( wf == "honeycombsu3" ){
+		HoneycombSU3 h(P);
 	}
 	if( wf == "phi" ){
 		SquareSU2PhiFlux s(P);
