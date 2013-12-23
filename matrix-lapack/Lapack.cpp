@@ -1,8 +1,6 @@
 #include "Lapack.hpp"
 
 /*private methods that depend on the type, used to call lapack*/
-/*general Matrixs*/
-/*{*/
 /*compute lu factorization : dgetrf zgetrf*/
 /*{*/
 template<>
@@ -268,5 +266,4 @@ void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >* EVal, ch
 
 	if(info) { std::cerr<<"Lapack : geev<complex> : info="<<info<<std::endl; }
 }
-/*}*/
 /*}*/

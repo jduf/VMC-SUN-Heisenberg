@@ -45,6 +45,9 @@ class Container{
 		template<typename Type>
 			Type get(std::string name) const;
 
+		template<typename Type>
+			void get(std::string name, Type& t) const;
+
 		std::string value(unsigned int const& i) const{
 			if(copyinstring_){ return stringvalue_[i]; }
 			else {return ""; }
@@ -86,6 +89,22 @@ Type Container::get(std::string name) const {
 	}
 	std::cerr<<"Container : get(string name) : no data with name "<<name<<std::endl;
 	return 0;
+}
+
+
+template<typename Type>
+void Container::get(std::string name, Type& t) const {
+	bool found(false);
+	for(unsigned int i(0); i<d_.size(); i++){
+		if(d_[i]->get()==name){
+			t = dynamic_cast< GenericData<Type> *>(d_[i])->get();
+			i = d_.size();
+			found = true;
+		}
+	} 
+	if(!found){
+		std::cerr<<"Container : -"<<name<<" wasn't found thus its value is unchanged : "<< t <<std::endl; 
+	}
 }
 
 std::ostream& operator<<(std::ostream& flux, Container const& input){

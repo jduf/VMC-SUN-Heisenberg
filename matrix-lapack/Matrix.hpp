@@ -90,6 +90,9 @@ class Matrix{
 		/*!Returns the number of columns of the matrix*/
 		unsigned int col() const { return col_; }
 
+		/*return the maximum value of the matrix*/
+		Type max() const;
+
 	protected:
 		Type *m_; //!< pointer to a static array
 		unsigned int row_; //!< number of rows
@@ -465,6 +468,15 @@ Type Matrix<Type>::trace() const {
 	}
 	return t;
 }
+
+template<typename Type>
+Type Matrix<Type>::max() const {
+	Type m(m_[0]);
+	for(unsigned int i(1);i<size_;i++){
+		if(m_[i]>m){m=m_[i];}
+	}
+	return m;
+}
 /*}*/
 
 /*double real(T)*/
@@ -484,5 +496,4 @@ inline double norm_squared(std::complex<double> x){
 	return std::norm(x);
 }
 /*}*/
-
 #endif

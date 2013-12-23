@@ -19,7 +19,7 @@ Write.o:Write.cpp Write.hpp Matrix.hpp Array2D.hpp Header.hpp
 Rewrite.o:Rewrite.cpp Rewrite.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-Header.o:Header.cpp Header.hpp RST.hpp Matrice.hpp Array2D.hpp
+Header.o:Header.cpp Header.hpp RST.hpp Matrice.hpp Array2D.hpp Time.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 RST.o:RST.cpp RST.hpp 

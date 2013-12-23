@@ -11,12 +11,11 @@ LDLIBS = -pedantic -Wall -Wextra
 
 all:test
 
-test:test.o Rand.o Chrono.o
+test:test.o Rand.o 
 
 Rand.o:Rand.cpp Rand.hpp
-Chono.o:Chrono.cpp Chrono.hpp
 
-test.o:test.cpp Rand.hpp Chrono.hpp
+test.o:test.cpp Rand.hpp Time.hpp
 
 
 clean:

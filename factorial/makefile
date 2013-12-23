@@ -11,11 +11,9 @@ LDLIBS = -pedantic -Wall -Wextra
 
 all:test
 
-test.o:test.cpp Chrono.hpp
+test.o:test.cpp Time.hpp
 
-Chrono.o:Chrono.cpp Chrono.hpp
-
-test:test.o Chrono.o
+test:test.o 
 
 ref:
 	doxygen Doxyfile

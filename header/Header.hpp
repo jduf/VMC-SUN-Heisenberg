@@ -2,6 +2,7 @@
 #define DEF_HEADER
 
 #include "Matrix.hpp"
+#include "Vector.hpp"
 #include "Time.hpp"
 #include "RST.hpp"
 
@@ -20,6 +21,7 @@ class Header{
 		void add(std::string const& s, int const& d);
 		void add(std::string const& s, std::string const& d);
 		void add(std::string const& s, std::complex<double> const& d);
+		void add(std::string const& s, Vector<unsigned int> const& vec);
 		void add(std::string const& s, Matrix<int> const& mat);
 		void add(std::string const& s, Matrix<unsigned int> const& mat);
 		void add(std::string const& s, Matrix<double> const& mat);

@@ -61,7 +61,7 @@ class Vector{
 		void print_mathematica();
 
 		Vector<Type> range(unsigned int min, unsigned int max) const;
-		Vector<unsigned int> sort() const;
+		Vector<unsigned int> sort();
 		Vector<Type> sort(Vector<unsigned int> const& index) const;
 		bool is_sorted() const;
 
@@ -197,7 +197,7 @@ Matrix<Type> Vector<Type>::operator^(Vector<Type> const& vec) const{
 template<typename Type>
 std::ostream& operator<<(std::ostream& flux, Vector<Type> const& vec){
 	for(unsigned int i(0);i<vec.size();i++){
-		flux<<vec(i)<<std::endl;
+		flux<<vec(i)<<" ";
 	}
 	return flux;
 }
@@ -259,11 +259,10 @@ void Vector<Type>::set(unsigned int N, Type const& val){
 
 template<typename Type>
 Vector<Type> Vector<Type>::range(unsigned int min, unsigned int max) const {
-	Vector<Type> out(max-min,1);
+	Vector<Type> out(max-min);
 	for(unsigned int i(0);i<max-min;i++){
-		out(i) = m_[i];
+		out(i) = m_[min+i];
 	}
-
 	return out;
 }
 
@@ -287,7 +286,7 @@ void swap(Type& a, Type& b){
 }
 
 template<typename Type>
-Vector<unsigned int> Vector<Type>::sort() const {
+Vector<unsigned int> Vector<Type>::sort(){
 	Vector<unsigned int> index(N_);
 	for(unsigned int i(0);i<N_;i++) {
 		index(i) = i;
@@ -305,7 +304,7 @@ Vector<unsigned int> Vector<Type>::sort() const {
 
 template<typename Type>
 Vector<Type> Vector<Type>::sort(Vector<unsigned int> const& index) const{
-	Vector<Type> out(index.size(),1);
+	Vector<Type> out(index.size());
 	for(unsigned int i(0);i<index.size();i++) {
 		out(i) = m_[index(i)];
 	}

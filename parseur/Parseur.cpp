@@ -54,3 +54,12 @@ void Parseur::init(unsigned int N, char* argv[]){
 		used.push_back(false);
 	}
 }
+
+bool Parseur::check(std::string pattern){
+	unsigned int i(0);
+	while(i<var.size()){
+		if(var[i]==pattern){ return true; }
+		else { i++; }
+	}
+	return false;
+}

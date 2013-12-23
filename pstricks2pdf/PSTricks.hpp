@@ -13,6 +13,7 @@ class PSTricks {
 		void line(std::string linetype, double x0, double y0, double x1, double y1, std::string options="");
 		void frame(double x0, double y0, double x1, double y1, std::string options="");
 		void put(double x, double y, std::string s);
+		void pie(Vector<double> x, double r, std::string options="");
 
 	private:
 		std::string path_;

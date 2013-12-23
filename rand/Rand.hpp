@@ -1,5 +1,5 @@
-#ifndef __RANMAR__
-#define __RANMAR__
+#ifndef RANMAR
+#define RANMAR
 
 #include <cmath>
 #include <cstdlib>
@@ -35,7 +35,7 @@ class Rand{
 		}
 
 		inline unsigned int get(unsigned int max) {
-			++ pos;
+			pos++;
 			if (pos == len){ ranvec();}
 			return std::floor(rvec[pos] * max);
 		}
@@ -75,5 +75,4 @@ class Rand{
 		//bool auto_save;
 		//std::string fn;
 };
-
 #endif 

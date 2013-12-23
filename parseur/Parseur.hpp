@@ -21,21 +21,25 @@ class Parseur{
 
 		/*! sets val to the value that corresponds to pattern in argv[]*/
 		template<typename Type>
-			void set(std::string pattern, Type &input);
+			void get(std::string pattern, Type& input);
 		/*! returns the value that corresponds to pattern in argv[]*/
 		template<typename Type>
 			Type get(std::string pattern);
 
 		/*! sets val to the value that corresponds to val[i]*/
 		template<typename Type>
-			void set(unsigned int i, Type &input);
+			void get(unsigned int i, Type& input);
 		/*! returns the value that corresponds to val[i]*/
 		template<typename Type>
 			Type get(unsigned int i);
 
+		bool check(std::string pattern);
+
 		bool status() const {return locked; }
 
 		unsigned int size() const { return val.size();}
+
+		std::string name(unsigned int i) const { return var[i];}
 
 	private:
 		Parseur();
@@ -73,8 +77,17 @@ bool Parseur::search(std::string pattern, Type &input){
 }
 
 template<typename Type>
-void Parseur::set(std::string pattern, Type &input){
+void Parseur::get(std::string pattern, Type &input){
 	if(!search(pattern,input)){ std::cerr<<"Parseur : -"<<pattern<<" wasn't found thus its value is unchanged : "<< input <<std::endl; }
+}
+
+template<typename Type>
+void Parseur::get(unsigned int i, Type &input){
+	if(i<val.size()){
+		input = val[i];
+	} else {
+		std::cerr<<"Parseur : "<<i<<" is bigger than the number of argument given, thus the value is unchanged : "<< input <<std::endl;
+	}
 }
 
 template<typename Type>
@@ -87,14 +100,6 @@ Type Parseur::get(std::string pattern){
 	return input;
 }
 
-template<typename Type>
-void Parseur::set(unsigned int i, Type &input){
-	if(i<val.size()){
-		input = val[i];
-	} else {
-		std::cerr<<"Parseur : "<<i<<" is bigger than the number of argument given, thus the value is unchanged : "<< input <<std::endl;
-	}
-}
 
 template<typename Type>
 Type Parseur::get(unsigned int i){

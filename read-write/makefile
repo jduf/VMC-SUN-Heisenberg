@@ -5,9 +5,12 @@ CXXFLAGS = -pedantic -Wall -Wextra
 
 LDFLAGS = -pedantic -Wall -Wextra 
 
-all:test
+all:evalnote
 
-test.o:test.cpp Read.hpp Write.hpp Header.hpp Matrix.hpp Vector.hpp
+evalnote.o:evalnote.cpp Read.hpp Write.hpp Header.hpp Matrix.hpp Vector.hpp Parseur.hpp Gnuplot.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+
+Gnuplot.o:Gnuplot.cpp Gnuplot.hpp Write.hpp RST.hpp Header.hpp Time.hpp Matrix.hpp 
 	$(CXX) -c  $(CXXFLAGS) $^
 
 Read.o:Read.cpp Read.hpp  Header.hpp Matrix.hpp Vector.hpp
@@ -22,7 +25,10 @@ Header.o:Header.cpp Header.hpp RST.hpp  Matrix.hpp Vector.hpp Time.hpp
 RST.o:RST.cpp RST.hpp  
 	$(CXX) -c  $(CXXFLAGS) $^
 
-test:test.o Read.o Write.o Header.o RST.o
+Parseur.o:Parseur.cpp Parseur.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+
+evalnote:evalnote.o Read.o Write.o Header.o RST.o Parseur.o Gnuplot.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 ref:

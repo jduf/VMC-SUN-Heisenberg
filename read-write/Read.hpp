@@ -35,12 +35,15 @@ class Read{
 		template<typename Type>
 			Read& operator>>(Type& t);
 		Read& operator>>(std::string& s);
-		/*!Stream operator that reads matrices, uses
+		/*!Stream operator that reads Matrix<Type>, uses
 		 * Matrix<Type>::operator>>*/
 		template<typename Type>
 			Read& operator>>(Matrix<Type>& mat);
 		Read& operator>>(Matrix<std::string>& mat);
-
+		/*!Stream operator that reads Vector<Type>, uses
+		 * Matrix<Type>::operator>>*/
+		template<typename Type>
+			Read& operator>>(Vector<Type>& vec);
 
 		/*!Returns the header contained in the file*/
 		std::string get_header() const;
@@ -63,9 +66,12 @@ class Read{
 		/*!Subroutine that check if the correct extension is given*/
 		bool test_ext(std::string f);
 
-		/*!Subroutine needed to read a matrix from a binary file*/
+		/*!Subroutine needed to read a Matrix<Type> from a binary file*/
 		template<typename Type>
 			void read_binary_matrix(Matrix<Type>& mat);
+		/*!Subroutine needed to read a Vector<Type> from a binary file*/
+		template<typename Type>
+			void read_binary_vector(Vector<Type>& vec);
 
 		std::string filename; //!< name of the file to read from
 		FILE *bfile; //!< pointer on the binery file to read from
@@ -106,6 +112,25 @@ void Read::read_binary_matrix(Matrix<Type>& mat){
 	reading_point = fread(&N_col,sizeof(N_col),1,bfile);
 	if(N_row != mat.row() || N_col != mat.col()) { mat.set(N_row,N_col); } 
 	reading_point = fread(mat.ptr(),sizeof(Type),N_row*N_col,bfile);
+}
+
+template<typename Type>
+Read& Read::operator>>(Vector<Type>& vec){
+	if(unlocked){
+		if(binary) { read_binary_vector(vec); }
+		else { tfile>>vec; }
+	} else {
+		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
+	}
+	return (*this);
+}
+
+template<typename Type>
+void Read::read_binary_vector(Vector<Type>& vec){
+	unsigned int N(0);
+	reading_point = fread(&N,sizeof(N),1,bfile);
+	if(N != vec.size()) { vec.set(N); } 
+	reading_point = fread(vec.ptr(),sizeof(Type),N,bfile);
 }
 #endif
 

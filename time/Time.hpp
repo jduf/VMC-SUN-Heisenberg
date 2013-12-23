@@ -24,6 +24,13 @@ class Time{
 			else{return false;}
 		}
 
+		void reset(){
+			rawtime_ = time(0);
+			time_ = localtime(&rawtime_);
+		}
+
+		time_t elapsed() const { return time(0)-rawtime_ ; }
+
 	private:
 		time_t rawtime_;
 		struct tm* time_;

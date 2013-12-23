@@ -40,5 +40,12 @@ std::string tostring(T const& t){
 	return s.str();
 }
 
+template<typename T>
+double round(T t, unsigned int d){
+	t *= 10^d;	
+	if(t>0){ return floor(t)/(d^10); } 
+	else { return ceil(t)/(d^10); } 
+}
+
 std::ostream& operator<<(std::ostream& flux, RST const& rst);
 #endif

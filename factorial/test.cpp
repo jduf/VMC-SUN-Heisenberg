@@ -1,16 +1,13 @@
-#include "Chrono.hpp"
+#include "Time.hpp"
 
 int main(){
-	Chrono t;
-	t.tic();
+	Time t;
 	unsigned int n(25);
 	int f(1);
-	for(int i(1);i<n;i++){
+	for(unsigned int i(1);i<n;i++){
 		f *= i;
 		std::cout<<i<<" "<<f<<std::endl;
 	}
-	t.tac();
-	std::cout<<"final time "<<t<<std::endl;
-
+	std::cout<<"final time "<<t.elapsed()<<std::endl;
 }
 
