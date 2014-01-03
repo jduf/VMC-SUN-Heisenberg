@@ -21,7 +21,7 @@ class SystemFermionic : public System<Type>{
 		 * - creates an random initial state
 		 * - if the sate is allowed, compute its related Ainv matrices
 		*/ //}
-		unsigned int init(Container const& input, unsigned int thread);
+		unsigned int init(Container const& input, unsigned int const& thread);
 
 		/*!Call System<Type>::swap() and set row and new_ev*/
 		void swap();
@@ -87,7 +87,7 @@ SystemFermionic<Type>::~SystemFermionic(){
 /*methods that modify the class*/
 /*{*/
 template<typename Type>
-unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int thread){
+unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int const& thread){
 	System<Type>::init(input,thread);
 	EVec_= input.get<Matrix<Type> >("EVec");
 	Ainv_ = new Matrix<Type>[this->N_];

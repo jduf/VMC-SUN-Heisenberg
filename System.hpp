@@ -23,7 +23,7 @@ class System{
 		 * - allocates memory Ainv_
 		 * - initialize the random number generator
 		 */ //}
-		virtual unsigned int init(Container const& input, unsigned int thread);
+		virtual unsigned int init(Container const& input, unsigned int const& thread);
 
 		/*!Exchanges two particles of different color */
 		virtual void swap();
@@ -85,7 +85,7 @@ System<Type>::~System(){
 /*methods that modify the class*/
 /*{*/
 template<typename Type>
-unsigned int System<Type>::init(Container const& input, unsigned int thread){
+unsigned int System<Type>::init(Container const& input, unsigned int const& thread){
 	N_ = input.get<unsigned int>("N");
 	m_ = input.get<unsigned int>("m");
 	n_ = input.get<unsigned int>("n");

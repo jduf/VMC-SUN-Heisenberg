@@ -9,7 +9,7 @@ class SquareJastrow: public Square<double>{
 		~SquareJastrow();
 
 	protected:
-		double nu_;
+		Vector<double> nu_;
 		Matrix<unsigned int> nn_;
 		Matrix<unsigned int> nnn_;
 		Vector<unsigned int> sl_;

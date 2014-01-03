@@ -20,7 +20,7 @@ class SystemBosonic : public System<Type>{
 		 * - calls System<Type>::init()
 		 * - creates an random initial state
 		 */ //}
-		unsigned int init(Container const& input, unsigned int thread);
+		unsigned int init(Container const& input, unsigned int const& thread);
 		
 		//{Description
 		/*!Computes the ratio of the two Jastrow factor related to the current
@@ -40,7 +40,7 @@ class SystemBosonic : public System<Type>{
 		SystemBosonic& operator=(SystemBosonic const& S);
 
 		Matrix<unsigned int> nn_; //!< nn_(i,j):jth neighbour of the ith site
-		double nu_;
+		Vector<double> nu_;
 		Matrix<Type> omega_;
 		Vector<unsigned int> sl_;
 };
@@ -59,9 +59,9 @@ SystemBosonic<Type>::~SystemBosonic(){}
 /*methods that modify the class*/
 /*{*/
 template<typename Type>
-unsigned int SystemBosonic<Type>::init(Container const& input, unsigned int thread){
+unsigned int SystemBosonic<Type>::init(Container const& input, unsigned int const& thread){
 	System<Type>::init(input,thread);
-	nu_ = input.get<double>("nu");
+	nu_ = input.get<Vector<double> >("nu");
 	nn_ = input.get<Matrix<unsigned int> >("nn");
 	sl_ = input.get<Vector<unsigned int> >("sl");
 	omega_ = input.get<Matrix<Type> >("omega");
@@ -106,23 +106,26 @@ Type SystemBosonic<Type>::ratio(){
 			* omega_(sl_(this->new_s[1]),this->color[1]);
 
 		/*! if unsigned int, a-b is an unsigned int and it is a problem*/
-		int a(0);/*!counts the number of unsatisfied bonds of the current
-				   configuration */
-		int b(0);/*!counts the number of unsatisfied bounds of the next
-				   configuration */
+		double a(0.0);/*!counts the number of unsatisfied bonds of the current
+						configuration */
+		double b(0.0);/*!counts the number of unsatisfied bounds of the next
+						configuration */
 		for(unsigned int i(0);i<nn_.col();i++){
-			if(this->color[0] != this->s_(nn_(this->new_s[0],i),0)){ a++; }
-			if(this->color[1] != this->s_(nn_(this->new_s[1],i),0)){ a++; }
-			if(this->color[1] != this->s_(nn_(this->new_s[0],i),0)){ b++; }
-			if(this->color[0] != this->s_(nn_(this->new_s[1],i),0)){ b++; }
+			if(this->color[0] != this->s_(nn_(this->new_s[0],i),0)){ a+=nu_(i); }
+			if(this->color[1] != this->s_(nn_(this->new_s[1],i),0)){ a+=nu_(i); }
+			if(this->color[1] != this->s_(nn_(this->new_s[0],i),0)){ b+=nu_(i); }
+			if(this->color[0] != this->s_(nn_(this->new_s[1],i),0)){ b+=nu_(i); }
 			/*!if neighbouring sites are exchanged, the "b" doesn't count the
 			 * unsatisfied bound between those sites because the site are not
 			 * effectively exchanged. It needs to be counted twice because the
-			 * "a" counts twice the link between neighbouring sites*/
-			if(nn_(this->new_s[0],i)==this->new_s[1]){b+=2;}
+			 * "a" counts twice the link between neighbouring sites. So if the
+			 * nu can be different in each direction, the correction has to be
+			 * done in two steps*/
+			if(nn_(this->new_s[0],i)==this->new_s[1]){b+=nu_(i);}
+			if(nn_(this->new_s[1],i)==this->new_s[0]){b+=nu_(i);}
 		}
 		//std::cout<<sl_(this->new_s[0])<<" "<<sl_(this->new_s[1])<<"  "<<omegab_a<<" "<<exp(nu_*(a-b))*omegab_a<<std::endl;
-		return exp(nu_*(b-a))*omegab_a;
+		return exp(b-a)*omegab_a;
 	}
 }
 

@@ -2,7 +2,7 @@
 
 TriangleJastrow::TriangleJastrow(Parseur& P):
 	Triangle<double>(P,"triangle-Jastrow"),
-	nu_(P.get<double>("nu")),
+	nu_(z_,P.get<double>("nu")),
 	nn_(n_,z_),
 	sl_(n_),
 	omega_(N_,N_,1.0)
@@ -17,8 +17,9 @@ TriangleJastrow::TriangleJastrow(Parseur& P):
 			if(bc_ == 1){ filename_ += "-P";} 
 			else { filename_ += "-A";}
 			filename_ += "-nu+" + tostring(nu_);
-
+			std::cout<<sts_<<std::endl;
 			compute_nn();
+			std::cout<<nn_<<std::endl;
 			compute_sublattice();
 			compute_omega();
 			save();
@@ -51,16 +52,55 @@ void TriangleJastrow::save(){
 	w("sts (connected sites)",sts_);
 }
 
+Vector<unsigned int> TriangleJastrow::get_neighbourg(unsigned int i){
+	Vector<unsigned int> neighbourg(z_);
+	/*0 neighbour*/
+	if((i+1)%Lx_){ neighbourg(0) = i+1; } 
+	else { neighbourg(0) = (i/Lx_)*Lx_; }
+	/*pi/3 neighbour*/
+	if((i+1)%Lx_ && i+Lx_<n_){ neighbourg(1) = i+Lx_+1; } 
+	else {
+		if(i+1<n_){
+			if((i+1)%Lx_){ neighbourg(1) = i-Lx_*(Ly_-1)+1; }
+			if(i+Lx_<n_ ){ neighbourg(1) = i+1; }
+		} else { neighbourg(1) = 0 ;}
+	}
+	/*2pi/3 neighbour*/
+	if(i+Lx_<n_){ neighbourg(2) = i+Lx_; }
+	else { neighbourg(2) = i-n_+Lx_; }
+	/*pi neighbour*/
+	if(i%Lx_){ neighbourg(3) = i-1; }
+	else { neighbourg(3) = i+Lx_-1; }
+	/*4pi/3 neighbour*/
+	if(i%Lx_ && i>=Lx_){ neighbourg(4) = i-Lx_-1; } 
+	else {
+		if(i!=0){
+			if(i<Lx_){ neighbourg(4) = n_-Lx_+i-1;}
+			else{ neighbourg(4) = i-1; }
+		} else { neighbourg(4) = n_-1 ;}
+	}
+	/*5pi/3 neighbour*/
+	if(i>=Lx_){ neighbourg(5) = i-Lx_; }
+	else { neighbourg(5) = n_-Lx_+i; }
+
+	return neighbourg;
+}
+
 void TriangleJastrow::compute_nn(){
-	unsigned int k(0);
+	Vector<unsigned int> neighbourg;
 	for(unsigned int i(0);i<n_;i++){
-		k=0;
-		for(unsigned int j(0);j<n_;j++){
-			if(H_(i,j)){ 
-				nn_(i,k) = j;
-				k++;
-			}
+		neighbourg = get_neighbourg(i);
+		for(unsigned int j(0);j<z_;j++){
+			nn_(i,j) = neighbourg(j);
 		}
+		//unsigned int l(z_);
+		//for(unsigned int j(0);j<z_;j++){
+		//neighbourg = get_neighbourg(nn_(i,j));
+		//for(unsigned int k(j);k<j+2;k++){
+		//nn_(i,l) = neighbourg(k%z_);
+		//l++;
+		//}
+		//}
 	}
 }
 
@@ -132,7 +172,7 @@ void TriangleJastrow::lattice(){
 	}
 
 	double r(0.2);
-	
+
 	Read reseau("lattice");
 	Matrix<unsigned int> ada(n_,N_);
 	reseau>>ada;

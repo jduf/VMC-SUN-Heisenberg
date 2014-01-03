@@ -9,8 +9,10 @@ class TriangleJastrow: public Triangle<double>{
 		TriangleJastrow(Parseur& P);
 		~TriangleJastrow();
 
+		Vector<unsigned int> get_neighbourg(unsigned int i);
+
 	protected:
-		double nu_;
+		Vector<double> nu_;
 		Matrix<unsigned int> nn_;
 		Vector<unsigned int> sl_;
 		Matrix<std::complex<double> > omega_;

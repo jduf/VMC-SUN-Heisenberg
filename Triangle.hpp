@@ -53,8 +53,8 @@ void Triangle<Type>::compute_H(){
 		if( (i+1) % Lx_ && i+Lx_ < this->n_ ){  this->H_(i,i+Lx_+1) = 1; } 
 		else {
 			if(i+1 < this->n_ ){
-				if( !((i+1) % Lx_) ){ this->H_(i,i+1) = -3;}/*x jump across boundary*/
-				if( i+Lx_ >= this->n_ ){  this->H_(i-Lx_*(Ly_-1)+1,i) = -4; }/*y jump across boundary*/
+				if( (i+1) % Lx_ ){this->H_(i-Lx_*(Ly_-1)+1,i) = -4; }/*y jump across boundary*/
+				if( i+Lx_ < this->n_ ){ this->H_(i,i+1) = -3;}/*x jump across boundary*/
 			} else {
 				this->H_(0,this->n_-1) = 2;
 			}

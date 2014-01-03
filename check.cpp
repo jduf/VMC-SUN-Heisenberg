@@ -43,8 +43,8 @@ void check(std::string filename){
 			std::cout<<" phi="<<param.get<double>("phi");
 		}
 		if( wf == "jastrow" || wf == "trianglejastrow"){
-			double nu(0.0);
-			file.extract<double>(nu);
+			Vector<double> nu;
+			file.extract<Vector<double> >(nu);
 			std::cout<<" nu="<<nu;
 			file.extract<Matrix<unsigned int> >("nn",param);
 			file.extract<Vector<unsigned int> >("sl",param);
@@ -55,7 +55,7 @@ void check(std::string filename){
 	file.extract<Matrix<unsigned int> >("sts",param);
 	std::cout<<std::endl<<"sts=" <<std::endl
 		<<param.get<Matrix<unsigned int> >("sts")<<std::endl;
-	if( wf == "mu" || wf == "chain"){
+	if( wf == "mu" || wf == "chain" || wf == "fermi"){
 		file.extract<Matrix<double> >("EVec",param);
 		std::cout<<"EVec="<<std::endl
 			<<param.get<Matrix<double> >("EVec")<<std::endl;

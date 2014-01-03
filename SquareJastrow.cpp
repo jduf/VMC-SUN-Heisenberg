@@ -2,8 +2,8 @@
 
 SquareJastrow::SquareJastrow(Parseur& P):
 	Square<double>(P,"square-Jastrow"),
-	nu_(P.get<double>("nu")),
-	nn_(n_,3*z_),
+	nu_(z_,P.get<double>("nu")),
+	nn_(n_,z_),
 	sl_(n_),
 	omega_(N_,N_,1.0)
 {
@@ -13,7 +13,7 @@ SquareJastrow::SquareJastrow(Parseur& P):
 		filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 		if(bc_ == 1){ filename_ += "-P";} 
 		else { filename_ += "-A";}
-		filename_ += "-nu+" + tostring(nu_);
+		filename_ += "-nu+" + tostring(nu_(0));
 
 		compute_nn();
 		compute_sublattice();
@@ -72,14 +72,14 @@ void SquareJastrow::compute_nn(){
 		for(unsigned int j(0);j<z_;j++){
 			nn_(i,j) = neighbourg(j);
 		}
-		unsigned int l(z_);
-		for(unsigned int j(0);j<z_;j++){
-			neighbourg = get_neighbourg(nn_(i,j));
-			for(unsigned int k(j);k<j+2;k++){
-				nn_(i,l) = neighbourg(k%z_);
-				l++;
-			}
-		}
+		//unsigned int l(z_);
+		//for(unsigned int j(0);j<z_;j++){
+			//neighbourg = get_neighbourg(nn_(i,j));
+			//for(unsigned int k(j);k<j+2;k++){
+				//nn_(i,l) = neighbourg(k%z_);
+				//l++;
+			//}
+		//}
 	}
 }
 

@@ -13,8 +13,11 @@ int main(int argc, char* argv[]){
 	if(!P.status()){
 		Container input;
 		Container param(true);
+		input.set("filename",filename);
+
 		std::string wf;
 		unsigned int m(0),N(0),nthreads(1);
+		bool fermionic(true);
 
 		P.get("nthreads",nthreads);
 
@@ -38,8 +41,6 @@ int main(int argc, char* argv[]){
 		param.set("m",m);
 		param.set("n",N*m);
 
-		bool fermionic(true);
-
 		file.extract<double>("bc",param);
 		if( wf != "chain" ){
 			file.extract<unsigned int>("Lx",param);
@@ -51,8 +52,8 @@ int main(int argc, char* argv[]){
 				file.extract<double>("phi",param);
 			}
 			if( wf == "jastrow" || wf == "trianglejastrow" ){ 
-				double nu(0.0);
-				file.extract<double>(nu);
+				Vector<double> nu;
+				file.extract<Vector<double> >(nu);
 				file.extract<Matrix<unsigned int> >("nn",input);
 				file.extract<Vector<unsigned int> >("sl",input);
 				file.extract<Matrix<std::complex<double> > >("omega",input);
@@ -61,37 +62,30 @@ int main(int argc, char* argv[]){
 				param.set("nu",nu);
 			}
 		}
+		input.set("fermionic",fermionic);
 		file.extract<Matrix<unsigned int> >("sts",input);
 
 		if( wf != "csl" && wf != "phi" && wf != "trianglephi" && wf != "jastrow" && wf != "trianglejastrow"){
-			MonteCarlo<double> sim(filename,nthreads,fermionic);
 			if(fermionic){
 				file.extract<Matrix<double> >("EVec",input);
 			}
-		//sim.test(input,0);
 #pragma omp parallel num_threads(nthreads)
 			{
-				sim.init(input,omp_get_thread_num());
-				sim.run(omp_get_thread_num());
-			}
-			for(unsigned int thread(0); thread<nthreads; thread++){
-				save(param,sim.save(thread),results);
+				MonteCarlo<double> sim(input);
+				sim.run();
+				save(param,sim.save(),results);
 			}
 		} else {
 			std::cerr<<"complex"<<std::endl;
-			MonteCarlo<std::complex<double> > sim(filename,nthreads,fermionic);
 			if(fermionic){
 				file.extract<Matrix<std::complex<double> > >("EVec",input);
 			}
-		sim.test(input,0);
-//#pragma omp parallel num_threads(nthreads)
-			//{
-				//sim.init(input,omp_get_thread_num());
-				//sim.run(omp_get_thread_num());
-			//}
-			//for(unsigned int thread(0); thread<nthreads; thread++){
-				//save(param,sim.save(thread),results);
-			//}
+#pragma omp parallel num_threads(nthreads)
+			{
+				MonteCarlo<std::complex<double> > sim(input);
+				sim.run();
+				save(param,sim.save(),results);
+			}
 		}
 	} else {
 		fprintf(stderr,"main : ./mc -sim filename.jdbin -nthreads n\n");

@@ -11,36 +11,27 @@
 //{Description
 /*! Class MonteCarlo
  *
- * Is created simply by giving the name of the output file and the number of
- * independant thread that sould be lunched. An independant System will be
- * created on each thread and therefore, each System should be initialized
- * using the init method.  For each thread, the class let System evolve using
- * its update(), swap() and * ratio() methods.  Thus System.hpp need to have
- * those methods
+ * Implement the Monte-Carlo algorithm. This alorithm let a system (System*)
+ * evolves according to a Markov process. To work properly, System* has to be
+ * written with :
+ * 
+ * + System->ratio() : compute the probability to accept the next configuration
+ * + System->update() : update the old cufiguration to the new one
+ * + System->measure() : measure an observable according to the current
+ * configuration
  */
 //}
 template <typename Type>
 class MonteCarlo{
 	public:
-		/*!Allocate memory with new[] and starts the chronometer*/
-		MonteCarlo(std::string filename, unsigned int const& nthreads, bool type); 
-		/*!Free allocated memory with delete[]*/
+		/*!*/
+		MonteCarlo(Container const& input); 
 		~MonteCarlo();
 
-		//{Public methods, core of the Monte-Carlo simulation
-		/*!Lunches an independent simulation on a thread. When one of the
-		 * threads is stopped by the test_convergence() method, all thread will
-		 * be stopped at the same time and the results for all threads are
-		 * computed
-		 * */
-		//}
-		void run(unsigned int const& thread);
-		/*!Initializes a different System for each thread*/
-		void init(Container const&, unsigned int const& thread);
+		/*!Run the Monte-Carlo algorithme */
+		void run();
 		/*!Saves the essential data in the "result" file*/
-		Container save(unsigned int const& thread);
-
-		void test(Container const& input, unsigned int const& thread);
+		Container save();
 
 	private:
 		/*!Forbids the copy constructor*/
@@ -59,84 +50,67 @@ class MonteCarlo{
 		 * ands save each step in the "output" file
 		 */
 		//}
-		void test_convergence(unsigned int const& thread);
+		void test_convergence();
 		/*!Proceed to a binning analysis and, for each bin, it save the variance */
-		void binning(std::vector<double>& d, unsigned int const& thread);
+		void binning(std::vector<double>& d);
 		/*!Computes the mean of a std::vector<double> */
 		double mean(std::vector<double> const& v);
 		/*!Compute the variance of a std::vector<double> */
 		double delta(std::vector<double> const& v, double const& m);
 	
-		unsigned int const nthreads; //!< Number of independant chains that are lunched
-		unsigned int const N_MC; //!< Number of measure to do before doing a binning analysis
-		unsigned int t_max; //!< Time limit in second, by default 5min
-		bool keep_measuring; //!< True if the code runs
-		Time stop; //!< To stop the simulation after time_limit seconds
-		Write output; //!< Text file of name "filename-MC.out" that stores all the output of the MC algorithm
-		System<Type>* S; //!< Pointer to a system 
-		double* E; //!< Value that the MC algorithm tries to compute
-		double* err; //!< Error on E
-		std::vector<double>* sampling; //!< Stores all the values that MC considers
-		unsigned int* status; //!< Not Lunched:0 Lunched:1 Successful:2 Time elapsed:3
+		System<Type> *S; 		//!< Pointer to a Fermionic or Bosonic System 
+		Rand* rnd; 				//!< Pointer to a random number generator
+		double E; 				//!< Value that the MC algorithm tries to compute
+		double err; 			//!< Error on E
+		std::vector<double> sampling; //!< Stores all the values that MC considers
+		Time stop; 				//!< To stop the simulation after time_limit seconds
+		unsigned int t_max;		//!< Time limit in second, by default 5min
+		unsigned int status; 	//!< Not Lunched:0 Lunched:1 Successful:2 Time elapsed:3
+		unsigned int const N_MC;//!< Number of measure to do before doing a binning analysis
+		bool keep_measuring; 	//!< True if the code runs
+		Write output; 			//!< Text file of name "filename-MC.out" that stores all the output of the MC algorithm
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-MonteCarlo<Type>::MonteCarlo(std::string filename, unsigned int const& nthreads, bool type):
-	nthreads(nthreads),
-	N_MC(1e4),
+MonteCarlo<Type>::MonteCarlo(Container const& input):
+	S(NULL),
+	rnd(NULL),
+	E(0),
+	err(0),
 	t_max(5*60),
+	status(0),
+	N_MC(1e4),
 	keep_measuring(true),
-	output(filename+".out"),
-	E(new double[nthreads]),
-	err(new double[nthreads]),
-	sampling(new std::vector<double>[nthreads]),
-	status(new unsigned int[nthreads])
+	output(input.get<std::string>("filename")+".out")
 {
-	if(type){ S=new SystemFermionic<Type>[nthreads]; }
-	else { S=new SystemBosonic<Type>[nthreads];}
-}
-
-template<typename Type>
-MonteCarlo<Type>::~MonteCarlo(){
-	delete[] S;
-	delete[] sampling;
-	delete[] E;
-	delete[] err;
-}
-/*}*/
-
-/*public methods*/
-/*{*/
-template<typename Type>
-void MonteCarlo<Type>::test(Container const& input, unsigned int const& thread) {
+	//unsigned int thread(omp_get_thread_num());
+	unsigned int thread(0);
+	std::cerr<<"Be sure that each Monte Carlo has its own random number generator, and that this generator is different than the System one"<<std::endl;
+	rnd=new Rand(1e4,thread);
+	if(input.get<bool>("fermionic")){ S=new SystemFermionic<Type>; }
+	else { S=new SystemBosonic<Type>;}
 	input.get("t_max",t_max);
-	status[thread] = S[thread].init(input,thread);
-	if(status[thread]){
-		S[thread].print();
-		for(unsigned int i(0);i<2;i++){
-			S[thread].swap();
-			S[thread].ratio();
-			S[thread].update();
-			S[thread].print();
-		}
-	}
-}
-
-template<typename Type>
-void MonteCarlo<Type>::init(Container const& input, unsigned int const& thread) {
-	input.get("t_max",t_max);
-	status[thread] = S[thread].init(input,thread);
-	if(status[thread]){
+	status = S->init(input,thread);
+	//if(status){
+		//S->print();
+		//for(unsigned int i(0);i<2;i++){
+			//S->swap();
+			//S->ratio();
+			//S->update();
+			//S->print();
+		//}
+	//}
+	
+	if(status){
 		std::cerr<<"thermalization (has been changed)"<<std::flush;
 		double ratio(0.0);
-		Rand rnd(1e4,thread);
 		for(unsigned int i(0);i<1e5;i++){
-			S[thread].swap();
-			ratio = norm_squared(S[thread].ratio());
-			if( ratio > rnd.get() ){
-				S[thread].update();
+			S->swap();
+			ratio = norm_squared(S->ratio());
+			if( ratio > rnd->get() ){
+				S->update();
 			}
 		}
 		std::cerr<<"completed"<<std::endl;
@@ -144,68 +118,76 @@ void MonteCarlo<Type>::init(Container const& input, unsigned int const& thread) 
 }
 
 template<typename Type>
-void MonteCarlo<Type>::run(unsigned int const& thread){
-	if(status[thread]){
+MonteCarlo<Type>::~MonteCarlo(){
+	delete S;
+	delete rnd;
+}
+/*}*/
+
+/*public methods*/
+/*{*/
+template<typename Type>
+void MonteCarlo<Type>::run(){
+	if(status){
 		unsigned int i(0);
 		double E_config(0);
 		double ratio(0.0);
-		Rand rnd(1e4,thread);
 		bool bin(false);
 		std::cerr<<"there is maybe a problem, for the first iterations, if the new state is rejected, I add a  0 contribution to the energy..."<<std::endl;
 		if(bin){
 			do{
-				S[thread].swap();
-				ratio = norm_squared(S[thread].ratio());
-				if( ratio > rnd.get() ){
-					S[thread].update();
-					S[thread].measure(E_config);
+				S->swap();
+				ratio = norm_squared(S->ratio());
+				if( ratio > rnd->get() ){
+					S->update();
+					S->measure(E_config);
 				}
-				E[thread] += E_config;
-				sampling[thread].push_back(E_config);
+				E += E_config;
+				sampling.push_back(E_config);
 				i++;
 				if(i >= N_MC){
 					i=0;
-					test_convergence(thread);
-					output<<sampling[thread].size()
-						<<" "<<E[thread] / (sampling[thread].size() * S[thread].n_)
-						<<" "<<err[thread]
+					test_convergence();
+					output<<sampling.size()
+						<<" "<<E / (sampling.size() * S->n_)
+						<<" "<<err
 						<<Write::endl;
 				}
 			} while(keep_measuring);
 		} else {
-			Matrix<unsigned int> lattice(S[thread].n_,S[thread].N_,0); 
+			Matrix<unsigned int> lattice(S->n_,S->N_,0); 
 			do{
-				S[thread].swap();
-				ratio = norm_squared(S[thread].ratio());
-				if( ratio > rnd.get() ){
-					S[thread].update();
-					S[thread].measure(E_config);
+				S->swap();
+				ratio = norm_squared(S->ratio());
+				if( ratio > rnd->get() ){
+					S->update();
+					S->measure(E_config);
 				}
-				E[thread] += E_config;
-				sampling[thread].push_back(E_config);
+				E += E_config;
+				sampling.push_back(E_config);
 				i++;
 				/*to check the color organization*/
-				for(unsigned int i(0);i<S[thread].n_;i++){ 
-					lattice(i,S[thread].s_(i,0))++;
+				for(unsigned int i(0);i<S->n_;i++){ 
+					lattice(i,S->s_(i,0))++;
 				}
 			} while(i<1e5); 
 			std::cout<<lattice<<std::endl;
-			S[thread].print();
-			//for(unsigned int i(0);i<sampling[thread].size();i++){
-			//std::cout<<i<<" "<<sampling[thread][i]<<std::endl;
+			S->print();
+			//for(unsigned int i(0);i<sampling.size();i++){
+			//std::cout<<i<<" "<<sampling[i]<<std::endl;
 			//}
+			test_convergence();
 		}
-		test_convergence(thread);
 	}
 }
 
 template<typename Type>
-Container MonteCarlo<Type>::save(unsigned int const& thread){
+Container MonteCarlo<Type>::save(){
 	Container out(true);
-	out.set("N_step",sampling[thread].size());
-	out.set("E",E[thread] / (sampling[thread].size() * S[thread].n_));
-	out.set("dE",err[thread]);
-	out.set("status",status[thread]);
+	out.set("N_step",sampling.size());
+	out.set("E",E / (sampling.size() * S->n_));
+	out.set("dE",err);
+	out.set("status",status);
 	return out;
 }
 /*}*/
@@ -213,20 +195,20 @@ Container MonteCarlo<Type>::save(unsigned int const& thread){
 /*private methods*/
 /*{*/
 template<typename Type>
-void MonteCarlo<Type>::test_convergence(unsigned int const& thread){
-	if( std::abs( E[thread] / sampling[thread].size() )  > 1e3 ){ 
-		E[thread] = 0.0;
-		sampling[thread].clear();
+void MonteCarlo<Type>::test_convergence(){
+	if( std::abs( E / sampling.size() )  > 1e3 ){ 
+		E = 0.0;
+		sampling.clear();
 		std::cerr<<"the simulation is restarted, bad initial condition"<<std::endl;
 	}  else {
 		if(keep_measuring && stop.time_limit_reached(t_max)){
 			keep_measuring = false;
-			status[thread] = 3;
+			status = 3;
 			std::cerr<<"the simulation was stopped because it reached the time limit"<<std::endl;
 		}
 
 		std::vector<double> d(0);
-		binning(d,thread);
+		binning(d);
 
 		double v[3];
 		double m(0.0);
@@ -240,20 +222,20 @@ void MonteCarlo<Type>::test_convergence(unsigned int const& thread){
 			cond += (v[i] - m)*(v[i] - m);
 		}
 		cond += sqrt((cond)/2);
-		err[thread] = d[d.size()-1] / S[thread].n_; 
+		err = d[d.size()-1] / S->n_; 
 		if(cond/m<1e-3){ 
 			keep_measuring = false; 
-			status[thread] = 2;
+			status = 2;
 		}
 	}
 }
 
 template<typename Type>
-void MonteCarlo<Type>::binning(std::vector<double>& d, unsigned int const& thread){
-	std::vector<double> bin(sampling[thread]);
+void MonteCarlo<Type>::binning(std::vector<double>& d){
+	std::vector<double> bin(sampling);
 	std::vector<double> bin2(bin.size()/2);
 	unsigned int l(0);
-	while(pow(2,l+1)*100<sampling[thread].size()){
+	while(pow(2,l+1)*100<sampling.size()){
 		d.push_back(delta(bin,mean(bin)));
 		l++;
 		for(unsigned int i(0);i<bin2.size();i++){
