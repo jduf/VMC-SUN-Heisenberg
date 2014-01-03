@@ -36,6 +36,7 @@ class GenericData : public Data{
 /*{Container*/
 class Container{
 	public:
+		/*!if copyinstrng == true, the variables are saved as string*/
 		Container(bool copyinstring=false):copyinstring_(copyinstring){ }
 		~Container();
 
@@ -90,7 +91,6 @@ Type Container::get(std::string name) const {
 	std::cerr<<"Container : get(string name) : no data with name "<<name<<std::endl;
 	return 0;
 }
-
 
 template<typename Type>
 void Container::get(std::string name, Type& t) const {

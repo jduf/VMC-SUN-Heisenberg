@@ -1,13 +1,16 @@
 CXX = g++
 CC = $(CXX)
 
-CXXFLAGS =  -pedantic -Wall -Wextra -llapack -lblas -fopenmp
+CXXFLAGS = -pedantic -Wall -Wextra -fopenmp
 
-LDFLAGS =  -pedantic -Wall -Wextra -llapack -lblas -fopenmp
+LDFLAGS =  -pedantic -Wall -Wextra -fopenmp
 
-all:test
+all:test test-openmp
 
-test.o:test.cpp Parseur.hpp Particle.hpp Swarm.hpp Rand.hpp
+test-openmp.o:test-openmp.cpp Time.hpp Write.hpp Header.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+
+test.o:test.cpp Parseur.hpp Particle.hpp Swarm.hpp Rand.hpp Functions.hpp Time.hpp Write.hpp Header.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 Read.o:Read.cpp Read.hpp Header.hpp Matrix.hpp
@@ -28,7 +31,10 @@ RST.o:RST.cpp RST.hpp
 Parseur.o:Parseur.cpp Parseur.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-test:test.o Parseur.o Rand.o
+test:test.o Parseur.o Rand.o Write.o Header.o RST.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+test-openmp:test-openmp.o Write.o Header.o RST.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 ref:

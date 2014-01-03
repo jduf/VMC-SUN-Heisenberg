@@ -37,6 +37,10 @@ void Header::add(std::string const& s, Vector<unsigned int> const& vec){
 	rst.def(s + "(" + tostring(vec.size()) + ")","Vector<unsigned int>");
 }
 
+void Header::add(std::string const& s, Vector<double> const& vec){
+	rst.def(s + "(" + tostring(vec.size()) + ")","Vector<double>");
+}
+
 void Header::add(std::string const& s, Matrix<int> const& mat){
 	rst.def(s + "(" + tostring(mat.row()) + "x" + tostring(mat.col())+ ")","Matrix<int>");
 }

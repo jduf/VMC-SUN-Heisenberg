@@ -6,6 +6,7 @@
 #include <string>
 #include <iostream>
 #include <ctime>
+#include <omp.h>
 
 class Rand{
 	public:

@@ -2,7 +2,6 @@
 #define DEF_TIME
 
 #include <ctime> 
-#include <iostream>
 
 class Time{
 	public:

@@ -2,11 +2,11 @@ CXX = g++
 CC = $(CXX)
 
 #CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-CXXFLAGS = -pedantic -Wall -Wextra 
+CXXFLAGS = -pedantic -Wall -Wextra -fopenmp
 #CXXFLAGS = -O3 -fopenmp -msse2
 
 #LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDLIBS = -pedantic -Wall -Wextra 
+LDLIBS = -pedantic -Wall -Wextra -fopenmp
 #LDLIBS = -O3 -fopenmp -msse2
 
 all:test
