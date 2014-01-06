@@ -31,4 +31,13 @@ int main(){
 			std::cout<<"thread="<<thread<<" rand="<<rnd.get(100)<<std::endl;;
 		}
 	}
+
+	std::cout<<"new test"<<std::endl;
+	Rand rnd3(1e4);
+#pragma omp parallel for
+	for(unsigned int i=0;i<20;i++){
+		for(unsigned int j(0);j<10;j++){
+			std::cout<<"thread="<<omp_get_thread_num()<<" rand="<<rnd3.get(100)<<std::endl;;
+		}
+	}
 }
