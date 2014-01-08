@@ -42,6 +42,7 @@ int main(int argc, char* argv[]){
 	}
 	if( wf == "jastrow" ){
 		SquareJastrow s(P);
+		s.save();
 	}
 	if(wf == "triangle" ){
 		TriangleFermi s(P);
@@ -54,6 +55,7 @@ int main(int argc, char* argv[]){
 	}
 	if( wf == "trianglejastrow" ){
 		TriangleJastrow s(P);
+		s.save();
 	}
 }
 

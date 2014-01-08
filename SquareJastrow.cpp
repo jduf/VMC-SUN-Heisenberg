@@ -2,26 +2,18 @@
 
 SquareJastrow::SquareJastrow(Parseur& P):
 	Square<double>(P,"square-Jastrow"),
-	nu_(z_,P.get<double>("nu")),
-	nn_(n_,z_),
+	nn_(n_,3*z_),
 	sl_(n_),
 	omega_(N_,N_,1.0)
 {
-	if(!P.status()){
-		filename_ += "-N" + tostring(N_);
-		filename_ += "-S" + tostring(n_);
-		filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-		if(bc_ == 1){ filename_ += "-P";} 
-		else { filename_ += "-A";}
-		filename_ += "-nu+" + tostring(nu_(0));
-
-		compute_nn();
-		compute_sublattice();
-		compute_omega();
-		save();
-	} else {
-		std::cerr<<"SquareJastrow : need to provide nu"<<std::endl;
-	}
+	filename_ += "-N" + tostring(N_);
+	filename_ += "-S" + tostring(n_);
+	filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+	if(bc_ == 1){ filename_ += "-P";} 
+	else { filename_ += "-A";}
+	compute_nn();
+	compute_sublattice();
+	compute_omega();
 }
 
 SquareJastrow::~SquareJastrow(){}
@@ -40,7 +32,6 @@ void SquareJastrow::save(){
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
-	w("nu (jastrow coefficient)",nu_);
 	w("nn (nearst neighbours)",nn_);
 	w("sl (sublattice)",sl_);
 	w("omega (omega)",omega_);
@@ -72,14 +63,14 @@ void SquareJastrow::compute_nn(){
 		for(unsigned int j(0);j<z_;j++){
 			nn_(i,j) = neighbourg(j);
 		}
-		//unsigned int l(z_);
-		//for(unsigned int j(0);j<z_;j++){
-			//neighbourg = get_neighbourg(nn_(i,j));
-			//for(unsigned int k(j);k<j+2;k++){
-				//nn_(i,l) = neighbourg(k%z_);
-				//l++;
-			//}
-		//}
+		unsigned int l(z_);
+		for(unsigned int j(0);j<z_;j++){
+			neighbourg = get_neighbourg(nn_(i,j));
+			for(unsigned int k(j);k<j+2;k++){
+				nn_(i,l) = neighbourg(k%z_);
+				l++;
+			}
+		}
 	}
 }
 
@@ -104,4 +95,16 @@ void SquareJastrow::compute_omega(){
 		omega_(1,2) = std::polar(1.0,4.0*M_PI/3.0);
 		omega_(2,1) = std::polar(1.0,4.0*M_PI/3.0);
 	}
+}
+
+void SquareJastrow::properties(Container& c){
+	c.set("N",N_);
+	c.set("m",m_);
+	c.set("bc",bc_);
+	c.set("Lx",Lx_);
+	c.set("Ly",Ly_);
+	c.set("sts",sts_);
+	c.set("nn",nn_);
+	c.set("sl",sl_);
+	c.set("omega",omega_);
 }

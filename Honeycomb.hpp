@@ -37,7 +37,9 @@ Honeycomb<Type>::Honeycomb(Parseur& P, std::string filename):
 }
 
 template<typename Type>
-Honeycomb<Type>::~Honeycomb(){}
+Honeycomb<Type>::~Honeycomb(){
+	std::cerr<<"attention n!=Nm => System won't work"<<std::endl;
+}
 
 template<typename Type>
 void Honeycomb<Type>::compute_H(){

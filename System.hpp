@@ -88,8 +88,8 @@ template<typename Type>
 unsigned int System<Type>::init(Container const& input, unsigned int const& thread){
 	N_ = input.get<unsigned int>("N");
 	m_ = input.get<unsigned int>("m");
-	n_ = input.get<unsigned int>("n");
 	sts_ = input.get<Matrix<unsigned int> >("sts");
+	n_ = N_*m_;
 	rnd = new Rand(100,thread);
 	s_.set(n_,2);
 

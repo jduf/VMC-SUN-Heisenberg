@@ -19,27 +19,40 @@
  * + System->update() : update the old cufiguration to the new one
  * + System->measure() : measure an observable according to the current
  * configuration
+ *
+ * Each time that a class is instanciated, a random number generator is created
+ * according to the thread on which the code is running. The same thread number
+ * is then transmitted to create the (System*). Once the (*System) is created,
+ * it is thermilized.
+ *
+ * The run(what,N_MC) method lunches the Monte-Carlo simulation.
  */
 //}
+
 template <typename Type>
 class MonteCarlo{
 	public:
-		/*!*/
+		/*!The container must contain a filename to store the executing data,
+		 * the parameter required for (*System) and an optional t_max option*/
 		MonteCarlo(Container const& input); 
 		~MonteCarlo();
 
 		/*!Run the Monte-Carlo algorithme */
-		void run();
+		void run(unsigned int what, unsigned int N_MC);
 		/*!Saves the essential data in the "result" file*/
 		Container save();
 
+		/*!Get the energy per site*/
+		double get_energy() const { return this->E_/(sampling.size() * S->n_); };
+
 	private:
 		/*!Forbids the copy constructor*/
-		MonteCarlo(MonteCarlo const& mc);
+		MonteCarlo(MonteCarlo const& mc); 
 		/*!Forbids the assignment operator*/
 		MonteCarlo const& operator=(MonteCarlo const& mc);
 
-
+		/*!Find the next configuration and measure it*/
+		void next_step(double& E_step);
 		//{Private methods that give a shutoff condition
 		/*!Stops the simulation when
 		 *
@@ -57,16 +70,15 @@ class MonteCarlo{
 		double mean(std::vector<double> const& v);
 		/*!Compute the variance of a std::vector<double> */
 		double delta(std::vector<double> const& v, double const& m);
-	
-		System<Type> *S; 		//!< Pointer to a Fermionic or Bosonic System 
+
+		System<Type>* S; 		//!< Pointer to a Fermionic or Bosonic System 
 		Rand* rnd; 				//!< Pointer to a random number generator
-		double E; 				//!< Value that the MC algorithm tries to compute
-		double err; 			//!< Error on E
+		double E_; 				//!< Value that the MC algorithm tries to compute
+		double err; 			//!< Error on E_
 		std::vector<double> sampling; //!< Stores all the values that MC considers
 		Time stop; 				//!< To stop the simulation after time_limit seconds
 		unsigned int t_max;		//!< Time limit in second, by default 5min
 		unsigned int status; 	//!< Not Lunched:0 Lunched:1 Successful:2 Time elapsed:3
-		unsigned int const N_MC;//!< Number of measure to do before doing a binning analysis
 		bool keep_measuring; 	//!< True if the code runs
 		Write output; 			//!< Text file of name "filename-MC.out" that stores all the output of the MC algorithm
 };
@@ -77,34 +89,30 @@ template<typename Type>
 MonteCarlo<Type>::MonteCarlo(Container const& input):
 	S(NULL),
 	rnd(NULL),
-	E(0),
+	E_(0),
 	err(0),
 	t_max(5*60),
 	status(0),
-	N_MC(1e4),
 	keep_measuring(true),
 	output(input.get<std::string>("filename")+".out")
 {
-	//unsigned int thread(omp_get_thread_num());
-	unsigned int thread(0);
-	std::cerr<<"Be sure that each Monte Carlo has its own random number generator, and that this generator is different than the System one"<<std::endl;
+	unsigned int thread(omp_get_thread_num());
 	rnd=new Rand(1e4,thread);
 	if(input.get<bool>("fermionic")){ S=new SystemFermionic<Type>; }
 	else { S=new SystemBosonic<Type>;}
 	input.get("t_max",t_max);
 	status = S->init(input,thread);
 	//if(status){
-		//S->print();
-		//for(unsigned int i(0);i<2;i++){
-			//S->swap();
-			//S->ratio();
-			//S->update();
-			//S->print();
-		//}
+	//S->print();
+	//for(unsigned int i(0);i<2;i++){
+	//S->swap();
+	//S->ratio();
+	//S->update();
+	//S->print();
 	//}
-	
+	//}
+
 	if(status){
-		std::cerr<<"thermalization (has been changed)"<<std::flush;
 		double ratio(0.0);
 		for(unsigned int i(0);i<1e5;i++){
 			S->swap();
@@ -113,7 +121,6 @@ MonteCarlo<Type>::MonteCarlo(Container const& input):
 				S->update();
 			}
 		}
-		std::cerr<<"completed"<<std::endl;
 	}
 }
 
@@ -127,65 +134,62 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*public methods*/
 /*{*/
 template<typename Type>
-void MonteCarlo<Type>::run(){
+void MonteCarlo<Type>::run(unsigned int what, unsigned int N_MC){
 	if(status){
-		unsigned int i(0);
-		double E_config(0);
-		double ratio(0.0);
-		bool bin(false);
-		std::cerr<<"there is maybe a problem, for the first iterations, if the new state is rejected, I add a  0 contribution to the energy..."<<std::endl;
-		if(bin){
-			do{
-				S->swap();
-				ratio = norm_squared(S->ratio());
-				if( ratio > rnd->get() ){
-					S->update();
-					S->measure(E_config);
-				}
-				E += E_config;
-				sampling.push_back(E_config);
-				i++;
-				if(i >= N_MC){
-					i=0;
+		double E_step(0.0);
+		S->measure(E_step);
+		switch(what){
+			case 1: 
+				{
+					do{
+						for(unsigned int i(0);i<N_MC;i++){ next_step(E_step); }
+						test_convergence();
+						output<<sampling.size()
+							<<" "<<E_ / (sampling.size() * S->n_)
+							<<" "<<err
+							<<Write::endl;
+					} while(keep_measuring);
+				} break;
+			case 2:
+				{
+					for(unsigned int i(0);i<N_MC;i++){ next_step(E_step); }
 					test_convergence();
-					output<<sampling.size()
-						<<" "<<E / (sampling.size() * S->n_)
-						<<" "<<err
-						<<Write::endl;
-				}
-			} while(keep_measuring);
-		} else {
-			Matrix<unsigned int> lattice(S->n_,S->N_,0); 
-			do{
-				S->swap();
-				ratio = norm_squared(S->ratio());
-				if( ratio > rnd->get() ){
-					S->update();
-					S->measure(E_config);
-				}
-				E += E_config;
-				sampling.push_back(E_config);
-				i++;
-				/*to check the color organization*/
-				for(unsigned int i(0);i<S->n_;i++){ 
-					lattice(i,S->s_(i,0))++;
-				}
-			} while(i<1e5); 
-			std::cout<<lattice<<std::endl;
-			S->print();
-			//for(unsigned int i(0);i<sampling.size();i++){
-			//std::cout<<i<<" "<<sampling[i]<<std::endl;
-			//}
-			test_convergence();
+				} break;
+			case 3:
+				{
+					Matrix<unsigned int> lattice(S->n_,S->N_,0); 
+					for(unsigned int i(0);i<N_MC;i++){ 
+						next_step(E_step); 
+						/*to check the color organization*/
+						for(unsigned int i(0);i<S->n_;i++){ 
+							lattice(i,S->s_(i,0))++;
+						}
+					}
+					std::cout<<lattice<<std::endl;
+					S->print();
+					test_convergence();
+				} break;
 		}
 	}
 }
 
 template<typename Type>
+void MonteCarlo<Type>::next_step(double& E_step){
+	S->swap();
+	if( norm_squared(S->ratio()) > rnd->get() ){
+		S->update();
+		S->measure(E_step);
+	}
+	E_ += E_step;
+	sampling.push_back(E_step);
+}
+
+
+template<typename Type>
 Container MonteCarlo<Type>::save(){
 	Container out(true);
 	out.set("N_step",sampling.size());
-	out.set("E",E / (sampling.size() * S->n_));
+	out.set("E",E_ / (sampling.size() * S->n_));
 	out.set("dE",err);
 	out.set("status",status);
 	return out;
@@ -196,8 +200,8 @@ Container MonteCarlo<Type>::save(){
 /*{*/
 template<typename Type>
 void MonteCarlo<Type>::test_convergence(){
-	if( std::abs( E / sampling.size() )  > 1e3 ){ 
-		E = 0.0;
+	if( std::abs( E_ / sampling.size() )  > 1e3 ){ 
+		E_ = 0.0;
 		sampling.clear();
 		std::cerr<<"the simulation is restarted, bad initial condition"<<std::endl;
 	}  else {

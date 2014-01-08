@@ -9,7 +9,6 @@ class SystemBosonic : public System<Type>{
 	public:
 		/*!Creates a SystemBosonic without any parameters set*/
 		SystemBosonic();
-
 		/*!delete all the variables dynamically allocated*/
 		~SystemBosonic();
 
@@ -31,6 +30,7 @@ class SystemBosonic : public System<Type>{
 		 * - when two different colors are exchanged, computes the ratio
 		 */ //}
 		Type ratio();
+
 		void print();
 
 	private:

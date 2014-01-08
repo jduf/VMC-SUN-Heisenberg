@@ -3,6 +3,7 @@
 
 #include "Triangle.hpp"
 #include "Read.hpp"
+#include "Container.hpp"
 
 class TriangleJastrow: public Triangle<double>{
 	public:
@@ -10,6 +11,8 @@ class TriangleJastrow: public Triangle<double>{
 		~TriangleJastrow();
 
 		Vector<unsigned int> get_neighbourg(unsigned int i);
+		void properties(Container& c);
+		void save();
 
 	protected:
 		Vector<double> nu_;
@@ -18,7 +21,6 @@ class TriangleJastrow: public Triangle<double>{
 		Matrix<std::complex<double> > omega_;
 
 		void compute_nn();
-		void save();
 		void compute_sublattice();
 		void compute_omega();
 		void lattice();

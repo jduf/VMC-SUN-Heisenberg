@@ -10,12 +10,21 @@ CXXFLAGS = $(LAPACK) $(ERRORS) $(OPTION)
 
 LDFLAGS  = $(LAPACK) $(ERRORS) $(OPTION)
 
-all:mc cs check
+all:mc cs check psomc
+
+#############################
+# particle-swarm optimisation
+#############################
+psomc:psomc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o SquareJastrow.o TriangleJastrow.o Container.o PSTricks.o 
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+
+psomc.o:psomc.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
 
 #############
 # monte-carlo
 #############
-mc:mc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o 
+mc:mc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
 mc.o:mc.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp
@@ -27,10 +36,10 @@ Rand.o:Rand.cpp Rand.hpp
 ########
 # create
 ########
-cs:cs.o Chain.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o
+cs:cs.o Chain.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o Container.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-cs.o:cs.cpp Parseur.hpp Chain.hpp Square.hpp Honeycomb.hpp Triangle.hpp Write.hpp Read.hpp Header.hpp RST.hpp
+cs.o:cs.cpp Parseur.hpp Chain.hpp Square.hpp Honeycomb.hpp Triangle.hpp Write.hpp Read.hpp Header.hpp RST.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 Chain.o:Chain.cpp Chain.hpp CreateSystem.hpp Parseur.hpp
@@ -42,7 +51,7 @@ SquarePiFlux.o:SquarePiFlux.cpp SquarePiFlux.hpp Square.hpp CreateSystem.hpp Par
 SquareSU2Phiflux.o:SquareSU2PhiFlux.cpp SquareSU2PhiFlux.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-SquareJastrow.o:SquareJastrow.cpp SquareJastrow.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
+SquareJastrow.o:SquareJastrow.cpp SquareJastrow.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 TriangleJastrow.o:TriangleJastrow.cpp TriangleJastrow.hpp Triangle.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
@@ -78,7 +87,7 @@ PSTricks.o:PSTricks.cpp PSTricks.hpp Write.hpp Linux.hpp Vector.hpp
 #######
 # check
 #######
-check:check.o Read.o Header.o RST.o Write.o
+check:check.o Read.o Header.o RST.o Write.o Container.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 check.o:check.cpp Read.hpp Matrix.hpp Container.hpp
@@ -87,6 +96,9 @@ check.o:check.cpp Read.hpp Matrix.hpp Container.hpp
 ########
 # commun
 ########
+Container.o:Container.cpp Container.hpp 
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
 Parseur.o:Parseur.cpp Parseur.hpp 
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
@@ -109,7 +121,7 @@ Lapack.o:Lapack.cpp Lapack.hpp Matrix.hpp Vector.hpp
 # divers
 ########
 clean:
-	rm *.o *.gch mc cs check
+	rm *.o *.gch mc cs check psomc
 
 ref:
 	doxygen doxygen/Doxyfile

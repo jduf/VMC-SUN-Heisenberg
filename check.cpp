@@ -44,8 +44,6 @@ void check(std::string filename){
 		}
 		if( wf == "jastrow" || wf == "trianglejastrow"){
 			Vector<double> nu;
-			file.extract<Vector<double> >(nu);
-			std::cout<<" nu="<<nu;
 			file.extract<Matrix<unsigned int> >("nn",param);
 			file.extract<Vector<unsigned int> >("sl",param);
 			file.extract<Matrix<std::complex<double> > >("omega",param);

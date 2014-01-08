@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
 #pragma omp parallel num_threads(nthreads)
 			{
 				MonteCarlo<double> sim(input);
-				sim.run();
+				sim.run(1,1e5);
 				save(param,sim.save(),results);
 			}
 		} else {
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]){
 #pragma omp parallel num_threads(nthreads)
 			{
 				MonteCarlo<std::complex<double> > sim(input);
-				sim.run();
+				sim.run(1,1e5);
 				save(param,sim.save(),results);
 			}
 		}

@@ -7,9 +7,6 @@
 
 /*!Class that creates a file containing all the necessary information to run a
  * Monte-Carlo simulation.
- *
- *  
- *
 */
 template<typename Type>
 class CreateSystem{
@@ -31,7 +28,7 @@ class CreateSystem{
 		Matrix<Type> T_;			//!< Gutzwiller Hamiltonian
 		Matrix<Type> EVec_;			//!< eigenvectors Matrix (transfer Matrix)
 		bool successful_;			//!< no degeneracy at the fermi level
-		std::string filename_;
+		std::string filename_;		//!< filename of the System
 
 		/*!compute the eigenvectors from the mean field Hamiltonian*/
 		void diagonalize_T(char mat_type);
