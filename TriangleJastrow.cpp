@@ -2,26 +2,22 @@
 
 TriangleJastrow::TriangleJastrow(Parseur& P):
 	Triangle<double>(P,"triangle-Jastrow"),
-	nn_(n_,3*z_),
+	nn_(n_,z_),
+	cc_(N_,N_),
 	sl_(n_),
 	omega_(N_,N_,1.0)
 {
-	if(!P.status()){
-		compute_nn();
-		compute_sublattice();
-		compute_omega();
-		if(P.get<bool>("study")){
-			lattice();	
-			std::cout<<nn_<<std::endl;
-		} else {
-			filename_ += "-N" + tostring(N_);
-			filename_ += "-S" + tostring(n_);
-			filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-			if(bc_ == 1){ filename_ += "-P";} 
-			else { filename_ += "-A";}
-		}
+	compute_nn();
+	compute_sublattice();
+	compute_omega_cc();
+	if(P.get<bool>("study")){
+		lattice();	
 	} else {
-		std::cerr<<"TriangleJastrow : need to provide nu"<<std::endl;
+		filename_ += "-N" + tostring(N_);
+		filename_ += "-S" + tostring(n_);
+		filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+		if(bc_ == 1){ filename_ += "-P";} 
+		else { filename_ += "-A";}
 	}
 }
 
@@ -42,6 +38,7 @@ void TriangleJastrow::save(){
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
 	w("nn (nearst neighbours)",nn_);
+	w("cc (nearst neighbours)",cc_);
 	w("sl (sublattice)",sl_);
 	w("omega (omega)",omega_);
 	w("sts (connected sites)",sts_);
@@ -88,14 +85,14 @@ void TriangleJastrow::compute_nn(){
 		for(unsigned int j(0);j<z_;j++){
 			nn_(i,j) = neighbourg(j);
 		}
-		unsigned int l(z_);
-		for(unsigned int j(0);j<z_;j++){
-			neighbourg = get_neighbourg(nn_(i,j));
-			for(unsigned int k(j);k<j+2;k++){
-				nn_(i,l) = neighbourg(k%z_);
-				l++;
-			}
-		}
+		//unsigned int l(z_);
+		//for(unsigned int j(0);j<z_;j++){
+			//neighbourg = get_neighbourg(nn_(i,j));
+			//for(unsigned int k(j);k<j+2;k++){
+				//nn_(i,l) = neighbourg(k%z_);
+				//l++;
+			//}
+		//}
 	}
 }
 
@@ -110,15 +107,28 @@ void TriangleJastrow::compute_sublattice(){
 	}
 }
 
-void TriangleJastrow::compute_omega(){
+void TriangleJastrow::compute_omega_cc(){
 	if(N_==2){
 		omega_(1,1) = -1.0;
+		cc_(0,0) = 0;
+		cc_(0,1) = 1;
+		cc_(1,0) = 1;
+		cc_(1,1) = 2;
 	}
 	if(N_==3){
 		omega_(1,1) = std::polar(1.0,2.0*M_PI/3.0);
 		omega_(2,2) = std::polar(1.0,2.0*M_PI/3.0);
 		omega_(1,2) = std::polar(1.0,4.0*M_PI/3.0);
 		omega_(2,1) = std::polar(1.0,4.0*M_PI/3.0);
+		cc_(0,0) = 0;
+		cc_(0,1) = 1;
+		cc_(0,2) = 2;
+		cc_(1,0) = 1;
+		cc_(1,1) = 3;
+		cc_(1,2) = 4;
+		cc_(2,0) = 2;
+		cc_(2,1) = 4;
+		cc_(2,2) = 4;
 	}
 }
 
@@ -130,6 +140,7 @@ void TriangleJastrow::properties(Container& c){
 	c.set("Ly",Ly_);
 	c.set("sts",sts_);
 	c.set("nn",nn_);
+	c.set("cc",cc_);
 	c.set("sl",sl_);
 	c.set("omega",omega_);
 }
@@ -201,13 +212,19 @@ void TriangleJastrow::lattice(){
 			case 1: { color = "blue";} break;
 			case 2: { color = "green";} break;
 		}
-
 		ps.put(x0-y0*e1, y0*e2+r*1.2, "\\color{"+color+"}{\\tiny{"+tostring(i)+"}}");
 	}
 
-	std::cout<<sl_<<std::endl;
-
-	//ps.frame(-0.5,-0.5,Lx_-0.5,Ly_-0.5,"linecolor=red");
-	//ps.frame(-0.5,-0.5,0.5,0.5,"linecolor=red,linestyle=dashed");
+	Matrix<double> xy(4,2);
+	xy(0,0) = -0.5*e1;
+	xy(0,1) = -0.5;
+	xy(1,0) = Ly_*(-e1)-0.5*e1;
+	xy(1,1) = Ly_*e2-0.5;
+	xy(2,0) = Lx_-0.5*e1 - Ly_*e1;
+	xy(2,1) = Ly_*e2-0.5;;
+	xy(3,0) = Lx_-0.5*e1;
+	xy(3,1) = -0.5;
+		
+	ps.polygon(xy,"linecolor=red");
 	ps.add("\\end{pspicture}");
 }

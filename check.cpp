@@ -45,6 +45,7 @@ void check(std::string filename){
 		if( wf == "jastrow" || wf == "trianglejastrow"){
 			Vector<double> nu;
 			file.extract<Matrix<unsigned int> >("nn",param);
+			file.extract<Matrix<unsigned int> >("cc",param);
 			file.extract<Vector<unsigned int> >("sl",param);
 			file.extract<Matrix<std::complex<double> > >("omega",param);
 		}
@@ -66,6 +67,8 @@ void check(std::string filename){
 	if( wf == "jastrow" || wf == "trianglejastrow"){
 		std::cout<<"nn="<<std::endl;
 		std::cout<<param.get<Matrix<unsigned int> >("nn")<<std::endl;
+		std::cout<<"cc="<<std::endl;
+		std::cout<<param.get<Matrix<unsigned int> >("cc")<<std::endl;
 		std::cout<<"sl="<<std::endl;
 		std::cout<<param.get<Vector<unsigned int> >("sl")<<std::endl;
 		std::cout<<"omega="<<std::endl;

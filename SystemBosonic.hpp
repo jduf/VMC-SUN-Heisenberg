@@ -32,6 +32,8 @@ class SystemBosonic : public System<Type>{
 		Type ratio();
 
 		void print();
+		void measure(double& E_config);
+		void correlation(Matrix<unsigned int>* corr);
 
 	private:
 		/*!Forbids copy constructor*/
@@ -40,7 +42,8 @@ class SystemBosonic : public System<Type>{
 		SystemBosonic& operator=(SystemBosonic const& S);
 
 		Matrix<unsigned int> nn_; //!< nn_(i,j):jth neighbour of the ith site
-		Vector<double> nu_;
+		Matrix<unsigned int> cc_;
+		Matrix<double> nu_;
 		Matrix<Type> omega_;
 		Vector<unsigned int> sl_;
 };
@@ -61,11 +64,12 @@ SystemBosonic<Type>::~SystemBosonic(){}
 template<typename Type>
 unsigned int SystemBosonic<Type>::init(Container const& input, unsigned int const& thread){
 	System<Type>::init(input,thread);
-	nu_ = input.get<Vector<double> >("nu");
+	nu_ = input.get<Matrix<double> >("nu");
 	nn_ = input.get<Matrix<unsigned int> >("nn");
+	cc_ = input.get<Matrix<unsigned int> >("cc");
 	sl_ = input.get<Vector<unsigned int> >("sl");
 	omega_ = input.get<Matrix<Type> >("omega");
-	
+
 	Vector<unsigned int> available(this->n_);
 	unsigned int N_as(this->n_);
 	unsigned int site(0);
@@ -84,6 +88,22 @@ unsigned int SystemBosonic<Type>::init(Container const& input, unsigned int cons
 		}
 	}
 	return 1;
+}
+
+template<typename Type> 
+void SystemBosonic<Type>::measure(double& E_config){
+	System<Type>::measure(E_config);
+}
+
+template<typename Type> 
+void SystemBosonic<Type>::correlation(Matrix<unsigned int>* corr){
+	for(unsigned int i(0);i<this->n_;i++){
+		for(unsigned int j(0);j<nn_.col();j++){
+			if(this->s_(i,0) == this->s_(nn_(i,j),0)){
+				(*corr)(i,j)++;
+			}
+		}
+	}
 }
 /*}*/
 
@@ -105,27 +125,27 @@ Type SystemBosonic<Type>::ratio(){
 		omegab_a /= omega_(sl_(this->new_s[0]),this->color[0])
 			* omega_(sl_(this->new_s[1]),this->color[1]);
 
-		/*! if unsigned int, a-b is an unsigned int and it is a problem*/
-		double a(0.0);/*!counts the number of unsatisfied bonds of the current
-						configuration */
-		double b(0.0);/*!counts the number of unsatisfied bounds of the next
-						configuration */
+		double jastrow(0.0);
+		unsigned int c0,c1;
 		for(unsigned int i(0);i<nn_.col();i++){
-			if(this->color[0] != this->s_(nn_(this->new_s[0],i),0)){ a+=nu_(i); }
-			if(this->color[1] != this->s_(nn_(this->new_s[1],i),0)){ a+=nu_(i); }
-			if(this->color[1] != this->s_(nn_(this->new_s[0],i),0)){ b+=nu_(i); }
-			if(this->color[0] != this->s_(nn_(this->new_s[1],i),0)){ b+=nu_(i); }
-			/*!if neighbouring sites are exchanged, the "b" doesn't count the
-			 * unsatisfied bound between those sites because the site are not
-			 * effectively exchanged. It needs to be counted twice because the
-			 * "a" counts twice the link between neighbouring sites. So if the
-			 * nu can be different in each direction, the correction has to be
-			 * done in two steps*/
-			if(nn_(this->new_s[0],i)==this->new_s[1]){b+=nu_(i);}
-			if(nn_(this->new_s[1],i)==this->new_s[0]){b+=nu_(i);}
+			c0=this->s_(nn_(this->new_s[0],i),0);
+			c1=this->s_(nn_(this->new_s[1],i),0);
+			if(nn_(this->new_s[0],i) != this->new_s[1]){
+				jastrow += nu_(i, cc_(this->color[0], c0));
+				jastrow -= nu_(i, cc_(this->color[1], c0));
+			} else {
+				jastrow += nu_(i, cc_(this->color[0], c0))/2.0;
+				jastrow -= nu_(i, cc_(this->color[1], this->color[0]))/2.0;
+			}
+			if(nn_(this->new_s[1],i) != this->new_s[0]){
+				jastrow += nu_(i, cc_(this->color[1], c1));
+				jastrow -= nu_(i, cc_(this->color[0], c1));
+			} else {
+				jastrow += nu_(i, cc_(this->color[1], c1))/2.0;
+				jastrow -= nu_(i, cc_(this->color[0], this->color[1]))/2.0;
+			}
 		}
-		//std::cout<<sl_(this->new_s[0])<<" "<<sl_(this->new_s[1])<<"  "<<omegab_a<<" "<<exp(nu_*(a-b))*omegab_a<<std::endl;
-		return exp(b-a)*omegab_a;
+		return exp(jastrow)*omegab_a;
 	}
 }
 

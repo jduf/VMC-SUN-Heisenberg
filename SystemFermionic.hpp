@@ -2,6 +2,7 @@
 #define DEF_SYSTEMFERMIONIC
 
 #include "System.hpp"
+#include "Lapack.hpp"
 
 /*!Class that contains the information on the state*/
 template<typename Type>

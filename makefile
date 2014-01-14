@@ -10,15 +10,31 @@ CXXFLAGS = $(LAPACK) $(ERRORS) $(OPTION)
 
 LDFLAGS  = $(LAPACK) $(ERRORS) $(OPTION)
 
-all:mc cs check psomc
+all:mc cs check psomc mcnu
 
 #############################
 # particle-swarm optimisation
 #############################
-psomc:psomc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o SquareJastrow.o TriangleJastrow.o Container.o PSTricks.o 
+psomc:psomc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o SquareJastrow.o TriangleJastrow.o Container.o PSTricks.o PSO.o PSOMonteCarlo.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-psomc.o:psomc.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp
+psomc.o:psomc.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp 
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
+
+PSO.o:PSO.cpp PSO.hpp Rand.hpp Write.hpp Read.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
+
+PSOMonteCarlo.o:PSOMonteCarlo.cpp PSOMonteCarlo.hpp PSO.hpp MonteCarlo.hpp SquareJastrow.hpp TriangleJastrow.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
+
+
+#######
+# mc nu
+#######
+mcnu:mcnu.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o SquareJastrow.o PSTricks.o
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+
+mcnu.o:mcnu.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp 
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
 
 #############

@@ -3,8 +3,6 @@
 #include "Parseur.hpp"
 #include "MonteCarlo.hpp"
 
-#include<omp.h>
-
 void save(Container const& param, Container const& output, Write& w);
 
 int main(int argc, char* argv[]){

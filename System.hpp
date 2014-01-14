@@ -1,7 +1,6 @@
 #ifndef DEF_SYSTEM
 #define DEF_SYSTEM
 
-#include "Lapack.hpp"
 #include "Rand.hpp"
 #include "Container.hpp"
 
@@ -44,14 +43,16 @@ class System{
 		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
 		 * permutation */
 		//}
-		void measure(double& E_config);
+		virtual void measure(double& E_config);
 		virtual void print()=0;
+
+		virtual void correlation(Matrix<unsigned int>* corr);
 
 		unsigned int N_;//!< number of different colors
 		unsigned int n_;//!< number of lattice site
 		unsigned int m_;//!< number of each color
 
-		Matrix<unsigned int> s_;//!< on the i site : s(i,0)=color, s(i,1)=row
+		Matrix<unsigned int> s_;//!< on the site i : s(i,0)=color, s(i,1)=row
 
 	protected:
 		/*!Forbids copy constructor*/
@@ -63,6 +64,8 @@ class System{
 
 		unsigned int color[2];	//!< colors of the exchanged sites
 		unsigned int new_s[2];	//!< sites that are exchanged
+
+	private:
 		Matrix<unsigned int> sts_;//!< sts_(i,0) is a site that can be exchanged with sts_(i,1)
 };
 
@@ -136,5 +139,8 @@ void System<Type>::measure(double& E_config){
 		E_config += real(ratio());
 	}
 }
+
+template<typename Type>
+void System<Type>::correlation(Matrix<unsigned int>* corr){if(corr){std::cerr<<"not defined"<<std::endl;}}
 /*}*/
 #endif

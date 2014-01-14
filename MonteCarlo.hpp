@@ -4,9 +4,6 @@
 #include "SystemBosonic.hpp"
 #include "SystemFermionic.hpp"
 #include "Write.hpp"
-#include "Time.hpp"
-
-#include <vector>
 
 //{Description
 /*! Class MonteCarlo
@@ -38,12 +35,13 @@ class MonteCarlo{
 		~MonteCarlo();
 
 		/*!Run the Monte-Carlo algorithme */
-		void run(unsigned int what, unsigned int N_MC);
+		void run(unsigned int what, unsigned int N_MC, Matrix<unsigned int>* lattice = NULL);
 		/*!Saves the essential data in the "result" file*/
 		Container save();
 
 		/*!Get the energy per site*/
 		double get_energy() const { return this->E_/(sampling.size() * S->n_); };
+		unsigned int get_status() const { return status; };
 
 	private:
 		/*!Forbids the copy constructor*/
@@ -80,7 +78,7 @@ class MonteCarlo{
 		unsigned int t_max;		//!< Time limit in second, by default 5min
 		unsigned int status; 	//!< Not Lunched:0 Lunched:1 Successful:2 Time elapsed:3
 		bool keep_measuring; 	//!< True if the code runs
-		Write output; 			//!< Text file of name "filename-MC.out" that stores all the output of the MC algorithm
+		std::string filename_;
 };
 
 /*constructors and destructor*/
@@ -94,8 +92,12 @@ MonteCarlo<Type>::MonteCarlo(Container const& input):
 	t_max(5*60),
 	status(0),
 	keep_measuring(true),
-	output(input.get<std::string>("filename")+".out")
+	filename_("")
 {
+	if(input.check("filename")){
+		std::cout<<"a filename has been declared for MonteCarlo"<<std::endl;
+		input.get("filename",filename_);
+	}
 	unsigned int thread(omp_get_thread_num());
 	rnd=new Rand(1e4,thread);
 	if(input.get<bool>("fermionic")){ S=new SystemFermionic<Type>; }
@@ -134,7 +136,7 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*public methods*/
 /*{*/
 template<typename Type>
-void MonteCarlo<Type>::run(unsigned int what, unsigned int N_MC){
+void MonteCarlo<Type>::run(unsigned int what, unsigned int N_MC, Matrix<unsigned int>* lattice){
 	if(status){
 		double E_step(0.0);
 		S->measure(E_step);
@@ -142,6 +144,7 @@ void MonteCarlo<Type>::run(unsigned int what, unsigned int N_MC){
 			case 1: 
 				{
 					do{
+						Write output(filename_);
 						for(unsigned int i(0);i<N_MC;i++){ next_step(E_step); }
 						test_convergence();
 						output<<sampling.size()
@@ -157,17 +160,18 @@ void MonteCarlo<Type>::run(unsigned int what, unsigned int N_MC){
 				} break;
 			case 3:
 				{
-					Matrix<unsigned int> lattice(S->n_,S->N_,0); 
+					lattice->set(S->n_,S->N_,0); 
+					Matrix<unsigned int> corr(S->n_,4,0); 
 					for(unsigned int i(0);i<N_MC;i++){ 
 						next_step(E_step); 
 						/*to check the color organization*/
 						for(unsigned int i(0);i<S->n_;i++){ 
-							lattice(i,S->s_(i,0))++;
+							(*lattice)(i,S->s_(i,0))++;
 						}
+						S->correlation(&corr);
 					}
-					std::cout<<lattice<<std::endl;
-					S->print();
 					test_convergence();
+					std::cout<<corr<<std::endl;
 				} break;
 		}
 	}
@@ -183,7 +187,6 @@ void MonteCarlo<Type>::next_step(double& E_step){
 	E_ += E_step;
 	sampling.push_back(E_step);
 }
-
 
 template<typename Type>
 Container MonteCarlo<Type>::save(){

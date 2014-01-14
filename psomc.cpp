@@ -1,20 +1,22 @@
-/*!  @file pso.cpp */
+/*!  @file psomc.cpp */
 
-#include "Container.hpp"
-#include "Parseur.hpp"
-#include "MonteCarlo.hpp"
 #include "PSOMonteCarlo.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	
-	PSOMonteCarlo s(P);
-	for(unsigned int i(0);i<P.get<unsigned int>("Nfreedom");i++){
-		s.PSO_set_limit(i,-0.5,0.9);
+	unsigned int Nfreedom(0);
+	std::string wf(P.get<std::string>("wf"));
+
+	if( wf == "jastrow" ){ Nfreedom=1; }
+	if( wf == "trianglejastrow" ){ Nfreedom=4; }
+
+	PSOMonteCarlo s(P,Nfreedom);
+
+	for(unsigned int i(0);i<Nfreedom;i++){
+		s.PSO_set_limit(i,-1.5,1.5);
 	}
 	s.PSO_init();
-	s.PSO_run(false);
+	s.PSO_run(false); /*false because each run can vary in time*/
 	s.save();
 }
-
-
