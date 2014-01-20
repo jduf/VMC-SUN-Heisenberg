@@ -74,7 +74,6 @@ int main(int argc, char* argv[]){
 				save(param,sim.save(),results);
 			}
 		} else {
-			std::cerr<<"complex"<<std::endl;
 			if(fermionic){
 				file.extract<Matrix<std::complex<double> > >("EVec",input);
 			}

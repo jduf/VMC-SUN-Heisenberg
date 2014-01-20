@@ -21,7 +21,6 @@ SquarePiFlux::SquarePiFlux(Parseur& P):
 				filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 				if(bc_ == 1){ filename_ += "-P";} 
 				else { filename_ += "-A";}
-				save();
 			} else {
 				std::cerr<<"SquarePiFlux : degeneate"<<std::endl;
 			}

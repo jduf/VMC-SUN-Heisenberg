@@ -25,7 +25,6 @@ SquareFermi::SquareFermi(Parseur& P):
 				filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 				if(bc_ == 1){ filename_ += "-P";} 
 				else { filename_ += "-A";}
-				save();
 			} else {
 				std::cerr<<"SquareFermi : degeneate"<<std::endl;
 			}
@@ -37,13 +36,27 @@ SquareFermi::~SquareFermi(){}
 
 void SquareFermi::compute_T(){
 	double t(-1.0);
+	Vector<unsigned int> neighbourg;
 	for(unsigned int i(0); i < n_; i++){
+		neighbourg = get_neighbourg(i);
 		/*horizontal hopping*/
-		if( (i+1) % Lx_ ){ T_(i,i+1) = t;}	
-		else { T_(i+1-Lx_,i) = bc_*t;}
+		if( (i+1) % Lx_ ){ 
+			T_(i,neighbourg(0)) = t;
+			H_(i,neighbourg(0)) = 1;
+		}	
+		else {
+			T_(i,neighbourg(0)) = bc_*t;
+			H_(i,neighbourg(0)) = 1;
+		}
 		/*vertical hopping*/
-		if( i+Lx_ < n_ ){  T_(i,i+Lx_) = t; } 
-		else { T_(i-(Ly_-1)*Lx_,i) = bc_*t;}
+		if( i+Lx_ < n_ ){
+			T_(i,neighbourg(1)) = t;
+			H_(i,neighbourg(1)) = 1;
+		} 
+		else {
+			T_(i,neighbourg(1)) = bc_*t;
+			H_(i,neighbourg(1)) = 1;
+		}
 	}
 	T_ += T_.transpose();
 }

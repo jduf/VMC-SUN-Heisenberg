@@ -20,7 +20,7 @@ class SystemBosonic : public System<Type>{
 		 * - creates an random initial state
 		 */ //}
 		unsigned int init(Container const& input, unsigned int const& thread);
-		
+
 		//{Description
 		/*!Computes the ratio of the two Jastrow factor related to the current
 		 * and next configuration
@@ -32,7 +32,6 @@ class SystemBosonic : public System<Type>{
 		Type ratio();
 
 		void print();
-		void measure(double& E_config);
 		void correlation(Matrix<unsigned int>* corr);
 
 	private:
@@ -57,10 +56,7 @@ SystemBosonic<Type>::SystemBosonic():
 
 template<typename Type>
 SystemBosonic<Type>::~SystemBosonic(){}
-/*}*/
 
-/*methods that modify the class*/
-/*{*/
 template<typename Type>
 unsigned int SystemBosonic<Type>::init(Container const& input, unsigned int const& thread){
 	System<Type>::init(input,thread);
@@ -88,22 +84,6 @@ unsigned int SystemBosonic<Type>::init(Container const& input, unsigned int cons
 		}
 	}
 	return 1;
-}
-
-template<typename Type> 
-void SystemBosonic<Type>::measure(double& E_config){
-	System<Type>::measure(E_config);
-}
-
-template<typename Type> 
-void SystemBosonic<Type>::correlation(Matrix<unsigned int>* corr){
-	for(unsigned int i(0);i<this->n_;i++){
-		for(unsigned int j(0);j<nn_.col();j++){
-			if(this->s_(i,0) == this->s_(nn_(i,j),0)){
-				(*corr)(i,j)++;
-			}
-		}
-	}
 }
 /*}*/
 
@@ -146,6 +126,17 @@ Type SystemBosonic<Type>::ratio(){
 			}
 		}
 		return exp(jastrow)*omegab_a;
+	}
+}
+
+template<typename Type> 
+void SystemBosonic<Type>::correlation(Matrix<unsigned int>* corr){
+	for(unsigned int i(0);i<this->n_;i++){
+		for(unsigned int j(0);j<nn_.col();j++){
+			if(this->s_(i,0) == this->s_(nn_(i,j),0)){
+				(*corr)(i,j)++;
+			}
+		}
 	}
 }
 

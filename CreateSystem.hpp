@@ -14,7 +14,7 @@ class CreateSystem{
 		/*!Parseur needs N and m, z is the coordination number*/
 		CreateSystem(Parseur& P, unsigned int z, std::string filename); 
 		/*Simple destructor*/
-		~CreateSystem();
+		virtual ~CreateSystem();
 
 	protected:
 		std::string wf_;			//!< type of wavefunction
@@ -33,7 +33,7 @@ class CreateSystem{
 		/*!compute the eigenvectors from the mean field Hamiltonian*/
 		void diagonalize_T(char mat_type);
 		/*!compute the array of pairs of swapping sites*/
-		void compute_sts();
+		virtual void compute_sts();
 		/*!Evaluate the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket);
 

@@ -3,6 +3,7 @@
 #include "Parseur.hpp"
 #include "MonteCarlo.hpp"
 #include "SquareJastrow.hpp"
+#include "TriangleJastrow.hpp"
 
 void copy_input_mcnu(Container const& c, Container& new_c);
 
@@ -12,18 +13,20 @@ int main(int argc, char* argv[]){
 	if(!P.status()){
 		Container prop;
 		Container input;
-		Matrix<double> nu(4,4);
+		Matrix<double> nu(6,6);
 		//for(unsigned int i(0);i<4;i++){
 			//nu(i,0) = -0;
 			//nu(i,1) = -0.269;
 			//nu(i,2) = -0.269;
 			//nu(i,3) = -0;
 		//}
-		for(unsigned int i(0);i<4;i++){
-			nu(i,0) = 1.10845 ;
-			nu(i,1) = 1.29585;
-			nu(i,2) =-1.1572;
-			nu(i,3) =-0.434311;
+		for(unsigned int i(0);i<nu.row();i++){
+			nu(i,0) =-1.0;
+			nu(i,1) = 0.5;
+			nu(i,2) =-0.5;
+			nu(i,3) =-2.0;
+			nu(i,4) = 1.0;
+			nu(i,5) = 0;
 		}
 		input.set("nu",nu);
 		//file.extract<Matrix<double> >("nu",input);
@@ -31,7 +34,7 @@ int main(int argc, char* argv[]){
 		if(P.check("t_max")){ prop.set("t_max",P.get<unsigned int>("t_max")); } 
 		else { unsigned int t(300); prop.set("t_max",t);}
 
-		SquareJastrow s(P);
+		TriangleJastrow s(P);
 		s.properties(prop);
 		copy_input_mcnu(prop,input);
 

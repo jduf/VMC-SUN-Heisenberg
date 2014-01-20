@@ -10,15 +10,9 @@ TriangleJastrow::TriangleJastrow(Parseur& P):
 	compute_nn();
 	compute_sublattice();
 	compute_omega_cc();
-	if(P.get<bool>("study")){
-		lattice();	
-	} else {
-		filename_ += "-N" + tostring(N_);
-		filename_ += "-S" + tostring(n_);
-		filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-		if(bc_ == 1){ filename_ += "-P";} 
-		else { filename_ += "-A";}
-	}
+	filename_ += "-N" + tostring(N_);
+	filename_ += "-S" + tostring(n_);
+	filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 }
 
 TriangleJastrow::~TriangleJastrow(){}
@@ -38,7 +32,7 @@ void TriangleJastrow::save(){
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
 	w("nn (nearst neighbours)",nn_);
-	w("cc (nearst neighbours)",cc_);
+	w("cc (to match nu and x)",cc_);
 	w("sl (sublattice)",sl_);
 	w("omega (omega)",omega_);
 	w("sts (connected sites)",sts_);
@@ -87,11 +81,11 @@ void TriangleJastrow::compute_nn(){
 		}
 		//unsigned int l(z_);
 		//for(unsigned int j(0);j<z_;j++){
-			//neighbourg = get_neighbourg(nn_(i,j));
-			//for(unsigned int k(j);k<j+2;k++){
-				//nn_(i,l) = neighbourg(k%z_);
-				//l++;
-			//}
+		//neighbourg = get_neighbourg(nn_(i,j));
+		//for(unsigned int k(j);k<j+2;k++){
+		//nn_(i,l) = neighbourg(k%z_);
+		//l++;
+		//}
 		//}
 	}
 }
@@ -113,7 +107,7 @@ void TriangleJastrow::compute_omega_cc(){
 		cc_(0,0) = 0;
 		cc_(0,1) = 1;
 		cc_(1,0) = 1;
-		cc_(1,1) = 2;
+		cc_(1,1) = 1;
 	}
 	if(N_==3){
 		omega_(1,1) = std::polar(1.0,2.0*M_PI/3.0);
@@ -145,7 +139,7 @@ void TriangleJastrow::properties(Container& c){
 	c.set("omega",omega_);
 }
 
-void TriangleJastrow::lattice(){
+void TriangleJastrow::lattice(Matrix<unsigned int> const& lat){
 	PSTricks ps(filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
 	double prop(1);
@@ -191,21 +185,19 @@ void TriangleJastrow::lattice(){
 	}
 
 	double r(0.2);
-	//Read reseau("lattice");
-	//Matrix<unsigned int> ada(n_,N_);
-	//reseau>>ada;
-	//double m(ada.max());
-	//Vector<double> tmp(N_);
+	Vector<double> pie(N_);
+	double m(lat.max());
 	std::string color;
 	for(unsigned int i(0);i<n_;i++){
 		double x0(i%Lx_);
 		double y0(i/Ly_);
-		//for(unsigned int c(0);c<N_;c++){
-		//tmp(c) = ada(i,c)/m;
-		//}
-		//ps.add("\\rput("+tostring(i%Lx_)+","+tostring(i/Ly_)+"){%");
-		//ps.pie(tmp,r,"chartColor=color,userColor={blue,red,green}");
-		//ps.add("}");
+		for(unsigned int j(0);j<N_;j++){
+			pie(j) = lat(i,j)/m;
+			if(pie(j) < 1e-4){pie(j) = 0;}
+		}
+		ps.add("\\rput("+tostring(x0-y0*e1)+","+tostring(y0*e2)+"){%");
+		ps.pie(pie,r,"chartColor=color,userColor={blue,red,green}");
+		ps.add("}");
 
 		switch(sl_(i)){
 			case 0: { color = "red";} break;
@@ -224,7 +216,7 @@ void TriangleJastrow::lattice(){
 	xy(2,1) = Ly_*e2-0.5;;
 	xy(3,0) = Lx_-0.5*e1;
 	xy(3,1) = -0.5;
-		
+
 	ps.polygon(xy,"linecolor=red");
 	ps.add("\\end{pspicture}");
 }

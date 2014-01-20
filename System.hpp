@@ -43,8 +43,7 @@ class System{
 		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
 		 * permutation */
 		//}
-		virtual void measure(double& E_config);
-		virtual void print()=0;
+		void measure(double& E_config, double& E_im);
 
 		virtual void correlation(Matrix<unsigned int>* corr);
 
@@ -83,10 +82,7 @@ template<typename Type>
 System<Type>::~System(){
 	if(rnd){delete rnd;}
 }
-/*}*/
 
-/*methods that modify the class*/
-/*{*/
 template<typename Type>
 unsigned int System<Type>::init(Container const& input, unsigned int const& thread){
 	N_ = input.get<unsigned int>("N");
@@ -98,7 +94,10 @@ unsigned int System<Type>::init(Container const& input, unsigned int const& thre
 
 	return 1;
 }
+/*}*/
 
+/*methods that modify the class*/
+/*{*/
 template<typename Type>
 void System<Type>::update(){
 	///*update the sites*/
@@ -118,7 +117,6 @@ void System<Type>::swap(){
 
 template<typename Type>
 void System<Type>::swap(unsigned int const& s0, unsigned int const& s1){
-	/*if new_s[i] is not set, then System::jastrow() uses the wrong sites*/
 	new_s[0] = s0;
 	new_s[1] = s1;
 	color[0] = s_(s0,0);
@@ -129,18 +127,23 @@ void System<Type>::swap(unsigned int const& s0, unsigned int const& s1){
 /*methods that return something related to the class*/
 /*{*/
 template<typename Type>
-void System<Type>::measure(double& E_config){
+void System<Type>::measure(double& E_config, double& E_im){
 	E_config = 0.0;
+	E_im = 0.0;
+	Type r;
+	
 	for(unsigned int i(0);i<sts_.row();i++){
 		swap(sts_(i,0),sts_(i,1));
 		/*!the minus sign is required because ∑<P_ij> is positive and this is
 		 * what is actually computed*/
-		/*not sur that this argument is correct so I removed the -1*/
-		E_config += real(ratio());
+		/*not sure that this argument is correct so I removed the -1*/
+		r=ratio();
+		E_config += real(r);
+		E_im += imag(r);
 	}
 }
 
 template<typename Type>
-void System<Type>::correlation(Matrix<unsigned int>* corr){if(corr){std::cerr<<"not defined"<<std::endl;}}
+void System<Type>::correlation(Matrix<unsigned int>* corr){if(corr){std::cerr<<"correlation not defined for System"<<std::endl;}}
 /*}*/
 #endif

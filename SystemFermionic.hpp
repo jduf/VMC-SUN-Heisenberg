@@ -10,9 +10,9 @@ class SystemFermionic : public System<Type>{
 	public:
 		/*!Creates a SystemFermionic without any parameters set*/
 		SystemFermionic();
-
 		/*!delete all the variables dynamically allocated*/
 		~SystemFermionic();
+
 		//{Description
 		/*! Creates the system in function of the input parameters.
 		 *
@@ -83,10 +83,7 @@ template<typename Type>
 SystemFermionic<Type>::~SystemFermionic(){
 	delete[] Ainv_;
 }
-/*}*/
 
-/*methods that modify the class*/
-/*{*/
 template<typename Type>
 unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int const& thread){
 	System<Type>::init(input,thread);
@@ -142,7 +139,10 @@ unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int co
 		return 1;
 	}
 }
+/*}*/
 
+/*methods that modify the class*/
+/*{*/
 template<typename Type>
 void SystemFermionic<Type>::update(){
 	///*update the sites*/

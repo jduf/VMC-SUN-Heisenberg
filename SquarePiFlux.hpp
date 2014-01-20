@@ -8,9 +8,10 @@ class SquarePiFlux: public Square<std::complex<double> >{
 		SquarePiFlux(Parseur& P);
 		~SquarePiFlux();
 
+		void save();
+
 	protected:
 		void compute_T();
-		void save();
 };
 #endif
 

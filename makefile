@@ -31,10 +31,10 @@ PSOMonteCarlo.o:PSOMonteCarlo.cpp PSOMonteCarlo.hpp PSO.hpp MonteCarlo.hpp Squar
 #######
 # mc nu
 #######
-mcnu:mcnu.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o SquareJastrow.o PSTricks.o
+mcnu:mcnu.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o SquareJastrow.o TriangleJastrow.o PSTricks.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-mcnu.o:mcnu.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp 
+mcnu.o:mcnu.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp TriangleJastrow.hpp 
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
 
 #############

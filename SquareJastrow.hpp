@@ -11,7 +11,7 @@ class SquareJastrow: public Square<double>{
 
 		void properties(Container& c);
 		void save();
-		void lattice(Matrix<unsigned int> const& lattice);
+		void lattice(Matrix<unsigned int> const& lat);
 
 	protected:
 		Matrix<unsigned int> nn_;
@@ -19,7 +19,6 @@ class SquareJastrow: public Square<double>{
 		Vector<unsigned int> sl_;
 		Matrix<std::complex<double> > omega_;
 
-		Vector<unsigned int> get_neighbourg(unsigned int i);
 		void compute_nn();
 		void compute_sublattice();
 		void compute_omega_cc();

@@ -24,12 +24,14 @@ int main(int argc, char* argv[]){
 	}
 	if( wf == "fermi" ){
 		SquareFermi s(P);
+		s.save();
 	}
 	if( wf == "mu" ){
 		SquareMu s(P);
 	}
 	if( wf == "csl" ){
 		SquarePiFlux s(P);
+		s.save();
 	}
 	if( wf == "honeycomb" ){
 		HoneycombSU4 h(P);

@@ -13,8 +13,6 @@ SquareJastrow::SquareJastrow(Parseur& P):
 	filename_ += "-N" + tostring(N_);
 	filename_ += "-S" + tostring(n_);
 	filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-	if(bc_ == 1){ filename_ += "-P";} 
-	else { filename_ += "-A";}
 }
 
 SquareJastrow::~SquareJastrow(){}
@@ -34,28 +32,10 @@ void SquareJastrow::save(){
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
 	w("nn (nearst neighbours)",nn_);
-	w("cc (nearst neighbours)",cc_);
+	w("cc (to match nu and x)",cc_);
 	w("sl (sublattice)",sl_);
 	w("omega (omega)",omega_);
 	w("sts (connected sites)",sts_);
-}
-
-Vector<unsigned int> SquareJastrow::get_neighbourg(unsigned int i){
-	Vector<unsigned int> neighbourg(z_);
-	/*+x neighbour*/
-	if((i+1)%Lx_!=0){ neighbourg(0) = i+1; } 
-	else { neighbourg(0) = (i/Lx_)*Lx_; }
-	/*+y neighbour*/
-	if(i<n_-Lx_){ neighbourg(1) = i+Lx_; }
-	else { neighbourg(1) = i-n_+Lx_; }
-	/*-x neighbour*/
-	if(i%Lx_){ neighbourg(2) = i-1; }
-	else { neighbourg(2) = i+Lx_-1; }
-	/*-y neighbour*/
-	if(i>=Lx_){ neighbourg(3) = i-Lx_; }
-	else { neighbourg(3) = n_-Lx_+i; }
-
-	return neighbourg;
 }
 
 void SquareJastrow::compute_nn(){
@@ -108,7 +88,7 @@ void SquareJastrow::compute_omega_cc(){
 		cc_(1,2) = 4;
 		cc_(2,0) = 2;
 		cc_(2,1) = 4;
-		cc_(2,2) = 5;
+		cc_(2,2) = 4;
 	}
 }
 
@@ -125,7 +105,7 @@ void SquareJastrow::properties(Container& c){
 	c.set("omega",omega_);
 }
 
-void SquareJastrow::lattice(Matrix<unsigned int> const& lattice){
+void SquareJastrow::lattice(Matrix<unsigned int> const& lat){
 	PSTricks ps(filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
 	std::string color("black");
@@ -135,18 +115,15 @@ void SquareJastrow::lattice(Matrix<unsigned int> const& lattice){
 			case 1:
 				{
 					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
-					break;
-				}			
+				}break;
 			case -1:
 				{
 					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_,-1, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor=yellow");
-					break;
-				}
+				}break;
 			case -2:
 				{
 					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, -1, "linewidth="+tostring(prop)+"pt,linecolor=green");
-					break;
-				}
+				}break;
 			default:
 				{
 					std::cerr<<"une conditon au bord n'est pas correctement définie"<<std::endl;
@@ -156,21 +133,21 @@ void SquareJastrow::lattice(Matrix<unsigned int> const& lattice){
 
 	double r(0.2);
 	Vector<double> pie(N_);
-	double m(lattice.max());
+	double m(lat.max());
 	for(unsigned int i(0);i<n_;i++){
 		for(unsigned int j(0);j<N_;j++){
-			pie(j) = lattice(i,j)/m;
+			pie(j) = lat(i,j)/m;
 			if(pie(j) < 1e-4){pie(j) = 0;}
 		}
+		ps.add("\\rput("+tostring(i%Lx_)+","+tostring(i/Ly_)+"){%");
+		ps.pie(pie,r,"chartColor=color,userColor={red,blue}");
+		ps.add("}");
 
 		switch(sl_(i)){
 			case 0: { color = "red";} break;
 			case 1: { color = "blue";} break;
 			case 2: { color = "green";} break;
 		}
-		ps.add("\\rput("+tostring(i%Lx_)+","+tostring(i/Ly_)+"){%");
-		ps.pie(pie,r,"chartColor=color,userColor={red,blue}");
-		ps.add("}");
 		ps.put(i%Lx_+r*1.2, i/Ly_+r*1.2, "\\tiny{"+tostring(i)+"}");
 	}
 

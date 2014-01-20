@@ -8,10 +8,10 @@ class SquareFermi: public Square<double>{
 		SquareFermi(Parseur& P);
 		~SquareFermi();
 
-	protected:
-		void compute_T();
 		void save();
 
+	protected:
+		void compute_T();
 		void compute_P();
 		void lattice();
 		void band_structure();

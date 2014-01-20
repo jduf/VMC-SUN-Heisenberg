@@ -8,7 +8,7 @@ template<typename Type>
 class Square: public CreateSystem<Type>{
 	public:
 		Square(Parseur& P, std::string filename);
-		~Square();
+		virtual ~Square();
 
 	protected:
 		unsigned int Lx_;//!< dimension of the lattice along x-axis
@@ -18,6 +18,7 @@ class Square: public CreateSystem<Type>{
 
 		void compute_H();
 		double occupation_number(Vector<double>& ni);
+		Vector<unsigned int> get_neighbourg(unsigned int i);
 };
 
 template<typename Type>
@@ -51,6 +52,25 @@ void Square<Type>::compute_H(){
 		else { this->H_(i-(Ly_-1)*Lx_,i) = -2;}
 	}
 	this->H_ += this->H_.transpose();
+}
+
+template<typename Type>
+Vector<unsigned int> Square<Type>::get_neighbourg(unsigned int i){
+	Vector<unsigned int> neighbourg(this->z_);
+	/*+x neighbour*/
+	if((i+1)%Lx_){ neighbourg(0) = i+1; } 
+	else { neighbourg(0) = (i/Lx_)*Lx_; }
+	/*+y neighbour*/
+	if(i<this->n_-Lx_){ neighbourg(1) = i+Lx_; }
+	else { neighbourg(1) = i-this->n_+Lx_; }
+	/*-x neighbour*/
+	if(i%Lx_){ neighbourg(2) = i-1; }
+	else { neighbourg(2) = i+Lx_-1; }
+	/*-y neighbour*/
+	if(i>=Lx_){ neighbourg(3) = i-Lx_; }
+	else { neighbourg(3) = this->n_-Lx_+i; }
+
+	return neighbourg;
 }
 
 template<typename Type>
