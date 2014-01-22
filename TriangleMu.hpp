@@ -8,15 +8,14 @@ class TriangleMu: public Triangle<double>{
 		TriangleMu(Parseur& P);
 		~TriangleMu();
 
+		void save();
+
 	protected:
 		double mu_;
 
 		void compute_T(unsigned int alpha);
-		void save();
-
 		void compute_P();
 		void lattice();
-		void band_structure();
 };
 #endif
 

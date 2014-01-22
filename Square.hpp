@@ -13,10 +13,8 @@ class Square: public CreateSystem<Type>{
 	protected:
 		unsigned int Lx_;//!< dimension of the lattice along x-axis
 		unsigned int Ly_;//!< dimension of the lattice along y-axis
-		Matrix<Type> Px_;//!< translation operator along x-axis 
-		Matrix<Type> Py_;//!< translation operator along y-axis 
+		Matrix<unsigned int> BC_;
 
-		void compute_H();
 		double occupation_number(Vector<double>& ni);
 		Vector<unsigned int> get_neighbourg(unsigned int i);
 };
@@ -25,13 +23,26 @@ template<typename Type>
 Square<Type>::Square(Parseur& P, std::string filename):
 	CreateSystem<Type>(P,4,filename),
 	Lx_(std::floor(std::sqrt(this->n_))),
-	Ly_(std::floor(std::sqrt(this->n_)))
+	Ly_(std::floor(std::sqrt(this->n_))),
+	BC_(Lx_+Ly_,2)
 {
 	this->bc_= P.get<double>("bc");
 	if(!P.status()){
 		if(this->n_==Ly_*Lx_){
-			compute_H();
 			this->compute_sts();
+			unsigned int k(0);
+			for(unsigned int i(0); i < this->n_; i++){
+				if(!((i+1) % Lx_ )){
+					BC_(k,0) = i;
+					BC_(k,1) = i+1-Lx_;
+					k++;
+				}	
+				if( i+Lx_>=this->n_){ 
+					BC_(k,0) = i;
+					BC_(k,1) = i-(Ly_-1)*Lx_;
+					k++;
+				}
+			}
 		} else {
 			std::cerr<<"Square : the cluster is not a square"<<std::endl;
 		}
@@ -40,19 +51,6 @@ Square<Type>::Square(Parseur& P, std::string filename):
 
 template<typename Type>
 Square<Type>::~Square(){}
-
-template<typename Type>
-void Square<Type>::compute_H(){
-	for(unsigned int i(0); i < this->n_; i++){
-		/*horizontal hopping*/
-		if( (i+1) % Lx_ ){ this->H_(i,i+1) = 1;}	
-		else { this->H_(i+1-Lx_,i) = -1;}
-		/*vertical hopping*/
-		if( i+Lx_ < this->n_ ){  this->H_(i,i+Lx_) = 1; } 
-		else { this->H_(i-(Ly_-1)*Lx_,i) = -2;}
-	}
-	this->H_ += this->H_.transpose();
-}
 
 template<typename Type>
 Vector<unsigned int> Square<Type>::get_neighbourg(unsigned int i){

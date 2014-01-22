@@ -6,8 +6,8 @@ TriangleFermi::TriangleFermi(Parseur& P):
 	if(!P.status()){
 		if(P.get<bool>("study")){
 			compute_T();
-			compute_P();
-			band_structure();
+			//compute_P();
+			//band_structure();
 			lattice();
 		} else {
 			compute_T();
@@ -76,81 +76,68 @@ void TriangleFermi::save(){
 	w("EVec (unitary matrix)",EVec_);
 }
 
-void TriangleFermi::compute_P(){
-	Px_.set(n_,n_,0.0);
-	Py_.set(n_,n_,0.0);
+void TriangleFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
+	Px.set(n_,n_,0.0);
+	Py.set(n_,n_,0.0);
 	for(unsigned int i(0); i < n_; i++){
 		/*horizontal hopping*/
-		if( (i % Ly_)  < Ly_ - 1 ){ Px_(i,i+1) = 1; }
-		else { Px_(i,i+1-Lx_) = bc_; }
+		if( (i % Ly_)  < Ly_ - 1 ){ Px(i,i+1) = 1; }
+		else { Px(i,i+1-Lx_) = bc_; }
 		/*vertical hopping*/
-		if( i+Lx_ < n_ ){ Py_(i,i+Lx_) = 1; }
-		else { Py_(i,i-(Ly_-1)*Lx_) = bc_; }
+		if( i+Lx_ < n_ ){ Py(i,i+Lx_) = 1; }
+		else { Py(i,i-(Ly_-1)*Lx_) = bc_; }
 	}
-}
-
-void TriangleFermi::band_structure(){
-	//std::cout<<T_*Px_-Px_*T_<<std::endl;
-	//std::cout<<T_*Py_-Py_*T_<<std::endl;
-
-	Matrix<double> TP(T_+3.*Px_+7.*Py_);
-	Vector<std::complex<double> > eval;
-	Matrix<std::complex<double> > evec;
-	Lapack<double> ES(&TP,false,'G');
-	ES.eigensystem(&eval,&evec);
-	Vector<double> kx(n_,1);
-	Vector<double> ky(n_,1);
-	Vector<double> E(n_,1);
-	for(unsigned int i(0);i<n_;i++){
-		kx(i) = log(projection(Px_,evec,i,i)).imag();
-		ky(i) = log(projection(Py_,evec,i,i)).imag();
-		E(i) = projection(T_,evec,i,i).real();
-	}
-	save_band_structure(kx,ky,E);
 }
 
 void TriangleFermi::lattice(){
 	PSTricks ps(filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
-	std::string color("black");
-	double prop(1);
-	for(unsigned int i(0);i<sts_.row();i++){
-		switch(H_(sts_(i,0),sts_(i,1))){
-			case 1:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
-					break;
-				}			
-			case 2:
-				{
-					ps.line("-", 0, 0, -1, -1, "linewidth="+tostring(prop)+"pt,linecolor=black");
-					break;
-				}
-			case -1:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_,-1, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor=green");
-					break;
-				}
-			case -2:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, -1, "linewidth="+tostring(prop)+"pt,linecolor=red");
-					break;
-				}
-			case -3:
-				{
-					ps.line("-", -1, sts_(i,0)/Ly_, sts_(i,1)%Lx_, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor=yellow");
-					break;
-				}
-			case -4:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, -1, "linewidth="+tostring(prop)+"pt,linecolor=blue");
-					break;
-				}
-			default:
-				{
-					std::cerr<<"une conditon au bord n'est pas correctement définie"<<std::endl;
-				}
+	double e1(0.5);
+	double e2(sqrt(3.0)/2.0);
+	//double e1(0);/*will have exactly the same topology except for the link (0,N)*/
+	//double e2(1);
+	Vector<unsigned int> neighbourg;
+	double x0, y0, x1, y1;
+	std::string color;
+	for(unsigned int i(0);i<n_;i++){
+		neighbourg = get_neighbourg(i);
+		x0=i%Lx_;
+		y0=i/Ly_;
+
+		color = "black";
+		y1 = neighbourg(0)/Ly_;
+		if((i+1) % Lx_ ){
+			x1 = neighbourg(0)%Lx_;
+		} else {
+			x1 = x0 + 1;
+			color = "blue";
 		}
+		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
+
+		color = "black";
+		if((i+1) % Lx_ ){
+			x1 = neighbourg(1)%Lx_;
+		} else {
+			x1 = x0 + 1;
+			color = "blue";
+		}
+		if( i+Lx_<this->n_){ 
+			y1 = neighbourg(1)/Ly_;
+		} else {
+			y1 = y0 + 1;
+			color = "blue";
+		}
+		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
+
+		color = "black";
+		x1=neighbourg(2)%Lx_;
+		if( i+Lx_<this->n_){ 
+			y1 = neighbourg(2)/Ly_;
+		} else {
+			y1 = y0 + 1;
+			color = "blue";
+		}
+		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
 	}
 
 	diagonalize_T('S');
@@ -160,15 +147,26 @@ void TriangleFermi::lattice(){
 	double max(occupation_number(ada));
 	Vector<double> tmp(2);
 	for(unsigned int i(0);i<n_;i++){
+		x0 = i%Lx_;
+		y0 = i/Ly_;
 		tmp(0) = round(ada(i),7);
 		tmp(1) = round((max-ada(i))/max,7);
-		ps.add("\\rput("+tostring(i%Lx_)+","+tostring(i/Ly_)+"){%");
+		ps.add("\\rput("+tostring(x0-y0*e1)+","+tostring(y0*e2)+"){%");
 		ps.pie(tmp,r,"chartColor=color,userColor={blue,white}");
 		ps.add("}");
-		ps.put(i%Lx_+r*0.5, i/Ly_+r*1.2, "\\tiny{"+tostring(i)+"}");
+		ps.put(x0-y0*e1, y0*e2+r*1.2, "\\color{"+color+"}{\\tiny{"+tostring(i)+"}}");
 	}
+	
+	Matrix<double> xy(4,2);
+	xy(0,0) = -0.5*e1;
+	xy(0,1) = -0.5;
+	xy(1,0) = Ly_*(-e1)-0.5*e1;
+	xy(1,1) = Ly_*e2-0.5;
+	xy(2,0) = Lx_-0.5*e1 - Ly_*e1;
+	xy(2,1) = Ly_*e2-0.5;;
+	xy(3,0) = Lx_-0.5*e1;
+	xy(3,1) = -0.5;
 
-	ps.frame(-0.5,-0.5,Lx_-0.5,Ly_-0.5,"linecolor=red");
-	ps.frame(-0.5,-0.5,0.5,0.5,"linecolor=red,linestyle=dashed");
+	ps.polygon(xy,"linecolor=red");
 	ps.add("\\end{pspicture}");
 }

@@ -8,14 +8,13 @@ class SquareSU2PhiFlux: public Square<std::complex<double> >{
 		SquareSU2PhiFlux(Parseur& P);
 		~SquareSU2PhiFlux();
 
+		void save();
+
 	protected:
 		double const phi_;
 
 		void compute_T();
-		void save();
-
-		void compute_P();
-		void band_structure();
+		void compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py);
 		void lattice();
 };
 #endif

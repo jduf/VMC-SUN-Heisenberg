@@ -38,40 +38,6 @@ void TriangleJastrow::save(){
 	w("sts (connected sites)",sts_);
 }
 
-Vector<unsigned int> TriangleJastrow::get_neighbourg(unsigned int i){
-	Vector<unsigned int> neighbourg(z_);
-	/*0 neighbour*/
-	if((i+1)%Lx_){ neighbourg(0) = i+1; } 
-	else { neighbourg(0) = (i/Lx_)*Lx_; }
-	/*pi/3 neighbour*/
-	if((i+1)%Lx_ && i+Lx_<n_){ neighbourg(1) = i+Lx_+1; } 
-	else {
-		if(i+1<n_){
-			if((i+1)%Lx_){ neighbourg(1) = i-Lx_*(Ly_-1)+1; }
-			if(i+Lx_<n_ ){ neighbourg(1) = i+1; }
-		} else { neighbourg(1) = 0 ;}
-	}
-	/*2pi/3 neighbour*/
-	if(i+Lx_<n_){ neighbourg(2) = i+Lx_; }
-	else { neighbourg(2) = i-n_+Lx_; }
-	/*pi neighbour*/
-	if(i%Lx_){ neighbourg(3) = i-1; }
-	else { neighbourg(3) = i+Lx_-1; }
-	/*4pi/3 neighbour*/
-	if(i%Lx_ && i>=Lx_){ neighbourg(4) = i-Lx_-1; } 
-	else {
-		if(i!=0){
-			if(i<Lx_){ neighbourg(4) = n_-Lx_+i-1;}
-			else{ neighbourg(4) = i-1; }
-		} else { neighbourg(4) = n_-1 ;}
-	}
-	/*5pi/3 neighbour*/
-	if(i>=Lx_){ neighbourg(5) = i-Lx_; }
-	else { neighbourg(5) = n_-Lx_+i; }
-
-	return neighbourg;
-}
-
 void TriangleJastrow::compute_nn(){
 	Vector<unsigned int> neighbourg;
 	for(unsigned int i(0);i<n_;i++){
@@ -142,55 +108,60 @@ void TriangleJastrow::properties(Container& c){
 void TriangleJastrow::lattice(Matrix<unsigned int> const& lat){
 	PSTricks ps(filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
-	double prop(1);
 	double e1(0.5);
 	double e2(sqrt(3.0)/2.0);
 	//double e1(0);/*will have exactly the same topology except for the link (0,N)*/
 	//double e2(1);
-	for(unsigned int i(0);i<sts_.row();i++){
-		double x0(sts_(i,0)%Lx_);
-		double y0(sts_(i,0)/Ly_);
-		double x1(sts_(i,1)%Lx_);
-		double y1(sts_(i,1)/Ly_);
-		switch(H_(sts_(i,0),sts_(i,1))){
-			case 1:
-				{
-					ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth="+tostring(prop)+"pt,linecolor=black");
-				}break;
-			case 2:
-				{
-					ps.line("-", 0, 0, -e1, -e2, "linewidth="+tostring(prop)+"pt,linecolor=black");
-				}break;
-			case -1:
-				{
-					ps.line("-", x0-y0*e1,y0*e2,-1-y1*e1,y1*e2, "linewidth="+tostring(prop)+"pt,linecolor=green");
-				}break;
-			case -2:
-				{
-					ps.line("-", x0,0,x1+e1,-e2, "linewidth="+tostring(prop)+"pt,linecolor=red");
-				}break;
-			case -3:
-				{
-					ps.line("-", -1-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth="+tostring(prop)+"pt,linecolor=yellow");
-				}break;
-			case -4:
-				{
-					ps.line("-", x0,0,x1+e1,-e2, "linewidth="+tostring(prop)+"pt,linecolor=blue");
-				}break;
-			default:
-				{
-					std::cerr<<"une conditon au bord n'est pas correctement définie"<<std::endl;
-				}
+	Vector<unsigned int> neighbourg;
+	double x0, y0, x1, y1;
+	std::string color;
+	for(unsigned int i(0);i<n_;i++){
+		neighbourg = get_neighbourg(i);
+		x0=i%Lx_;
+		y0=i/Ly_;
+
+		color = "black";
+		y1 = neighbourg(0)/Ly_;
+		if((i+1) % Lx_ ){
+			x1 = neighbourg(0)%Lx_;
+		} else {
+			x1 = x0 + 1;
+			color = "blue";
 		}
+		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
+
+		color = "black";
+		if((i+1) % Lx_ ){
+			x1 = neighbourg(1)%Lx_;
+		} else {
+			x1 = x0 + 1;
+			color = "blue";
+		}
+		if( i+Lx_<this->n_){ 
+			y1 = neighbourg(1)/Ly_;
+		} else {
+			y1 = y0 + 1;
+			color = "blue";
+		}
+		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
+
+		color = "black";
+		x1=neighbourg(2)%Lx_;
+		if( i+Lx_<this->n_){ 
+			y1 = neighbourg(2)/Ly_;
+		} else {
+			y1 = y0 + 1;
+			color = "blue";
+		}
+		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
 	}
 
 	double r(0.2);
 	Vector<double> pie(N_);
 	double m(lat.max());
-	std::string color;
 	for(unsigned int i(0);i<n_;i++){
-		double x0(i%Lx_);
-		double y0(i/Ly_);
+		x0 = i%Lx_;
+		y0 = i/Ly_;
 		for(unsigned int j(0);j<N_;j++){
 			pie(j) = lat(i,j)/m;
 			if(pie(j) < 1e-4){pie(j) = 0;}

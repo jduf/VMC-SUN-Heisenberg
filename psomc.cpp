@@ -17,7 +17,7 @@ int main(int argc, char* argv[]){
 	PSOMonteCarlo s(P,Nfreedom);
 
 	for(unsigned int i(0);i<Nfreedom;i++){
-		s.PSO_set_limit(i,-0.5,0.5);
+		s.PSO_set_limit(i,-1.5,1.5);
 	}
 	s.PSO_init();
 	s.PSO_run(false); /*false because each run can vary in time*/

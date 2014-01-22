@@ -8,15 +8,14 @@ class SquareMu: public Square<double>{
 		SquareMu(Parseur& P);
 		~SquareMu();
 
+		void save();
+
 	protected:
 		double mu_;
 
 		void compute_T(unsigned int alpha);
-		void save();
-
-		void compute_P();
+		void compute_P(Matrix<double>& Px, Matrix<double>& Py);
 		void lattice();
-		void band_structure();
 };
 #endif
 

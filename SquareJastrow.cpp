@@ -108,27 +108,32 @@ void SquareJastrow::properties(Container& c){
 void SquareJastrow::lattice(Matrix<unsigned int> const& lat){
 	PSTricks ps(filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
-	std::string color("black");
-	double prop(1);
-	for(unsigned int i(0);i<sts_.row();i++){
-		switch(H_(sts_(i,0),sts_(i,1))){
-			case 1:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
-				}break;
-			case -1:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_,-1, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor=yellow");
-				}break;
-			case -2:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, -1, "linewidth="+tostring(prop)+"pt,linecolor=green");
-				}break;
-			default:
-				{
-					std::cerr<<"une conditon au bord n'est pas correctement définie"<<std::endl;
-				}
+	Vector<unsigned int> neighbourg;
+	double x0, y0, x1, y1;
+	std::string color;
+	for(unsigned int i(0);i<n_;i++){
+		neighbourg = get_neighbourg(i);
+		x0 = i%Lx_;
+		y0 = i/Ly_;
+		y1 = neighbourg(0)/Ly_;
+		if((i+1) % Lx_ ){
+			x1 = neighbourg(0)%Lx_;
+			color = "black";
+		} else {
+			x1 = x0 + 1;
+			color = "blue";
 		}
+		ps.line("-", x0, y0, x1, y1 , "linewidth=1pt,linecolor="+color);
+
+		x1 = neighbourg(1)%Lx_;
+		if( i+Lx_<this->n_){ 
+			y1 = neighbourg(1)/Ly_;
+			color = "black";
+		} else {
+			y1 = y0 + 1;
+			color = "blue";
+		}
+		ps.line("-", x0, y0, x1, y1, "linewidth=1pt,linecolor="+color);
 	}
 
 	double r(0.2);

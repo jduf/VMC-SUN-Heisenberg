@@ -6,8 +6,8 @@ SquareFermi::SquareFermi(Parseur& P):
 	if(!P.status()){
 		if(P.get<bool>("study")){
 			compute_T();
-			compute_P();
-			band_structure();
+			//compute_P();
+			//band_structure();
 			lattice();
 		} else {
 			compute_T();
@@ -39,24 +39,12 @@ void SquareFermi::compute_T(){
 	Vector<unsigned int> neighbourg;
 	for(unsigned int i(0); i < n_; i++){
 		neighbourg = get_neighbourg(i);
-		/*horizontal hopping*/
-		if( (i+1) % Lx_ ){ 
-			T_(i,neighbourg(0)) = t;
-			H_(i,neighbourg(0)) = 1;
-		}	
-		else {
-			T_(i,neighbourg(0)) = bc_*t;
-			H_(i,neighbourg(0)) = 1;
+		for(unsigned int j(0);j<2;j++){
+			T_(i,neighbourg(j)) = t;
 		}
-		/*vertical hopping*/
-		if( i+Lx_ < n_ ){
-			T_(i,neighbourg(1)) = t;
-			H_(i,neighbourg(1)) = 1;
-		} 
-		else {
-			T_(i,neighbourg(1)) = bc_*t;
-			H_(i,neighbourg(1)) = 1;
-		}
+	}
+	for(unsigned int i(0);i<BC_.row();i++){
+		T_(BC_(i,0),BC_(i,1)) *= bc_;
 	}
 	T_ += T_.transpose();
 }
@@ -79,81 +67,41 @@ void SquareFermi::save(){
 	w("EVec (unitary matrix)",EVec_);
 }
 
-void SquareFermi::compute_P(){
-	Px_.set(n_,n_,0.0);
-	Py_.set(n_,n_,0.0);
+void SquareFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
+	Px.set(n_,n_,0.0);
+	Py.set(n_,n_,0.0);
 	for(unsigned int i(0); i < n_; i++){
 		/*horizontal hopping*/
-		if( (i % Ly_)  < Ly_ - 1 ){ Px_(i,i+1) = 1; }
-		else { Px_(i,i+1-Lx_) = bc_; }
+		if( (i % Ly_)  < Ly_ - 1 ){ Px(i,i+1) = 1; }
+		else { Px(i,i+1-Lx_) = bc_; }
 		/*vertical hopping*/
-		if( i+Lx_ < n_ ){ Py_(i,i+Lx_) = 1; }
-		else { Py_(i,i-(Ly_-1)*Lx_) = bc_; }
+		if( i+Lx_ < n_ ){ Py(i,i+Lx_) = 1; }
+		else { Py(i,i-(Ly_-1)*Lx_) = bc_; }
 	}
-}
-
-void SquareFermi::band_structure(){
-	//std::cout<<T_*Px_-Px_*T_<<std::endl;
-	//std::cout<<T_*Py_-Py_*T_<<std::endl;
-
-	Matrix<double> TP(T_+3.*Px_+7.*Py_);
-	Vector<std::complex<double> > eval;
-	Matrix<std::complex<double> > evec;
-	Lapack<double> ES(&TP,false,'G');
-	ES.eigensystem(&eval,&evec);
-	Vector<double> kx(n_,1);
-	Vector<double> ky(n_,1);
-	Vector<double> E(n_,1);
-	for(unsigned int i(0);i<n_;i++){
-		kx(i) = log(projection(Px_,evec,i,i)).imag();
-		ky(i) = log(projection(Py_,evec,i,i)).imag();
-		E(i) = projection(T_,evec,i,i).real();
-	}
-	save_band_structure(kx,ky,E);
 }
 
 void SquareFermi::lattice(){
 	PSTricks ps(filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
-	std::string color("black");
-	double prop(1);
-	for(unsigned int i(0);i<sts_.row();i++){
-		switch(H_(sts_(i,0),sts_(i,1))){
-			case 1:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
-					break;
-				}			
-			case -1:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_,-1, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor=yellow");
-					break;
-				}
-			case -2:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, -1, "linewidth="+tostring(prop)+"pt,linecolor=green");
-					break;
-				}
-			default:
-				{
-					std::cerr<<"une conditon au bord n'est pas correctement définie"<<std::endl;
-				}
+	Vector<unsigned int> neighbourg;
+	for(unsigned int i(0);i<n_;i++){
+		neighbourg = get_neighbourg(i);
+		if((i+1) % Lx_ ){
+			ps.line("-", i%Lx_, i/Ly_, neighbourg(0)%Lx_, neighbourg(0)/Ly_, "linewidth=1pt,linecolor=black");
+		} else {
+			ps.line("-", i%Lx_, i/Ly_, i%Lx_+1, neighbourg(0)/Ly_, "linewidth=1pt,linecolor=blue");
+		}
+		if( i+Lx_<this->n_){ 
+			ps.line("-", i%Lx_, i/Ly_, neighbourg(1)%Lx_, neighbourg(1)/Ly_, "linewidth=1pt,linecolor=black");
+		} else {
+			ps.line("-", i%Lx_, i/Ly_, neighbourg(1)%Lx_, i/Ly_+1, "linewidth=1pt,linecolor=blue");
 		}
 	}
 
-	diagonalize_T('S');
-
 	double r(0.2);
-	Vector<double> ada(n_,0);
-	double max(occupation_number(ada));
 	Vector<double> tmp(2);
 	for(unsigned int i(0);i<n_;i++){
-		tmp(0) = round(ada(i),7);
-		tmp(1) = round((max-ada(i))/max,7);
-		ps.add("\\rput("+tostring(i%Lx_)+","+tostring(i/Ly_)+"){%");
-		ps.pie(tmp,r,"chartColor=color,userColor={blue,white}");
-		ps.add("}");
-		ps.put(i%Lx_+r*0.5, i/Ly_+r*1.2, "\\tiny{"+tostring(i)+"}");
+		ps.put(i%Lx_+r*1.2, i/Ly_+r*1.2, "\\tiny{"+tostring(i)+"}");
 	}
 
 	ps.frame(-0.5,-0.5,Lx_-0.5,Ly_-0.5,"linecolor=red");

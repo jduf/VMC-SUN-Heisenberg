@@ -9,12 +9,10 @@ class Chain: public CreateSystem<double>{
 		~Chain();
 
 	private:
-		void compute_H();
-		void compute_P();
+		void compute_P(Matrix<double>& P);
 		void compute_T();
-		void compute_band_structure();
 		void save(std::string filename);
 
-		Matrix<double> Px_;//!< translation operator along x-axis 
+		Vector<unsigned int> get_neighbourg(unsigned int i);
 };
 #endif

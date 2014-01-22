@@ -1,8 +1,7 @@
 #include"Chain.hpp"
 
 Chain::Chain(Parseur& P):
-	CreateSystem<double>(P,2,"chain"),
-	Px_(n_,n_)
+	CreateSystem<double>(P,2,"chain")
 {
 	if(!P.status()){
 		std::string filename("chain-N"+tostring(N_) + "-S" + tostring(n_));
@@ -13,10 +12,9 @@ Chain::Chain(Parseur& P):
 			filename += "-P";
 			bc_ = 1;
 		}
-		compute_H();
 		compute_sts();
 		compute_T();
-		compute_band_structure();
+		//compute_band_structure();
 
 		diagonalize_T('S');
 		for(unsigned int spin(0);spin<N_;spin++){
@@ -32,14 +30,6 @@ Chain::Chain(Parseur& P):
 
 Chain::~Chain(){ }
 
-void Chain::compute_H(){
-	H_(0, n_ -1 ) = 1;
-	for(unsigned int i(0); i< n_-1; i++){
-		H_(i,i+1) = 1;
-	}
-	H_ += H_.transpose();
-}
-
 void Chain::compute_T(){
 	double t(-1.0);
 	T_(0, n_ -1 ) = bc_*t;
@@ -49,34 +39,12 @@ void Chain::compute_T(){
 	T_ += T_.transpose();
 }
 
-void Chain::compute_P(){
-	Px_(n_ -1,0) = bc_;
+void Chain::compute_P(Matrix<double>& P){
+	P.set(n_,n_);
+	P(n_ -1,0) = bc_;
 	for(unsigned int i(0); i< n_-1; i++){
-		Px_(i,i+1) = 1.0;
+		P(i,i+1) = 1.0;
 	}
-}
-
-void Chain::compute_band_structure(){
-	compute_P();
-	
-	//std::cout<<T_*Px_-Px_*T_<<std::endl;
-	
-	Matrix<double> TP(T_+Px_);
-	Vector<std::complex<double> > eval;
-	Matrix<std::complex<double> > evec;
-	Lapack<double> ES(&TP,false,'G');
-	ES.eigensystem(&eval,&evec);
-	Vector<double> k(n_,1);
-	Vector<double> E(n_,1);
-	for(unsigned int i(0);i<n_;i++){
-		k(i) = log(projection(Px_,evec,i,i)).imag();
-		E(i) = projection(T_,evec,i,i).real();
-	}
-	Gnuplot gp(filename_+"-band-structure","plot");
-	gp.save_data(filename_+"-spectrum",k,E);
-	gp.add_plot_param(" ,\\\n");
-	Vector<unsigned int> index(E.sort());
-	gp.save_data(filename_+"-spectrum-sorted",k.sort(index).range(0,m_),E.range(0,m_));
 }
 
 void Chain::save(std::string filename){
@@ -93,4 +61,12 @@ void Chain::save(std::string filename){
 	w("bc (boundary condition)",bc_);
 	w("sts (connected sites)",sts_);
 	w("EVec (unitary matrix)",EVec_);
+}
+
+Vector<unsigned int> Chain::get_neighbourg(unsigned int i){
+	Vector<unsigned int> neighbourg(z_);
+	neighbourg(0) = i+1;
+	neighbourg(0) = i-1;
+
+	return neighbourg;
 }

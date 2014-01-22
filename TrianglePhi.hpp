@@ -8,13 +8,12 @@ class TrianglePhi: public Triangle<std::complex<double> >{
 		TrianglePhi(Parseur& P);
 		~TrianglePhi();
 
+		void save();
 	protected:
 		double phi_;
 		
+		void compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py);
 		void compute_T();
-		void compute_P();
-		void compute_band_structure();
-		void save();
 };
 #endif
 

@@ -8,12 +8,11 @@ class TriangleFermi: public Triangle<double>{
 		TriangleFermi(Parseur& P);
 		~TriangleFermi();
 
-	protected:
-		void compute_T();
 		void save();
 
-		void compute_P();
+	protected:
+		void compute_T();
+		void compute_P(Matrix<double>& Px, Matrix<double>& Py);
 		void lattice();
-		void band_structure();
 };
 #endif

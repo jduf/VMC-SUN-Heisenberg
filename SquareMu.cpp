@@ -9,8 +9,13 @@ SquareMu::SquareMu(Parseur& P):
 		if(!P.status()){
 			if(alpha<N_){
 				compute_T(alpha);
-				compute_P();
-				band_structure();
+				//compute_P();
+				//band_structure();
+				//for(unsigned int i(0);i<n_;i++){
+					//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
+					//ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
+					//E(i) = projection(T_,evec,i,i).real();
+				//}
 				lattice();
 			} else {
 				std::cerr<<"SquareMu : SquareMu() : alpha must be smaller than N_"<<std::endl;
@@ -80,70 +85,39 @@ void SquareMu::save(){
 	w("EVec (unitary matrix)",EVec_);
 }
 
-void SquareMu::compute_P(){
-	Px_.set(n_,n_,0.0);
-	Py_.set(n_,n_,0.0);
+void SquareMu::compute_P(Matrix<double>& Px, Matrix<double>& Py){
+	Px.set(n_,n_,0.0);
+	Py.set(n_,n_,0.0);
 	for(unsigned int i(0); i < n_; i++){
 		/*horizontal hopping*/
-		if( (i % Ly_)  < Ly_ - N_ ){Px_(i,i+N_) = 1; }
-		else{ Px_(i,i-Ly_+N_) = bc_; }
+		if( (i % Ly_)  < Ly_ - N_ ){Px(i,i+N_) = 1; }
+		else{ Px(i,i-Ly_+N_) = bc_; }
 		/*vertical hopping*/
 		if( i+Lx_ < n_ ){
-			if( (i+1) % Lx_ ){Py_(i,i+Lx_+1) = 1; }
-			else { Py_(i,i+1) = bc_;}
+			if( (i+1) % Lx_ ){Py(i,i+Lx_+1) = 1; }
+			else { Py(i,i+1) = bc_;}
 		} else {
-			if( (i+1) % Lx_ ) {  Py_(i,i-(Ly_-1)*Lx_+1) = bc_;}
-			else { Py_(i,0) = bc_*bc_;}
+			if( (i+1) % Lx_ ) {  Py(i,i-(Ly_-1)*Lx_+1) = bc_;}
+			else { Py(i,0) = bc_*bc_;}
 		}
 	}
-}
-
-void SquareMu::band_structure(){
-	//std::cout<<T_*Px_-Px_*T_<<std::endl;
-	//std::cout<<T_*Py_-Py_*T_<<std::endl;
-
-	Matrix<double> TP(T_+3.*Px_+7.*Py_);
-	Vector<std::complex<double> > eval;
-	Matrix<std::complex<double> > evec;
-	Lapack<double> ES(&TP,false,'G');
-	ES.eigensystem(&eval,&evec);
-	Vector<double> kx(n_);
-	Vector<double> ky(n_);
-	Vector<double> E(n_);
-	for(unsigned int i(0);i<n_;i++){
-		kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
-		ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
-		E(i) = projection(T_,evec,i,i).real();
-	}
-	save_band_structure(kx,ky,E);
 }
 
 void SquareMu::lattice(){
 	PSTricks ps(filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
-	std::string color("black");
-	double prop(1);
-	for(unsigned int i(0);i<sts_.row();i++){
-		switch(H_(sts_(i,0),sts_(i,1))){
-			case 1:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
-					break;
-				}			
-			case -1:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_,-1, sts_(i,1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor=yellow");
-					break;
-				}
-			case -2:
-				{
-					ps.line("-", sts_(i,0)%Lx_, sts_(i,0)/Ly_, sts_(i,1)%Lx_, -1, "linewidth="+tostring(prop)+"pt,linecolor=green");
-					break;
-				}
-			default:
-				{
-					std::cerr<<"une conditon au bord n'est pas correctement définie"<<std::endl;
-				}
+	Vector<unsigned int> neighbourg;
+	for(unsigned int i(0);i<n_;i++){
+		neighbourg = get_neighbourg(i);
+		if((i+1) % Lx_ ){
+			ps.line("-", i%Lx_, i/Ly_, neighbourg(0)%Lx_, neighbourg(0)/Ly_, "linewidth=1pt,linecolor=black");
+		} else {
+			ps.line("-", i%Lx_, i/Ly_, i%Lx_+1, neighbourg(0)/Ly_, "linewidth=1pt,linecolor=blue");
+		}
+		if( i+Lx_<this->n_){ 
+			ps.line("-", i%Lx_, i/Ly_, neighbourg(1)%Lx_, neighbourg(1)/Ly_, "linewidth=1pt,linecolor=black");
+		} else {
+			ps.line("-", i%Lx_, i/Ly_, neighbourg(1)%Lx_, i/Ly_+1, "linewidth=1pt,linecolor=blue");
 		}
 	}
 
