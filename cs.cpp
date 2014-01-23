@@ -1,6 +1,7 @@
 /*!  @file cs.cpp */
 
-#include "Chain.hpp"
+#include "ChainFermi.hpp"
+#include "ChainDimerized.hpp"
 
 #include "SquareFermi.hpp"
 #include "SquareMu.hpp"
@@ -19,45 +20,60 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	std::string wf(P.get<std::string>("wf"));
-	if( wf == "chain" ){
-		Chain c(P);
+	if( wf == "chainfermi" ){
+		ChainFermi c(P);
+		c.save();
 	}
-	if( wf == "fermi" ){
+	if( wf == "chaindimerized" ){
+		ChainDimerized c(P);
+		c.save();
+	}
+
+	if( wf == "squarefermi" ){
 		SquareFermi s(P);
 		s.save();
 	}
-	if( wf == "mu" ){
+	if( wf == "squaremu" ){
 		SquareMu s(P);
+		s.save();
 	}
-	if( wf == "csl" ){
+	if( wf == "squarecsl" ){
 		SquarePiFlux s(P);
 		s.save();
 	}
-	if( wf == "honeycomb" ){
-		HoneycombSU4 h(P);
-	}
-	if( wf == "honeycombsu3" ){
-		HoneycombSU3 h(P);
-	}
-	if( wf == "phi" ){
+	if( wf == "squarephi" ){
 		SquareSU2PhiFlux s(P);
+		s.save();
 	}
-	if( wf == "jastrow" ){
+	if( wf == "squarejastrow" ){
 		SquareJastrow s(P);
 		s.save();
 	}
-	if(wf == "triangle" ){
+
+	if( wf == "trianglefermi" ){
 		TriangleFermi s(P);
+		s.save();
 	}
-	if(wf == "trianglemu" ){
+	if( wf == "trianglemu" ){
 		TriangleMu s(P);
+		s.save();
 	}
-	if(wf == "trianglephi" ){
+	if( wf == "trianglephi" ){
 		TrianglePhi s(P);
+		s.save();
 	}
 	if( wf == "trianglejastrow" ){
 		TriangleJastrow s(P);
 		s.save();
+	}
+
+	if( wf == "honeycombsu4" ){
+		HoneycombSU4 h(P);
+		h.save();
+	}
+	if( wf == "honeycombsu3" ){
+		HoneycombSU3 h(P);
+		h.save();
 	}
 }
 

@@ -2,84 +2,38 @@
 
 #include "Parseur.hpp"
 #include "MonteCarlo.hpp"
+#include "ExtractSystem.hpp"
 
 void save(Container const& param, Container const& output, Write& w);
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	std::string filename(P.get<std::string>("sim"));
+	unsigned int nthreads(1);
 	if(!P.status()){
 		Container input;
 		Container param(true);
+		ExtractSystem system(filename);
 		input.set("filename",filename);
-
-		std::string wf;
-		unsigned int m(0),N(0),nthreads(1);
-		bool fermionic(true);
+		Write results(filename+".dat");
 
 		P.get("nthreads",nthreads);
-
-		FileParser file(filename);
-		file.extract<std::string>(wf);
-		file.extract<unsigned int>(N);
-		file.extract<unsigned int>(m);
-
-		input.set("N",N);
-		input.set("m",m);
-		input.set("n",N*m);
-
 		if(P.check("t_max")){
 			input.set("t_max",P.get<unsigned int>("t_max"));
 		}
+		system.extract(input,param);
 
-		Write results(filename+".dat");
-
-
-		param.set("N",N);
-		param.set("m",m);
-		param.set("n",N*m);
-
-		file.extract<double>("bc",param);
-		if( wf != "chain" ){
-			file.extract<unsigned int>("Lx",param);
-			file.extract<unsigned int>("Ly",param);
-			if(wf == "mu" || wf == "trianglemu"){
-				file.extract<double>("mu",param);
-			}
-			if(wf == "phi" || wf == "trianglephi"){
-				file.extract<double>("phi",param);
-			}
-			if( wf == "jastrow" || wf == "trianglejastrow" ){ 
-				Vector<double> nu;
-				file.extract<Vector<double> >(nu);
-				file.extract<Matrix<unsigned int> >("nn",input);
-				file.extract<Vector<unsigned int> >("sl",input);
-				file.extract<Matrix<std::complex<double> > >("omega",input);
-				fermionic=false;
-				input.set("nu",nu);
-				param.set("nu",nu);
-			}
-		}
-		input.set("fermionic",fermionic);
-		file.extract<Matrix<unsigned int> >("sts",input);
-
-		if( wf != "csl" && wf != "phi" && wf != "trianglephi" && wf != "jastrow" && wf != "trianglejastrow"){
-			if(fermionic){
-				file.extract<Matrix<double> >("EVec",input);
-			}
+		if( system.use_complex() ){
 #pragma omp parallel num_threads(nthreads)
 			{
-				MonteCarlo<double> sim(input);
+				MonteCarlo<std::complex<double> > sim(input);
 				sim.run(1,1e5);
 				save(param,sim.save(),results);
 			}
 		} else {
-			if(fermionic){
-				file.extract<Matrix<std::complex<double> > >("EVec",input);
-			}
 #pragma omp parallel num_threads(nthreads)
 			{
-				MonteCarlo<std::complex<double> > sim(input);
+				MonteCarlo<double> sim(input);
 				sim.run(1,1e5);
 				save(param,sim.save(),results);
 			}

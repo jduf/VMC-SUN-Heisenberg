@@ -4,6 +4,11 @@ SquareSU2PhiFlux::SquareSU2PhiFlux(Parseur& P):
 	Square<std::complex<double> >(P,"square-phi-flux"),
 	phi_(M_PI*P.get<double>("phi"))
 {
+	ref_(1) = 2;
+	ref_(2) = 4;
+	if(bc_ == 1){ filename_ += "-P";} 
+	else { filename_ += "-A";}
+	filename_ += "-phi+" + tostring(phi_);
 	if(!P.status() && N_ == 2){
 		if(P.get<bool>("study")){
 			compute_T();
@@ -23,18 +28,6 @@ SquareSU2PhiFlux::SquareSU2PhiFlux(Parseur& P):
 						EVec_(i+color*n_,j) = T_(i,j);
 					}
 				}
-			}
-			if(successful_){
-				filename_ += "-N" + tostring(N_);
-				filename_ += "-S" + tostring(n_);
-				filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-				if(bc_ == 1){ filename_ += "-P";} 
-				else { filename_ += "-A";}
-				filename_ += "-phi+" + tostring(P.get<double>("phi"));
-
-				save();
-			} else {
-				std::cerr<<"SquareSU2PhiFlux : degeneate"<<std::endl;
 			}
 		}
 	} else {
@@ -71,15 +64,15 @@ void SquareSU2PhiFlux::save(){
 	rst.title("Input values","~");
 
 	w.set_header(rst.get());
-	w("wf (wave function)",wf_);
+	w("ref (wave function)",ref_);
 	w("N (N of SU(N))",N_);
 	w("m (m=n/N)",m_);
+	w("sts (connected sites)",sts_);
+	w("phi/pi (phi-flux)",phi_/M_PI);
+	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
-	w("phi/pi (phi-flux)",phi_/M_PI);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
 }
 
 void SquareSU2PhiFlux::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py){

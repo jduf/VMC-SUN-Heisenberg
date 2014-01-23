@@ -3,29 +3,19 @@
 SquarePiFlux::SquarePiFlux(Parseur& P):
 	Square<std::complex<double> >(P,"square-csl")
 {
+	ref_(1) = 2;
+	ref_(2) = 3;
+	if(bc_ == 1){ filename_ += "-P";} 
+	else { filename_ += "-A";}
 	if(!P.status()){
-		if(n_==Ly_*Lx_){
-			compute_T();
-
-			diagonalize_T('H');
-			for(unsigned int spin(0);spin<N_;spin++){
-				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<m_;j++){
-						EVec_(i+spin*n_,j) = T_(i,j);
-					}
+		compute_T();
+		diagonalize_T('H');
+		for(unsigned int spin(0);spin<N_;spin++){
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<m_;j++){
+					EVec_(i+spin*n_,j) = T_(i,j);
 				}
 			}
-			if(successful_){
-				filename_ += "-N" + tostring(N_);
-				filename_ += "-S" + tostring(n_);
-				filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-				if(bc_ == 1){ filename_ += "-P";} 
-				else { filename_ += "-A";}
-			} else {
-				std::cerr<<"SquarePiFlux : degeneate"<<std::endl;
-			}
-		} else {
-			std::cerr<<"SquarePiFlux : the cluster is not a SquarePiFlux"<<std::endl;
 		}
 	}
 }
@@ -58,43 +48,43 @@ void SquarePiFlux::save(){
 	rst.title("Input values","~");
 
 	w.set_header(rst.get());
-	w("wf (wave function)",wf_);
+	w("ref (wave function)",ref_);
 	w("N (N of SU(N))",N_);
 	w("m (m=n/N)",m_);
+	w("sts (connected sites)",sts_);
+	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
 }
 
-	//{//csl for Vishvanath (uses majorana representation)
-		//for(unsigned int i(0); i< Ly_; i++){
-			//for(unsigned int j(0); j< Lx_; j++){
-				//if(j+1 == Lx_){// x hopping
-					//H(i*Lx_ , i*Lx_ + j) = t;
-					//if(i % 2 == 0){
-						//T(i*Lx_ , i*Lx_ + j) = bc_*t;
-					//} else {
-						//T(i*Lx_ , i*Lx_ + j) = -bc_*t;
-					//}
-				//} else {
-					//H( i*Lx_ + j , i*Lx_ + j + 1) = t; 
-					//if(i % 2 == 0){
-						//T( i*Lx_ + j , i*Lx_ + j + 1) = t; 
-					//} else {
-						//T( i*Lx_ + j , i*Lx_ + j + 1) = -t; 
-					//}
-				//}
-				//if(i+1 == Ly_ ){// y hopping
-					//H(j, i*Lx_ + j) = t;
-					//T(j, i*Lx_ + j) = bc_*t;
-				//} else{
-					//H(i*Lx_ + j, (i+1)*Lx_ + j) = t;
-					//T(i*Lx_ + j, (i+1)*Lx_ + j) = t;
-				//}
-			//}
-		//}
-		//H += H.transpose();
-		//T += T.transpose();
-	//} 
+//{//csl for Vishvanath (uses majorana representation)
+//for(unsigned int i(0); i< Ly_; i++){
+//for(unsigned int j(0); j< Lx_; j++){
+//if(j+1 == Lx_){// x hopping
+//H(i*Lx_ , i*Lx_ + j) = t;
+//if(i % 2 == 0){
+//T(i*Lx_ , i*Lx_ + j) = bc_*t;
+//} else {
+//T(i*Lx_ , i*Lx_ + j) = -bc_*t;
+//}
+//} else {
+//H( i*Lx_ + j , i*Lx_ + j + 1) = t; 
+//if(i % 2 == 0){
+//T( i*Lx_ + j , i*Lx_ + j + 1) = t; 
+//} else {
+//T( i*Lx_ + j , i*Lx_ + j + 1) = -t; 
+//}
+//}
+//if(i+1 == Ly_ ){// y hopping
+//H(j, i*Lx_ + j) = t;
+//T(j, i*Lx_ + j) = bc_*t;
+//} else{
+//H(i*Lx_ + j, (i+1)*Lx_ + j) = t;
+//T(i*Lx_ + j, (i+1)*Lx_ + j) = t;
+//}
+//}
+//}
+//H += H.transpose();
+//T += T.transpose();
+//} 

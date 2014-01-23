@@ -3,6 +3,10 @@
 HoneycombSU3::HoneycombSU3(Parseur& P):
 	Honeycomb<double>(P,"honeycomb")
 {
+	ref_(1) = 1;
+	ref_(2) = 1;
+	if(bc_ == 1){ filename_ += "-P";} 
+	else { filename_ += "-A";}
 	if(!P.status() || N_ != 3){
 		if(m_==Ly_*Lx_){
 			compute_T();
@@ -13,20 +17,6 @@ HoneycombSU3::HoneycombSU3(Parseur& P):
 					for(unsigned int j(0);j<m_;j++){
 						EVec_(i+spin*n_,j) = T_(i,j);
 					}
-				}
-			}
-			if(successful_){
-				filename_ +="-N" + tostring(N_);
-				filename_ +="-S" + tostring(n_);
-				filename_ += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
-				if(bc_ == 1){ filename_ += "-P";} 
-				else { filename_ += "-A";}
-				save();
-			} else {
-				if(bc_ == 1){
-					std::cerr<<"HoneycombSU4 : degeneate for PBC"<<std::endl;
-				} else {
-					std::cerr<<"HoneycombSU4 : degeneate for APBC"<<std::endl;
 				}
 			}
 		} else {
@@ -81,10 +71,10 @@ void HoneycombSU3::save(){
 	w("wf (wave function)",wf_);
 	w("N (N of SU(N))",N_);
 	w("m (number of unit cell)",m_);
+	w("sts (connected sites)",sts_);
+	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
 }
 

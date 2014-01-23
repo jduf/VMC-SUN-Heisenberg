@@ -4,6 +4,11 @@ SquareMu::SquareMu(Parseur& P):
 	Square<double>(P,"square-mu"),
 	mu_(P.get<double>("mu"))
 {
+	ref_(1) = 1;
+	ref_(2) = 1;
+	if(bc_ == 1){ filename_ += "-P";} 
+	else { filename_ += "-A";}
+	filename_ += "-mu" + tostring(mu_);
 	if(P.get<bool>("study")){
 		unsigned int alpha(P.get<unsigned int>("alpha"));
 		if(!P.status()){
@@ -32,17 +37,6 @@ SquareMu::SquareMu(Parseur& P):
 					}
 				}
 				T_.set(n_,n_,0.0);
-			}
-			if(successful_){
-				filename_ += "-N" + tostring(N_);
-				filename_ += "-S" + tostring(n_);
-				filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-				if(bc_ == 1){ filename_ += "-P";} 
-				else { filename_ += "-A";}
-				filename_ += "-mu" + tostring(mu_);
-				save();
-			} else {
-				std::cerr<<"SquareMu : degeneate"<<std::endl;
 			}
 		}
 	}
@@ -74,15 +68,15 @@ void SquareMu::save(){
 	rst.title("Input values","~");
 
 	w.set_header(rst.get());
-	w("wf (wave function)",wf_);
+	w("ref (wave function)",ref_);
 	w("N (N of SU(N))",N_);
 	w("m (m=n/N)",m_);
+	w("sts (connected sites)",sts_);
+	w("mu (chemical potential)",mu_);
+	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
-	w("mu (chemical potential)",mu_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
 }
 
 void SquareMu::compute_P(Matrix<double>& Px, Matrix<double>& Py){

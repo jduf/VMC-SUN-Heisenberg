@@ -7,12 +7,10 @@ TriangleJastrow::TriangleJastrow(Parseur& P):
 	sl_(n_),
 	omega_(N_,N_,1.0)
 {
+	ref_(1) = 0;
 	compute_nn();
 	compute_sublattice();
 	compute_omega_cc();
-	filename_ += "-N" + tostring(N_);
-	filename_ += "-S" + tostring(n_);
-	filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 }
 
 TriangleJastrow::~TriangleJastrow(){}
@@ -25,17 +23,17 @@ void TriangleJastrow::save(){
 	rst.title("Input values","~");
 
 	w.set_header(rst.get());
-	w("wf (wave function)",wf_);
+	w("ref (wave function)",ref_);
 	w("N (N of SU(N))",N_);
 	w("m (m=n/N)",m_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
+	w("sts (connected sites)",sts_);
 	w("nn (nearst neighbours)",nn_);
 	w("cc (to match nu and x)",cc_);
 	w("sl (sublattice)",sl_);
 	w("omega (omega)",omega_);
-	w("sts (connected sites)",sts_);
+	w("bc (boundary condition)",bc_);
+	w("Lx (x-dimension)",Lx_);
+	w("Ly (y-dimension)",Ly_);
 }
 
 void TriangleJastrow::compute_nn(){

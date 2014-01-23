@@ -8,9 +8,10 @@ class HoneycombSU3: public Honeycomb<double>{
 		HoneycombSU3(Parseur& P);
 		~HoneycombSU3();
 
+		void save();
+
 	protected:
 		void compute_T();
-		void save();
 };
 #endif
 

@@ -18,6 +18,7 @@ class CreateSystem{
 
 	protected:
 		std::string wf_;			//!< type of wavefunction
+		Vector<unsigned int> ref_;	//!< type of wavefunction
 		unsigned int const m_;		//!< number of unit cell
 		unsigned int const N_;		//!< N of SU(N)
 		unsigned int const n_;		//!< number of sites
@@ -41,6 +42,7 @@ class CreateSystem{
 template<typename Type>
 CreateSystem<Type>::CreateSystem(Parseur& P, unsigned int z, std::string filename): 
 	wf_(P.get<std::string>("wf")),
+	ref_(3,0),
 	m_(P.get<unsigned int>("m")),
 	N_(P.get<unsigned int>("N")), 
 	n_(N_*m_),

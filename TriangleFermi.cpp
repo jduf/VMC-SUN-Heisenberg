@@ -3,6 +3,10 @@
 TriangleFermi::TriangleFermi(Parseur& P):
 	Triangle<double>(P,"triangle-fermi")
 {
+	ref_(1)=1;
+	ref_(2)=0;
+	if(bc_ == 1){ filename_ += "-P";} 
+	else { filename_ += "-A";}
 	if(!P.status()){
 		if(P.get<bool>("study")){
 			compute_T();
@@ -18,16 +22,6 @@ TriangleFermi::TriangleFermi(Parseur& P):
 						EVec_(i+spin*n_,j) = T_(i,j);
 					}
 				}
-			}
-			if(successful_){
-				filename_ += "-N" + tostring(N_);
-				filename_ += "-S" + tostring(n_);
-				filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-				if(bc_ == 1){ filename_ += "-P";} 
-				else { filename_ += "-A";}
-				save();
-			} else {
-				std::cerr<<"TriangleFermi : degeneate"<<std::endl;
 			}
 		}
 	}
@@ -66,14 +60,14 @@ void TriangleFermi::save(){
 	rst.title("Input values","~");
 
 	w.set_header(rst.get());
-	w("wf (wave function)",wf_);
+	w("ref (wave function)",ref_);
 	w("N (N of SU(N))",N_);
 	w("m (m=n/N)",m_);
+	w("sts (connected sites)",sts_);
+	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
 }
 
 void TriangleFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){

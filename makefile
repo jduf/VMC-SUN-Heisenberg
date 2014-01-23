@@ -40,10 +40,10 @@ mcnu.o:mcnu.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp System
 #############
 # monte-carlo
 #############
-mc:mc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o
+mc:mc.o Parseur.o ExtractSystem.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-mc.o:mc.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp
+mc.o:mc.cpp Parseur.hpp ExtractSystem.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
 
 Rand.o:Rand.cpp Rand.hpp
@@ -52,13 +52,16 @@ Rand.o:Rand.cpp Rand.hpp
 ########
 # create
 ########
-cs:cs.o Chain.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o Container.o
+cs:cs.o ChainFermi.o ChainDimerized.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o Container.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-cs.o:cs.cpp Parseur.hpp Chain.hpp Square.hpp Honeycomb.hpp Triangle.hpp Write.hpp Read.hpp Header.hpp RST.hpp Container.hpp
+cs.o:cs.cpp Parseur.hpp Chain.hpp ChainFermi.hpp ChainDimerized.hpp Square.hpp Honeycomb.hpp Triangle.hpp Write.hpp Read.hpp Header.hpp RST.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-Chain.o:Chain.cpp Chain.hpp CreateSystem.hpp Parseur.hpp
+ChainFermi.o:ChainFermi.cpp ChainFermi.hpp Chain.hpp CreateSystem.hpp Parseur.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
+ChainDimerized.o:ChainDimerized.cpp ChainDimerized.hpp Chain.hpp CreateSystem.hpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 SquarePiFlux.o:SquarePiFlux.cpp SquarePiFlux.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
@@ -103,15 +106,18 @@ PSTricks.o:PSTricks.cpp PSTricks.hpp Write.hpp Linux.hpp Vector.hpp
 #######
 # check
 #######
-check:check.o Read.o Header.o RST.o Write.o Container.o
+check:check.o ExtractSystem.o Read.o Header.o RST.o Write.o Container.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-check.o:check.cpp Read.hpp Matrix.hpp Container.hpp
+check.o:check.cpp ExtractSystem.hpp 
 	$(CXX) -c $(CXXFLAGS) $^
 	
 ########
 # commun
 ########
+ExtractSystem.o:ExtractSystem.cpp ExtractSystem.hpp Container.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
 Container.o:Container.cpp Container.hpp 
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 

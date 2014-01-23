@@ -26,6 +26,7 @@ Square<Type>::Square(Parseur& P, std::string filename):
 	Ly_(std::floor(std::sqrt(this->n_))),
 	BC_(Lx_+Ly_,2)
 {
+	this->ref_(0) = 4;
 	this->bc_= P.get<double>("bc");
 	if(!P.status()){
 		if(this->n_==Ly_*Lx_){
@@ -43,6 +44,9 @@ Square<Type>::Square(Parseur& P, std::string filename):
 					k++;
 				}
 			}
+			this->filename_ += "-N" + tostring(this->N_);
+			this->filename_ += "-S" + tostring(this->n_);
+			this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 		} else {
 			std::cerr<<"Square : the cluster is not a square"<<std::endl;
 		}

@@ -99,8 +99,8 @@ MonteCarlo<Type>::MonteCarlo(Container const& input):
 	}
 	unsigned int thread(omp_get_thread_num());
 	rnd=new Rand(1e4,thread);
-	if(input.get<bool>("fermionic")){ S=new SystemFermionic<Type>; }
-	else { S=new SystemBosonic<Type>;}
+	if(input.get<Vector<unsigned int> >("ref")(0)){ S=new SystemFermionic<Type>; }
+	else { S=new SystemBosonic<Type>; }
 	input.get("t_max",t_max);
 	status = S->init(input,thread);
 	//if(status){

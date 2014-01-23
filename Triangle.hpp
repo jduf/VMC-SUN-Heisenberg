@@ -28,6 +28,7 @@ Triangle<Type>::Triangle(Parseur& P, std::string filename):
 	Ly_(std::floor(std::sqrt(this->n_))),
 	BC_(Lx_+Ly_,2)
 {
+	this->ref_(0) = 3;
 	this->bc_= P.get<double>("bc");
 	if(!P.status()){
 		if(this->n_==Ly_*Lx_){
@@ -42,9 +43,12 @@ Triangle<Type>::Triangle(Parseur& P, std::string filename):
 				if( i+Lx_>=this->n_){ 
 					BC_(k,0) = i;
 					BC_(k,1) = i-(Ly_-1)*Lx_;
-					k++;
-				}
+				k++;
 			}
+			}
+			this->filename_ += "-N" + tostring(this->N_);
+			this->filename_ += "-S" + tostring(this->n_);
+			this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 		} else {
 			std::cerr<<"Triangle : the cluster is not a square"<<std::endl;
 		}

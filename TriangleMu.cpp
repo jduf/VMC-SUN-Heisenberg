@@ -4,6 +4,11 @@ TriangleMu::TriangleMu(Parseur& P):
 	Triangle<double>(P,"triangle-mu"),
 	mu_(P.get<double>("mu"))
 {
+	ref_(1)=1;
+	ref_(2)=1;
+	if(bc_ == 1){ filename_ += "-P";} 
+	else { filename_ += "-A";}
+	filename_ += "-mu" + tostring(mu_);
 	if(P.get<bool>("study")){
 		unsigned int alpha(P.get<unsigned int>("alpha"));
 		if(!P.status()){
@@ -11,9 +16,9 @@ TriangleMu::TriangleMu(Parseur& P):
 				compute_T(alpha);
 				//compute_P();
 				//for(unsigned int i(0);i<n_;i++){
-					//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
-					//ky(i) = log(projection(Py_,evec,i,i)).imag()+kx(i);
-					//E(i) = projection(T_,evec,i,i).real();
+				//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
+				//ky(i) = log(projection(Py_,evec,i,i)).imag()+kx(i);
+				//E(i) = projection(T_,evec,i,i).real();
 				//}
 				//band_structure();
 				lattice();
@@ -32,17 +37,6 @@ TriangleMu::TriangleMu(Parseur& P):
 					}
 				}
 				T_.set(n_,n_,0.0);
-			}
-			if(successful_){
-				filename_ += "-N" + tostring(N_);
-				filename_ += "-S" + tostring(n_);
-				filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-				if(bc_ == 1){ filename_ += "-P";} 
-				else { filename_ += "-A";}
-				filename_ += "-mu" + tostring(mu_);
-				save();
-			} else {
-				std::cerr<<"TriangleMu : degeneate"<<std::endl;
 			}
 		}
 	}
@@ -86,15 +80,15 @@ void TriangleMu::save(){
 	rst.title("Input values","~");
 
 	w.set_header(rst.get());
-	w("wf (wave function)",wf_);
+	w("ref (wave function)",ref_);
 	w("N (N of SU(N))",N_);
 	w("m (m=n/N)",m_);
+	w("sts (connected sites)",sts_);
+	w("mu (chemical potential)",mu_);
+	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
-	w("mu (chemical potential)",mu_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
 }
 
 void TriangleMu::compute_P(){
@@ -182,7 +176,7 @@ void TriangleMu::lattice(){
 		ps.add("}");
 		ps.put(x0-y0*e1, y0*e2+r*1.2, "\\color{"+color+"}{\\tiny{"+tostring(i)+"}}");
 	}
-	
+
 	Matrix<double> xy(4,2);
 	xy(0,0) = -0.5*e1;
 	xy(0,1) = -0.5;

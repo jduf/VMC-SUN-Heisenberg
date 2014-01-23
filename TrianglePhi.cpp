@@ -4,6 +4,11 @@ TrianglePhi::TrianglePhi(Parseur& P):
 	Triangle<std::complex<double> >(P,"triangle-phi"),
 	phi_(P.get<double>("phi"))
 {
+	ref_(1) = 2;
+	ref_(2) = 4;
+	if(bc_ == 1){ filename_ += "-P";} 
+	else { filename_ += "-A";}
+	filename_ += "-phi" + tostring(phi_);
 	if(P.get<bool>("study")){
 		if(!P.status()){
 			compute_T();
@@ -20,17 +25,7 @@ TrianglePhi::TrianglePhi(Parseur& P):
 					}
 				}
 			}
-			if(successful_){
-				filename_ += "-N" + tostring(N_);
-				filename_ += "-S" + tostring(n_);
-				filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-				if(bc_ == 1){ filename_ += "-P";} 
-				else { filename_ += "-A";}
-				filename_ += "-phi" + tostring(phi_);
-				save();
-			} else {
-				std::cerr<<"TrianglePhi : degeneate"<<std::endl;
-			}
+			save();
 		}
 	}
 }
@@ -82,14 +77,14 @@ void TrianglePhi::save(){
 	rst.title("Input values","~");
 
 	w.set_header(rst.get());
-	w("wf (wave function)",wf_);
+	w("ref (wave function)",ref_);
 	w("N (N of SU(N))",N_);
 	w("m (number of unit cell)",m_);
+	w("sts (connected sites)",sts_);
+	w("phi (flux per triangle)",phi_);
+	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
-	w("phi (flux per triangle)",phi_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
 }
 
