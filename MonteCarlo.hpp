@@ -113,6 +113,7 @@ MonteCarlo<Type>::MonteCarlo(Container const& input):
 	//}
 	//}
 
+	std::cout<<"thermalization"<<std::endl;
 	if(status){
 		double ratio(0.0);
 		for(unsigned int i(0);i<1e5;i++){

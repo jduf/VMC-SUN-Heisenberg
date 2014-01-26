@@ -28,7 +28,7 @@ class System{
 		virtual void swap();
 
 		/*!Exchanges particle on site s1 with the one on site s2*/
-		virtual void swap(unsigned int const& s0, unsigned int const& s1);
+		virtual void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
 
 		/*!Virtual method that is called by MonteCarlo */
 		virtual Type ratio()=0;
@@ -50,6 +50,7 @@ class System{
 		unsigned int N_;//!< number of different colors
 		unsigned int n_;//!< number of lattice site
 		unsigned int m_;//!< number of each color
+		unsigned int pps_;
 
 		Matrix<unsigned int> s_;//!< on the site i : s(i,0)=color, s(i,1)=row
 
@@ -61,8 +62,9 @@ class System{
 
 		Rand* rnd;				//!< generator of random numbers 
 
-		unsigned int color[2];	//!< colors of the exchanged sites
+		unsigned int new_c[2];	//!< colors of the exchanged sites
 		unsigned int new_s[2];	//!< sites that are exchanged
+		unsigned int new_p[2];	//!< sites that are exchanged
 
 	private:
 		Matrix<unsigned int> sts_;//!< sts_(i,0) is a site that can be exchanged with sts_(i,1)
@@ -89,8 +91,10 @@ unsigned int System<Type>::init(Container const& input, unsigned int const& thre
 	m_ = input.get<unsigned int>("m");
 	sts_ = input.get<Matrix<unsigned int> >("sts");
 	n_ = N_*m_;
+	pps_ = 2;
+	s_.set(n_,pps_);
+
 	rnd = new Rand(100,thread);
-	s_.set(n_,2);
 
 	return 1;
 }
@@ -101,26 +105,39 @@ unsigned int System<Type>::init(Container const& input, unsigned int const& thre
 template<typename Type>
 void System<Type>::update(){
 	///*update the sites*/
-	s_(new_s[0],0) = color[1];
-	s_(new_s[1],0) = color[0];
+	s_(new_s[0],new_p[0]) = new_c[1];
+	s_(new_s[1],new_p[1]) = new_c[0];
 }
 
 template<typename Type>
 void System<Type>::swap(){
 	new_s[0] = rnd->get(n_);
-	color[0] = s_(new_s[0],0);
+	new_p[0] = rnd->get(pps_);
+	new_c[0] = s_(new_s[0],new_p[0]);
+	bool wrong_exchange;
 	do {
+		wrong_exchange = false;
 		new_s[1] = rnd->get(n_);
-		color[1] = s_(new_s[1],0);
-	} while(color[0] == color[1]);
+		new_p[1] = rnd->get(pps_);
+		new_c[1] = s_(new_s[1],new_p[1]);
+		for(unsigned int i(0); i<pps_;i++){
+			if( s_(new_s[0],i) == new_c[1] ){ wrong_exchange = true;}
+			if( s_(new_s[1],i) == new_c[0] ){ wrong_exchange = true;}
+		}
+	} while(wrong_exchange);
+	//std::cout<<"++++++"<<std::endl;
+	//std::cout<<new_s[0]<<" "<<new_p[0]<<" "<<new_c[0]<<std::endl;
+	//std::cout<<new_s[1]<<" "<<new_p[1]<<" "<<new_c[1]<<std::endl;
 }
 
 template<typename Type>
-void System<Type>::swap(unsigned int const& s0, unsigned int const& s1){
+void System<Type>::swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
 	new_s[0] = s0;
 	new_s[1] = s1;
-	color[0] = s_(s0,0);
-	color[1] = s_(s1,0);
+	new_p[0] = p0;
+	new_p[1] = p1;
+	new_c[0] = s_(s0,p0);
+	new_c[1] = s_(s1,p1);
 }
 /*}*/
 
@@ -133,13 +150,17 @@ void System<Type>::measure(double& E_config, double& E_im){
 	Type r;
 	
 	for(unsigned int i(0);i<sts_.row();i++){
-		swap(sts_(i,0),sts_(i,1));
-		/*!the minus sign is required because ∑<P_ij> is positive and this is
-		 * what is actually computed*/
-		/*not sure that this argument is correct so I removed the -1*/
-		r=ratio();
-		E_config += real(r);
-		E_im += imag(r);
+		for(unsigned int p0(0); p0<pps_;p0++){
+			for(unsigned int p1(p0); p1<pps_;p1++){
+				swap(sts_(i,0),sts_(i,1),p0,p1);
+				/*!the minus sign is required because ∑<P_ij> is positive and this is
+				 * what is actually computed*/
+				/*not sure that this argument is correct so I removed the -1*/
+				r=ratio();
+				E_config += real(r);
+				E_im += imag(r);
+			}
+		}
 	}
 }
 

@@ -18,7 +18,7 @@ all:mc cs check psomc mcnu
 psomc:psomc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o SquareJastrow.o TriangleJastrow.o Container.o PSTricks.o PSO.o PSOMonteCarlo.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-psomc.o:psomc.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp 
+psomc.o:psomc.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp 
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
 
 PSO.o:PSO.cpp PSO.hpp Rand.hpp Write.hpp Read.hpp
@@ -34,7 +34,7 @@ PSOMonteCarlo.o:PSOMonteCarlo.cpp PSOMonteCarlo.hpp PSO.hpp MonteCarlo.hpp Squar
 mcnu:mcnu.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o SquareJastrow.o TriangleJastrow.o PSTricks.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-mcnu.o:mcnu.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp TriangleJastrow.hpp 
+mcnu.o:mcnu.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp TriangleJastrow.hpp 
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
 
 #############
@@ -43,7 +43,7 @@ mcnu.o:mcnu.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp System
 mc:mc.o Parseur.o ExtractSystem.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-mc.o:mc.cpp Parseur.hpp ExtractSystem.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp Matrix.hpp Lapack.hpp Container.hpp
+mc.o:mc.cpp Parseur.hpp ExtractSystem.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^ 
 
 Rand.o:Rand.cpp Rand.hpp

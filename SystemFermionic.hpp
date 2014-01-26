@@ -29,7 +29,7 @@ class SystemFermionic : public System<Type>{
 
 		/*!Calls System<Type>::swap(unsigned int const& s0, unsigned int const&
 		 * s1) and set row and new_ev*/
-		void swap(unsigned int const& s0, unsigned int const& s1);
+		void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
 
 		//{Description
 		/*!Computes the ratio of the two determinants related to the current
@@ -58,16 +58,14 @@ class SystemFermionic : public System<Type>{
 		/*!Forbids assignment operator*/
 		SystemFermionic& operator=(SystemFermionic const& S);
 
+		Matrix<unsigned int> row_;
 		Matrix<Type> EVec_;		//!< det(A) <=> <GS|a>
 		Matrix<Type> *Ainv_;	//!< inverse of A
 		Matrix<Type> tmp;		//!< temporary matrix used during the update 
 		Type w[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b> ; W=(w11,0,0,w22)
 		Type d;					//!< d=Det(W) : determinant ratios of <GS|a>/<GS|b> 
-		unsigned int row[2];	//!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
+		unsigned int new_r[2];	//!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
 		unsigned int new_ev[2]; //!< new selected rows of the EVec matrix
-
-		/*could be deleted*/
-		Vector<unsigned int> ev;//!< ev(color*m_+site)=row of EVec to select 
 };
 
 /*constructors and destructor*/
@@ -90,37 +88,51 @@ unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int co
 	EVec_= input.get<Matrix<Type> >("EVec");
 	Ainv_ = new Matrix<Type>[this->N_];
 	for(unsigned int i(0); i < this->N_; i++){
-		Ainv_[i].set(this->m_,this->m_);
+		Ainv_[i].set(this->pps_*this->m_,this->pps_*this->m_);
 	}
-	tmp.set(this->m_,this->m_);
-	ev.set(this->n_);
+	tmp.set(this->pps_*this->m_,this->pps_*this->m_);
+	row_.set(this->n_,this->pps_);
 
-	Vector<unsigned int> available(this->n_);
-	unsigned int N_as(this->n_);
-	unsigned int site(0);
 	Vector<int> ipiv;
 	unsigned int TRY_MAX(100);
 	unsigned int l(0);
 	double rcn(0.0);
 	do {
-		N_as = this->n_;
-		for(unsigned int i(0); i < this->n_; i++){
-			available(i) = i;
-		}
-		for(unsigned int c(0); c < this->N_; c++){
-			for(unsigned int i(0); i < this->m_; i++){
-				site = this->rnd->get(N_as);
-				ev(c*this->m_+i) = c*this->n_+available(site);
-				this->s_(available(site),0) = c;
-				this->s_(available(site),1) = i;
-				for(unsigned int j(0); j < this->m_; j++){
-					Ainv_[c](i,j) = EVec_(ev(c*this->m_+i),j);
-				}
-				for(unsigned int j(site); j+1 < N_as; j++){
-					available(j) = available(j+1);
-				}
-				N_as--;
+		unsigned int k(0);
+		for(unsigned int i(0); i<this->n_; i++){
+			for(unsigned int j(0); j<this->pps_; j++){
+				this->s_(i,j) = ++k % this->N_;
 			}
+		}
+		std::cout<<this->s_<<std::endl;
+		for(unsigned int i(0); i<10; i++){
+			swap();
+			this->s_(this->new_s[0],this->new_p[0]) = this->new_c[1];
+			this->s_(this->new_s[1],this->new_p[1]) = this->new_c[0];
+		}
+		std::cout<<"------------------"<<std::endl;
+		std::cout<<this->s_<<std::endl;
+
+		unsigned int c(0);
+		unsigned int r;
+		Vector<unsigned int> a(this->N_,0);
+		for(unsigned int s(0); s < this->n_; s++){
+			for(unsigned int p(0); p < this->pps_; p++){
+				c = this->s_(s,p);
+				r = c*this->n_+s;
+				for(unsigned int j(0); j < this->pps_*this->m_; j++){
+					Ainv_[c](a(c),j) = EVec_(r,j);
+				}
+				row_(s,p) = a(c);
+				a(c)++;
+			}
+		}
+
+		std::cout<<row_<<std::endl;
+		std::cout<<Ainv_[2]<<std::endl;
+		std::cout<<std::endl;
+		std::cout<<EVec_<<std::endl;
+		for(unsigned int c(0); c < this->N_; c++){
 			Lapack<Type> inv(&Ainv_[c],false,'G');
 			ipiv = inv.is_singular(rcn);
 			if(!ipiv.ptr()){
@@ -129,6 +141,7 @@ unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int co
 				inv.inv(ipiv);
 			}
 		}
+
 	} while (!ipiv.ptr() && ++l<TRY_MAX);
 
 	if(l==TRY_MAX){
@@ -147,42 +160,42 @@ template<typename Type>
 void SystemFermionic<Type>::update(){
 	///*update the sites*/
 	System<Type>::update();
-	s_(this->new_s[0],1) = row[1];
-	s_(this->new_s[1],1) = row[0];
+	row_(this->new_s[0],this->new_p[0]) = new_r[1];
+	row_(this->new_s[1],this->new_p[1]) = new_r[0];
 
 	Type t_tmp;
 	for(unsigned int c(0);c<2;c++){
-		for(unsigned int j(0);j<this->m_;j++){
-			if(row[c] == j){ t_tmp = -1.0; }
+		for(unsigned int j(0);j<this->pps_*this->m_;j++){
+			if(new_r[c] == j){ t_tmp = -1.0; }
 			else { t_tmp = 0.0; }
-			for(unsigned int k(0);k<this->m_;k++){
-				t_tmp += EVec_(new_ev[c],k)*Ainv_[this->color[c]](k,j);
+			for(unsigned int k(0);k<this->pps_*this->m_;k++){
+				t_tmp += EVec_(new_ev[c],k)*Ainv_[this->new_c[c]](k,j);
 			}
-			for(unsigned int i(0);i<this->m_;i++){
-				tmp(i,j) = t_tmp*Ainv_[this->color[c]](i,row[c])/w[c];
+			for(unsigned int i(0);i<this->pps_*this->m_;i++){
+				tmp(i,j) = t_tmp*Ainv_[this->new_c[c]](i,new_r[c])/w[c];
 			}
 		}
-		Ainv_[this->color[c]] -= tmp;
-		ev(this->color[c]*this->m_+row[c]) = new_ev[c];
+		Ainv_[this->new_c[c]] -= tmp;
+		//ev(this->new_c[c]*this->m_+new_r[c]) = new_ev[c];
 	}
 }
 
 template<typename Type>
 void SystemFermionic<Type>::swap(){
 	System<Type>::swap();
-	row[0] = this->s_(this->new_s[0],1); 
-	row[1] = this->s_(this->new_s[1],1); 
-	new_ev[0] = this->color[0]*this->n_ + this->new_s[1];
-	new_ev[1] = this->color[1]*this->n_ + this->new_s[0];
+	new_r[0] = row_(this->new_s[0],this->new_p[0]); 
+	new_r[1] = row_(this->new_s[1],this->new_p[1]); 
+	new_ev[0] = this->new_c[0]*this->n_ + this->new_s[1];
+	new_ev[1] = this->new_c[1]*this->n_ + this->new_s[0];
 }
 
 template<typename Type>
-void SystemFermionic<Type>::swap(unsigned int const& s0, unsigned int const& s1){
-	System<Type>::swap(s0,s1);
-	row[0] = this->s_(s0,1);
-	row[1] = this->s_(s1,1); 
-	new_ev[0] = this->color[0]*this->n_ + s1;
-	new_ev[1] = this->color[1]*this->n_ + s0;
+void SystemFermionic<Type>::swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
+	System<Type>::swap(s0,s1,p0,p1);
+	new_r[0] = row_(s0,p0);
+	new_r[1] = row_(s1,p1); 
+	new_ev[0] = this->new_c[0]*this->n_ + s1;
+	new_ev[1] = this->new_c[1]*this->n_ + s0;
 }
 /*}*/
 
@@ -190,15 +203,17 @@ void SystemFermionic<Type>::swap(unsigned int const& s0, unsigned int const& s1)
 /*{*/
 template<typename Type> 
 Type SystemFermionic<Type>::ratio(){
-	if(this->color[0] == this->color[1]){
+	//std::cout<<new_ev[0]<<" "<<new_ev[1]<<std::endl;
+	//std::cout<<new_r[0]<<" "<<new_r[1]<<std::endl;
+	if(this->new_c[0] == this->new_c[1]){
 		/*if swap() allow exchanges of the same color, then w and d has to be
 		 * computed here*/
 		return 1.0;
 	} else {
 		for(unsigned int i(0);i<2;i++){
 			w[i] = 0.0;
-			for(unsigned int k(0);k<this->m_;k++){
-				w[i] += EVec_(new_ev[i],k)*Ainv_[this->color[i]](k,row[i]);
+			for(unsigned int k(0);k<this->pps_*this->m_;k++){
+				w[i] += EVec_(new_ev[i],k)*Ainv_[this->new_c[i]](k,new_r[i]);
 			}
 		}
 		d=w[0]*w[1];
@@ -211,19 +226,9 @@ Type SystemFermionic<Type>::ratio(){
 template<typename Type>
 void SystemFermionic<Type>::print(){
 	std::cout<<"=========================="<<std::endl;
-	for(unsigned int c(0);c<this->N_;c++){
-		Matrix<Type> A(this->m_,this->m_);
-		for(unsigned int i(0);i<this->m_;i++){
-			for(unsigned int j(0);j<this->m_;j++){
-				A(i,j) = EVec_(ev(c*this->m_+i),j);
-			}
-		}
-		std::cout<<(A*Ainv_[c]).diag().chop()<<std::endl;
-	}
 
-	std::cout<<"ev :"<<ev<<std::endl<<"s : ";
 	for(unsigned int i(0); i < this->n_; i++){
-		std::cout<<i<<"("<<this->s_(i,0)<<","<<this->s_(i,1)<<") ";
+		std::cout<<i<<"("<<this->s_(i,0)<<","<<row_(i,0)<<") ";
 	}
 	std::cout<<std::endl;
 	std::cout<<this->new_s[0]<<" "<<this->new_s[1]<<std::endl;
