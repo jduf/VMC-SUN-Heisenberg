@@ -50,7 +50,7 @@ class MonteCarlo{
 		MonteCarlo const& operator=(MonteCarlo const& mc);
 
 		/*!Find the next configuration and measure it*/
-		void next_step(double& E_step, double& E_im_step);
+		void next_step(double& E_step);
 		//{Private methods that give a shutoff condition
 		/*!Stops the simulation when
 		 *
@@ -103,17 +103,7 @@ MonteCarlo<Type>::MonteCarlo(Container const& input):
 	else { S=new SystemBosonic<Type>; }
 	input.get("t_max",t_max);
 	status = S->init(input,thread);
-	//if(status){
-	//S->print();
-	//for(unsigned int i(0);i<2;i++){
-	//S->swap();
-	//S->ratio();
-	//S->update();
-	//S->print();
-	//}
-	//}
-
-	std::cout<<"thermalization"<<std::endl;
+	//std::cout<<"thermalization"<<std::endl;
 	if(status){
 		double ratio(0.0);
 		for(unsigned int i(0);i<1e5;i++){
@@ -139,14 +129,13 @@ template<typename Type>
 void MonteCarlo<Type>::run(unsigned int what, unsigned int N_MC, Matrix<unsigned int>* lattice){
 	if(status){
 		double E_step(0.0);
-		double E_im_step(0.0);
-		S->measure(E_step,E_im_step);
+		S->measure(E_step);
 		switch(what){
 			case 1: 
 				{
 					Write output(filename_+".out");
 					do{
-						for(unsigned int i(0);i<N_MC;i++){ next_step(E_step,E_im_step); }
+						for(unsigned int i(0);i<N_MC;i++){ next_step(E_step); }
 						test_convergence();
 						output<<sampling.size()
 							<<" "<<E_ / (sampling.size() * S->n_)
@@ -156,18 +145,16 @@ void MonteCarlo<Type>::run(unsigned int what, unsigned int N_MC, Matrix<unsigned
 				} break;
 			case 2:
 				{
-					for(unsigned int i(0);i<N_MC;i++){ next_step(E_step,E_im_step); }
+					for(unsigned int i(0);i<N_MC;i++){ next_step(E_step); }
 					test_convergence();
 				} break;
 			case 3:
 				{
 					lattice->set(S->n_,S->N_,0); 
 					Matrix<unsigned int> corr(S->n_,6,0); 
-					double E_im(0.0);
 					for(unsigned int i(0);i<N_MC;i++){ 
-						next_step(E_step,E_im_step); 
+						next_step(E_step); 
 						/*to check the color organization*/
-						E_im += E_im_step;
 						for(unsigned int i(0);i<S->n_;i++){ 
 							(*lattice)(i,S->s_(i,0))++;
 						}
@@ -175,21 +162,9 @@ void MonteCarlo<Type>::run(unsigned int what, unsigned int N_MC, Matrix<unsigned
 					}
 					test_convergence();
 					std::cout<<corr<<std::endl;
-					std::cout<<"E imaginary part"<<E_im/(sampling.size()*S->n_)<<std::endl;
 				} break;
 		}
 	}
-}
-
-template<typename Type>
-void MonteCarlo<Type>::next_step(double& E_step, double& E_im_step){
-	S->swap();
-	if( norm_squared(S->ratio()) > rnd->get() ){
-		S->update();
-		S->measure(E_step,E_im_step);
-	}
-	E_ += E_step;
-	sampling.push_back(E_step);
 }
 
 template<typename Type>
@@ -205,6 +180,17 @@ Container MonteCarlo<Type>::save(){
 
 /*private methods*/
 /*{*/
+template<typename Type>
+void MonteCarlo<Type>::next_step(double& E_step){
+	S->swap();
+	if( norm_squared(S->ratio()) > rnd->get() ){
+		S->update();
+		S->measure(E_step);
+	}
+	E_ += E_step;
+	sampling.push_back(E_step);
+}
+
 template<typename Type>
 void MonteCarlo<Type>::test_convergence(){
 	if( std::abs( E_ / sampling.size() )  > 1e3 ){ 

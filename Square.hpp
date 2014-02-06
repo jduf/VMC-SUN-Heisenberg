@@ -47,6 +47,7 @@ Square<Type>::Square(Parseur& P, std::string filename):
 			this->filename_ += "-N" + tostring(this->N_);
 			this->filename_ += "-S" + tostring(this->n_);
 			this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+			this->filename_ += "-m" + tostring(this->pps_);
 		} else {
 			std::cerr<<"Square : the cluster is not a square"<<std::endl;
 		}

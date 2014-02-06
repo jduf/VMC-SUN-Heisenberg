@@ -43,9 +43,10 @@ class System{
 		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
 		 * permutation */
 		//}
-		void measure(double& E_config, double& E_im);
+		void measure(double& E_config);
 
 		virtual void correlation(Matrix<unsigned int>* corr);
+		virtual void print()=0;
 
 		unsigned int N_;//!< number of different colors
 		unsigned int n_;//!< number of lattice site
@@ -70,13 +71,14 @@ class System{
 		Matrix<unsigned int> sts_;//!< sts_(i,0) is a site that can be exchanged with sts_(i,1)
 };
 
-/*constructors and destructor*/
+/*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
 System<Type>::System():
 	N_(0),
 	n_(0),
 	m_(0),
+	pps_(0),
 	rnd(NULL)
 { }
 
@@ -89,13 +91,13 @@ template<typename Type>
 unsigned int System<Type>::init(Container const& input, unsigned int const& thread){
 	N_ = input.get<unsigned int>("N");
 	m_ = input.get<unsigned int>("m");
-	sts_ = input.get<Matrix<unsigned int> >("sts");
 	n_ = N_*m_;
-	pps_ = 2;
+
+	pps_ = input.get<unsigned int>("pps");;
+	sts_ = input.get<Matrix<unsigned int> >("sts");
 	s_.set(n_,pps_);
 
 	rnd = new Rand(100,thread);
-
 	return 1;
 }
 /*}*/
@@ -121,8 +123,8 @@ void System<Type>::swap(){
 		new_p[1] = rnd->get(pps_);
 		new_c[1] = s_(new_s[1],new_p[1]);
 		for(unsigned int i(0); i<pps_;i++){
-			if( s_(new_s[0],i) == new_c[1] ){ wrong_exchange = true;}
-			if( s_(new_s[1],i) == new_c[0] ){ wrong_exchange = true;}
+			if(s_(new_s[0],i) == new_c[1]){wrong_exchange = true;}
+			if(s_(new_s[1],i) == new_c[0]){wrong_exchange = true;}
 		}
 	} while(wrong_exchange);
 	//std::cout<<"++++++"<<std::endl;
@@ -133,10 +135,10 @@ void System<Type>::swap(){
 template<typename Type>
 void System<Type>::swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
 	new_s[0] = s0;
-	new_s[1] = s1;
 	new_p[0] = p0;
-	new_p[1] = p1;
 	new_c[0] = s_(s0,p0);
+	new_s[1] = s1;
+	new_p[1] = p1;
 	new_c[1] = s_(s1,p1);
 }
 /*}*/
@@ -144,21 +146,13 @@ void System<Type>::swap(unsigned int const& s0, unsigned int const& s1, unsigned
 /*methods that return something related to the class*/
 /*{*/
 template<typename Type>
-void System<Type>::measure(double& E_config, double& E_im){
+void System<Type>::measure(double& E_config){
 	E_config = 0.0;
-	E_im = 0.0;
-	Type r;
-	
 	for(unsigned int i(0);i<sts_.row();i++){
-		for(unsigned int p0(0); p0<pps_;p0++){
-			for(unsigned int p1(p0); p1<pps_;p1++){
+		for(unsigned int p0(0); p0<pps_; p0++){
+			for(unsigned int p1(0); p1<pps_; p1++){
 				swap(sts_(i,0),sts_(i,1),p0,p1);
-				/*!the minus sign is required because ∑<P_ij> is positive and this is
-				 * what is actually computed*/
-				/*not sure that this argument is correct so I removed the -1*/
-				r=ratio();
-				E_config += real(r);
-				E_im += imag(r);
+				E_config += real(ratio());
 			}
 		}
 	}

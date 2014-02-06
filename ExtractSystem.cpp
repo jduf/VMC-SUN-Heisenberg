@@ -123,6 +123,7 @@ void ExtractSystem::extract(Container& input, Container& param){
 	param.set("N",N);
 	param.set("m",m);
 	param.set("n",N*m);
+	file.extract<unsigned int>("pps",input);
 	file.extract<Matrix<unsigned int> >("sts",input);
 
 	switch(ref(0)){

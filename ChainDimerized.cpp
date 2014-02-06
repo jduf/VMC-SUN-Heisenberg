@@ -5,18 +5,16 @@ ChainDimerized::ChainDimerized(Parseur& P):
 	delta_(P.get<double>("delta"))
 {
 	ref_(2) = 1;
-	unsigned int pps(2);
 	if( !(n_ % 2) ){
 		if(!P.status()){
 			filename_ += "-delta" + tostring(delta_);
-			EVec_.set(N_*n_,pps*m_);
 			compute_T();
 			//compute_band_structure();
 
 			diagonalize_T('S');
 			for(unsigned int spin(0);spin<N_;spin++){
 				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<pps*m_;j++){
+					for(unsigned int j(0);j<pps_*m_;j++){
 						EVec_(i+spin*n_,j) = T_(i,j);
 					}
 				}
@@ -59,6 +57,7 @@ void ChainDimerized::save(){
 	w("ref (wave function)",ref_);
 	w("N (N of SU(N))",N_);
 	w("m (m=n/N)",m_);
+	w("pps (particles per site)",pps_);
 	w("sts (connected sites)",sts_);
 	w("delta (dimerization parameter)",delta_);
 	w("EVec (unitary matrix)",EVec_);

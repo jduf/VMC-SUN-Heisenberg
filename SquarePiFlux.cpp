@@ -12,7 +12,7 @@ SquarePiFlux::SquarePiFlux(Parseur& P):
 		diagonalize_T('H');
 		for(unsigned int spin(0);spin<N_;spin++){
 			for(unsigned int i(0);i<n_;i++){
-				for(unsigned int j(0);j<m_;j++){
+				for(unsigned int j(0);j<pps_*m_;j++){
 					EVec_(i+spin*n_,j) = T_(i,j);
 				}
 			}
@@ -51,6 +51,7 @@ void SquarePiFlux::save(){
 	w("ref (wave function)",ref_);
 	w("N (N of SU(N))",N_);
 	w("m (m=n/N)",m_);
+	w("pps (particles per site)",pps_);
 	w("sts (connected sites)",sts_);
 	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);
