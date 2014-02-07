@@ -65,9 +65,9 @@ void ExtractSystem::print(){
 						}break;
 				}
 			}break;
-			std::cout<<"bc="<<data.get<double>("bc")<<std::endl;
-			std::cout<<"Lx="<<data.get<unsigned int>("Lx")<<std::endl;
-			std::cout<<"Ly="<<data.get<unsigned int>("Ly")<<std::endl;
+			std::cout<<"bc= "<<data.get<double>("bc")<<std::endl;
+			std::cout<<"Lx= "<<data.get<unsigned int>("Lx")<<std::endl;
+			std::cout<<"Ly= "<<data.get<unsigned int>("Ly")<<std::endl;
 		case 4:
 			{
 				switch(ref(1)){
@@ -108,24 +108,29 @@ void ExtractSystem::print(){
 			}break;
 	}
 
-	std::cout<<"N ="<<data.get<unsigned int>("N")<<std::endl;
-	std::cout<<"m ="<<data.get<unsigned int>("m")<<std::endl;
+	std::cout<<"n = "<<data.get<unsigned int>("n")<<std::endl;
+	std::cout<<"N = "<<data.get<unsigned int>("N")<<std::endl;
+	std::cout<<"m = "<<data.get<unsigned int>("m")<<std::endl;
+	std::cout<<"M = "<<data.get<unsigned int>("M")<<std::endl;
 }
 
 void ExtractSystem::extract(Container& input, Container& param){
 	input.set("ref",ref);
-	unsigned int m(0),N(0);
+	unsigned int n,m,N,M;
+	file.extract<unsigned int>(n);
 	file.extract<unsigned int>(N);
 	file.extract<unsigned int>(m);
+	file.extract<unsigned int>(M);
+	input.set("n",n);
 	input.set("N",N);
 	input.set("m",m);
-	input.set("n",N*m);
+	input.set("M",M);
+	param.set("n",n);
 	param.set("N",N);
 	param.set("m",m);
-	param.set("n",N*m);
-	file.extract<unsigned int>("pps",input);
-	file.extract<Matrix<unsigned int> >("sts",input);
+	param.set("M",M);
 
+	file.extract<Matrix<unsigned int> >("sts",input);
 	switch(ref(0)){
 		case 2:
 			{

@@ -73,10 +73,10 @@ unsigned int SystemBosonic<Type>::init(Container const& input, unsigned int cons
 		available(i) = i;
 	}
 	for(unsigned int c(0); c<this->N_; c++){
-		for(unsigned int i(0); i < this->m_; i++){
+		for(unsigned int i(0); i < this->M_; i++){
 			site = this->rnd->get(N_as);
 			this->s_(available(site),0) = c;
-			this->s_(available(site),1) = c*this->m_+i;
+			this->s_(available(site),1) = c*this->M_+i;
 			for(unsigned int j(site); j+1 < N_as; j++){
 				available(j) = available(j+1);
 			}

@@ -24,7 +24,7 @@ SquareSU2PhiFlux::SquareSU2PhiFlux(Parseur& P):
 			diagonalize_T('H');
 			for(unsigned int color(0);color<N_;color++){
 				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<m_;j++){
+					for(unsigned int j(0);j<M_;j++){
 						EVec_(i+color*n_,j) = T_(i,j);
 					}
 				}
@@ -65,8 +65,10 @@ void SquareSU2PhiFlux::save(){
 
 	w.set_header(rst.get());
 	w("ref (wave function)",ref_);
+	w("n (particles' number)",n_);
 	w("N (N of SU(N))",N_);
-	w("m (m=n/N)",m_);
+	w("m (particles per site' number)",m_);
+	w("M (particles' number of each color)",M_);
 	w("sts (connected sites)",sts_);
 	w("phi/pi (phi-flux)",phi_/M_PI);
 	w("EVec (unitary matrix)",EVec_);

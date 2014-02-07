@@ -142,7 +142,7 @@ Lapack.o:Lapack.cpp Lapack.hpp Matrix.hpp Vector.hpp
 # divers
 ########
 clean:
-	rm *.o *.gch mc cs check psomc
+	rm *.o *.gch mc cs check psomc mcnu
 
 ref:
 	doxygen doxygen/Doxyfile

@@ -20,16 +20,14 @@ Chain<Type>::Chain(Parseur& P, std::string filename):
 	this->ref_(1) = 1;
 	this->ref_(0) = 2;
 	if(!P.status()){
-		this->filename_ += "-N" + tostring(this->N_);
-		this->filename_ += "-S" + tostring(this->n_);
-		if(this->m_ % 2 == 0){ 
+		this->compute_sts();
+		if(this->M_ % 2 == 0){ 
 			this->filename_ += "-A";
 			this->bc_ = -1;
 		} else {
 			this->filename_ += "-P";
 			this->bc_ = 1;
 		}
-		this->compute_sts();
 	}
 }
 

@@ -8,13 +8,13 @@ HoneycombSU3::HoneycombSU3(Parseur& P):
 	if(bc_ == 1){ filename_ += "-P";} 
 	else { filename_ += "-A";}
 	if(!P.status() || N_ != 3){
-		if(m_==Ly_*Lx_){
+		if(M_==Ly_*Lx_){
 			compute_T();
 
 			diagonalize_T('S');
 			for(unsigned int spin(0);spin<N_;spin++){
 				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<m_;j++){
+					for(unsigned int j(0);j<M_;j++){
 						EVec_(i+spin*n_,j) = T_(i,j);
 					}
 				}
@@ -68,9 +68,11 @@ void HoneycombSU3::save(){
 	rst.title("Input values","~");
 
 	w.set_header(rst.get());
-	w("wf (wave function)",wf_);
+	w("ref (wave function)",ref_);
+	w("n (particles' number)",n_);
 	w("N (N of SU(N))",N_);
-	w("m (number of unit cell)",m_);
+	w("m (particles per site' number)",m_);
+	w("M (particles' number of each color)",M_);
 	w("sts (connected sites)",sts_);
 	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);

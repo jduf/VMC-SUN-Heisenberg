@@ -5,14 +5,12 @@ SquarePiFlux::SquarePiFlux(Parseur& P):
 {
 	ref_(1) = 2;
 	ref_(2) = 3;
-	if(bc_ == 1){ filename_ += "-P";} 
-	else { filename_ += "-A";}
 	if(!P.status()){
 		compute_T();
 		diagonalize_T('H');
 		for(unsigned int spin(0);spin<N_;spin++){
 			for(unsigned int i(0);i<n_;i++){
-				for(unsigned int j(0);j<pps_*m_;j++){
+				for(unsigned int j(0);j<M_;j++){
 					EVec_(i+spin*n_,j) = T_(i,j);
 				}
 			}
@@ -36,7 +34,6 @@ void SquarePiFlux::compute_T(){
 	}
 	std::cerr<<"SquarePiFlux : compute_EVec : new use of polar, check that it is correct"<<std::endl;
 	std::cerr<<"                            : modified the flux disposition..."<<std::endl;
-	//std::cout<<T_<<std::endl;
 	T_ += T_.trans_conj(); 
 }
 
@@ -49,9 +46,10 @@ void SquarePiFlux::save(){
 
 	w.set_header(rst.get());
 	w("ref (wave function)",ref_);
+	w("n (particles' number)",n_);
 	w("N (N of SU(N))",N_);
-	w("m (m=n/N)",m_);
-	w("pps (particles per site)",pps_);
+	w("m (particles per site' number)",m_);
+	w("M (particles' number of each color)",M_);
 	w("sts (connected sites)",sts_);
 	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);

@@ -63,11 +63,8 @@ class SystemFermionic : public System<Type>{
 		Matrix<Type> *Ainv_;	//!< inverse of A
 		Matrix<Type> tmp_;		//!< temporary matrix used during the update 
 		Type w[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b> ; W=(w11,0,0,w22)
-		Type d;					//!< d=Det(W) : determinant ratios of <GS|a>/<GS|b> 
 		unsigned int new_r[2];	//!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
 		unsigned int new_ev[2]; //!< new selected rows of the EVec matrix
-
-		Matrix<unsigned int> ev;
 };
 
 /*constructors and destructor and initialization*/
@@ -75,8 +72,7 @@ class SystemFermionic : public System<Type>{
 template<typename Type>
 SystemFermionic<Type>::SystemFermionic():
 	System<Type>(),
-	Ainv_(NULL),
-	d(0.0)
+	Ainv_(NULL)
 {}
 
 template<typename Type>
@@ -90,11 +86,10 @@ unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int co
 	EVec_= input.get<Matrix<Type> >("EVec");
 	Ainv_ = new Matrix<Type>[this->N_];
 	for(unsigned int i(0); i < this->N_; i++){
-		Ainv_[i].set(this->pps_*this->m_,this->pps_*this->m_);
+		Ainv_[i].set(this->M_,this->M_);
 	}
-	tmp_.set(this->pps_*this->m_,this->pps_*this->m_);
-	row_.set(this->n_,this->pps_);
-	ev.set(this->pps_*this->m_,this->N_);
+	tmp_.set(this->M_,this->M_);
+	row_.set(this->n_,this->m_);
 
 	Vector<int> ipiv;
 	unsigned int TRY_MAX(100);
@@ -102,7 +97,7 @@ unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int co
 	double rcn(0.0);
 	unsigned int k(0);
 	for(unsigned int i(0); i<this->n_; i++){
-		for(unsigned int j(0); j<this->pps_; j++){
+		for(unsigned int j(0); j<this->m_; j++){
 			this->s_(i,j) = ++k % this->N_;
 		}
 	}
@@ -116,31 +111,17 @@ unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int co
 		unsigned int r;
 		Vector<unsigned int> a(this->N_,0);
 		for(unsigned int s(0); s < this->n_; s++){
-			for(unsigned int p(0); p < this->pps_; p++){
+			for(unsigned int p(0); p < this->m_; p++){
 				c = this->s_(s,p);
 				r = c*this->n_+s;
-				for(unsigned int j(0); j < this->pps_*this->m_; j++){
+				for(unsigned int j(0); j < this->M_; j++){
 					Ainv_[c](a(c),j) = EVec_(r,j);
 				}
-				ev(a(c),c) = r;
 				row_(s,p) = a(c);
 				a(c)++;
 			}
 		}
-
-		//std::cout<<this->s_<<std::endl;
-		//std::cout<<"------------------"<<std::endl;
-		//std::cout<<row_<<std::endl;
-		//std::cout<<"------------------"<<std::endl;
-		//std::cout<<Ainv_[0]<<std::endl;
-		//std::cout<<"------------------"<<std::endl;
-		//std::cout<<Ainv_[1]<<std::endl;
-		//std::cout<<"------------------"<<std::endl;
-		//std::cout<<Ainv_[2]<<std::endl;
-		//std::cout<<"------------------"<<std::endl;
-		//std::cout<<Ainv_[3]<<std::endl;
-		//std::cout<<"------------------"<<std::endl;
-		//std::cout<<EVec_<<std::endl;
+		
 		for(unsigned int c(0); c < this->N_; c++){
 			Lapack<Type> inv(&Ainv_[c],false,'G');
 			ipiv = inv.is_singular(rcn);
@@ -171,18 +152,16 @@ void SystemFermionic<Type>::update(){
 	System<Type>::update();
 	row_(this->new_s[0],this->new_p[0]) = new_r[1];
 	row_(this->new_s[1],this->new_p[1]) = new_r[0];
-	ev(this->new_r[0], this->new_c[0]) = this->new_c[0]*this->n_+this->new_s[1];
-	ev(this->new_r[1], this->new_c[1]) = this->new_c[1]*this->n_+this->new_s[0];
 
 	Type t_tmp;
 	for(unsigned int c(0);c<2;c++){
-		for(unsigned int j(0);j<this->pps_*this->m_;j++){
+		for(unsigned int j(0);j<this->M_;j++){
 			if(new_r[c] == j){ t_tmp = -1.0; }
 			else { t_tmp = 0.0; }
-			for(unsigned int k(0);k<this->pps_*this->m_;k++){
+			for(unsigned int k(0);k<this->M_;k++){
 				t_tmp += EVec_(new_ev[c],k)*Ainv_[this->new_c[c]](k,j);
 			}
-			for(unsigned int i(0);i<this->pps_*this->m_;i++){
+			for(unsigned int i(0);i<this->M_;i++){
 				tmp_(i,j) = t_tmp*Ainv_[this->new_c[c]](i,new_r[c])/w[c];
 			}
 		}
@@ -214,23 +193,14 @@ void SystemFermionic<Type>::swap(unsigned int const& s0, unsigned int const& s1,
 template<typename Type> 
 Type SystemFermionic<Type>::ratio(){
 	if(this->new_c[0] == this->new_c[1]){
-		/*if swap() allow exchanges of the same color, then w and d has to be
-		 * computed here*/
 		return 1.0;
 	} else {
-		for(unsigned int i(0); i<this->pps_; i++){
-			if( this->s_(this->new_s[0],i) == this->new_c[1] ){ return 0; }
-			if( this->s_(this->new_s[1],i) == this->new_c[0] ){ return 0; }
-		}
 		for(unsigned int c(0);c<2;c++){
 			w[c] = 0.0;
-			for(unsigned int k(0);k<this->pps_*this->m_;k++){
+			for(unsigned int k(0);k<this->M_;k++){
 				w[c] += EVec_(new_ev[c],k)*Ainv_[this->new_c[c]](k,new_r[c]);
 			}
 		}
-		//d=w[0]*w[1];
-		//if( std::abs(d) < 1e-10 ){ return 0.0; }
-		//else { return -d; }
 		/*the minus is correct, it comes from <C|H|C'> because when H is
 		 * applied on |C>, the operators are not in the correct color order, so
 		 * they need to be exchanged*/
@@ -241,21 +211,11 @@ Type SystemFermionic<Type>::ratio(){
 template<typename Type>
 void SystemFermionic<Type>::print(){
 	std::cout<<"=========================="<<std::endl;
-	std::cout<<ev<<std::endl;
 	std::cout<<std::endl;
 	std::cout<<row_<<std::endl;
-	for(unsigned int c(0); c < this->N_; c++){
-		Matrix<Type> A(this->pps_*this->m_,this->pps_*this->m_);
-		for(unsigned int i(0); i < this->pps_*this->m_; i++){
-			for(unsigned int j(0); j < this->pps_*this->m_; j++){
-				A(i,j) = EVec_(ev(i,c),j);
-			}
-		}
-		std::cout<<(Ainv_[c]*A).diag()<<std::endl;
-	}
 	for(unsigned int i(0); i < this->n_; i++){
 		std::cout<<i<<"(";
-		for(unsigned int p(0); p < this->pps_; p++){
+		for(unsigned int p(0); p < this->m_; p++){
 			std::cout<<this->s_(i,p);
 		}
 		std::cout<<") ";

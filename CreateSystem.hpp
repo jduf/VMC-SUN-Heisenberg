@@ -17,12 +17,11 @@ class CreateSystem{
 		virtual ~CreateSystem();
 
 	protected:
-		std::string wf_;			//!< type of wavefunction
 		Vector<unsigned int> ref_;	//!< type of wavefunction
-		unsigned int const m_;		//!< number of unit cell
-		unsigned int const N_;		//!< N of SU(N)
-		unsigned int const n_;		//!< number of sites
-		unsigned int const pps_;	//!< number of particles per site
+		unsigned int const n_;		//!< sites' number
+		unsigned int const N_;		//!< colors' number
+		unsigned int const m_;		//!< particles per site's number
+		unsigned int const M_;		//!< particles' number of each color
 		unsigned int const z_;		//!< coordination number
 		double bc_;					//!< boundary condition
 		Matrix<unsigned int> sts_;	//!< list of connected sites
@@ -42,20 +41,25 @@ class CreateSystem{
 
 template<typename Type>
 CreateSystem<Type>::CreateSystem(Parseur& P, unsigned int z, std::string filename): 
-	wf_(P.get<std::string>("wf")),
 	ref_(3,0),
-	m_(P.get<unsigned int>("m")),
+	n_(P.get<unsigned int>("n")),
 	N_(P.get<unsigned int>("N")), 
-	n_(N_*m_),
-	pps_(P.get<unsigned int>("pps")),
+	m_(P.get<unsigned int>("m")),
+	M_((m_*n_)/N_), 
 	z_(z),
 	bc_(0),
 	sts_(n_*z/2,2),
 	T_(n_,n_,0.0),
-	EVec_(N_*n_,pps_*m_),
+	EVec_(N_*n_,M_),
 	successful_(false),
 	filename_(filename)
-{ }
+{ 
+	if(M_*N_ != m_*n_){ std::cerr<<"CreateSystem::CreateSystem(P,z,filename) : There is not an equal number of color"<<std::endl; }
+	if(m_ > N_){ std::cerr<<"CreateSystem::CreateSystem(P,z,filename) : m>N is impossible"<<std::endl;} 
+	filename_ += "-N" + tostring(N_);
+	filename_ += "-m" + tostring(m_);
+	filename_ += "-S" + tostring(n_);
+}
 
 template<typename Type>
 CreateSystem<Type>::~CreateSystem(){}
@@ -80,6 +84,6 @@ void CreateSystem<Type>::diagonalize_T(char mat_type){
 	Vector<double> EVal;
 	ES.eigensystem(&EVal,true);
 	//std::cout<<EVal<<std::endl;
-	if(std::abs(EVal(m_) - EVal(m_-1))>1e-10){ successful_ = true; }
+	if(std::abs(EVal(M_) - EVal(M_-1))>1e-10){ successful_ = true; }
 }
 #endif

@@ -6,8 +6,6 @@ SquareMu::SquareMu(Parseur& P):
 {
 	ref_(1) = 1;
 	ref_(2) = 1;
-	if(bc_ == 1){ filename_ += "-P";} 
-	else { filename_ += "-A";}
 	filename_ += "-mu" + tostring(mu_);
 	if(P.get<bool>("study")){
 		unsigned int alpha(P.get<unsigned int>("alpha"));
@@ -32,7 +30,7 @@ SquareMu::SquareMu(Parseur& P):
 				compute_T(alpha);
 				diagonalize_T('S');
 				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<m_;j++){
+					for(unsigned int j(0);j<M_;j++){
 						EVec_(i+alpha*n_,j) = T_(i,j);
 					}
 				}
@@ -69,8 +67,10 @@ void SquareMu::save(){
 
 	w.set_header(rst.get());
 	w("ref (wave function)",ref_);
+	w("n (particles' number)",n_);
 	w("N (N of SU(N))",N_);
-	w("m (m=n/N)",m_);
+	w("m (particles per site' number)",m_);
+	w("M (particles' number of each color)",M_);
 	w("sts (connected sites)",sts_);
 	w("mu (chemical potential)",mu_);
 	w("EVec (unitary matrix)",EVec_);

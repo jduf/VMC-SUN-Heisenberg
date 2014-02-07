@@ -6,8 +6,6 @@ TrianglePhi::TrianglePhi(Parseur& P):
 {
 	ref_(1) = 2;
 	ref_(2) = 4;
-	if(bc_ == 1){ filename_ += "-P";} 
-	else { filename_ += "-A";}
 	filename_ += "-phi" + tostring(phi_);
 	if(P.get<bool>("study")){
 		if(!P.status()){
@@ -20,7 +18,7 @@ TrianglePhi::TrianglePhi(Parseur& P):
 			diagonalize_T('H');
 			for(unsigned int color(0);color<N_;color++){
 				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<m_;j++){
+					for(unsigned int j(0);j<M_;j++){
 						EVec_(i+color*n_,j) = T_(i,j);
 					}
 				}
@@ -78,8 +76,10 @@ void TrianglePhi::save(){
 
 	w.set_header(rst.get());
 	w("ref (wave function)",ref_);
+	w("n (particles' number)",n_);
 	w("N (N of SU(N))",N_);
-	w("m (number of unit cell)",m_);
+	w("m (particles per site' number)",m_);
+	w("M (particles' number of each color)",M_);
 	w("sts (connected sites)",sts_);
 	w("phi (flux per triangle)",phi_);
 	w("EVec (unitary matrix)",EVec_);

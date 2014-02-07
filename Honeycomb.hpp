@@ -21,18 +21,16 @@ class Honeycomb: public CreateSystem<Type>{
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Parseur& P, std::string filename):
 	CreateSystem<Type>(P,3,filename),
-	Lx_(floor(sqrt(this->m_))),
-	Ly_(floor(sqrt(this->m_)))
+	Lx_(floor(sqrt(this->M_))),
+	Ly_(floor(sqrt(this->M_)))
 {
 	this->ref_(0) = 6;
 	std::cerr<<"HoneycombSU3 will rewrite all the honeycomb things as a rectangular 12 sites unit cell"<<std::endl;
 	this->bc_= P.get<double>("bc");
 	if(!P.status()){
-		if(this->m_==Ly_*Lx_){
-			this->compute_sts();
-			this->filename_ +="-N" + tostring(this->N_);
-			this->filename_ +="-S" + tostring(this->n_);
+		if(this->M_==Ly_*Lx_){
 			this->filename_ += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
+			this->compute_sts();
 		} else {
 			std::cerr<<"Honeycomb<Type> : the cluster is not a square"<<std::endl;
 		}

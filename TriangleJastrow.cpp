@@ -24,8 +24,10 @@ void TriangleJastrow::save(){
 
 	w.set_header(rst.get());
 	w("ref (wave function)",ref_);
+	w("n (particles' number)",n_);
 	w("N (N of SU(N))",N_);
-	w("m (m=n/N)",m_);
+	w("m (particles per site' number)",m_);
+	w("M (particles' number of each color)",M_);
 	w("sts (connected sites)",sts_);
 	w("nn (nearst neighbours)",nn_);
 	w("cc (to match nu and x)",cc_);
@@ -91,8 +93,10 @@ void TriangleJastrow::compute_omega_cc(){
 }
 
 void TriangleJastrow::properties(Container& c){
+	c.set("n",n_);
 	c.set("N",N_);
 	c.set("m",m_);
+	c.set("M",M_);
 	c.set("bc",bc_);
 	c.set("Lx",Lx_);
 	c.set("Ly",Ly_);

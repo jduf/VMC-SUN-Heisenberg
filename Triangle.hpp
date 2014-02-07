@@ -25,30 +25,32 @@ template<typename Type>
 Triangle<Type>::Triangle(Parseur& P, std::string filename):
 	CreateSystem<Type>(P,6,filename),
 	Lx_(std::floor(std::sqrt(this->n_))),
-	Ly_(std::floor(std::sqrt(this->n_))),
-	BC_(Lx_+Ly_,2)
+	Ly_(std::floor(std::sqrt(this->n_)))
 {
 	this->ref_(0) = 3;
-	this->bc_= P.get<double>("bc");
+	P.get("bc",this->bc_);
 	if(!P.status()){
 		if(this->n_==Ly_*Lx_){
-			this->compute_sts();
-			unsigned int k(0);
-			for(unsigned int i(0); i < this->n_; i++){
-				if(!((i+1) % Lx_ )){
-					BC_(k,0) = i;
-					BC_(k,1) = i+1-Lx_;
-					k++;
-				}	
-				if( i+Lx_>=this->n_){ 
-					BC_(k,0) = i;
-					BC_(k,1) = i-(Ly_-1)*Lx_;
-				k++;
-			}
-			}
-			this->filename_ += "-N" + tostring(this->N_);
-			this->filename_ += "-S" + tostring(this->n_);
 			this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+			this->compute_sts();
+			if(this->bc_ != 0){
+				if(this->bc_ == 1){ this->filename_ += "-P";} 
+				else{ this->filename_ += "-A";}
+				unsigned int k(0);
+				BC_.set(Lx_+Ly_,2);
+				for(unsigned int i(0); i < this->n_; i++){
+					if(!((i+1) % Lx_ )){
+						BC_(k,0) = i;
+						BC_(k,1) = i+1-Lx_;
+						k++;
+					}	
+					if( i+Lx_>=this->n_){ 
+						BC_(k,0) = i;
+						BC_(k,1) = i-(Ly_-1)*Lx_;
+						k++;
+					}
+				}
+			}
 		} else {
 			std::cerr<<"Triangle : the cluster is not a square"<<std::endl;
 		}
@@ -98,7 +100,7 @@ double Triangle<Type>::occupation_number(Vector<double>& ni){
 	double max(0);
 	for(unsigned int i(0);i<Lx_;i++){
 		for(unsigned int j(0);j<Ly_;j++){
-			for(unsigned int k(0);k<this->m_;k++){
+			for(unsigned int k(0);k<this->M_;k++){
 				ni(i+j*Lx_) += norm_squared(this->T_(i+j*Lx_,k));
 			}
 			if(ni(i+j*Lx_) > max){max = ni(i+j*Lx_);}

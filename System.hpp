@@ -48,10 +48,10 @@ class System{
 		virtual void correlation(Matrix<unsigned int>* corr);
 		virtual void print()=0;
 
-		unsigned int N_;//!< number of different colors
-		unsigned int n_;//!< number of lattice site
-		unsigned int m_;//!< number of each color
-		unsigned int pps_;
+		unsigned int n_;//!< sites' number
+		unsigned int N_;//!< colors' number
+		unsigned int m_;//!< particles per site' number
+		unsigned int M_;//!< particles' number of each color
 
 		Matrix<unsigned int> s_;//!< on the site i : s(i,0)=color, s(i,1)=row
 
@@ -68,6 +68,8 @@ class System{
 		unsigned int new_p[2];	//!< sites that are exchanged
 
 	private:
+		bool is_new_state_forbidden();
+
 		Matrix<unsigned int> sts_;//!< sts_(i,0) is a site that can be exchanged with sts_(i,1)
 };
 
@@ -75,10 +77,10 @@ class System{
 /*{*/
 template<typename Type>
 System<Type>::System():
-	N_(0),
 	n_(0),
+	N_(0),
 	m_(0),
-	pps_(0),
+	M_(0),
 	rnd(NULL)
 { }
 
@@ -89,13 +91,13 @@ System<Type>::~System(){
 
 template<typename Type>
 unsigned int System<Type>::init(Container const& input, unsigned int const& thread){
+	n_ = input.get<unsigned int>("n");
 	N_ = input.get<unsigned int>("N");
 	m_ = input.get<unsigned int>("m");
-	n_ = N_*m_;
+	M_ = input.get<unsigned int>("M");
 
-	pps_ = input.get<unsigned int>("pps");;
 	sts_ = input.get<Matrix<unsigned int> >("sts");
-	s_.set(n_,pps_);
+	s_.set(n_,m_);
 
 	rnd = new Rand(100,thread);
 	return 1;
@@ -114,22 +116,13 @@ void System<Type>::update(){
 template<typename Type>
 void System<Type>::swap(){
 	new_s[0] = rnd->get(n_);
-	new_p[0] = rnd->get(pps_);
+	new_p[0] = rnd->get(m_);
 	new_c[0] = s_(new_s[0],new_p[0]);
-	bool wrong_exchange;
 	do {
-		wrong_exchange = false;
 		new_s[1] = rnd->get(n_);
-		new_p[1] = rnd->get(pps_);
+		new_p[1] = rnd->get(m_);
 		new_c[1] = s_(new_s[1],new_p[1]);
-		for(unsigned int i(0); i<pps_;i++){
-			if(s_(new_s[0],i) == new_c[1]){wrong_exchange = true;}
-			if(s_(new_s[1],i) == new_c[0]){wrong_exchange = true;}
-		}
-	} while(wrong_exchange);
-	//std::cout<<"++++++"<<std::endl;
-	//std::cout<<new_s[0]<<" "<<new_p[0]<<" "<<new_c[0]<<std::endl;
-	//std::cout<<new_s[1]<<" "<<new_p[1]<<" "<<new_c[1]<<std::endl;
+	} while(is_new_state_forbidden() || new_c[0] == new_c[1]);
 }
 
 template<typename Type>
@@ -146,13 +139,22 @@ void System<Type>::swap(unsigned int const& s0, unsigned int const& s1, unsigned
 /*methods that return something related to the class*/
 /*{*/
 template<typename Type>
+bool System<Type>::is_new_state_forbidden(){
+	for(unsigned int i(0); i<this->m_; i++){
+		if(s_(new_s[0],i) == new_c[1] && i != new_p[0]){ return true; }
+		if(s_(new_s[1],i) == new_c[0] && i != new_p[1]){ return true; }
+	}
+	return false;
+}
+
+template<typename Type>
 void System<Type>::measure(double& E_config){
 	E_config = 0.0;
 	for(unsigned int i(0);i<sts_.row();i++){
-		for(unsigned int p0(0); p0<pps_; p0++){
-			for(unsigned int p1(0); p1<pps_; p1++){
+		for(unsigned int p0(0); p0<m_; p0++){
+			for(unsigned int p1(0); p1<m_; p1++){
 				swap(sts_(i,0),sts_(i,1),p0,p1);
-				E_config += real(ratio());
+				if(!is_new_state_forbidden()){ E_config += real(ratio()); }
 			}
 		}
 	}
