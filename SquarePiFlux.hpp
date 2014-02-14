@@ -5,7 +5,7 @@
 
 class SquarePiFlux: public Square<std::complex<double> >{
 	public:
-		SquarePiFlux(Parseur& P);
+		SquarePiFlux(Container const& P);
 		~SquarePiFlux();
 
 		void save();

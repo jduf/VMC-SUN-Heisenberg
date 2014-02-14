@@ -5,10 +5,12 @@
 
 class TrianglePhi: public Triangle<std::complex<double> >{
 	public:
-		TrianglePhi(Parseur& P);
+		TrianglePhi(Container const& param);
 		~TrianglePhi();
 
 		void save();
+		void study();
+
 	protected:
 		double phi_;
 		

@@ -10,7 +10,20 @@ CXXFLAGS = $(LAPACK) $(ERRORS) $(OPTION)
 
 LDFLAGS  = $(LAPACK) $(ERRORS) $(OPTION)
 
-all:mc cs check psomc mcnu
+all:mc cs check
+
+#############################
+# particle-swarm optimisation For fermionic thing
+#############################
+pso:pso.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o ChainTrimerized.o Container.o PSTricks.o PSO.o PSOFermionic.o
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+
+pso.o:pso.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOFermionic.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
+PSOFermionic.o:PSOFermionic.cpp PSOFermionic.hpp PSO.hpp MonteCarlo.hpp SquareJastrow.hpp TriangleJastrow.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
 
 #############################
 # particle-swarm optimisation
@@ -51,49 +64,55 @@ Rand.o:Rand.cpp Rand.hpp
 ########
 # create
 ########
-cs:cs.o ChainFermi.o ChainDimerized.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o Container.o
+cs:cs.o CreateSystem.o ChainFermi.o ChainDimerized.o ChainTrimerized.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o Container.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-cs.o:cs.cpp Parseur.hpp Chain.hpp ChainFermi.hpp ChainDimerized.hpp Square.hpp Honeycomb.hpp Triangle.hpp Write.hpp Read.hpp Header.hpp RST.hpp Container.hpp
+cs.o:cs.cpp CreateSystem.hpp GenericSystem.hpp Parseur.hpp Chain.hpp ChainFermi.hpp ChainDimerized.hpp Square.hpp Honeycomb.hpp Triangle.hpp Write.hpp Read.hpp Header.hpp RST.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-ChainFermi.o:ChainFermi.cpp ChainFermi.hpp Chain.hpp CreateSystem.hpp Parseur.hpp
+CreateSystem.o:CreateSystem.cpp CreateSystem.hpp GenericSystem.hpp  Parseur.hpp Chain.hpp ChainFermi.hpp ChainDimerized.hpp Square.hpp Honeycomb.hpp Triangle.hpp Write.hpp Read.hpp Header.hpp RST.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-ChainDimerized.o:ChainDimerized.cpp ChainDimerized.hpp Chain.hpp CreateSystem.hpp Parseur.hpp
+ChainFermi.o:ChainFermi.cpp ChainFermi.hpp Chain.hpp GenericSystem.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-SquarePiFlux.o:SquarePiFlux.cpp SquarePiFlux.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
+ChainDimerized.o:ChainDimerized.cpp ChainDimerized.hpp Chain.hpp GenericSystem.hpp  Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-SquareSU2Phiflux.o:SquareSU2PhiFlux.cpp SquareSU2PhiFlux.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
+ChainTrimerized.o:ChainTrimerized.cpp ChainTrimerized.hpp Chain.hpp GenericSystem.hpp  Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-SquareJastrow.o:SquareJastrow.cpp SquareJastrow.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp Container.hpp
+SquarePiFlux.o:SquarePiFlux.cpp SquarePiFlux.hpp Square.hpp GenericSystem.hpp  Gnuplot.hpp Lapack.hpp PSTricks.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-TriangleJastrow.o:TriangleJastrow.cpp TriangleJastrow.hpp Triangle.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
+SquareSU2Phiflux.o:SquareSU2PhiFlux.cpp SquareSU2PhiFlux.hpp Square.hpp GenericSystem.hpp  Gnuplot.hpp Lapack.hpp PSTricks.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-SquareMu.o:SquareMu.cpp SquareMu.hpp Square.hpp CreateSystem.hpp Parseur.hpp  Gnuplot.hpp Lapack.hpp PSTricks.hpp
+SquareJastrow.o:SquareJastrow.cpp SquareJastrow.hpp Square.hpp GenericSystem.hpp  Gnuplot.hpp Lapack.hpp PSTricks.hpp Container.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-SquareFermi.o:SquareFermi.cpp SquareFermi.hpp Square.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
+TriangleJastrow.o:TriangleJastrow.cpp TriangleJastrow.hpp Triangle.hpp GenericSystem.hpp  Gnuplot.hpp Lapack.hpp PSTricks.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-TriangleFermi.o:TriangleFermi.cpp TriangleFermi.hpp Triangle.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
+SquareMu.o:SquareMu.cpp SquareMu.hpp Square.hpp GenericSystem.hpp   Gnuplot.hpp Lapack.hpp PSTricks.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-TriangleMu.o:TriangleMu.cpp TriangleMu.hpp Triangle.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
+SquareFermi.o:SquareFermi.cpp SquareFermi.hpp Square.hpp GenericSystem.hpp  Gnuplot.hpp Lapack.hpp PSTricks.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-TrianglePhi.o:TrianglePhi.cpp TrianglePhi.hpp Triangle.hpp CreateSystem.hpp Parseur.hpp Gnuplot.hpp Lapack.hpp PSTricks.hpp
+TriangleFermi.o:TriangleFermi.cpp TriangleFermi.hpp Triangle.hpp GenericSystem.hpp  Gnuplot.hpp Lapack.hpp PSTricks.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-HoneycombSU4.o:HoneycombSU4.cpp HoneycombSU4.hpp Honeycomb.hpp CreateSystem.hpp Parseur.hpp
+TriangleMu.o:TriangleMu.cpp TriangleMu.hpp Triangle.hpp GenericSystem.hpp  Gnuplot.hpp Lapack.hpp PSTricks.hpp Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
-HoneycombSU3.o:HoneycombSU3.cpp HoneycombSU3.hpp Honeycomb.hpp CreateSystem.hpp Parseur.hpp
+TrianglePhi.o:TrianglePhi.cpp TrianglePhi.hpp Triangle.hpp GenericSystem.hpp  Gnuplot.hpp Lapack.hpp PSTricks.hpp Container.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
+HoneycombSU4.o:HoneycombSU4.cpp HoneycombSU4.hpp Honeycomb.hpp GenericSystem.hpp  Container.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
+HoneycombSU3.o:HoneycombSU3.cpp HoneycombSU3.hpp Honeycomb.hpp GenericSystem.hpp  Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 Gnuplot.o:Gnuplot.cpp Gnuplot.hpp Write.hpp RST.hpp Header.hpp Time.hpp Matrix.hpp Vector.hpp

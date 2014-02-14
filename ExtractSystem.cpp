@@ -30,10 +30,10 @@ void ExtractSystem::print(){
 							std::cout<<data.get<Matrix<double> >("EVec")<<std::endl;
 							switch(ref(2)){
 								case 0:{}break;
-								case 1:{ std::cout<<"delta="<<data.get<double>("delta")<<std::endl; }break;
+								case 1:{std::cout<<"delta="<<data.get<double>("delta")<<std::endl; }break;
 							}
 						}break;
-					default:{ std::cerr<<"ref = [02.] unknown"<<std::endl; }break;
+					default:{std::cerr<<"ref = [02.] unknown"<<std::endl; }break;
 				}
 				std::cout<<"bc="<<data.get<double>("bc")<<std::endl;
 			}break;
@@ -138,13 +138,14 @@ void ExtractSystem::extract(Container& input, Container& param){
 					case 1:
 						{ 
 							switch(ref(2)) {
-								case 0:{ }break;
-								case 1:{ file.extract<double>("delta",param); }break;
-								default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl; }break;
+								case 0:{}break;
+								case 1:{file.extract<double>("delta",param); }break;
+								case 3:{file.extract<Vector<double> >("t",param); }break;
+								default:{std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl;}break;
 							}
 							file.extract<Matrix<double> >("EVec",input);
 						}break;
-					default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl; }break;
+					default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl;}break;
 				}
 				file.extract<double>("bc",param);
 			}break;
@@ -194,22 +195,22 @@ void ExtractSystem::extract(Container& input, Container& param){
 					case 1:
 						{ 
 							switch(ref(2)){
-								case 0:{ }break; //SquareFermi
-								case 1:{ file.extract<double>("mu",param); }break; //SquareMu
-								default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl; }break;
+								case 0:{}break; //SquareFermi
+								case 1:{ file.extract<double>("mu",param);}break; //SquareMu
+								default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl;}break;
 							}
 							file.extract<Matrix<double> >("EVec",input);
 						}break;
 					case 2:
 						{ 
 							switch(ref(2)){
-								case 3:{ }break;//SquarePiFlux
-								case 4:{ file.extract<double>("phi",param); }break;//SquarePhiFlux
-								default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl; }break;
+								case 3:{}break;//SquarePiFlux
+								case 4:{ file.extract<double>("phi",param);}break;//SquarePhiFlux
+								default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl;}break;
 							}
 							file.extract<Matrix<std::complex<double> > >("EVec",input);
 						}break;
-					default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl; }break;
+					default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl;}break;
 				}
 				file.extract<double>("bc",param);
 				file.extract<unsigned int>("Lx",param);
@@ -221,18 +222,18 @@ void ExtractSystem::extract(Container& input, Container& param){
 					case 1:
 						{ 
 							switch(ref(2)){
-								case 0:{ }break; //HoneycombSU3
-								case 1:{ }break; //HoneycombSU4
-								default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl; }break;
+								case 0:{}break; //HoneycombSU3
+								case 1:{}break; //HoneycombSU4
+								default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl;}break;
 							}
 							file.extract<Matrix<double> >("EVec",input);
 						}break;
-					default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl; }break;
+					default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl;}break;
 				}
 				file.extract<double>("bc",param);
 				file.extract<unsigned int>("Lx",param);
 				file.extract<unsigned int>("Ly",param);
 			}break;
-		default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl; }break;
+		default:{ std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl;}break;
 	}
 }

@@ -1,13 +1,13 @@
 #ifndef DEF_TRIANGLE
 #define DEF_TRIANGLE
 
-#include "CreateSystem.hpp"
+#include "GenericSystem.hpp"
 #include "PSTricks.hpp"
 
 template<typename Type>
-class Triangle: public CreateSystem<Type>{
+class Triangle: public GenericSystem<Type>{
 	public:
-		Triangle(Parseur& P, std::string filename);
+		Triangle(Container const& param, std::string filename);
 		virtual ~Triangle();
 
 	protected:
@@ -22,38 +22,35 @@ class Triangle: public CreateSystem<Type>{
 };
 
 template<typename Type>
-Triangle<Type>::Triangle(Parseur& P, std::string filename):
-	CreateSystem<Type>(P,6,filename),
+Triangle<Type>::Triangle(Container const& param, std::string filename):
+	GenericSystem<Type>(param,6,filename),
 	Lx_(std::floor(std::sqrt(this->n_))),
 	Ly_(std::floor(std::sqrt(this->n_)))
 {
-	this->ref_(0) = 3;
-	P.get("bc",this->bc_);
-	if(!P.status()){
-		if(this->n_==Ly_*Lx_){
-			this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-			this->compute_sts();
-			if(this->bc_ != 0){
-				if(this->bc_ == 1){ this->filename_ += "-P";} 
-				else{ this->filename_ += "-A";}
-				unsigned int k(0);
-				BC_.set(Lx_+Ly_,2);
-				for(unsigned int i(0); i < this->n_; i++){
-					if(!((i+1) % Lx_ )){
-						BC_(k,0) = i;
-						BC_(k,1) = i+1-Lx_;
-						k++;
-					}	
-					if( i+Lx_>=this->n_){ 
-						BC_(k,0) = i;
-						BC_(k,1) = i-(Ly_-1)*Lx_;
-						k++;
-					}
+	param.get("bc",this->bc_);
+	if(this->n_==Ly_*Lx_){
+		this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+		this->compute_sts();
+		if(this->bc_ != 0){
+			if(this->bc_ == 1){ this->filename_ += "-P";} 
+			else{ this->filename_ += "-A";}
+			unsigned int k(0);
+			BC_.set(Lx_+Ly_,2);
+			for(unsigned int i(0); i < this->n_; i++){
+				if(!((i+1) % Lx_ )){
+					BC_(k,0) = i;
+					BC_(k,1) = i+1-Lx_;
+					k++;
+				}	
+				if( i+Lx_>=this->n_){ 
+					BC_(k,0) = i;
+					BC_(k,1) = i-(Ly_-1)*Lx_;
+					k++;
 				}
 			}
-		} else {
-			std::cerr<<"Triangle : the cluster is not a square"<<std::endl;
 		}
+	} else {
+		std::cerr<<"Triangle : the cluster is not a square"<<std::endl;
 	}
 }
 

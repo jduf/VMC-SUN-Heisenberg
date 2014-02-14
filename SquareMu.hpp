@@ -5,10 +5,11 @@
 
 class SquareMu: public Square<double>{
 	public:
-		SquareMu(Parseur& P);
+		SquareMu(Container const& param);
 		~SquareMu();
 
 		void save();
+		void study();
 
 	protected:
 		double mu_;

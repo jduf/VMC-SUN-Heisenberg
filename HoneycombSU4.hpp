@@ -5,7 +5,7 @@
 
 class HoneycombSU4: public Honeycomb<double>{
 	public:
-		HoneycombSU4(Parseur& P);
+		HoneycombSU4(Container const& param);
 		~HoneycombSU4();
 
 		void save();

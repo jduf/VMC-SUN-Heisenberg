@@ -2,11 +2,10 @@
 #define DEF_SQUAREJASTROW
 
 #include "Square.hpp"
-#include "Container.hpp"
 
 class SquareJastrow: public Square<double>{
 	public:
-		SquareJastrow(Parseur& P);
+		SquareJastrow(Container const& param);
 		~SquareJastrow();
 
 		void properties(Container& c);

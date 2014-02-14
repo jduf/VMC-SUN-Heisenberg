@@ -1,16 +1,12 @@
 #include"ChainDimerized.hpp"
 
-ChainDimerized::ChainDimerized(Parseur& P):
-	Chain<double>(P,"chain-dimerized"),
-	delta_(P.get<double>("delta"))
+ChainDimerized::ChainDimerized(Container const& param):
+	Chain<double>(param,"chain-dimerized"),
+	delta_(param.get<double>("delta"))
 {
-	ref_(2) = 1;
 	filename_ += "-delta" + tostring(delta_);
 	if( !(n_ % 2) ){
-		if(!P.status()){
 			compute_T();
-			//compute_band_structure();
-
 			diagonalize_T('S');
 			for(unsigned int spin(0);spin<N_;spin++){
 				for(unsigned int i(0);i<n_;i++){
@@ -19,7 +15,6 @@ ChainDimerized::ChainDimerized(Parseur& P):
 					}
 				}
 			}
-		}
 	} else {
 		std::cerr<<"ChainDimerized : need an even number of sites"<<std::endl;
 	}

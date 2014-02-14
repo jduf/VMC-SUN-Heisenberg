@@ -1,25 +1,14 @@
 #include "TriangleFermi.hpp"
 
-TriangleFermi::TriangleFermi(Parseur& P):
-	Triangle<double>(P,"triangle-fermi")
+TriangleFermi::TriangleFermi(Container const& param):
+	Triangle<double>(param,"triangle-fermi")
 {
-	ref_(1)=1;
-	ref_(2)=0;
-	if(!P.status()){
-		if(P.get<bool>("study")){
-			compute_T();
-			//compute_P();
-			//band_structure();
-			lattice();
-		} else {
-			compute_T();
-			diagonalize_T('S');
-			for(unsigned int spin(0);spin<N_;spin++){
-				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<M_;j++){
-						EVec_(i+spin*n_,j) = T_(i,j);
-					}
-				}
+	compute_T();
+	diagonalize_T('S');
+	for(unsigned int spin(0);spin<N_;spin++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+spin*n_,j) = T_(i,j);
 			}
 		}
 	}
@@ -68,6 +57,13 @@ void TriangleFermi::save(){
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
+}
+
+void TriangleFermi::study(){
+	compute_T();
+	//compute_P();
+	//band_structure();
+	lattice();
 }
 
 void TriangleFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
@@ -150,7 +146,7 @@ void TriangleFermi::lattice(){
 		ps.add("}");
 		ps.put(x0-y0*e1, y0*e2+r*1.2, "\\color{"+color+"}{\\tiny{"+tostring(i)+"}}");
 	}
-	
+
 	Matrix<double> xy(4,2);
 	xy(0,0) = -0.5*e1;
 	xy(0,1) = -0.5;

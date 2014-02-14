@@ -1,32 +1,19 @@
 #include "SquareSU2PhiFlux.hpp"
 
-SquareSU2PhiFlux::SquareSU2PhiFlux(Parseur& P):
-	Square<std::complex<double> >(P,"square-phi-flux"),
-	phi_(M_PI*P.get<double>("phi"))
+SquareSU2PhiFlux::SquareSU2PhiFlux(Container const& param):
+	Square<std::complex<double> >(param,"square-phi-flux"),
+	phi_(M_PI*param.get<double>("phi"))
 {
-	ref_(1) = 2;
-	ref_(2) = 4;
 	if(bc_ == 1){ filename_ += "-P";} 
 	else { filename_ += "-A";}
 	filename_ += "-phi+" + tostring(phi_);
-	if(!P.status() && N_ == 2){
-		if(P.get<bool>("study")){
-			compute_T();
-			//band_structure();
-			//for(unsigned int i(0);i<n_;i++){
-				//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
-				//ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
-				//E(i) = projection(T_,evec,i,i).real();
-			//}
-			lattice();
-		} else {
-			compute_T();
-			diagonalize_T('H');
-			for(unsigned int color(0);color<N_;color++){
-				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<M_;j++){
-						EVec_(i+color*n_,j) = T_(i,j);
-					}
+	if(N_ == 2){
+		compute_T();
+		diagonalize_T('H');
+		for(unsigned int color(0);color<N_;color++){
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_;j++){
+					EVec_(i+color*n_,j) = T_(i,j);
 				}
 			}
 		}
@@ -75,6 +62,17 @@ void SquareSU2PhiFlux::save(){
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
+}
+
+void SquareSU2PhiFlux::study(){
+	compute_T();
+	//band_structure();
+	//for(unsigned int i(0);i<n_;i++){
+	//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
+	//ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
+	//E(i) = projection(T_,evec,i,i).real();
+	//}
+	lattice();
 }
 
 void SquareSU2PhiFlux::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py){

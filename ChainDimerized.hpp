@@ -5,7 +5,7 @@
 
 class ChainDimerized: public Chain<double> {
 	public:
-		ChainDimerized(Parseur& P);
+		ChainDimerized(Container const& param);
 		~ChainDimerized();
 
 		void save();

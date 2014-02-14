@@ -1,12 +1,12 @@
 #ifndef DEF_CHAIN
 #define DEF_CHAIN
 
-#include "CreateSystem.hpp"
+#include "GenericSystem.hpp"
 
 template<typename Type>
-class Chain: public CreateSystem<Type>{
+class Chain: public GenericSystem<Type>{
 	public:
-		Chain(Parseur& P, std::string filename);
+		Chain(Container const& param, std::string filename);
 		virtual ~Chain();
 
 	protected:
@@ -14,20 +14,16 @@ class Chain: public CreateSystem<Type>{
 };
 
 template<typename Type>
-Chain<Type>::Chain(Parseur& P, std::string filename):
-	CreateSystem<Type>(P,2,filename)
+Chain<Type>::Chain(Container const& param, std::string filename):
+	GenericSystem<Type>(param,2,filename)
 {
-	this->ref_(1) = 1;
-	this->ref_(0) = 2;
-	if(!P.status()){
-		this->compute_sts();
-		if(this->M_ % 2 == 0){ 
-			this->filename_ += "-A";
-			this->bc_ = -1;
-		} else {
-			this->filename_ += "-P";
-			this->bc_ = 1;
-		}
+	this->compute_sts();
+	if(this->M_ % 2 == 0){ 
+		this->filename_ += "-A";
+		this->bc_ = -1;
+	} else {
+		this->filename_ += "-P";
+		this->bc_ = 1;
 	}
 }
 

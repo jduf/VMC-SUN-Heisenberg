@@ -1,18 +1,14 @@
 #include "SquarePiFlux.hpp"
 
-SquarePiFlux::SquarePiFlux(Parseur& P):
-	Square<std::complex<double> >(P,"square-csl")
+SquarePiFlux::SquarePiFlux(Container const& param):
+	Square<std::complex<double> >(param,"square-csl")
 {
-	ref_(1) = 2;
-	ref_(2) = 3;
-	if(!P.status()){
-		compute_T();
-		diagonalize_T('H');
-		for(unsigned int spin(0);spin<N_;spin++){
-			for(unsigned int i(0);i<n_;i++){
-				for(unsigned int j(0);j<M_;j++){
-					EVec_(i+spin*n_,j) = T_(i,j);
-				}
+	compute_T();
+	diagonalize_T('H');
+	for(unsigned int spin(0);spin<N_;spin++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+spin*n_,j) = T_(i,j);
 			}
 		}
 	}

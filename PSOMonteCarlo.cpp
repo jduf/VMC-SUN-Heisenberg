@@ -19,7 +19,6 @@ PSOMonteCarlo::PSOMonteCarlo(Parseur& P,unsigned int Nfreedom):
 		param_.set("Lx",prop.get<unsigned int>("Lx"));
 		param_.set("Ly",prop.get<unsigned int>("Ly"));
 		param_.set("bc",prop.get<double>("bc"));
-
 	} else {
 		std::cerr<<"blof"<<std::endl;
 	}

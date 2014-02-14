@@ -1,25 +1,14 @@
 #include "SquareFermi.hpp"
 
-SquareFermi::SquareFermi(Parseur& P):
-	Square<double>(P,"square-fermi")
+SquareFermi::SquareFermi(Container const& param):
+	Square<double>(param,"square-fermi")
 {
-	ref_(1) = 1;
-	ref_(2) = 0;
-	if(!P.status()){
-		if(P.get<bool>("study")){
-			compute_T();
-			//compute_P();
-			//band_structure();
-			lattice();
-		} else {
-			compute_T();
-			diagonalize_T('S');
-			for(unsigned int spin(0);spin<N_;spin++){
-				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<M_;j++){
-						EVec_(i+spin*n_,j) = T_(i,j);
-					}
-				}
+	compute_T();
+	diagonalize_T('S');
+	for(unsigned int spin(0);spin<N_;spin++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+spin*n_,j) = T_(i,j);
 			}
 		}
 	}
@@ -102,4 +91,13 @@ void SquareFermi::lattice(){
 	ps.frame(-0.5,-0.5,Lx_-0.5,Ly_-0.5,"linecolor=red");
 	ps.frame(-0.5,-0.5,0.5,0.5,"linecolor=red,linestyle=dashed");
 	ps.add("\\end{pspicture}");
+}
+
+void SquareFermi::study(){
+	compute_T();
+	Matrix<double> Px;
+	Matrix<double> Py;
+	compute_P(Px,Py);
+	//band_structure();
+	lattice();
 }

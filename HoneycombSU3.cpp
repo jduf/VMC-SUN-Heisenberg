@@ -1,16 +1,13 @@
 #include "HoneycombSU3.hpp"
 
-HoneycombSU3::HoneycombSU3(Parseur& P):
-	Honeycomb<double>(P,"honeycomb")
+HoneycombSU3::HoneycombSU3(Container const& param):
+	Honeycomb<double>(param,"honeycomb")
 {
-	ref_(1) = 1;
-	ref_(2) = 1;
 	if(bc_ == 1){ filename_ += "-P";} 
 	else { filename_ += "-A";}
-	if(!P.status() || N_ != 3){
+	if(N_ != 3){
 		if(M_==Ly_*Lx_){
 			compute_T();
-
 			diagonalize_T('S');
 			for(unsigned int spin(0);spin<N_;spin++){
 				for(unsigned int i(0);i<n_;i++){

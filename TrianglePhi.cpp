@@ -1,29 +1,17 @@
 #include "TrianglePhi.hpp"
 
-TrianglePhi::TrianglePhi(Parseur& P):
-	Triangle<std::complex<double> >(P,"triangle-phi"),
-	phi_(P.get<double>("phi"))
+TrianglePhi::TrianglePhi(Container const& param):
+	Triangle<std::complex<double> >(param,"triangle-phi"),
+	phi_(param.get<double>("phi"))
 {
-	ref_(1) = 2;
-	ref_(2) = 4;
 	filename_ += "-phi" + tostring(phi_);
-	if(P.get<bool>("study")){
-		if(!P.status()){
-			compute_T();
-			//compute_band_structure();
-		}
-	} else {
-		if(!P.status()){
-			compute_T();
-			diagonalize_T('H');
-			for(unsigned int color(0);color<N_;color++){
-				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<M_;j++){
-						EVec_(i+color*n_,j) = T_(i,j);
-					}
-				}
+	compute_T();
+	diagonalize_T('H');
+	for(unsigned int color(0);color<N_;color++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+color*n_,j) = T_(i,j);
 			}
-			save();
 		}
 	}
 }
@@ -88,3 +76,7 @@ void TrianglePhi::save(){
 	w("Ly (y-dimension)",Ly_);
 }
 
+void TrianglePhi::study(){
+	compute_T();
+	//compute_band_structure();
+}

@@ -5,10 +5,11 @@
 
 class SquareSU2PhiFlux: public Square<std::complex<double> >{
 	public:
-		SquareSU2PhiFlux(Parseur& P);
+		SquareSU2PhiFlux(Container const& param);
 		~SquareSU2PhiFlux();
 
 		void save();
+		void study();
 
 	protected:
 		double const phi_;

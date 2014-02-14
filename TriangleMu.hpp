@@ -5,10 +5,11 @@
 
 class TriangleMu: public Triangle<double>{
 	public:
-		TriangleMu(Parseur& P);
+		TriangleMu(Container const& param);
 		~TriangleMu();
 
 		void save();
+		void study();
 
 	protected:
 		double mu_;

@@ -5,7 +5,7 @@
 
 class ChainFermi: public Chain<double>{
 	public:
-		ChainFermi(Parseur& P);
+		ChainFermi(Container const& P);
 		~ChainFermi();
 
 		void save();

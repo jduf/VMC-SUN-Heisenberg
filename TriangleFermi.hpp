@@ -5,10 +5,11 @@
 
 class TriangleFermi: public Triangle<double>{
 	public:
-		TriangleFermi(Parseur& P);
+		TriangleFermi(Container const& param);
 		~TriangleFermi();
 
 		void save();
+		void study();
 
 	protected:
 		void compute_T();

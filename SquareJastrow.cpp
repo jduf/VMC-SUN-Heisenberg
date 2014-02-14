@@ -1,19 +1,28 @@
 #include "SquareJastrow.hpp"
 
-SquareJastrow::SquareJastrow(Parseur& P):
-	Square<double>(P,"square-Jastrow"),
+SquareJastrow::SquareJastrow(Container const& param):
+	Square<double>(param,"square-Jastrow"),
 	nn_(n_,z_),
 	cc_(N_,N_),
 	sl_(n_),
 	omega_(N_,N_,1.0)
 {
-	ref_(1) = 0;
 	compute_nn();
 	compute_sublattice();
 	compute_omega_cc();
 }
 
 SquareJastrow::~SquareJastrow(){}
+
+//SquareJastrow::create(Vector<double> const& x){
+	//nu_.set(z_,x.size()+1);
+	//for(unsigned int i(0);i<z_;i++){
+		//for(unsigned int j(0);j<Nfreedom_;j++){
+			//nu_(i,j) = x(j);
+		//}
+		//nu_(i,Nfreedom_) = 0;
+	//}
+//}
 
 void SquareJastrow::save(){
 	Write w(filename_+".jdbin");
@@ -105,6 +114,7 @@ void SquareJastrow::properties(Container& c){
 	c.set("cc",cc_);
 	c.set("sl",sl_);
 	c.set("omega",omega_);
+	//c.set("nu",nu_);
 }
 
 void SquareJastrow::lattice(Matrix<unsigned int> const& lat){

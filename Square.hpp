@@ -1,13 +1,13 @@
 #ifndef DEF_SQUARE
 #define DEF_SQUARE
 
-#include "CreateSystem.hpp"
+#include "GenericSystem.hpp"
 #include "PSTricks.hpp"
 
 template<typename Type>
-class Square: public CreateSystem<Type>{
+class Square: public GenericSystem<Type>{
 	public:
-		Square(Parseur& P, std::string filename);
+		Square(Container const& param, std::string filename);
 		virtual ~Square();
 
 	protected:
@@ -20,38 +20,35 @@ class Square: public CreateSystem<Type>{
 };
 
 template<typename Type>
-Square<Type>::Square(Parseur& P, std::string filename):
-	CreateSystem<Type>(P,4,filename),
+Square<Type>::Square(Container const& param, std::string filename):
+	GenericSystem<Type>(param,4,filename),
 	Lx_(std::floor(std::sqrt(this->n_))),
 	Ly_(std::floor(std::sqrt(this->n_)))
 {
-	this->ref_(0) = 4;
-	P.get("bc",this->bc_);
-	if(!P.status()){
-		if(this->n_==Ly_*Lx_){
-			this->compute_sts();
-			this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-			if(this->bc_ != 0){
-				if(this->bc_ == 1){ this->filename_ += "-P";} 
-				else{ this->filename_ += "-A";}
-				unsigned int k(0);
-				BC_.set(Lx_+Ly_,2);
-				for(unsigned int i(0); i < this->n_; i++){
-					if(!((i+1) % Lx_ )){
-						BC_(k,0) = i;
-						BC_(k,1) = i+1-Lx_;
-						k++;
-					}	
-					if( i+Lx_>=this->n_){ 
-						BC_(k,0) = i;
-						BC_(k,1) = i-(Ly_-1)*Lx_;
-						k++;
-					}
+	param.get("bc",this->bc_);
+	if(this->n_==Ly_*Lx_){
+		this->compute_sts();
+		this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+		if(this->bc_ != 0){
+			if(this->bc_ == 1){ this->filename_ += "-P";} 
+			else{ this->filename_ += "-A";}
+			unsigned int k(0);
+			BC_.set(Lx_+Ly_,2);
+			for(unsigned int i(0); i < this->n_; i++){
+				if(!((i+1) % Lx_ )){
+					BC_(k,0) = i;
+					BC_(k,1) = i+1-Lx_;
+					k++;
+				}	
+				if( i+Lx_>=this->n_){ 
+					BC_(k,0) = i;
+					BC_(k,1) = i-(Ly_-1)*Lx_;
+					k++;
 				}
 			}
-		} else {
-			std::cerr<<"Square : the cluster is not a square"<<std::endl;
 		}
+	} else {
+		std::cerr<<"Square : the cluster is not a square"<<std::endl;
 	}
 }
 

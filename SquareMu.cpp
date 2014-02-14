@@ -1,42 +1,19 @@
 #include "SquareMu.hpp"
 
-SquareMu::SquareMu(Parseur& P):
-	Square<double>(P,"square-mu"),
-	mu_(P.get<double>("mu"))
+SquareMu::SquareMu(Container const& param):
+	Square<double>(param,"square-mu"),
+	mu_(param.get<double>("mu"))
 {
-	ref_(1) = 1;
-	ref_(2) = 1;
 	filename_ += "-mu" + tostring(mu_);
-	if(P.get<bool>("study")){
-		unsigned int alpha(P.get<unsigned int>("alpha"));
-		if(!P.status()){
-			if(alpha<N_){
-				compute_T(alpha);
-				//compute_P();
-				//band_structure();
-				//for(unsigned int i(0);i<n_;i++){
-					//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
-					//ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
-					//E(i) = projection(T_,evec,i,i).real();
-				//}
-				lattice();
-			} else {
-				std::cerr<<"SquareMu : SquareMu() : alpha must be smaller than N_"<<std::endl;
+	for(unsigned int alpha(0);alpha<N_;alpha++){
+		compute_T(alpha);
+		diagonalize_T('S');
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+alpha*n_,j) = T_(i,j);
 			}
 		}
-	} else {
-		if(!P.status()){
-			for(unsigned int alpha(0);alpha<N_;alpha++){
-				compute_T(alpha);
-				diagonalize_T('S');
-				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<M_;j++){
-						EVec_(i+alpha*n_,j) = T_(i,j);
-					}
-				}
-				T_.set(n_,n_,0.0);
-			}
-		}
+		T_.set(n_,n_,0.0);
 	}
 }
 
@@ -77,6 +54,20 @@ void SquareMu::save(){
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
+}
+
+void SquareMu::study(){
+	unsigned int alpha(1);
+	compute_T(alpha);
+	//compute_P();
+	//band_structure();
+	//for(unsigned int i(0);i<n_;i++){
+	//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
+	//ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
+	//E(i) = projection(T_,evec,i,i).real();
+	//}
+	lattice();
+	std::cerr<<"SquareMu : SquareMu() : alpha must be smaller than N_"<<std::endl;
 }
 
 void SquareMu::compute_P(Matrix<double>& Px, Matrix<double>& Py){

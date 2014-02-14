@@ -2,11 +2,10 @@
 #define DEF_TRIANGLEJASTROW
 
 #include "Triangle.hpp"
-#include "Container.hpp"
 
 class TriangleJastrow: public Triangle<double>{
 	public:
-		TriangleJastrow(Parseur& P);
+		TriangleJastrow(Container const& param);
 		~TriangleJastrow();
 
 		void properties(Container& c);

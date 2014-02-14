@@ -43,7 +43,7 @@ class System{
 		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
 		 * permutation */
 		//}
-		void measure(double& E_config);
+		void measure(double& E_step, Vector<double>& corr_step);
 
 		virtual void correlation(Matrix<unsigned int>* corr);
 		virtual void print()=0;
@@ -54,6 +54,7 @@ class System{
 		unsigned int M_;//!< particles' number of each color
 
 		Matrix<unsigned int> s_;//!< on the site i : s(i,0)=color, s(i,1)=row
+		Matrix<unsigned int> sts_;//!< sts_(i,0) is a site that can be exchanged with sts_(i,1)
 
 	protected:
 		/*!Forbids copy constructor*/
@@ -69,8 +70,6 @@ class System{
 
 	private:
 		bool is_new_state_forbidden();
-
-		Matrix<unsigned int> sts_;//!< sts_(i,0) is a site that can be exchanged with sts_(i,1)
 };
 
 /*constructors and destructor and initialization*/
@@ -148,13 +147,17 @@ bool System<Type>::is_new_state_forbidden(){
 }
 
 template<typename Type>
-void System<Type>::measure(double& E_config){
-	E_config = 0.0;
+void System<Type>::measure(double& E_step, Vector<double>& corr_step){
+	E_step = 0.0;
+	double r;
 	for(unsigned int i(0);i<sts_.row();i++){
+		corr_step(i) = 0.0;
 		for(unsigned int p0(0); p0<m_; p0++){
 			for(unsigned int p1(0); p1<m_; p1++){
 				swap(sts_(i,0),sts_(i,1),p0,p1);
-				if(!is_new_state_forbidden()){ E_config += real(ratio()); }
+				r = real(ratio());
+				if(!is_new_state_forbidden()){ E_step += r; }
+				corr_step(i) += r;
 			}
 		}
 	}

@@ -1,13 +1,12 @@
 #include "TriangleJastrow.hpp"
 
-TriangleJastrow::TriangleJastrow(Parseur& P):
-	Triangle<double>(P,"triangle-Jastrow"),
+TriangleJastrow::TriangleJastrow(Container const& param):
+	Triangle<double>(param,"triangle-Jastrow"),
 	nn_(n_,z_),
 	cc_(N_,N_),
 	sl_(n_),
 	omega_(N_,N_,1.0)
 {
-	ref_(1) = 0;
 	compute_nn();
 	compute_sublattice();
 	compute_omega_cc();
