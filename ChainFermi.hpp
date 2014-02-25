@@ -8,6 +8,8 @@ class ChainFermi: public Chain<double>{
 		ChainFermi(Container const& P);
 		~ChainFermi();
 
+		void create(double x=0);
+		void study();
 		void save();
 
 	private:

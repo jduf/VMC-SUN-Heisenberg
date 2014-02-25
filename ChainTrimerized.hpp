@@ -8,13 +8,14 @@ class ChainTrimerized: public Chain<double> {
 		ChainTrimerized(Container const& param);
 		~ChainTrimerized();
 
-		void save();
 		void create(Vector<double> const& t);
-		void properties(Container& c);
+		void study();
+		void save();
+		void get_param(Container& param);
 
 	private:
 		void compute_P(Matrix<double>& P);
-		void compute_T(Vector<double> const& t);
+		void compute_T();
 
 		Vector<double> t_;
 };

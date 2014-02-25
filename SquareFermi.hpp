@@ -8,8 +8,9 @@ class SquareFermi: public Square<double>{
 		SquareFermi(Container const& param);
 		~SquareFermi();
 
-		void save();
+		void create(double x);
 		void study();
+		void save();
 
 	protected:
 		void compute_T();

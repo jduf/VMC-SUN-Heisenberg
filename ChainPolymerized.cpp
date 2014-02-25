@@ -1,16 +1,12 @@
-#include"ChainDimerized.hpp"
+#include"ChainPolymerized.hpp"
 
-ChainDimerized::ChainDimerized(Container const& param):
-	Chain<double>(param,"chain-dimerized")
-{
-	if(n_%2){
-		std::cerr<<"ChainDimerized : need an even number of sites"<<std::endl;
-	}
-}
+ChainPolymerized::ChainPolymerized(Container const& param):
+	Chain<double>(param,"chain-Polymerized")
+{}
 
-ChainDimerized::~ChainDimerized(){ }
+ChainPolymerized::~ChainPolymerized(){}
 
-void ChainDimerized::create(double delta){
+void ChainPolymerized::create(double delta){
 	delta_=delta;
 	compute_T();
 	diagonalize_T('S');
@@ -23,18 +19,22 @@ void ChainDimerized::create(double delta){
 	}
 }
 
-void ChainDimerized::compute_T(){
-	double t(-1.0);
-	for(unsigned int i(0); i< n_-2; i += 2){
-		T_(i,i+1) = t+delta_;
-		T_(i+1,i+2) = t-delta_;
+void ChainPolymerized::compute_T(){
+	Vector<unsigned int> neighbourg;
+	double t(1.0);
+	for(unsigned int i(0); i < n_; i += a_){
+		for(unsigned int j(0); j<a_-1; j++){
+			neighbourg = get_neighbourg(i+j);
+			T_(i+j,neighbourg(0)) = t+delta_;
+		}
+		neighbourg = get_neighbourg(i+a_-1);
+		T_(i+a_-1,neighbourg(0)) = t-delta_;
 	}
-	T_(n_-2,n_-1) = t+delta_;
 	T_(n_-1,0) = bc_*(t-delta_);
 	T_ += T_.transpose();
 }
 
-void ChainDimerized::compute_P(Matrix<double>& P){
+void ChainPolymerized::compute_P(Matrix<double>& P){
 	P.set(n_,n_);
 	P(n_ -1,0) = bc_;
 	for(unsigned int i(0); i< n_-1; i++){
@@ -42,8 +42,11 @@ void ChainDimerized::compute_P(Matrix<double>& P){
 	}
 }
 
-void ChainDimerized::save(){
-	Write w(filename_+ "-delta" + tostring(delta_)+ ".jdbin");
+void ChainPolymerized::save(){
+	filename_ += "-delta" + tostring(delta_);
+	filename_ += "-a" + tostring(a_);
+
+	Write w(filename_+".jdbin");
 	RST rst;
 	rst.text("Spin chain, with different hopping term on the odd and even sites");
 	rst.np();
@@ -56,12 +59,13 @@ void ChainDimerized::save(){
 	w("m (particles per site' number)",m_);
 	w("M (particles' number of each color)",M_);
 	w("sts (connected sites)",sts_);
-	w("delta (dimerization parameter)",delta_);
+	w("delta (t+-delta)",delta_);
+	w("a (unit vector)",a_);
 	w("EVec (unitary matrix)",EVec_);
 	w("bc (boundary condition)",bc_);
 }
 
-void ChainDimerized::get_param(Container& param){
+void ChainPolymerized::get_param(Container& param){
 	GenericSystem<double>::get_param(param);
 	param.set("delta",delta_);
 }

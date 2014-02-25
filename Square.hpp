@@ -2,7 +2,6 @@
 #define DEF_SQUARE
 
 #include "GenericSystem.hpp"
-#include "PSTricks.hpp"
 
 template<typename Type>
 class Square: public GenericSystem<Type>{

@@ -1,39 +1,42 @@
 #ifndef DEF_CREATESYSTEM
 #define DEF_CREATESYSTEM
 
-#include "ChainFermi.hpp"
-#include "ChainDimerized.hpp"
-#include "ChainTrimerized.hpp"
+#include "Parseur.hpp"
 
+#include "ChainDimerized.hpp"
+#include "ChainFermi.hpp"
+#include "ChainPolymerized.hpp"
+#include "ChainTrimerized.hpp"
+#include "HoneycombSU3.hpp"
+#include "HoneycombSU4.hpp"
 #include "SquareFermi.hpp"
+#include "SquareJastrow.hpp"
 #include "SquareMu.hpp"
 #include "SquarePiFlux.hpp"
 #include "SquareSU2PhiFlux.hpp"
-#include "SquareJastrow.hpp"
-
-#include "HoneycombSU4.hpp"
-#include "HoneycombSU3.hpp"
-
 #include "TriangleFermi.hpp"
+#include "TriangleJastrow.hpp"
 #include "TriangleMu.hpp"
 #include "TrianglePhi.hpp"
-#include "TriangleJastrow.hpp"
-
-#include "Parseur.hpp"
 
 class CreateSystem{
 	public:
 		CreateSystem(Parseur& P);
+		CreateSystem(Container const& C);
 		virtual ~CreateSystem();
 
 		void create();
 		void save();
+		void get_param(Container& param);
+		void get_input(Container& input);
+		bool use_complex();
 
 	private:
 		Container param_;
-		Vector<unsigned int> ref_;
 		GenericSystem<double>* Sr_;
 		GenericSystem<std::complex<double> >* Sc_;
-		bool valid_;
+		Vector<unsigned int> ref_;
+
+		void parse(Parseur& P, Container& C);
 };
 #endif

@@ -2,7 +2,11 @@
 
 ChainFermi::ChainFermi(Container const& param):
 	Chain<double>(param,"chain-fermi")
-{
+{}
+
+ChainFermi::~ChainFermi(){}
+
+void ChainFermi::create(double x){
 	compute_T();
 	diagonalize_T('S');
 	for(unsigned int spin(0);spin<N_;spin++){
@@ -13,8 +17,6 @@ ChainFermi::ChainFermi(Container const& param):
 		}
 	}
 }
-
-ChainFermi::~ChainFermi(){ }
 
 void ChainFermi::compute_T(){
 	double t(-1.0);

@@ -14,6 +14,16 @@ TriangleJastrow::TriangleJastrow(Container const& param):
 
 TriangleJastrow::~TriangleJastrow(){}
 
+void TriangleJastrow::create(double x){
+	//nu_.set(z_,x.size()+1);
+	//for(unsigned int i(0);i<z_;i++){
+		//for(unsigned int j(0);j<Nfreedom_;j++){
+			//nu_(i,j) = x(j);
+		//}
+		//nu_(i,Nfreedom_) = 0;
+	//}
+}
+
 void TriangleJastrow::save(){
 	Write w(filename_+".jdbin");
 	RST rst;
@@ -91,19 +101,12 @@ void TriangleJastrow::compute_omega_cc(){
 	}
 }
 
-void TriangleJastrow::properties(Container& c){
-	c.set("n",n_);
-	c.set("N",N_);
-	c.set("m",m_);
-	c.set("M",M_);
-	c.set("bc",bc_);
-	c.set("Lx",Lx_);
-	c.set("Ly",Ly_);
-	c.set("sts",sts_);
-	c.set("nn",nn_);
-	c.set("cc",cc_);
-	c.set("sl",sl_);
-	c.set("omega",omega_);
+void TriangleJastrow::get_input(Container& input){
+	GenericSystem<double>::get_input(input);
+	input.set("nn",nn_);
+	input.set("cc",cc_);
+	input.set("sl",sl_);
+	input.set("omega",omega_);
 }
 
 void TriangleJastrow::lattice(Matrix<unsigned int> const& lat){

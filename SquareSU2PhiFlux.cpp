@@ -1,23 +1,9 @@
 #include "SquareSU2PhiFlux.hpp"
 
 SquareSU2PhiFlux::SquareSU2PhiFlux(Container const& param):
-	Square<std::complex<double> >(param,"square-phi-flux"),
-	phi_(M_PI*param.get<double>("phi"))
+	Square<std::complex<double> >(param,"square-phi-flux")
 {
-	if(bc_ == 1){ filename_ += "-P";} 
-	else { filename_ += "-A";}
-	filename_ += "-phi+" + tostring(phi_);
-	if(N_ == 2){
-		compute_T();
-		diagonalize_T('H');
-		for(unsigned int color(0);color<N_;color++){
-			for(unsigned int i(0);i<n_;i++){
-				for(unsigned int j(0);j<M_;j++){
-					EVec_(i+color*n_,j) = T_(i,j);
-				}
-			}
-		}
-	} else {
+	if(N_ != 2){
 		std::cerr<<"SquareSU2PhiFlux : this wavefunction is appropriate for N=2"<<std::endl;
 	}
 }
@@ -43,7 +29,22 @@ void SquareSU2PhiFlux::compute_T(){
 	T_ += T_.trans_conj(); 
 }
 
+void SquareSU2PhiFlux::create(double phi){
+	phi_=M_PI*phi;
+	compute_T();
+	diagonalize_T('H');
+	for(unsigned int color(0);color<N_;color++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+color*n_,j) = T_(i,j);
+			}
+		}
+	}
+}
+
 void SquareSU2PhiFlux::save(){
+	filename_ += "-phi+" + tostring(phi_);
+
 	Write w(filename_+".jdbin");
 	RST rst;
 	rst.text("new test with +- phi flux per plaquette");
@@ -62,6 +63,11 @@ void SquareSU2PhiFlux::save(){
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
+}
+
+void SquareSU2PhiFlux::get_param(Container& param){
+	GenericSystem<std::complex<double> >::get_param(param);
+	param.set("phi",phi_);
 }
 
 void SquareSU2PhiFlux::study(){

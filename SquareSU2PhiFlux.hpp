@@ -8,11 +8,13 @@ class SquareSU2PhiFlux: public Square<std::complex<double> >{
 		SquareSU2PhiFlux(Container const& param);
 		~SquareSU2PhiFlux();
 
-		void save();
+		void create(double phi);
 		void study();
+		void save();
+		void get_param(Container& param);
 
 	protected:
-		double const phi_;
+		double phi_;
 
 		void compute_T();
 		void compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py);

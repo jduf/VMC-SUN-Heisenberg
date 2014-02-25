@@ -1,21 +1,8 @@
 #include "SquareMu.hpp"
 
 SquareMu::SquareMu(Container const& param):
-	Square<double>(param,"square-mu"),
-	mu_(param.get<double>("mu"))
-{
-	filename_ += "-mu" + tostring(mu_);
-	for(unsigned int alpha(0);alpha<N_;alpha++){
-		compute_T(alpha);
-		diagonalize_T('S');
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+alpha*n_,j) = T_(i,j);
-			}
-		}
-		T_.set(n_,n_,0.0);
-	}
-}
+	Square<double>(param,"square-mu")
+{}
 
 SquareMu::~SquareMu(){}
 
@@ -35,7 +22,23 @@ void SquareMu::compute_T(unsigned int alpha){
 	T_ += T_.transpose();
 }
 
+void SquareMu::create(double mu){
+	mu_ = mu;
+	for(unsigned int alpha(0);alpha<N_;alpha++){
+		compute_T(alpha);
+		diagonalize_T('S');
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+alpha*n_,j) = T_(i,j);
+			}
+		}
+		T_.set(n_,n_,0.0);
+	}
+}
+
 void SquareMu::save(){
+	filename_ += "-mu" + tostring(mu_);
+
 	Write w(filename_+".jdbin");
 	RST rst;
 	rst.text("Stripe order : each color lives on its own sublattice");
@@ -54,6 +57,11 @@ void SquareMu::save(){
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
+}
+
+void SquareMu::get_param(Container& param){
+	GenericSystem<double>::get_param(param);
+	param.set("mu",mu_);
 }
 
 void SquareMu::study(){

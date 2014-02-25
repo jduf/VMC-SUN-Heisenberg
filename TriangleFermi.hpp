@@ -8,8 +8,9 @@ class TriangleFermi: public Triangle<double>{
 		TriangleFermi(Container const& param);
 		~TriangleFermi();
 
-		void save();
+		void create(double x);
 		void study();
+		void save();
 
 	protected:
 		void compute_T();

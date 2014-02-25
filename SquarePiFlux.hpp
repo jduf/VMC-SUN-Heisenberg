@@ -8,6 +8,8 @@ class SquarePiFlux: public Square<std::complex<double> >{
 		SquarePiFlux(Container const& P);
 		~SquarePiFlux();
 
+		void create(double x);
+		void study();
 		void save();
 
 	protected:

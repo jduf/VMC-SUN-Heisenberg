@@ -8,8 +8,11 @@ class SquareJastrow: public Square<double>{
 		SquareJastrow(Container const& param);
 		~SquareJastrow();
 
-		void properties(Container& c);
+		void create(double x);
+		void study();
 		void save();
+		void get_input(Container& input);
+
 		void lattice(Matrix<unsigned int> const& lat);
 
 	protected:

@@ -1,21 +1,8 @@
 #include "TriangleMu.hpp"
 
 TriangleMu::TriangleMu(Container const& param):
-	Triangle<double>(param,"triangle-mu"),
-	mu_(param.get<double>("mu"))
-{
-	filename_ += "-mu" + tostring(mu_);
-	for(unsigned int alpha(0);alpha<N_;alpha++){
-		compute_T(alpha);
-		diagonalize_T('S');
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+alpha*n_,j) = T_(i,j);
-			}
-		}
-		T_.set(n_,n_,0.0);
-	}
-}
+	Triangle<double>(param,"triangle-mu")
+{}
 
 TriangleMu::~TriangleMu(){}
 
@@ -47,7 +34,23 @@ void TriangleMu::compute_T(unsigned int alpha){
 	T_ += T_.transpose();
 }
 
+void TriangleMu::create(double mu){
+	mu_ = mu;
+	for(unsigned int alpha(0);alpha<N_;alpha++){
+		compute_T(alpha);
+		diagonalize_T('S');
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+alpha*n_,j) = T_(i,j);
+			}
+		}
+		T_.set(n_,n_,0.0);
+	}
+}
+
 void TriangleMu::save(){
+	filename_ += "-mu" + tostring(mu_);
+
 	Write w(filename_+".jdbin");
 	RST rst;
 	rst.text("Stripe order : each color lives on its own sublattice");
@@ -66,6 +69,11 @@ void TriangleMu::save(){
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
+}
+
+void TriangleMu::get_param(Container& param){
+	GenericSystem<double>::get_param(param);
+	param.set("mu",mu_);
 }
 
 void TriangleMu::study(){

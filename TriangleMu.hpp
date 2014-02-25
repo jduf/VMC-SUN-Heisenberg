@@ -8,8 +8,10 @@ class TriangleMu: public Triangle<double>{
 		TriangleMu(Container const& param);
 		~TriangleMu();
 
-		void save();
+		void create(double mu);
 		void study();
+		void save();
+		void get_param(Container& param);
 
 	protected:
 		double mu_;

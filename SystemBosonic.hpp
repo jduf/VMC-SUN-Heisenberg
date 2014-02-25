@@ -32,7 +32,6 @@ class SystemBosonic : public System<Type>{
 		Type ratio();
 
 		void print();
-		void correlation(Matrix<unsigned int>* corr);
 
 	private:
 		/*!Forbids copy constructor*/
@@ -126,17 +125,6 @@ Type SystemBosonic<Type>::ratio(){
 			}
 		}
 		return exp(jastrow)*omegab_a;
-	}
-}
-
-template<typename Type> 
-void SystemBosonic<Type>::correlation(Matrix<unsigned int>* corr){
-	for(unsigned int i(0);i<this->n_;i++){
-		for(unsigned int j(0);j<nn_.col();j++){
-			if(this->s_(i,0) == this->s_(nn_(i,j),0)){
-				(*corr)(i,j)++;
-			}
-		}
 	}
 }
 

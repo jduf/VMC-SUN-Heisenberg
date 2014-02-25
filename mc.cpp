@@ -2,55 +2,54 @@
 
 #include "Parseur.hpp"
 #include "MonteCarlo.hpp"
-#include "ExtractSystem.hpp"
+#include "CreateSystem.hpp"
 
-void save(Container const& param, Container const& output, Write& w);
+void save(Container const& param, Container const& result, Write& w);
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	std::string filename(P.get<std::string>("sim"));
 	unsigned int nthreads(1);
-	if(!P.status()){
-		Container input;
-		Container param(true);
-		ExtractSystem system(filename);
-		input.set("filename",filename);
-		Write results(filename+".dat");
+	P.get("nthreads",nthreads);
+	Container input;
+	if(P.check("t_max")){
+		input.set("t_max",P.get<unsigned int>("t_max"));
+	}
 
-		P.get("nthreads",nthreads);
-		if(P.check("t_max")){
-			input.set("t_max",P.get<unsigned int>("t_max"));
-		}
-		system.extract(input,param);
+	CreateSystem CS(P);
+	Container param(true);
+	CS.get_input(input);
+	CS.get_param(param);
+	Write file("bla.dat");
 
-		if( system.use_complex() ){
+	if( CS.use_complex() ){
 #pragma omp parallel num_threads(nthreads)
-			{
-				MonteCarlo<std::complex<double> > sim(input);
-				sim.run(1,1e5);
-				save(param,sim.save(),results);
-			}
-		} else {
-#pragma omp parallel num_threads(nthreads)
-			{
-				MonteCarlo<double> sim(input);
-				sim.run(1,1e5);
-				save(param,sim.save(),results);
-			}
+		{
+			MonteCarlo<std::complex<double> > sim(input);
+			sim.run(1,1e5);
+			Container result(true);
+			sim.save(result);
+			save(param,result,file);
 		}
 	} else {
-		fprintf(stderr,"main : ./mc -sim filename.jdbin -nthreads n\n");
+#pragma omp parallel num_threads(nthreads)
+		{
+			MonteCarlo<double> sim(input);
+			sim.run(1,1e5);
+			Container result(true);
+			sim.save(result);
+			save(param,result,file);
+		}
 	}
 }
 
-void save(Container const& param, Container const& output, Write& w){
+void save(Container const& param, Container const& result, Write& w){
 	w<<"%";
 	for(unsigned int i(0);i<param.size();i++){
 		w<<param.name(i)<<" ";
 	}
-	for(unsigned int i(0);i<output.size();i++){
-		w<<output.name(i)<<" ";
+	for(unsigned int i(0);i<result.size();i++){
+		w<<result.name(i)<<" ";
 	}
 	w<<Write::endl;
-	w<<param<<" "<<output<<Write::endl;
+	w<<param<<" "<<result<<Write::endl;
 }

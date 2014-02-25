@@ -8,23 +8,42 @@ ChainTrimerized::ChainTrimerized(Container const& param):
 
 ChainTrimerized::~ChainTrimerized(){}
 
-void ChainTrimerized::compute_T(Vector<double> const& t){
-	unsigned int npuc(t.size()+1);
-	t_.set(npuc);
-	t_(0) = 1.0;
-	for(unsigned int i(1); i<npuc;i++){
-		t_(i) = t(i-1);
+void ChainTrimerized::create(Vector<double> const& t){
+	a_ = t.size();
+	t_= t;
+	compute_T();
+	diagonalize_T('S');
+	if(degenerate_){
+		bc_ = -1;
+		T_.set(n_,n_,0.0);
+		compute_T();
+		diagonalize_T('S');
 	}
-	T_.set(n_,n_,0);
-	for(unsigned int i(0); i < n_-npuc; i += npuc){
-		for(unsigned int j(0); j<npuc; j++){
-			T_(i+j,i+j+1) = t_(j);
+	if(degenerate_){
+		bc_ = 1;
+		T_.set(n_,n_,0.0);
+		compute_T();
+		diagonalize_T('S');
+		filename_ += "-degenerate";
+	}
+	for(unsigned int spin(0);spin<N_;spin++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+spin*n_,j) = T_(i,j);
+			}
 		}
 	}
-	for(unsigned int i(0); i< npuc-1; i++){
-		T_(n_-npuc+i,n_-npuc+i+1) = bc_*t_(i);
+}
+
+void ChainTrimerized::compute_T(){
+	Vector<unsigned int> neighbourg;
+	for(unsigned int i(0); i < n_; i += a_){
+		for(unsigned int j(0); j<a_; j++){
+			neighbourg = get_neighbourg(i+j);
+			T_(i+j,neighbourg(0)) = t_(j);
+		}
 	}
-	T_(n_-1,0) = t_(npuc-1);
+	T_(n_-1,0) = bc_*t_(a_-1);
 	T_ += T_.transpose();
 }
 
@@ -55,26 +74,7 @@ void ChainTrimerized::save(){
 	w("bc (boundary condition)",bc_);
 }
 
-void ChainTrimerized::properties(Container& c){
-	c.set("ref",ref_);
-	c.set("n",n_);
-	c.set("N",N_);
-	c.set("m",m_);
-	c.set("M",M_);
-	c.set("sts",sts_);
-	c.set("t",t_);
-	c.set("EVec",EVec_);
-	c.set("bc",bc_);
-}
-
-void ChainTrimerized::create(Vector<double> const& t){
-	compute_T(t);
-	diagonalize_T('S');
-	for(unsigned int spin(0);spin<N_;spin++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+spin*n_,j) = T_(i,j);
-			}
-		}
-	}
+void ChainTrimerized::get_param(Container& param){
+	GenericSystem<double>get_param(param);
+	param.set("t",t_);
 }

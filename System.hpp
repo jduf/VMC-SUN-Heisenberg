@@ -45,7 +45,6 @@ class System{
 		//}
 		void measure(double& E_step, Vector<double>& corr_step);
 
-		virtual void correlation(Matrix<unsigned int>* corr);
 		virtual void print()=0;
 
 		unsigned int n_;//!< sites' number
@@ -90,12 +89,12 @@ System<Type>::~System(){
 
 template<typename Type>
 unsigned int System<Type>::init(Container const& input, unsigned int const& thread){
+	sts_ = input.get<Matrix<unsigned int> >("sts");
 	n_ = input.get<unsigned int>("n");
 	N_ = input.get<unsigned int>("N");
 	m_ = input.get<unsigned int>("m");
-	M_ = input.get<unsigned int>("M");
 
-	sts_ = input.get<Matrix<unsigned int> >("sts");
+	M_ = (m_*n_)/N_;
 	s_.set(n_,m_);
 
 	rnd = new Rand(100,thread);
@@ -155,15 +154,14 @@ void System<Type>::measure(double& E_step, Vector<double>& corr_step){
 		for(unsigned int p0(0); p0<m_; p0++){
 			for(unsigned int p1(0); p1<m_; p1++){
 				swap(sts_(i,0),sts_(i,1),p0,p1);
-				r = real(ratio());
-				if(!is_new_state_forbidden()){ E_step += r; }
-				corr_step(i) += r;
+				if(!is_new_state_forbidden()){ 
+					r = real(ratio());
+					E_step += r; 
+					corr_step(i) += r;
+				}
 			}
 		}
 	}
 }
-
-template<typename Type>
-void System<Type>::correlation(Matrix<unsigned int>* corr){if(corr){std::cerr<<"correlation not defined for System"<<std::endl;}}
 /*}*/
 #endif

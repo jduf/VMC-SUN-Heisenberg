@@ -8,8 +8,10 @@ class TrianglePhi: public Triangle<std::complex<double> >{
 		TrianglePhi(Container const& param);
 		~TrianglePhi();
 
-		void save();
+		void create(double phi);
 		void study();
+		void save();
+		void get_param(Container& param);
 
 	protected:
 		double phi_;

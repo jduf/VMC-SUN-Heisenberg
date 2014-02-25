@@ -2,17 +2,7 @@
 
 TriangleFermi::TriangleFermi(Container const& param):
 	Triangle<double>(param,"triangle-fermi")
-{
-	compute_T();
-	diagonalize_T('S');
-	for(unsigned int spin(0);spin<N_;spin++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+spin*n_,j) = T_(i,j);
-			}
-		}
-	}
-}
+{}
 
 TriangleFermi::~TriangleFermi(){}
 
@@ -37,6 +27,18 @@ void TriangleFermi::compute_T(){
 		}
 	}
 	T_ += T_.transpose();
+}
+
+void TriangleFermi::create(double x){
+	compute_T();
+	diagonalize_T('S');
+	for(unsigned int spin(0);spin<N_;spin++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+spin*n_,j) = T_(i,j);
+			}
+		}
+	}
 }
 
 void TriangleFermi::save(){

@@ -11,24 +11,19 @@ class Chain: public GenericSystem<Type>{
 
 	protected:
 		Vector<unsigned int> get_neighbourg(unsigned int i);
+		unsigned int a_;//vector of the unit cell
 };
 
 template<typename Type>
 Chain<Type>::Chain(Container const& param, std::string filename):
-	GenericSystem<Type>(param,2,filename)
+	GenericSystem<Type>(param,2,filename),
+	a_(param.get<unsigned int>("a"))
 {
 	this->compute_sts();
-	if(this->M_ % 2 == 0){ 
-		this->filename_ += "-A";
-		this->bc_ = -1;
-	} else {
-		this->filename_ += "-P";
-		this->bc_ = 1;
-	}
 }
 
 template<typename Type>
-Chain<Type>::~Chain(){ }
+Chain<Type>::~Chain(){}
 
 template<typename Type>
 Vector<unsigned int> Chain<Type>::get_neighbourg(unsigned int i){

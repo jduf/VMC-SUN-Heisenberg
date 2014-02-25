@@ -8,6 +8,8 @@ class HoneycombSU3: public Honeycomb<double>{
 		HoneycombSU3(Container const& param);
 		~HoneycombSU3();
 
+		void create(double x);
+		void study();
 		void save();
 
 	protected:

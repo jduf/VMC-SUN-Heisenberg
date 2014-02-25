@@ -5,20 +5,9 @@ HoneycombSU3::HoneycombSU3(Container const& param):
 {
 	if(bc_ == 1){ filename_ += "-P";} 
 	else { filename_ += "-A";}
-	if(N_ != 3){
-		if(M_==Ly_*Lx_){
-			compute_T();
-			diagonalize_T('S');
-			for(unsigned int spin(0);spin<N_;spin++){
-				for(unsigned int i(0);i<n_;i++){
-					for(unsigned int j(0);j<M_;j++){
-						EVec_(i+spin*n_,j) = T_(i,j);
-					}
-				}
-			}
-		} else {
-			std::cerr<<"HoneycombSU4 : the cluster is not a square"<<std::endl;
-		}
+	if(N_ != 3 || M_==Ly_*Lx_){
+		std::cerr<<"HoneycombSU4 : the cluster is not a square"<<std::endl;
+		std::cerr<<"HoneycombSU4 : N!=3"<<std::endl;
 	}
 }
 
@@ -56,6 +45,18 @@ void HoneycombSU3::compute_T(){
 	T_ += T_.transpose();
 }
 
+void HoneycombSU3::create(double x){
+	compute_T();
+	diagonalize_T('S');
+	for(unsigned int spin(0);spin<N_;spin++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+spin*n_,j) = T_(i,j);
+			}
+		}
+	}
+}
+
 void HoneycombSU3::save(){
 	Write w(filename_+".jdbin");
 	std::cerr<<"detail what kind of honeycomb it is"<<std::endl;
@@ -76,4 +77,3 @@ void HoneycombSU3::save(){
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
 }
-

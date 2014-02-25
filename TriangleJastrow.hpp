@@ -8,8 +8,11 @@ class TriangleJastrow: public Triangle<double>{
 		TriangleJastrow(Container const& param);
 		~TriangleJastrow();
 
-		void properties(Container& c);
+		void create(double x);
+		void study();
 		void save();
+		void get_input(Container& input);
+
 		void lattice(Matrix<unsigned int> const& lat);
 
 	protected:

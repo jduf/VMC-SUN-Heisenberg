@@ -1,12 +1,12 @@
-#ifndef DEF_CHAINDIMERIZED
-#define DEF_CHAINDIMERIZED
+#ifndef DEF_CHAINPOLYMERIZED
+#define DEF_CHAINPOLYMERIZED
 
 #include "Chain.hpp"
 
-class ChainDimerized: public Chain<double> {
+class ChainPolymerized: public Chain<double> {
 	public:
-		ChainDimerized(Container const& param);
-		~ChainDimerized();
+		ChainPolymerized(Container const& param);
+		~ChainPolymerized();
 
 		void create(double delta);
 		void study();

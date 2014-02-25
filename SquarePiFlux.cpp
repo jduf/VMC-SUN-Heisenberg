@@ -2,17 +2,7 @@
 
 SquarePiFlux::SquarePiFlux(Container const& param):
 	Square<std::complex<double> >(param,"square-csl")
-{
-	compute_T();
-	diagonalize_T('H');
-	for(unsigned int spin(0);spin<N_;spin++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+spin*n_,j) = T_(i,j);
-			}
-		}
-	}
-}
+{}
 
 SquarePiFlux::~SquarePiFlux(){}
 
@@ -31,6 +21,18 @@ void SquarePiFlux::compute_T(){
 	std::cerr<<"SquarePiFlux : compute_EVec : new use of polar, check that it is correct"<<std::endl;
 	std::cerr<<"                            : modified the flux disposition..."<<std::endl;
 	T_ += T_.trans_conj(); 
+}
+
+void SquarePiFlux::create(double x){
+	compute_T();
+	diagonalize_T('H');
+	for(unsigned int spin(0);spin<N_;spin++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+spin*n_,j) = T_(i,j);
+			}
+		}
+	}
 }
 
 void SquarePiFlux::save(){

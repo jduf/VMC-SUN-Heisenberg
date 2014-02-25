@@ -140,7 +140,11 @@ void ExtractSystem::extract(Container& input, Container& param){
 							switch(ref(2)) {
 								case 0:{}break;
 								case 1:{file.extract<double>("delta",param); }break;
-								case 3:{file.extract<Vector<double> >("t",param); }break;
+								case 2:{file.extract<Vector<double> >("t",param); }break;
+								case 3:{
+										   file.extract<double>("delta",param); 
+										   file.extract<unsigned int>("a",param); 
+									   }break;
 								default:{std::cerr<<"ref = ["<<ref(0)<<ref(1)<<ref(2)<<"] unknown"<<std::endl;}break;
 							}
 							file.extract<Matrix<double> >("EVec",input);

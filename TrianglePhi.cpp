@@ -1,20 +1,8 @@
 #include "TrianglePhi.hpp"
 
 TrianglePhi::TrianglePhi(Container const& param):
-	Triangle<std::complex<double> >(param,"triangle-phi"),
-	phi_(param.get<double>("phi"))
-{
-	filename_ += "-phi" + tostring(phi_);
-	compute_T();
-	diagonalize_T('H');
-	for(unsigned int color(0);color<N_;color++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+color*n_,j) = T_(i,j);
-			}
-		}
-	}
-}
+	Triangle<std::complex<double> >(param,"triangle-phi")
+{}
 
 TrianglePhi::~TrianglePhi(){}
 
@@ -55,7 +43,22 @@ void TrianglePhi::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::compl
 	}
 }
 
+void TrianglePhi::create(double phi){
+	phi_=phi;
+	compute_T();
+	diagonalize_T('H');
+	for(unsigned int color(0);color<N_;color++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+color*n_,j) = T_(i,j);
+			}
+		}
+	}
+}
+
 void TrianglePhi::save(){
+	filename_ += "-phi" + tostring(phi_);
+
 	Write w(filename_+".jdbin");
 	RST rst;
 	rst.text("phi-flux : each neighbouring triangle has a flux of opposite sign");
@@ -74,6 +77,11 @@ void TrianglePhi::save(){
 	w("bc (boundary condition)",bc_);
 	w("Lx (x-dimension)",Lx_);
 	w("Ly (y-dimension)",Ly_);
+}
+
+void TrianglePhi::get_param(Container& param){
+	GenericSystem<std::complex<double> >::get_param(param);
+	param.set("phi_",phi_);
 }
 
 void TrianglePhi::study(){
