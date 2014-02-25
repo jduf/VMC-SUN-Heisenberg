@@ -50,6 +50,10 @@ class Vector{
 		/*!Multiplies two vectors and get a matrix*/
 		Matrix<Type> operator^(Vector<Type> const& vec) const;
 
+		/*!Devides a vectors by a scalar*/
+		Vector<Type>& operator/=(Type const& d);
+		Vector<Type> operator/(Type const& d) const;
+
 		/*!Set the whole Vector to val*/
 		void set(unsigned int N, Type const& val);
 		/*!Set the whole Vector to val*/
@@ -64,6 +68,7 @@ class Vector{
 		Vector<unsigned int> sort();
 		Vector<Type> sort(Vector<unsigned int> const& index) const;
 		bool is_sorted() const;
+		Type max(unsigned int & index=0) const;
 
 		/*!Returns the pointer to the Vector*/
 		Type* ptr() const { return m_; }
@@ -209,6 +214,21 @@ std::istream& operator>>(std::istream& flux, Vector<Type>& vec){
 	}
 	return flux;
 }
+
+template<typename Type>
+Vector<Type>& Vector<Type>::operator/=(Type const& d){
+	for(unsigned int i(0);i<N_;i++){
+		m_[i] /= d; 
+	}
+	return (*this);
+}
+
+template<typename Type>
+Vector<Type> Vector<Type>::operator/(Type const& d) const{
+	Vector<Type> tmp(*this);
+	tmp /= d;
+	return tmp;
+}
 /*}*/
 
 /*methods that modify the class*/
@@ -264,6 +284,19 @@ Vector<Type> Vector<Type>::range(unsigned int min, unsigned int max) const {
 		out(i) = m_[min+i];
 	}
 	return out;
+}
+
+template<typename Type>
+Type Vector<Type>::max(unsigned int& index) const {
+	std::cerr<<"Vector<Type>::max(index) has never been checked"<<std::endl;
+	Type m(m_[0]);
+	for(unsigned int i(1);i<N_;i++){
+		if(m<m_[i]){
+			m=m_[i];
+			index=i;
+		}
+	}
+	return m;
 }
 
 /*Sort*/

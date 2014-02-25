@@ -7,7 +7,10 @@ LDFLAGS =  -pedantic -Wall -Wextra -fopenmp
 
 all:test 
 
-test.o:test.cpp PSO.hpp FuncPSO.hpp Function.hpp Parseur.hpp Rand.hpp Time.hpp Write.hpp Header.hpp
+test.o:test.cpp PSO.hpp FuncPSO.hpp Function.hpp Parseur.hpp Rand.hpp Time.hpp Write.hpp Header.hpp Read.hpp
+	$(CXX) -c  $(CXXFLAGS) $^
+
+PSO.o:PSO.cpp PSO.hpp Read.hpp Write.hpp Rand.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
 Read.o:Read.cpp Read.hpp Header.hpp Matrix.hpp
@@ -28,7 +31,7 @@ RST.o:RST.cpp RST.hpp
 Parseur.o:Parseur.cpp Parseur.hpp
 	$(CXX) -c  $(CXXFLAGS) $^
 
-test:test.o Parseur.o Rand.o Write.o Header.o RST.o
+test:test.o Parseur.o Rand.o Write.o Header.o RST.o PSO.o Read.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 ref:

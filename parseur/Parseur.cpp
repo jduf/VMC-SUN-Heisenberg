@@ -21,12 +21,9 @@ Parseur::Parseur(unsigned int argc, char* argv[], unsigned int N_default):
 		for(unsigned int i(2*N_default+1);i<argc;i++){
 			val.push_back(argv[i]);
 		}
-		//for(unsigned int i(0); i<val.size();i++){
-			//std::cout<<val[i]<<std::endl;
-		//}
 	} else {
 		locked=true;
-			std::cerr<<"warning : Parseur : you should give "<< N_default<<" arguments"<<std::endl;
+		std::cerr<<"warning : Parseur : you should give "<< N_default<<" arguments"<<std::endl;
 	}
 }
 
@@ -55,11 +52,7 @@ void Parseur::init(unsigned int N, char* argv[]){
 	}
 }
 
-bool Parseur::check(std::string pattern){
-	unsigned int i(0);
-	while(i<var.size()){
-		if(var[i]==pattern){ return true; }
-		else { i++; }
-	}
+bool Parseur::check(std::string pattern) const {
+	for(unsigned int i(0);i<var.size();i++){if(var[i]==pattern){return true;}}
 	return false;
 }

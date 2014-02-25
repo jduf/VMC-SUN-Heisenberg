@@ -1,7 +1,6 @@
 #ifndef GNUPLOT
 #define GNUPLOT
 
-#include"Vector.hpp"
 #include"Write.hpp"
 
 class Gnuplot {

@@ -33,8 +33,8 @@ class Parseur{
 		template<typename Type>
 			Type get(unsigned int i);
 
-		bool check(std::string pattern);
-
+		/*! returns true if variable pattern exists*/
+		bool check(std::string pattern) const;
 		bool status() const {return locked; }
 
 		unsigned int size() const { return val.size();}
@@ -82,15 +82,6 @@ void Parseur::get(std::string pattern, Type &input){
 }
 
 template<typename Type>
-void Parseur::get(unsigned int i, Type &input){
-	if(i<val.size()){
-		input = val[i];
-	} else {
-		std::cerr<<"Parseur : "<<i<<" is bigger than the number of argument given, thus the value is unchanged : "<< input <<std::endl;
-	}
-}
-
-template<typename Type>
 Type Parseur::get(std::string pattern){
 	Type input;
 	if(!search(pattern, input)){ 
@@ -100,6 +91,11 @@ Type Parseur::get(std::string pattern){
 	return input;
 }
 
+template<typename Type>
+void Parseur::get(unsigned int i, Type &input){
+	if(i<val.size()){ input = val[i]; }
+	else{std::cerr<<"Parseur : "<<i<<" is bigger than the number of argument given, thus the value is unchanged : "<< input <<std::endl; }
+}
 
 template<typename Type>
 Type Parseur::get(unsigned int i){

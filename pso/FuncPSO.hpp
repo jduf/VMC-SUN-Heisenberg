@@ -6,7 +6,7 @@
 
 class FuncPSO : public PSO{
 	public:
-		FuncPSO(unsigned int Nparticle, unsigned int Nparam, double cg, double cp);
+		FuncPSO(unsigned int Nparticle, unsigned int Nparam, double cg, double cp, unsigned int maxiter);
 		double f(Vector<double> x);
 
 		void result();
@@ -15,8 +15,8 @@ class FuncPSO : public PSO{
 		double run(Vector<double> const& x);
 };
 
-FuncPSO::FuncPSO(unsigned int Nparticle, unsigned int Nparam, double cg, double cp):
-	PSO(Nparticle,Nparam,cg,cp)
+FuncPSO::FuncPSO(unsigned int Nparticle, unsigned int Nparam, double cg, double cp, unsigned int maxiter):
+	PSO(Nparticle,Nparam,cg,cp,maxiter)
 {}
 
 double FuncPSO::run(Vector<double> const& x){

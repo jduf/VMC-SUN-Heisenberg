@@ -18,7 +18,7 @@ class Time{
 		int min() const { return time_->tm_min;}
 		int sec() const { return time_->tm_sec;}
 
-		bool time_limit_reached(time_t limit) const {
+		bool limit_reached(time_t limit) const {
 			if(time(0)-rawtime_ > limit){return true;}
 			else{return false;}
 		}

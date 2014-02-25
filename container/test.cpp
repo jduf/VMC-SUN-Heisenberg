@@ -28,5 +28,26 @@ int main(int argc,char* argv[]){
 		}
 		std::cout<<std::endl;
 		std::cout<<output<<std::endl;
+
+		std::cout<<"copy input"<<std::endl;
+		Container copyinput(input);
+		std::cout<<"N "<<copyinput.get<unsigned int>("N")<<std::endl;
+		std::cout<<"m "<<copyinput.get<unsigned int>("m")<<std::endl;
+		std::cout<<"sts "<<copyinput.get<Matrix<unsigned int> >("sts")<<std::endl;
+		std::cout<<"nthreads "<<copyinput.get<unsigned int>("nthreads")<<std::endl;
+		
+		//output.reset("k",278);
+		//for(unsigned int i(0);i<output.size();i++){
+			//std::cout<<output.name(i)<<" ";
+		//}
+		//std::cout<<std::endl;
+		//std::cout<<output<<std::endl;
+		//std::cout<<"m "<<output.get<unsigned int>("m")<<std::endl;
+
+		GenericData<double> a("a",23.3);
+		GenericData<double>* b(a.clone());
+		std::cout<<b->get_val()<<std::endl;
+
+
 	}
 }

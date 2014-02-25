@@ -33,6 +33,13 @@ void PSTricks::line(std::string linetype, double x0, double y0, double x1, doubl
 	s_ += "\\psline[" + options + "]{" + linetype + "}(" + tostring(x0) + "," + tostring(y0) + ")(" + tostring(x1) + "," + tostring(y1) + ")\n";
 }
 
+void PSTricks::polygon(Matrix<double> const& xy, std::string options){
+	s_ += "\\pspolygon[" + options + "]";
+	for(unsigned int i(0);i<xy.row();i++){
+		s_ += "(" + tostring(xy(i,0)) + "," + tostring(xy(i,1)) + ")";
+	}
+}
+
 void PSTricks::frame(double x0, double y0, double x1, double y1, std::string options){
 	s_ += "\\psframe[" + options + "](" + tostring(x0) + "," + tostring(y0) + ")(" + tostring(x1) + "," + tostring(y1) + ")\n";
 }
@@ -41,7 +48,7 @@ void PSTricks::put(double x, double y, std::string s){
 	s_ += "\\rput("+tostring(x)+","+tostring(y)+"){"+s+"}\n";
 }
 
-void PSTricks::pie(Vector<double> x, double r, std::string options){
+void PSTricks::pie(Vector<double> const& x, double r, std::string options){
 	s_ += "\\psChart["+options+",linestyle=none]{";
 	for(unsigned int i(0); i<x.size(); i++){
 		s_ += tostring(x(i));
