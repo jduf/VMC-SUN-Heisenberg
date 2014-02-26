@@ -2,7 +2,9 @@
 
 SquareFermi::SquareFermi(Container const& param):
 	Square<double>(param,"square-fermi")
-{}
+{
+	rst_.text("Fermi : all colors experience the same Hamiltonian");
+}
 
 SquareFermi::~SquareFermi(){}
 
@@ -31,26 +33,6 @@ void SquareFermi::create(double x){
 			}
 		}
 	}
-}
-
-void SquareFermi::save(){
-	Write w(filename_+".jdbin");
-	RST rst;
-	rst.text("fermi : all colors experience the same Hamiltonian");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("ref (wave function)",ref_);
-	w("n (particles' number)",n_);
-	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("M (particles' number of each color)",M_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
 }
 
 void SquareFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){

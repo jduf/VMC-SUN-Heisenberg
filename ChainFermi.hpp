@@ -5,12 +5,11 @@
 
 class ChainFermi: public Chain<double>{
 	public:
-		ChainFermi(Container const& P);
+		ChainFermi(unsigned int N, unsigned int n, unsigned int m);
 		~ChainFermi();
 
 		void create(double x=0);
 		void study();
-		void save();
 
 	private:
 		void compute_P(Matrix<double>& P);

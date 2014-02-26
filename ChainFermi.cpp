@@ -1,8 +1,10 @@
 #include"ChainFermi.hpp"
 
-ChainFermi::ChainFermi(Container const& param):
-	Chain<double>(param,"chain-fermi")
-{}
+ChainFermi::ChainFermi(unsigned int N, unsigned int n, unsigned int m):
+	Chain<double>(N,n,m,"chain-fermi")
+{
+	rst_.text("Spin ChainFermi, all the hopping parameters are real");
+}
 
 ChainFermi::~ChainFermi(){}
 
@@ -33,22 +35,4 @@ void ChainFermi::compute_P(Matrix<double>& P){
 	for(unsigned int i(0); i< n_-1; i++){
 		P(i,i+1) = 1.0;
 	}
-}
-
-void ChainFermi::save(){
-	Write w(filename_+".jdbin");
-	RST rst;
-	rst.text("Spin ChainFermi, all the hopping parameters are real");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("ref (wave function)",ref_);
-	w("n (particles' number)",n_);
-	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("M (particles' number of each color)",M_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
-	w("bc (boundary condition)",bc_);
 }

@@ -10,79 +10,37 @@ CXXFLAGS = $(LAPACK) $(ERRORS) $(OPTION)
 
 LDFLAGS  = $(LAPACK) $(ERRORS) $(OPTION)
 
-all:mc cs check min
-	cp mc cs check min ../sim
-
-##############
-# minimization
-##############
-min:min.o Minimization.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o PSTricks.o CreateSystem.o ChainFermi.o ChainDimerized.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Write.o Read.o TriangleFermi.o TriangleMu.o TrianglePhi.o Container.o ChainPolymerized.o
-	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
-
-min.o:min.cpp Minimization.hpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOFermionic.hpp
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
-
-Minimization.o:Minimization.cpp  Minimization.hpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOFermionic.hpp
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
-
-#############################
-# particle-swarm optimisation For fermionic thing
-#############################
-pso:pso.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o PSTricks.o PSO.o PSOFermionic.o CreateSystem.o ChainFermi.o ChainDimerized.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Write.o Read.o TriangleFermi.o TriangleMu.o TrianglePhi.o Container.o ChainPolymerized.o
-	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
-
-pso.o:pso.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOFermionic.hpp
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
-
-PSOFermionic.o:PSOFermionic.cpp PSOFermionic.hpp PSO.hpp MonteCarlo.hpp CreateSystem.hpp
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
-
-#############################
-# particle-swarm optimisation
-#############################
-psomc:psomc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o SquareJastrow.o TriangleJastrow.o Container.o PSTricks.o PSO.o PSOMonteCarlo.o
-	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
-
-psomc.o:psomc.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
-
-PSO.o:PSO.cpp PSO.hpp Rand.hpp Write.hpp Read.hpp
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
-
-PSOMonteCarlo.o:PSOMonteCarlo.cpp PSOMonteCarlo.hpp PSO.hpp MonteCarlo.hpp SquareJastrow.hpp TriangleJastrow.hpp
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
-
-#######
-# mc nu
-#######
-mcnu:mcnu.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o SquareJastrow.o TriangleJastrow.o PSTricks.o
-	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
-
-mcnu.o:mcnu.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp TriangleJastrow.hpp
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+all:mc min
+	cp mc min ../sim
 
 #############
 # monte-carlo
 #############
-mc:mc.o Parseur.o CreateSystem.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o ChainFermi.o ChainPolymerized.o ChainDimerized.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o TriangleJastrow.o
+mc:mc.o CreateSystem.o ChainFermi.o ChainPolymerized.o SquarePiFlux.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-mc.o:mc.cpp Parseur.hpp ExtractSystem.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp
+mc.o:mc.cpp CreateSystem.hpp MonteCarlo.hpp System.hpp SystemBosonic.hpp SystemFermionic.hpp Chain.hpp ChainPolymerized.hpp ChainFermi.hpp Square.hpp SquarePiFlux.hpp Parseur.hpp Vector.hpp Matrix.hpp Lapack.hpp Read.hpp Write.hpp RST.hpp Header.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
 Rand.o:Rand.cpp Rand.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
-########
-# create
-########
-cs:cs.o CreateSystem.o ChainFermi.o ChainPolymerized.o ChainDimerized.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Parseur.o Write.o Read.o Lapack.o RST.o Header.o Gnuplot.o PSTricks.o TriangleFermi.o TriangleMu.o TrianglePhi.o Container.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+##############
+# minimization
+##############
+min:min.o CreateSystem.o ChainFermi.o ChainPolymerized.o SquarePiFlux.o Minimization.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-cs.o:cs.cpp CreateSystem.hpp GenericSystem.hpp Parseur.hpp Chain.hpp ChainFermi.hpp ChainPolymerized.hpp ChainDimerized.hpp Square.hpp Honeycomb.hpp Triangle.hpp Write.hpp Read.hpp Header.hpp RST.hpp Container.hpp
-	$(CXX) -c $(CXXFLAGS) $^
+min.o:min.cpp Minimization.hpp CreateSystem.hpp MonteCarlo.hpp System.hpp SystemBosonic.hpp SystemFermionic.hpp Chain.hpp ChainPolymerized.hpp ChainFermi.hpp Square.hpp SquarePiFlux.hpp Parseur.hpp Vector.hpp Matrix.hpp Lapack.hpp Read.hpp Write.hpp Write.hpp RST.hpp Header.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
-CreateSystem.o:CreateSystem.cpp CreateSystem.hpp GenericSystem.hpp  Parseur.hpp Chain.hpp ChainFermi.hpp ChainDimerized.hpp ChainPolymerized.hpp Square.hpp Honeycomb.hpp Triangle.hpp Write.hpp Read.hpp Header.hpp RST.hpp Container.hpp
+Minimization.o:Minimization.cpp Minimization.hpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
+##############
+# systems
+##############
+CreateSystem.o:CreateSystem.cpp CreateSystem.hpp GenericSystem.hpp Parseur.hpp Chain.hpp ChainFermi.hpp ChainPolymerized.hpp 
 	$(CXX) -c $(CXXFLAGS) $^
 
 ChainFermi.o:ChainFermi.cpp ChainFermi.hpp Chain.hpp GenericSystem.hpp Container.hpp
@@ -127,29 +85,14 @@ HoneycombSU4.o:HoneycombSU4.cpp HoneycombSU4.hpp Honeycomb.hpp GenericSystem.hpp
 HoneycombSU3.o:HoneycombSU3.cpp HoneycombSU3.hpp Honeycomb.hpp GenericSystem.hpp  Container.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
+########
+# commun
+########
 Gnuplot.o:Gnuplot.cpp Gnuplot.hpp Write.hpp RST.hpp Header.hpp Time.hpp Matrix.hpp Vector.hpp
 	$(CXX) -c $(CXXFLAGS) $^
 
 PSTricks.o:PSTricks.cpp PSTricks.hpp Write.hpp Linux.hpp Vector.hpp
 	$(CXX) -c $(CXXFLAGS) $^
-
-#######
-# check
-#######
-check:check.o ExtractSystem.o Read.o Header.o RST.o Write.o Container.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-check.o:check.cpp ExtractSystem.hpp
-	$(CXX) -c $(CXXFLAGS) $^
-	
-########
-# commun
-########
-ExtractSystem.o:ExtractSystem.cpp ExtractSystem.hpp Container.hpp
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
-
-Container.o:Container.cpp Container.hpp 
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
 Parseur.o:Parseur.cpp Parseur.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
@@ -169,9 +112,57 @@ RST.o:RST.cpp RST.hpp
 Lapack.o:Lapack.cpp Lapack.hpp Matrix.hpp Vector.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
+#############################
+# particle-swarm optimisation For fermionic thing
+#############################
+pso:pso.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o PSTricks.o PSO.o PSOFermionic.o CreateSystem.o ChainFermi.o ChainDimerized.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Write.o Read.o TriangleFermi.o TriangleMu.o TrianglePhi.o Container.o ChainPolymerized.o
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+
+pso.o:pso.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOFermionic.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
+PSOFermionic.o:PSOFermionic.cpp PSOFermionic.hpp PSO.hpp MonteCarlo.hpp CreateSystem.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
+#############################
+# particle-swarm optimisation
+#############################
+psomc:psomc.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o SquareJastrow.o TriangleJastrow.o Container.o PSTricks.o PSO.o PSOMonteCarlo.o
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+
+psomc.o:psomc.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
+PSO.o:PSO.cpp PSO.hpp Rand.hpp Write.hpp Read.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
+PSOMonteCarlo.o:PSOMonteCarlo.cpp PSOMonteCarlo.hpp PSO.hpp MonteCarlo.hpp SquareJastrow.hpp TriangleJastrow.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
+#######
+# mc nu
+#######
+mcnu:mcnu.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o SquareJastrow.o TriangleJastrow.o PSTricks.o
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+
+mcnu.o:mcnu.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp TriangleJastrow.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
 ########
-# divers
+# useless
 ########
+ExtractSystem.o:ExtractSystem.cpp ExtractSystem.hpp Container.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
+Container.o:Container.cpp Container.hpp 
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
+check:check.o ExtractSystem.o Read.o Header.o RST.o Write.o Container.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+check.o:check.cpp ExtractSystem.hpp
+	$(CXX) -c $(CXXFLAGS) $^
+
 clean:
 	rm *.o *.gch mc cs check psomc mcnu
 

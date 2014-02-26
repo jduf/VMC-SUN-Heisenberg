@@ -1,13 +1,17 @@
 #include"ChainPolymerized.hpp"
 
-ChainPolymerized::ChainPolymerized(Container const& param):
-	Chain<double>(param,"chain-Polymerized")
-{}
+ChainPolymerized::ChainPolymerized(unsigned int N, unsigned int n, unsigned int m):
+	Chain<double>(N,n,m,"chain-polymerized")
+{
+	rst_.text("Spin chain, with different hopping term on the odd and even sites");
+}
 
 ChainPolymerized::~ChainPolymerized(){}
 
 void ChainPolymerized::create(double delta){
+	filename_ += "-delta" + tostring(delta);
 	delta_=delta;
+
 	compute_T();
 	diagonalize_T('S');
 	for(unsigned int spin(0);spin<N_;spin++){
@@ -42,30 +46,7 @@ void ChainPolymerized::compute_P(Matrix<double>& P){
 	}
 }
 
-void ChainPolymerized::save(){
-	filename_ += "-delta" + tostring(delta_);
-	filename_ += "-a" + tostring(a_);
-
-	Write w(filename_+".jdbin");
-	RST rst;
-	rst.text("Spin chain, with different hopping term on the odd and even sites");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("ref (wave function)",ref_);
-	w("n (particles' number)",n_);
-	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("M (particles' number of each color)",M_);
-	w("sts (connected sites)",sts_);
+void ChainPolymerized::save(Write& w){
+	GenericSystem<double>::save(w);
 	w("delta (t+-delta)",delta_);
-	w("a (unit vector)",a_);
-	w("EVec (unitary matrix)",EVec_);
-	w("bc (boundary condition)",bc_);
-}
-
-void ChainPolymerized::get_param(Container& param){
-	GenericSystem<double>::get_param(param);
-	param.set("delta",delta_);
 }

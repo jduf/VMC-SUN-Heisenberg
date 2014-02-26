@@ -1,19 +1,14 @@
 #ifndef DEF_SYSTEM
 #define DEF_SYSTEM
 
+#include "CreateSystem.hpp"
 #include "Rand.hpp"
-#include "Container.hpp"
 
 /*!Class that contains the information on the state*/
 template<typename Type>
 class System{
 	public:
 		/*!create a System without any parameters set*/
-		System();
-
-		/*!delete all the variables dynamically allocated*/
-		virtual ~System();
-
 		//{Description
 		/*! Creates the system in function of the input parameters.
 		 *
@@ -22,7 +17,10 @@ class System{
 		 * - allocates memory Ainv_
 		 * - initialize the random number generator
 		 */ //}
-		virtual unsigned int init(Container const& input, unsigned int const& thread);
+		System(CreateSystem const& CS, unsigned int const& thread);
+
+		/*!delete all the variables dynamically allocated*/
+		virtual ~System();
 
 		/*!Exchanges two particles of different color */
 		virtual void swap();
@@ -47,13 +45,8 @@ class System{
 
 		virtual void print()=0;
 
-		unsigned int n_;//!< sites' number
-		unsigned int N_;//!< colors' number
-		unsigned int m_;//!< particles per site' number
-		unsigned int M_;//!< particles' number of each color
-
-		Matrix<unsigned int> s_;//!< on the site i : s(i,0)=color, s(i,1)=row
-		Matrix<unsigned int> sts_;//!< sts_(i,0) is a site that can be exchanged with sts_(i,1)
+		unsigned int get_status() const {return status_;}
+		unsigned int get_n() const {return n_;}
 
 	protected:
 		/*!Forbids copy constructor*/
@@ -61,11 +54,21 @@ class System{
 		/*!Forbids assignment operator*/
 		System& operator=(System const& S);
 
-		Rand* rnd;				//!< generator of random numbers 
-
 		unsigned int new_c[2];	//!< colors of the exchanged sites
 		unsigned int new_s[2];	//!< sites that are exchanged
 		unsigned int new_p[2];	//!< sites that are exchanged
+
+		unsigned int const N_;//!< colors' number
+		unsigned int const n_;//!< sites' number
+		unsigned int const m_;//!< particles per site' number
+		unsigned int const M_;//!< particles' number of each color
+
+		unsigned int status_;
+
+		Matrix<unsigned int> s_;//!< on the site i : s(i,0)=color, s(i,1)=row
+		Matrix<unsigned int> sts_;//!< sts_(i,0) is a site that can be exchanged with sts_(i,1)
+
+		Rand* rnd_;				//!< generator of random numbers 
 
 	private:
 		bool is_new_state_forbidden();
@@ -74,32 +77,23 @@ class System{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-System<Type>::System():
-	n_(0),
-	N_(0),
-	m_(0),
-	M_(0),
-	rnd(NULL)
-{ }
+System<Type>::System(CreateSystem const& CS, unsigned int const& thread):
+	N_(CS.get_N()),
+	n_(CS.get_n()),
+	m_(CS.get_m()),
+	M_((m_*n_)/N_),
+	status_(1),
+	s_(n_,m_),
+	sts_(CS.get_sts()),
+	rnd_(new Rand(100,thread))
+{}
 
 template<typename Type>
 System<Type>::~System(){
-	if(rnd){delete rnd;}
+	if(rnd_){delete rnd_;}
+
 }
 
-template<typename Type>
-unsigned int System<Type>::init(Container const& input, unsigned int const& thread){
-	sts_ = input.get<Matrix<unsigned int> >("sts");
-	n_ = input.get<unsigned int>("n");
-	N_ = input.get<unsigned int>("N");
-	m_ = input.get<unsigned int>("m");
-
-	M_ = (m_*n_)/N_;
-	s_.set(n_,m_);
-
-	rnd = new Rand(100,thread);
-	return 1;
-}
 /*}*/
 
 /*methods that modify the class*/
@@ -113,12 +107,12 @@ void System<Type>::update(){
 
 template<typename Type>
 void System<Type>::swap(){
-	new_s[0] = rnd->get(n_);
-	new_p[0] = rnd->get(m_);
+	new_s[0] = rnd_->get(n_);
+	new_p[0] = rnd_->get(m_);
 	new_c[0] = s_(new_s[0],new_p[0]);
 	do {
-		new_s[1] = rnd->get(n_);
-		new_p[1] = rnd->get(m_);
+		new_s[1] = rnd_->get(n_);
+		new_p[1] = rnd_->get(m_);
 		new_c[1] = s_(new_s[1],new_p[1]);
 	} while(is_new_state_forbidden() || new_c[0] == new_c[1]);
 }

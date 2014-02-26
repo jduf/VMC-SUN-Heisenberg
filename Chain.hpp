@@ -6,7 +6,7 @@
 template<typename Type>
 class Chain: public GenericSystem<Type>{
 	public:
-		Chain(Container const& param, std::string filename);
+		Chain(unsigned int N, unsigned int n, unsigned int m, std::string filename);
 		virtual ~Chain();
 
 	protected:
@@ -15,10 +15,11 @@ class Chain: public GenericSystem<Type>{
 };
 
 template<typename Type>
-Chain<Type>::Chain(Container const& param, std::string filename):
-	GenericSystem<Type>(param,2,filename),
-	a_(param.get<unsigned int>("a"))
+Chain<Type>::Chain(unsigned int N, unsigned int n, unsigned int m, std::string filename):
+	GenericSystem<Type>(N,n,m,2,filename),
+	a_(N/m)
 {
+	if(a_*m != N){ std::cerr<<"Chain::Chain(N,n,m,z,filename) : The unit cell is not well defined"<<std::endl; }
 	this->compute_sts();
 }
 

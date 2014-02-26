@@ -10,7 +10,6 @@ class SquareFermi: public Square<double>{
 
 		void create(double x);
 		void study();
-		void save();
 
 	protected:
 		void compute_T();

@@ -2,17 +2,12 @@
 #define DEF_SYSTEMFERMIONIC
 
 #include "System.hpp"
-#include "Lapack.hpp"
 
 /*!Class that contains the information on the state*/
 template<typename Type>
 class SystemFermionic : public System<Type>{
 	public:
 		/*!Creates a SystemFermionic without any parameters set*/
-		SystemFermionic();
-		/*!delete all the variables dynamically allocated*/
-		~SystemFermionic();
-
 		//{Description
 		/*! Creates the system in function of the input parameters.
 		 *
@@ -22,7 +17,10 @@ class SystemFermionic : public System<Type>{
 		 * - creates an random initial state
 		 * - if the sate is allowed, compute its related Ainv matrices
 		*/ //}
-		unsigned int init(Container const& input, unsigned int const& thread);
+		SystemFermionic(CreateSystem const& CS, unsigned int const& thread);
+		/*!delete all the variables dynamically allocated*/
+		~SystemFermionic();
+
 
 		/*!Call System<Type>::swap() and set row and new_ev*/
 		void swap();
@@ -70,21 +68,11 @@ class SystemFermionic : public System<Type>{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-SystemFermionic<Type>::SystemFermionic():
-	System<Type>(),
-	Ainv_(NULL)
-{}
-
-template<typename Type>
-SystemFermionic<Type>::~SystemFermionic(){
-	delete[] Ainv_;
-}
-
-template<typename Type>
-unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int const& thread){
-	System<Type>::init(input,thread);
-	EVec_= input.get<Matrix<Type> >("EVec");
-	Ainv_ = new Matrix<Type>[this->N_];
+SystemFermionic<Type>::SystemFermionic(CreateSystem const& CS, unsigned int const& thread):
+	System<Type>(CS,thread),
+	EVec_(CS.get_EVec<Type>()),
+	Ainv_(new Matrix<Type>[this->N_])
+{
 	for(unsigned int i(0); i < this->N_; i++){
 		Ainv_[i].set(this->M_,this->M_);
 	}
@@ -136,11 +124,16 @@ unsigned int SystemFermionic<Type>::init(Container const& input, unsigned int co
 
 	if(l==TRY_MAX){
 		std::cerr<<"sorry, the thread will not be lunched because no initial state was found"<<std::endl;
-		return 0;
+		this->status_=0;
 	} else {
 		std::cerr<<"yeah ! initial state found"<<std::endl;
-		return 1;
+		this->status_=1;
 	}
+}
+
+template<typename Type>
+SystemFermionic<Type>::~SystemFermionic(){
+	delete[] Ainv_;
 }
 /*}*/
 

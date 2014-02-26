@@ -5,13 +5,12 @@
 
 class ChainPolymerized: public Chain<double> {
 	public:
-		ChainPolymerized(Container const& param);
+		ChainPolymerized(unsigned int N, unsigned int n, unsigned int m);
 		~ChainPolymerized();
 
 		void create(double delta);
 		void study();
-		void save();
-		void get_param(Container& param);
+		void save(Write& w);
 
 	private:
 		void compute_P(Matrix<double>& P);

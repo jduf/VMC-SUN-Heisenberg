@@ -3,7 +3,6 @@
 
 #include "SystemBosonic.hpp"
 #include "SystemFermionic.hpp"
-#include "Write.hpp"
 
 //{Description
 /*! Class MonteCarlo
@@ -28,18 +27,18 @@ template <typename Type>
 class MonteCarlo{
 	public:
 		/*!The container must contain a filename to store the executing data,
-		 * the parameter required for (*System) and an optional t_max option*/
-		MonteCarlo(Container const& input); 
+		 * the parameter required for (*System) and an optional tmax_ option*/
+		MonteCarlo(CreateSystem const& CS, unsigned int tmax = 300); 
 		~MonteCarlo();
 
 		/*!Run the Monte-Carlo algorithme */
 		void run(unsigned int what, unsigned int N_MC=0);
-		/*!Saves the essential data in the "result" file*/
-		void save(Container& result);
 
 		/*!Get the energy per site*/
-		double get_energy() const { return this->E_; };
-		unsigned int get_status() const { return status; };
+		double get_energy() const { return E_; };
+		double get_error() const { return DeltaE_; };
+		Vector<double> get_correlation() const { return corr_; };
+		unsigned int get_status() const { return status_; };
 
 	private:
 		/*!Forbids the copy constructor*/
@@ -66,8 +65,8 @@ class MonteCarlo{
 		System<Type>* S; 		//!< Pointer to a Fermionic or Bosonic System 
 		Rand* rnd; 				//!< Pointer to a random number generator
 		Time timer; 			//!< To stop the simulation after time_limit seconds
-		unsigned int t_max;		//!< Time limit in second, by default 5min
-		unsigned int status; 	//!< Not Lunched:0 Lunched:1 Successful:2 Time elapsed:3
+		unsigned int tmax_;		//!< Time limit in second, by default 5min
+		unsigned int status_; 	//!< Not Lunched:0 Lunched:1 Successful:2 Time elapsed:3
 
 		unsigned int N_step_;	//!< Number of steps already done
 		unsigned int B_;		//!< Minimum number of biggest bins needed to compute variance
@@ -90,11 +89,11 @@ class MonteCarlo{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-MonteCarlo<Type>::MonteCarlo(Container const& input):
+MonteCarlo<Type>::MonteCarlo(CreateSystem const& CS, unsigned int tmax):
 	S(NULL),
 	rnd(NULL),
-	t_max(5*60),
-	status(0),
+	tmax_(tmax),
+	status_(0),
 	N_step_(0),
 	B_(50),
 	b_(5),
@@ -104,9 +103,10 @@ MonteCarlo<Type>::MonteCarlo(Container const& input):
 	bin_(new Vector<double>[b_]),
 	m_bin_(b_,0.0),
 	usl_(b_,0.0),
+	corr_(CS.get_num_links(),0),
 	E_(0),
 	DeltaE_(0),
-	filename_("")
+	filename_(CS.get_filename())
 {
 	for(unsigned int i(b_);i>0;i--){
 		dpb_ *= 2;
@@ -115,16 +115,14 @@ MonteCarlo<Type>::MonteCarlo(Container const& input):
 	for(unsigned int i(0);i<b_;i++){
 		usl_(i) = 1.0/(i+1);
 	}
-	if(input.check("filename")){
-		input.get("filename",filename_);
-	}
+	std::cout<<filename_<<std::endl;
+	std::cerr<<"MonteCarlo::MonteCarlo(CS) : set the filename"<<std::endl;
 	unsigned int thread(omp_get_thread_num());
 	rnd=new Rand(1e4,thread);
-	if(input.get<Vector<unsigned int> >("ref")(0)){ S=new SystemFermionic<Type>; }
-	else { S=new SystemBosonic<Type>; }
-	input.get("t_max",t_max);
-	status = S->init(input,thread);
-	if(status){
+	if(CS.is_bosonic()){ S=new SystemBosonic<Type>(CS,thread); }
+	else { S=new SystemFermionic<Type>(CS,thread); }
+	status_ = S->get_status();
+	if(status_){
 		double ratio(0.0);
 		for(unsigned int i(0);i<1e5;i++){
 			S->swap();
@@ -133,7 +131,6 @@ MonteCarlo<Type>::MonteCarlo(Container const& input):
 				S->update();
 			}
 		}
-		corr_.set(S->sts_.row());
 	}
 }
 
@@ -141,7 +138,7 @@ template<typename Type>
 MonteCarlo<Type>::~MonteCarlo(){
 	delete S;
 	delete rnd;
-	delete bin_;
+	delete[] bin_;
 }
 /*}*/
 
@@ -149,9 +146,9 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*{*/
 template<typename Type>
 void MonteCarlo<Type>::run(unsigned int what, unsigned int N_MC){
-	if(status){
+	if(status_){
 		double E_step(0.0);
-		Vector<double> corr_step(S->sts_.row());
+		Vector<double> corr_step(corr_);
 		S->measure(E_step,corr_step);
 		switch(what){
 			case 1: 
@@ -173,16 +170,9 @@ void MonteCarlo<Type>::run(unsigned int what, unsigned int N_MC){
 					while(keepon(E_step,N_MC));
 				} break;
 		}
-		E_ /= N_step_;
+		E_ /= (N_step_*S->get_n());
+		DeltaE_ /= S->get_n();
 	}
-}
-
-template<typename Type>
-void MonteCarlo<Type>::save(Container& result){
-	result.set("N_step",N_step_);
-	result.set("E",E_);
-	result.set("dE",DeltaE_);
-	result.set("status",status);
 }
 /*}*/
 
@@ -235,24 +225,24 @@ bool MonteCarlo<Type>::keepon(double E_step, unsigned int N_MC){
 	/*!compute the variance and the running condition if one bin is added*/
 	if(N_step_%dpl_==0 && Ml_(b_-1) >= B_ ){
 		bool kpn(true);
-		if( std::abs(E_)/N_step_ > 1e2 ){ 
+		if( std::abs(E_)/(N_step_*S->get_n()) > 1e2 ){ 
 			std::cerr<<"the simulation should be restarted after "<<N_step_<<" steps, E="<<E_<<std::endl;
 			kpn=false;
 		}
-		if(timer.limit_reached(t_max)){
+		if(timer.limit_reached(tmax_)){
 			std::cerr<<"time limit reached : stopping simulation"<<std::endl;
 			kpn=false;
-			status = 3;
+			status_ = 3;
 		}
 		if(N_step_ > N_MC && N_MC != 0){
 			std::cerr<<"N_step>N_MC : stopping simulation"<<std::endl;
 			kpn=false;
-			status = 3;
+			status_ = 3;
 		}
 		compute_error();
 		if(std::abs(DeltaE_/E_)*N_step_<1e-3){
 			kpn=false;
-			status = 2;
+			status_ = 2;
 		}
 		return kpn;
 	} else {

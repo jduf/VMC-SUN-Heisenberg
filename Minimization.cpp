@@ -1,13 +1,11 @@
 #include "Minimization.hpp"
 
 Minimization::Minimization(Parseur& P):
-	file_("bla"),
-	param_text_(true),
 	nthreads(1),
-	t_max(P.get<unsigned int>("t_max"))
+	t_max(P.get<unsigned int>("t_max")),
+	CS_(P)
 {
 	P.get("nthreads",nthreads);
-	CreateSystem(P);
 }
 
 Minimization::~Minimization(){}
@@ -54,36 +52,15 @@ void Minimization::min(double xmax){
 }
 
 double Minimization::fx(double delta){
-	double energy(0);
+	double energy(0.0);
 #pragma omp parallel num_threads(nthreads)
 	{
-		CreateSystem CS(param_,delta);
-
-		Container input;
-		CS.get_input(input);
-		input.set("t_max",t_max);
-
-		MonteCarlo<double> sim(input);
+		CreateSystem cs(CS_,delta);
+		MonteCarlo<double> sim(cs,t_max);
 		sim.run(2);
-
-		Container result(true);
-		sim.save(result);
-		save(delta,result);
+		std::cout<<delta<<" "<<sim.get_energy()<<" "<<sim.get_error()<<std::endl;
 		energy+=sim.get_energy();
 	}
 	std::cout<<delta<<" "<<energy / nthreads<<std::endl;
 	return energy / nthreads; 
-}
-
-void Minimization::save(double delta, Container const& result){
-	file_<<"%";
-	for(unsigned int i(0);i<param_text_.size();i++){
-		file_<<param_text_.name(i)<<" ";
-	}
-	file_<<"delta ";
-	for(unsigned int i(0);i<result.size();i++){
-		file_<<result.name(i)<<" ";
-	}
-	file_<<Write::endl;
-	file_<<param_text_<<" "<<delta<<" "<<result<<Write::endl;
 }

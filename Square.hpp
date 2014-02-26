@@ -6,7 +6,7 @@
 template<typename Type>
 class Square: public GenericSystem<Type>{
 	public:
-		Square(Container const& param, std::string filename);
+		Square(unsigned int N, unsigned int n, unsigned int m, std::string filename);
 		virtual ~Square();
 
 	protected:
@@ -19,12 +19,13 @@ class Square: public GenericSystem<Type>{
 };
 
 template<typename Type>
-Square<Type>::Square(Container const& param, std::string filename):
-	GenericSystem<Type>(param,4,filename),
+Square<Type>::Square(unsigned int N, unsigned int n, unsigned int m, std::string filename):
+	GenericSystem<Type>(N,n,m,4,filename),
 	Lx_(std::floor(std::sqrt(this->n_))),
 	Ly_(std::floor(std::sqrt(this->n_)))
 {
-	param.get("bc",this->bc_);
+	this->bc_ = -1;
+	std::cerr<<"Square::Square(N,n,m,filename) : need to set the boundary condition"<<std::endl;
 	if(this->n_==Ly_*Lx_){
 		this->compute_sts();
 		this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);

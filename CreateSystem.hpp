@@ -1,42 +1,39 @@
 #ifndef DEF_CREATESYSTEM
 #define DEF_CREATESYSTEM
 
-#include "Parseur.hpp"
-
-#include "ChainDimerized.hpp"
-#include "ChainFermi.hpp"
 #include "ChainPolymerized.hpp"
-#include "ChainTrimerized.hpp"
-#include "HoneycombSU3.hpp"
-#include "HoneycombSU4.hpp"
-#include "SquareFermi.hpp"
-#include "SquareJastrow.hpp"
-#include "SquareMu.hpp"
+#include "ChainFermi.hpp"
 #include "SquarePiFlux.hpp"
-#include "SquareSU2PhiFlux.hpp"
-#include "TriangleFermi.hpp"
-#include "TriangleJastrow.hpp"
-#include "TriangleMu.hpp"
-#include "TrianglePhi.hpp"
+#include "Parseur.hpp"
 
 class CreateSystem{
 	public:
 		CreateSystem(Parseur& P);
-		CreateSystem(Container const& C);
+		CreateSystem(CreateSystem const& cs, double param);
 		virtual ~CreateSystem();
 
 		void create();
-		void save();
-		void get_param(Container& param);
-		void get_input(Container& input);
-		bool use_complex();
+		void save(double E, double DeltaE, Vector<double> const corr);
+		bool use_complex() const;
+		bool is_bosonic() const;
+
+		unsigned int get_N() const {return N_;}
+		unsigned int get_n() const {return n_;}
+		unsigned int get_m() const {return m_;}
+		unsigned int get_num_links() const;
+		std::string get_filename() const;
+		Matrix<unsigned int> get_sts() const;
+		template<typename Type>
+			Matrix<Type> get_EVec() const;
 
 	private:
-		Container param_;
-		GenericSystem<double>* Sr_;
-		GenericSystem<std::complex<double> >* Sc_;
+		unsigned int N_;
+		unsigned int n_;
+		unsigned int m_;
 		Vector<unsigned int> ref_;
+		GenericSystem<double>* RGL_;
+		GenericSystem<std::complex<double> >* CGL_;
 
-		void parse(Parseur& P, Container& C);
+		void parse(Parseur& P);
 };
 #endif

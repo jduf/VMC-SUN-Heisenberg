@@ -8,10 +8,6 @@ template<typename Type>
 class SystemBosonic : public System<Type>{
 	public:
 		/*!Creates a SystemBosonic without any parameters set*/
-		SystemBosonic();
-		/*!delete all the variables dynamically allocated*/
-		~SystemBosonic();
-
 		//{Description
 		/*! Creates the system in function of the input parameters.
 		 *
@@ -19,7 +15,10 @@ class SystemBosonic : public System<Type>{
 		 * - calls System<Type>::init()
 		 * - creates an random initial state
 		 */ //}
-		unsigned int init(Container const& input, unsigned int const& thread);
+		SystemBosonic(CreateSystem const& CS, unsigned int const& thread);
+		/*!delete all the variables dynamically allocated*/
+		~SystemBosonic();
+
 
 		//{Description
 		/*!Computes the ratio of the two Jastrow factor related to the current
@@ -42,29 +41,22 @@ class SystemBosonic : public System<Type>{
 		Matrix<unsigned int> nn_; //!< nn_(i,j):jth neighbour of the ith site
 		Matrix<unsigned int> cc_;
 		Matrix<double> nu_;
-		Matrix<Type> omega_;
 		Vector<unsigned int> sl_;
+		Matrix<Type> omega_;
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-SystemBosonic<Type>::SystemBosonic():
-	System<Type>()
-{}
-
-template<typename Type>
-SystemBosonic<Type>::~SystemBosonic(){}
-
-template<typename Type>
-unsigned int SystemBosonic<Type>::init(Container const& input, unsigned int const& thread){
-	System<Type>::init(input,thread);
-	nu_ = input.get<Matrix<double> >("nu");
-	nn_ = input.get<Matrix<unsigned int> >("nn");
-	cc_ = input.get<Matrix<unsigned int> >("cc");
-	sl_ = input.get<Vector<unsigned int> >("sl");
-	omega_ = input.get<Matrix<Type> >("omega");
-
+SystemBosonic<Type>::SystemBosonic(CreateSystem const& CS, unsigned int const& thread):
+	System<Type>(CS,thread)
+	//nu_(CS.get_nu()),
+	//nn_(CS.get_nn()),
+	//cc_(CS.get_cc()),
+	//sl_(CS.get_sl()),
+	//omega_(CS.get_omega())
+{
+	std::cout<<"Bosonic"<<std::endl;
 	Vector<unsigned int> available(this->n_);
 	unsigned int N_as(this->n_);
 	unsigned int site(0);
@@ -73,7 +65,7 @@ unsigned int SystemBosonic<Type>::init(Container const& input, unsigned int cons
 	}
 	for(unsigned int c(0); c<this->N_; c++){
 		for(unsigned int i(0); i < this->M_; i++){
-			site = this->rnd->get(N_as);
+			site = this->rnd_->get(N_as);
 			this->s_(available(site),0) = c;
 			this->s_(available(site),1) = c*this->M_+i;
 			for(unsigned int j(site); j+1 < N_as; j++){
@@ -82,8 +74,10 @@ unsigned int SystemBosonic<Type>::init(Container const& input, unsigned int cons
 			N_as--;
 		}
 	}
-	return 1;
 }
+
+template<typename Type>
+SystemBosonic<Type>::~SystemBosonic(){}
 /*}*/
 
 /*methods that return something related to the class*/

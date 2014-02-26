@@ -1,8 +1,10 @@
 #include "SquarePiFlux.hpp"
 
-SquarePiFlux::SquarePiFlux(Container const& param):
-	Square<std::complex<double> >(param,"square-csl")
-{}
+SquarePiFlux::SquarePiFlux(unsigned int N, unsigned int n, unsigned int m):
+	Square<std::complex<double> >(N,n,m,"square-csl")
+{
+	rst_.text("Chiral spin liquid, with 2pi/N flux per plaquette");
+}
 
 SquarePiFlux::~SquarePiFlux(){}
 
@@ -33,26 +35,6 @@ void SquarePiFlux::create(double x){
 			}
 		}
 	}
-}
-
-void SquarePiFlux::save(){
-	Write w(filename_+".jdbin");
-	RST rst;
-	rst.text("Chiral spin liquid, with 2pi/N flux per plaquette");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("ref (wave function)",ref_);
-	w("n (particles' number)",n_);
-	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("M (particles' number of each color)",M_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
 }
 
 //{//csl for Vishvanath (uses majorana representation)

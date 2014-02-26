@@ -5,13 +5,12 @@
 
 class ChainDimerized: public Chain<double> {
 	public:
-		ChainDimerized(Container const& param);
+		ChainDimerized(unsigned int N, unsigned int n, unsigned int m);
 		~ChainDimerized();
 
 		void create(double delta);
 		void study();
 		void save();
-		void get_param(Container& param);
 
 	private:
 		void compute_P(Matrix<double>& P);
