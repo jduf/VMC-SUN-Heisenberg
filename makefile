@@ -10,8 +10,8 @@ CXXFLAGS = $(LAPACK) $(ERRORS) $(OPTION)
 
 LDFLAGS  = $(LAPACK) $(ERRORS) $(OPTION)
 
-all:mc min
-	cp mc min ../sim
+all:mc min analyse
+	cp mc min analyse ../sim
 
 #############
 # monte-carlo
@@ -19,7 +19,7 @@ all:mc min
 mc:mc.o CreateSystem.o ChainFermi.o ChainPolymerized.o SquarePiFlux.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-mc.o:mc.cpp CreateSystem.hpp MonteCarlo.hpp System.hpp SystemBosonic.hpp SystemFermionic.hpp Chain.hpp ChainPolymerized.hpp ChainFermi.hpp Square.hpp SquarePiFlux.hpp Parseur.hpp Vector.hpp Matrix.hpp Lapack.hpp Read.hpp Write.hpp RST.hpp Header.hpp
+mc.o:mc.cpp CreateSystem.hpp ParallelMonteCarlo.hpp MonteCarlo.hpp System.hpp SystemBosonic.hpp SystemFermionic.hpp Chain.hpp ChainPolymerized.hpp ChainFermi.hpp Square.hpp SquarePiFlux.hpp Parseur.hpp Vector.hpp Matrix.hpp Lapack.hpp Read.hpp Write.hpp RST.hpp Header.hpp Time.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
 Rand.o:Rand.cpp Rand.hpp
@@ -31,12 +31,24 @@ Rand.o:Rand.cpp Rand.hpp
 min:min.o CreateSystem.o ChainFermi.o ChainPolymerized.o SquarePiFlux.o Minimization.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-min.o:min.cpp Minimization.hpp CreateSystem.hpp MonteCarlo.hpp System.hpp SystemBosonic.hpp SystemFermionic.hpp Chain.hpp ChainPolymerized.hpp ChainFermi.hpp Square.hpp SquarePiFlux.hpp Parseur.hpp Vector.hpp Matrix.hpp Lapack.hpp Read.hpp Write.hpp Write.hpp RST.hpp Header.hpp
+min.o:min.cpp Minimization.hpp CreateSystem.hpp ParallelMonteCarlo.hpp MonteCarlo.hpp System.hpp SystemBosonic.hpp SystemFermionic.hpp Chain.hpp ChainPolymerized.hpp ChainFermi.hpp Square.hpp SquarePiFlux.hpp Parseur.hpp Vector.hpp Matrix.hpp Lapack.hpp Read.hpp Write.hpp Write.hpp RST.hpp Header.hpp Time.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
-Minimization.o:Minimization.cpp Minimization.hpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp
+Minimization.o:Minimization.cpp Minimization.hpp ParallelMonteCarlo.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Parseur.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp Time.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
+
+##############
+# analyse
+##############
+analyse:analyse.o Parseur.o Read.o Write.o Header.o RST.o Gnuplot.o Directory.o
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+
+analyse.o:analyse.cpp Parseur.hpp Read.hpp Write.hpp Header.hpp RST.hpp Gnuplot.hpp Linux.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
+
+Directory.o:Directory.cpp Directory.hpp
+	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 ##############
 # systems
 ##############
@@ -148,23 +160,9 @@ mcnu:mcnu.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o Container.o 
 mcnu.o:mcnu.cpp Parseur.hpp MonteCarlo.hpp System.hpp SystemFermionic.hpp SystemBosonic.hpp Read.hpp  Matrix.hpp Lapack.hpp Container.hpp PSO.hpp PSOMonteCarlo.hpp TriangleJastrow.hpp
 	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
 
-########
-# useless
-########
-ExtractSystem.o:ExtractSystem.cpp ExtractSystem.hpp Container.hpp
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
-
-Container.o:Container.cpp Container.hpp 
-	$(CXX) -c $(CXXFLAGS) $(NOASSERT) $^
-
-check:check.o ExtractSystem.o Read.o Header.o RST.o Write.o Container.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-check.o:check.cpp ExtractSystem.hpp
-	$(CXX) -c $(CXXFLAGS) $^
 
 clean:
-	rm *.o *.gch mc cs check psomc mcnu
+	rm *.o *.gch mc analyse
 
 ref:
 	doxygen doxygen/Doxyfile

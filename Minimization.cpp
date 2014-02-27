@@ -1,11 +1,20 @@
 #include "Minimization.hpp"
 
 Minimization::Minimization(Parseur& P):
-	nthreads(1),
-	t_max(P.get<unsigned int>("t_max")),
-	CS_(P)
+	CS_(P),
+	tmax_(P.get<unsigned int>("tmax")),
+	nruns_(P.get<unsigned int>("nruns")),
+	results_file_(CS_.get_filename()+"-min.jdbin")
 {
-	P.get("nthreads",nthreads);
+	results_file_("Created by the Minimization class",1);
+	results_file_("nruns (number of simulations runned)",nruns_);
+	RST rst_param;
+	rst_param.title("Input","-");
+	results_file_.add_to_header(rst_param.get());
+	CS_.save(results_file_);
+	RST rst_results;
+	rst_results.title("Results","-");
+	results_file_.add_to_header(rst_results.get());
 }
 
 Minimization::~Minimization(){}
@@ -25,7 +34,10 @@ void Minimization::min(double xmax){
 
 	double xt1(0.0);
 	double ft1(0.0);
-	for(unsigned int i(0);i<5;i++){
+	unsigned int i(0);
+	unsigned int cond;
+	do{
+		cond = 0;
 		xt0 = (x0+x)/2.0;
 		xt1 = (x1+x)/2.0;
 		ft0 = fx(xt0);
@@ -35,32 +47,36 @@ void Minimization::min(double xmax){
 			x0=xt0;
 			f1=ft1;
 			x1=xt1;
+			cond++;
 		} 
 		if((f0-ft0)*(ft0-f)<0 && (f-ft1)*(ft1-f1)>0 ){
 			f1=f;
 			x1=x;
 			f=ft0;
 			x=xt0;
+			cond++;
 		} 
 		if((f0-ft0)*(ft0-f)>0 && (f-ft1)*(ft1-f1)<0 ){
 			f0=f;
 			x0=x;
 			f=ft1;
 			x=xt1;
+			cond++;
 		} 
-	}
+	}while (++i<10 && cond==1);
 }
 
-double Minimization::fx(double delta){
-	double energy(0.0);
-#pragma omp parallel num_threads(nthreads)
-	{
-		CreateSystem cs(CS_,delta);
-		MonteCarlo<double> sim(cs,t_max);
-		sim.run(2);
-		std::cout<<delta<<" "<<sim.get_energy()<<" "<<sim.get_error()<<std::endl;
-		energy+=sim.get_energy();
+double Minimization::fx(double param){
+	results_file_("param",param);
+	if( CS_.use_complex() ){
+		ParallelMonteCarlo<std::complex<double> > sim(CS_,param,nruns_,tmax_);
+		sim.run();
+		sim.save(results_file_);
+		return sim.get_energy();
+	} else {
+		ParallelMonteCarlo<double> sim(CS_,param,nruns_,tmax_);
+		sim.run();
+		sim.save(results_file_);
+		return sim.get_energy();
 	}
-	std::cout<<delta<<" "<<energy / nthreads<<std::endl;
-	return energy / nthreads; 
 }

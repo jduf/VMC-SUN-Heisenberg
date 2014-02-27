@@ -1,31 +1,21 @@
 /*!  @file mc.cpp */
 
-#include "MonteCarlo.hpp"
+#include "ParallelMonteCarlo.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	unsigned int nthreads(1);
-	P.get("nthreads",nthreads);
-	CreateSystem CS(P);
+	unsigned int nruns(P.get<unsigned int>("nruns"));
+	unsigned int tmax(P.get<unsigned int>("tmax"));
 	double param(P.get<double>("param"));
-
-	if( !CS.use_complex() ){
-#pragma omp parallel num_threads(nthreads)
-		{
-			CreateSystem cs(CS,param);
-			MonteCarlo<double> sim(cs);
-			sim.run(1,1e6);
-			std::cout<<param<<" "<<sim.get_energy()<<" "<<sim.get_error()<<std::endl;
-			cs.save(sim.get_energy(),sim.get_error(),sim.get_correlation());
-		}
+	CreateSystem CS(P);
+	Write w(CS.get_filename()+"-mc.jdbin");
+	if( CS.use_complex() ){
+		ParallelMonteCarlo<std::complex<double> > sim(CS,param,nruns,tmax);
+		sim.run();
+		sim.save(w);
 	} else {
-#pragma omp parallel num_threads(nthreads)
-		{
-			CreateSystem cs(CS,param);
-			MonteCarlo<std::complex<double> > sim(cs);
-			sim.run(1,1e6);
-			std::cout<<param<<" "<<sim.get_energy()<<" "<<sim.get_error()<<std::endl;
-			cs.save(sim.get_energy(),sim.get_error(),sim.get_correlation());
-		}
+		ParallelMonteCarlo<double> sim(CS,param,nruns,tmax);
+		sim.run();
+		sim.save(w);
 	}
 }

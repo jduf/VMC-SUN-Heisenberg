@@ -21,8 +21,8 @@ class GenericSystem{
 		unsigned int get_num_links() const { return n_*z_/2;}
 		std::string get_filename() const { return filename_;}
 
-		virtual void save(Write& w);
 		virtual void create(double param)=0;
+		virtual void save(Write& w);
 
 	protected:
 		unsigned int const n_;		//!< sites' number
@@ -94,10 +94,10 @@ void GenericSystem<Type>::diagonalize_T(char mat_type){
 
 template<typename Type>
 void GenericSystem<Type>::save(Write& w){
-	w.set_header(rst_.get());
-	w("n (particles' number)",n_);
+	w.add_to_header(rst_.get());
 	w("N (N of SU(N))",N_);
 	w("m (particles per site' number)",m_);
+	w("n (particles' number)",n_);
 	w("bc (boundary condition)",bc_);
 }
 #endif

@@ -26,19 +26,20 @@
 template <typename Type>
 class MonteCarlo{
 	public:
-		/*!The container must contain a filename to store the executing data,
-		 * the parameter required for (*System) and an optional tmax_ option*/
-		MonteCarlo(CreateSystem const& CS, unsigned int tmax = 300); 
+		MonteCarlo(CreateSystem const& CS, unsigned int tmax); 
 		~MonteCarlo();
 
 		/*!Run the Monte-Carlo algorithme */
-		void run(unsigned int what, unsigned int N_MC=0);
+		void run(unsigned int N_MC=0);
+		/*!Saves E_, DeltaE_, status_, Nsteps_ and corr_ in file w*/
+		void save(Write& w);
 
 		/*!Get the energy per site*/
 		double get_energy() const { return E_; };
+		/*!Get the abolute error per site*/
 		double get_error() const { return DeltaE_; };
+		/*!Get the correlation between neighbouring sites*/
 		Vector<double> get_correlation() const { return corr_; };
-		unsigned int get_status() const { return status_; };
 
 	private:
 		/*!Forbids the copy constructor*/
@@ -68,7 +69,7 @@ class MonteCarlo{
 		unsigned int tmax_;		//!< Time limit in second, by default 5min
 		unsigned int status_; 	//!< Not Lunched:0 Lunched:1 Successful:2 Time elapsed:3
 
-		unsigned int N_step_;	//!< Number of steps already done
+		unsigned int Nsteps_;	//!< Number of steps already done
 		unsigned int B_;		//!< Minimum number of biggest bins needed to compute variance
 		unsigned int b_;		//!< Number of different binning
 		unsigned int dpl_;		//!< 2^l, l:number of element in the smallest bin
@@ -82,8 +83,6 @@ class MonteCarlo{
 		Vector<double> corr_;
 		double E_; 				//!< Value that the MC algorithm tries to compute
 		double DeltaE_;			//!< Error on E_
-
-		std::string filename_;	//!< Filename for the output
 };
 
 /*constructors and destructor*/
@@ -94,7 +93,7 @@ MonteCarlo<Type>::MonteCarlo(CreateSystem const& CS, unsigned int tmax):
 	rnd(NULL),
 	tmax_(tmax),
 	status_(0),
-	N_step_(0),
+	Nsteps_(0),
 	B_(50),
 	b_(5),
 	dpl_(2),
@@ -105,8 +104,7 @@ MonteCarlo<Type>::MonteCarlo(CreateSystem const& CS, unsigned int tmax):
 	usl_(b_,0.0),
 	corr_(CS.get_num_links(),0),
 	E_(0),
-	DeltaE_(0),
-	filename_(CS.get_filename())
+	DeltaE_(0)
 {
 	for(unsigned int i(b_);i>0;i--){
 		dpb_ *= 2;
@@ -115,8 +113,6 @@ MonteCarlo<Type>::MonteCarlo(CreateSystem const& CS, unsigned int tmax):
 	for(unsigned int i(0);i<b_;i++){
 		usl_(i) = 1.0/(i+1);
 	}
-	std::cout<<filename_<<std::endl;
-	std::cerr<<"MonteCarlo::MonteCarlo(CS) : set the filename"<<std::endl;
 	unsigned int thread(omp_get_thread_num());
 	rnd=new Rand(1e4,thread);
 	if(CS.is_bosonic()){ S=new SystemBosonic<Type>(CS,thread); }
@@ -145,34 +141,25 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*public methods*/
 /*{*/
 template<typename Type>
-void MonteCarlo<Type>::run(unsigned int what, unsigned int N_MC){
+void MonteCarlo<Type>::run(unsigned int N_MC){
 	if(status_){
 		double E_step(0.0);
 		Vector<double> corr_step(corr_);
 		S->measure(E_step,corr_step);
-		switch(what){
-			case 1: 
-				{
-					//Write output(filename_+".out");
-					do{
-						next_step(E_step,corr_step); 
-						//output<<N_step
-							//<<" "<<E_ 
-							//<<" "<<err
-							//<<Write::endl;
-					} while(keepon(E_step,N_MC));
-					//Write correlation_file(filename_+".corr");
-					//correlation_file<<corr_<<Write::endl;
-				} break;
-			case 2:
-				{
-					do{ next_step(E_step,corr_step); }
-					while(keepon(E_step,N_MC));
-				} break;
-		}
-		E_ /= (N_step_*S->get_n());
+		do{ next_step(E_step,corr_step); }
+		while(keepon(E_step,N_MC));
+		E_ /= (Nsteps_*S->get_n());
 		DeltaE_ /= S->get_n();
 	}
+}
+
+template<typename Type>
+void MonteCarlo<Type>::save(Write& w){
+	w("E (energy per site)",E_);
+	w("DeltaE (absolute error)",DeltaE_);
+	w("Nsteps (number of steps)",Nsteps_);
+	w("status (2:converged, 3: stopped)",status_);
+	w("corr (correlation on links)",corr_);
 }
 /*}*/
 
@@ -185,7 +172,7 @@ void MonteCarlo<Type>::next_step(double& E_step, Vector<double>& corr_step){
 		S->update();
 		S->measure(E_step,corr_step);
 	}
-	N_step_++;
+	Nsteps_++;
 	E_ += E_step;
 	corr_ += corr_step;
 }
@@ -194,14 +181,14 @@ template<typename Type>
 bool MonteCarlo<Type>::keepon(double E_step, unsigned int N_MC){
 	if(b_>30){std::cerr<<"will bug"<<std::endl;}
 	/*!add new entry to the bins*/
-	if(N_step_%dpl_==0){//l_=1 at the very beginning
+	if(Nsteps_%dpl_==0){//l_=1 at the very beginning
 		add_bin(0,E_step,bin_[0](Ml_(0))/(dpl_-1));
 	} else {
 		bin_[0](Ml_(0)) += E_step;
 	}
 
 	/*!update the bins if the bigger binning is big enough*/
-	if(N_step_==B_*dpl_*dpb_){//B*2^(l+b)
+	if(Nsteps_==B_*dpl_*dpb_){//B*2^(l+b)
 		for(unsigned int l(0);l<b_-1;l++){
 			for(unsigned int j(0);j<bin_[l+1].size();j++){
 				bin_[l](j) = bin_[l+1](j);
@@ -223,10 +210,10 @@ bool MonteCarlo<Type>::keepon(double E_step, unsigned int N_MC){
 	}
 
 	/*!compute the variance and the running condition if one bin is added*/
-	if(N_step_%dpl_==0 && Ml_(b_-1) >= B_ ){
+	if(Nsteps_%dpl_==0 && Ml_(b_-1) >= B_ ){
 		bool kpn(true);
-		if( std::abs(E_)/(N_step_*S->get_n()) > 1e2 ){ 
-			std::cerr<<"the simulation should be restarted after "<<N_step_<<" steps, E="<<E_<<std::endl;
+		if( std::abs(E_)/(Nsteps_*S->get_n()) > 1e2 ){ 
+			std::cerr<<"the simulation should be restarted after "<<Nsteps_<<" steps, E="<<E_<<std::endl;
 			kpn=false;
 		}
 		if(timer.limit_reached(tmax_)){
@@ -234,13 +221,13 @@ bool MonteCarlo<Type>::keepon(double E_step, unsigned int N_MC){
 			kpn=false;
 			status_ = 3;
 		}
-		if(N_step_ > N_MC && N_MC != 0){
+		if(Nsteps_ > N_MC && N_MC != 0){
 			std::cerr<<"N_step>N_MC : stopping simulation"<<std::endl;
 			kpn=false;
 			status_ = 3;
 		}
 		compute_error();
-		if(std::abs(DeltaE_/E_)*N_step_<1e-3){
+		if(std::abs(DeltaE_/E_)*Nsteps_<1e-3){
 			kpn=false;
 			status_ = 2;
 		}

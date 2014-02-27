@@ -13,7 +13,7 @@ class CreateSystem{
 		virtual ~CreateSystem();
 
 		void create();
-		void save(double E, double DeltaE, Vector<double> const corr);
+		void save(Write& w);
 		bool use_complex() const;
 		bool is_bosonic() const;
 

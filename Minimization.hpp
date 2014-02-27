@@ -2,7 +2,7 @@
 #define DEF_MINIMIZATION
 
 #include "Parseur.hpp"
-#include "MonteCarlo.hpp"
+#include "ParallelMonteCarlo.hpp"
 #include "CreateSystem.hpp"
 
 class Minimization{
@@ -13,9 +13,10 @@ class Minimization{
 		void min(double xmax);
 
 	private:
-		unsigned int nthreads;
-		unsigned int t_max;
 		CreateSystem CS_;
+		unsigned int tmax_;
+		unsigned int nruns_;
+		Write results_file_;
 
 		double fx(double delta);
 };

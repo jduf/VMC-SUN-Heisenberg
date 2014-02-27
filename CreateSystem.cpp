@@ -9,6 +9,7 @@ CreateSystem::CreateSystem(Parseur& P):
 	CGL_(NULL)
 {
 	parse(P);
+	create();
 }
 
 CreateSystem::CreateSystem(CreateSystem const& cs, double param):
@@ -22,7 +23,6 @@ CreateSystem::CreateSystem(CreateSystem const& cs, double param):
 	create();
 	if(RGL_){RGL_->create(param);}
 	if(CGL_){CGL_->create(param);}
-	std::cout<<"Particular System (EVec) created" <<std::endl;
 }
 
 CreateSystem::~CreateSystem(){
@@ -226,14 +226,7 @@ void CreateSystem::create(){
 	}
 }
 
-void CreateSystem::save(double E, double DeltaE, Vector<double> const corr){
-	std::string filename;
-	if(RGL_){filename = RGL_->get_filename();}
-	if(CGL_){filename = CGL_->get_filename();}
-	Write w(filename+".jdbin");
+void CreateSystem::save(Write& w){
 	if(RGL_){RGL_->save(w);}
 	if(CGL_){CGL_->save(w);}
-	w("E (energy per site)",E);
-	w("DeltaE (absolute error)",DeltaE);
-	w("corr (correlation on links)",corr);
 }
