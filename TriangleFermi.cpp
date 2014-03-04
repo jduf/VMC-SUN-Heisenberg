@@ -1,71 +1,23 @@
 #include "TriangleFermi.hpp"
 
-TriangleFermi::TriangleFermi(Container const& param):
-	Triangle<double>(param,"triangle-fermi")
-{}
+TriangleFermi::TriangleFermi(unsigned int N, unsigned int n, unsigned int m):
+	Triangle<double>(N,n,m,"triangle-fermi")
+{
+	rst_.text("Fermi : all colors experience the same Hamiltonian");
+}
 
 TriangleFermi::~TriangleFermi(){}
 
 void TriangleFermi::compute_T(){
 	double t(-1.0);
+	Matrix<int> nb;
 	for(unsigned int i(0); i < n_; i++){
-		/*horizontal hopping*/
-		if( (i+1) % Lx_ ){ T_(i,i+1) = t;}	
-		else { T_(i+1-Lx_,i) = bc_*t;}
-		/*vertical hopping*/
-		if( i+Lx_ < n_ ){  T_(i,i+Lx_) = t; } 
-		else { T_(i-(Ly_-1)*Lx_,i) = bc_*t;}
-		/*diagonal hopping*/
-		if( (i+1) % Lx_ && i+Lx_ < n_ ){  T_(i,i+Lx_+1) = t; } 
-		else {
-			if(i+1 < n_ ){
-				if( !((i+1) % Lx_) ){ T_(i,i+1) = bc_*t;}/*x jump across boundary*/
-				if( i+Lx_ >= n_ ){  T_(i-Lx_*(Ly_-1)+1,i) = bc_*t; }/*y jump across boundary*/
-			} else {
-				T_(0,n_-1) = bc_*bc_*t;
-			}
+		nb = get_neighbourg(i);
+		for(unsigned int j(0);j<3;j++){
+			T_(i,nb(j,0)) = nb(j,1)*t;
 		}
 	}
 	T_ += T_.transpose();
-}
-
-void TriangleFermi::create(double x){
-	compute_T();
-	diagonalize_T('S');
-	for(unsigned int spin(0);spin<N_;spin++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+spin*n_,j) = T_(i,j);
-			}
-		}
-	}
-}
-
-void TriangleFermi::save(){
-	Write w(filename_+".jdbin");
-	RST rst;
-	rst.text("fermi : all colors experience the same Hamiltonian");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("ref (wave function)",ref_);
-	w("n (particles' number)",n_);
-	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("M (particles' number of each color)",M_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
-}
-
-void TriangleFermi::study(){
-	compute_T();
-	//compute_P();
-	//band_structure();
-	lattice();
 }
 
 void TriangleFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
@@ -88,18 +40,18 @@ void TriangleFermi::lattice(){
 	double e2(sqrt(3.0)/2.0);
 	//double e1(0);/*will have exactly the same topology except for the link (0,N)*/
 	//double e2(1);
-	Vector<unsigned int> neighbourg;
+	Matrix<int> nb;
 	double x0, y0, x1, y1;
 	std::string color;
 	for(unsigned int i(0);i<n_;i++){
-		neighbourg = get_neighbourg(i);
+		nb = get_neighbourg(i);
 		x0=i%Lx_;
 		y0=i/Ly_;
 
 		color = "black";
-		y1 = neighbourg(0)/Ly_;
+		y1 = nb(0,0)/Ly_;
 		if((i+1) % Lx_ ){
-			x1 = neighbourg(0)%Lx_;
+			x1 = nb(0,0)%Lx_;
 		} else {
 			x1 = x0 + 1;
 			color = "blue";
@@ -108,13 +60,13 @@ void TriangleFermi::lattice(){
 
 		color = "black";
 		if((i+1) % Lx_ ){
-			x1 = neighbourg(1)%Lx_;
+			x1 = nb(1,0)%Lx_;
 		} else {
 			x1 = x0 + 1;
 			color = "blue";
 		}
 		if( i+Lx_<this->n_){ 
-			y1 = neighbourg(1)/Ly_;
+			y1 = nb(1,0)/Ly_;
 		} else {
 			y1 = y0 + 1;
 			color = "blue";
@@ -122,9 +74,9 @@ void TriangleFermi::lattice(){
 		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
 
 		color = "black";
-		x1=neighbourg(2)%Lx_;
+		x1=nb(2,0)%Lx_;
 		if( i+Lx_<this->n_){ 
-			y1 = neighbourg(2)/Ly_;
+			y1 = nb(2,0)/Ly_;
 		} else {
 			y1 = y0 + 1;
 			color = "blue";
@@ -161,4 +113,23 @@ void TriangleFermi::lattice(){
 
 	ps.polygon(xy,"linecolor=red");
 	ps.add("\\end{pspicture}");
+}
+
+void TriangleFermi::study(){
+	compute_T();
+	//compute_P();
+	//band_structure();
+	lattice();
+}
+
+void TriangleFermi::create(double x){
+	compute_T();
+	diagonalize_T('S');
+	for(unsigned int spin(0);spin<N_;spin++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+spin*n_,j) = T_(i,j);
+			}
+		}
+	}
 }

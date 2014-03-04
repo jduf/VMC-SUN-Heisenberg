@@ -5,13 +5,13 @@
 
 class SquareMu: public Square<double>{
 	public:
-		SquareMu(Container const& param);
+		SquareMu(unsigned int N, unsigned int n, unsigned int m);
 		~SquareMu();
 
 		void create(double mu);
+		void check();
 		void study();
-		void save();
-		void get_param(Container& param);
+		void save(Write& w) const;
 
 	protected:
 		double mu_;

@@ -1,12 +1,13 @@
 #include "SquareJastrow.hpp"
 
-SquareJastrow::SquareJastrow(Container const& param):
-	Square<double>(param,"square-Jastrow"),
+SquareJastrow::SquareJastrow(unsigned int N, unsigned int n, unsigned int m):
+	Square<double>(N,n,m,"square-Jastrow"),
 	nn_(n_,z_),
 	cc_(N_,N_),
 	sl_(n_),
 	omega_(N_,N_,1.0)
 {
+	rst_.text("Staggered magnetic field, Becca's idea to mimic an on site chemical potential");
 	compute_nn();
 	compute_sublattice();
 	compute_omega_cc();
@@ -24,41 +25,18 @@ void SquareJastrow::create(double x){
 	//}
 }
 
-void SquareJastrow::save(){
-	Write w(filename_+".jdbin");
-	RST rst;
-	rst.text("Staggered magnetic field, Becca's idea to mimic an on site chemical potential");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("ref (wave function)",ref_);
-	w("n (particles' number)",n_);
-	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("M (particles' number of each color)",M_);
-	w("sts (connected sites)",sts_);
-	w("nn (nearst neighbours)",nn_);
-	w("cc (to match nu and x)",cc_);
-	w("sl (sublattice)",sl_);
-	w("omega (omega)",omega_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
-}
-
 void SquareJastrow::compute_nn(){
-	Vector<unsigned int> neighbourg;
+	Matrix<int> nb;
 	for(unsigned int i(0);i<n_;i++){
-		neighbourg = get_neighbourg(i);
+		nb = get_neighbourg(i);
 		for(unsigned int j(0);j<z_;j++){
-			nn_(i,j) = neighbourg(j);
+			nn_(i,j) = nb(j,0);
 		}
 		//unsigned int l(z_);
 		//for(unsigned int j(0);j<z_;j++){
-		//neighbourg = get_neighbourg(nn_(i,j));
+		//nb = get_neighbourg(nn_(i,j));
 		//for(unsigned int k(j);k<j+2;k++){
-		//nn_(i,l) = neighbourg(k%z_);
+		//nn_(i,l) = nb(k%z_,0);
 		//l++;
 		//}
 		//}
@@ -101,27 +79,19 @@ void SquareJastrow::compute_omega_cc(){
 	}
 }
 
-void SquareJastrow::get_input(Container& input){
-	GenericSystem<double>::get_input(input);
-	input.set("nn",nn_);
-	input.set("cc",cc_);
-	input.set("sl",sl_);
-	input.set("omega",omega_);
-}
-
 void SquareJastrow::lattice(Matrix<unsigned int> const& lat){
 	PSTricks ps(filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
-	Vector<unsigned int> neighbourg;
+	Matrix<int> nb;
 	double x0, y0, x1, y1;
 	std::string color;
 	for(unsigned int i(0);i<n_;i++){
-		neighbourg = get_neighbourg(i);
+		nb = get_neighbourg(i);
 		x0 = i%Lx_;
 		y0 = i/Ly_;
-		y1 = neighbourg(0)/Ly_;
+		y1 = nb(0,0)/Ly_;
 		if((i+1) % Lx_ ){
-			x1 = neighbourg(0)%Lx_;
+			x1 = nb(0,0)%Lx_;
 			color = "black";
 		} else {
 			x1 = x0 + 1;
@@ -129,9 +99,9 @@ void SquareJastrow::lattice(Matrix<unsigned int> const& lat){
 		}
 		ps.line("-", x0, y0, x1, y1 , "linewidth=1pt,linecolor="+color);
 
-		x1 = neighbourg(1)%Lx_;
+		x1 = nb(1,0)%Lx_;
 		if( i+Lx_<this->n_){ 
-			y1 = neighbourg(1)/Ly_;
+			y1 = nb(1,0)/Ly_;
 			color = "black";
 		} else {
 			y1 = y0 + 1;
@@ -162,4 +132,12 @@ void SquareJastrow::lattice(Matrix<unsigned int> const& lat){
 
 	ps.frame(-0.5,-0.5,Lx_-0.5,Ly_-0.5,"linecolor=red");
 	ps.add("\\end{pspicture}");
+}
+
+void SquareJastrow::save(Write& w) const {
+	GenericSystem<double>::save(w);
+	w("nn (nearst neighbours)",nn_);
+	w("cc (to match nu and x)",cc_);
+	w("sl (sublattice)",sl_);
+	w("omega (omega)",omega_);
 }

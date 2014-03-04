@@ -12,28 +12,34 @@ class CreateSystem{
 		CreateSystem(CreateSystem const& cs, double param);
 		virtual ~CreateSystem();
 
-		void create();
-		void save(Write& w);
+		void check();
+		void save(Write& w) const;
 		bool use_complex() const;
 		bool is_bosonic() const;
 
+		std::string get_filename() const;
+		double get_param() const {return param_;}
+		unsigned int get_status() const {return status_;}
 		unsigned int get_N() const {return N_;}
 		unsigned int get_n() const {return n_;}
 		unsigned int get_m() const {return m_;}
 		unsigned int get_num_links() const;
-		std::string get_filename() const;
-		Matrix<unsigned int> get_sts() const;
 		template<typename Type>
 			Matrix<Type> get_EVec() const;
+		Matrix<unsigned int> get_sts() const;
 
 	private:
-		unsigned int N_;
-		unsigned int n_;
-		unsigned int m_;
+		unsigned int status_;
+		unsigned int const N_;
+		unsigned int const n_;
+		unsigned int const m_;
+		int const bc_;
+		double param_;
 		Vector<unsigned int> ref_;
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
 
 		void parse(Parseur& P);
+		void create();
 };
 #endif

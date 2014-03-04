@@ -1,8 +1,10 @@
 #include "TrianglePhi.hpp"
 
-TrianglePhi::TrianglePhi(Container const& param):
-	Triangle<std::complex<double> >(param,"triangle-phi")
-{}
+TrianglePhi::TrianglePhi(unsigned int N, unsigned int n, unsigned int m):
+	Triangle<std::complex<double> >(N,n,m,"triangle-phi")
+{
+	rst_.text("phi-flux : each neighbouring triangle has a flux of opposite sign");
+}
 
 TrianglePhi::~TrianglePhi(){}
 
@@ -43,8 +45,14 @@ void TrianglePhi::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::compl
 	}
 }
 
+void TrianglePhi::study(){
+	compute_T();
+	//compute_band_structure();
+}
+
 void TrianglePhi::create(double phi){
 	phi_=phi;
+	filename_ += "-phi" + tostring(phi_);
 	compute_T();
 	diagonalize_T('H');
 	for(unsigned int color(0);color<N_;color++){
@@ -56,35 +64,9 @@ void TrianglePhi::create(double phi){
 	}
 }
 
-void TrianglePhi::save(){
-	filename_ += "-phi" + tostring(phi_);
-
-	Write w(filename_+".jdbin");
-	RST rst;
-	rst.text("phi-flux : each neighbouring triangle has a flux of opposite sign");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("ref (wave function)",ref_);
-	w("n (particles' number)",n_);
-	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("M (particles' number of each color)",M_);
-	w("sts (connected sites)",sts_);
+void TrianglePhi::save(Write& w) const {
+	GenericSystem<std::complex<double> >::save(w);
 	w("phi (flux per triangle)",phi_);
-	w("EVec (unitary matrix)",EVec_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
 }
 
-void TrianglePhi::get_param(Container& param){
-	GenericSystem<std::complex<double> >::get_param(param);
-	param.set("phi_",phi_);
-}
-
-void TrianglePhi::study(){
-	compute_T();
-	//compute_band_structure();
-}
+void TrianglePhi::check(){ } 

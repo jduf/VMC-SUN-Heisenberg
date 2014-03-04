@@ -1,9 +1,12 @@
 #include "CreateSystem.hpp"
 
 CreateSystem::CreateSystem(Parseur& P):
+	status_(0),
 	N_(P.get<unsigned int>("N")),
 	n_(P.get<unsigned int>("n")),
 	m_(P.get<unsigned int>("m")),
+	bc_(P.get<int>("bc")),
+	param_(0),
 	ref_(3,0),
 	RGL_(NULL),
 	CGL_(NULL)
@@ -13,16 +16,19 @@ CreateSystem::CreateSystem(Parseur& P):
 }
 
 CreateSystem::CreateSystem(CreateSystem const& cs, double param):
+	status_(cs.status_),
 	N_(cs.N_),
 	n_(cs.n_),
 	m_(cs.m_),
+	bc_(cs.bc_),
+	param_(param),
 	ref_(cs.ref_),
 	RGL_(NULL),
 	CGL_(NULL)
 {
 	create();
-	if(RGL_){RGL_->create(param);}
-	if(CGL_){CGL_->create(param);}
+	if(RGL_){status_ = RGL_->create(param);}
+	if(CGL_){status_ = CGL_->create(param);}
 }
 
 CreateSystem::~CreateSystem(){
@@ -154,9 +160,9 @@ void CreateSystem::create(){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:{RGL_ = new ChainFermi(N_,n_,m_);}break;
+								case 0:{RGL_ = new ChainFermi(N_,n_,m_,bc_);}break;
 									   //case 1:{return ChainDimerized(N_,n_,m_);}break;
-								case 2:{RGL_ = new ChainPolymerized(N_,n_,m_);}break;
+								case 2:{RGL_ = new ChainPolymerized(N_,n_,m_,bc_);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;
@@ -200,7 +206,7 @@ void CreateSystem::create(){
 					case 2:
 						{
 							switch(ref_(2)){
-								case 2:{CGL_ = new SquarePiFlux(N_,n_,m_);}break;
+								case 2:{CGL_ = new SquarePiFlux(N_,n_,m_,bc_);}break;
 									   //   case 3:{return SquareSU2PhiFlux(N_,n_,m_);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
@@ -226,7 +232,12 @@ void CreateSystem::create(){
 	}
 }
 
-void CreateSystem::save(Write& w){
+void CreateSystem::save(Write& w) const{
 	if(RGL_){RGL_->save(w);}
 	if(CGL_){CGL_->save(w);}
+}
+
+void CreateSystem::check(){
+	if(RGL_){return RGL_->check();}
+	if(CGL_){return CGL_->check();}
 }

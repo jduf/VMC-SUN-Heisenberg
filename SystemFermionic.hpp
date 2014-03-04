@@ -17,7 +17,7 @@ class SystemFermionic : public System<Type>{
 		 * - creates an random initial state
 		 * - if the sate is allowed, compute its related Ainv matrices
 		*/ //}
-		SystemFermionic(CreateSystem const& CS, unsigned int const& thread);
+		SystemFermionic(CreateSystem* CS, unsigned int const& thread);
 		/*!delete all the variables dynamically allocated*/
 		~SystemFermionic();
 
@@ -68,66 +68,67 @@ class SystemFermionic : public System<Type>{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-SystemFermionic<Type>::SystemFermionic(CreateSystem const& CS, unsigned int const& thread):
+SystemFermionic<Type>::SystemFermionic(CreateSystem* CS, unsigned int const& thread):
 	System<Type>(CS,thread),
-	EVec_(CS.get_EVec<Type>()),
+	EVec_(CS->get_EVec<Type>()),
 	Ainv_(new Matrix<Type>[this->N_])
 {
-	for(unsigned int i(0); i < this->N_; i++){
-		Ainv_[i].set(this->M_,this->M_);
-	}
-	tmp_.set(this->M_,this->M_);
-	row_.set(this->n_,this->m_);
+	this->status_ = CS->get_status();
+	if(this->status_ == 1){
+		for(unsigned int i(0); i < this->N_; i++){
+			Ainv_[i].set(this->M_,this->M_);
+		}
+		tmp_.set(this->M_,this->M_);
+		row_.set(this->n_,this->m_);
 
-	Vector<int> ipiv;
-	unsigned int TRY_MAX(100);
-	unsigned int l(0);
-	double rcn(0.0);
-	unsigned int k(0);
-	for(unsigned int i(0); i<this->n_; i++){
-		for(unsigned int j(0); j<this->m_; j++){
-			this->s_(i,j) = ++k % this->N_;
+		Vector<int> ipiv;
+		unsigned int TRY_MAX(100);
+		unsigned int l(0);
+		double rcn(0.0);
+		unsigned int k(0);
+		for(unsigned int i(0); i<this->n_; i++){
+			for(unsigned int j(0); j<this->m_; j++){
+				this->s_(i,j) = ++k % this->N_;
+			}
 		}
-	}
-	do {
-		for(unsigned int i(0); i<1000; i++){
-			swap();
-			this->s_(this->new_s[0],this->new_p[0]) = this->new_c[1];
-			this->s_(this->new_s[1],this->new_p[1]) = this->new_c[0];
-		}
-		unsigned int c(0);
-		unsigned int r;
-		Vector<unsigned int> a(this->N_,0);
-		for(unsigned int s(0); s < this->n_; s++){
-			for(unsigned int p(0); p < this->m_; p++){
-				c = this->s_(s,p);
-				r = c*this->n_+s;
-				for(unsigned int j(0); j < this->M_; j++){
-					Ainv_[c](a(c),j) = EVec_(r,j);
+		do {
+			for(unsigned int i(0); i<1000; i++){
+				swap();
+				this->s_(this->new_s[0],this->new_p[0]) = this->new_c[1];
+				this->s_(this->new_s[1],this->new_p[1]) = this->new_c[0];
+			}
+			unsigned int c(0);
+			unsigned int r;
+			Vector<unsigned int> a(this->N_,0);
+			for(unsigned int s(0); s < this->n_; s++){
+				for(unsigned int p(0); p < this->m_; p++){
+					c = this->s_(s,p);
+					r = c*this->n_+s;
+					for(unsigned int j(0); j < this->M_; j++){
+						Ainv_[c](a(c),j) = EVec_(r,j);
+					}
+					row_(s,p) = a(c);
+					a(c)++;
 				}
-				row_(s,p) = a(c);
-				a(c)++;
 			}
-		}
-		
-		for(unsigned int c(0); c < this->N_; c++){
-			Lapack<Type> inv(&Ainv_[c],false,'G');
-			ipiv = inv.is_singular(rcn);
-			if(!ipiv.ptr()){
-				c = this->N_;
-			} else {
-				inv.inv(ipiv);
+
+			for(unsigned int c(0); c < this->N_; c++){
+				Lapack<Type> inv(&Ainv_[c],false,'G');
+				ipiv = inv.is_singular(rcn);
+				if(!ipiv.ptr()){
+					c = this->N_;
+				} else {
+					inv.inv(ipiv);
+				}
 			}
+
+		} while (!ipiv.ptr() && ++l<TRY_MAX);
+
+		if(l!=TRY_MAX){
+			this->status_=2; /*2nd step successful*/
+		} else {
+			std::cerr<<"No initial state found after "<<TRY_MAX<<"trials"<<std::endl;
 		}
-
-	} while (!ipiv.ptr() && ++l<TRY_MAX);
-
-	if(l==TRY_MAX){
-		std::cerr<<"sorry, the thread will not be lunched because no initial state was found"<<std::endl;
-		this->status_=0;
-	} else {
-		std::cerr<<"yeah ! initial state found"<<std::endl;
-		this->status_=1;
 	}
 }
 

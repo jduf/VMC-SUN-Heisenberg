@@ -1,14 +1,14 @@
 #include"ChainFermi.hpp"
 
-ChainFermi::ChainFermi(unsigned int N, unsigned int n, unsigned int m):
-	Chain<double>(N,n,m,"chain-fermi")
+ChainFermi::ChainFermi(unsigned int N, unsigned int n, unsigned int m, int bc):
+	Chain<double>(N,n,m,bc,"chain-fermi")
 {
 	rst_.text("Spin ChainFermi, all the hopping parameters are real");
 }
 
 ChainFermi::~ChainFermi(){}
 
-void ChainFermi::create(double x){
+unsigned int ChainFermi::create(double x){
 	compute_T();
 	diagonalize_T('S');
 	for(unsigned int spin(0);spin<N_;spin++){
@@ -18,13 +18,16 @@ void ChainFermi::create(double x){
 			}
 		}
 	}
+	if(degenerate_){ return 0; }
+	else { return 1; }/*1st step successful*/
 }
 
 void ChainFermi::compute_T(){
 	double t(-1.0);
-	T_(0, n_ -1 ) = bc_*t;
-	for(unsigned int i(0); i< n_-1; i++){
-		T_(i,i+1) = t;
+	Matrix<int> nb;
+	for(unsigned int i(0); i< n_; i++){
+		nb = get_neighbourg(i);
+		T_(i,nb(0,0)) = nb(0,1)*t;
 	}
 	T_ += T_.transpose();
 }
@@ -35,4 +38,10 @@ void ChainFermi::compute_P(Matrix<double>& P){
 	for(unsigned int i(0); i< n_-1; i++){
 		P(i,i+1) = 1.0;
 	}
+}
+
+void ChainFermi::check(){
+	bc_ = -1;
+	compute_T();
+	std::cout<<T_<<std::endl;
 }

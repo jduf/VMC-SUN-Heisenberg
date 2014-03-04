@@ -26,7 +26,7 @@ int main(int argc, char* argv[]){
 					   unsigned int N;
 					   unsigned int m;
 					   unsigned int n;
-					   double bc;
+					   int bc;
 					   double param;
 					   double E;
 					   double DeltaE;
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]){
 					   unsigned int N;
 					   unsigned int m;
 					   unsigned int n;
-					   double bc;
+					   int bc;
 					   double param;
 					   double E;
 					   double DeltaE;
@@ -61,6 +61,7 @@ int main(int argc, char* argv[]){
 
 		Gnuplot gp("plot","plot");
 		gp.add_plot_param("'runs.dat' u 1:2:3 w errorbars, ");
+		gp.add_plot_param("'trash.dat' u 1:2, ");
 		gp.add_plot_param("'mean.dat' u 1:2:3 w errorbars ");
 	}
 	std::cerr<<"modifer Read->eof et peut être tout ce qui va avec"<<std::endl;

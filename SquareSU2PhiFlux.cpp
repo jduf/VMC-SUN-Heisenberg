@@ -1,11 +1,12 @@
 #include "SquareSU2PhiFlux.hpp"
 
-SquareSU2PhiFlux::SquareSU2PhiFlux(Container const& param):
-	Square<std::complex<double> >(param,"square-phi-flux")
+SquareSU2PhiFlux::SquareSU2PhiFlux(unsigned int N, unsigned int n, unsigned int m):
+	Square<std::complex<double> >(N,n,m,"square-phi-flux")
 {
 	if(N_ != 2){
 		std::cerr<<"SquareSU2PhiFlux : this wavefunction is appropriate for N=2"<<std::endl;
 	}
+	rst_.text("new test with +- phi flux per plaquette");
 }
 
 SquareSU2PhiFlux::~SquareSU2PhiFlux(){}
@@ -29,58 +30,6 @@ void SquareSU2PhiFlux::compute_T(){
 	T_ += T_.trans_conj(); 
 }
 
-void SquareSU2PhiFlux::create(double phi){
-	phi_=M_PI*phi;
-	compute_T();
-	diagonalize_T('H');
-	for(unsigned int color(0);color<N_;color++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+color*n_,j) = T_(i,j);
-			}
-		}
-	}
-}
-
-void SquareSU2PhiFlux::save(){
-	filename_ += "-phi+" + tostring(phi_);
-
-	Write w(filename_+".jdbin");
-	RST rst;
-	rst.text("new test with +- phi flux per plaquette");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("ref (wave function)",ref_);
-	w("n (particles' number)",n_);
-	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("M (particles' number of each color)",M_);
-	w("sts (connected sites)",sts_);
-	w("phi/pi (phi-flux)",phi_/M_PI);
-	w("EVec (unitary matrix)",EVec_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
-}
-
-void SquareSU2PhiFlux::get_param(Container& param){
-	GenericSystem<std::complex<double> >::get_param(param);
-	param.set("phi",phi_);
-}
-
-void SquareSU2PhiFlux::study(){
-	compute_T();
-	//band_structure();
-	//for(unsigned int i(0);i<n_;i++){
-	//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
-	//ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
-	//E(i) = projection(T_,evec,i,i).real();
-	//}
-	lattice();
-}
-
 void SquareSU2PhiFlux::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py){
 	Px.set(n_,n_,0.0);
 	Py.set(n_,n_,0.0);
@@ -99,29 +48,45 @@ void SquareSU2PhiFlux::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::
 	}
 }
 
+void SquareSU2PhiFlux::study(){
+	compute_T();
+	//band_structure();
+	//for(unsigned int i(0);i<n_;i++){
+	//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
+	//ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
+	//E(i) = projection(T_,evec,i,i).real();
+	//}
+	lattice();
+}
+
+void SquareSU2PhiFlux::save(Write& w) const{
+
+	w("phi/pi (phi-flux)",phi_/M_PI);
+}
+
 void SquareSU2PhiFlux::lattice(){
 	PSTricks ps(filename_+"-lattice");
 	ps.add("\\begin{pspicture}l(15,15)%"+filename_+"-lattice");
 	double prop(0.0);
 	std::string color;
-	Vector<unsigned int> neighbourg;
+	Matrix<int> nb;
 	for(unsigned int i(0);i<n_;i++){
-		neighbourg = get_neighbourg(i);
-		prop = round(std::abs(T_(i,neighbourg(0)).imag())*7,7);
+		nb = get_neighbourg(i);
+		prop = round(std::abs(T_(i,nb(0,0)).imag())*7,7);
 		if(std::abs(prop)<1e-14){ color = "blue";}
 		else{color = "green";}
 		if((i+1) % Lx_ ){
-			ps.line("->", i%Lx_, i/Ly_, neighbourg(0)%Lx_, neighbourg(0)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
+			ps.line("->", i%Lx_, i/Ly_, nb(0,0)%Lx_, nb(0,0)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
 		} else {
-			ps.line("->", i%Lx_, i/Ly_, i%Lx_+1, neighbourg(0)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
+			ps.line("->", i%Lx_, i/Ly_, i%Lx_+1, nb(0,0)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
 		}
-		prop = round(std::abs(T_(i,neighbourg(1)).imag())*7,7);
+		prop = round(std::abs(T_(i,nb(1,0)).imag())*7,7);
 		if(std::abs(prop)<1e-14){ color = "blue";}
 		else{color = "green";}
 		if( i+Lx_<this->n_){ 
-			ps.line("->", i%Lx_, i/Ly_, neighbourg(1)%Lx_, neighbourg(1)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
+			ps.line("->", i%Lx_, i/Ly_, nb(1,0)%Lx_, nb(1,0)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
 		} else {
-			ps.line("->", i%Lx_, i/Ly_, neighbourg(1)%Lx_, i/Ly_+1, "linewidth="+tostring(prop)+"pt,linecolor="+color);
+			ps.line("->", i%Lx_, i/Ly_, nb(1,0)%Lx_, i/Ly_+1, "linewidth="+tostring(prop)+"pt,linecolor="+color);
 		}
 	}
 
@@ -143,4 +108,23 @@ void SquareSU2PhiFlux::lattice(){
 	ps.frame(-0.5,-0.5,Lx_-0.5,Ly_-0.5,"linecolor=red");
 	ps.frame(-0.5,-0.5,1.5,0.5,"linecolor=red,linestyle=dashed");
 	ps.add("\\end{pspicture}");
+}
+
+void SquareSU2PhiFlux::create(double phi){
+	filename_ += "-phi+" + tostring(phi_);
+	phi_=M_PI*phi;
+	compute_T();
+	diagonalize_T('H');
+	for(unsigned int color(0);color<N_;color++){
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+color*n_,j) = T_(i,j);
+			}
+		}
+	}
+}
+
+void SquareSU2PhiFlux::check(){
+	compute_T();
+	std::cout<<T_.chop(1e-6)<<std::endl;
 }

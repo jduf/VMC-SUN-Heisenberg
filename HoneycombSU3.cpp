@@ -1,8 +1,9 @@
 #include "HoneycombSU3.hpp"
 
-HoneycombSU3::HoneycombSU3(Container const& param):
-	Honeycomb<double>(param,"honeycomb")
+HoneycombSU3::HoneycombSU3(unsigned int N, unsigned int n, unsigned int m):
+	Honeycomb<double>(N,n,m,"honeycomb")
 {
+	rst_.text("HoneycombSU4 ");
 	if(bc_ == 1){ filename_ += "-P";} 
 	else { filename_ += "-A";}
 	if(N_ != 3 || M_==Ly_*Lx_){
@@ -57,23 +58,4 @@ void HoneycombSU3::create(double x){
 	}
 }
 
-void HoneycombSU3::save(){
-	Write w(filename_+".jdbin");
-	std::cerr<<"detail what kind of honeycomb it is"<<std::endl;
-	RST rst;
-	rst.text("HoneycombSU4 ");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("ref (wave function)",ref_);
-	w("n (particles' number)",n_);
-	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("M (particles' number of each color)",M_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
-}
+void HoneycombSU3::check(){ }

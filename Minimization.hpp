@@ -14,6 +14,7 @@ class Minimization{
 
 	private:
 		CreateSystem CS_;
+		bool locked_;
 		unsigned int tmax_;
 		unsigned int nruns_;
 		Write results_file_;

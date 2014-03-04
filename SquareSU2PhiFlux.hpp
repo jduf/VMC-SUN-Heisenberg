@@ -5,13 +5,13 @@
 
 class SquareSU2PhiFlux: public Square<std::complex<double> >{
 	public:
-		SquareSU2PhiFlux(Container const& param);
+		SquareSU2PhiFlux(unsigned int N, unsigned int n, unsigned int m);
 		~SquareSU2PhiFlux();
 
 		void create(double phi);
+		void check();
 		void study();
-		void save();
-		void get_param(Container& param);
+		void save(Write& w) const;
 
 	protected:
 		double phi_;

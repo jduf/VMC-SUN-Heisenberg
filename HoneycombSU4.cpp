@@ -1,8 +1,13 @@
 #include "HoneycombSU4.hpp"
 
-HoneycombSU4::HoneycombSU4(Container const& param):
-	Honeycomb<double>(param,"honeycomb-pi-flux")
+HoneycombSU4::HoneycombSU4(unsigned int N, unsigned int n, unsigned int m):
+	Honeycomb<double>(N,n,m,"honeycomb-pi-flux")
 {
+	rst_.title("SU(4) Honeycomb lattice","~");
+	rst_.item("pi-flux configuration");
+	rst_.item("4 sites per unit cell");
+	rst_.item("Lx x Ly unit cells");
+
 	if(bc_ == 1){ filename_ += "-P";} 
 	else { filename_ += "-A";}
 	if(N_ != 4 ||M_==Ly_*Lx_){
@@ -61,8 +66,6 @@ void HoneycombSU4::compute_T(){
 	T_ += T_.transpose();
 }
 
-void HoneycombSU4::compute_P(){}
-
 void HoneycombSU4::create(double x){
 	compute_T();
 	diagonalize_T('S');
@@ -75,25 +78,7 @@ void HoneycombSU4::create(double x){
 	}
 }
 
-void HoneycombSU4::save(){
-	Write w(filename_+".jdbin");
-	RST rst;
-	rst.title("SU(4) Honeycomb lattice","~");
-	rst.item("pi-flux configuration");
-	rst.item("4 sites per unit cell");
-	rst.item("Lx x Ly unit cells");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("ref (wave function)",ref_);
-	w("n (particles' number)",n_);
-	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("M (particles' number of each color)",M_);
-	w("sts (connected sites)",sts_);
-	w("EVec (unitary matrix)",EVec_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
+void HoneycombSU4::check(){
+	compute_T();
+	std::cout<<T_.chop(1e-6)<<std::endl;
 }

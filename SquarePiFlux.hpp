@@ -5,10 +5,11 @@
 
 class SquarePiFlux: public Square<std::complex<double> >{
 	public:
-		SquarePiFlux(unsigned int N, unsigned int n, unsigned int m);
+		SquarePiFlux(unsigned int N, unsigned int n, unsigned int m, int bc);
 		~SquarePiFlux();
 
-		void create(double x);
+		unsigned int create(double x);
+		void check();
 		void study();
 
 	protected:

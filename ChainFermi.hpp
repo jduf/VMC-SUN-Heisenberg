@@ -5,10 +5,11 @@
 
 class ChainFermi: public Chain<double>{
 	public:
-		ChainFermi(unsigned int N, unsigned int n, unsigned int m);
+		ChainFermi(unsigned int N, unsigned int n, unsigned int m, int bc);
 		~ChainFermi();
 
-		void create(double x=0);
+		unsigned int create(double x=0);
+		void check();
 		void study();
 
 	private:

@@ -17,7 +17,7 @@ class System{
 		 * - allocates memory Ainv_
 		 * - initialize the random number generator
 		 */ //}
-		System(CreateSystem const& CS, unsigned int const& thread);
+		System(CreateSystem* CS, unsigned int const& thread);
 
 		/*!delete all the variables dynamically allocated*/
 		virtual ~System();
@@ -77,14 +77,14 @@ class System{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-System<Type>::System(CreateSystem const& CS, unsigned int const& thread):
-	N_(CS.get_N()),
-	n_(CS.get_n()),
-	m_(CS.get_m()),
+System<Type>::System(CreateSystem* CS, unsigned int const& thread):
+	N_(CS->get_N()),
+	n_(CS->get_n()),
+	m_(CS->get_m()),
 	M_((m_*n_)/N_),
 	status_(1),
 	s_(n_,m_),
-	sts_(CS.get_sts()),
+	sts_(CS->get_sts()),
 	rnd_(new Rand(100,thread))
 {}
 

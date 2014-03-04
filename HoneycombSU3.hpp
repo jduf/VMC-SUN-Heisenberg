@@ -5,12 +5,12 @@
 
 class HoneycombSU3: public Honeycomb<double>{
 	public:
-		HoneycombSU3(Container const& param);
+		HoneycombSU3(unsigned int N, unsigned int n, unsigned int m);
 		~HoneycombSU3();
 
 		void create(double x);
+		void check();
 		void study();
-		void save();
 
 	protected:
 		void compute_T();

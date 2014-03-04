@@ -1,5 +1,3 @@
-/*!  @file pso.cpp */
-
 #include "PSOFermionic.hpp"
 
 int main(int argc, char* argv[]){

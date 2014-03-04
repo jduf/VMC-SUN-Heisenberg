@@ -5,19 +5,19 @@
 
 class TrianglePhi: public Triangle<std::complex<double> >{
 	public:
-		TrianglePhi(Container const& param);
+		TrianglePhi(unsigned int N, unsigned int n, unsigned int m);
 		~TrianglePhi();
 
 		void create(double phi);
+		void check();
 		void study();
-		void save();
-		void get_param(Container& param);
+		void save(Write& w) const;
 
 	protected:
 		double phi_;
 		
-		void compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py);
 		void compute_T();
+		void compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py);
 };
 #endif
 

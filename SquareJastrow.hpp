@@ -5,15 +5,13 @@
 
 class SquareJastrow: public Square<double>{
 	public:
-		SquareJastrow(Container const& param);
+		SquareJastrow(unsigned int N, unsigned int n, unsigned int m);
 		~SquareJastrow();
 
 		void create(double x);
+		void check();
 		void study();
-		void save();
-		void get_input(Container& input);
-
-		void lattice(Matrix<unsigned int> const& lat);
+		void save(Write& w) const;
 
 	protected:
 		Matrix<unsigned int> nn_;
@@ -24,6 +22,7 @@ class SquareJastrow: public Square<double>{
 		void compute_nn();
 		void compute_sublattice();
 		void compute_omega_cc();
+		void lattice(Matrix<unsigned int> const& lat);
 };
 #endif
 

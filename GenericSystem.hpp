@@ -12,7 +12,7 @@ template<typename Type>
 class GenericSystem{
 	public:
 		/*!Constructor N, n, m and z is the coordination number*/
-		GenericSystem(unsigned int N, unsigned int n, unsigned int m, unsigned int z, std::string filename); 
+		GenericSystem(unsigned int N, unsigned int n, unsigned int m, int bc, unsigned int z, std::string filename); 
 		/*Simple destructor*/
 		virtual ~GenericSystem();
 
@@ -21,8 +21,9 @@ class GenericSystem{
 		unsigned int get_num_links() const { return n_*z_/2;}
 		std::string get_filename() const { return filename_;}
 
-		virtual void create(double param)=0;
-		virtual void save(Write& w);
+		virtual unsigned int create(double param)=0;
+		virtual void save(Write& w) const;
+		virtual void check()=0;
 
 	protected:
 		unsigned int const n_;		//!< sites' number
@@ -30,7 +31,7 @@ class GenericSystem{
 		unsigned int const m_;		//!< particles per site's number
 		unsigned int const M_;		//!< particles' number of each color
 		unsigned int const z_;		//!< coordination number
-		double bc_;					//!< boundary condition
+		int bc_;					//!< boundary condition
 		Matrix<unsigned int> sts_;	//!< list of connected sites
 		Matrix<Type> T_;			//!< Gutzwiller Hamiltonian
 		Matrix<Type> EVec_;			//!< eigenvectors Matrix (transfer Matrix)
@@ -39,7 +40,7 @@ class GenericSystem{
 		RST rst_;
 
 		/*!return the neighbours of site i*/
-		virtual Vector<unsigned int> get_neighbourg(unsigned int i)=0;
+		virtual Matrix<int> get_neighbourg(unsigned int i) const=0;
 		/*!compute the array of pairs of swapping sites*/
 		void compute_sts();
 		/*!compute the eigenvectors from the mean field Hamiltonian*/
@@ -47,14 +48,13 @@ class GenericSystem{
 };
 
 template<typename Type>
-GenericSystem<Type>::GenericSystem(unsigned int N, unsigned int n, unsigned int m, unsigned int z, std::string filename): 
+GenericSystem<Type>::GenericSystem(unsigned int N, unsigned int n, unsigned int m, int bc, unsigned int z, std::string filename): 
 	n_(n),
 	N_(N), 
 	m_(m),
 	M_((m_*n_)/N_), 
 	z_(z),
-	bc_(1),
-	sts_(n_*z_/2,2),
+	bc_(bc),
 	T_(n_,n_,0.0),
 	EVec_(N_*n_,M_),
 	degenerate_(false),
@@ -65,6 +65,11 @@ GenericSystem<Type>::GenericSystem(unsigned int N, unsigned int n, unsigned int 
 	filename_ += "-N" + tostring(N_);
 	filename_ += "-m" + tostring(m_);
 	filename_ += "-S" + tostring(n_);
+	switch(bc_){
+		case -1:{filename_ += "-A"; }break;
+		case 0:{ filename_ += "-O"; }break;
+		case 1:{ filename_ += "-P"; }break;
+	}
 }
 
 template<typename Type>
@@ -73,13 +78,23 @@ GenericSystem<Type>::~GenericSystem(){}
 template<typename Type>
 void GenericSystem<Type>::compute_sts(){
 	unsigned int k(0);
-	Vector<unsigned int> neighbourg;
+	Matrix<int> nb;
 	for(unsigned int i(0); i<n_;i++){
-		neighbourg = get_neighbourg(i);
+		nb = get_neighbourg(i);
 		for(unsigned int j(0); j<z_/2; j++){
-			sts_(k,0) = i;
-			sts_(k,1) = neighbourg(j);
-			k++;
+			if(nb(j,1)!=0){ k++; }
+		}
+	}
+	sts_.set(k,2);
+	k=0;
+	for(unsigned int i(0); i<n_;i++){
+		nb = get_neighbourg(i);
+		for(unsigned int j(0); j<z_/2; j++){
+			if(nb(j,1)!=0){
+				sts_(k,0) = i;
+				sts_(k,1) = nb(j,0);
+				k++;
+			}
 		}
 	}
 }
@@ -89,11 +104,14 @@ void GenericSystem<Type>::diagonalize_T(char mat_type){
 	Lapack<Type> ES(&T_,false, mat_type);
 	Vector<double> EVal;
 	ES.eigensystem(&EVal,true);
-	if(std::abs(EVal(M_) - EVal(M_-1))<1e-12){ degenerate_ = true; }
+	if(std::abs(EVal(M_) - EVal(M_-1))<1e-12){
+		std::cerr<<"Fermi level degenerate"<<std::endl;
+		degenerate_ = true;
+	}
 }
 
 template<typename Type>
-void GenericSystem<Type>::save(Write& w){
+void GenericSystem<Type>::save(Write& w) const {
 	w.add_to_header(rst_.get());
 	w("N (N of SU(N))",N_);
 	w("m (particles per site' number)",m_);

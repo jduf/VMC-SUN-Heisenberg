@@ -11,9 +11,9 @@ class PSOFermionic : public PSO {
 		virtual ~PSOFermionic();
 
 	private:
-		virtual double run(Vector<double> const& x);
-
-		Container param_;
+		CreateSystem CS_;
 		unsigned int N_MC_;
+
+		virtual double run(Vector<double> const& x);
 };
 #endif

@@ -1,7 +1,7 @@
 #include "SquareMu.hpp"
 
-SquareMu::SquareMu(Container const& param):
-	Square<double>(param,"square-mu")
+SquareMu::SquareMu(unsigned int N, unsigned int n, unsigned int m):
+	Square<double>(N,n,m,"square-mu")
 {}
 
 SquareMu::~SquareMu(){}
@@ -20,62 +20,6 @@ void SquareMu::compute_T(unsigned int alpha){
 	}
 	/*\warning if I take the transpose, the diagonal will be counted twice*/
 	T_ += T_.transpose();
-}
-
-void SquareMu::create(double mu){
-	mu_ = mu;
-	for(unsigned int alpha(0);alpha<N_;alpha++){
-		compute_T(alpha);
-		diagonalize_T('S');
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+alpha*n_,j) = T_(i,j);
-			}
-		}
-		T_.set(n_,n_,0.0);
-	}
-}
-
-void SquareMu::save(){
-	filename_ += "-mu" + tostring(mu_);
-
-	Write w(filename_+".jdbin");
-	RST rst;
-	rst.text("Stripe order : each color lives on its own sublattice");
-	rst.np();
-	rst.title("Input values","~");
-
-	w.set_header(rst.get());
-	w("ref (wave function)",ref_);
-	w("n (particles' number)",n_);
-	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("M (particles' number of each color)",M_);
-	w("sts (connected sites)",sts_);
-	w("mu (chemical potential)",mu_);
-	w("EVec (unitary matrix)",EVec_);
-	w("bc (boundary condition)",bc_);
-	w("Lx (x-dimension)",Lx_);
-	w("Ly (y-dimension)",Ly_);
-}
-
-void SquareMu::get_param(Container& param){
-	GenericSystem<double>::get_param(param);
-	param.set("mu",mu_);
-}
-
-void SquareMu::study(){
-	unsigned int alpha(1);
-	compute_T(alpha);
-	//compute_P();
-	//band_structure();
-	//for(unsigned int i(0);i<n_;i++){
-	//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
-	//ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
-	//E(i) = projection(T_,evec,i,i).real();
-	//}
-	lattice();
-	std::cerr<<"SquareMu : SquareMu() : alpha must be smaller than N_"<<std::endl;
 }
 
 void SquareMu::compute_P(Matrix<double>& Px, Matrix<double>& Py){
@@ -99,18 +43,18 @@ void SquareMu::compute_P(Matrix<double>& Px, Matrix<double>& Py){
 void SquareMu::lattice(){
 	PSTricks ps(filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
-	Vector<unsigned int> neighbourg;
+	Matrix<int> nb;
 	for(unsigned int i(0);i<n_;i++){
-		neighbourg = get_neighbourg(i);
+		nb = get_neighbourg(i);
 		if((i+1) % Lx_ ){
-			ps.line("-", i%Lx_, i/Ly_, neighbourg(0)%Lx_, neighbourg(0)/Ly_, "linewidth=1pt,linecolor=black");
+			ps.line("-", i%Lx_, i/Ly_, nb(0,0)%Lx_, nb(0,0)/Ly_, "linewidth=1pt,linecolor=black");
 		} else {
-			ps.line("-", i%Lx_, i/Ly_, i%Lx_+1, neighbourg(0)/Ly_, "linewidth=1pt,linecolor=blue");
+			ps.line("-", i%Lx_, i/Ly_, i%Lx_+1, nb(0,0)/Ly_, "linewidth=1pt,linecolor=blue");
 		}
 		if( i+Lx_<this->n_){ 
-			ps.line("-", i%Lx_, i/Ly_, neighbourg(1)%Lx_, neighbourg(1)/Ly_, "linewidth=1pt,linecolor=black");
+			ps.line("-", i%Lx_, i/Ly_, nb(1,0)%Lx_, nb(1,0)/Ly_, "linewidth=1pt,linecolor=black");
 		} else {
-			ps.line("-", i%Lx_, i/Ly_, neighbourg(1)%Lx_, i/Ly_+1, "linewidth=1pt,linecolor=blue");
+			ps.line("-", i%Lx_, i/Ly_, nb(1,0)%Lx_, i/Ly_+1, "linewidth=1pt,linecolor=blue");
 		}
 	}
 
@@ -132,4 +76,42 @@ void SquareMu::lattice(){
 	ps.frame(-0.5,-0.5,Lx_-0.5,Ly_-0.5,"linecolor=red");
 	ps.frame(-0.5,-0.5,N_-0.5,0.5,"linecolor=red,linestyle=dashed");
 	ps.add("\\end{pspicture}");
+}
+
+void SquareMu::study(){
+	unsigned int alpha(1);
+	compute_T(alpha);
+	//compute_P();
+	//band_structure();
+	//for(unsigned int i(0);i<n_;i++){
+	//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
+	//ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
+	//E(i) = projection(T_,evec,i,i).real();
+	//}
+	lattice();
+	std::cerr<<"SquareMu : SquareMu() : alpha must be smaller than N_"<<std::endl;
+}
+
+void SquareMu::create(double mu){
+	mu_ = mu;
+	for(unsigned int alpha(0);alpha<N_;alpha++){
+		compute_T(alpha);
+		diagonalize_T('S');
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_;j++){
+				EVec_(i+alpha*n_,j) = T_(i,j);
+			}
+		}
+		T_.set(n_,n_,0.0);
+	}
+}
+
+void SquareMu::save(Write& w) const {
+	GenericSystem<double>::save(w);
+	w("mu (chemical potential)",mu_);
+}
+
+void SquareMu::check(){
+	compute_T(1);
+	std::cout<<T_.chop(1e-6)<<std::endl;
 }

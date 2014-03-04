@@ -6,26 +6,25 @@
 template<typename Type>
 class Honeycomb: public GenericSystem<Type>{
 	public:
-		Honeycomb(Container const& param, std::string filename);
+		Honeycomb(unsigned int N, unsigned int n, unsigned int m, std::string filename);
 		virtual ~Honeycomb();
 
 	protected:
 		unsigned int Lx_;//!< dimension of the lattice along x-axis
 		unsigned int Ly_;//!< dimension of the lattice along y-axis
-		Matrix<Type> Px_;//!< translation operator along x-axis 
-		Matrix<Type> Py_;//!< translation operator along y-axis 
 
-		virtual Vector<unsigned int> get_neighbourg(unsigned int i);
+		virtual Matrix<int> get_neighbourg(unsigned int i) const;
 };
 
 template<typename Type>
-Honeycomb<Type>::Honeycomb(Container const& param, std::string filename):
-	GenericSystem<Type>(param,3,filename),
+Honeycomb<Type>::Honeycomb(unsigned int N, unsigned int n, unsigned int m, std::string filename):
+	GenericSystem<Type>(N,n,m,3,filename),
 	Lx_(floor(sqrt(this->M_))),
 	Ly_(floor(sqrt(this->M_)))
 {
-	std::cerr<<"HoneycombSU3 will rewrite all the honeycomb things as a rectangular 12 sites unit cell"<<std::endl;
-	this->bc_= param.get<double>("bc");
+	std::cerr<<"Honeycomb will rewrite all the honeycomb things as a rectangular 12 sites unit cell"<<std::endl;
+	std::cerr<<"Honeycomb: need to set the boundary condition"<<std::endl;
+	this->bc_ = -1;
 	if(this->M_==Ly_*Lx_){
 		this->filename_ += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
 		this->compute_sts();
@@ -40,7 +39,7 @@ Honeycomb<Type>::~Honeycomb(){
 }
 
 template<typename Type>
-Vector<unsigned int> Honeycomb<Type>::get_neighbourg(unsigned int i){
+Matrix<int> Honeycomb<Type>::get_neighbourg(unsigned int i) const {
 	std::cerr<<"honecomb : need to define get_neighbourg "<<i<<std::endl;
 
 	//unsigned int i(0);

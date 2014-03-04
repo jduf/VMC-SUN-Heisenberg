@@ -5,19 +5,19 @@
 
 class TriangleMu: public Triangle<double>{
 	public:
-		TriangleMu(Container const& param);
+		TriangleMu(unsigned int N, unsigned int n, unsigned int m);
 		~TriangleMu();
 
 		void create(double mu);
+		void check();
 		void study();
-		void save();
-		void get_param(Container& param);
+		void save(Write& w) const;
 
 	protected:
 		double mu_;
 
 		void compute_T(unsigned int alpha);
-		void compute_P();
+		void compute_P(Matrix<double>& Px, Matrix<double>& Py);
 		void lattice();
 };
 #endif

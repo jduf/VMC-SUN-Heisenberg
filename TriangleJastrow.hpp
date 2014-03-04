@@ -5,15 +5,13 @@
 
 class TriangleJastrow: public Triangle<double>{
 	public:
-		TriangleJastrow(Container const& param);
+		TriangleJastrow(unsigned int N, unsigned int n, unsigned int m);
 		~TriangleJastrow();
 
 		void create(double x);
+		void check();
 		void study();
-		void save();
-		void get_input(Container& input);
-
-		void lattice(Matrix<unsigned int> const& lat);
+		void save(Write& w) const;
 
 	protected:
 		Matrix<unsigned int> nn_;
@@ -24,6 +22,8 @@ class TriangleJastrow: public Triangle<double>{
 		void compute_nn();
 		void compute_sublattice();
 		void compute_omega_cc();
+		void lattice(Matrix<unsigned int> const& lat);
+
 };
 #endif
 
