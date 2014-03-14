@@ -10,7 +10,7 @@ class SquarePiFlux: public Square<std::complex<double> >{
 
 		unsigned int create(double x);
 		void check();
-		void study();
+		void study(double E, double DeltaE, Vector<double> const& corr, std::string save_in);
 
 	protected:
 		void compute_T();

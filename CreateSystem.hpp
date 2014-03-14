@@ -10,9 +10,11 @@ class CreateSystem{
 	public:
 		CreateSystem(Parseur& P);
 		CreateSystem(CreateSystem const& cs, double param);
+		CreateSystem(unsigned int N, unsigned int n, unsigned int m, int bc, double param, Vector<unsigned int> ref);
 		virtual ~CreateSystem();
 
 		void check();
+		void study(double E, double DeltaE, Vector<double> corr, std::string save_in);
 		void save(Write& w) const;
 		bool use_complex() const;
 		bool is_bosonic() const;
@@ -23,10 +25,11 @@ class CreateSystem{
 		unsigned int get_N() const {return N_;}
 		unsigned int get_n() const {return n_;}
 		unsigned int get_m() const {return m_;}
+		unsigned int get_bc() const {return bc_;}
 		unsigned int get_num_links() const;
 		template<typename Type>
 			Matrix<Type> get_EVec() const;
-		Matrix<unsigned int> get_sts() const;
+		Matrix<unsigned int> get_links() const;
 
 	private:
 		unsigned int status_;

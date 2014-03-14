@@ -8,33 +8,26 @@
 template<typename Type>
 class System{
 	public:
-		/*!create a System without any parameters set*/
+		/*!Create a System and extract the parameters from CreateSystem*/
 		//{Description
 		/*! Creates the system in function of the input parameters.
 		 *
 		 * - for each thread the system is independantly initialized
-		 * - sets N, m, n, sts_ and set tmp to the correct size 
+		 * - sets N, m, n, links_ and set tmp to the correct size 
 		 * - allocates memory Ainv_
 		 * - initialize the random number generator
 		 */ //}
 		System(CreateSystem* CS, unsigned int const& thread);
-
-		/*!delete all the variables dynamically allocated*/
+		/*!Delete all the variables dynamically allocated*/
 		virtual ~System();
 
 		/*!Exchanges two particles of different color */
 		virtual void swap();
-
 		/*!Exchanges particle on site s1 with the one on site s2*/
 		virtual void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
-
 		/*!Virtual method that is called by MonteCarlo */
 		virtual Type ratio()=0;
-
-		//{Description
-		/*!Updates the configuration s_ if the condition given by the
-		 * System::ratio() method is accepted.
-		 */ //}
+		/*!Updates only s_*/
 		virtual void update();
 
 		//{Description
@@ -42,35 +35,33 @@ class System{
 		 * permutation */
 		//}
 		void measure(double& E_step, Vector<double>& corr_step);
+		/*!Returns the status*/
+		unsigned int get_status() const {return status_;}
 
+		void long_range_corr(Vector<double>& corr_step);
+
+		/*!Pure virtual function that provides a way to check the System */
 		virtual void print()=0;
 
-		unsigned int get_status() const {return status_;}
-		unsigned int get_n() const {return n_;}
-
 	protected:
-		/*!Forbids copy constructor*/
-		System(System const& S);
-		/*!Forbids assignment operator*/
-		System& operator=(System const& S);
-
 		unsigned int new_c[2];	//!< colors of the exchanged sites
 		unsigned int new_s[2];	//!< sites that are exchanged
 		unsigned int new_p[2];	//!< sites that are exchanged
+
+		unsigned int status_;//!< Degenerate :0 No initial state:1
 
 		unsigned int const N_;//!< colors' number
 		unsigned int const n_;//!< sites' number
 		unsigned int const m_;//!< particles per site' number
 		unsigned int const M_;//!< particles' number of each color
 
-		unsigned int status_;
-
 		Matrix<unsigned int> s_;//!< on the site i : s(i,0)=color, s(i,1)=row
-		Matrix<unsigned int> sts_;//!< sts_(i,0) is a site that can be exchanged with sts_(i,1)
+		Matrix<unsigned int> const links_;	//!< list of links
 
-		Rand* rnd_;				//!< generator of random numbers 
+		Rand* rnd_;			//!< generator of random numbers 
 
 	private:
+		/*!Check only if the new state has not the same color on one site*/
 		bool is_new_state_forbidden();
 };
 
@@ -78,13 +69,13 @@ class System{
 /*{*/
 template<typename Type>
 System<Type>::System(CreateSystem* CS, unsigned int const& thread):
+	status_(1),
 	N_(CS->get_N()),
 	n_(CS->get_n()),
 	m_(CS->get_m()),
 	M_((m_*n_)/N_),
-	status_(1),
 	s_(n_,m_),
-	sts_(CS->get_sts()),
+	links_(CS->get_links()),
 	rnd_(new Rand(100,thread))
 {}
 
@@ -100,7 +91,7 @@ System<Type>::~System(){
 /*{*/
 template<typename Type>
 void System<Type>::update(){
-	///*update the sites*/
+	/*update the sites*/
 	s_(new_s[0],new_p[0]) = new_c[1];
 	s_(new_s[1],new_p[1]) = new_c[0];
 }
@@ -143,15 +134,33 @@ template<typename Type>
 void System<Type>::measure(double& E_step, Vector<double>& corr_step){
 	E_step = 0.0;
 	double r;
-	for(unsigned int i(0);i<sts_.row();i++){
+	for(unsigned int i(0);i<links_.row();i++){
 		corr_step(i) = 0.0;
 		for(unsigned int p0(0); p0<m_; p0++){
 			for(unsigned int p1(0); p1<m_; p1++){
-				swap(sts_(i,0),sts_(i,1),p0,p1);
+				swap(links_(i,0),links_(i,1),p0,p1);
 				if(!is_new_state_forbidden()){ 
 					r = real(ratio());
 					E_step += r; 
 					corr_step(i) += r;
+				}
+			}
+		}
+	}
+	E_step /= n_;
+}
+
+template<typename Type>
+void System<Type>::long_range_corr(Vector<double>& corr_step){
+	unsigned int x0(n_/3);
+	unsigned int x1(2*n_/3);
+	for(unsigned int i(0);i<x1-x0-1;i++){
+		corr_step(i) = 0.0;
+		for(unsigned int p0(0); p0<m_; p0++){
+			for(unsigned int p1(0); p1<m_; p1++){
+				swap(x0,x0+i+1,p0,p1);
+				if(!is_new_state_forbidden()){ 
+					corr_step(i) += real(ratio());;
 				}
 			}
 		}

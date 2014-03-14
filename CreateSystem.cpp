@@ -15,6 +15,22 @@ CreateSystem::CreateSystem(Parseur& P):
 	create();
 }
 
+CreateSystem::CreateSystem(unsigned int N, unsigned int n, unsigned int m, int bc, double param, Vector<unsigned int> ref):
+	status_(0),
+	N_(N),
+	n_(n),
+	m_(m),
+	bc_(bc),
+	param_(param),
+	ref_(ref),
+	RGL_(NULL),
+	CGL_(NULL)
+{
+	create();
+	if(RGL_){status_ = RGL_->create(param);}
+	if(CGL_){status_ = CGL_->create(param);}
+}
+
 CreateSystem::CreateSystem(CreateSystem const& cs, double param):
 	status_(cs.status_),
 	N_(cs.N_),
@@ -60,9 +76,9 @@ std::string CreateSystem::get_filename() const{
 	return 0;
 }
 
-Matrix<unsigned int> CreateSystem::get_sts() const { 
-	if(RGL_){return RGL_->get_sts();}
-	if(CGL_){return CGL_->get_sts();}
+Matrix<unsigned int> CreateSystem::get_links() const { 
+	if(RGL_){return RGL_->get_links();}
+	if(CGL_){return CGL_->get_links();}
 	return 0;
 }
 
@@ -233,6 +249,7 @@ void CreateSystem::create(){
 }
 
 void CreateSystem::save(Write& w) const{
+	w("ref (type of wavefunction)",ref_);
 	if(RGL_){RGL_->save(w);}
 	if(CGL_){CGL_->save(w);}
 }
@@ -240,4 +257,9 @@ void CreateSystem::save(Write& w) const{
 void CreateSystem::check(){
 	if(RGL_){return RGL_->check();}
 	if(CGL_){return CGL_->check();}
+}
+
+void CreateSystem::study(double E, double DeltaE, Vector<double> corr, std::string save_in){
+	if(RGL_){return RGL_->study(E,DeltaE,corr,save_in);}
+	if(CGL_){return CGL_->study(E,DeltaE,corr,save_in);}
 }

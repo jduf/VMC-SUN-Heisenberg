@@ -4,22 +4,12 @@ Minimization::Minimization(Parseur& P):
 	CS_(P),
 	locked_(false),
 	tmax_(P.get<unsigned int>("tmax")),
-	nruns_(P.get<unsigned int>("nruns")),
-	results_file_(CS_.get_filename()+"-min.jdbin")
+	nruns_(P.get<unsigned int>("nruns"))
 {
+	std::cout<<"need to define the correct path"<<std::endl;
 	if(P.status()){
 		std::cerr<<"Minimization::Minimization(Parseur& P) : An argument is missing, the minimization won't be lunched"<<std::endl;
 		locked_=true;
-	} else {
-		results_file_("Created by the Minimization class",1);
-		results_file_("nruns (number of simulations runned)",nruns_);
-		RST rst_param;
-		rst_param.title("Input","-");
-		results_file_.add_to_header(rst_param.get());
-		CS_.save(results_file_);
-		RST rst_results;
-		rst_results.title("Results","-");
-		results_file_.add_to_header(rst_results.get());
 	}
 }
 
@@ -78,14 +68,12 @@ double Minimization::fx(double param){
 	results_file_("param",param);
 	CreateSystem CS(CS_,param);
 	if( CS.use_complex() ){
-		ParallelMonteCarlo<std::complex<double> > sim(&CS,nruns_,tmax_);
+		ParallelMonteCarlo<std::complex<double> > sim(&CS,".",nruns_,tmax_);
 		sim.run();
-		sim.save(results_file_);
 		return sim.get_energy();
 	} else {
-		ParallelMonteCarlo<double> sim(&CS,nruns_,tmax_);
+		ParallelMonteCarlo<double> sim(&CS,".",nruns_,tmax_);
 		sim.run();
-		sim.save(results_file_);
 		return sim.get_energy();
 	}
 }

@@ -65,8 +65,6 @@ void SquareMu::lattice(){
 	double max(occupation_number(ada));
 	Vector<double> tmp(2);
 	for(unsigned int i(0);i<n_;i++){
-		tmp(0) = round(ada(i),7);
-		tmp(1) = round((max-ada(i))/max,7);
 		ps.add("\\rput("+tostring(i%Lx_)+","+tostring(i/Ly_)+"){%");
 		ps.pie(tmp,r,"chartColor=color,userColor={blue,white}");
 		ps.add("}");

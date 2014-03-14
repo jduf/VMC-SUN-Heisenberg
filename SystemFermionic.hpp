@@ -7,42 +7,35 @@
 template<typename Type>
 class SystemFermionic : public System<Type>{
 	public:
-		/*!Creates a SystemFermionic without any parameters set*/
-		//{Description
-		/*! Creates the system in function of the input parameters.
+		/*!{ Creates a SystemFermionic without any parameters set
+		 * Creates the system in function of the input parameters.
 		 *
 		 * - for each thread the system is independantly initialized
 		 * - calls System<Type>::init()
 		 * - sets tmp, U, Ut to the correct size 
 		 * - creates an random initial state
 		 * - if the sate is allowed, compute its related Ainv matrices
-		*/ //}
+		 * }*/
 		SystemFermionic(CreateSystem* CS, unsigned int const& thread);
-		/*!delete all the variables dynamically allocated*/
+		/*!Delete all the variables dynamically allocated*/
 		~SystemFermionic();
 
-
-		/*!Call System<Type>::swap() and set row and new_ev*/
+		/*!Set row and new_ev*/
 		void swap();
-
-		/*!Calls System<Type>::swap(unsigned int const& s0, unsigned int const&
-		 * s1) and set row and new_ev*/
+		/*!Set row and new_ev*/
 		void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
 
 		//{Description
 		/*!Computes the ratio of the two determinants related to the current
 		 * and next configuration
-		 *
 		 * - when particle of the same color are exchanged a minus sign arises 
 		 *   to conserve the Marshall-Peierls sign rule
 		 * - when two different colors are exchanged, computes the ratio using
 		 *   the determinant lemma
 		 */ //}
 		Type ratio();
-
 		//{Description
-		/*!Calls System<Type>::update() and then
-		 *
+		/*!Calls System::update() and then
 		 * - updates the Ainv_ matrices
 		 * - updates s_(new_s[i],1)
 		 */ //}
@@ -111,7 +104,6 @@ SystemFermionic<Type>::SystemFermionic(CreateSystem* CS, unsigned int const& thr
 					a(c)++;
 				}
 			}
-
 			for(unsigned int c(0); c < this->N_; c++){
 				Lapack<Type> inv(&Ainv_[c],false,'G');
 				ipiv = inv.is_singular(rcn);
@@ -121,9 +113,7 @@ SystemFermionic<Type>::SystemFermionic(CreateSystem* CS, unsigned int const& thr
 					inv.inv(ipiv);
 				}
 			}
-
 		} while (!ipiv.ptr() && ++l<TRY_MAX);
-
 		if(l!=TRY_MAX){
 			this->status_=2; /*2nd step successful*/
 		} else {
@@ -142,7 +132,6 @@ SystemFermionic<Type>::~SystemFermionic(){
 /*{*/
 template<typename Type>
 void SystemFermionic<Type>::update(){
-	/*update the sites*/
 	System<Type>::update();
 	row_(this->new_s[0],this->new_p[0]) = new_r[1];
 	row_(this->new_s[1],this->new_p[1]) = new_r[0];

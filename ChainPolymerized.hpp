@@ -10,8 +10,8 @@ class ChainPolymerized: public Chain<double> {
 
 		unsigned int create(double delta);
 		void check();
-		void study();
 		void save(Write& w) const;
+		void study(double E, double DeltaE, Vector<double> const& corr, std::string save_in);
 
 	private:
 		void compute_P(Matrix<double>& P);

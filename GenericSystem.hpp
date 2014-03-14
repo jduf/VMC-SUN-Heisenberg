@@ -2,7 +2,6 @@
 #define DEF_GENERICSYSTEM
 
 #include "Lapack.hpp"
-#include "Gnuplot.hpp"
 #include "PSTricks.hpp"
 
 /*!Class that creates a file containing all the necessary information to run a
@@ -16,14 +15,15 @@ class GenericSystem{
 		/*Simple destructor*/
 		virtual ~GenericSystem();
 
-		Matrix<unsigned int> get_sts() const { return sts_;}
+		Matrix<unsigned int> get_links() const { return links_;}
 		Matrix<Type> get_EVec() const { return EVec_;}
-		unsigned int get_num_links() const { return n_*z_/2;}
+		unsigned int get_num_links() const { return links_.row();}
 		std::string get_filename() const { return filename_;}
 
 		virtual unsigned int create(double param)=0;
 		virtual void save(Write& w) const;
 		virtual void check()=0;
+		virtual void study(double E, double DeltaE, Vector<double> const& corr, std::string save_in) = 0;
 
 	protected:
 		unsigned int const n_;		//!< sites' number
@@ -32,7 +32,7 @@ class GenericSystem{
 		unsigned int const M_;		//!< particles' number of each color
 		unsigned int const z_;		//!< coordination number
 		int bc_;					//!< boundary condition
-		Matrix<unsigned int> sts_;	//!< list of connected sites
+		Matrix<unsigned int> links_;//!< list of links
 		Matrix<Type> T_;			//!< Gutzwiller Hamiltonian
 		Matrix<Type> EVec_;			//!< eigenvectors Matrix (transfer Matrix)
 		bool degenerate_;			//!< no degeneracy at the fermi level
@@ -64,11 +64,12 @@ GenericSystem<Type>::GenericSystem(unsigned int N, unsigned int n, unsigned int 
 	if(m_ > N_){ std::cerr<<"GenericSystem::GenericSystem(N,n,m,z,filename) : m>N is impossible"<<std::endl;} 
 	filename_ += "-N" + tostring(N_);
 	filename_ += "-m" + tostring(m_);
-	filename_ += "-S" + tostring(n_);
+	filename_ += "-n" + tostring(n_);
 	switch(bc_){
 		case -1:{filename_ += "-A"; }break;
-		case 0:{ filename_ += "-O"; }break;
-		case 1:{ filename_ += "-P"; }break;
+		case 0: {filename_ += "-O"; }break;
+		case 1: {filename_ += "-P"; }break;
+		default:{std::cerr<<"GenericSystem : Unknown boundary condition"<<std::endl;}
 	}
 }
 
@@ -85,14 +86,14 @@ void GenericSystem<Type>::compute_sts(){
 			if(nb(j,1)!=0){ k++; }
 		}
 	}
-	sts_.set(k,2);
+	links_.set(k,2);
 	k=0;
 	for(unsigned int i(0); i<n_;i++){
 		nb = get_neighbourg(i);
 		for(unsigned int j(0); j<z_/2; j++){
 			if(nb(j,1)!=0){
-				sts_(k,0) = i;
-				sts_(k,1) = nb(j,0);
+				links_(k,0) = i;
+				links_(k,1) = nb(j,0);
 				k++;
 			}
 		}

@@ -45,3 +45,26 @@ void ChainFermi::check(){
 	compute_T();
 	std::cout<<T_<<std::endl;
 }
+
+void ChainFermi::study(double E, double DeltaE, Vector<double> const& corr, std::string save_in){
+	PSTricks ps(save_in,filename_,false);
+	ps.add("\\begin{pspicture}(-1,-1)(13,7.75)%"+filename_);
+	ps.put(10,7,"$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ $E\\pm\\Delta E="+tostring(E)+"\\pm"+tostring(DeltaE)+"$");
+	std::string color;
+	double ll(2.0); //link length
+	unsigned int i(0);
+	unsigned int j(0);
+	for(unsigned int k(0);k<links_.row();k++){
+		if(corr(k)>0){color="blue";}
+		else{color="red";}
+		ps.line("-",ll*i,j,ll*(i+1),j,"linewidth="+ tostring(corr(k))+"pt,linecolor="+color);
+		ps.put(ll*i,j+0.2,tostring(k));
+		ps.put(ll*(i+0.5),j-0.2,tostring(corr(k)));
+		i++;
+		if(i%int(sqrt(n_))==0){
+			j++;
+			i=0;
+		}
+	}
+	ps.add("\\end{pspicture}");
+}

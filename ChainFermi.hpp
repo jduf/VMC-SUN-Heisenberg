@@ -10,7 +10,7 @@ class ChainFermi: public Chain<double>{
 
 		unsigned int create(double x=0);
 		void check();
-		void study();
+		void study(double E, double DeltaE, Vector<double> const& corr, std::string save_in);
 
 	private:
 		void compute_P(Matrix<double>& P);

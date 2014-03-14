@@ -72,7 +72,6 @@ void SquareSU2PhiFlux::lattice(){
 	Matrix<int> nb;
 	for(unsigned int i(0);i<n_;i++){
 		nb = get_neighbourg(i);
-		prop = round(std::abs(T_(i,nb(0,0)).imag())*7,7);
 		if(std::abs(prop)<1e-14){ color = "blue";}
 		else{color = "green";}
 		if((i+1) % Lx_ ){
@@ -80,7 +79,6 @@ void SquareSU2PhiFlux::lattice(){
 		} else {
 			ps.line("->", i%Lx_, i/Ly_, i%Lx_+1, nb(0,0)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
 		}
-		prop = round(std::abs(T_(i,nb(1,0)).imag())*7,7);
 		if(std::abs(prop)<1e-14){ color = "blue";}
 		else{color = "green";}
 		if( i+Lx_<this->n_){ 
@@ -97,8 +95,6 @@ void SquareSU2PhiFlux::lattice(){
 	Vector<double> tmp(2);
 	double max(occupation_number(ada));
 	for(unsigned int i(0);i<n_;i++){
-		tmp(0) = round(ada(i),7);
-		tmp(1) = round((max-ada(i))/max,7);
 		ps.add("\\rput("+tostring(i%Lx_)+","+tostring(i/Ly_)+"){%");
 		ps.pie(tmp,r,"chartColor=color,userColor={blue,white}");
 		ps.add("}");

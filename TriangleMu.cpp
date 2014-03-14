@@ -112,8 +112,6 @@ void TriangleMu::lattice(){
 	for(unsigned int i(0);i<n_;i++){
 		x0 = i%Lx_;
 		y0 = i/Ly_;
-		tmp(0) = round(ada(i),7);
-		tmp(1) = round((max-ada(i))/max,7);
 		ps.add("\\rput("+tostring(x0-y0*e1)+","+tostring(y0*e2)+"){%");
 		ps.pie(tmp,r,"chartColor=color,userColor={blue,white}");
 		ps.add("}");

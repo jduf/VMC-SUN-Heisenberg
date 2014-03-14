@@ -39,10 +39,39 @@ void SquarePiFlux::compute_T(){
 	T_ += T_.trans_conj(); 
 }
 
-
 void SquarePiFlux::check(){
 	compute_T();
 	std::cout<<T_.chop(1e-6)<<std::endl;
+}
+
+void SquarePiFlux::study(double E, double DeltaE, Vector<double> const& corr, std::string save_in){
+	PSTricks ps(save_in,filename_,false);
+	ps.add("\\begin{pspicture}(-1,-1)(13,7.75)%"+filename_);
+	ps.put(10,7,"$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ $E\\pm\\Delta E="+tostring(E)+"\\pm"+tostring(DeltaE)+"$");
+	std::string color;
+	double ll(1.0); //link length
+	Matrix<int> nb;
+	unsigned int x0;
+	unsigned int x1;
+	unsigned int y0;
+	unsigned int y1;
+	for(unsigned int k(0);k<links_.row();k++){
+		if(corr(k)>0){color="blue";}
+		else{color="red";}
+		x0 = (links_(k,0)%Lx_)*ll;
+		y0 = (links_(k,0)/Ly_)*ll;
+		x1 = (links_(k,1)%Lx_)*ll;
+		y1 = (links_(k,1)/Ly_)*ll;
+		nb = get_neighbourg(links_(k,0));
+		if(nb(0,1) != 1){
+			x1 = x0+1;
+		}
+		if(nb(1,1) != 1){
+			y1 = y0+1;
+		}
+		ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(corr(k))+"pt,linecolor="+color);
+	}
+	ps.add("\\end{pspicture}");
 }
 
 //{//csl for Vishvanath (uses majorana representation)

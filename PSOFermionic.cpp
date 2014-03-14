@@ -4,8 +4,7 @@ PSOFermionic::PSOFermionic(Parseur& P,unsigned int Nfreedom, unsigned int N_MC):
 	PSO(P.get<unsigned int>("Nbees"),Nfreedom,P.get<double>("cg"),P.get<double>("cp"),P.get<double>("maxiter")),
 	CS_(P),
 	N_MC_(N_MC)
-{ 
-}
+{}
 
 PSOFermionic::~PSOFermionic(){}
 

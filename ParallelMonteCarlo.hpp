@@ -6,9 +6,8 @@
 template<typename Type>
 class ParallelMonteCarlo {
 	public:
-		ParallelMonteCarlo(CreateSystem* CS, unsigned int nthreads, unsigned int tmax, unsigned int Nmaxsteps=1e9);
+		ParallelMonteCarlo(CreateSystem* CS, std::string path, unsigned int nthreads, unsigned int tmax, unsigned int Nmaxsteps=1e9);
 		void run();
-		void save(Write& w) const;
 
 		double get_energy() const {return E_;}
 
@@ -20,88 +19,63 @@ class ParallelMonteCarlo {
 		unsigned int run_;
 		double E_;
 		double DeltaE_;
+		Vector<double> corr_;
+		Vector<double> long_range_corr_;
 		Write results_file_;
-		Write trash_file_;
-
-		void handle_errors(Vector<double> const& E,Vector<double> const& DeltaE);
 };
 
 template<typename Type>
-ParallelMonteCarlo<Type>:: ParallelMonteCarlo(CreateSystem* CS, unsigned int nruns, unsigned int tmax, unsigned int Nmaxsteps):
+ParallelMonteCarlo<Type>:: ParallelMonteCarlo(CreateSystem* CS, std::string path, unsigned int nruns, unsigned int tmax, unsigned int Nmaxsteps):
 	CS_(CS),
 	tmax_(tmax),
 	Nmaxsteps_(Nmaxsteps),
 	nruns_(nruns),
 	E_(0.0),
 	DeltaE_(0.0),
-	results_file_(CS_->get_filename()+".jdbin"),
-	trash_file_(CS_->get_filename()+"-trash.dat")
+	corr_(CS_->get_num_links(),0.0),
+	long_range_corr_(CS->get_n()/3-1,0),
+	results_file_(path+CS_->get_filename()+".jdbin")
 {
-	results_file_("Created by the ParallelMonteCarlo class",0);
 	results_file_("nruns (number of simulations runned)",nruns_);
-	RST rst_param;
-	rst_param.title("Input","-");
-	results_file_.add_to_header(rst_param.get());
+	RST rst;
+	rst.title("Input","-");
+	results_file_.add_to_header(rst.get());
+	rst.set();
 	CS_->save(results_file_);
-	RST rst_results;
-	rst_results.title("Results","-");
-	results_file_.add_to_header(rst_results.get());
+	rst.title("Results","-");
+	results_file_.add_to_header(rst.get());
 }
 
 template<typename Type>
 void ParallelMonteCarlo<Type>::run(){
-	Vector<double> E(nruns_);
-	Vector<double> DeltaE(nruns_);
+	unsigned int n_ok(0);
 #pragma omp parallel for 
 	for(unsigned int i=0; i<nruns_; i++){
 		MonteCarlo<double> sim(CS_,tmax_,Nmaxsteps_);
 		sim.run();
-		E(i) = sim.get_energy();
-		DeltaE(i) = sim.get_error();
+		if(sim.get_status()){
+			E_ += sim.get_energy();
+			DeltaE_ += sim.get_error();
+			corr_ += sim.get_corr();
+			long_range_corr_ += sim.get_long_range_corr();
+			n_ok++;
+		}
 #pragma omp critical
 		{
 			sim.save(results_file_);
 		}
 	}
-	handle_errors(E,DeltaE);
-}
+	E_ /= n_ok;
+	DeltaE_ /= (n_ok*sqrt(n_ok));
+	corr_  /= n_ok;
+	long_range_corr_  /= n_ok;
 
-template<typename Type>
-void ParallelMonteCarlo<Type>::save(Write& w) const {
-	w("E (energy per site)",E_);
-	w("DeltaE (absolute error)",DeltaE_);
-}
-
-template<typename Type>
-void ParallelMonteCarlo<Type>::handle_errors(Vector<double> const& E,Vector<double> const& DeltaE){
-	double m(E.mean());
-	unsigned int todel(0);
-	for(unsigned int i(0);i<E.size();i++){
-		if(std::abs(E(i)-m) > 2*DeltaE(i)){ todel++; }
-	}
-	if(todel>0 && E.size()-todel>2){
-		Vector<double> tmpE(E.size()-todel);
-		Vector<double> tmpDeltaE(DeltaE.size()-todel);
-		Vector<double> trash(todel);
-		unsigned int j(0);
-		unsigned int k(0);
-		for(unsigned int i(0);i<E.size();i++){
-			if(std::abs(E(i)-m) <= 2*DeltaE(i)){
-				tmpE(j) = E(i);
-				tmpDeltaE(j) = DeltaE(i);
-				j++;
-			} else {
-				trash(k) = E(i);
-				k++;
-			}
-		}
-		for(unsigned int j(0);j<todel;j++){
-			trash_file_<<CS_->get_param()<<" "<<trash(j)<<Write::endl;
-		}
-		handle_errors(tmpE,tmpDeltaE);
-	} else {
-		E_ = E.mean(); 
-		DeltaE_ = DeltaE.mean()/sqrt(1.0*DeltaE.size());
-	}
+	RST rst_mean_results;
+	rst_mean_results.title("Mean results (status>2)","-");
+	results_file_.add_to_header(rst_mean_results.get());
+	results_file_("E (energy per site)",E_);
+	results_file_("DeltaE (absolute error)",DeltaE_);
+	results_file_("corr (correlation on links)",corr_);
+	results_file_("long_range_corr (long range correlation)",long_range_corr_);
 }
 #endif
