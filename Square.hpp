@@ -26,10 +26,10 @@ Square<Type>::Square(unsigned int N, unsigned int n, unsigned int m, int bc, std
 	std::cerr<<"Square::Square(N,n,m,filename) : need to set the boundary condition"<<std::endl;
 	if(this->n_==Ly_*Lx_){
 		this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+		this->compute_links();
 	} else {
-		std::cerr<<"Square : the cluster is not a square"<<std::endl;
+		std::cerr<<"Square::Square(N,n,m,bc,filename) : the cluster is not a square"<<std::endl;
 	}
-	this->compute_sts();
 }
 
 template<typename Type>

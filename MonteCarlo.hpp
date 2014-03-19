@@ -31,7 +31,7 @@ template <typename Type>
 class MonteCarlo{
 	public:
 		/*!Constructor, if Nmaxsteps_ isn't set, Nsteps_ may overflow*/
-		MonteCarlo(CreateSystem* CS, unsigned int tmax, unsigned int Nmaxsteps=1e9); 
+		MonteCarlo(CreateSystem* CS, unsigned int tmax, unsigned int Nmaxsteps, unsigned int type); 
 		/*!Simple destructor*/
 		~MonteCarlo();
 
@@ -60,7 +60,7 @@ class MonteCarlo{
 		/*!Initialize*/
 		void init();
 		/*!Find the next configuration and measure it*/
-		void next_step(double& E_step, Vector<double>& corr_step, Vector<double>& long_range_corr_step);
+		void next_step();
 		//{Private method that gives a shutoff condition
 		/*!Stops the simulation when
 		 *
@@ -71,7 +71,7 @@ class MonteCarlo{
 		 * If the E_ diverges, the simulation is restarted
 		 */
 		//}
-		bool keepon(double E_step);
+		bool keepon();
 		/*!Recursive method that add datas in the different bins*/
 		void add_bin(unsigned int l, double a, double b);
 		/*!Compute the error according to Mathias Troyer*/
@@ -101,12 +101,14 @@ class MonteCarlo{
 		double const tol_;		//!< If DeltaE_/E_ < tol_, stops the simulation
 		Vector<double> corr_;	//!< Correlation for each link 
 		Vector<double> long_range_corr_;//!< Correlation for each link 
+
+		unsigned int type_;
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-MonteCarlo<Type>::MonteCarlo(CreateSystem* CS, unsigned int tmax, unsigned int Nmaxsteps):
+MonteCarlo<Type>::MonteCarlo(CreateSystem* CS, unsigned int tmax, unsigned int Nmaxsteps, unsigned int type):
 	S(NULL),
 	rnd(NULL),
 	tmax_(tmax),
@@ -117,10 +119,8 @@ MonteCarlo<Type>::MonteCarlo(CreateSystem* CS, unsigned int tmax, unsigned int N
 	b_(5),
 	bin_(new Vector<double>[b_]),
 	tol_(1e-3),
-	corr_(CS->get_num_links(),0),
-	long_range_corr_(CS->get_n()/3-1,0)
+	type_(type)
 {
-	init();
 	unsigned int thread(omp_get_thread_num());
 	rnd=new Rand(1e4,thread);
 	if(CS->is_bosonic()){ S=new SystemBosonic<Type>(CS,thread); }
@@ -138,6 +138,8 @@ MonteCarlo<Type>::MonteCarlo(CreateSystem* CS, unsigned int tmax, unsigned int N
 						   S->update();
 					   }
 				   }
+				   S->measure(type);
+				   init();
 				   status_message_ = "system thermalized";
 			   }break;
 		default:{std::cerr<<"MonteCarlo : System::status unknown"<<std::endl;}
@@ -156,15 +158,16 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*{*/
 template<typename Type>
 void MonteCarlo<Type>::run(){
+	if(type_ == 2){
+		long_range_corr_.set(S->get_long_range_corr_step().size(),0);
+	}
 	if(status_ == 2){/*passed the first two steps*/
-		double E_step(0.0);
-		Vector<double> corr_step(corr_);
-		Vector<double> long_range_corr_step(long_range_corr_);
-		S->measure(E_step,corr_step);
-		S->long_range_corr(long_range_corr_step);
-		do{ next_step(E_step,corr_step,long_range_corr_step); }
-		while(keepon(E_step));
-		corr_ /= Nsteps_;
+		do{ next_step(); }
+		while(keepon());
+	}
+	E_ /= Nsteps_;
+	corr_ /= Nsteps_;
+	if(type_ == 2){
 		long_range_corr_ /= Nsteps_;
 	}
 }
@@ -176,7 +179,9 @@ void MonteCarlo<Type>::save(Write& w) const{
 	w("Nsteps (number of steps)",Nsteps_);
 	w("status ("+status_message_+")",status_);
 	w("corr (correlation on links)",corr_);
-	w("long_range_corr (correlation on links)",long_range_corr_);
+	if(type_ == 2){
+		w("long_range_corr (long range correlations)",long_range_corr_);
+	}
 }
 /*}*/
 
@@ -184,9 +189,10 @@ void MonteCarlo<Type>::save(Write& w) const{
 /*{*/
 template<typename Type>
 void MonteCarlo<Type>::init(){
-	E_ = 0;
-	DeltaE_ = 0;
-	corr_.set(corr_.size(),0);
+	E_ = 0.0;
+	DeltaE_ = 0.0;
+	corr_.set(S->get_corr_step().size(),0.0);
+	long_range_corr_.set(S->get_long_range_corr_step().size(),0.0);
 	Nsteps_ = 0;
 	dpl_ = 2;
 	B2pbl_ = B_;
@@ -203,28 +209,27 @@ void MonteCarlo<Type>::init(){
 }
 
 template<typename Type>
-void MonteCarlo<Type>::next_step(double& E_step, Vector<double>& corr_step, Vector<double>& long_range_corr_step){
+void MonteCarlo<Type>::next_step(){
 	S->swap();
 	if( norm_squared(S->ratio()) > rnd->get() ){
 		S->update();
-		S->measure(E_step,corr_step);
-		S->long_range_corr(long_range_corr_step);
+		S->measure(type_);
 	}
-	E_ *= Nsteps_;
-	E_ += E_step;
 	Nsteps_++;
-	E_ /= Nsteps_;
-	corr_ += corr_step;
-	long_range_corr_ += long_range_corr_step;
+	E_ += S->get_energy_step();
+	corr_ += S->get_corr_step();
+	if(type_ == 2){
+		long_range_corr_ += S->get_long_range_corr_step();
+	}
 }
 
 template<typename Type>
-bool MonteCarlo<Type>::keepon(double E_step){
+bool MonteCarlo<Type>::keepon(){
 	/*!add new entry to the bins*/
 	if(Nsteps_%dpl_==0){//l_=1 at the very beginning
-		add_bin(0,E_step,bin_[0](Ml_(0))/(dpl_-1));
+		add_bin(0,S->get_energy_step(),bin_[0](Ml_(0))/(dpl_-1));
 	} else {
-		bin_[0](Ml_(0)) += E_step;
+		bin_[0](Ml_(0)) += S->get_energy_step();
 	}
 
 	/*!update the bins if the bigger binning is big enough*/
@@ -252,6 +257,7 @@ bool MonteCarlo<Type>::keepon(double E_step){
 
 	/*!compute the variance and the running condition if one bin is added*/
 	if(Nsteps_%dpl_==0 && Ml_(b_-1) >= B_ ){
+		E_ /= Nsteps_;
 		bool kpn(true);
 		if( std::abs(E_) > 1e2 ){ 
 			std::cerr<<"Simulation diverges => is restarted"<<std::endl;
@@ -273,6 +279,7 @@ bool MonteCarlo<Type>::keepon(double E_step){
 			kpn=false;
 			status_ = 5; /*3rd step successful*/
 		}
+		E_ *= Nsteps_;
 		return kpn;
 	} else {
 		return true;

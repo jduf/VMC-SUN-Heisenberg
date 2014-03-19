@@ -26,10 +26,10 @@ class GenericSystem{
 		virtual void study(double E, double DeltaE, Vector<double> const& corr, std::string save_in) = 0;
 
 	protected:
-		unsigned int const n_;		//!< sites' number
-		unsigned int const N_;		//!< colors' number
-		unsigned int const m_;		//!< particles per site's number
-		unsigned int const M_;		//!< particles' number of each color
+		unsigned int const n_;		//!< number of sites
+		unsigned int const N_;		//!< number of colors
+		unsigned int const m_;		//!< number of particles per site
+		unsigned int const M_;		//!< number of particles of each color 
 		unsigned int const z_;		//!< coordination number
 		int bc_;					//!< boundary condition
 		Matrix<unsigned int> links_;//!< list of links
@@ -42,7 +42,7 @@ class GenericSystem{
 		/*!return the neighbours of site i*/
 		virtual Matrix<int> get_neighbourg(unsigned int i) const=0;
 		/*!compute the array of pairs of swapping sites*/
-		void compute_sts();
+		void compute_links();
 		/*!compute the eigenvectors from the mean field Hamiltonian*/
 		void diagonalize_T(char mat_type);
 };
@@ -77,7 +77,7 @@ template<typename Type>
 GenericSystem<Type>::~GenericSystem(){}
 
 template<typename Type>
-void GenericSystem<Type>::compute_sts(){
+void GenericSystem<Type>::compute_links(){
 	unsigned int k(0);
 	Matrix<int> nb;
 	for(unsigned int i(0); i<n_;i++){
@@ -116,7 +116,7 @@ void GenericSystem<Type>::save(Write& w) const {
 	w.add_to_header(rst_.get());
 	w("N (N of SU(N))",N_);
 	w("m (particles per site' number)",m_);
-	w("n (particles' number)",n_);
+	w("n (number of site)",n_);
 	w("bc (boundary condition)",bc_);
 }
 #endif

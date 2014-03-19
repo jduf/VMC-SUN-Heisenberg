@@ -6,7 +6,7 @@
 template<typename Type>
 class ParallelMonteCarlo {
 	public:
-		ParallelMonteCarlo(CreateSystem* CS, std::string path, unsigned int nthreads, unsigned int tmax, unsigned int Nmaxsteps=1e9);
+		ParallelMonteCarlo(CreateSystem* CS, std::string path, unsigned int nthreads, unsigned int tmax, unsigned int Nmaxsteps, unsigned int type);
 		void run();
 
 		double get_energy() const {return E_;}
@@ -22,10 +22,12 @@ class ParallelMonteCarlo {
 		Vector<double> corr_;
 		Vector<double> long_range_corr_;
 		Write results_file_;
+
+		unsigned int type_;
 };
 
 template<typename Type>
-ParallelMonteCarlo<Type>:: ParallelMonteCarlo(CreateSystem* CS, std::string path, unsigned int nruns, unsigned int tmax, unsigned int Nmaxsteps):
+ParallelMonteCarlo<Type>::ParallelMonteCarlo(CreateSystem* CS, std::string path, unsigned int nruns, unsigned int tmax, unsigned int Nmaxsteps, unsigned int type):
 	CS_(CS),
 	tmax_(tmax),
 	Nmaxsteps_(Nmaxsteps),
@@ -34,9 +36,11 @@ ParallelMonteCarlo<Type>:: ParallelMonteCarlo(CreateSystem* CS, std::string path
 	DeltaE_(0.0),
 	corr_(CS_->get_num_links(),0.0),
 	long_range_corr_(CS->get_n()/3-1,0),
-	results_file_(path+CS_->get_filename()+".jdbin")
+	results_file_(path+CS_->get_filename()+".jdbin"),
+	type_(type)
 {
-	results_file_("nruns (number of simulations runned)",nruns_);
+	results_file_("type of simulation",type_);
+	results_file_("number of simulations runned",nruns_);
 	RST rst;
 	rst.title("Input","-");
 	results_file_.add_to_header(rst.get());
@@ -51,7 +55,7 @@ void ParallelMonteCarlo<Type>::run(){
 	unsigned int n_ok(0);
 #pragma omp parallel for 
 	for(unsigned int i=0; i<nruns_; i++){
-		MonteCarlo<double> sim(CS_,tmax_,Nmaxsteps_);
+		MonteCarlo<double> sim(CS_,tmax_,Nmaxsteps_,type_);
 		sim.run();
 		if(sim.get_status()){
 			E_ += sim.get_energy();

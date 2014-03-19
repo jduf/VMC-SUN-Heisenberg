@@ -19,8 +19,10 @@ Chain<Type>::Chain(unsigned int N, unsigned int n, unsigned int m, int bc, std::
 	GenericSystem<Type>(N,n,m,bc,2,filename),
 	a_(N/m)
 {
-	if(a_*m != N){ std::cerr<<"Chain::Chain(N,n,m,z,filename) : The unit cell is not well defined"<<std::endl; }
-	this->compute_sts();
+	unsigned int ppmc(1);
+	while(a_*m != ppmc*N && a_ < n){ a_ = ++ppmc * N/m; }
+	if(a_>n){ std::cerr<<"Chain::Chain(N,n,m,bc,filename) : no unit vector found"<<std::endl; } 
+	else { this->compute_links(); }
 }
 
 template<typename Type>

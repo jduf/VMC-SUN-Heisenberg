@@ -30,15 +30,17 @@ class System{
 		/*!Updates only s_*/
 		virtual void update();
 
+		/*!Returns the status*/
+		unsigned int get_status() const {return status_;}
+
 		//{Description
 		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
 		 * permutation */
 		//}
-		void measure(double& E_step, Vector<double>& corr_step);
-		/*!Returns the status*/
-		unsigned int get_status() const {return status_;}
-
-		void long_range_corr(Vector<double>& corr_step);
+		void measure(unsigned int type);	
+		double get_energy_step() const {return E_step_;};
+		Vector<double> get_corr_step() const {return corr_step_;};
+		Vector<double> get_long_range_corr_step() const {return long_range_corr_step_;};
 
 		/*!Pure virtual function that provides a way to check the System */
 		virtual void print()=0;
@@ -60,6 +62,10 @@ class System{
 
 		Rand* rnd_;			//!< generator of random numbers 
 
+		double E_step_;
+		Vector<double> corr_step_;	//!< Correlation for each link 
+		Vector<double> long_range_corr_step_;//!< Correlation for each link 
+
 	private:
 		/*!Check only if the new state has not the same color on one site*/
 		bool is_new_state_forbidden();
@@ -76,26 +82,20 @@ System<Type>::System(CreateSystem* CS, unsigned int const& thread):
 	M_((m_*n_)/N_),
 	s_(n_,m_),
 	links_(CS->get_links()),
-	rnd_(new Rand(100,thread))
+	rnd_(new Rand(100,thread)),
+	E_step_(0.0),
+	corr_step_(CS->get_num_links(),0),
+	long_range_corr_step_(CS->get_n()/3-1,0)
 {}
 
 template<typename Type>
 System<Type>::~System(){
 	if(rnd_){delete rnd_;}
-
 }
-
 /*}*/
 
-/*methods that modify the class*/
+/*public method*/
 /*{*/
-template<typename Type>
-void System<Type>::update(){
-	/*update the sites*/
-	s_(new_s[0],new_p[0]) = new_c[1];
-	s_(new_s[1],new_p[1]) = new_c[0];
-}
-
 template<typename Type>
 void System<Type>::swap(){
 	new_s[0] = rnd_->get(n_);
@@ -117,9 +117,50 @@ void System<Type>::swap(unsigned int const& s0, unsigned int const& s1, unsigned
 	new_p[1] = p1;
 	new_c[1] = s_(s1,p1);
 }
+
+template<typename Type>
+void System<Type>::update(){
+	/*update the sites*/
+	s_(new_s[0],new_p[0]) = new_c[1];
+	s_(new_s[1],new_p[1]) = new_c[0];
+}
+
+template<typename Type>
+void System<Type>::measure(unsigned int type){
+	E_step_ = 0.0;
+	double r;
+	for(unsigned int i(0);i<links_.row();i++){
+		corr_step_(i) = 0.0;
+		for(unsigned int p0(0); p0<m_; p0++){
+			for(unsigned int p1(0); p1<m_; p1++){
+				swap(links_(i,0),links_(i,1),p0,p1);
+				if(!is_new_state_forbidden()){ 
+					r = real(ratio());
+					E_step_ += r; 
+					corr_step_(i) += r;
+				}
+			}
+		}
+	}
+	E_step_ /= n_;
+	if(type==2){
+		unsigned int x0(n_/3);
+		for(unsigned int i(0);i<long_range_corr_step_.size();i++){
+			long_range_corr_step_(i) = 0.0;
+			for(unsigned int p0(0); p0<m_; p0++){
+				for(unsigned int p1(0); p1<m_; p1++){
+					swap(x0,x0+i+1,p0,p1);
+					if(!is_new_state_forbidden()){ 
+						long_range_corr_step_(i) += real(ratio());;
+					}
+				}
+			}
+		}
+	}
+}
 /*}*/
 
-/*methods that return something related to the class*/
+/*private methods*/
 /*{*/
 template<typename Type>
 bool System<Type>::is_new_state_forbidden(){
@@ -128,43 +169,6 @@ bool System<Type>::is_new_state_forbidden(){
 		if(s_(new_s[1],i) == new_c[0] && i != new_p[1]){ return true; }
 	}
 	return false;
-}
-
-template<typename Type>
-void System<Type>::measure(double& E_step, Vector<double>& corr_step){
-	E_step = 0.0;
-	double r;
-	for(unsigned int i(0);i<links_.row();i++){
-		corr_step(i) = 0.0;
-		for(unsigned int p0(0); p0<m_; p0++){
-			for(unsigned int p1(0); p1<m_; p1++){
-				swap(links_(i,0),links_(i,1),p0,p1);
-				if(!is_new_state_forbidden()){ 
-					r = real(ratio());
-					E_step += r; 
-					corr_step(i) += r;
-				}
-			}
-		}
-	}
-	E_step /= n_;
-}
-
-template<typename Type>
-void System<Type>::long_range_corr(Vector<double>& corr_step){
-	unsigned int x0(n_/3);
-	unsigned int x1(2*n_/3);
-	for(unsigned int i(0);i<x1-x0-1;i++){
-		corr_step(i) = 0.0;
-		for(unsigned int p0(0); p0<m_; p0++){
-			for(unsigned int p1(0); p1<m_; p1++){
-				swap(x0,x0+i+1,p0,p1);
-				if(!is_new_state_forbidden()){ 
-					corr_step(i) += real(ratio());;
-				}
-			}
-		}
-	}
 }
 /*}*/
 #endif

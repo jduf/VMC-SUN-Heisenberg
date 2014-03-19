@@ -10,7 +10,6 @@ class CreateSystem{
 	public:
 		CreateSystem(Parseur& P);
 		CreateSystem(CreateSystem const& cs, double param);
-		CreateSystem(unsigned int N, unsigned int n, unsigned int m, int bc, double param, Vector<unsigned int> ref);
 		virtual ~CreateSystem();
 
 		void check();

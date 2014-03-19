@@ -62,7 +62,6 @@ void ChainPolymerized::check(){
 	delta_=0.1;
 	compute_T();
 	std::cout<<T_<<std::endl;
-	std::cout<<links_<<std::endl;
 }
 
 void ChainPolymerized::study(double E, double DeltaE, Vector<double> const& corr, std::string save_in){

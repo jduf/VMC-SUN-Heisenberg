@@ -7,28 +7,25 @@ void run(CreateSystem const& cs, double param, std::string path, unsigned int nr
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
+	unsigned int vec(P.get<unsigned int>("vec"));
 	unsigned int type(P.get<unsigned int>("type"));
 	unsigned int nruns(P.get<unsigned int>("nruns"));
 	unsigned int tmax(P.get<unsigned int>("tmax"));
 	CreateSystem cs(P);
 	if(!P.status()){
 		std::string path(init(cs));
-		Write w(cs.get_filename()+"-mc.jdbin");
-		w("type",type);
-		w("relative path",path);
-		switch(type){
+		switch(vec){
 			case 1:{ 
 					   Vector<double> param(P.get<Vector<double> >("param"));
 					   for(unsigned int i(0);i<param.size();i++){
-						   run(cs,param(i),path,nruns,tmax,1);
+						   run(cs,param(i),path,nruns,tmax,type);
 					   }
 				   }break;
 			case 2:{ 
 					   double param(0);
 					   P.get("param",param);
-					   run(cs,param,path,nruns,tmax,2);
+					   run(cs,param,path,nruns,tmax,type);
 					   CreateSystem CS(cs,param);
-					   w("sim_name",CS.get_filename()); 
 				   }break;
 			default:{std::cout<<"unkown simulation"<<std::endl;}
 		}
@@ -51,10 +48,10 @@ std::string init(CreateSystem const& cs){
 void run(CreateSystem const& cs, double param, std::string path, unsigned int nruns, unsigned int tmax, unsigned int type){
 	CreateSystem CS(cs,param);
 	if( CS.use_complex() ){
-		ParallelMonteCarlo<std::complex<double> > sim(&CS,path,nruns,tmax);
+		ParallelMonteCarlo<std::complex<double> > sim(&CS,path,nruns,tmax,1e9,type);
 		sim.run();
 	} else {
-		ParallelMonteCarlo<double> sim(&CS,path,nruns,tmax);
+		ParallelMonteCarlo<double> sim(&CS,path,nruns,tmax,1e9,type);
 		sim.run();
 	}
 }

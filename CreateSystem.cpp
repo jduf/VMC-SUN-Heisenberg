@@ -15,22 +15,6 @@ CreateSystem::CreateSystem(Parseur& P):
 	create();
 }
 
-CreateSystem::CreateSystem(unsigned int N, unsigned int n, unsigned int m, int bc, double param, Vector<unsigned int> ref):
-	status_(0),
-	N_(N),
-	n_(n),
-	m_(m),
-	bc_(bc),
-	param_(param),
-	ref_(ref),
-	RGL_(NULL),
-	CGL_(NULL)
-{
-	create();
-	if(RGL_){status_ = RGL_->create(param);}
-	if(CGL_){status_ = CGL_->create(param);}
-}
-
 CreateSystem::CreateSystem(CreateSystem const& cs, double param):
 	status_(cs.status_),
 	N_(cs.N_),

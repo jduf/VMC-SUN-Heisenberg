@@ -69,11 +69,11 @@ double Minimization::fx(double param){
 	CreateSystem CS(CS_,param);
 	if( CS.use_complex() ){
 		ParallelMonteCarlo<std::complex<double> > sim(&CS,".",nruns_,tmax_);
-		sim.run();
+		sim.run(1);
 		return sim.get_energy();
 	} else {
 		ParallelMonteCarlo<double> sim(&CS,".",nruns_,tmax_);
-		sim.run();
+		sim.run(1);
 		return sim.get_energy();
 	}
 }
