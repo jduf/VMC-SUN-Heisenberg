@@ -29,8 +29,8 @@ LDFLAGS  = $(LAPACK) $(ERRORS) $(OPTION)
 SRCS=$(wildcard *.cpp)
 
 all:$(EXEC)
-	cp mc check ../sim
 	cp study ..
+	cp mc check ../sim
 
 
 .SECONDEXPANSION:
