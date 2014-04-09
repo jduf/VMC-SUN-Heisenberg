@@ -6,7 +6,6 @@
 #include "Time.hpp"
 #include "RST.hpp"
 
-
 class Header{
 	public:
 		Header();

@@ -52,7 +52,44 @@ void Parseur::init(unsigned int N, char* argv[]){
 	}
 }
 
-bool Parseur::check(std::string pattern) const {
-	for(unsigned int i(0);i<var.size();i++){if(var[i]==pattern){return true;}}
-	return false;
+bool Parseur::search(std::string const& pattern, unsigned int& i){
+	if(!locked){
+		i=0;
+		while(i<var.size()){
+			if(var[i]==pattern){
+				return true;
+			} else { i++; }
+		}
+		return false;
+	} else {
+		std::cerr<<"Parseur : the parseur is locked"<<std::endl;
+		return false;
+	}
+}
+
+std::vector<std::string> &string_split(const std::string &s, char delim, std::vector<std::string> &elems) {
+	std::stringstream ss(s);
+	std::string item;
+	while (std::getline(ss, item, delim)) {
+		elems.push_back(item);
+	}
+	return elems;
+}
+
+std::vector<std::string> string_split(const std::string &s, char delim) {
+	std::vector<std::string> elems;
+	string_split(s, delim, elems);
+	return elems;
+}
+
+bool Parseur::is_vector(std::string const& pattern){
+	unsigned int i(0);
+	if(search(pattern,i)){
+		if(val[i].find(':') != std::string::npos){ return true; } 
+		else { return false; } 
+	}  else {
+		locked = true; 
+		std::cerr<<"Parseur : -"<<pattern<<" wasn't found, the class is locked"<<std::endl; 
+		return false;
+	}
 }

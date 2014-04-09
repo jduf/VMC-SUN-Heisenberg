@@ -11,11 +11,11 @@
 template<typename Type>
 class Matrix;
 
-/*!Class that implement a static array as a Vector
+/*{!Class that implement a static array as a Vector
  *
  * - can be saved with Write.hpp 
  * - can be loaded with Read.hpp 
-*/
+ }*/
 template<typename Type>
 class Vector{
 	public:
@@ -68,7 +68,9 @@ class Vector{
 		Vector<unsigned int> sort();
 		Vector<Type> sort(Vector<unsigned int> const& index) const;
 		bool is_sorted() const;
-		Type max(unsigned int & index=0) const;
+		Type mean() const;
+		Type max() const;
+		Type min() const;
 
 		/*!Returns the pointer to the Vector*/
 		Type* ptr() const { return m_; }
@@ -287,16 +289,30 @@ Vector<Type> Vector<Type>::range(unsigned int min, unsigned int max) const {
 }
 
 template<typename Type>
-Type Vector<Type>::max(unsigned int& index) const {
-	std::cerr<<"Vector<Type>::max(index) has never been checked"<<std::endl;
+Type Vector<Type>::min() const {
 	Type m(m_[0]);
 	for(unsigned int i(1);i<N_;i++){
-		if(m<m_[i]){
-			m=m_[i];
-			index=i;
-		}
+		if(m>m_[i]){ m=m_[i]; }
 	}
 	return m;
+}
+
+template<typename Type>
+Type Vector<Type>::max() const {
+	Type m(m_[0]);
+	for(unsigned int i(1);i<N_;i++){
+		if(m<m_[i]){ m=m_[i]; }
+	}
+	return m;
+}
+
+template<typename Type>
+Type Vector<Type>::mean() const {
+	double m(0);
+	for(unsigned int i(0);i<N_;i++){
+		m+=m_[i];
+	}
+	return m/N_;
 }
 
 /*Sort*/

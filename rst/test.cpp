@@ -2,16 +2,16 @@
 #include "Read.hpp"
 #include "Write.hpp"
 #include "RST.hpp"
-#include "RSTfile.hpp"
+#include "RSTFile.hpp"
 
 #include <cstdlib>
 
 int main(){
 	Directory d;
-	d.search_file_ext(".jdbin","/home/jdufour/travail/cpp-dev/",false);
+	d.search_file_ext(".jdbin","/home/jdufour/travail/cpp-dev/",false,false);
 	std::string save_in("/home/jdufour/travail/cpp-dev/rst/output/");
 	std::string file;
-	std::string command("");
+	Linux command;
 	d.print();
 	for(unsigned int i(0); i<d.size();i++){
 		file = d.get_path(i) + "/" + d.get_name(i) + d.get_ext(i);
@@ -21,11 +21,10 @@ int main(){
 		w<<r.get_header();
 
 		file = d.get_name(i);
-		command = "rst2html " + save_in + file + ".rst " + save_in + file + ".html";  
-		system(command.c_str());
+		command("rst2html " + save_in + file + ".rst " + save_in + file + ".html");
 	}
 
-	RSTfile rst("index");
+	RSTFile rst("./","index");
 	rst.title("RST","=");
 	rst.title("Possibilities","-");
 	rst.text("Here I display all the bin files");
@@ -40,6 +39,7 @@ int main(){
 	rst.title("List of all the files","<");
 
 	std::string file_link;
+	rst.link_figure("bla.png","sin","/home/jdufour/travail/cpp-dev/rst/bla.gp");
 	for(unsigned int i(0);i<d.size();i++){
 		file_link = save_in + d.get_name(i) + ".html";
 		file = d.get_path(i) + "/" + d.get_name(i);

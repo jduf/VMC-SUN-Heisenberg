@@ -1,25 +1,34 @@
+EXEC=diffdir
+
+diffdir_SRCS=diffdir.cpp Directory.cpp Parseur.cpp
+
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-#CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-CXXFLAGS = -pedantic -Wall -Wextra -O3
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3 
 
-#LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDFLAGS = -pedantic -Wall -Wextra -O3
+BUILD=build
 
-all:diffdir
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-diffdir:diffdir.o Directory.o Parseur.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+SRCS=$(wildcard *.cpp)
 
-diffdir.o:diffdir.cpp Directory.hpp Parseur.hpp Linux.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+all:$(EXEC)
 
-Directory.o:Directory.cpp Directory.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-Parseur.o:Parseur.cpp Parseur.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
+
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o *.gch 
+	rm -f $(BUILD)/* $(EXEC)

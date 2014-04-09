@@ -2,15 +2,15 @@
 
 /*constructors and destructor*/
 /*{*/
-Write::Write(std::string filename):
+Write::Write(std::string filename, bool append):
 	filename(filename),
 	bfile(NULL),
 	h(NULL),
 	unlocked(true),
 	binary(test_ext(filename))
 {
-	if(binary){open_binary();}
-	else{open_txt();}
+	if(binary){open_binary(append);}
+	else{open_txt(append);}
 	if(h && unlocked ){h->init(filename);}
 }
 
@@ -75,12 +75,12 @@ Write& Write::operator<<(Matrix<std::string> const& mat){
 
 /*private methods used in the constructors, destructor or with open(std::string filename)*/
 /*{*/
-void Write::open(std::string filename){
+void Write::open(std::string filename, bool append){
 	if(!unlocked){
 		this->filename = filename;
 		this->binary = test_ext(filename);
-		if(binary){open_binary();}
-		else{open_txt();}
+		if(binary){open_binary(append);}
+		else{open_txt(append);}
 		if(h){h->init(filename);}
 		unlocked=true;
 	} else {
@@ -100,16 +100,19 @@ bool Write::test_ext(std::string f){
 	return false;
 }
 
-void Write::open_binary(){
-	bfile = fopen(filename.c_str(),"wb");
+void Write::open_binary(bool append){
+	if(append){bfile = fopen(filename.c_str(),"ab");}
+	else {bfile = fopen(filename.c_str(),"wb");}
 	if(bfile==NULL){
 		unlocked = false;
 		std::cerr<<"Write : the opening of file "<< filename<<" is problematic"<<std::endl;
 	}
 }
 
-void Write::open_txt(){
-	tfile.open(filename.c_str(),std::ios::out);
+void Write::open_txt(bool append){
+	if(append){tfile.open(filename.c_str(),std::ios::out | std::ios::app);}
+	else {tfile.open(filename.c_str(),std::ios::out);}
+
 	if(!tfile){
 		unlocked = false;
 		std::cerr<<"Write : the opening of file "<< filename<<" is problematic"<<std::endl;
@@ -133,7 +136,7 @@ void Write::write_header(){
 
 /*methods that modify the class*/
 /*{*/
-void Write::set_header(std::string s){
+void Write::add_to_header(std::string s){
 	if(h){ h->add(s); }
 }
 /*}*/

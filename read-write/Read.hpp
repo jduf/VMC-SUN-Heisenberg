@@ -50,6 +50,8 @@ class Read{
 		/*!True if the file can be read*/
 		bool get_status() const;
 
+		bool eof() const { return (size_t(ftell(bfile)) >= size_without_header); }
+
 	private:
 		/*!Forbids copy constructor*/
 		Read(Read const& R);
@@ -79,13 +81,14 @@ class Read{
 		Header *h; //!< pointer to a header (actually it will be a footer)
 		bool unlocked; //!< true if the file is ready to be read from
 		bool binary; //!< true if the file is binary
-		size_t reading_point; //!< last bit read
+		size_t reading_point_; //!< last bit read
+		size_t size_without_header; //!< size of the file without the header
 };
 
 template<typename Type>
 Read& Read::operator>>(Type& t){
 	if(unlocked){
-		if(binary){ reading_point = fread(&t,sizeof(t),1,bfile); }
+		if(binary){ reading_point_ = fread(&t,sizeof(t),1,bfile); }
 		else { tfile >> t; }
 	} else {
 		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;
@@ -108,10 +111,10 @@ template<typename Type>
 void Read::read_binary_matrix(Matrix<Type>& mat){
 	unsigned int N_row(0);
 	unsigned int N_col(0);
-	reading_point = fread(&N_row,sizeof(N_row),1,bfile);
-	reading_point = fread(&N_col,sizeof(N_col),1,bfile);
+	reading_point_ = fread(&N_row,sizeof(N_row),1,bfile);
+	reading_point_ = fread(&N_col,sizeof(N_col),1,bfile);
 	if(N_row != mat.row() || N_col != mat.col()) { mat.set(N_row,N_col); } 
-	reading_point = fread(mat.ptr(),sizeof(Type),N_row*N_col,bfile);
+	reading_point_ = fread(mat.ptr(),sizeof(Type),N_row*N_col,bfile);
 }
 
 template<typename Type>
@@ -128,9 +131,9 @@ Read& Read::operator>>(Vector<Type>& vec){
 template<typename Type>
 void Read::read_binary_vector(Vector<Type>& vec){
 	unsigned int N(0);
-	reading_point = fread(&N,sizeof(N),1,bfile);
+	reading_point_ = fread(&N,sizeof(N),1,bfile);
 	if(N != vec.size()) { vec.set(N); } 
-	reading_point = fread(vec.ptr(),sizeof(Type),N,bfile);
+	reading_point_ = fread(vec.ptr(),sizeof(Type),N,bfile);
 }
 #endif
 

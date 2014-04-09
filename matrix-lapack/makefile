@@ -1,38 +1,36 @@
+EXEC=test
+
+test_SRCS=test.cpp Lapack.cpp Read.cpp Header.cpp RST.cpp Write.cpp
+
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-CXXFLAGS =  -pedantic -Wall -Wextra -llapack -lblas 
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+LAPACK = -llapack -lblas
+OPTION = -O3 -fopenmp
 
-LDFLAGS =  -pedantic -Wall -Wextra -llapack -lblas 
+BUILD=build
 
-all:test
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(LAPACK) $(ERRORS) $(OPTION)
 
-test.o:test.cpp Matrix.hpp Lapack.hpp Read.hpp Gnuplot.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+SRCS=$(wildcard *.cpp)
 
-Lapack.o:Lapack.cpp Lapack.hpp Matrix.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+all:$(EXEC)
 
-Read.o:Read.cpp Read.hpp Header.hpp Matrix.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-Write.o:Write.cpp Write.hpp Header.hpp Matrix.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
 
-Header.o:Header.cpp Header.hpp RST.hpp Matrix.hpp Time.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-RST.o:RST.cpp RST.hpp  
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Gnuplot.o:Gnuplot.cpp Gnuplot.hpp Write.hpp RST.hpp Header.hpp Time.hpp Matrix.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
-
-test:test.o Lapack.o Read.o Write.o Header.o RST.o Gnuplot.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-ref:
-	doxygen Doxyfile
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o *.gch test
+	rm -f $(BUILD)/* $(EXEC) *.o
+

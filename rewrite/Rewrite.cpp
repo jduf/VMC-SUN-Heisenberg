@@ -2,7 +2,8 @@
 
 Rewrite::Rewrite(std::string filename):
 	bfile(NULL),
-	unlocked(true)
+	unlocked(true),
+	reading_point_(0)
 {
 	bfile = fopen(filename.c_str(),"r+");
 	if(bfile==NULL){
@@ -25,15 +26,17 @@ void Rewrite::rewrite_header(std::string s){
 		unsigned int fsize(ftell(bfile));
 		unsigned int N_old(0);
 		fseek(bfile,-sizeof(N_old),SEEK_END);
-		fread(&N_old,sizeof(N_old),1,bfile);
+		reading_point_ = fread(&N_old,sizeof(N_old),1,bfile);
 		rewind(bfile);
-		ftruncate(fileno(bfile),fsize-(N_old+sizeof(N_old)));
-
-		unsigned int N_new(s.size()-1);
-		fseek(bfile,0L,SEEK_END);
-		fwrite(s.c_str(),1,N_new,bfile);
-		fwrite(&N_new,sizeof(N_new),1,bfile);
-		fflush(bfile);
+		if(ftruncate(fileno(bfile),fsize-(N_old+sizeof(N_old)))){
+			unsigned int N_new(s.size()-1);
+			fseek(bfile,0L,SEEK_END);
+			fwrite(s.c_str(),1,N_new,bfile);
+			fwrite(&N_new,sizeof(N_new),1,bfile);
+			fflush(bfile);
+		} else {
+			std::cerr<<"Rewrite::rewrite_header : the truncation went wrong"<<std::endl;
+		}
 	} else {
 		std::cerr<<"Rewrite : the file "<< filename<< " is locked"<<std::endl;
 	}

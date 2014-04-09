@@ -1,42 +1,35 @@
+EXEC=test
+
+test_SRCS=test.cpp RST.cpp Write.cpp Header.cpp Directory.cpp Read.cpp RSTFile.cpp
+
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-#CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-CXXFLAGS = -pedantic -Wall -Wextra 
-#CXXFLAGS = -O3 -fopenmp -msse2
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3
 
-#LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDFLAGS = -pedantic -Wall -Wextra 
-#LDLIBS = -O3 -fopenmp -msse2
+BUILD=build
 
-all:test
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-test.o:test.cpp Read.hpp Write.hpp Header.hpp Directory.hpp RST.hpp RSTfile.hpp Time.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+SRCS=$(wildcard *.cpp)
 
-Read.o:Read.cpp Read.hpp  Header.hpp Matrix.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+all:$(EXEC)
 
-Write.o:Write.cpp Write.hpp  Header.hpp Matrix.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-Header.o:Header.cpp Header.hpp RST.hpp  Matrix.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
 
-Directory.o:Directory.cpp Directory.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
-
-RST.o:RST.cpp RST.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
-
-RSTfile.o:RSTfile.cpp RSTfile.hpp RST.hpp Write.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-test:test.o Read.o Write.o Header.o Directory.o RST.o RSTfile.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-ref:
-	doxygen Doxyfile
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o test *.gch
+	rm -f $(BUILD)/* $(EXEC)
+

@@ -1,17 +1,19 @@
 #include "Read.hpp"
 #include "Write.hpp"
 #include "Rewrite.hpp"
-#include <cstdlib>
+#include "Linux.hpp"
 
+#include <cstdlib>
 
 int main(){
 	std::string filename("data-5.jdbin");
-	Read r(filename,true);
+	Read r(filename);
 	Write w("/tmp/tmp.txt");
-	w<<r.header();
-	std::cout<<r.header()<<std::endl;
+	w<<r.get_header();
+	std::cout<<r.get_header()<<std::endl;
 
-	system("vim /tmp/tmp.txt");
+	Linux command;
+	command("vim /tmp/tmp.txt");
 
 	Read tmp("/tmp/tmp.txt");
 	std::string n_header;

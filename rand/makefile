@@ -1,22 +1,34 @@
+EXEC=test
+
+test_SRCS=test.cpp Rand.cpp
+
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-#CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-CXXFLAGS = -pedantic -Wall -Wextra -fopenmp
-#CXXFLAGS = -O3 -fopenmp -msse2
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3 -fopenmp
 
-#LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDLIBS = -pedantic -Wall -Wextra -fopenmp
-#LDLIBS = -O3 -fopenmp -msse2
+BUILD=build
 
-all:test
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-test:test.o Rand.o 
+SRCS=$(wildcard *.cpp)
 
-Rand.o:Rand.cpp Rand.hpp
+all:$(EXEC)
 
-test.o:test.cpp Rand.hpp Time.hpp
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
+
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o test
+	rm -f $(BUILD)/* $(EXEC)

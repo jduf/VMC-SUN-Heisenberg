@@ -1,10 +1,11 @@
 #ifndef DEF_PARSEUR
 #define DEF_PARSEUR
 
-#include <iostream>
 #include <string>
 #include <sstream>
 #include <vector>
+
+#include "Vector.hpp"
 
 class Parseur{
 	public:
@@ -21,10 +22,10 @@ class Parseur{
 
 		/*! sets val to the value that corresponds to pattern in argv[]*/
 		template<typename Type>
-			void get(std::string pattern, Type& input);
+			void get(std::string const& pattern, Type& input);
 		/*! returns the value that corresponds to pattern in argv[]*/
 		template<typename Type>
-			Type get(std::string pattern);
+			Type get(std::string const& pattern);
 
 		/*! sets val to the value that corresponds to val[i]*/
 		template<typename Type>
@@ -33,9 +34,10 @@ class Parseur{
 		template<typename Type>
 			Type get(unsigned int i);
 
-		/*! returns true if variable pattern exists*/
-		bool check(std::string pattern) const;
 		bool status() const {return locked; }
+
+		bool search(std::string const& pattern, unsigned int& i);
+		bool is_vector(std::string const& pattern);
 
 		unsigned int size() const { return val.size();}
 
@@ -47,7 +49,9 @@ class Parseur{
 		Parseur& operator=(Parseur const& P);
 
 		template<typename Type>
-			bool search(std::string pattern, Type &input);
+			void set(unsigned int i, Type &input);
+		template<typename Type>
+			void set(unsigned int i, Vector<Type> &input);
 
 		void init(unsigned int N, char* argv[]);
 
@@ -57,54 +61,74 @@ class Parseur{
 		bool locked; //!< stores the state of the program, if true a wrong number of agrument was given to the program 
 };
 
+std::vector<std::string> &string_split(const std::string &s, char delim, std::vector<std::string> &elems);
+
+std::vector<std::string> string_split(const std::string &s, char delim);
+
 template<typename Type>
-bool Parseur::search(std::string pattern, Type &input){
-	if(!locked){
-		unsigned int i(0);
-		while(i<var.size()){
-			if(var[i]==pattern){
-				std::stringstream ss(val[i]);
-				ss>>input;
-				used[i] = true;
-				return true;
-			} else { i++; }
-		}
-		return false;
+void Parseur::get(std::string const& pattern, Type &input){
+	unsigned int i(0);
+	if(search(pattern,i)){set(i,input);}
+	else{ std::cerr<<"Parseur : -"<<pattern<<" wasn't found thus its value is unchanged : "<< input <<std::endl; }
+}
+
+template<typename Type>
+Type Parseur::get(std::string const& pattern){
+	unsigned int i(0);
+	if(search(pattern,i)){ 
+		Type input;
+		set(i,input);
+		return input;
 	} else {
-		std::cerr<<"Parseur : the parseur is locked"<<std::endl;
-		return false;
-	}
-}
-
-template<typename Type>
-void Parseur::get(std::string pattern, Type &input){
-	if(!search(pattern,input)){ std::cerr<<"Parseur : -"<<pattern<<" wasn't found thus its value is unchanged : "<< input <<std::endl; }
-}
-
-template<typename Type>
-Type Parseur::get(std::string pattern){
-	Type input;
-	if(!search(pattern, input)){ 
 		locked = true; 
 		std::cerr<<"Parseur : -"<<pattern<<" wasn't found, the class is locked"<<std::endl; 
+		return Type();
 	}
-	return input;
 }
 
 template<typename Type>
 void Parseur::get(unsigned int i, Type &input){
-	if(i<val.size()){ input = val[i]; }
-	else{std::cerr<<"Parseur : "<<i<<" is bigger than the number of argument given, thus the value is unchanged : "<< input <<std::endl; }
+	if(i<val.size()){set(i,input);}
+	else{ std::cerr<<"Parseur : the "<<i<<"th entry wasn't found thus its value is unchanged : "<< input <<std::endl; }
 }
 
 template<typename Type>
 Type Parseur::get(unsigned int i){
 	if(i<val.size()){
-		return val[i];
+		Type input;
+		set(i,input);
+		return input;
 	} else {
 		locked = true; 
-		std::cerr<<"Parseur : "<<i<<" is bigger than the number of argument given, thus the class is locked"<<std::endl;
-		return 0;
+		std::cerr<<"Parseur : the "<<i<<"th entry wasn't found, the class is locked"<<std::endl; 
+		return Type();
 	}
+}
+
+template<typename Type>
+void Parseur::set(unsigned int i, Type &input){
+	std::stringstream ss(val[i]);
+	ss>>input;
+	used[i] = true;
+}
+
+template<typename Type>
+void Parseur::set(unsigned int i, Vector<Type> &input){
+	std::vector<std::string> v(string_split(val[i],':'));
+	std::stringstream sa(v[0]);
+	std::stringstream sb(v[2]);
+	std::stringstream sd(v[1]);
+	double a;
+	double b;
+	double d;
+	sa>>a;
+	sb>>b;
+	sd>>d;
+	unsigned int n((b-a)/d+1);
+	input.set(n);
+	for(unsigned int j(0);j<n;j++){
+		input(j) = a+j*d;
+	}
+	used[i] = true;
 }
 #endif

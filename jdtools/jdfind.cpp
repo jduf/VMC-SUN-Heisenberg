@@ -3,7 +3,7 @@
 #include "Directory.hpp"
 #include "Parseur.hpp"
 #include "Read.hpp"
-#include "RSTfile.hpp"
+#include "RSTFile.hpp"
 
 void create_readme(std::string const& directory_name);
 void list_all_simulation_files(Directory const& d, std::string const& save_in);
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
 		save_in = directory_name + "info/";
 
 		Directory d;
-		d.search_file_ext(".jdbin",directory_name,false);
+		d.search_file_ext(".jdbin",directory_name,false,true);
 		d.sort();
 		command("mkdir -p " + save_in);
 		
@@ -44,13 +44,13 @@ void create_readme(std::string const& directory_name){
 	std::string h("");
 	r>>h;
 
-	RSTfile rst("info/README",directory_name);
+	RSTFile rst(directory_name,"info/README");
 	rst.text(h);
 	rst.hyperlink("List of all simulations", directory_name + "info/index.html");
 }
 
 void list_all_simulation_files(Directory const& d, std::string const& save_in){
-	RSTfile rst("index",save_in);
+	RSTFile rst(save_in,"index");
 	rst.title("List of all the files","-");
 	for(unsigned int i(0);i<d.size();i++){
 		rst.hyperlink(d.get_name(i), save_in + d.get_name(i) + ".html");
@@ -68,7 +68,7 @@ void create_all_simulation_files(Directory const& d, std::string const& save_in)
 		Read r_data(d[i]+".dat");
 		r_data>>data;
 
-		RSTfile rst(d.get_name(i),save_in);
+		RSTFile rst(save_in,d.get_name(i));
 		rst.text(h);
 		rst.textit(d[i]);
 		rst.np();

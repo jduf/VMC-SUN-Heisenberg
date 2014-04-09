@@ -2,7 +2,7 @@
 
 int main(){
 	Directory d;
-	d.search_file_ext(".bin","/home/jdufour/travail/cpp-dev/",true);
+	d.search_file_ext(".dat","/home/jdufour/travail/cpp-dev/",true,true);
 	d.print();
 }
 

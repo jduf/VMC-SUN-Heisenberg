@@ -11,11 +11,11 @@
 template<typename Type>
 class Vector;
 
-/*!Class that implement a static array as a Matrix
+/*{!Class that implement a static array as a Matrix
  *
  * - can be saved with Write.hpp 
  * - can be loaded with Read.hpp 
-*/
+ }*/
 template<typename Type>
 class Matrix{
 	public:
@@ -115,7 +115,7 @@ Matrix<Type>::Matrix():
 	row_(0),
 	col_(0),
 	size_(0)
-{ }
+{}
 
 template<typename Type>
 Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col):
@@ -123,7 +123,7 @@ Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col):
 	row_(N_row),
 	col_(N_col),
 	size_(N_col*N_row)
-{ } 
+{} 
 
 template<typename Type>
 Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col, Type val):

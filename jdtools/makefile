@@ -1,85 +1,37 @@
+EXEC=jdinfo jdread jdtags jdwrite jdfind
+
+jdinfo_SRCS= jdinfo.cpp Directory.cpp Header.cpp Parseur.cpp Read.cpp RST.cpp Write.cpp RSTFile.cpp
+jdread_SRCS= jdread.cpp Directory.cpp Header.cpp Parseur.cpp Read.cpp RST.cpp Write.cpp
+jdtags_SRCS= jdtags.cpp Directory.cpp Header.cpp Parseur.cpp Read.cpp RST.cpp Write.cpp RSTFile.cpp
+jdfind_SRCS= jdfind.cpp Directory.cpp Header.cpp Parseur.cpp Read.cpp RST.cpp Write.cpp RSTFile.cpp
+jdwrite_SRCS=jdwrite.cpp Directory.cpp Header.cpp Parseur.cpp Read.cpp Rewrite.cpp RST.cpp Write.cpp
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-#CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-CXXFLAGS = -pedantic -Wall -Wextra -O3
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3 
 
-#LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDFLAGS = -pedantic -Wall -Wextra -O3
+BUILD=build
 
-all:jdwrite jdread jdfind jdtags jdinfo
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-########
-# jdfind
-########
-jdfind:jdfind.o Header.o Read.o Write.o RST.o RSTfile.o Directory.o Parseur.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+SRCS=$(wildcard *.cpp)
 
-jdfind.o:jdfind.cpp Directory.hpp Read.hpp Write.hpp RSTfile.hpp Parseur.hpp Linux.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+all:$(EXEC)
 
-########
-# jdread
-########
-jdread:jdread.o Header.o Read.o Write.o RST.o Parseur.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-jdread.o:jdread.cpp Header.hpp Read.hpp Parseur.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
 
-#########
-# jdwrite
-#########
-jdwrite:jdwrite.o Read.o Write.o Header.o RST.o Rewrite.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-jdwrite.o:jdwrite.cpp Read.hpp Write.hpp Rewrite.hpp Linux.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-#########
-# jdtags
-#########
-jdtags:jdtags.o Read.o Write.o Header.o RST.o RSTfile.o Parseur.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-jdtags.o:jdtags.cpp Read.hpp Write.hpp RSTfile.hpp Linux.hpp Matrix.hpp Vector.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-##########
-# jdinfo
-##########
-jdinfo:jdinfo.o Header.o Read.o Write.o RST.o RSTfile.o Directory.o Parseur.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-jdinfo.o:jdinfo.cpp Directory.hpp Read.hpp Write.hpp RSTfile.hpp Parseur.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-########
-# commun
-########
-Read.o:Read.cpp Read.hpp Matrix.hpp Header.hpp Vector.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Write.o:Write.cpp Write.hpp Matrix.hpp Header.hpp Vector.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Header.o:Header.cpp Header.hpp RST.hpp Matrix.hpp Time.hpp Vector.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Directory.o:Directory.cpp Directory.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Parseur.o:Parseur.cpp Parseur.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
-
-RST.o:RST.cpp RST.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
-
-RSTfile.o:RSTfile.cpp RSTfile.hpp Write.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-ref:
-	doxygen Doxyfile
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o *.gch 
+	rm -f $(BUILD)/* $(EXEC)

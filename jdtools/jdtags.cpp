@@ -1,7 +1,7 @@
 /*!  @file jdtags.cpp */
 
 #include "Read.hpp"
-#include "RSTfile.hpp"
+#include "RSTFile.hpp"
 #include "Parseur.hpp"
 
 void search_tag(std::string save_in, int argc, char* argv[]);
@@ -28,7 +28,7 @@ void search_tag(std::string save_in, int argc, char* argv[]){
 		list_tags += std::string(argv[i])+", ";
 	}
 	list_tags += std::string(argv[argc-1]);
-	RSTfile rst("TAGS",save_in);
+	RSTFile rst(save_in,"TAGS");
 	rst.title("File with tag *"+list_tags+"*","+");
 
 	Matrix<std::string> DF;

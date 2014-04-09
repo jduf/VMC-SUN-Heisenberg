@@ -10,6 +10,6 @@ int main(){
 		std::cout<<i<<std::endl;
 		sleep(3);
 		i++;
-	} while (!t.time_limit_reached(5));
+	} while (!t.limit_reached(5));
 }
 

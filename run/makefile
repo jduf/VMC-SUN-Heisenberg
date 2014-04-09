@@ -1,37 +1,34 @@
+EXEC=run
+
+run_SRCS=run.cpp Directory.cpp Header.cpp Parseur.cpp RST.cpp RSTFile.cpp Write.cpp
+
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-#CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3 
 
-#LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp
+BUILD=build
 
-all:run
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-run:run.o Directory.o Parseur.o RSTfile.o Write.o Header.o RST.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+SRCS=$(wildcard *.cpp)
 
-run.o:run.cpp Linux.hpp Parseur.hpp RSTfile.hpp RST.hpp Write.hpp Header.hpp Matrix.hpp Time.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+all:$(EXEC)
 
-Directory.o:Directory.cpp Directory.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
-	
-Parseur.o:Parseur.cpp Parseur.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-RSTfile.o:RSTfile.cpp RSTfile.hpp RST.hpp Write.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
 
-RST.o:RST.cpp RST.hpp RST.hpp Write.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Write.o:Write.cpp Write.hpp  Header.hpp Matrix.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Header.o:Header.cpp Header.hpp RST.hpp Matrix.hpp Time.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o *.gch 
+	rm -f $(BUILD)/* $(EXEC)

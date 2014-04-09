@@ -2,7 +2,7 @@
 #include "Time.hpp" 
 #include "Parseur.hpp" 
 #include "Directory.hpp" 
-#include "RSTfile.hpp" 
+#include "RSTFile.hpp" 
 
 
 #include <omp.h>
@@ -20,7 +20,7 @@ int main(int argc,char* argv[]){
 		std::string save_in("sim-info/");
 		L("mkdir " + save_in);
 
-		D.search_file_ext(ext,L.pwd(),false);
+		D.search_file_ext(ext,L.pwd(),false,false);
 		D.sort();
 
 		std::string command("");
@@ -37,10 +37,10 @@ int main(int argc,char* argv[]){
 #pragma omp parallel for num_threads(max_proc) 
 		for(unsigned int i=0;i<D.size();i++) {
 			std::cout<<command<<D.get_name(i)<<D.get_ext(i)<<std::endl;
-			L(command + D.get_name(i) + D.get_ext(i) + "> " + D.get_name() + "_" + fname + "_" + tostring(i)+".log 2> " + D.get_name() + "_" + fname + "_" + tostring(i)+".err.log");
+			L(command + D.get_name(i) + D.get_ext(i) + "> " + D.get_name(i) + "_" + fname + "_" + tostring(i)+".log 2> " + D.get_name(i) + "_" + fname + "_" + tostring(i)+".err.log");
 		}
 
-		RSTfile rst("SIM");
+		RSTFile rst("./","SIM");
 		rst.title("bla","=");
 
 		L("firefox SIM.html");

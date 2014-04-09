@@ -1,38 +1,35 @@
+EXEC=pstricks2pdf
+
+pstricks2pdf_SRCS=pstricks2pdf.cpp Parseur.cpp Read.cpp Header.cpp RST.cpp Write.cpp Directory.cpp PSTricks.cpp
+
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-#CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-CXXFLAGS = -pedantic -Wall -Wextra -O3
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3 
 
-#LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDFLAGS = -pedantic -Wall -Wextra -O3
+BUILD=build
 
-all:pstricks2pdf
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-pstricks2pdf:pstricks2pdf.o Parseur.o Read.o Write.o RST.o Header.o PSTricks.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+SRCS=$(wildcard *.cpp)
 
-pstricks2pdf.o:pstricks2pdf.cpp Directory.hpp Parseur.hpp PSTricks.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+all:$(EXEC)
 
-PSTricks.o:PSTricks.cpp PSTricks.hpp Write.hpp Linux.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-Parseur.o:Parseur.cpp Parseur.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
 
-Read.o:Read.cpp Read.hpp  Header.hpp Matrix.hpp Vector.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Write.o:Write.cpp Write.hpp  Header.hpp Matrix.hpp Vector.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Header.o:Header.cpp Header.hpp RST.hpp  Matrix.hpp Vector.hpp Time.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-RST.o:RST.cpp RST.hpp  
-	$(CXX) -c  $(CXXFLAGS) $^
-
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o *.gch 
+	rm -f $(BUILD)/* $(EXEC)
+

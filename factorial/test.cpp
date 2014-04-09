@@ -1,4 +1,5 @@
 #include "Time.hpp"
+#include <iostream>
 
 int main(){
 	Time t;

@@ -3,7 +3,7 @@
 #include "Directory.hpp"
 #include "Parseur.hpp"
 #include "Read.hpp"
-#include "RSTfile.hpp"
+#include "RSTFile.hpp"
 
 void update_readme(Directory const& d, std::string const& directory_name);
 void create_rst_plot(unsigned int i, Directory const& d, std::string const& directory_name);
@@ -22,7 +22,7 @@ int main(int argc, char* argv[]){
 		save_in = directory_name + "info/";
 
 		Directory d;
-		d.search_file_ext(".png",directory_name,false);
+		d.search_file_ext(".png",directory_name,false,true);
 		d.sort();
 
 		update_readme(d,directory_name);
@@ -38,7 +38,7 @@ void update_readme(Directory const& d, std::string const& directory_name){
 	std::string h("");
 	r>>h;
 
-	RSTfile rst("README",directory_name + "info/");
+	RSTFile rst(directory_name + "info/","README");
 	rst.text(h);
 	rst.hyperlink("List of all simulations", directory_name + "info/index.html");
 	rst.np();
@@ -53,11 +53,11 @@ void update_readme(Directory const& d, std::string const& directory_name){
 			rst.hyperlink(d.get_name(i), directory_name + "info/" + d.get_name(i) + ".html");
 		}
 	}
-	rst.pdf(true);
+	rst.pdf();
 }
 
 void create_rst_plot(unsigned int i, Directory const& d, std::string const& directory_name){
-	RSTfile rst(d.get_name(i), directory_name);
+	RSTFile rst(directory_name, d.get_name(i));
 	rst.title(d.get_name(i),"=");
 	if(i==0){ rst.hyperlink(d.get_name(i+1), directory_name + d.get_name(i+1) + ".html");}
 	else if(i+1==d.size()){ rst.hyperlink(d.get_name(i-1), directory_name + d.get_name(i-1) + ".html"); }

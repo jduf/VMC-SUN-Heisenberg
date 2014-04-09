@@ -1,24 +1,35 @@
+EXEC=test
+
+test_SRCS=test.cpp Directory.cpp
+
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-#CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-CXXFLAGS = -pedantic -Wall -Wextra 
-#CXXFLAGS = -O3 -fopenmp -msse2
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3
 
-#LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDFLAGS = -pedantic -Wall -Wextra 
-#LDLIBS = -O3 -fopenmp -msse2
+BUILD=build
 
-all:test 
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-test.o:test.cpp Directory.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
+SRCS=$(wildcard *.cpp)
 
-Directory.o:Directory.cpp Directory.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+all:$(EXEC)
 
-test:test.o Directory.o 
-	$(CXX) -o $@ $^ $(LDFLAGS)
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
+
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o test *.gch
+	rm -f $(BUILD)/* $(EXEC)
+

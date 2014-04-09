@@ -1,23 +1,35 @@
+EXEC=test
+
+test_SRCS=test.cpp Parseur.cpp 
+
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-CXXFLAGS =  -pedantic -Wall -Wextra 
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3 -fopenmp
 
-LDLIBS =  -pedantic -Wall -Wextra 
+BUILD=build
 
-all:test 
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-test:test.o Parseur.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+SRCS=$(wildcard *.cpp)
 
-test.o:test.cpp Parseur.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+all:$(EXEC)
 
-Parseur.o:Parseur.cpp Parseur.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+	
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
 
-ref:
-	doxygen Doxyfile
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o test
+	rm -f $(BUILD)/* $(EXEC)
+

@@ -1,38 +1,35 @@
+EXEC=test
+
+test_SRCS=test.cpp Read.cpp Header.cpp RST.cpp Write.cpp
+
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-CXXFLAGS = -pedantic -Wall -Wextra 
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3 
 
-LDFLAGS = -pedantic -Wall -Wextra 
+BUILD=build
 
-all:evalnote
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-evalnote.o:evalnote.cpp Read.hpp Write.hpp Header.hpp Matrix.hpp Vector.hpp Parseur.hpp Gnuplot.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+SRCS=$(wildcard *.cpp)
 
-Gnuplot.o:Gnuplot.cpp Gnuplot.hpp Write.hpp RST.hpp Header.hpp Time.hpp Matrix.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
+all:$(EXEC)
 
-Read.o:Read.cpp Read.hpp  Header.hpp Matrix.hpp Vector.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-Write.o:Write.cpp Write.hpp  Header.hpp Matrix.hpp Vector.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
 
-Header.o:Header.cpp Header.hpp RST.hpp  Matrix.hpp Vector.hpp Time.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-RST.o:RST.cpp RST.hpp  
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Parseur.o:Parseur.cpp Parseur.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-evalnote:evalnote.o Read.o Write.o Header.o RST.o Parseur.o Gnuplot.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-ref:
-	doxygen Doxyfile
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o test *.gch
+	rm -f $(BUILD)/* $(EXEC)
+

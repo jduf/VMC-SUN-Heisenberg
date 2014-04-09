@@ -5,108 +5,120 @@
 #include "Read.hpp"
 
 /*{ Data*/
+/*!Base class that will never be instantiate. It provides a way to create
+ * GenericData with defferent type. */
 class Data{
 	public:
-		virtual ~Data() = 0;
+		/*!Constructor*/
+		Data(std::string name):name_(name){}
+		/*!Destructor, must be virtual*/
+		virtual ~Data(){};
 
+		/*!Method that allows a copy of the derived class*/
 		virtual Data* clone() const = 0;
-
+		/*!Returns the name of the data*/
 		std::string const& get_name() const { return name_;}
 
 	protected:
-		Data(){}
-		Data(std::string name):name_(name){}
-
-		std::string name_;
+		std::string name_;//!< Name of the (Generic)Data 
 };
 /*}*/
 
-/*{ GenericData*/
+/*{GenericData*/
+/*!Derived class that can contain any one value of any type and of name
+ * Data::name_*/
 template<typename Type>
 class GenericData : public Data{
 	public:
-		GenericData(std::string name, Type t): Data(name), t_(t) {}
+		/*!Constructor*/
+		GenericData(std::string name, Type t): Data(name), t_(t){}
+		/*!Destructor*/
+		~GenericData(){};
 
-		GenericData<Type>* clone() const { return new GenericData<Type>(static_cast<GenericData<Type> const&>(*this) );}
+		/*!Method that implements*/
+		GenericData<Type>* clone() const { return new GenericData<Type>(*this);}
 
+		/*!Returns the value of the data*/
 		Type const& get_val() const {return t_;}
-		void reset(Type const& t) {t_=t;}
+		/*!Set the value*/
+		void set(Type const& t) {t_=t;}
 
 	private:
-		Type t_;
+		Type t_;//!< Value of the GenericData
 };
 /*}*/
 
 /*{Container*/
+/*!Contains a vector of Data*, can store diffrent GenericData*/
 class Container{
 	public:
 		/*!if copyinstrng == true, the variables are saved as string*/
-		Container(bool copyinstring=false);
+		//Container(bool copyinstring=false);
+		Container();
 		Container(Container const& c);
 		~Container();
 
+		/*!Add one GenericData<Type> of value t and named name*/
 		template<typename Type>
 			void set(std::string name, Type const& t);
 
-		template<typename Type>
-			void reset(std::string name, Type const& t);
+		//template<typename Type>
+			//void reset(std::string name, Type const& t);
 
+		/*!Returns the value GenericData<Type>::t_ named name*/
 		template<typename Type>
 			Type get(std::string name) const;
-
+		/*!Set the GenericData<Type> named name to t=GenericData<Type>::t_ */
 		template<typename Type>
 			void get(std::string name, Type& t) const;
-
-		bool check(std::string pattern) const;
-		std::string value(unsigned int const& i) const;
-
-		std::string const& name(unsigned int const& i) const { return d_[i]->get_name(); }
-
-		unsigned int size() const { return d_.size(); }
+		/*!Check if containers has a value named name*/
+		bool check(std::string name) const;
+		/*!Returns the name of the ith value*/
+		std::string const& name(unsigned int const& i) const { return data_[i]->get_name(); }
+		/*!Returns the number of GenericData stored*/
+		unsigned int size() const { return data_.size(); }
 
 	private:
-		bool copyinstring_;
-		std::vector<Data*> d_;
-		std::vector<std::string> stringvalue_;
+		//bool copyinstring_;
+		std::vector<Data*> data_;
+		//std::vector<std::string> stringvalue_;
 };
 
-std::ostream& operator<<(std::ostream& flux, Container const& input);
+//std::ostream& operator<<(std::ostream& flux, Container const& input);
 
 template<typename Type>
 void Container::set(std::string name, Type const& t){
-	d_.push_back(new GenericData<Type>(name,t));
-	if(copyinstring_){
-		std::ostringstream oss;
-		oss<<t;
-		stringvalue_.push_back(oss.str());
-	}
+	data_.push_back(new GenericData<Type>(name,t));
+	//if(copyinstring_){
+		//std::ostringstream oss;
+		//oss<<t;
+		//stringvalue_.push_back(oss.str());
+	//}
 }
 
-template<typename Type>
-void Container::reset(std::string name, Type const& t){
-	unsigned int i(0);
-	bool searching(true);
-	do{
-		if(d_[i]->get_name()==name){
-			reinterpret_cast< GenericData<Type> *>(d_[i])->reset(t);
-			if(copyinstring_){
-				std::ostringstream oss;
-				oss<<t;
-				stringvalue_[i]=oss.str();
-			}
-			searching=false;
-		}
-	} while ( ++i<d_.size() && searching);
-	if(searching){
-		std::cerr<<"Container : reset(string name, Type const& t) : no data with name "<<name<<std::endl;
-	}
-}
+//template<typename Type>
+//void Container::reset(std::string name, Type const& t){
+	//unsigned int i(0);
+	//do{
+		//if(data_[i]->get_name()==name){
+			//reinterpret_cast< GenericData<Type> *>(data_[i])->set(t);
+			//if(copyinstring_){
+				//std::ostringstream oss;
+				//oss<<t;
+				//stringvalue_[i]=oss.str();
+			//}
+		//}
+	//} while ( ++i<data_.size());
+	//if(i==data_.size()){
+		//std::cerr<<"Container : reset(string name, Type const& t) : no data with name "<<name<<std::endl;
+	//}
+//}
 
 template<typename Type>
 Type Container::get(std::string name) const {
-	for(unsigned int i(0);i<d_.size();i++){
-		if(d_[i]->get_name()==name){
-			return dynamic_cast< GenericData<Type> *>(d_[i])->get_val();
+	for(unsigned int i(0);i<data_.size();i++){
+		if(data_[i]->get_name()==name){
+			return dynamic_cast< GenericData<Type> *>(data_[i])->get_val();
 		}
 	}
 	std::cerr<<"Container : get(string name) : no data with name "<<name<<std::endl;
@@ -117,13 +129,12 @@ template<typename Type>
 void Container::get(std::string name, Type& t) const {
 	unsigned int i(0);
 	do{
-		if(d_[i]->get_name()==name){
-			t = dynamic_cast< GenericData<Type> *>(d_[i])->get_val();
-			i = d_.size();
+		if(data_[i]->get_name()==name){
+			t = dynamic_cast< GenericData<Type> *>(data_[i])->get_val();
+			i = data_.size();
 		}
-		i++;
-	}while(i<d_.size());
-	if(i==d_.size()){
+	}while(++i<data_.size());
+	if(i==data_.size()){
 		std::cerr<<"Container : -"<<name<<" wasn't found thus its value is unchanged : "<< t <<std::endl; 
 	}
 }

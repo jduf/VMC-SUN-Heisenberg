@@ -17,7 +17,7 @@ RST::RST(std::string rst):
 RST::~RST() { }
 
 void RST::title(std::string t,std::string symb){
-	rst += t + RST_nl;
+	rst += RST_nl + t + RST_nl;
 	for(unsigned int i(0);i<t.size();i++){ rst +=  symb; }
 	rst += RST_np;
 }
@@ -58,16 +58,29 @@ void RST::np(){
 	rst += RST_np;
 }
 
+void RST::nl(){
+	rst += RST_nl;
+}
+
 void RST::hyperlink(std::string display, std::string link){
 	rst += "`" + display + " <" + link + ">`_ " + RST_nl;
 	//links.push_back(".. _" + t + ": " + l);
 }
 
-void RST::figure(std::string image, std::string legend, unsigned int scale){
+void RST::figure(std::string image, std::string legend, unsigned int width){
 	rst += RST_nl;
 	rst += ".. figure:: " + image + RST_nl;
-	rst += "   :scale: " + tostring(scale) + " %" + RST_nl;
+	rst += "   :width: " + tostring(width)  + RST_nl;
 	rst += "   :align: center" + RST_np;
+	rst += "   " + legend + RST_np;
+}
+
+void RST::link_figure(std::string image, std::string legend, std::string link, unsigned int width){
+	rst += RST_nl;
+	rst += ".. figure:: " + image + RST_nl;
+	rst += "   :width: " + tostring(width)  + RST_nl;
+	rst += "   :align: center" + RST_nl;
+	rst += "   :target: " + link + RST_np;
 	rst += "   " + legend + RST_np;
 }
 
@@ -75,4 +88,3 @@ std::ostream& operator<<(std::ostream& flux, RST const& rst){
 	flux<<rst.get();
 	return flux;
 }
-

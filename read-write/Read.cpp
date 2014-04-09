@@ -8,7 +8,8 @@ Read::Read(std::string filename):
 	h(NULL),
 	unlocked(true),
 	binary(test_ext(filename)),
-	reading_point(0)
+	reading_point_(0),
+	size_without_header(0)
 {
 	if(binary){open_binary();}
 	else{open_txt();}
@@ -21,7 +22,7 @@ Read::Read():
 	h(NULL),
 	unlocked(false),
 	binary(true),
-	reading_point(0)
+	reading_point_(0)
 { }
 
 Read::~Read(){
@@ -41,9 +42,9 @@ Read& Read::operator>>(std::string& s){
 	if(unlocked){
 		if(binary){ 
 			unsigned int N(0);
-			reading_point = fread(&N,sizeof(N),1,bfile);
+			reading_point_ = fread(&N,sizeof(N),1,bfile);
 			char* c(new char[N+1]);
-			reading_point = fread(c,1,N,bfile);
+			reading_point_ = fread(c,1,N,bfile);
 			c[N] = '\0';
 			s = c;
 			delete[] c;
@@ -65,8 +66,8 @@ Read& Read::operator>>(Matrix<std::string>& mat){
 		if(binary){ 
 			unsigned int N_row(0);
 			unsigned int N_col(0);
-			reading_point = fread(&N_row,sizeof(N_row),1,bfile);
-			reading_point = fread(&N_col,sizeof(N_col),1,bfile);
+			reading_point_ = fread(&N_row,sizeof(N_row),1,bfile);
+			reading_point_ = fread(&N_col,sizeof(N_col),1,bfile);
 			if(mat.row() != N_row || mat.col() != N_col){ mat.set(N_row,N_col); } 
 			for(unsigned int i(0);i<N_row*N_col;i++){
 				(*this)>>(mat.ptr())[i];
@@ -130,10 +131,11 @@ std::string Read::read_header(){
 		if(binary){
 			unsigned int N(0);
 			fseek(bfile,-sizeof(N),SEEK_END);
-			reading_point = fread(&N,sizeof(N),1,bfile);
+			reading_point_ = fread(&N,sizeof(N),1,bfile);
 			char* c(new char[N+1]);
 			fseek(bfile,-sizeof(char)*N-sizeof(N),SEEK_END);
-			reading_point = fread(c,1,N,bfile);
+			size_without_header = ftell(bfile);
+			reading_point_ = fread(c,1,N,bfile);
 			c[N] = '\0';
 			rewind(bfile);
 			header = c;

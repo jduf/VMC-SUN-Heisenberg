@@ -1,6 +1,4 @@
-/**
-  @file test.cpp 
-  */
+/* @file test.cpp */
 
 #include "Gnuplot.hpp"
 #include "Matrix.hpp"
@@ -205,25 +203,25 @@ int main(){
 	//std::cout<<-7.72113<<" "<<3.4124<<" "<<14.3087<<" (true eigenvalues)" << std::endl;
 	///*}*/
 	/*complex general matrix*/
-	/*{*/
-	Matrix<std::complex<double> > M(3,3);
-	M(0,0) = std::complex<double> (1,0); 
-	M(1,1) = std::complex<double> (4,0); 
-	M(2,2) = std::complex<double> (5,0); 
-	M(0,1) = std::complex<double> (2,3); 
-	M(1,0) = std::complex<double> (2,3); 
-	M(0,2) = std::complex<double> (10,4); 
-	M(2,0) = std::complex<double> (6,4); 
-	M(1,2) = std::complex<double> (4,1); 
-	M(2,1) = std::complex<double> (-2,6); 
-
-	Lapack<std::complex<double> > M_(&M,false,'G');
-	Matrix<std::complex<double> > EVec(3,3);
-	Vector<std::complex<double> > EVal(3);
-	M_.eigensystem(&EVal,&EVec);
-	std::cout<<"eval of a genral complex matrix"<<std::endl;;
-	std::cout<<EVal<<std::endl;
-	/*}*/
+	///*{*/
+	//Matrix<std::complex<double> > M(3,3);
+	//M(0,0) = std::complex<double> (1,0); 
+	//M(1,1) = std::complex<double> (4,0); 
+	//M(2,2) = std::complex<double> (5,0); 
+	//M(0,1) = std::complex<double> (2,3); 
+	//M(1,0) = std::complex<double> (2,3); 
+	//M(0,2) = std::complex<double> (10,4); 
+	//M(2,0) = std::complex<double> (6,4); 
+	//M(1,2) = std::complex<double> (4,1); 
+	//M(2,1) = std::complex<double> (-2,6); 
+//
+	//Lapack<std::complex<double> > M_(&M,false,'G');
+	//Matrix<std::complex<double> > EVec(3,3);
+	//Vector<std::complex<double> > EVal(3);
+	//M_.eigensystem(&EVal,&EVec);
+	//std::cout<<"eval of a genral complex matrix"<<std::endl;;
+	//std::cout<<EVal<<std::endl;
+	///*}*/
 	/*}*/
 	/*lu et det*/
 	///*{*/
@@ -361,60 +359,24 @@ int main(){
 	////}
 	///*}*/
 	//qr factorisation
-	///*{*/
-	//Matrix<double> T;
-	//Read r("../../SUN/dev/src/sim/test_something.jdbin");
-	//r>>T;
-	//
-	////std::cout<<T<<std::endl;
-	////std::cout<<T*P<<std::endl;
-	////Matrix<double> A(T.row(),T.row());
-	////Matrix<double> tmp(T*P);
-	////for(unsigned int i(0);i<A.row();i++){
-	////for(unsigned int j(0);j<A.row();j++){
-	////A(i,j) = tmp(i,j);
-	////}
-	////}
-	//
-	////Lapack<double> tmp_(&A,true,'G');
-	////std::cout<<tmp_.det()<<std::endl;
-	//
-	//
-	//T = T.transpose();
-	//Matrix<double>R;
-	//Matrix<double>Q;
-	//Lapack<double>qr(&T, true, 'G');
-	//qr.qr(Q,R,true);
-	//Matrix<double>P(qr.get_mat());
-	//T.chop();
-	//Q.chop();
-	//R.chop();
-	//T.chop();
-	//
-	////std::cout<<Q<<std::endl;
-	////std::cout<<R<<std::endl;
-	//std::cout<<P<<std::endl;
-	//std::cout<<T<<std::endl;
-	//std::cout<<Q*R*P<<std::endl;
-	////Matrix<double> ouf(T.col(),T.col());
-	////Matrix<double> QR(Q*R);
-	////for(unsigned int i(0);i<ouf.row();i++){
-	////for(unsigned int j(0);j<ouf.col();j++){
-	////ouf(i,j) = QR(i,j);
-	////}
-	////}
-	////Lapack<double> det_(&ouf,false,'G');
-	////std::cout<<det_.det()<<std::endl;
-	//
-	//Write wt("T.dat");
-	//wt<<T;
-	//Write wqr("QR.dat");
-	//wqr<<Q*R*P;
-	//Write wq("Q.dat");
-	//wq<<Q;
-	//Write wr("R.dat");
-	//wr<<R;
-	///*}*/
+	/*{*/
+	Matrix<double> T(2,5);
+	Read r("QR.dat");
+	r>>T;
+
+	T = T.transpose();
+	Matrix<double>R;
+	Matrix<double>Q;
+	Lapack<double>qr(&T, true, 'G');
+	qr.qr(Q,R,true);
+	Matrix<double>P(qr.get_mat());
+
+	std::cout<<T.row()<<" "<<T.col()<<std::endl;
+	std::cout<<std::endl;
+	std::cout<<R<<std::endl;
+	std::cout<<std::endl;
+	std::cout<<(T-Q*R*P).chop()<<std::endl;
+	/*}*/
 	/*sort*/
 	///*{*/
 	//srand(time(NULL));
@@ -435,7 +397,6 @@ int main(){
 	//}
 	//std::cout<<x.sort().transpose()<<std::endl;
 	///*}*/
-	
 	/*constructors check*/
 	///*{*/
 	//Matrix<double> m1;

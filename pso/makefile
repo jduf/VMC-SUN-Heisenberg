@@ -1,41 +1,34 @@
+EXEC=test
+
+test_SRCS=test.cpp Header.cpp Parseur.cpp PSO.cpp Rand.cpp Read.cpp RST.cpp Write.cpp
+
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-CXXFLAGS = -pedantic -Wall -Wextra -fopenmp
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3 
 
-LDFLAGS =  -pedantic -Wall -Wextra -fopenmp
+BUILD=build
 
-all:test 
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-test.o:test.cpp PSO.hpp FuncPSO.hpp Function.hpp Parseur.hpp Rand.hpp Time.hpp Write.hpp Header.hpp Read.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+SRCS=$(wildcard *.cpp)
 
-PSO.o:PSO.cpp PSO.hpp Read.hpp Write.hpp Rand.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+all:$(EXEC)
 
-Read.o:Read.cpp Read.hpp Header.hpp Matrix.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-Write.o:Write.cpp Write.hpp Header.hpp Matrix.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
 
-Rand.o:Rand.cpp Rand.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Header.o:Header.cpp Header.hpp RST.hpp Matrix.hpp Time.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-RST.o:RST.cpp RST.hpp  
-	$(CXX) -c  $(CXXFLAGS) $^
-
-Parseur.o:Parseur.cpp Parseur.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
-
-test:test.o Parseur.o Rand.o Write.o Header.o RST.o PSO.o Read.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-ref:
-	doxygen Doxyfile
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o *.gch test
+	rm -f $(BUILD)/* $(EXEC)

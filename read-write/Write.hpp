@@ -23,13 +23,13 @@ class Write{
 		 * filename, bool binary)*/
 		Write();
 		/*!Opens a file named "filename", by default open a binary file*/
-		Write(std::string filename);
+		Write(std::string filename, bool append=false);
 		/*!Closes the file*/
 		~Write();
 
 		/*!To be used with a default constructor : opens a file named
 		 * "filename", reads from the filename the type of file*/
-		void open(std::string filename);
+		void open(std::string filename, bool append=false);
 
 		/*!Stream operator that writes datas without formatting \warning
 		 * doesn't work if Type=std::string => template specialization in the
@@ -55,7 +55,7 @@ class Write{
 		/*!Returns the filename in which the class in writing*/
 		std::string get_filename() const { return filename;};
 
-		void set_header(std::string s);
+		void add_to_header(std::string s);
 
 		static std::string endl; //!<Gives a way to end lines
 
@@ -66,9 +66,9 @@ class Write{
 		Write& operator=(Write const&);
 
 		/*!Subroutine needed to open a binary file*/
-		void open_binary();
+		void open_binary(bool append);
 		/*!Subroutine needed to open a text file*/
-		void open_txt();
+		void open_txt(bool append);
 		/*!Write the filename and the date in the header*/
 		void write_header();
 

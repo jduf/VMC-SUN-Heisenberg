@@ -73,7 +73,7 @@ std::string Header::when(){
 void Header::init(std::string title){
 	rst.title(title,"=");
 	rst.textit(when());
-	rst.np();
+	rst.nl();
 }
 
 std::ostream& operator<<(std::ostream& flux, Header const& h){

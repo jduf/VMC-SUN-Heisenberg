@@ -16,9 +16,12 @@ class Directory {
 		inline unsigned int size() const {return path.size();};
 
 		void print();
-		void search_file(std::string const& keyword, std::string curr_dir, bool link);
-		void search_file_ext(std::string const& ext, std::string curr_dir, bool link);
+		void list_dir(std::string curr_dir);
+		void search_file(std::string const& keyword, std::string curr_dir, bool follow_link, bool recursive);
+		void search_file_ext(std::string const& ext, std::string curr_dir, bool follow_link, bool recursive);
 		void sort();
+
+		void clear();
 
 	private:
 		std::string dir;

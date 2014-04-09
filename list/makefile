@@ -1,20 +1,34 @@
+EXEC=test
+
+test_SRCS=test.cpp
+
+#-----------------------------------------------------------------
+
 CXX = g++
-CC = $(CXX)
 
-CXXFLAGS =  -pedantic -Wall -Wextra -llapack -lblas 
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3 
 
-LDFLAGS =  -pedantic -Wall -Wextra -llapack -lblas 
+BUILD=build
 
-all:test
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-test.o:test.cpp List.hpp
-	$(CXX) -c  $(CXXFLAGS) $^
+SRCS=$(wildcard *.cpp)
 
-test:test.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+all:$(EXEC)
 
-ref:
-	doxygen Doxyfile
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
+
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm *.o *.gch test
+	rm -f $(BUILD)/* $(EXEC)

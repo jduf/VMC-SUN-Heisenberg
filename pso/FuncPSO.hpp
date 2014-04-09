@@ -30,6 +30,6 @@ void FuncPSO::result(){
 		//std::cout<<Function::fsol[i]<<" ";
 	//}
 	//std::cout<<std::endl;
-	std::cout<<"best result     "<<b_<<std::endl;
+	std::cout<<"best result     "<<pfb_[bbee_]<<std::endl;
 }
 #endif

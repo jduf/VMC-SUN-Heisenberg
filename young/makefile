@@ -1,28 +1,35 @@
-CXX = g++ -g
-CC = $(CXX)
+EXEC=test young
 
-#CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-CXXFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp
+test_SRCS=test.cpp YoungTableau.cpp
+young_SRCS=young.cpp YoungTableau.cpp
 
-#LDLIBS = -pedantic -Wall -Wextra -O3 -fopenmp -msse2
-LDFLAGS = -pedantic -Wall -Wextra -O3 -fopenmp
+#-----------------------------------------------------------------
 
-all:young test
+CXX = g++
 
-young:young.o YoungTableau.o 
-	$(CXX) -o $@ $^ $(LDFLAGS)
+NOASSERT = #-DNDEBUG
+ERRORS = -Wall -Wextra -pedantic
+OPTION = -O3 
 
-young.o:young.cpp YoungTableau.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
+BUILD=build
 
-test:test.o YoungTableau.o 
-	$(CXX) -o $@ $^ $(LDFLAGS)
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
-test.o:test.cpp YoungTableau.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
-	
-YoungTableau.o:YoungTableau.cpp YoungTableau.hpp 
-	$(CXX) -c  $(CXXFLAGS) $^
-	
+SRCS=$(wildcard *.cpp)
+
+all:$(EXEC)
+
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
+
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
+
 clean:
-	rm *.o *.gch 
+	rm -f $(BUILD)/* $(EXEC)
