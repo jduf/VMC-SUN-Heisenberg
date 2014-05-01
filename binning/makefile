@@ -1,6 +1,6 @@
 EXEC=test
 
-test_SRCS=test.cpp Parseur.cpp 
+test_SRCS=test.cpp Binning.cpp Rand.cpp Write.cpp Gnuplot.cpp RST.cpp Header.cpp 
 
 #-----------------------------------------------------------------
 
@@ -8,12 +8,13 @@ CXX = g++
 
 NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic
+LAPACK = -llapack -lblas
 OPTION = -O3 -fopenmp
 
 BUILD=build
 
 CXXFLAGS = $(ERRORS) $(OPTION)
-LDFLAGS  = $(ERRORS) $(OPTION)
+LDFLAGS  = $(LAPACK) $(ERRORS) $(OPTION)
 
 SRCS=$(wildcard *.cpp)
 
@@ -23,7 +24,7 @@ all:$(EXEC)
 $(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
 	@echo Links $(notdir $^)
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
-	
+
 $(BUILD)/%.o:%.cpp
 	@echo Creates $(notdir $@)
 	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
@@ -31,5 +32,4 @@ $(BUILD)/%.o:%.cpp
 -include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm -f $(BUILD)/* test
-
+	rm -f $(BUILD)/* $(EXEC)

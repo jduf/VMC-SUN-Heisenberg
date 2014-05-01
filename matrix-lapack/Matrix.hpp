@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <cassert>
-#include <cmath> //allow abs(double) and abs(complex) 
 #include <complex>
 
 //#include "Vector.hpp"

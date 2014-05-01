@@ -53,6 +53,10 @@ class Vector{
 		/*!Devides a vectors by a scalar*/
 		Vector<Type>& operator/=(Type const& d);
 		Vector<Type> operator/(Type const& d) const;
+		/*!Multiplies a vectors by a scalar*/
+		Vector<Type>& operator*=(Type const& d);
+		Vector<Type> operator*(Type const& d) const;
+
 
 		/*!Set the whole Vector to val*/
 		void set(unsigned int N, Type const& val);
@@ -95,13 +99,13 @@ template<typename Type>
 Vector<Type>::Vector():
 	m_(NULL),
 	N_(0)
-{ }
+{}
 
 template<typename Type>
 Vector<Type>::Vector(unsigned int N):
 	m_(new Type[N]),
 	N_(N)
-{ } 
+{} 
 
 template<typename Type>
 Vector<Type>::Vector(unsigned int N, Type val):
@@ -116,9 +120,7 @@ Vector<Type>::Vector(Vector<Type> const& vec):
 	m_(new Type[vec.N_]),
 	N_(vec.N_)
 {
-	for(unsigned int i(0);i<N_;i++){
-		m_[i] = vec.m_[i];
-	}
+	for(unsigned int i(0);i<N_;i++){ m_[i] = vec.m_[i]; }
 }
 
 template<typename Type>
@@ -152,9 +154,7 @@ Vector<Type>& Vector<Type>::operator=(Vector<Type> const& vec){
 template<typename Type>
 Vector<Type>& Vector<Type>::operator+=(Vector<Type> const& vec){
 	assert(N_ == vec.N_);
-	for(unsigned int i(0);i<N_;i++){
-		m_[i] += vec.m_[i];
-	}
+	for(unsigned int i(0);i<N_;i++){ m_[i] += vec.m_[i]; }
 	return (*this);
 }
 
@@ -168,9 +168,7 @@ Vector<Type> Vector<Type>::operator+(Vector<Type> const& vec) const{
 template<typename Type>
 Vector<Type>& Vector<Type>::operator-=(Vector<Type> const& vec){
 	assert(N_ == vec.N_);
-	for(unsigned int i(0);i<N_;i++){
-		m_[i] -= vec.m_[i];
-	}
+	for(unsigned int i(0);i<N_;i++){ m_[i] -= vec.m_[i]; }
 	return (*this);
 }
 
@@ -184,9 +182,7 @@ Vector<Type> Vector<Type>::operator-(Vector<Type> const& vec) const{
 template<typename Type>
 Vector<Type> Vector<Type>::operator*(Vector<Type> const& vec) const{
 	Type out(0.0);
-	for(unsigned int i(0);i<N_;i++){
-		out += m_[i] * vec.m_[i];
-	}
+	for(unsigned int i(0);i<N_;i++){ out += m_[i] * vec.m_[i]; }
 	return out;
 }
 
@@ -203,25 +199,19 @@ Matrix<Type> Vector<Type>::operator^(Vector<Type> const& vec) const{
 
 template<typename Type>
 std::ostream& operator<<(std::ostream& flux, Vector<Type> const& vec){
-	for(unsigned int i(0);i<vec.size();i++){
-		flux<<vec(i)<<" ";
-	}
+	for(unsigned int i(0);i<vec.size();i++){ flux<<vec(i)<<" "; }
 	return flux;
 }
 
 template<typename Type>
 std::istream& operator>>(std::istream& flux, Vector<Type>& vec){
-	for(unsigned int i(0);i<vec.size();i++){
-		flux>>vec(i);
-	}
+	for(unsigned int i(0);i<vec.size();i++){ flux>>vec(i); }
 	return flux;
 }
 
 template<typename Type>
 Vector<Type>& Vector<Type>::operator/=(Type const& d){
-	for(unsigned int i(0);i<N_;i++){
-		m_[i] /= d; 
-	}
+	for(unsigned int i(0);i<N_;i++){ m_[i] /= d; }
 	return (*this);
 }
 
@@ -229,6 +219,19 @@ template<typename Type>
 Vector<Type> Vector<Type>::operator/(Type const& d) const{
 	Vector<Type> tmp(*this);
 	tmp /= d;
+	return tmp;
+}
+
+template<typename Type>
+Vector<Type>& Vector<Type>::operator*=(Type const& d){
+	for(unsigned int i(0);i<N_;i++){ m_[i] *= d; }
+	return (*this);
+}
+
+template<typename Type>
+Vector<Type> Vector<Type>::operator*(Type const& d) const{
+	Vector<Type> tmp(*this);
+	tmp *= d;
 	return tmp;
 }
 /*}*/

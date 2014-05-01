@@ -32,5 +32,4 @@ $(BUILD)/%.o:%.cpp
 -include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm -f $(BUILD)/* $(EXEC)
-
+	rm -f $(BUILD)/* test
