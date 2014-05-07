@@ -15,7 +15,7 @@ class SystemBosonic : public System<Type>{
 		 * - calls System<Type>::init()
 		 * - creates an random initial state
 		 */ //}
-		SystemBosonic(CreateSystem* CS, unsigned int const& thread);
+		SystemBosonic(CreateSystem* CS, unsigned int const& thread, unsigned int const& type);
 		/*!delete all the variables dynamically allocated*/
 		~SystemBosonic();
 
@@ -48,8 +48,8 @@ class SystemBosonic : public System<Type>{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-SystemBosonic<Type>::SystemBosonic(CreateSystem*  CS, unsigned int const& thread):
-	System<Type>(CS,thread)
+SystemBosonic<Type>::SystemBosonic(CreateSystem*  CS, unsigned int const& thread, unsigned int const& type):
+	System<Type>(CS,thread,type)
 	//nu_(CS.get_nu()),
 	//nn_(CS.get_nn()),
 	//cc_(CS.get_cc()),

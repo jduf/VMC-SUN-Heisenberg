@@ -1,7 +1,7 @@
 #include "CreateSystem.hpp"
 
 CreateSystem::CreateSystem(Parseur& P):
-	status_(0),
+	ready_(false),
 	N_(P.get<unsigned int>("N")),
 	n_(P.get<unsigned int>("n")),
 	m_(P.get<unsigned int>("m")),
@@ -16,7 +16,7 @@ CreateSystem::CreateSystem(Parseur& P):
 }
 
 CreateSystem::CreateSystem(CreateSystem const& cs, double param):
-	status_(cs.status_),
+	ready_(cs.ready_),
 	N_(cs.N_),
 	n_(cs.n_),
 	m_(cs.m_),
@@ -27,8 +27,8 @@ CreateSystem::CreateSystem(CreateSystem const& cs, double param):
 	CGL_(NULL)
 {
 	create();
-	if(RGL_){status_ = RGL_->create(param);}
-	if(CGL_){status_ = CGL_->create(param);}
+	if(RGL_){ready_ = RGL_->create(param);}
+	if(CGL_){ready_ = CGL_->create(param);}
 }
 
 CreateSystem::~CreateSystem(){

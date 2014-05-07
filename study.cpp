@@ -24,12 +24,14 @@ int main(int argc, char* argv[]){
 	if(argc==1){ study = 0; }
 	else {
 		search_in = argv[1];
-		if(search_in.find(".jdbin") == std::string::npos){ study = 1;}
-		else {study = 2;}
+		if(search_in != "README"){
+			if(search_in.find(".jdbin") == std::string::npos){ study = 1;}
+			else { study = 2;} 
+		} else {study = 3;}
 	}
 
 	switch(study){
-		case 0:
+		case 0: /*treat everything*/
 			{
 				RSTFile rst(info_dir,"README");
 				Read r_readme("README");
@@ -40,7 +42,7 @@ int main(int argc, char* argv[]){
 				build_rst(rst,search_in,info_dir,analysis_dir,info_name);
 				std::cerr<<"modifer Read->eof et peut être tout ce qui va avec"<<std::endl;
 			}break; 
-		case 1:
+		case 1: /*treat the repository given as argument*/
 			{
 				if(search_in[search_in.size()-1] != '/'){ search_in += "/"; }
 				info_dir += "info/";
@@ -87,7 +89,7 @@ int main(int argc, char* argv[]){
 					build_rst(rst_next,search_in,info_dir,analysis_dir,info_name);
 				}
 			}break;
-		case 2:
+		case 2:  /*treat only one jdbin file*/
 			{
 				const std::string ext(".jdbin");
 				std::string filename(search_in.substr(0, search_in.size() - ext.size()));
@@ -134,12 +136,28 @@ int main(int argc, char* argv[]){
 					default:{std::cerr<<"GenericSystem : Unknown boundary condition"<<std::endl;}
 				}
 				plot_corr(filename,info_dir,N,m,n,BC,param,corr);
-				rst_sim.figure(info_dir+filename+"-corr.png","Correlations",1000);
+				rst_sim.link_figure(info_dir+filename+"-corr.png","Correlations",info_dir+filename+"-corr.gp",1000);
 				if(type == 2){
 					plot_long_range_corr(filename,info_dir,N,m,n,BC,param,long_range_corr);
-					rst_sim.figure(info_dir+filename+"-long-range-corr.png","Long distance correlations",1000);
+					rst_sim.link_figure(info_dir+filename+"-long-range-corr.png","Long distance correlations",info_dir+filename+"-long-range-corr.gp",1000);
 				}
 				rst_sim.text(r.get_header());
+			}break;
+		case 3: /*update only the README file*/
+			{
+				RSTFile rst(root,"README");
+				Read r("README");
+				std::string h;
+				r>>h;
+				rst.text(h);
+				Directory d;
+				d.list_dir(root+"sim/");
+				d.sort();
+				info_dir += "info/";
+				for(unsigned int j(0);j<d.size();j++){
+					rst.hyperlink(d.get_path(j)+d.get_name(j),info_dir+d.get_name(j)+".html");
+					rst.nl();
+				}
 			}break;
 	}
 }
@@ -184,7 +202,6 @@ void search_jdbin(std::string path, std::string info_dir, std::string analysis_d
 		double param;
 		double E;
 		double DeltaE;
-		unsigned int Nsteps;
 		unsigned int status;
 		Vector<double> corr;
 		Vector<double> long_range_corr;
@@ -193,6 +210,7 @@ void search_jdbin(std::string path, std::string info_dir, std::string analysis_d
 		Vector<double> all_param(d.size());
 		Vector<std::string> all_links(d.size());
 
+		Write long_range_file(info_dir+"test.dat");
 		for(unsigned int i(0); i<d.size();i++){
 			std::cout<<"----->"<<d[i]<<std::endl;
 
@@ -201,8 +219,14 @@ void search_jdbin(std::string path, std::string info_dir, std::string analysis_d
 
 			r>>type>>nruns>>ref>>N>>m>>n>>bc>>param;
 			for(unsigned int j(0);j<nruns;j++){
-				r>>E>>DeltaE>>Nsteps>>status>>corr;
-				if(type == 2){r>>long_range_corr;}
+				r>>E>>DeltaE>>status>>corr;
+				if(type == 2){
+					r>>long_range_corr;
+					for(unsigned int i(0);i<long_range_corr.size();i++){
+						long_range_file<<i<<" "<<long_range_corr(i)<<Write::endl;
+					}
+					long_range_file<<Write::endl<<Write::endl;
+				}
 				data_runs<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<param<<" "<<E<<" "<<DeltaE<<" "<<status<<Write::endl;
 			}
 			r>>E>>DeltaE>>corr>>long_range_corr;
@@ -214,71 +238,124 @@ void search_jdbin(std::string path, std::string info_dir, std::string analysis_d
 				default:{std::cerr<<"GenericSystem : Unknown boundary condition"<<std::endl;}
 			}
 			plot_corr(d.get_name(i),info_dir,N,m,n,BC,param,corr);
-			rst_sim.figure(info_dir+d.get_name(i)+"-corr.png","Correlations",1000);
+			rst_sim.link_figure(info_dir+d.get_name(i)+"-corr.png","Correlations",info_dir+d.get_name(i)+"-corr.gp",1000);
 			if(type == 2){
-				plot_long_range_corr(d.get_name(i),info_dir,N,m,n,BC,param,long_range_corr);
-				rst_sim.figure(info_dir+d.get_name(i)+"-long-range-corr.png","Long distance correlations",1000);
+					for(unsigned int j(0);j<long_range_corr.size();j++){
+						long_range_file<<j+1.0<<" "<<long_range_corr(j)<<Write::endl;
+					}
+					long_range_file<<Write::endl<<Write::endl;
+
+					Gnuplot gp(info_dir,d.get_name(i)+"-long-range-corr");
+					gp+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
+					gp+="set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(j)>$' offset 1";
+					gp+="set key right bottom";
+					gp+="set title '$N="+tostring(N)+"$ $m="+tostring(m)+"$ $n="+tostring(n)+"$ bc="+BC+" $\\delta="+tostring(param)+"$'";
+					gp+="a=1.0";
+					gp+="b=1.0";
+					gp+="eta=1.0";
+					gp+="m="+tostring(m)+".0";
+					gp+="N="+tostring(N)+".0";
+					//gp.preplot("f(x) = a/(x*x) + b*cos(2.0*pi*x*m/N)/(x**eta)");
+					//gp.preplot("set fit quiet");
+					//switch(N/m){
+						//case 2:{ gp.preplot("fit [3:"+tostring(long_range_corr.size()+1)+"] f(x) '"+filename+"-long-range-corr.dat' via a,b,eta"); } break;
+						//case 3:{
+								//   switch((long_range_corr.size() + 1) % 3){
+									//   case 0:{ gp.preplot("fit [2:"+tostring(long_range_corr.size()+1)+"] f(x) '"+filename+"-long-range-corr.dat' via a,b,eta"); }break;
+									//   case 1:{ gp.preplot("fit [5:"+tostring(long_range_corr.size()+1)+"] f(x) '"+filename+"-long-range-corr.dat' via a,b,eta"); }break;
+									//   case 2:{ gp.preplot("fit [3:"+tostring(long_range_corr.size()+1)+"] f(x) '"+filename+"-long-range-corr.dat' via a,b,eta"); }break;
+								//   }break;
+							//   }break;
+						//default :{ gp.preplot("fit ["+tostring(N-1)+":"+tostring(long_range_corr.size()+1)+"] f(x) '"+filename+"-long-range-corr.dat' via a,b,eta"); }break;
+					//}
+					gp.xrange(0,long_range_corr.size()+1);
+					gp.yrange(1.1*long_range_corr.min(),1.1*long_range_corr.max());
+					gp+="plot for [IDX=0:"+tostring(nruns-1)+"] 'test.dat' i IDX notitle";
+					gp.save_file();
+					gp.create_image(true);
+					rst_sim.link_figure(info_dir+d.get_name(i)+"-long-range-corr.png","Long distance correlations",info_dir+d.get_name(i)+"-long-range-corr.gp",1000);
+
+					//plot_long_range_corr(d.get_name(i),info_dir,N,m,n,BC,param,long_range_corr);
+					//rst_sim.link_figure(info_dir+d.get_name(i)+"-long-range-corr.png","Long distance correlations",info_dir+d.get_name(i)+"-long-range-corr.gp",1000);
 			}
 			rst_sim.text(r.get_header());
 			all_param(i) = param;
 			all_links(i) = info_dir+d.get_name(i)+".html";
 		}
 
-		Gnuplot gp(analysis_dir,"Ep","plot");
-		gp.preplot("set xlabel '$\\delta$' offset 0,1");
-		gp.preplot("set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1");
-		gp.preplot("stats 'runs.dat' u 5:6 name 'row' nooutput");
-		gp.preplot("stats 'runs.dat' u ($8 > 2?$5:1/0):($8 > 2?$6:1/0) name 'select' nooutput");
-		gp.preplot("stats 'mean.dat' u 5:6 name 'mean' nooutput");
-		gp.preplot("set xrange [row_min_x:row_max_x]");
-		gp.add("'runs.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t '$N=" +tostring(N)+ "$ $m=" +tostring(m)+ "$ $n=" +tostring(n)+ "$ bc=" + BC + "',\\\n");
-		gp.add("     'mean.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t 'averaged over "+ tostring(nruns) + "',\\\n");
-		gp.add("     mean_min_y w l t sprintf('min : (%3.4f,%3.4f)',mean_pos_min_y,mean_min_y)");
-		gp.save_file();
-		gp.create_image(true);
-
 		Vector<unsigned int> index(all_param.sort());
 		all_links = all_links.sort(index);
 		for(unsigned int i(0);i<d.size();i++){
 			rst.hyperlink(tostring(all_param(i)),all_links(i));
 		}
-		rst.figure(analysis_dir+"Ep.png",analysis_dir+"Ep.png",1000);
+
+		if(d.size()>1){
+			Gnuplot gp(analysis_dir,"Ep");
+			gp+="set xlabel '$\\delta$' offset 0,1";
+			gp+="set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1";
+			gp+="stats 'runs.dat' u 5:6 name 'row' nooutput";
+			gp+="stats 'runs.dat' u ($8 > 2?$5:1/0):($8 > 2?$6:1/0) name 'select' nooutput";
+			gp+="stats 'mean.dat' u 5:6 name 'mean' nooutput";
+			gp.xrange("row_min_x","row_max_x");
+			gp+="plot 'runs.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t '$N=" +tostring(N)+ "$ $m=" +tostring(m)+ "$ $n=" +tostring(n)+ "$ bc=" + BC + "',\\";
+			gp+="     'mean.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t 'averaged over "+ tostring(nruns) + "',\\";
+			gp+="     mean_min_y w l t sprintf('min : (%3.4f,%3.4f)',mean_pos_min_y,mean_min_y)";
+			gp.save_file();
+			gp.create_image(true);
+			rst.link_figure(analysis_dir+"Ep.png",analysis_dir+"Ep.png",analysis_dir+"Ep.gp",1000);
+		}
 	}
 }
 
 void plot_corr(std::string filename, std::string directory, unsigned int N, unsigned int m, unsigned int n, std::string BC, double delta, Vector<double> const& corr){
-	Gnuplot gp(directory,filename+"-corr","plot");
-	gp.preplot("set xrange [0:"+tostring(n)+"]");
-	gp.preplot("set xlabel 'site' offset 0,0.5");
-	gp.preplot("set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$' offset 1");
-	gp.preplot("set title '$N="+tostring(N)+"$ $m="+tostring(m)+"$ $n="+tostring(n)+"$ bc="+BC+" $\\delta="+tostring(delta)+"$'");
-	Vector<double> links(corr.size());
-	for(unsigned int i(0);i<links.size();i++){ links(i) = 0.5+i; }
-	gp.save_data(filename+"-corr.dat",links,corr);
-	gp.add("notitle");
+	Gnuplot gp(directory,filename+"-corr");
+	gp.xrange(0,n);
+	gp+="set xlabel 'site' offset 0,0.5";
+	gp+="set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$' offset 1";
+	gp+="set title '$N="+tostring(N)+"$ $m="+tostring(m)+"$ $n="+tostring(n)+"$ bc="+BC+" $\\delta="+tostring(delta)+"$'";
+	//Vector<double> links(corr.size());
+	//for(unsigned int i(0);i<links.size();i++){ links(i) = 0.5+i; }
+	//gp.save_data(filename+"-corr.dat",links,corr);
+	Write w(filename+"-corr.dat");
+	for(unsigned int i(0);i<corr.size();i++){
+		w<<i+0.5<<" "<<corr(i)<<Write::endl;
+	}
+	gp+="plot '"+filename+"-corr.dat' notitle";
 	gp.save_file();
 	gp.create_image(true);
 }
 
 void plot_long_range_corr(std::string filename, std::string directory, unsigned int N, unsigned int m, unsigned int n, std::string BC, double delta, Vector<double> const& long_range_corr){
-	Gnuplot gp(directory,filename+"-long-range-corr","plot");
-	gp.preplot("set xlabel '$\\|i-j\\|$' offset 0,0.5");
-	gp.preplot("set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(j)>$' offset 1");
-	gp.preplot("set key right bottom");
-	gp.preplot("set title '$N="+tostring(N)+"$ $m="+tostring(m)+"$ $n="+tostring(n)+"$ bc="+BC+" $\\delta="+tostring(delta)+"$'");
-	gp.preplot("a=1.0");
-	gp.preplot("b=1.0");
-	gp.preplot("eta=1.0");
-	gp.preplot("f(x) = "+tostring(m*m)+".0/"+tostring(N)+".0 - a/(x*x) + b*cos(2.0*pi*x*"+tostring(m)+".0/"+tostring(N)+".0)/(x**eta)");
-	gp.preplot("set fit quiet");
-	gp.preplot("fit f(x) '"+filename+"-long-range-corr.dat' via a,b,eta");
-
-	gp.preplot("set xrange [0:"+tostring(long_range_corr.size()+1)+"]");
-	gp.preplot("set yrange ["+tostring(1.1*long_range_corr.min())+":"+tostring(1.1*long_range_corr.max())+"]");
-	Vector<double> r(long_range_corr.size());
-	for(unsigned int i(0);i<r.size();i++){ r(i) = i+1; }
-	gp.save_data(filename+"-long-range-corr.dat",r,long_range_corr);
-	gp.add("notitle, f(x) t sprintf('$a=%3.4f, b=%3.4f, \\eta=%3.4f$',a,b,eta)");
+	Gnuplot gp(directory,filename+"-long-range-corr");
+	gp+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
+	gp+="set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(j)>$' offset 1";
+	gp+="set key right bottom";
+	gp+="set title '$N="+tostring(N)+"$ $m="+tostring(m)+"$ $n="+tostring(n)+"$ bc="+BC+" $\\delta="+tostring(delta)+"$'";
+	gp+="a=1.0";
+	gp+="b=1.0";
+	gp+="eta=1.0";
+	gp+="m="+tostring(m)+".0";
+	gp+="N="+tostring(N)+".0";
+	gp+="f(x) = a/(x*x) + b*cos(2.0*pi*x*m/N)/(x**eta)";
+	gp+="set fit quiet";
+	switch(N/m){
+		case 2:{ gp+="fit [3:"+tostring(long_range_corr.size()+1)+"] f(x) '"+filename+"-long-range-corr.dat' via a,b,eta"; } break;
+		case 3:{
+				   switch((long_range_corr.size() + 1) % 3){
+					   case 0:{ gp+="fit [2:"+tostring(long_range_corr.size()+1)+"] f(x) '"+filename+"-long-range-corr.dat' via a,b,eta"; }break;
+					   case 1:{ gp+="fit [5:"+tostring(long_range_corr.size()+1)+"] f(x) '"+filename+"-long-range-corr.dat' via a,b,eta"; }break;
+					   case 2:{ gp+="fit [3:"+tostring(long_range_corr.size()+1)+"] f(x) '"+filename+"-long-range-corr.dat' via a,b,eta"; }break;
+				   }break;
+			   }break;
+		default :{ gp+="fit ["+tostring(N-1)+":"+tostring(long_range_corr.size()+1)+"] f(x) '"+filename+"-long-range-corr.dat' via a,b,eta"; }break;
+	}
+	gp.xrange(0,long_range_corr.size()+1);
+	gp.yrange(1.1*long_range_corr.min(),1.1*long_range_corr.max());
+	Write w("'"+filename+"-long-range-corr.dat");
+	for(unsigned int i(0);i<long_range_corr.size();i++){
+		w<<i+1<<" "<<long_range_corr(i)<<Write::endl;
+	}
+	gp+= "plot '"+filename+"'-long-range-corr.dat 'notitle, f(x) t sprintf('$a=%3.4f, b=%3.4f, \\eta=%3.4f$',a,b,eta)";
 	gp.save_file();
 	gp.create_image(true);
 }

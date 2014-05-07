@@ -19,8 +19,8 @@ class CreateSystem{
 		bool is_bosonic() const;
 
 		std::string get_filename() const;
+		bool ready() const {return ready_;}
 		double get_param() const {return param_;}
-		unsigned int get_status() const {return status_;}
 		unsigned int get_N() const {return N_;}
 		unsigned int get_n() const {return n_;}
 		unsigned int get_m() const {return m_;}
@@ -31,7 +31,7 @@ class CreateSystem{
 		Matrix<unsigned int> get_links() const;
 
 	private:
-		unsigned int status_;
+		bool ready_;
 		unsigned int const N_;
 		unsigned int const n_;
 		unsigned int const m_;

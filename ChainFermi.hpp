@@ -8,7 +8,7 @@ class ChainFermi: public Chain<double>{
 		ChainFermi(unsigned int N, unsigned int n, unsigned int m, int bc);
 		~ChainFermi();
 
-		unsigned int create(double x=0);
+		bool create(double x=0);
 		void check();
 		void study(double E, double DeltaE, Vector<double> const& corr, std::string save_in);
 

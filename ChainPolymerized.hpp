@@ -8,7 +8,7 @@ class ChainPolymerized: public Chain<double> {
 		ChainPolymerized(unsigned int N, unsigned int n, unsigned int m, int bc);
 		~ChainPolymerized();
 
-		unsigned int create(double delta);
+		bool create(double delta);
 		void check();
 		void save(Write& w) const;
 		void study(double E, double DeltaE, Vector<double> const& corr, std::string save_in);

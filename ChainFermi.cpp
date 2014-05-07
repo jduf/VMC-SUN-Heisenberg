@@ -8,7 +8,7 @@ ChainFermi::ChainFermi(unsigned int N, unsigned int n, unsigned int m, int bc):
 
 ChainFermi::~ChainFermi(){}
 
-unsigned int ChainFermi::create(double x){
+bool ChainFermi::create(double x){
 	compute_T();
 	diagonalize_T('S');
 	for(unsigned int spin(0);spin<N_;spin++){
@@ -18,8 +18,7 @@ unsigned int ChainFermi::create(double x){
 			}
 		}
 	}
-	if(degenerate_){ return 0; }
-	else { return 1; }/*1st step successful*/
+	return !degenerate_;
 }
 
 void ChainFermi::compute_T(){

@@ -20,7 +20,7 @@ class GenericSystem{
 		unsigned int get_num_links() const { return links_.row();}
 		std::string get_filename() const { return filename_;}
 
-		virtual unsigned int create(double param)=0;
+		virtual bool create(double param)=0;
 		virtual void save(Write& w) const;
 		virtual void check()=0;
 		virtual void study(double E, double DeltaE, Vector<double> const& corr, std::string save_in) = 0;

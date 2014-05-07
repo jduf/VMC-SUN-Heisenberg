@@ -8,7 +8,7 @@ class SquarePiFlux: public Square<std::complex<double> >{
 		SquarePiFlux(unsigned int N, unsigned int n, unsigned int m, int bc);
 		~SquarePiFlux();
 
-		unsigned int create(double x);
+		bool create(double x);
 		void check();
 		void study(double E, double DeltaE, Vector<double> const& corr, std::string save_in);
 

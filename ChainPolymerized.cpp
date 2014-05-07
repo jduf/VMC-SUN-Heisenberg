@@ -12,7 +12,7 @@ ChainPolymerized::ChainPolymerized(unsigned int N, unsigned int n, unsigned int 
 
 ChainPolymerized::~ChainPolymerized(){}
 
-unsigned int ChainPolymerized::create(double delta){
+bool ChainPolymerized::create(double delta){
 	filename_ += "-delta" + tostring(delta);
 	delta_=delta;
 
@@ -25,8 +25,7 @@ unsigned int ChainPolymerized::create(double delta){
 			}
 		}
 	}
-	if(degenerate_){ return 0; }
-	else { return 1; }/*1st step successful*/
+	return !degenerate_;
 }
 
 void ChainPolymerized::compute_T(){

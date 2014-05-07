@@ -8,7 +8,7 @@ SquarePiFlux::SquarePiFlux(unsigned int N, unsigned int n, unsigned int m, int b
 
 SquarePiFlux::~SquarePiFlux(){}
 
-unsigned int SquarePiFlux::create(double x){
+bool SquarePiFlux::create(double x){
 	compute_T();
 	diagonalize_T('H');
 	for(unsigned int spin(0);spin<N_;spin++){
@@ -18,8 +18,7 @@ unsigned int SquarePiFlux::create(double x){
 			}
 		}
 	}
-	if(degenerate_){ return 1; }
-	else { return 0; }
+	return !degenerate_;
 }
 
 void SquarePiFlux::compute_T(){

@@ -1,8 +1,8 @@
 EXEC=mc check study
 
-mc_SRCS=   mc.cpp    CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp Read.cpp Write.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp
+mc_SRCS=   mc.cpp    CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp Read.cpp Write.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp Gnuplot.cpp Binning.cpp
 #min_SRCS= min.cpp   CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp Read.cpp Write.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp  Minimization.cpp
-check_SRCS=check.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp Read.cpp Write.cpp Header.cpp RST.cpp PSTricks.cpp
+check_SRCS=check.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp Read.cpp Write.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp Gnuplot.cpp Binning.cpp
 study_SRCS=study.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp Read.cpp Write.cpp Header.cpp RST.cpp PSTricks.cpp RSTFile.cpp Gnuplot.cpp Directory.cpp
 
 #pso:pso.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o  PSTricks.o PSO.o PSOFermionic.o CreateSystem.o ChainFermi.o ChainDimerized.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Write.o Read.o TriangleFermi.o TriangleMu.o TrianglePhi.o  ChainPolymerized.o
@@ -34,19 +34,18 @@ all:$(EXEC)
 
 
 .SECONDEXPANSION:
-$(EXEC): $$(patsubst %.cpp, %.o, $$($$@_SRCS)) 
-	@echo Links $^
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
 	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
-%.o:%.cpp
-	@echo Creates $@
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
 	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
-	@mv $(<:.cpp=.d) $(BUILD)
 
 -include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm -f *.gch *.o $(BUILD)/* $(EXEC)
+	rm -f $(BUILD)/* $(EXEC)
 
 ref:
 	@echo Create the documentation

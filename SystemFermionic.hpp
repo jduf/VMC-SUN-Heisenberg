@@ -16,7 +16,7 @@ class SystemFermionic : public System<Type>{
 		 * - creates an random initial state
 		 * - if the sate is allowed, compute its related Ainv matrices
 		 * }*/
-		SystemFermionic(CreateSystem* CS, unsigned int const& thread);
+		SystemFermionic(CreateSystem* CS, unsigned int const& thread, unsigned int const& type);
 		/*!Delete all the variables dynamically allocated*/
 		~SystemFermionic();
 
@@ -61,13 +61,12 @@ class SystemFermionic : public System<Type>{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-SystemFermionic<Type>::SystemFermionic(CreateSystem* CS, unsigned int const& thread):
-	System<Type>(CS,thread),
+SystemFermionic<Type>::SystemFermionic(CreateSystem* CS, unsigned int const& thread, unsigned int const& type):
+	System<Type>(CS,thread,type),
 	EVec_(CS->get_EVec<Type>()),
 	Ainv_(new Matrix<Type>[this->N_])
 {
-	this->status_ = CS->get_status();
-	if(this->status_ == 1){
+	if(CS->ready()){
 		for(unsigned int i(0); i < this->N_; i++){
 			Ainv_[i].set(this->M_,this->M_);
 		}
@@ -107,15 +106,12 @@ SystemFermionic<Type>::SystemFermionic(CreateSystem* CS, unsigned int const& thr
 			for(unsigned int c(0); c < this->N_; c++){
 				Lapack<Type> inv(&Ainv_[c],false,'G');
 				ipiv = inv.is_singular(rcn);
-				if(!ipiv.ptr()){
-					c = this->N_;
-				} else {
-					inv.inv(ipiv);
-				}
+				if(ipiv.ptr()){ inv.inv(ipiv); }
+				else { c = this->N_; }
 			}
 		} while (!ipiv.ptr() && ++l<TRY_MAX);
 		if(l!=TRY_MAX){
-			this->status_=2; /*2nd step successful*/
+			this->ready_=true; /*2nd step successful*/
 		} else {
 			std::cerr<<"No initial state found after "<<TRY_MAX<<"trials"<<std::endl;
 		}

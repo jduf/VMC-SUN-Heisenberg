@@ -1,5 +1,4 @@
 
-
 template<typename Type>
 class BandStructure{
 	public:

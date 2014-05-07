@@ -2,6 +2,7 @@
 #define DEF_SYSTEM
 
 #include "CreateSystem.hpp"
+#include "Binning.hpp"
 #include "Rand.hpp"
 
 /*!Class that contains the information on the state*/
@@ -17,7 +18,7 @@ class System{
 		 * - allocates memory Ainv_
 		 * - initialize the random number generator
 		 */ //}
-		System(CreateSystem* CS, unsigned int const& thread);
+		System(CreateSystem* CS, unsigned int const& thread, unsigned int const& type);
 		/*!Delete all the variables dynamically allocated*/
 		virtual ~System();
 
@@ -31,16 +32,27 @@ class System{
 		virtual void update();
 
 		/*!Returns the status*/
-		unsigned int get_status() const {return status_;}
+		bool ready() const {return ready_;}
+		/*!Returns the energy*/
+		Data<double> get_energy() const {return E_.get_data();}
+		/*!Returns the correlation*/
+		Matrix<double> get_corr() const;
+		/*!Returns the correlation*/
+		Matrix<double> get_long_range_corr() const;
 
 		//{Description
 		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
 		 * permutation */
 		//}
-		void measure(unsigned int type);	
-		double get_energy_step() const {return E_step_;};
-		Vector<double> get_corr_step() const {return corr_step_;};
-		Vector<double> get_long_range_corr_step() const {return long_range_corr_step_;};
+		void measure_new_step();	
+		void add_sample();
+		bool is_converged();
+		
+		void save(Write& w) const;
+
+		void set();
+
+		void operator>>(Write &w) const;
 
 		/*!Pure virtual function that provides a way to check the System */
 		virtual void print()=0;
@@ -50,23 +62,23 @@ class System{
 		unsigned int new_s[2];	//!< sites that are exchanged
 		unsigned int new_p[2];	//!< sites that are exchanged
 
-		unsigned int status_;//!< Degenerate :0 No initial state:1
+		bool ready_;	
 
 		unsigned int const N_;//!< colors' number
 		unsigned int const n_;//!< sites' number
 		unsigned int const m_;//!< particles per site' number
 		unsigned int const M_;//!< particles' number of each color
 
-		Matrix<unsigned int> s_;//!< on the site i : s(i,0)=color, s(i,1)=row
+		Matrix<unsigned int> s_;			//!< on the site i : s(i,0)=color, s(i,1)=row
 		Matrix<unsigned int> const links_;	//!< list of links
 
-		Rand* rnd_;			//!< generator of random numbers 
-
-		double E_step_;
-		Vector<double> corr_step_;	//!< Correlation for each link 
-		Vector<double> long_range_corr_step_;//!< Correlation for each link 
+		Rand* rnd_;	//!< generator of random numbers 
 
 	private:
+		Binning E_;
+		Binning* corr_;				//!< correlation for each link 
+		Binning* long_range_corr_;	//!< correlation for each link 
+
 		/*!Check only if the new state has not the same color on one site*/
 		bool is_new_state_forbidden();
 };
@@ -74,23 +86,40 @@ class System{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-System<Type>::System(CreateSystem* CS, unsigned int const& thread):
-	status_(1),
+System<Type>::System(CreateSystem* CS, unsigned int const& thread, unsigned int const& type):
+	ready_(false),
 	N_(CS->get_N()),
 	n_(CS->get_n()),
 	m_(CS->get_m()),
 	M_((m_*n_)/N_),
 	s_(n_,m_),
 	links_(CS->get_links()),
-	rnd_(new Rand(100,thread)),
-	E_step_(0.0),
-	corr_step_(CS->get_num_links(),0),
-	long_range_corr_step_(CS->get_n()/3-1,0)
-{}
+	rnd_(new Rand(100,thread))
+{
+	corr_ = new Binning[n_];
+	if(type == 2){long_range_corr_ = new Binning[n_/3];}
+	set();
+	//E_.log("E");
+	//long_range_corr_[n_/3-1].log("long_range_corr");
+}
+
+template<typename Type>
+void System<Type>::set(){
+	E_.set();
+	for(unsigned int i(0);i<n_;i++){ corr_[i].set(); }
+	if(long_range_corr_){
+		for(unsigned int i(0);i<n_/3;i++){ long_range_corr_[i].set(); }
+	}
+}
 
 template<typename Type>
 System<Type>::~System(){
+	//E_.plot();
+	//long_range_corr_[n_/3-1].plot();
+
 	if(rnd_){delete rnd_;}
+	if(corr_){delete[] corr_;}
+	if(long_range_corr_){delete[] long_range_corr_;}
 }
 /*}*/
 
@@ -126,36 +155,72 @@ void System<Type>::update(){
 }
 
 template<typename Type>
-void System<Type>::measure(unsigned int type){
-	E_step_ = 0.0;
+void System<Type>::measure_new_step(){
+	E_ = 0.0;
 	double r;
 	for(unsigned int i(0);i<links_.row();i++){
-		corr_step_(i) = 0.0;
+		corr_[i] = 0.0;
 		for(unsigned int p0(0); p0<m_; p0++){
 			for(unsigned int p1(0); p1<m_; p1++){
 				swap(links_(i,0),links_(i,1),p0,p1);
 				if(!is_new_state_forbidden()){ 
 					r = real(ratio());
-					E_step_ += r; 
-					corr_step_(i) += r;
+					E_ += r; 
+					corr_[i] += r;
 				}
 			}
 		}
 	}
-	E_step_ /= n_;
-	if(type==2){
+	E_ /= n_;
+	if(long_range_corr_){
 		unsigned int x0(n_/3);
-		for(unsigned int i(0);i<long_range_corr_step_.size();i++){
-			long_range_corr_step_(i) = 0.0;
+		for(unsigned int i(0);i<n_/3;i++){
+			long_range_corr_[i] = 0.0;
 			for(unsigned int p0(0); p0<m_; p0++){
 				for(unsigned int p1(0); p1<m_; p1++){
 					swap(x0,x0+i+1,p0,p1);
-					if(!is_new_state_forbidden()){ 
-						long_range_corr_step_(i) += real(ratio());;
+					if(!is_new_state_forbidden() && new_c[0]!=new_c[1]){ 
+						long_range_corr_[i] += real(ratio());;
 					}
 				}
 			}
 		}
+	}
+}
+
+template<typename Type>
+void System<Type>::add_sample(){
+	E_.add_sample();
+	for(unsigned int i(0);i<n_;i++){
+		corr_[i].add_sample();
+	}
+	if(long_range_corr_){
+		for(unsigned int i(0);i<n_/3;i++){
+			long_range_corr_[i].add_sample();
+		}
+	}
+}
+
+template<typename Type>
+bool System<Type>::is_converged(){ 
+	for(unsigned int i(0);i<n_;i++){
+		corr_[i].is_converged(); 
+	}
+	if(long_range_corr_){
+		for(unsigned int i(0);i<n_/3;i++){
+			long_range_corr_[i].is_converged(); 
+		}
+	}
+	return E_.is_converged(); 
+}
+
+template<typename Type>
+void System<Type>::save(Write& w) const{
+	//w("E (energy per site)",E_.get_mean());
+	//w("DeltaE (absolute error)",E_.get_variance());
+	w("corr (correlation on links)",get_corr());
+	if(long_range_corr_){
+		w("long_range_corr (long range correlations)",get_long_range_corr());
 	}
 }
 /*}*/
@@ -164,11 +229,44 @@ void System<Type>::measure(unsigned int type){
 /*{*/
 template<typename Type>
 bool System<Type>::is_new_state_forbidden(){
-	for(unsigned int i(0); i<this->m_; i++){
+	for(unsigned int i(0); i<m_; i++){
 		if(s_(new_s[0],i) == new_c[1] && i != new_p[0]){ return true; }
 		if(s_(new_s[1],i) == new_c[0] && i != new_p[1]){ return true; }
 	}
 	return false;
 }
 /*}*/
+
+template<typename Type>
+Matrix<double> System<Type>::get_corr() const {
+	Matrix<double> corr(n_,2);
+	for(unsigned int i(0);i<n_;i++){
+		//corr(i,0) = corr_[i].get_mean();
+		//corr(i,1) = corr_[i].get_variance();
+	}
+	return corr;
+}
+
+template<typename Type>
+Matrix<double> System<Type>::get_long_range_corr() const{
+	Matrix<double> long_range_corr(n_/3,2);
+	for(unsigned int i(0);i<n_/3;i++){
+		//long_range_corr(i,0) = long_range_corr_[i].get_mean();
+		//long_range_corr(i,1) = long_range_corr_[i].get_variance();
+	}
+	return long_range_corr;
+}
+
+template<typename Type>
+void System<Type>::operator>>(Write &w) const{
+	E_>>w;
+	for(unsigned int i(0);i<n_;i++){
+		corr_[i]>>w;
+	}
+	if(long_range_corr_){
+		for(unsigned int i(0);i<n_/3;i++){
+			long_range_corr_[i]>>w;
+		}
+	}
+}
 #endif

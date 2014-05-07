@@ -7,7 +7,7 @@ void run(CreateSystem const& cs, double param, std::string path, unsigned int nr
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	unsigned int type(P.get<unsigned int>("type"));
+	unsigned int type(P.get<unsigned int>("lrc"));
 	unsigned int nruns(P.get<unsigned int>("nruns"));
 	unsigned int tmax(P.get<unsigned int>("tmax"));
 	CreateSystem cs(P);
@@ -41,10 +41,10 @@ std::string init(CreateSystem const& cs){
 void run(CreateSystem const& cs, double param, std::string path, unsigned int nruns, unsigned int tmax, unsigned int type){
 	CreateSystem CS(cs,param);
 	if( CS.use_complex() ){
-		ParallelMonteCarlo<std::complex<double> > sim(&CS,path,nruns,tmax,1e9,type);
+		ParallelMonteCarlo<std::complex<double> > sim(&CS,path,nruns,tmax,type);
 		sim.run();
 	} else {
-		ParallelMonteCarlo<double> sim(&CS,path,nruns,tmax,1e9,type);
+		ParallelMonteCarlo<double> sim(&CS,path,nruns,tmax,type);
 		sim.run();
 	}
 }
