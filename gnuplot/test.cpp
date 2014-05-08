@@ -20,8 +20,16 @@ int main(){
 
 	Linux command;
 
-	Gnuplot gp(command.pwd(),"bla","plot");
-	gp.save_data("data.dat",x,y,m);
+	Gnuplot gp(command.pwd(),"bla");
+	Write w("data.dat");
+	for(unsigned int i(0);i<x.size();i++){
+		for(unsigned int j(0);j<y.size();j++){
+			w<<x(i)<<" "<<y(j)<<" "<<m(i,j)<<Write::endl;
+		}
+		w<<Write::endl;
+	}
+	gp += "set view 80,40";
+	gp += "splot 'data.dat'";
 	gp.save_file();
 	gp.create_image(false);
 }

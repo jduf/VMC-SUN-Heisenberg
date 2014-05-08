@@ -6,8 +6,6 @@
 #include <cmath> //allow abs(double) and abs(complex) 
 #include <complex>
 
-//#include "Matrix.hpp"
-
 template<typename Type>
 class Matrix;
 
@@ -31,11 +29,11 @@ class Vector{
 		~Vector();
 
 		/*!Accesses the (i,j)th entry of the Vector*/
-		Type const& operator()(unsigned int const& i) const { 
-			assert(i<N_); return m_[i]; };
+		Type const& operator()(unsigned int const& i) const 
+		{assert(i<N_); return m_[i];}
 		/*!Sets the (i,j)th entry of the Vector*/
-		Type& operator()(unsigned int const& i) { 
-			assert(i<N_); return m_[i]; };
+		Type& operator()(unsigned int const& i) 
+		{assert(i<N_); return m_[i];}
 
 		/*!Deep copy assignment*/
 		Vector<Type>& operator=(Vector<Type> const& vec); 
@@ -77,9 +75,9 @@ class Vector{
 		Type min() const;
 
 		/*!Returns the pointer to the Vector*/
-		Type* ptr() const { return m_; }
+		Type* ptr() const {return m_;}
 		/*!Returns the size of the Vector*/
-		unsigned int size() const { return N_; }
+		unsigned int size() const {return N_;}
 
 	protected:
 		Type *m_; //!< pointer to a static array
@@ -112,7 +110,7 @@ Vector<Type>::Vector(unsigned int N, Type val):
 	m_(new Type[N]),
 	N_(N)
 {
-	set(N,val);
+	for(unsigned int i(0); i<N_; i++){m_[i] = val;}
 }
 
 template<typename Type>
@@ -125,10 +123,7 @@ Vector<Type>::Vector(Vector<Type> const& vec):
 
 template<typename Type>
 Vector<Type>::~Vector(){
-	if(m_){
-		delete[]  m_;
-		m_ = NULL;
-	}
+	if(m_){ delete[]  m_; }
 }
 /*}*/
 

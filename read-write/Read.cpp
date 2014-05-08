@@ -73,7 +73,7 @@ Read& Read::operator>>(Matrix<std::string>& mat){
 				(*this)>>(mat.ptr())[i];
 			}			
 		} else {
-			std::cerr<<"Read : << for Array2D<std::string> is not implemented"<<std::endl;
+			std::cerr<<"Read : << for Matrix<std::string> is not implemented"<<std::endl;
 		}
 	} else {
 		std::cerr<<"Read : the file "<< filename<< " is locked"<<std::endl;

@@ -32,5 +32,5 @@ $(BUILD)/%.o:%.cpp
 -include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm -f $(BUILD)/* test
+	rm -f $(BUILD)/* test spectrum*
 

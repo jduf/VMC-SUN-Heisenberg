@@ -131,7 +131,7 @@ Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col, Type val):
 	col_(N_col),
 	size_(N_col*N_row)
 { 
-	set(val);
+	for(unsigned int i(0);i<size_;i++){ m_[i] = val; }
 }
 
 template<typename Type>
@@ -141,9 +141,7 @@ Matrix<Type>::Matrix(Matrix<Type> const& mat):
 	col_(mat.col_),
 	size_(mat.size_)
 {
-	for(unsigned int i(0);i<size_;i++){
-		m_[i] = mat.m_[i];
-	}
+	for(unsigned int i(0);i<size_;i++){ m_[i] = mat.m_[i]; }
 }
 
 template<typename Type>

@@ -27,7 +27,7 @@ class Header{
 		void add(std::string const& s, Matrix<double> const& mat);
 		void add(std::string const& s, Matrix<std::complex<double> > const& mat);
 
-		void set(std::string const& s) { rst.set(s); };
+		void set(std::string const& s) {rst.set(s);};
 		RST get() const {return rst;};
 
 	private:

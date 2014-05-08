@@ -6,8 +6,8 @@ void rerun(Parseur& P, std::string filename);
 
 int main(int argc,char* argv[]){
 	Parseur P(argc,argv);
-	run(P,"test.jdbin");
-	rerun(P,"test.jdbin");
+	run(P,"pso.jdbin");
+	rerun(P,"pso.jdbin");
 }
 
 void run(Parseur& P, std::string filename){

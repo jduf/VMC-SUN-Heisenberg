@@ -1,0 +1,3 @@
+Directory.hpp : make sure that when one uses search... the directory name contains a '/' at the end
+Lapack.hpp : find a way to determine optimal blocksize -> lwork
+

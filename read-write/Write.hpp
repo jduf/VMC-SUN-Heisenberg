@@ -44,10 +44,10 @@ class Write{
 			Write& operator<<(Matrix<Type> const& mat);
 		Write& operator<<(Matrix<std::string> const& mat);
 		/*!Stream operator that writes vectors, uses Vector<Type>::operator<<
-		 * \warning doesn't work if Type=std::string => template specialization
-		 * in the cpp file*/
+		 * \warning doesn't work if Type=std::string => need a template
+		 * specialization in the cpp file*/
 		template<typename Type>
-			Write& operator<<(Vector<Type> const& mat);
+			Write& operator<<(Vector<Type> const& vec);
 		/*!Allow to write in the header what will be written in the file*/
 		template<typename Type>
 			void operator()(std::string const& var, Type const& val);
@@ -141,8 +141,8 @@ Write& Write::operator<<(Vector<Type> const& vec){
 template<typename Type>
 void Write::write_binary_vector(Vector<Type> const& vec){
 	unsigned int N(vec.size());
-	fwrite(&N, sizeof(N),1,bfile);
-	fwrite(vec.ptr(),sizeof(Type),N,bfile);
+	fwrite(&N, sizeof(N), 1, bfile);
+	fwrite(vec.ptr(), sizeof(Type), N, bfile);
 	fflush(bfile);
 }
 

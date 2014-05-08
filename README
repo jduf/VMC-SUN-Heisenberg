@@ -1,0 +1,27 @@
+REPERTROIRE CONTENANT DES FICHIERS DE DEVELOPPEMENT EN C ET C++ 
+
+- arrays : handle 1d and 2d arrays (might be replaced by Matrix.hpp)
+- autosampling : découpe recursivement une surface rectengulaire en une sous-surface rectangulaire jusqu'à ce que la fonction qui est évaluée sur ses coins soit suffisement précise
+- complex-numbers : classe implémentant les nombres complexes
+- container : when use with FileParser.hpp, it allows to save all datas contained in a file in one single container
+- diffdir : vimdiff over many directory
+- directory : allow to search for a file in directories
+- factorial : implementation of a factorial function (actually, used to test Chrono.hpp)
+- gnuplot : write an gnuplot script
+- header : allows to write a header(footer) in a jdbin file
+- jdtools : allows to find, process... jdbin files
+- linux :  allows to lunch system command
+- matrix-lapack : implémente une classe matrice comme étant un tableau 1D, l'accès à un élément se fait par a(i,j), utilise des routines lapack
+- parseur : récupère les arguments du main et fourni une méthode d'assertion de valeur
+- prime : génère les n premiers nombres premier
+- pstricks2pdf : create an pstriks figure
+- rand : random numbers generator provided by Sandro Sorella
+- read-write : gère les entrées sorties vers des fichier binaire ou text (provides a way to store data in a jdbin format that allows me to use jdtools)
+- rewrite : rewrite a file created with Write.hpp
+- rst : provides tools to write a rst file within c++
+- run : allow to run a software exactly n times when it is launched N>n time
+- time : class that handle the time, chrono
+- tools : executable that applies vimdiff on two directories
+- young : compute the product of Young tableaus
+
+

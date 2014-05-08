@@ -19,9 +19,13 @@ int main(){
 
 	Vector<double> p(4,1);
 	Fit test(x,y,*f,p);
-	Gnuplot gp("./","image","plot");
-	gp.save_data("fit.dat",x,test.fx());
-	gp.add("t sprintf('$\\eta=%f$',"+tostring(p(2))+"), 'data.dat'");
+	Gnuplot gp("./","image");
+	Vector<double> yfit(test.fx());
+	Write w("fit.dat");
+	for(unsigned int i(0);i<x.size();i++){
+		w<<x(i)<<" "<<yfit(i)<<Write::endl;
+	}
+	gp="'fit.dat' t sprintf('$\\eta=%f$',"+tostring(p(2))+"), 'data.dat'";
 	gp.save_file();
 	gp.create_image(true);
 
