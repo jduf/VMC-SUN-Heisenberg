@@ -8,7 +8,7 @@ RSTFile::RSTFile(std::string path,std::string filename):
 {}
 
 RSTFile::~RSTFile() { 
-	Write w(path_ + filename_ + ".rst");
+	IOFiles w(path_ + filename_ + ".rst",true);
 	rst += RST_np;
 	w<<rst;
 	Linux command;

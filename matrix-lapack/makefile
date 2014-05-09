@@ -1,6 +1,6 @@
 EXEC=test
 
-test_SRCS=test.cpp Lapack.cpp Read.cpp Header.cpp RST.cpp Write.cpp
+test_SRCS=test.cpp Lapack.cpp IOFiles.cpp Header.cpp RST.cpp
 
 #-----------------------------------------------------------------
 

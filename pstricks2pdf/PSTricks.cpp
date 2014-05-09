@@ -14,7 +14,7 @@ PSTricks::PSTricks(std::string path, std::string filename, bool silent):
 
 PSTricks::~PSTricks(){
 	{/*to make sure that the file w is closed after the brackets*/
-		Write w(filename_ + ".tex");
+		IOFiles w(filename_ + ".tex",true);
 		s_ += "\\end{document}\n";
 		w<<s_;
 	}

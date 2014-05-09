@@ -1,6 +1,6 @@
 #include "Gnuplot.hpp"
-
-#include<iostream>
+#include "Vector.hpp"
+#include "Matrix.hpp"
 
 int main(){
 	Vector<double> x(100,0.0);
@@ -21,12 +21,12 @@ int main(){
 	Linux command;
 
 	Gnuplot gp(command.pwd(),"bla");
-	Write w("data.dat");
+	IOFiles w("data.dat",true);
 	for(unsigned int i(0);i<x.size();i++){
 		for(unsigned int j(0);j<y.size();j++){
-			w<<x(i)<<" "<<y(j)<<" "<<m(i,j)<<Write::endl;
+			w<<x(i)<<" "<<y(j)<<" "<<m(i,j)<<IOFiles::endl;
 		}
-		w<<Write::endl;
+		w<<IOFiles::endl;
 	}
 	gp += "set view 80,40";
 	gp += "splot 'data.dat'";

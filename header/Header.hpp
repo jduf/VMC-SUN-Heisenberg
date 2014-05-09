@@ -1,12 +1,11 @@
 #ifndef DEF_HEADER
 #define DEF_HEADER
 
-#include "Matrix.hpp"
-#include "Vector.hpp"
 #include "Time.hpp"
 #include "RST.hpp"
+#include "MyType.hpp"
 
-class Header{
+class Header:public RST{
 	public:
 		Header();
 		~Header();
@@ -20,21 +19,17 @@ class Header{
 		void add(std::string const& s, int const& d);
 		void add(std::string const& s, std::string const& d);
 		void add(std::string const& s, std::complex<double> const& d);
-		void add(std::string const& s, Vector<unsigned int> const& vec);
-		void add(std::string const& s, Vector<double> const& vec);
-		void add(std::string const& s, Matrix<int> const& mat);
-		void add(std::string const& s, Matrix<unsigned int> const& mat);
-		void add(std::string const& s, Matrix<double> const& mat);
-		void add(std::string const& s, Matrix<std::complex<double> > const& mat);
-
-		void set(std::string const& s) {rst.set(s);};
-		RST get() const {return rst;};
+		template<typename Type>
+			void add(std::string const& s, MyType<Type> const& t);
 
 	private:
-		RST rst;
-
 		std::string when();
 };
 
 std::ostream& operator<<(std::ostream& flux, Header const& h);
+
+template<typename Type>
+void Header::add(std::string const& s, MyType<Type> const& t){
+	t.header_rst(s,(*this));
+}
 #endif

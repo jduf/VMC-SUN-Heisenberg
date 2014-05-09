@@ -2,7 +2,6 @@
 
 #include "Directory.hpp"
 #include "Parseur.hpp"
-#include "Read.hpp"
 #include "RSTFile.hpp"
 
 void update_readme(Directory const& d, std::string const& directory_name);
@@ -34,7 +33,7 @@ int main(int argc, char* argv[]){
 }
 
 void update_readme(Directory const& d, std::string const& directory_name){
-	Read r(directory_name + "README");
+	IOFiles r(directory_name + "README",false);
 	std::string h("");
 	r>>h;
 

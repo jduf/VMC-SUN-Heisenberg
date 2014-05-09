@@ -1,10 +1,9 @@
-EXEC=jdinfo jdread jdtags jdwrite jdfind
+EXEC=jdinfo jdread jdtags jdfind
 
-jdinfo_SRCS= jdinfo.cpp Directory.cpp Header.cpp Parseur.cpp Read.cpp RST.cpp Write.cpp RSTFile.cpp
-jdread_SRCS= jdread.cpp Directory.cpp Header.cpp Parseur.cpp Read.cpp RST.cpp Write.cpp
-jdtags_SRCS= jdtags.cpp Directory.cpp Header.cpp Parseur.cpp Read.cpp RST.cpp Write.cpp RSTFile.cpp
-jdfind_SRCS= jdfind.cpp Directory.cpp Header.cpp Parseur.cpp Read.cpp RST.cpp Write.cpp RSTFile.cpp
-jdwrite_SRCS=jdwrite.cpp Directory.cpp Header.cpp Parseur.cpp Read.cpp Rewrite.cpp RST.cpp Write.cpp
+jdinfo_SRCS = jdinfo.cpp Directory.cpp Header.cpp Parseur.cpp IOFiles.cpp RST.cpp RSTFile.cpp
+jdread_SRCS = jdread.cpp Directory.cpp Header.cpp Parseur.cpp IOFiles.cpp RST.cpp 
+jdtags_SRCS = jdtags.cpp Directory.cpp Header.cpp Parseur.cpp IOFiles.cpp RST.cpp RSTFile.cpp
+jdfind_SRCS = jdfind.cpp Directory.cpp Header.cpp Parseur.cpp IOFiles.cpp RST.cpp RSTFile.cpp
 #-----------------------------------------------------------------
 
 CXX = g++

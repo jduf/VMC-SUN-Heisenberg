@@ -1,16 +1,15 @@
-#include "Read.hpp"
-#include "Write.hpp"
+#include "IOFiles.hpp"
 #include "Matrix.hpp"
-#include <complex>
+#include "Vector.hpp"
 
 void write_bin(){
 	std::cout<<"écriture d'un fichier binaire"<<std::endl;
 	double a(6.5);
 	Matrix<double> A(10,2,2.2);
 	std::complex<double> c(7.5,1.5);
-	Matrix<std::complex<double> > C(3,8,c);
+	Vector<std::complex<double> > C(3,c);
 
-	Write write("data-3.jdbin");
+	IOFiles write("data.jdbin",true);
 	write("a",a);	
 	write("A",A);	
 	write("C",C);	
@@ -21,9 +20,9 @@ void read_bin(){
 	double a;
 	Matrix<double> A;
 	std::complex<double> c;
-	Matrix<std::complex<double> > C;
+	Vector<std::complex<double> > C;
 
-	Read read("data-3.jdbin");
+	IOFiles read("data.jdbin",false);
 	std::cout<<read.get_header();
 	read>>a>>A>>C;
 	std::cout<<a<<std::endl;

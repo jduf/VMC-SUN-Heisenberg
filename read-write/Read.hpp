@@ -2,6 +2,8 @@
 #define DEF_READ
 
 #include "Header.hpp"
+#include "Matrix.hpp"
+#include "Vector.hpp"
 #include <fstream>
 
 //{Description

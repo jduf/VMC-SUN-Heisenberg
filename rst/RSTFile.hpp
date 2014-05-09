@@ -1,7 +1,7 @@
 #ifndef DEF_RSTFILE
 #define DEF_RSTFILE
 
-#include"Write.hpp"
+#include"IOFiles.hpp"
 #include"Linux.hpp"
 
 class RSTFile:public RST{
@@ -9,7 +9,7 @@ class RSTFile:public RST{
 		RSTFile(std::string path, std::string filename);
 		~RSTFile();
 
-		void pdf() { pdf_= true; }
+		void pdf() {pdf_= true;}
 
 	private:
 		std::string path_;

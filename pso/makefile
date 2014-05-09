@@ -1,6 +1,6 @@
 EXEC=test
 
-test_SRCS=test.cpp Header.cpp Parseur.cpp PSO.cpp Rand.cpp Read.cpp RST.cpp Write.cpp
+test_SRCS=test.cpp Parseur.cpp PSO.cpp Rand.cpp IOFiles.cpp RST.cpp Header.cpp
 
 #-----------------------------------------------------------------
 
@@ -31,4 +31,4 @@ $(BUILD)/%.o:%.cpp
 -include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm -f $(BUILD)/* test pso*
+	rm -f $(BUILD)/* test pso* *.dat

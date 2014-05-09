@@ -1,8 +1,10 @@
 #ifndef DEF_PSTRICKS
 #define DEF_PSTRICKS
 
-#include "Write.hpp"
+#include "IOFiles.hpp"
 #include "Linux.hpp"
+#include "Matrix.hpp"
+#include "Vector.hpp"
 
 class PSTricks {
 	public:

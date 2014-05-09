@@ -1,7 +1,4 @@
 #include "Parseur.hpp"
-#include "Vector.hpp"
-
-#include <string>
 
 int main(int argc,char* argv[]){
 	Parseur P(argc,argv);

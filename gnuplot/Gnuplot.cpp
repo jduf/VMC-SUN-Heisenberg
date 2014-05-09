@@ -9,8 +9,8 @@ Gnuplot::Gnuplot(std::string path, std::string filename):
 Gnuplot::~Gnuplot(){}
 
 void Gnuplot::save_file(){
-	Write w_gp(path_ + filename_+".gp");
-	w_gp<<plot_<<Write::endl;
+	IOFiles w_gp(path_ + filename_+".gp",true);
+	w_gp<<plot_<<IOFiles::endl;
 }
 
 void Gnuplot::create_image(bool silent){

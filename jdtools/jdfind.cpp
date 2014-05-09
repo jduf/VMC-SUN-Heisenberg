@@ -1,9 +1,10 @@
 /*!  @file jdfind.cpp */
 
+#include "RSTFile.hpp"
+#include "Matrix.hpp"
+#include "Vector.hpp"
 #include "Directory.hpp"
 #include "Parseur.hpp"
-#include "Read.hpp"
-#include "RSTFile.hpp"
 
 void create_readme(std::string const& directory_name);
 void list_all_simulation_files(Directory const& d, std::string const& save_in);
@@ -40,7 +41,7 @@ int main(int argc, char* argv[]){
 }
 
 void create_readme(std::string const& directory_name){
-	Read r(directory_name + "README");
+	IOFiles r(directory_name + "README",false);
 	std::string h("");
 	r>>h;
 
@@ -63,9 +64,9 @@ void create_all_simulation_files(Directory const& d, std::string const& save_in)
 	std::string data("");
 	for(unsigned int i(0); i<d.size();i++){
 		data = "";
-		Read r(d[i]);
+		IOFiles r(d[i],false);
 		h = r.get_header();
-		Read r_data(d[i]+".dat");
+		IOFiles r_data(d[i]+".dat",false);
 		r_data>>data;
 
 		RSTFile rst(save_in,d.get_name(i));
@@ -81,7 +82,7 @@ void create_tag_list(Directory const& d, std::string const& save_in){
 	std::vector<std::string> df;
 	std::string h("");
 	for(unsigned int i(0);i<d.size();i++){
-		Read r(d[i]);
+		IOFiles r(d[i],false);
 		h = r.get_header();
 		size_t t0(0);
 		size_t t1(0);
@@ -103,7 +104,7 @@ void create_tag_list(Directory const& d, std::string const& save_in){
 			DF(i,j) = df[2*i+j];
 		}
 	}
-	Write w(save_in + "TAGS.bin");
+	IOFiles w(save_in + "TAGS.bin",true);
 	w<<DF;
 }
 

@@ -122,14 +122,14 @@ void Write::open_txt(bool append){
 void Write::write_header(){
 	if(binary){
 		if(h){
-			std::string s((h->get()).get());
+			std::string s(h->get());
 			unsigned int N(s.size());
 			fwrite(s.c_str(),1, N ,bfile);
 			fwrite(&N,sizeof(N), 1 ,bfile);
 			fflush(bfile);
 		}
 	} else {  
-		tfile<<(h->get()).get()<<std::flush;
+		tfile<<h->get()<<std::flush;
 	}
 }
 /*}*/

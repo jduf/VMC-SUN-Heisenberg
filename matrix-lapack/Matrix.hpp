@@ -1,14 +1,7 @@
 #ifndef DEF_MATRIX
 #define DEF_MATRIX
 
-#include <iostream>
-#include <cassert>
-#include <complex>
-
-//#include "Vector.hpp"
-
-template<typename Type>
-class Vector;
+#include "MyType.hpp"
 
 /*{!Class that implement a static array as a Matrix
  *
@@ -16,7 +9,7 @@ class Vector;
  * - can be loaded with Read.hpp 
  }*/
 template<typename Type>
-class Matrix{
+class Matrix:public MyType<Type>{
 	public:
 		/*!Default constructor that initializes *m to NULL and N to 0*/
 		Matrix();
@@ -76,21 +69,31 @@ class Matrix{
 		/*!Returns the conjugate transpose of complex matrix (may give an error) */
 		Matrix<Type> trans_conj() const;
 		/*!Returns the diagonal elements in an vector*/
+#ifdef DEF_VECTOR
 		Vector<Type> diag() const;
+#endif
 		/*!Returns the trace*/
 		Type trace() const;
 
-		/*!Returns the pointer to the matrix*/
-		Type* ptr() const { return m_; }
 		/*!Returns the size of the matrix*/
 		unsigned int size() const { return size_; }
 		/*!Returns the number of rows of the matrix*/
 		unsigned int row() const { return row_; }
 		/*!Returns the number of columns of the matrix*/
 		unsigned int col() const { return col_; }
+		/*!Returns the pointer to the matrix*/
+		Type* ptr() const { return m_; }
 
 		/*return the maximum value of the matrix*/
 		Type max() const;
+
+		void write_in_stream(std::ostream& flux) const;
+		void read_from_stream(std::istream& flux);
+#ifdef DEF_IOFILES
+		void write_in_file(IOFiles& w) const;
+		void read_from_file(IOFiles& r);
+		void header_rst(std::string const& s, RST& rst) const;
+#endif
 
 	protected:
 		Type *m_; //!< pointer to a static array
@@ -100,11 +103,6 @@ class Matrix{
 
 		void set_null_pointer(){m_=NULL;}
 };
-
-template<typename Type>
-std::ostream& operator<<(std::ostream& flux, Matrix<Type> const& mat);
-template<typename Type>
-std::istream& operator>>(std::istream& flux, Matrix<Type>& mat);
 
 /*constructors and destructor*/
 /*{*/
@@ -163,7 +161,49 @@ Matrix<Type>::~Matrix(){
 }
 /*}*/
 
-/*operators*/
+/*i/o methods*/
+/*{*/
+template<typename Type>
+void Matrix<Type>::write_in_stream(std::ostream& flux) const {
+	for(unsigned int i(0);i<row_;i++){
+		for(unsigned int j(0);j<col_;j++){ flux<<m_[i+j*row_]<<" "; }
+		if(i+1 != row_){flux<<std::endl; }
+	}
+}
+
+template<typename Type>
+void Matrix<Type>::read_from_stream(std::istream& flux){
+	for(unsigned int i(0);i<row_;i++){
+		for(unsigned int j(0);j<col_;j++){ flux>>m_[i+j*row_]; }
+	}
+}
+
+#ifdef DEF_IOFILES
+template<typename Type>
+void Matrix<Type>::write_in_file(IOFiles& w) const {
+	w.write(row_);
+	w.write(col_);
+	w.write(m_,size_);
+}
+
+template<typename Type>
+void Matrix<Type>::read_from_file(IOFiles& r) {
+	unsigned int row(0);
+	unsigned int col(0);
+	r.read(row);
+	r.read(col);
+	if(row != row_ || col != col_) {set(row,col,0);} 
+	r.read(m_,size_);
+}
+
+template<typename Type>
+void Matrix<Type>::header_rst(std::string const& s, RST& rst) const{
+	rst.def(s + "(" + tostring(row_) + "x" + tostring(col_)+ ")","Matrix");
+}
+#endif
+/*}*/
+
+/*arithmetic operators*/
 /*{*/
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator=(Matrix<Type> const& mat){
@@ -250,27 +290,6 @@ Matrix<Type> Matrix<Type>::operator*(Matrix<Type> const& mat) const{
 		}
 	}
 	return matout;
-}
-
-template<typename Type>
-std::ostream& operator<<(std::ostream& flux, Matrix<Type> const& mat){
-	for(unsigned int i(0);i<mat.row();i++){
-		for(unsigned int j(0);j<mat.col();j++){
-			flux<<mat(i,j)<<" ";
-		}
-		if(i+1 != mat.row()){ flux<<std::endl; }
-	}
-	return flux;
-}
-
-template<typename Type>
-std::istream& operator>>(std::istream& flux, Matrix<Type>& mat){
-	for(unsigned int i(0);i<mat.row();i++){
-		for(unsigned int j(0);j<mat.col();j++){
-			flux>>mat(i,j);
-		}
-	}
-	return flux;
 }
 
 template<typename Type>
@@ -363,15 +382,6 @@ void Matrix<Type>::set(unsigned int row, unsigned int col, Type val){
 	this->set(row,col);
 	this->set(val);
 }
-
-//template<typename Type>
-//void Matrix<Type>::apply_index(Matrix<unsigned int> const& index){
-//Matrix<Type> tmp(*this);
-//for(unsigned int i(0);i<row_;i++){
-//(*this)(i) = tmp(index(i));
-//}
-//}
-
 /*}*/
 
 /*methods that return something related to the class*/
@@ -405,6 +415,7 @@ inline Matrix<double> Matrix<double>::trans_conj() const {
 	return (*this).transpose();
 }
 
+#ifdef DEF_VECTOR
 template<typename Type>
 Vector<Type> Matrix<Type>::diag() const{
 	unsigned int N(0);
@@ -416,6 +427,7 @@ Vector<Type> Matrix<Type>::diag() const{
 	}
 	return v;
 }
+#endif
 
 template<>
 inline void Matrix<double>::print_mathematica() const {
@@ -473,31 +485,6 @@ Type Matrix<Type>::max() const {
 		if(m_[i]>m){m=m_[i];}
 	}
 	return m;
-}
-/*}*/
-
-/*double real(T)*/
-/*{*/
-inline double real(double const& x){ return x; }
-
-inline double real(std::complex<double> const& x){ return std::real(x); }
-/*}*/
-
-/*double imag(T)*/
-/*{*/
-inline double imag(double const& x){ return x; }
-
-inline double imag(std::complex<double> const& x){ return std::imag(x); }
-/*}*/
-
-/*double norm_squared(T)*/
-/*{*/
-inline double norm_squared(double x){
-	return x*x;
-}
-
-inline double norm_squared(std::complex<double> x){
-	return std::norm(x);
 }
 /*}*/
 #endif

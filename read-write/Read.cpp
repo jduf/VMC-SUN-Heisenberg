@@ -154,7 +154,7 @@ std::string Read::read_header(){
 /*{*/
 std::string Read::get_header() const { 
 	if(h && unlocked){
-		return (h->get()).get();
+		return h->get();
 	} else {
 		std::cerr<<"Read : the file has no header or is locked"<<std::endl;
 		return 0;

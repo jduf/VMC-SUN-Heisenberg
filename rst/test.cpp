@@ -1,7 +1,4 @@
 #include "Directory.hpp"
-#include "Read.hpp"
-#include "Write.hpp"
-#include "RST.hpp"
 #include "RSTFile.hpp"
 
 #include <cstdlib>
@@ -15,9 +12,9 @@ int main(){
 	d.print();
 	for(unsigned int i(0); i<d.size();i++){
 		file = d.get_path(i) + "/" + d.get_name(i) + d.get_ext(i);
-		Read r(file);
+		IOFiles r(file,false);
 		file = d.get_name(i) + ".rst";
-		Write w(save_in+file);
+		IOFiles w(save_in+file,true);
 		w<<r.get_header();
 
 		file = d.get_name(i);
@@ -39,7 +36,7 @@ int main(){
 	rst.title("List of all the files","<");
 
 	std::string file_link;
-	rst.link_figure("bla.png","sin","/home/jdufour/travail/cpp-dev/rst/bla.gp");
+	rst.link_figure("output/bla.png","sin","/home/jdufour/travail/cpp-dev/rst/output/bla.gp");
 	for(unsigned int i(0);i<d.size();i++){
 		file_link = save_in + d.get_name(i) + ".html";
 		file = d.get_path(i) + "/" + d.get_name(i);

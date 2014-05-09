@@ -1,6 +1,6 @@
 EXEC=test
 
-test_SRCS=test.cpp RST.cpp Read.cpp Write.cpp Header.cpp
+test_SRCS=test.cpp IOFiles.cpp Header.cpp RST.cpp
 
 #-----------------------------------------------------------------
 
@@ -31,5 +31,5 @@ $(BUILD)/%.o:%.cpp
 -include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm -f $(BUILD)/* test
+	rm -f $(BUILD)/* test *.jdbin
 

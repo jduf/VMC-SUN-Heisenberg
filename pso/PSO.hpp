@@ -2,8 +2,8 @@
 #define DEF_PSO
 
 #include"Rand.hpp"
-#include"Read.hpp"
-#include"Write.hpp"
+#include"IOFiles.hpp"
+#include"Vector.hpp"
 
 class PSO {
 	public:

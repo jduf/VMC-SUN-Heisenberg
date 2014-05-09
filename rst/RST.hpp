@@ -24,8 +24,8 @@ class RST{
 		void np();
 		void nl();
 
-		inline std::string get() const { return rst;};
-		inline void set(std::string const& s="") { rst = s; };
+		std::string get() const { return rst;};
+		void set(std::string const& s="") { rst = s; };
 
 	protected:
 		std::string RST_nl;

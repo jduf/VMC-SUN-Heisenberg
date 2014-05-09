@@ -1,7 +1,7 @@
 #ifndef GNUPLOT
 #define GNUPLOT
 
-#include"Write.hpp"
+#include"IOFiles.hpp"
 #include"Linux.hpp"
 
 class Gnuplot {

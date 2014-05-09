@@ -1,6 +1,6 @@
 EXEC=test
 
-test_SRCS=test.cpp Fit.cpp Lapack.cpp Read.cpp Header.cpp RST.cpp Write.cpp Gnuplot.cpp
+test_SRCS=test.cpp Fit.cpp IOFiles.cpp Header.cpp RST.cpp Gnuplot.cpp
 
 #-----------------------------------------------------------------
 
@@ -32,4 +32,4 @@ $(BUILD)/%.o:%.cpp
 -include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm -f $(BUILD)/* test fit*
+	rm -f $(BUILD)/* test fit* *.dat

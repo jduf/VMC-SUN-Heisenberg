@@ -156,14 +156,14 @@ void PSO::PSO_print(){
 }
 
 void PSO::PSO_save(std::string filename){
-	Write w(filename);
+	IOFiles w(filename,true);
 	for(unsigned int i(0);i<Nbees_;i++){
 		w<<px_[i]<<pv_[i]<<pb_[i]<<pfb_[i];
 	}
 }
 
 void PSO::PSO_load(std::string filename){
-	Read r(filename);
+	IOFiles r(filename,false);
 	for(unsigned int i(0);i<Nbees_;i++){
 		r>>px_[i]>>pv_[i]>>pb_[i]>>pfb_[i];
 	}

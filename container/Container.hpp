@@ -2,7 +2,7 @@
 #define DEF_CONTAINER
 
 #include <vector>
-#include "Read.hpp"
+#include "IOFiles.hpp"
 
 /*{ Data*/
 /*!Base class that will never be instantiate. It provides a way to create
@@ -143,7 +143,7 @@ void Container::get(std::string name, Type& t) const {
 /*{FileParser*/
 class FileParser {
 	public:
-		FileParser(std::string filename):r(filename){};
+		FileParser(std::string filename):r(filename,false){};
 
 		template<typename Type>
 			void extract(Type& t){ r>>t;}
@@ -156,7 +156,7 @@ class FileParser {
 			}
 
 	private:
-		Read r;
+		IOFiles r;
 };
 /*}*/
 #endif

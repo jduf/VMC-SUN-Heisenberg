@@ -1,8 +1,8 @@
 #ifndef DEF_SAMPLING
 #define DEF_SAMPLING
 
-#include<cmath>
 #include "Gnuplot.hpp"
+#include "Vector.hpp"
 
 template<typename Type>
 class CorrelatedSamples;
@@ -50,7 +50,7 @@ class CorrelatedSamples:public Data<Type>{
 		/*Add sample to the bins*/
 		void add_sample();
 
-		void plot(std::string const& filename){ log_ = new Write(filename);}
+		void plot(std::string const& filename){ log_ = new IOFiles(filename,true);}
 		void complete_analysis(double const& tol);
 
 		CorrelatedSamples<Type>&  operator=(Type const& x){this->x_ =  x; return (*this);}
@@ -74,7 +74,7 @@ class CorrelatedSamples:public Data<Type>{
 		bool recompute_dx_usefull_;	//!< true if dx should be recomputed
 		bool addlog_;				//!< true if dx should be recomputed
 
-		Write* log_;//!< log of dx_ when recompute_dx_usefull_
+		IOFiles* log_;//!< log of dx_ when recompute_dx_usefull_
 
 		/*!Recursive method that add samples in the different bins*/
 		void add_bin(unsigned int l, double a, double b);
@@ -250,9 +250,9 @@ void CorrelatedSamples<Type>::compute_convergence(double const& tol){
 		if(log_ && addlog_){
 			logl_++;
 			addlog_ = false;
-			(*log_)<<num/(den*ymax)<<Write::endl;
-			for(unsigned int i(0);i<b_;i++){(*log_)<<x(i)<<" "<<var_bin(i)/ymax<<Write::endl;}
-			(*log_)<<Write::endl<<Write::endl;
+			(*log_)<<num/(den*ymax)<<IOFiles::endl;
+			for(unsigned int i(0);i<b_;i++){(*log_)<<x(i)<<" "<<var_bin(i)/ymax<<IOFiles::endl;}
+			(*log_)<<IOFiles::endl<<IOFiles::endl;
 		}
 	}
 }

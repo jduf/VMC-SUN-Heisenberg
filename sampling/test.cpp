@@ -55,11 +55,11 @@ void check_troyer(){
 	//DS = H_right;
 	//DS += H_right;
 
-	Write hist_right("hist_right.dat");
-	Write hist_wrong("hist_wrong.dat");
+	IOFiles hist_right("hist_right.dat",true);
+	IOFiles hist_wrong("hist_wrong.dat",true);
 	for(unsigned int i(0);i<N;i++){ 
-		hist_right<<i<<" "<<H_right[i].get_x()<<" "<<H_right[i].get_dx()<<Write::endl; 
-		hist_wrong<<i<<" "<<H_wrong(i)/M<<" "<<sqrt((H_wrong(i)/M)*(1-H_wrong(i)/M)/(iter-1))<<Write::endl;
+		hist_right<<i<<" "<<H_right[i].get_x()<<" "<<H_right[i].get_dx()<<IOFiles::endl; 
+		hist_wrong<<i<<" "<<H_wrong(i)/M<<" "<<sqrt((H_wrong(i)/M)*(1-H_wrong(i)/M)/(iter-1))<<IOFiles::endl;
 	}
 
 	Gnuplot gp("./","plot");
