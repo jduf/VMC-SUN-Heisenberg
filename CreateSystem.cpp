@@ -233,7 +233,8 @@ void CreateSystem::create(){
 }
 
 void CreateSystem::save(Write& w) const{
-	w("ref (type of wavefunction)",ref_);
+	//w("ref (type of wavefunction)",ref_);
+	std::cout<<"need to uncomment the above line"<<std::endl;
 	if(RGL_){RGL_->save(w);}
 	if(CGL_){CGL_->save(w);}
 }

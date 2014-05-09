@@ -5,6 +5,8 @@
 #include "RSTFile.hpp"
 #include "Gnuplot.hpp"
 #include "Parseur.hpp"
+#include "Write.hpp"
+#include "Read.hpp"
 
 void build_rst(RSTFile& rst, std::string search_in, std::string info_dir, std::string analysis_dir, std::string info_name, std::string next_analysis_dir="");
 void search_jdbin(std::string path, std::string info_dir, std::string analysis_dir, RSTFile& rst);

@@ -2,8 +2,9 @@
 #define DEF_SYSTEM
 
 #include "CreateSystem.hpp"
-#include "Binning.hpp"
+#include "SamplingSet.hpp"
 #include "Rand.hpp"
+
 
 /*!Class that contains the information on the state*/
 template<typename Type>
@@ -34,11 +35,11 @@ class System{
 		/*!Returns the status*/
 		bool ready() const {return ready_;}
 		/*!Returns the energy*/
-		Data<double> get_energy() const {return E_.get_data();}
-		/*!Returns the correlation*/
-		Matrix<double> get_corr() const;
-		/*!Returns the correlation*/
-		Matrix<double> get_long_range_corr() const;
+		CorrelatedSamples<double> const& get_energy() const { return E_;}
+		/*!Returns the correlations*/
+		CorrelatedSamplesSet<double> const&  get_corr() const { return corr_;}
+		/*!Returns the long range correlations*/
+		CorrelatedSamplesSet<double> const&  get_long_range_corr() const { return long_range_corr_;}
 
 		//{Description
 		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
@@ -46,13 +47,11 @@ class System{
 		//}
 		void measure_new_step();	
 		void add_sample();
-		bool is_converged();
+		bool is_converged(double const& tol);
 		
 		void save(Write& w) const;
 
 		void set();
-
-		void operator>>(Write &w) const;
 
 		/*!Pure virtual function that provides a way to check the System */
 		virtual void print()=0;
@@ -75,9 +74,9 @@ class System{
 		Rand* rnd_;	//!< generator of random numbers 
 
 	private:
-		Binning E_;
-		Binning* corr_;				//!< correlation for each link 
-		Binning* long_range_corr_;	//!< correlation for each link 
+		CorrelatedSamples<double> E_;
+		CorrelatedSamplesSet<double> corr_;	
+		CorrelatedSamplesSet<double> long_range_corr_;
 
 		/*!Check only if the new state has not the same color on one site*/
 		bool is_new_state_forbidden();
@@ -96,30 +95,22 @@ System<Type>::System(CreateSystem* CS, unsigned int const& thread, unsigned int 
 	links_(CS->get_links()),
 	rnd_(new Rand(100,thread))
 {
-	corr_ = new Binning[n_];
-	if(type == 2){long_range_corr_ = new Binning[n_/3];}
+	if(type == 2){long_range_corr_.set(n_/3,50,5);}
 	set();
-	//E_.log("E");
-	//long_range_corr_[n_/3-1].log("long_range_corr");
+	E_.plot("E");
+	long_range_corr_[n_/3-1].plot("long_range_corr");
 }
 
 template<typename Type>
 void System<Type>::set(){
-	E_.set();
-	for(unsigned int i(0);i<n_;i++){ corr_[i].set(); }
-	if(long_range_corr_){
-		for(unsigned int i(0);i<n_/3;i++){ long_range_corr_[i].set(); }
-	}
+	E_.set(50,5);
+	corr_.set(corr_.size(),50,5);
+	long_range_corr_.set(long_range_corr_.size(),50,5); 
 }
 
 template<typename Type>
 System<Type>::~System(){
-	//E_.plot();
-	//long_range_corr_[n_/3-1].plot();
-
 	if(rnd_){delete rnd_;}
-	if(corr_){delete[] corr_;}
-	if(long_range_corr_){delete[] long_range_corr_;}
 }
 /*}*/
 
@@ -172,7 +163,7 @@ void System<Type>::measure_new_step(){
 		}
 	}
 	E_ /= n_;
-	if(long_range_corr_){
+	if(long_range_corr_.ptr()){
 		unsigned int x0(n_/3);
 		for(unsigned int i(0);i<n_/3;i++){
 			long_range_corr_[i] = 0.0;
@@ -191,37 +182,25 @@ void System<Type>::measure_new_step(){
 template<typename Type>
 void System<Type>::add_sample(){
 	E_.add_sample();
-	for(unsigned int i(0);i<n_;i++){
-		corr_[i].add_sample();
-	}
-	if(long_range_corr_){
-		for(unsigned int i(0);i<n_/3;i++){
-			long_range_corr_[i].add_sample();
-		}
-	}
+	corr_.add_sample();
+	long_range_corr_.add_sample();
 }
 
 template<typename Type>
-bool System<Type>::is_converged(){ 
-	for(unsigned int i(0);i<n_;i++){
-		corr_[i].is_converged(); 
-	}
-	if(long_range_corr_){
-		for(unsigned int i(0);i<n_/3;i++){
-			long_range_corr_[i].is_converged(); 
-		}
-	}
-	return E_.is_converged(); 
+bool System<Type>::is_converged(double const& tol){ 
+	corr_.compute_convergence(tol); 
+	long_range_corr_.compute_convergence(tol); 
+	E_.compute_convergence(tol); 
+	return E_.get_conv();
 }
 
 template<typename Type>
 void System<Type>::save(Write& w) const{
-	//w("E (energy per site)",E_.get_mean());
-	//w("DeltaE (absolute error)",E_.get_variance());
-	w("corr (correlation on links)",get_corr());
-	if(long_range_corr_){
-		w("long_range_corr (long range correlations)",get_long_range_corr());
-	}
+	//w("E (energy per site)",E_);
+	//w("corr (correlation on links)",get_corr());
+	//if(long_range_corr_){
+	//w("long_range_corr (long range correlations)",get_long_range_corr());
+	//}
 }
 /*}*/
 
@@ -236,37 +215,4 @@ bool System<Type>::is_new_state_forbidden(){
 	return false;
 }
 /*}*/
-
-template<typename Type>
-Matrix<double> System<Type>::get_corr() const {
-	Matrix<double> corr(n_,2);
-	for(unsigned int i(0);i<n_;i++){
-		//corr(i,0) = corr_[i].get_mean();
-		//corr(i,1) = corr_[i].get_variance();
-	}
-	return corr;
-}
-
-template<typename Type>
-Matrix<double> System<Type>::get_long_range_corr() const{
-	Matrix<double> long_range_corr(n_/3,2);
-	for(unsigned int i(0);i<n_/3;i++){
-		//long_range_corr(i,0) = long_range_corr_[i].get_mean();
-		//long_range_corr(i,1) = long_range_corr_[i].get_variance();
-	}
-	return long_range_corr;
-}
-
-template<typename Type>
-void System<Type>::operator>>(Write &w) const{
-	E_>>w;
-	for(unsigned int i(0);i<n_;i++){
-		corr_[i]>>w;
-	}
-	if(long_range_corr_){
-		for(unsigned int i(0);i<n_/3;i++){
-			long_range_corr_[i]>>w;
-		}
-	}
-}
 #endif

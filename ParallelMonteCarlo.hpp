@@ -17,8 +17,8 @@ class ParallelMonteCarlo {
 		unsigned int const nruns_;
 		unsigned int run_;
 		Data<double> E_;
-		Vector<double> corr_;
-		Vector<double> long_range_corr_;
+		DataSet<double> corr_;
+		DataSet<double> long_range_corr_;
 		Write results_file_;
 
 		unsigned int type_;
@@ -29,8 +29,6 @@ ParallelMonteCarlo<Type>::ParallelMonteCarlo(CreateSystem* CS, std::string path,
 	CS_(CS),
 	tmax_(tmax),
 	nruns_(nruns),
-	//corr_(CS_->get_num_links(),0.0),
-	//long_range_corr_(CS->get_n()/3-1,0),
 	results_file_(path+CS_->get_filename()+".jdbin"),
 	type_(type)
 {
@@ -51,12 +49,12 @@ void ParallelMonteCarlo<Type>::run(){
 	for(unsigned int i=0; i<nruns_; i++){
 		MonteCarlo<double> sim(CS_,tmax_,type_);
 		sim.run();
-		E_ += (sim.get_system())->get_energy();
-		//corr_ += (sim.get_system())->get_corr();
-		//long_range_corr_ += sim.get_long_range_corr();
+		E_.add_sample((sim.get_system())->get_energy());
+		corr_.add_sample((sim.get_system())->get_corr());
+		long_range_corr_.add_sample((sim.get_system())->get_long_range_corr());
 #pragma omp critical
 		{
-			(*sim.get_system())>>results_file_;
+			//(sim.get_system())->save(results_file_);
 		}
 	}
 

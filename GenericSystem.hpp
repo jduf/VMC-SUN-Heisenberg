@@ -3,6 +3,8 @@
 
 #include "Lapack.hpp"
 #include "PSTricks.hpp"
+#include "Write.hpp"
+#include "Read.hpp"
 
 /*!Class that creates a file containing all the necessary information to run a
  * Monte-Carlo simulation.

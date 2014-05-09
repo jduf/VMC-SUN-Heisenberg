@@ -60,7 +60,7 @@ class MonteCarlo{
 		 * If the E_ diverges, the simulation is restarted
 		 */
 		//}
-		bool keepon();
+		bool keepon(double const& tol);
 
 		System<Type>* S_; 		//!< Pointer to a Fermionic or Bosonic System 
 		Rand* rnd_;				//!< Pointer to a random number generator
@@ -104,7 +104,7 @@ template<typename Type>
 void MonteCarlo<Type>::run(){
 	if(S_->ready()){
 		do{next_step();}
-		while(keepon());
+		while(keepon(1e-3));
 	}
 }
 /*}*/
@@ -122,9 +122,9 @@ void MonteCarlo<Type>::next_step(){
 }
 
 template<typename Type>
-bool MonteCarlo<Type>::keepon(){
+bool MonteCarlo<Type>::keepon(double const& tol){
 	if(time_.limit_reached(tmax_)){ return false; }
-	if(S_->is_converged()){ return false; }
+	if(S_->is_converged(tol)){ return false; }
 	//if(std::abs(S_->get_energy())>1e2){ 
 		//std::cerr<<"Simulation diverges => is restarted"<<std::endl;
 		//S_->set();
@@ -137,7 +137,7 @@ void MonteCarlo<Type>::check(){
 	unsigned int i(0);
 	if(S_->ready()){/*passed the first two steps*/
 		do{ i++; next_step();}
-		while(keepon());
+		while(keepon(1e-3));
 	}
 }
 /*}*/
