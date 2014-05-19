@@ -3,12 +3,9 @@
 
 #include "Lapack.hpp"
 #include "PSTricks.hpp"
-#include "Write.hpp"
-#include "Read.hpp"
 
 /*!Class that creates a file containing all the necessary information to run a
- * Monte-Carlo simulation.
-*/
+ * Monte-Carlo simulation.  */
 template<typename Type>
 class GenericSystem{
 	public:
@@ -22,10 +19,9 @@ class GenericSystem{
 		unsigned int get_num_links() const { return links_.row();}
 		std::string get_filename() const { return filename_;}
 
-		virtual bool create(double param)=0;
-		virtual void save(Write& w) const;
-		virtual void check()=0;
-		virtual void study(double E, double DeltaE, Vector<double> const& corr, std::string save_in) = 0;
+		virtual bool create(double param) = 0;
+		virtual void save(IOFiles& w) const;
+		virtual void check() = 0;
 
 	protected:
 		unsigned int const n_;		//!< number of sites
@@ -42,7 +38,7 @@ class GenericSystem{
 		RST rst_;
 
 		/*!return the neighbours of site i*/
-		virtual Matrix<int> get_neighbourg(unsigned int i) const=0;
+		virtual Matrix<int> get_neighbourg(unsigned int i) const = 0;
 		/*!compute the array of pairs of swapping sites*/
 		void compute_links();
 		/*!compute the eigenvectors from the mean field Hamiltonian*/
@@ -114,11 +110,11 @@ void GenericSystem<Type>::diagonalize_T(char mat_type){
 }
 
 template<typename Type>
-void GenericSystem<Type>::save(Write& w) const {
+void GenericSystem<Type>::save(IOFiles& w) const {
 	w.add_to_header(rst_.get());
 	w("N (N of SU(N))",N_);
-	w("m (particles per site' number)",m_);
-	w("n (number of site)",n_);
+	w("m (# of particles per site)",m_);
+	w("n (# of site)",n_);
 	w("bc (boundary condition)",bc_);
 }
 #endif

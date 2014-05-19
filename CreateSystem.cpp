@@ -1,12 +1,12 @@
 #include "CreateSystem.hpp"
 
 CreateSystem::CreateSystem(Parseur& P):
-	ready_(false),
 	N_(P.get<unsigned int>("N")),
 	n_(P.get<unsigned int>("n")),
 	m_(P.get<unsigned int>("m")),
-	bc_(P.get<int>("bc")),
 	param_(0),
+	bc_(P.get<int>("bc")),
+	ready_(false),
 	ref_(3,0),
 	RGL_(NULL),
 	CGL_(NULL)
@@ -16,12 +16,12 @@ CreateSystem::CreateSystem(Parseur& P):
 }
 
 CreateSystem::CreateSystem(CreateSystem const& cs, double param):
-	ready_(cs.ready_),
 	N_(cs.N_),
 	n_(cs.n_),
 	m_(cs.m_),
-	bc_(cs.bc_),
 	param_(param),
+	bc_(cs.bc_),
+	ready_(cs.ready_),
 	ref_(cs.ref_),
 	RGL_(NULL),
 	CGL_(NULL)
@@ -45,24 +45,6 @@ Matrix<double> CreateSystem::get_EVec() const {
 template<>
 Matrix<std::complex<double> > CreateSystem::get_EVec() const { 
 	if(CGL_){return CGL_->get_EVec();}
-	return 0;
-}
-
-unsigned int CreateSystem::get_num_links() const{
-	if(RGL_){return RGL_->get_num_links();}
-	if(CGL_){return CGL_->get_num_links();}
-	return 0;
-}
-
-std::string CreateSystem::get_filename() const{
-	if(RGL_){return RGL_->get_filename();}
-	if(CGL_){return CGL_->get_filename();}
-	return 0;
-}
-
-Matrix<unsigned int> CreateSystem::get_links() const { 
-	if(RGL_){return RGL_->get_links();}
-	if(CGL_){return CGL_->get_links();}
 	return 0;
 }
 
@@ -140,16 +122,6 @@ void CreateSystem::parse(Parseur& P) {
 		ref_(1) = 1;
 		ref_(2) = 0;
 	}
-}
-
-bool CreateSystem::use_complex() const{
-	if(ref_(1) == 1){ return false; }
-	else { return true; }
-}
-
-bool CreateSystem::is_bosonic() const{
-	if(ref_(1) == 0){ return true; }
-	else { return false; }
 }
 
 void CreateSystem::create(){
@@ -232,9 +204,8 @@ void CreateSystem::create(){
 	}
 }
 
-void CreateSystem::save(Write& w) const{
-	//w("ref (type of wavefunction)",ref_);
-	std::cout<<"need to uncomment the above line"<<std::endl;
+void CreateSystem::save(IOFiles& w) const{
+	w("ref (type of wavefunction)",ref_);
 	if(RGL_){RGL_->save(w);}
 	if(CGL_){CGL_->save(w);}
 }
@@ -242,9 +213,4 @@ void CreateSystem::save(Write& w) const{
 void CreateSystem::check(){
 	if(RGL_){return RGL_->check();}
 	if(CGL_){return CGL_->check();}
-}
-
-void CreateSystem::study(double E, double DeltaE, Vector<double> corr, std::string save_in){
-	if(RGL_){return RGL_->study(E,DeltaE,corr,save_in);}
-	if(CGL_){return CGL_->study(E,DeltaE,corr,save_in);}
 }

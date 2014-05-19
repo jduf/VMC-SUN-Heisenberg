@@ -40,11 +40,24 @@ std::string init(CreateSystem const& cs){
 
 void run(CreateSystem const& cs, double param, std::string path, unsigned int nruns, unsigned int tmax, unsigned int type){
 	CreateSystem CS(cs,param);
+
+	IOFiles results(path+CS.get_filename()+".jdbin",true);
+	results("type of simulation",type);
+	results("number of simulations runned",nruns);
+	RST rst;
+	rst.title("Input","-");
+	results.add_to_header(rst.get());
+	rst.set();
+	CS.save(results);
+	rst.title("Results","-");
+
 	if( CS.use_complex() ){
-		ParallelMonteCarlo<std::complex<double> > sim(&CS,path,nruns,tmax,type);
-		sim.run();
+		ParallelMonteCarlo<std::complex<double> > sim(&CS,nruns,tmax,type);
+		sim.run(results);
+		sim.save(results);
 	} else {
-		ParallelMonteCarlo<double> sim(&CS,path,nruns,tmax,type);
-		sim.run();
+		ParallelMonteCarlo<double> sim(&CS,nruns,tmax,type);
+		sim.run(results);
+		sim.save(results);
 	}
 }

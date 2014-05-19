@@ -1,9 +1,9 @@
 EXEC=mc check study
 
-mc_SRCS=   mc.cpp    CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Read.cpp Write.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp Gnuplot.cpp
-#min_SRCS= min.cpp   CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Read.cpp Write.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp  Minimization.cpp
-check_SRCS=check.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Read.cpp Write.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp Gnuplot.cpp
-study_SRCS=study.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Read.cpp Write.cpp Header.cpp RST.cpp PSTricks.cpp RSTFile.cpp Gnuplot.cpp Directory.cpp
+mc_SRCS=   mc.cpp    CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp Gnuplot.cpp
+#min_SRCS= min.cpp   CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp  Minimization.cpp
+check_SRCS=check.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp Gnuplot.cpp
+study_SRCS=study.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp PSTricks.cpp RSTFile.cpp Gnuplot.cpp Directory.cpp
 
 #pso:pso.o Parseur.o Lapack.o Rand.o Read.o Write.o Header.o RST.o  PSTricks.o PSO.o PSOFermionic.o CreateSystem.o ChainFermi.o ChainDimerized.o TriangleJastrow.o SquareJastrow.o SquareSU2PhiFlux.o SquarePiFlux.o SquareMu.o SquareFermi.o HoneycombSU3.o HoneycombSU4.o Write.o Read.o TriangleFermi.o TriangleMu.o TrianglePhi.o  ChainPolymerized.o
 #	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)

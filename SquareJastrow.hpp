@@ -10,8 +10,7 @@ class SquareJastrow: public Square<double>{
 
 		void create(double x);
 		void check();
-		void study();
-		void save(Write& w) const;
+		void save(IOFiles& w) const;
 
 	protected:
 		Matrix<unsigned int> nn_;

@@ -62,15 +62,6 @@ void SquareFermi::lattice(){
 	ps.add("\\end{pspicture}");
 }
 
-void SquareFermi::study(){
-	compute_T();
-	Matrix<double> Px;
-	Matrix<double> Py;
-	compute_P(Px,Py);
-	//band_structure();
-	lattice();
-}
-
 void SquareFermi::create(double x){
 	compute_T();
 	diagonalize_T('S');

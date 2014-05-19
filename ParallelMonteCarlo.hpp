@@ -6,64 +6,63 @@
 template<typename Type>
 class ParallelMonteCarlo {
 	public:
-		ParallelMonteCarlo(CreateSystem* CS, std::string path, unsigned int nthreads, unsigned int tmax, unsigned int type);
-		void run();
-
-		double get_energy() const {return E_;}
+		ParallelMonteCarlo(CreateSystem* CS, unsigned int nthreads, unsigned int tmax, unsigned int type);
+		/*!Run all the Monte-Carlo algorithm and save each one in file w*/
+		void run(IOFiles& w);
+		/*!Save the averaged mesures in w*/
+		void save(IOFiles& w);
 
 	private:
 		CreateSystem* CS_;
 		unsigned int const tmax_;	
 		unsigned int const nruns_;
-		unsigned int run_;
+		unsigned int const type_;
 		Data<double> E_;
 		DataSet<double> corr_;
 		DataSet<double> long_range_corr_;
-		Write results_file_;
-
-		unsigned int type_;
 };
 
 template<typename Type>
-ParallelMonteCarlo<Type>::ParallelMonteCarlo(CreateSystem* CS, std::string path, unsigned int nruns, unsigned int tmax, unsigned int type):
+ParallelMonteCarlo<Type>::ParallelMonteCarlo(CreateSystem* CS, unsigned int nruns, unsigned int tmax, unsigned int type):
 	CS_(CS),
 	tmax_(tmax),
 	nruns_(nruns),
-	results_file_(path+CS_->get_filename()+".jdbin"),
 	type_(type)
 {
-	results_file_("type of simulation",type_);
-	results_file_("number of simulations runned",nruns_);
-	RST rst;
-	rst.title("Input","-");
-	results_file_.add_to_header(rst.get());
-	rst.set();
-	CS_->save(results_file_);
-	rst.title("Results","-");
-	results_file_.add_to_header(rst.get());
+	E_.set_conv(true);
+	corr_.set(CS->get_n(),true);
+	if(type == 2){
+		long_range_corr_.set(CS->get_n()/3,true);
+	}
 }
 
 template<typename Type>
-void ParallelMonteCarlo<Type>::run(){
+void ParallelMonteCarlo<Type>::run(IOFiles& w){
 #pragma omp parallel for 
 	for(unsigned int i=0; i<nruns_; i++){
 		MonteCarlo<double> sim(CS_,tmax_,type_);
 		sim.run();
-		E_.add_sample((sim.get_system())->get_energy());
-		corr_.add_sample((sim.get_system())->get_corr());
-		long_range_corr_.add_sample((sim.get_system())->get_long_range_corr());
 #pragma omp critical
 		{
-			//(sim.get_system())->save(results_file_);
+			E_.add_sample((sim.get_system())->get_energy());
+			corr_.add_sample((sim.get_system())->get_corr());
+			long_range_corr_.add_sample((sim.get_system())->get_long_range_corr());
+			(sim.get_system())->save(w);
 		}
 	}
 
+	E_.complete_analysis();
+	corr_.complete_analysis();
+	long_range_corr_.complete_analysis();
+}
+
+template<typename Type>
+void ParallelMonteCarlo<Type>::save(IOFiles& w){
 	RST rst_mean_results;
 	rst_mean_results.title("Mean results (status>2)","-");
-	results_file_.add_to_header(rst_mean_results.get());
-	//results_file_("E (energy per site)",E_);
-	//results_file_("DeltaE (absolute error)",DeltaE_);
-	//results_file_("corr (correlation on links)",corr_);
-	//results_file_("long_range_corr (long range correlation)",long_range_corr_);
+	w.add_to_header(rst_mean_results.get());
+	w("E (energy per site)",E_);
+	w("corr (correlation on links)",corr_);
+	w("lon_range_corr (long range correlation)",long_range_corr_);
 }
 #endif

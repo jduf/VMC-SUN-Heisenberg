@@ -1,1 +1,0 @@
-/home/jdufour/travail/cpp-dev/mytype/MyType.hpp

@@ -62,19 +62,19 @@ class MonteCarlo{
 		//}
 		bool keepon(double const& tol);
 
+		unsigned int const tmax_;//!< Time limit in second, by default 5min
 		System<Type>* S_; 		//!< Pointer to a Fermionic or Bosonic System 
 		Rand* rnd_;				//!< Pointer to a random number generator
 		Time time_; 			//!< To stop the simulation after time_limit seconds
-		unsigned int const tmax_;//!< Time limit in second, by default 5min
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
 MonteCarlo<Type>::MonteCarlo(CreateSystem* CS, unsigned int tmax, unsigned int type):
+	tmax_(tmax),
 	S_(NULL),
-	rnd_(NULL),
-	tmax_(tmax)
+	rnd_(NULL)
 {
 	unsigned int thread(omp_get_thread_num());
 	rnd_ = new Rand(1e4,thread);
@@ -104,8 +104,9 @@ template<typename Type>
 void MonteCarlo<Type>::run(){
 	if(S_->ready()){
 		do{next_step();}
-		while(keepon(1e-3));
+		while(keepon(5e-5));
 	}
+	S_->complete_analysis(5e-5);
 }
 /*}*/
 
@@ -124,21 +125,21 @@ void MonteCarlo<Type>::next_step(){
 template<typename Type>
 bool MonteCarlo<Type>::keepon(double const& tol){
 	if(time_.limit_reached(tmax_)){ return false; }
-	if(S_->is_converged(tol)){ return false; }
+	if(S_->is_converged(tol)){}
 	//if(std::abs(S_->get_energy())>1e2){ 
 		//std::cerr<<"Simulation diverges => is restarted"<<std::endl;
 		//S_->set();
 	//}
 	return true;
 }
+/*}*/
 
 template<typename Type>
 void MonteCarlo<Type>::check(){
 	unsigned int i(0);
 	if(S_->ready()){/*passed the first two steps*/
 		do{ i++; next_step();}
-		while(keepon(1e-3));
+		while(keepon(1e-5));
 	}
 }
-/*}*/
 #endif

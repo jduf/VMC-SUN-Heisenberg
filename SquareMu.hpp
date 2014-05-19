@@ -10,7 +10,6 @@ class SquareMu: public Square<double>{
 
 		void create(double mu);
 		void check();
-		void study();
 		void save(Write& w) const;
 
 	protected:

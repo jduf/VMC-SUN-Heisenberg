@@ -76,20 +76,6 @@ void SquareMu::lattice(){
 	ps.add("\\end{pspicture}");
 }
 
-void SquareMu::study(){
-	unsigned int alpha(1);
-	compute_T(alpha);
-	//compute_P();
-	//band_structure();
-	//for(unsigned int i(0);i<n_;i++){
-	//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
-	//ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
-	//E(i) = projection(T_,evec,i,i).real();
-	//}
-	lattice();
-	std::cerr<<"SquareMu : SquareMu() : alpha must be smaller than N_"<<std::endl;
-}
-
 void SquareMu::create(double mu){
 	mu_ = mu;
 	for(unsigned int alpha(0);alpha<N_;alpha++){

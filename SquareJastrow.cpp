@@ -134,7 +134,7 @@ void SquareJastrow::lattice(Matrix<unsigned int> const& lat){
 	ps.add("\\end{pspicture}");
 }
 
-void SquareJastrow::save(Write& w) const {
+void SquareJastrow::save(IOFiles& w) const {
 	GenericSystem<double>::save(w);
 	w("nn (nearst neighbours)",nn_);
 	w("cc (to match nu and x)",cc_);

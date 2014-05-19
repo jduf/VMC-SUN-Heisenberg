@@ -10,7 +10,6 @@ class SquareSU2PhiFlux: public Square<std::complex<double> >{
 
 		void create(double phi);
 		void check();
-		void study();
 		void save(Write& w) const;
 
 	protected:

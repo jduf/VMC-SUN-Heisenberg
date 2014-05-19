@@ -48,17 +48,6 @@ void SquareSU2PhiFlux::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::
 	}
 }
 
-void SquareSU2PhiFlux::study(){
-	compute_T();
-	//band_structure();
-	//for(unsigned int i(0);i<n_;i++){
-	//kx(i) = log(projection(Px_,evec,i,i)).imag()/N_;
-	//ky(i) = log(projection(Py_,evec,i,i)).imag()-kx(i);
-	//E(i) = projection(T_,evec,i,i).real();
-	//}
-	lattice();
-}
-
 void SquareSU2PhiFlux::save(Write& w) const{
 
 	w("phi/pi (phi-flux)",phi_/M_PI);

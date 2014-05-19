@@ -5,7 +5,6 @@
 #include "SamplingSet.hpp"
 #include "Rand.hpp"
 
-
 /*!Class that contains the information on the state*/
 template<typename Type>
 class System{
@@ -34,12 +33,12 @@ class System{
 
 		/*!Returns the status*/
 		bool ready() const {return ready_;}
-		/*!Returns the energy*/
-		CorrelatedSamples<double> const& get_energy() const { return E_;}
-		/*!Returns the correlations*/
-		CorrelatedSamplesSet<double> const&  get_corr() const { return corr_;}
-		/*!Returns the long range correlations*/
-		CorrelatedSamplesSet<double> const&  get_long_range_corr() const { return long_range_corr_;}
+		/*!Returns energy*/
+		CorrelatedSamples<double> const& get_energy() const {return E_;}
+		/*!Returns correlation*/
+		CorrelatedSamplesSet<double> const& get_corr() const {return corr_;}
+		/*!Returns long range correlation*/
+		CorrelatedSamplesSet<double> const& get_long_range_corr() const {return long_range_corr_;}
 
 		//{Description
 		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
@@ -48,8 +47,9 @@ class System{
 		void measure_new_step();	
 		void add_sample();
 		bool is_converged(double const& tol);
+		void complete_analysis(double const& tol);
 		
-		void save(Write& w) const;
+		void save(IOFiles& w) const;
 
 		void set();
 
@@ -57,9 +57,9 @@ class System{
 		virtual void print()=0;
 
 	protected:
-		unsigned int new_c[2];	//!< colors of the exchanged sites
-		unsigned int new_s[2];	//!< sites that are exchanged
-		unsigned int new_p[2];	//!< sites that are exchanged
+		unsigned int new_c[2];//!< colors of the exchanged sites
+		unsigned int new_s[2];//!< sites that are exchanged
+		unsigned int new_p[2];//!< sites that are exchanged
 
 		bool ready_;	
 
@@ -68,8 +68,8 @@ class System{
 		unsigned int const m_;//!< particles per site' number
 		unsigned int const M_;//!< particles' number of each color
 
-		Matrix<unsigned int> s_;			//!< on the site i : s(i,0)=color, s(i,1)=row
 		Matrix<unsigned int> const links_;	//!< list of links
+		Matrix<unsigned int> s_;			//!< on the site i : s(i,0)=color, s(i,1)=row
 
 		Rand* rnd_;	//!< generator of random numbers 
 
@@ -91,14 +91,17 @@ System<Type>::System(CreateSystem* CS, unsigned int const& thread, unsigned int 
 	n_(CS->get_n()),
 	m_(CS->get_m()),
 	M_((m_*n_)/N_),
-	s_(n_,m_),
 	links_(CS->get_links()),
+	S_(N_,M_),
 	rnd_(new Rand(100,thread))
 {
-	if(type == 2){long_range_corr_.set(n_/3,50,5);}
-	set();
-	E_.plot("E");
-	long_range_corr_[n_/3-1].plot("long_range_corr");
+	E_.set(50,5);
+	//E_.plot("E");
+	corr_.set(n_,50,5);
+	if(type == 2){
+		long_range_corr_.set(n_/3,50,5);
+		//long_range_corr_[n_/3-1].plot("long_range_corr");
+	}
 }
 
 template<typename Type>
@@ -195,12 +198,19 @@ bool System<Type>::is_converged(double const& tol){
 }
 
 template<typename Type>
-void System<Type>::save(Write& w) const{
-	//w("E (energy per site)",E_);
-	//w("corr (correlation on links)",get_corr());
-	//if(long_range_corr_){
-	//w("long_range_corr (long range correlations)",get_long_range_corr());
-	//}
+void System<Type>::complete_analysis(double const& tol){ 
+	corr_.complete_analysis(tol); 
+	long_range_corr_.complete_analysis(tol); 
+	E_.complete_analysis(tol); 
+}
+
+template<typename Type>
+void System<Type>::save(IOFiles& w) const{
+	w("E (energy per site)",E_);
+	w("corr (correlation on links)",corr_);
+	if(long_range_corr_.ptr()){
+		w("long_range_corr (long range correlations)",long_range_corr_);
+	}
 }
 /*}*/
 
