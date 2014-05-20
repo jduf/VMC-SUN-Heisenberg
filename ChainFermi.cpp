@@ -9,6 +9,7 @@ ChainFermi::ChainFermi(unsigned int N, unsigned int n, unsigned int m, int bc):
 ChainFermi::~ChainFermi(){}
 
 bool ChainFermi::create(double x){
+	std::cout<<"ChainFermi::create "<<x<<std::endl;
 	compute_T();
 	diagonalize_T('S');
 	for(unsigned int spin(0);spin<N_;spin++){

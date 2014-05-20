@@ -6,41 +6,39 @@
 template<typename Type>
 class ParallelMonteCarlo {
 	public:
-		ParallelMonteCarlo(CreateSystem* CS, unsigned int nthreads, unsigned int tmax, unsigned int type);
+		ParallelMonteCarlo(MCSystem<Type>* S, unsigned int nthreads, unsigned int tmax);
 		/*!Run all the Monte-Carlo algorithm and save each one in file w*/
 		void run(IOFiles& w);
 		/*!Save the averaged mesures in w*/
 		void save(IOFiles& w);
 
 	private:
-		CreateSystem* CS_;
+		MCSystem<Type>* S_;
 		unsigned int const tmax_;	
 		unsigned int const nruns_;
-		unsigned int const type_;
 		Data<double> E_;
 		DataSet<double> corr_;
 		DataSet<double> long_range_corr_;
 };
 
 template<typename Type>
-ParallelMonteCarlo<Type>::ParallelMonteCarlo(CreateSystem* CS, unsigned int nruns, unsigned int tmax, unsigned int type):
-	CS_(CS),
+ParallelMonteCarlo<Type>::ParallelMonteCarlo(MCSystem<Type>* S, unsigned int nruns, unsigned int tmax):
+	S_(S),
 	tmax_(tmax),
-	nruns_(nruns),
-	type_(type)
+	nruns_(nruns)
 {
 	E_.set_conv(true);
-	corr_.set(CS->get_n(),true);
-	if(type == 2){
-		long_range_corr_.set(CS->get_n()/3,true);
-	}
+	//corr_.set(GS->get_n(),true);
+	//if(type == 2){
+		//long_range_corr_.set(GS->get_n()/3,true);
+	//}
 }
 
 template<typename Type>
 void ParallelMonteCarlo<Type>::run(IOFiles& w){
 #pragma omp parallel for 
-	for(unsigned int i=0; i<nruns_; i++){
-		MonteCarlo<double> sim(CS_,tmax_,type_);
+	for(unsigned int i=0;i<nruns_;i++){
+		MonteCarlo<Type> sim(S_,tmax_);
 		sim.run();
 #pragma omp critical
 		{

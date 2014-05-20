@@ -3,11 +3,14 @@
 
 #include "Lapack.hpp"
 #include "PSTricks.hpp"
+#include "System.hpp"
+#include "Bosonic.hpp"
+#include "Fermionic.hpp"
 
 /*!Class that creates a file containing all the necessary information to run a
  * Monte-Carlo simulation.  */
 template<typename Type>
-class GenericSystem{
+class GenericSystem:public System, public Bosonic<Type>, public Fermionic<Type>{
 	public:
 		/*!Constructor N, n, m and z is the coordination number*/
 		GenericSystem(unsigned int N, unsigned int n, unsigned int m, int bc, unsigned int z, std::string filename); 
@@ -15,7 +18,6 @@ class GenericSystem{
 		virtual ~GenericSystem();
 
 		Matrix<unsigned int> get_links() const { return links_;}
-		Matrix<Type> get_EVec() const { return EVec_;}
 		unsigned int get_num_links() const { return links_.row();}
 		std::string get_filename() const { return filename_;}
 
@@ -23,16 +25,10 @@ class GenericSystem{
 		virtual void save(IOFiles& w) const;
 		virtual void check() = 0;
 
+		bool is_bosonic() { return false; }
+
 	protected:
-		unsigned int const n_;		//!< number of sites
-		unsigned int const N_;		//!< number of colors
-		unsigned int const m_;		//!< number of particles per site
-		unsigned int const M_;		//!< number of particles of each color 
 		unsigned int const z_;		//!< coordination number
-		int bc_;					//!< boundary condition
-		Matrix<unsigned int> links_;//!< list of links
-		Matrix<Type> T_;			//!< Gutzwiller Hamiltonian
-		Matrix<Type> EVec_;			//!< eigenvectors Matrix (transfer Matrix)
 		bool degenerate_;			//!< no degeneracy at the fermi level
 		std::string filename_;		//!< filename of the System
 		RST rst_;
@@ -47,14 +43,8 @@ class GenericSystem{
 
 template<typename Type>
 GenericSystem<Type>::GenericSystem(unsigned int N, unsigned int n, unsigned int m, int bc, unsigned int z, std::string filename): 
-	n_(n),
-	N_(N), 
-	m_(m),
-	M_((m_*n_)/N_), 
+	System(N,n,m,bc),
 	z_(z),
-	bc_(bc),
-	T_(n_,n_,0.0),
-	EVec_(N_*n_,M_),
 	degenerate_(false),
 	filename_(filename)
 { 
@@ -84,7 +74,7 @@ void GenericSystem<Type>::compute_links(){
 			if(nb(j,1)!=0){ k++; }
 		}
 	}
-	links_.set(k,2);
+	this->links_.set(k,2);
 	k=0;
 	for(unsigned int i(0); i<n_;i++){
 		nb = get_neighbourg(i);
@@ -100,7 +90,7 @@ void GenericSystem<Type>::compute_links(){
 
 template<typename Type>
 void GenericSystem<Type>::diagonalize_T(char mat_type){
-	Lapack<Type> ES(&T_,false, mat_type);
+	Lapack<Type> ES(&this->T_,false, mat_type);
 	Vector<double> EVal;
 	ES.eigensystem(&EVal,true);
 	if(std::abs(EVal(M_) - EVal(M_-1))<1e-12){

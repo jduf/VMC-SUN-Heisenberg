@@ -31,14 +31,14 @@ template <typename Type>
 class MonteCarlo{
 	public:
 		/*!Constructor*/
-		MonteCarlo(CreateSystem* CS, unsigned int tmax, unsigned int type); 
+		MonteCarlo(MCSystem<Type>* S, unsigned int tmax); 
 		/*!Simple destructor*/
 		~MonteCarlo();
 
 		/*!Run the Monte-Carlo algorithm*/
 		void run();
 		/*!Get the pointer on the system*/
-		System<Type>* get_system() const { return S_;}
+		MCSystem<Type>* get_system() const { return S_;}
 
 		void check();
 
@@ -63,7 +63,7 @@ class MonteCarlo{
 		bool keepon(double const& tol);
 
 		unsigned int const tmax_;//!< Time limit in second, by default 5min
-		System<Type>* S_; 		//!< Pointer to a Fermionic or Bosonic System 
+		MCSystem<Type>* S_;		//!< Pointer to a Fermionic or Bosonic System 
 		Rand* rnd_;				//!< Pointer to a random number generator
 		Time time_; 			//!< To stop the simulation after time_limit seconds
 };
@@ -71,15 +71,14 @@ class MonteCarlo{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-MonteCarlo<Type>::MonteCarlo(CreateSystem* CS, unsigned int tmax, unsigned int type):
+MonteCarlo<Type>::MonteCarlo(MCSystem<Type>* S, unsigned int tmax):
 	tmax_(tmax),
-	S_(NULL),
+	S_(S),
 	rnd_(NULL)
 {
 	unsigned int thread(omp_get_thread_num());
 	rnd_ = new Rand(1e4,thread);
-	if(CS->is_bosonic()){S_ = new SystemBosonic<Type>(CS,thread,type);}
-	else{S_ = new SystemFermionic<Type>(CS,thread,type);}
+	S_->init(thread);
 	if(S_->ready()){
 		double ratio(0.0);
 		for(unsigned int i(0);i<1e5;i++){
@@ -89,11 +88,11 @@ MonteCarlo<Type>::MonteCarlo(CreateSystem* CS, unsigned int tmax, unsigned int t
 		}
 		S_->measure_new_step();
 	}
+	std::cout<<"ok MonteCarlo"<<std::endl;
 }
 
 template<typename Type>
 MonteCarlo<Type>::~MonteCarlo(){
-	delete S_;
 	delete rnd_;
 }
 /*}*/
@@ -107,6 +106,7 @@ void MonteCarlo<Type>::run(){
 		while(keepon(5e-5));
 	}
 	S_->complete_analysis(5e-5);
+	std::cout<<"monteCarlo::run()"<<std::endl;
 }
 /*}*/
 

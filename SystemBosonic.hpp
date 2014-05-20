@@ -1,24 +1,17 @@
 #ifndef DEF_SYSTEMBOSONIC
 #define DEF_SYSTEMBOSONIC
 
-#include "System.hpp"
+#include "MCSystem.hpp"
 
 /*!Class that contains the information on the state*/
 template<typename Type>
-class SystemBosonic : public System<Type>{
+class SystemBosonic : public MCSystem<Type>, Bosonic<Type>{
 	public:
-		/*!Creates a SystemBosonic without any parameters set*/
-		//{Description
-		/*! Creates the system in function of the input parameters.
-		 *
-		 * - for each thread the system is independantly initialized
-		 * - calls System<Type>::init()
-		 * - creates an random initial state
-		 */ //}
-		SystemBosonic(CreateSystem* CS, unsigned int const& thread, unsigned int const& type);
+		SystemBosonic(System* S, Bosonic<Type>* bosonic);
 		/*!delete all the variables dynamically allocated*/
 		~SystemBosonic();
 
+		void init();
 
 		//{Description
 		/*!Computes the ratio of the two Jastrow factor related to the current
@@ -30,32 +23,26 @@ class SystemBosonic : public System<Type>{
 		 */ //}
 		Type ratio();
 
-		void print();
-
 	private:
 		/*!Forbids copy constructor*/
 		SystemBosonic(SystemBosonic const& S);
 		/*!Forbids assignment operator*/
 		SystemBosonic& operator=(SystemBosonic const& S);
-
-		Matrix<unsigned int> nn_; //!< nn_(i,j):jth neighbour of the ith site
-		Matrix<unsigned int> cc_;
-		Matrix<double> nu_;
-		Vector<unsigned int> sl_;
-		Matrix<Type> omega_;
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-SystemBosonic<Type>::SystemBosonic(CreateSystem*  CS, unsigned int const& thread, unsigned int const& type):
-	System<Type>(CS,thread,type)
-	//nu_(CS.get_nu()),
-	//nn_(CS.get_nn()),
-	//cc_(CS.get_cc()),
-	//sl_(CS.get_sl()),
-	//omega_(CS.get_omega())
+SystemBosonic<Type>::SystemBosonic(System* S, Bosonic<Type>*  bosonic):
+	MCSystem<Type>(S),
+	Bosonic<Type>(*bosonic)
 {
+
+	std::cout<<"ok"<<std::endl;
+}
+
+template<typename Type>
+void SystemBosonic<Type>::init(){
 	std::cout<<"Bosonic"<<std::endl;
 	Vector<unsigned int> available(this->n_);
 	unsigned int N_as(this->n_);
@@ -100,9 +87,9 @@ Type SystemBosonic<Type>::ratio(){
 
 		double jastrow(0.0);
 		unsigned int c0,c1;
-		for(unsigned int i(0);i<nn_.col();i++){
-			c0=this->s_(nn_(this->new_s[0],i),0);
-			c1=this->s_(nn_(this->new_s[1],i),0);
+		for(unsigned int i(0);i<this->nn_.col();i++){
+			c0=this->s_(this->nn_(this->new_s[0],i),0);
+			c1=this->s_(this->nn_(this->new_s[1],i),0);
 			if(nn_(this->new_s[0],i) != this->new_s[1]){
 				jastrow += nu_(i, cc_(this->new_c[0], c0));
 				jastrow -= nu_(i, cc_(this->new_c[1], c0));
@@ -120,17 +107,6 @@ Type SystemBosonic<Type>::ratio(){
 		}
 		return exp(jastrow)*omegab_a;
 	}
-}
-
-template<typename Type>
-void SystemBosonic<Type>::print(){
-	for(unsigned int i(0); i < sqrt(this->n_); i++){
-		for(unsigned int j(0); j < sqrt(this->n_); j++){
-			std::cout<<this->s_(j+i*int(sqrt(this->n_)),0)<<" ";
-		}
-		std::cout<<std::endl;
-	}
-	std::cout<<"=========================="<<std::endl;
 }
 /*}*/
 #endif

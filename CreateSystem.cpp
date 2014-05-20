@@ -1,35 +1,14 @@
 #include "CreateSystem.hpp"
 
 CreateSystem::CreateSystem(Parseur& P):
-	N_(P.get<unsigned int>("N")),
-	n_(P.get<unsigned int>("n")),
-	m_(P.get<unsigned int>("m")),
-	param_(0),
-	bc_(P.get<int>("bc")),
-	ready_(false),
 	ref_(3,0),
 	RGL_(NULL),
 	CGL_(NULL)
 {
 	parse(P);
-	create();
+	init(P.get<unsigned int>("N"),P.get<unsigned int>("n"),P.get<unsigned int>("m"),P.get<int>("bc"));
 }
 
-CreateSystem::CreateSystem(CreateSystem const& cs, double param):
-	N_(cs.N_),
-	n_(cs.n_),
-	m_(cs.m_),
-	param_(param),
-	bc_(cs.bc_),
-	ready_(cs.ready_),
-	ref_(cs.ref_),
-	RGL_(NULL),
-	CGL_(NULL)
-{
-	create();
-	if(RGL_){ready_ = RGL_->create(param);}
-	if(CGL_){ready_ = CGL_->create(param);}
-}
 
 CreateSystem::~CreateSystem(){
 	if(RGL_){delete RGL_;}
@@ -37,15 +16,27 @@ CreateSystem::~CreateSystem(){
 }
 
 template<>
-Matrix<double> CreateSystem::get_EVec() const { 
-	if(RGL_){return RGL_->get_EVec();}
-	return 0;
+Bosonic<double>* CreateSystem::get_bosonic() const { 
+	if(RGL_){return RGL_->get_bosonic();}
+	return NULL;
 }
 
 template<>
-Matrix<std::complex<double> > CreateSystem::get_EVec() const { 
-	if(CGL_){return CGL_->get_EVec();}
-	return 0;
+Bosonic<std::complex<double> >* CreateSystem::get_bosonic() const { 
+	if(CGL_){return CGL_->get_bosonic();}
+	return NULL;
+}
+
+template<>
+Fermionic<double>* CreateSystem::get_fermionic() const { 
+	if(RGL_){return RGL_->get_fermionic();}
+	return NULL;
+}
+
+template<>
+Fermionic<std::complex<double> >* CreateSystem::get_fermionic() const { 
+	if(CGL_){return CGL_->get_fermionic();}
+	return NULL;
 }
 
 void CreateSystem::parse(Parseur& P) {
@@ -124,7 +115,7 @@ void CreateSystem::parse(Parseur& P) {
 	}
 }
 
-void CreateSystem::create(){
+void CreateSystem::init(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc){
 	switch(ref_(0)){
 		case 2:
 			{
@@ -132,9 +123,9 @@ void CreateSystem::create(){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:{RGL_ = new ChainFermi(N_,n_,m_,bc_);}break;
-									   //case 1:{return ChainDimerized(N_,n_,m_);}break;
-								case 2:{RGL_ = new ChainPolymerized(N_,n_,m_,bc_);}break;
+								case 0:{RGL_ = new ChainFermi(N,n,m,bc);}break;
+									   //case 1:{return ChainDimerized(N,n,m);}break;
+								case 2:{RGL_ = new ChainPolymerized(N,n,m,bc);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;
@@ -144,19 +135,19 @@ void CreateSystem::create(){
 		case 3:
 			//{
 			//switch(ref_(1)){
-			//case 0:{return TriangleJastrow(N_,n_,m_);}break;
+			//case 0:{return TriangleJastrow(N,n,m);}break;
 			//case 1:
 			//   {
 			//   switch(ref_(2)){
-			//   case 0:{return TriangleFermi(N_,n_,m_);}break;
-			//   case 1:{return TriangleMu(N_,n_,m_);}break;
+			//   case 0:{return TriangleFermi(N,n,m);}break;
+			//   case 1:{return TriangleMu(N,n,m);}break;
 			//   default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl; }break;
 			//   }
 			//   }break;
 			//case 2:
 			//   {
 			//   switch(ref_(2)){
-			//   case 4:{return TrianglePhi(N_,n_,m_);}break;
+			//   case 4:{return TrianglePhi(N,n,m);}break;
 			//   default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl; }break;
 			//   }
 			//   }break;
@@ -166,20 +157,20 @@ void CreateSystem::create(){
 		case 4:
 			{
 				switch(ref_(1)){
-					//case 0:{return SquareJastrow(N_,n_,m_);}break;
+					//case 0:{return SquareJastrow(N,n,m);}break;
 					case 1:
 						{
 							switch(ref_(2)){
-								//   case 0:{return SquareFermi(N_,n_,m_);}break;
-								//   case 1:{return SquareMu(N_,n_,m_);}break;
+								//   case 0:{return SquareFermi(N,n,m);}break;
+								//   case 1:{return SquareMu(N,n,m);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;
 					case 2:
 						{
 							switch(ref_(2)){
-								case 2:{CGL_ = new SquarePiFlux(N_,n_,m_,bc_);}break;
-									   //   case 3:{return SquareSU2PhiFlux(N_,n_,m_);}break;
+								case 2:{CGL_ = new SquarePiFlux(N,n,m,bc);}break;
+									   //   case 3:{return SquareSU2PhiFlux(N,n,m);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;
@@ -192,8 +183,8 @@ void CreateSystem::create(){
 			//case 1:
 			//{
 			//switch(ref_(2)){
-			//case 0:{return HoneycombSU3(N_,n_,m_);}break;
-			//case 1:{return HoneycombSU4(N_,n_,m_);}break;
+			//case 0:{return HoneycombSU3(N,n,m);}break;
+			//case 1:{return HoneycombSU4(N,n,m);}break;
 			//default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 			//}
 			//}break;
@@ -213,4 +204,9 @@ void CreateSystem::save(IOFiles& w) const{
 void CreateSystem::check(){
 	if(RGL_){return RGL_->check();}
 	if(CGL_){return CGL_->check();}
+}
+
+void CreateSystem::create(double const& x){
+	if(RGL_){RGL_->create(x);}
+	if(CGL_){CGL_->create(x);}
 }

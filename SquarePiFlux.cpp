@@ -9,6 +9,7 @@ SquarePiFlux::SquarePiFlux(unsigned int N, unsigned int n, unsigned int m, int b
 SquarePiFlux::~SquarePiFlux(){}
 
 bool SquarePiFlux::create(double x){
+	std::cout<<"SquarePiFlux::create"<<x<<std::endl;
 	compute_T();
 	diagonalize_T('H');
 	for(unsigned int spin(0);spin<N_;spin++){

@@ -15,6 +15,8 @@ ChainPolymerized::~ChainPolymerized(){}
 bool ChainPolymerized::create(double delta){
 	filename_ += "-delta" + tostring(delta);
 	delta_=delta;
+	T_.set(n_,n_,0);
+	EVec_.set(n_*N_,M_,0);
 
 	compute_T();
 	diagonalize_T('S');
