@@ -8,8 +8,14 @@
 class System{
 	public:
 		System(unsigned int N, unsigned int n, unsigned int m, int bc);
-		System(System const& S);
+		System();
 		virtual ~System();
+
+		unsigned int const& get_n() const { return n_;}
+		unsigned int const& get_N() const { return N_;}
+		unsigned int const& get_m() const { return m_;}
+		unsigned int const& get_M() const { return M_;}
+		int const& get_bc() const { return bc_;}
 
 		/*!Returns energy*/
 		CorrelatedSamples<double> const& get_energy() const {return E_;}
@@ -21,10 +27,10 @@ class System{
 		void save(IOFiles& w) const;
 
 	protected:
-		unsigned int const n_;		//!< number of sites
-		unsigned int const N_;		//!< number of colors
-		unsigned int const m_;		//!< number of particles per site
-		unsigned int const M_;		//!< number of particles of each color 
+		unsigned int n_;		//!< number of sites
+		unsigned int N_;		//!< number of colors
+		unsigned int m_;		//!< number of particles per site
+		unsigned int M_;		//!< number of particles of each color 
 		int bc_;					//!< boundary condition
 
 		Matrix<unsigned int> links_;	//!< list of links
@@ -32,5 +38,9 @@ class System{
 		CorrelatedSamples<double> E_;
 		CorrelatedSamplesSet<double> corr_;	
 		CorrelatedSamplesSet<double> long_range_corr_;
+
+	private:
+		System& operator=(System const& s);
+		System(System const& s);
 };
 #endif

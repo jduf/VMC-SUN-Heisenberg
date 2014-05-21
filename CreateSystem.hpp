@@ -16,23 +16,16 @@ class CreateSystem{
 		void create(double const& x);
 
 		bool use_complex() const {
-		if(ref_(1) == 1){ return false; }
-		else { return true; }
+			if(ref_(1) == 1){ return false; }
+			else { return true; }
 		}
 		bool is_bosonic() const {
 			if(ref_(1) == 0){ return true; }
 			else { return false; }
 		}
 
-		System* get_system() const { 
-			if(RGL_){return RGL_;}
-			if(CGL_){return CGL_;}
-			return NULL;
-		}
 		template<typename Type>
-		Bosonic<Type>* get_bosonic() const;
-		template<typename Type>
-		Fermionic<Type>* get_fermionic() const;
+			GenericSystem<Type>* get() const;
 
 	private:
 		Vector<unsigned int> ref_;

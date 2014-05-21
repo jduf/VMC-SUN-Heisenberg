@@ -9,34 +9,20 @@ CreateSystem::CreateSystem(Parseur& P):
 	init(P.get<unsigned int>("N"),P.get<unsigned int>("n"),P.get<unsigned int>("m"),P.get<int>("bc"));
 }
 
-
 CreateSystem::~CreateSystem(){
+	std::cout<<"~CreateSystem"<<std::endl;
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 }
 
 template<>
-Bosonic<double>* CreateSystem::get_bosonic() const { 
-	if(RGL_){return RGL_->get_bosonic();}
-	return NULL;
+GenericSystem<double>* CreateSystem::get() const { 
+	return RGL_;
 }
 
 template<>
-Bosonic<std::complex<double> >* CreateSystem::get_bosonic() const { 
-	if(CGL_){return CGL_->get_bosonic();}
-	return NULL;
-}
-
-template<>
-Fermionic<double>* CreateSystem::get_fermionic() const { 
-	if(RGL_){return RGL_->get_fermionic();}
-	return NULL;
-}
-
-template<>
-Fermionic<std::complex<double> >* CreateSystem::get_fermionic() const { 
-	if(CGL_){return CGL_->get_fermionic();}
-	return NULL;
+GenericSystem<std::complex<double> >* CreateSystem::get() const { 
+	return CGL_;
 }
 
 void CreateSystem::parse(Parseur& P) {

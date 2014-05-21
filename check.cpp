@@ -12,24 +12,25 @@ int main(int argc, char* argv[]){
 		double param(P.get<double>("param"));
 		unsigned int tmax(3);
 		cs.create(param);
+		std::cout<<"ok cs create"<<std::endl;
 
 		IOFiles w("test.jdbin",true);
 		cs.save(w);
 		if(cs.use_complex()){
 			MCSystem<std::complex<double> >* S(NULL);
+			S = new SystemFermionic<std::complex<double> >; 
+			S->set(cs,type);
 			std::cout<<"ok"<<std::endl;
-			S = new SystemFermionic<std::complex<double> >(cs.get_system(),cs.get_fermionic<std::complex<double> >()); 
-			S->set_type(type);
 			MonteCarlo<std::complex<double> > sim(S,tmax);
 			sim.run();
 			(sim.get_system())->save(w);
 			delete S;
 		} else {
 			MCSystem<double>* S(NULL);
-			std::cout<<"ok"<<std::endl;
-			S = new SystemFermionic<double>(cs.get_system(),cs.get_fermionic<double>()); 
-			S->set_type(type);
+			S = new SystemFermionic<double>; 
+			S->set(cs,type);
 			MonteCarlo<double> sim(S,tmax);
+			std::cout<<"ok"<<std::endl;
 			sim.run();
 			(sim.get_system())->save(w);
 			delete S;

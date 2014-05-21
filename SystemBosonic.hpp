@@ -7,11 +7,9 @@
 template<typename Type>
 class SystemBosonic : public MCSystem<Type>, Bosonic<Type>{
 	public:
-		SystemBosonic(System* S, Bosonic<Type>* bosonic);
-		/*!delete all the variables dynamically allocated*/
+		SystemBosonic(CreateSystem const& cs, unsigned int const& type);
+		SystemBosonic();
 		~SystemBosonic();
-
-		void init();
 
 		//{Description
 		/*!Computes the ratio of the two Jastrow factor related to the current
@@ -23,22 +21,27 @@ class SystemBosonic : public MCSystem<Type>, Bosonic<Type>{
 		 */ //}
 		Type ratio();
 
+		void set(CreateSystem const& cs, unsigned int const& type);
+
 	private:
 		/*!Forbids copy constructor*/
 		SystemBosonic(SystemBosonic const& S);
 		/*!Forbids assignment operator*/
 		SystemBosonic& operator=(SystemBosonic const& S);
+
+		void init();
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-SystemBosonic<Type>::SystemBosonic(System* S, Bosonic<Type>*  bosonic):
-	MCSystem<Type>(S),
-	Bosonic<Type>(*bosonic)
-{
-
-	std::cout<<"ok"<<std::endl;
+SystemBosonic<Type>::SystemBosonic(CreateSystem const& cs, unsigned int const& type) {
+	set(cs,type);
+	std::cout<<"ok normal SystemBosonic"<<std::endl;
+}
+template<typename Type>
+SystemBosonic<Type>::SystemBosonic(){
+	std::cout<<"ok default SystemBosonic"<<std::endl;
 }
 
 template<typename Type>
@@ -65,6 +68,28 @@ void SystemBosonic<Type>::init(){
 
 template<typename Type>
 SystemBosonic<Type>::~SystemBosonic(){}
+/*}*/
+
+/*methods that modify the class*/
+/*{*/
+template<typename Type>
+void SystemBosonic<Type>::set(CreateSystem const& cs, unsigned int const& type){ 
+	std::cout<<"SystemBosonic::set called"<<std::endl;
+	/*init Bosonic*/
+	this->nn_ = (cs.get<Type>())->get_nn();
+	this->cc_ = (cs.get<Type>())->get_cc();
+	this->nu_ = (cs.get<Type>())->get_nu();
+	this->sl_ = (cs.get<Type>())->get_sl();
+	this->omega_ = (cs.get<Type>())->get_omega();
+	/*init MCSystem*/
+	this->type_ = type;
+	/*init System*/
+	this->n_ = (cs.get<Type>())->get_n();
+	this->N_ = (cs.get<Type>())->get_N();
+	this->m_ = (cs.get<Type>())->get_m();
+	this->M_ = (cs.get<Type>())->get_M();
+	this->bc_ = (cs.get<Type>())->get_bc();
+}
 /*}*/
 
 /*methods that return something related to the class*/

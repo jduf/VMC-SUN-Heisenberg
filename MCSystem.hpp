@@ -8,7 +8,7 @@
 template<typename Type>
 class MCSystem: public System{
 	public:
-		MCSystem(System* S);
+		MCSystem();
 		virtual ~MCSystem();
 
 		/*!Exchanges two particles of different color */
@@ -31,26 +31,28 @@ class MCSystem: public System{
 		void add_sample();
 		bool is_converged(double const& tol);
 		void complete_analysis(double const& tol);
+		virtual void set(CreateSystem const& cs, unsigned int const& type) = 0;
 		
 		void set();
 		void init(unsigned int const& thread);
-		void set_type(unsigned int const& type){ type_ = type; }
-		virtual void init() = 0;
 
 	protected:
-		MCSystem(MCSystem<Type> const&);
-		MCSystem<Type>& operator=(MCSystem<Type> const&);
-
 		unsigned int new_c[2];//!< colors of the exchanged sites
 		unsigned int new_s[2];//!< sites that are exchanged
 		unsigned int new_p[2];//!< sites that are exchanged
 
-		unsigned int type_;//!< sites that are exchanged
+		unsigned int type_;
 
 		bool ready_;	
 
-		Matrix<unsigned int> s_;			//!< on the site i : s(i,0)=color, s(i,1)=row
 		Rand* rnd_;	//!< generator of random numbers 
+
+		Matrix<unsigned int> s_;//!< on the site i : s(i,0)=color, s(i,1)=row
+
+	private:
+		MCSystem(MCSystem<Type> const&);
+		MCSystem& operator=(MCSystem<Type> const&);
+		virtual void init() = 0;
 
 		/*!Check only if the new state has not the same color on one site*/
 		bool is_new_state_forbidden();
@@ -59,30 +61,32 @@ class MCSystem: public System{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-MCSystem<Type>::MCSystem(System* S):
-	System(*S),
+MCSystem<Type>::MCSystem():
+	type_(0),
 	ready_(false),
 	rnd_(NULL)
 {
-	std::cout<<"ok MCSystem"<<std::endl;
+	std::cout<<"ok default MCSystem"<<std::endl;
 }
 
 template<typename Type>
 MCSystem<Type>::~MCSystem(){
+	std::cout<<"~MCSystem"<<std::endl;
 	if(rnd_){delete rnd_;}
 }
 
 template<typename Type>
 void MCSystem<Type>::init(unsigned int const& thread){
+	std::cout<<"MCSystem init"<<std::endl;
 	s_.set(this->n_,this->M_);
 	rnd_ = new Rand(100,thread);
 	set(); 
 	init();
-	std::cout<<ready_<<std::endl;
 }
 
 template<typename Type>
 void MCSystem<Type>::set(){
+	std::cout<<"MCSystem set"<<std::endl;
 	E_.set(50,5);
 	corr_.set(this->n_,50,5);
 	if(type_ == 2){ long_range_corr_.set(this->n_/3,50,5); }

@@ -7,9 +7,8 @@
 template<typename Type>
 class SystemFermionic : public MCSystem<Type>, Fermionic<Type>{
 	public:
-		//SystemFermionic(System* S,unsigned int const& thread, unsigned int const& type);
-		SystemFermionic(System* S, Fermionic<Type>* bosonic);
-		/*!Delete all the variables dynamically allocated*/
+		SystemFermionic(CreateSystem const& cs, unsigned int const& type);
+		SystemFermionic();
 		~SystemFermionic();
 
 		/*!Set row and new_ev*/
@@ -33,7 +32,7 @@ class SystemFermionic : public MCSystem<Type>, Fermionic<Type>{
 		 */ //}
 		void update();
 
-		void init();
+		void set(CreateSystem const& cs, unsigned int const& type);
 
 	private:
 		/*!Forbids copy constructor*/
@@ -41,10 +40,12 @@ class SystemFermionic : public MCSystem<Type>, Fermionic<Type>{
 		/*!Forbids assignment operator*/
 		SystemFermionic& operator=(SystemFermionic const& S);
 
+		void init();
+
 		Matrix<unsigned int> row_;
 		Matrix<Type> *Ainv_;	//!< inverse of A
 		Matrix<Type> tmp_;		//!< temporary matrix used during the update 
-		Type w[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b> ; W=(w11,0,0,w22)
+		Type w[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0,0,w22)
 		unsigned int new_r[2];	//!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
 		unsigned int new_ev[2]; //!< new selected rows of the EVec matrix
 };
@@ -52,16 +53,19 @@ class SystemFermionic : public MCSystem<Type>, Fermionic<Type>{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-SystemFermionic<Type>::SystemFermionic(System* S, Fermionic<Type>* fermionic):
-	MCSystem<Type>(S),
-	Fermionic<Type>(*fermionic),
-	Ainv_(NULL)
-{
-	std::cout<<"ok SystemFermionic"<<std::endl;
+SystemFermionic<Type>::SystemFermionic(CreateSystem const& cs, unsigned int const& type){
+	set(cs,type);
+	std::cout<<"ok normal SystemFermionic"<<std::endl;
+}
+
+template<typename Type>
+SystemFermionic<Type>::SystemFermionic(){
+	std::cout<<"ok default SystemFermionic"<<std::endl;
 }
 
 template<typename Type>
 void SystemFermionic<Type>::init(){
+	std::cout<<"SystemFermionic init"<<std::endl;
 	Ainv_ = new Matrix<Type>[this->N_];
 	for(unsigned int i(0); i < this->N_; i++){
 		Ainv_[i].set(this->M_,this->M_);
@@ -112,8 +116,7 @@ void SystemFermionic<Type>::init(){
 		std::cerr<<"No initial state found after "<<TRY_MAX<<"trials"<<std::endl;
 		this->ready_=false;
 	}
-	std::cout<<"system fermionic init ok"<<std::endl;
-	std::cerr<<"need to initialize only if non degenerate"<<std::endl;
+	std::cerr<<"SystemFermionic::init need to initialize only if non degenerate"<<std::endl;
 }
 
 template<typename Type>
@@ -124,6 +127,23 @@ SystemFermionic<Type>::~SystemFermionic(){
 
 /*methods that modify the class*/
 /*{*/
+template<typename Type>
+void SystemFermionic<Type>::set(CreateSystem const& cs, unsigned int const& type){ 
+	std::cout<<"SystemFermionic::set called"<<std::endl;
+	/*init Fermionic*/
+	this->EVec_ = (cs.get<Type>())->get_EVec();
+	/*init MCSystem*/
+	this->type_ = type;
+	/*init System*/
+	this->n_ = (cs.get<Type>())->get_n();
+	this->N_ = (cs.get<Type>())->get_N();
+	this->m_ = (cs.get<Type>())->get_m();
+	this->M_ = (cs.get<Type>())->get_M();
+	this->bc_ = (cs.get<Type>())->get_bc();
+
+	std::cout<<this->n_<<" "<<this->N_<<" "<<this->M_<<" "<<this->bc_<<std::endl;
+}
+
 template<typename Type>
 void SystemFermionic<Type>::update(){
 	MCSystem<Type>::update();

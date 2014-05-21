@@ -9,35 +9,29 @@ template<typename Type>
 class Fermionic{
 	public:
 		Fermionic();
-		Fermionic(Fermionic const& f);
 		virtual ~Fermionic();
 
-		Matrix<Type> get_EVec() const { return EVec_;}
-		Fermionic<Type>* get_fermionic(){ return this;}
+		Matrix<Type> const& get_EVec() const { return EVec_;}
 
 	protected:
 		Matrix<Type> T_;			//!< Gutzwiller Hamiltonian
 		Matrix<Type> EVec_;			//!< eigenvectors Matrix (transfer Matrix)
+		
+	private:
+		Fermionic(Fermionic<Type> const& f);
 };
 
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-Fermionic<Type>::Fermionic()
-{
-	std::cout<<"ok Fermionic"<<std::endl;
+Fermionic<Type>::Fermionic() {
+	std::cout<<"ok default Fermionic"<<std::endl;
 }
 
 template<typename Type>
-Fermionic<Type>::Fermionic(Fermionic const& f):
-	T_(f.T_),
-	EVec_(f.EVec_)
-{ 
-	std::cout<<"ok copy Fermionic"<<std::endl;
+Fermionic<Type>::~Fermionic(){
+	std::cout<<"~Fermionic"<<std::endl;
 }
-
-template<typename Type>
-Fermionic<Type>::~Fermionic(){}
 /*}*/
 #endif
 

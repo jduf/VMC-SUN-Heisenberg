@@ -36,18 +36,6 @@ ParallelMonteCarlo<Type>::ParallelMonteCarlo(MCSystem<Type>* S, unsigned int nru
 
 template<typename Type>
 void ParallelMonteCarlo<Type>::run(IOFiles& w){
-#pragma omp parallel for 
-	for(unsigned int i=0;i<nruns_;i++){
-		MonteCarlo<Type> sim(S_,tmax_);
-		sim.run();
-#pragma omp critical
-		{
-			E_.add_sample((sim.get_system())->get_energy());
-			corr_.add_sample((sim.get_system())->get_corr());
-			long_range_corr_.add_sample((sim.get_system())->get_long_range_corr());
-			(sim.get_system())->save(w);
-		}
-	}
 
 	E_.complete_analysis();
 	corr_.complete_analysis();

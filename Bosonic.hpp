@@ -8,26 +8,30 @@
 template<typename Type>
 class Bosonic{
 	public:
-		/*!Creates a Bosonic without any parameters set*/
 		Bosonic();
-		/*!delete all the variables dynamically allocated*/
 		virtual ~Bosonic();
 
-		Bosonic<Type>* get_bosonic(){ return this; }
+		Vector<unsigned int> const& get_sl() const { return sl_;}
+		Matrix<unsigned int> const& get_nn() const { return nn_;}
+		Matrix<unsigned int> const& get_cc() const { return cc_;}
+		Matrix<double> const& get_nu() const { return nu_;}
+		Matrix<Type> const& get_omega() const { return omega_;}
 
 	protected:
+		Vector<unsigned int> sl_;
 		Matrix<unsigned int> nn_; //!< nn_(i,j):jth neighbour of the ith site
 		Matrix<unsigned int> cc_;
 		Matrix<double> nu_;
-		Vector<unsigned int> sl_;
 		Matrix<Type> omega_;
+
+	private:
+		Bosonic(Bosonic<Type> const& b);
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-Bosonic<Type>::Bosonic()
-{}
+Bosonic<Type>::Bosonic(){}
 
 template<typename Type>
 Bosonic<Type>::~Bosonic(){}

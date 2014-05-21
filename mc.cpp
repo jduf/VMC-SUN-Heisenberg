@@ -1,10 +1,10 @@
 /*!  @file mc.cpp */
 
-#include "ParallelMonteCarlo.hpp"
+#include "MonteCarlo.hpp"
 
 //std::string init(CreateSystem const& cs);
 template<typename Type>
-void run(CreateSystem const& cs, std::string path, unsigned int nruns, unsigned int tmax, unsigned int type);
+void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax, unsigned int const& type);
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
@@ -53,8 +53,7 @@ int main(int argc, char* argv[]){
 //}
 
 template<typename Type>
-void run(CreateSystem const& cs, std::string path, unsigned int nruns, unsigned int tmax, unsigned int type){
-
+void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax, unsigned int const& type){
 	//IOFiles results(path+CS.get_filename()+".jdbin",true);
 	IOFiles results(path+"bla.jdbin",true);
 	results("type of simulation",type);
@@ -66,12 +65,38 @@ void run(CreateSystem const& cs, std::string path, unsigned int nruns, unsigned 
 	cs.save(results);
 	rst.title("Results","-");
 
-	MCSystem<Type>* S(NULL);
-	if(cs.is_bosonic()){ S = new SystemBosonic<Type>(cs.get_system(),cs.get_bosonic<Type>()); }
-	else { S = new SystemFermionic<Type>(cs.get_system(),cs.get_fermionic<Type>()); }
-	S->set_type(type);
-	ParallelMonteCarlo<Type> sim(S,nruns,tmax);
-	sim.run(results);
-	sim.save(results);
-	delete S;
+
+	std::cout<<"ok"<<std::endl;
+	Data<double> E;
+	DataSet<double> corr;
+	DataSet<double> long_range_corr;
+	E.set_conv(true);
+	//corr.set(GS->get_n(),true);
+	//if(type == 2){
+	//long_range_corr.set(GS->get_n()/3,true);
+	//}
+
+#pragma omp parallel for 
+	for(unsigned int i=0;i<nruns;i++){
+		MCSystem<Type>* S(NULL);
+		if(cs.is_bosonic()){ S = new SystemBosonic<Type>(cs,type); } 
+		else { S = new SystemFermionic<Type>(cs,type); }
+		MonteCarlo<Type> sim(S,tmax);
+		sim.run();
+#pragma omp critical
+		{
+			E.add_sample((sim.get_system())->get_energy());
+			corr.add_sample((sim.get_system())->get_corr());
+			long_range_corr.add_sample((sim.get_system())->get_long_range_corr());
+			(sim.get_system())->save(results);
+		}
+		delete S;
+	}
+	rst.set();
+	rst.title("Mean results (status>2)","-");
+	results.add_to_header(rst.get());
+	results("energy per site",E);
+	results("correlation on links",corr);
+	results("long range correlation",long_range_corr);
+
 }

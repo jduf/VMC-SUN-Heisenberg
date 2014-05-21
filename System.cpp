@@ -9,20 +9,18 @@ System::System(unsigned int N, unsigned int n, unsigned int m, int bc):
 	M_((m_*n_)/N_), 
 	bc_(bc)
 {
+	std::cout<<"ok Nnmbc System"<<std::endl; 
 }
 
-System::System(System const& S):
-	n_(S.n_),
-	N_(S.N_),
-	m_(S.m_),
-	M_(S.M_),
-	bc_(S.bc_),
-	links_(S.links_)
+System::System():
+	n_(0),
+	N_(0), 
+	m_(0),
+	M_(0), 
+	bc_(0)
 {
-	std::cout<<"ok copy System"<<std::endl;
-
+	std::cout<<"ok default System"<<std::endl;
 }
-
 
 System::~System(){}
 
