@@ -101,6 +101,7 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*{*/
 template<typename Type>
 void MonteCarlo<Type>::run(){
+	std::cout<<S_->get_N()<<" "<<S_->get_n()<<std::endl;
 	if(S_->ready()){
 		do{next_step();}
 		while(keepon(5e-5));

@@ -8,14 +8,17 @@
 template<typename Type>
 class Bosonic{
 	public:
-		Bosonic();
+		Bosonic(Bosonic<Type> const& b);
 		virtual ~Bosonic();
+		Bosonic();
 
 		Vector<unsigned int> const& get_sl() const { return sl_;}
 		Matrix<unsigned int> const& get_nn() const { return nn_;}
 		Matrix<unsigned int> const& get_cc() const { return cc_;}
 		Matrix<double> const& get_nu() const { return nu_;}
 		Matrix<Type> const& get_omega() const { return omega_;}
+
+		Bosonic<Type> const& get_bosonic(){ return (*this);}
 
 	protected:
 		Vector<unsigned int> sl_;
@@ -24,12 +27,19 @@ class Bosonic{
 		Matrix<double> nu_;
 		Matrix<Type> omega_;
 
-	private:
-		Bosonic(Bosonic<Type> const& b);
 };
 
 /*constructors and destructor*/
 /*{*/
+template<typename Type>
+Bosonic<Type>::Bosonic(Bosonic<Type> const& b):
+	sl_(b.sl_),
+	nn_(b.nn_),
+	cc_(b.cc_),
+	nu_(b.nu_),
+	omega_(b.omega_)
+{}
+
 template<typename Type>
 Bosonic<Type>::Bosonic(){}
 

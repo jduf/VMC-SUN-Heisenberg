@@ -8,7 +8,6 @@ template<typename Type>
 class SystemBosonic : public MCSystem<Type>, Bosonic<Type>{
 	public:
 		SystemBosonic(CreateSystem const& cs, unsigned int const& type);
-		SystemBosonic();
 		~SystemBosonic();
 
 		//{Description
@@ -20,8 +19,6 @@ class SystemBosonic : public MCSystem<Type>, Bosonic<Type>{
 		 * - when two different colors are exchanged, computes the ratio
 		 */ //}
 		Type ratio();
-
-		void set(CreateSystem const& cs, unsigned int const& type);
 
 	private:
 		/*!Forbids copy constructor*/
@@ -35,13 +32,11 @@ class SystemBosonic : public MCSystem<Type>, Bosonic<Type>{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-SystemBosonic<Type>::SystemBosonic(CreateSystem const& cs, unsigned int const& type) {
-	set(cs,type);
+SystemBosonic<Type>::SystemBosonic(CreateSystem const& cs, unsigned int const& type):
+	MCSystem<Type>(cs.get_system(),type),
+	Bosonic<Type>(cs.get_bosonic<Type>())
+{
 	std::cout<<"ok normal SystemBosonic"<<std::endl;
-}
-template<typename Type>
-SystemBosonic<Type>::SystemBosonic(){
-	std::cout<<"ok default SystemBosonic"<<std::endl;
 }
 
 template<typename Type>
@@ -68,28 +63,6 @@ void SystemBosonic<Type>::init(){
 
 template<typename Type>
 SystemBosonic<Type>::~SystemBosonic(){}
-/*}*/
-
-/*methods that modify the class*/
-/*{*/
-template<typename Type>
-void SystemBosonic<Type>::set(CreateSystem const& cs, unsigned int const& type){ 
-	std::cout<<"SystemBosonic::set called"<<std::endl;
-	/*init Bosonic*/
-	this->nn_ = (cs.get<Type>())->get_nn();
-	this->cc_ = (cs.get<Type>())->get_cc();
-	this->nu_ = (cs.get<Type>())->get_nu();
-	this->sl_ = (cs.get<Type>())->get_sl();
-	this->omega_ = (cs.get<Type>())->get_omega();
-	/*init MCSystem*/
-	this->type_ = type;
-	/*init System*/
-	this->n_ = (cs.get<Type>())->get_n();
-	this->N_ = (cs.get<Type>())->get_N();
-	this->m_ = (cs.get<Type>())->get_m();
-	this->M_ = (cs.get<Type>())->get_M();
-	this->bc_ = (cs.get<Type>())->get_bc();
-}
 /*}*/
 
 /*methods that return something related to the class*/

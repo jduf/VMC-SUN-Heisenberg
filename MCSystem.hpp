@@ -8,7 +8,7 @@
 template<typename Type>
 class MCSystem: public System{
 	public:
-		MCSystem();
+		MCSystem(System const& S, unsigned int const& type);
 		virtual ~MCSystem();
 
 		/*!Exchanges two particles of different color */
@@ -31,7 +31,6 @@ class MCSystem: public System{
 		void add_sample();
 		bool is_converged(double const& tol);
 		void complete_analysis(double const& tol);
-		virtual void set(CreateSystem const& cs, unsigned int const& type) = 0;
 		
 		void set();
 		void init(unsigned int const& thread);
@@ -61,12 +60,13 @@ class MCSystem: public System{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-MCSystem<Type>::MCSystem():
-	type_(0),
+MCSystem<Type>::MCSystem(System const& S, unsigned int const& type):
+	System(S),
+	type_(type),
 	ready_(false),
 	rnd_(NULL)
 {
-	std::cout<<"ok default MCSystem"<<std::endl;
+	std::cout<<"ok normal MCSystem"<<std::endl;
 }
 
 template<typename Type>

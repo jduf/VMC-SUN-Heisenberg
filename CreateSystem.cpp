@@ -25,6 +25,28 @@ GenericSystem<std::complex<double> >* CreateSystem::get() const {
 	return CGL_;
 }
 
+template<>
+Bosonic<double> const& CreateSystem::get_bosonic() const { 
+	return RGL_->get_bosonic();
+}
+
+template<>
+Bosonic<std::complex<double> > const& CreateSystem::get_bosonic() const { 
+	return CGL_->get_bosonic();
+}
+
+template<>
+Fermionic<double> const& CreateSystem::get_fermionic() const { 
+	return RGL_->get_fermionic();
+}
+
+template<>
+Fermionic<std::complex<double> > const& CreateSystem::get_fermionic() const { 
+	return CGL_->get_fermionic();
+}
+
+
+
 void CreateSystem::parse(Parseur& P) {
 	std::string wf(P.get<std::string>("wf"));
 	if( wf == "chainfermi" ){

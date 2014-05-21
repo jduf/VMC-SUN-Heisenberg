@@ -12,14 +12,15 @@ System::System(unsigned int N, unsigned int n, unsigned int m, int bc):
 	std::cout<<"ok Nnmbc System"<<std::endl; 
 }
 
-System::System():
-	n_(0),
-	N_(0), 
-	m_(0),
-	M_(0), 
-	bc_(0)
+System::System(System const& s):
+	n_(s.n_),
+	N_(s.N_), 
+	m_(s.m_),
+	M_(s.M_), 
+	bc_(s.bc_),
+	links_(s.links_)
 {
-	std::cout<<"ok default System"<<std::endl;
+	std::cout<<"ok copy System"<<std::endl; 
 }
 
 System::~System(){}

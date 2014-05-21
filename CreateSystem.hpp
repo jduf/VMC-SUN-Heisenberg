@@ -24,8 +24,15 @@ class CreateSystem{
 			else { return false; }
 		}
 
+		//will be useless
 		template<typename Type>
 			GenericSystem<Type>* get() const;
+
+		System const& get_system() const { return RGL_->get_system(); }
+		template<typename Type>
+			Bosonic<Type> const& get_bosonic() const;
+		template<typename Type>
+			Fermionic<Type> const& get_fermionic() const;
 
 	private:
 		Vector<unsigned int> ref_;

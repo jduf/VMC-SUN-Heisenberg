@@ -14,12 +14,11 @@ int main(int argc, char* argv[]){
 		cs.create(param);
 		std::cout<<"ok cs create"<<std::endl;
 
-		IOFiles w("test.jdbin",true);
+		IOFiles w("check.jdbin",true);
 		cs.save(w);
 		if(cs.use_complex()){
 			MCSystem<std::complex<double> >* S(NULL);
-			S = new SystemFermionic<std::complex<double> >; 
-			S->set(cs,type);
+			S = new SystemFermionic<std::complex<double> >(cs,type);
 			std::cout<<"ok"<<std::endl;
 			MonteCarlo<std::complex<double> > sim(S,tmax);
 			sim.run();
@@ -27,8 +26,7 @@ int main(int argc, char* argv[]){
 			delete S;
 		} else {
 			MCSystem<double>* S(NULL);
-			S = new SystemFermionic<double>; 
-			S->set(cs,type);
+			S = new SystemFermionic<double>(cs,type);
 			MonteCarlo<double> sim(S,tmax);
 			std::cout<<"ok"<<std::endl;
 			sim.run();

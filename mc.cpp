@@ -2,7 +2,7 @@
 
 #include "MonteCarlo.hpp"
 
-//std::string init(CreateSystem const& cs);
+std::string init(CreateSystem const& cs);
 template<typename Type>
 void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax, unsigned int const& type);
 
@@ -19,38 +19,30 @@ int main(int argc, char* argv[]){
 			Vector<double> param(P.get<Vector<double> >("param"));
 			for(unsigned int i(0);i<param.size();i++){
 				cs.create(param(i));
-				if( cs.use_complex() ){
-					run<std::complex<double> >(cs,path,nruns,tmax,type);
-				} else {
-					run<double>(cs,path,nruns,tmax,type);
-				}
+				if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); } 
+				else { run<double>(cs,path,nruns,tmax,type); }
 			}
-		}
-		else {
+		} else {
 			double param(P.get<double>("param"));
 			cs.create(param);
-			if( cs.use_complex() ){
-				run<std::complex<double> >(cs,path,nruns,tmax,type);
-			} else {
-				run<double>(cs,path,nruns,tmax,type);
-			}
+			if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); }
+			else { run<double>(cs,path,nruns,tmax,type); }
 		}
 	}
 }
 
-//std::string init(CreateSystem const& cs){
-//std::string path("N"+tostring(cs.get_N())+"/m"+tostring(cs.get_m())+"/n"+tostring(cs.get_n())+"/");
-//std::string path("bla");
-//switch(cs.get_bc()){
-//case -1:{path += "A/";}break;
-//case 0: {path += "O/";}break;
-//case 1: {path += "P/";}break;
-//default:{std::cerr<<"Unknown boundary condition"<<std::endl;}
-//}
-//Linux command;
-//command("mkdir -p " + path);
-//return path;
-//}
+std::string init(CreateSystem const& cs){
+	std::string path("N"+tostring(cs.get_system().get_N())+"/m"+tostring(cs.get_system().get_m())+"/n"+tostring(cs.get_system().get_n())+"/");
+	switch(cs.get_system().get_bc()){
+		case -1:{path += "A/";}break;
+		case 0: {path += "O/";}break;
+		case 1: {path += "P/";}break;
+		default:{std::cerr<<"Unknown boundary condition"<<std::endl;}
+	}
+	Linux command;
+	command("mkdir -p " + path);
+	return path;
+}
 
 template<typename Type>
 void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax, unsigned int const& type){
@@ -64,6 +56,7 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 	rst.set();
 	cs.save(results);
 	rst.title("Results","-");
+	results.add_to_header(rst.get());
 
 
 	std::cout<<"ok"<<std::endl;
@@ -71,7 +64,8 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 	DataSet<double> corr;
 	DataSet<double> long_range_corr;
 	E.set_conv(true);
-	//corr.set(GS->get_n(),true);
+	std::cout<<"will need to correct that"<<std::endl;
+	corr.set(36,true);
 	//if(type == 2){
 	//long_range_corr.set(GS->get_n()/3,true);
 	//}
@@ -92,8 +86,11 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 		}
 		delete S;
 	}
+	E.complete_analysis();
+	corr.complete_analysis();
+	long_range_corr.complete_analysis();
 	rst.set();
-	rst.title("Mean results (status>2)","-");
+	rst.title("Mean results","-");
 	results.add_to_header(rst.get());
 	results("energy per site",E);
 	results("correlation on links",corr);

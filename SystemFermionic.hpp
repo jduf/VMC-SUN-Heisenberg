@@ -8,7 +8,6 @@ template<typename Type>
 class SystemFermionic : public MCSystem<Type>, Fermionic<Type>{
 	public:
 		SystemFermionic(CreateSystem const& cs, unsigned int const& type);
-		SystemFermionic();
 		~SystemFermionic();
 
 		/*!Set row and new_ev*/
@@ -32,8 +31,6 @@ class SystemFermionic : public MCSystem<Type>, Fermionic<Type>{
 		 */ //}
 		void update();
 
-		void set(CreateSystem const& cs, unsigned int const& type);
-
 	private:
 		/*!Forbids copy constructor*/
 		SystemFermionic(SystemFermionic const& S);
@@ -53,23 +50,19 @@ class SystemFermionic : public MCSystem<Type>, Fermionic<Type>{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-SystemFermionic<Type>::SystemFermionic(CreateSystem const& cs, unsigned int const& type){
-	set(cs,type);
+SystemFermionic<Type>::SystemFermionic(CreateSystem const& cs, unsigned int const& type):
+	MCSystem<Type>(cs.get_system(),type),
+	Fermionic<Type>(cs.get_fermionic<Type>())
+{
 	std::cout<<"ok normal SystemFermionic"<<std::endl;
 }
 
 template<typename Type>
-SystemFermionic<Type>::SystemFermionic(){
-	std::cout<<"ok default SystemFermionic"<<std::endl;
-}
-
-template<typename Type>
 void SystemFermionic<Type>::init(){
+	std::cout<<this->N_<<" "<<this->n_<<" "<<this->M_<<" "<<this->m_<<std::endl;
 	std::cout<<"SystemFermionic init"<<std::endl;
 	Ainv_ = new Matrix<Type>[this->N_];
-	for(unsigned int i(0); i < this->N_; i++){
-		Ainv_[i].set(this->M_,this->M_);
-	}
+	for(unsigned int i(0); i < this->N_; i++){ Ainv_[i].set(this->M_,this->M_); }
 	tmp_.set(this->M_,this->M_);
 	row_.set(this->n_,this->m_);
 
@@ -127,23 +120,6 @@ SystemFermionic<Type>::~SystemFermionic(){
 
 /*methods that modify the class*/
 /*{*/
-template<typename Type>
-void SystemFermionic<Type>::set(CreateSystem const& cs, unsigned int const& type){ 
-	std::cout<<"SystemFermionic::set called"<<std::endl;
-	/*init Fermionic*/
-	this->EVec_ = (cs.get<Type>())->get_EVec();
-	/*init MCSystem*/
-	this->type_ = type;
-	/*init System*/
-	this->n_ = (cs.get<Type>())->get_n();
-	this->N_ = (cs.get<Type>())->get_N();
-	this->m_ = (cs.get<Type>())->get_m();
-	this->M_ = (cs.get<Type>())->get_M();
-	this->bc_ = (cs.get<Type>())->get_bc();
-
-	std::cout<<this->n_<<" "<<this->N_<<" "<<this->M_<<" "<<this->bc_<<std::endl;
-}
-
 template<typename Type>
 void SystemFermionic<Type>::update(){
 	MCSystem<Type>::update();
