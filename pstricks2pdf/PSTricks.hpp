@@ -1,7 +1,6 @@
 #ifndef DEF_PSTRICKS
 #define DEF_PSTRICKS
 
-#include "IOFiles.hpp"
 #include "Linux.hpp"
 #include "Matrix.hpp"
 #include "Vector.hpp"

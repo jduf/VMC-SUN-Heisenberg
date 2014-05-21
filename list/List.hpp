@@ -1,5 +1,5 @@
-#ifndef DEF_List
-#define DEF_List
+#ifndef DEF_LIST
+#define DEF_LIST
 
 #include<iostream>
 
@@ -8,20 +8,26 @@ class List{
 	public:
 		List();
 		List(Type const& t);
+		List(List<Type> const& l);
 		~List();
 
-		Type operator[](unsigned int i) const;
+		Type operator[](unsigned int idx) const;
 
 		unsigned int size() const { return N_;}
-		void append(Type const& t);
+		Type get() const { return t_; }
 
-		void remove(unsigned int i);
+		void append(Type const& t);
+		void pop();
+		void remove(unsigned int idx);
+
+		List<Type> sublist(unsigned int a, unsigned int b) const;
+		void print(std::ostream& flux) const;
 
 	protected:
-		List(Type const& t, unsigned int N);
-		
 		Type t_;
-		List* next_;
+		List<Type>* previous_;
+		List<Type>* next_;
+		List<Type>* last_;
 		unsigned int N_;
 };
 
@@ -32,30 +38,44 @@ std::ostream& operator<<(std::ostream& flux, List<Type> const& l);
 /*{*/
 template<typename Type>
 List<Type>::List():
-	next_(0),
+	previous_(NULL),
+	next_(NULL),
+	last_(this),
 	N_(0)
-{ }
+{}
 
 template<typename Type>
 List<Type>::List(Type const& t):
 	t_(t),
-	next_(0),
+	previous_(NULL),
+	next_(NULL),
+	last_(this),
 	N_(1)
-{ }
-
-template<typename Type>
-List<Type>::List(Type const& t, unsigned int N):
-	t_(t),
-	next_(0),
-	N_(N)
 {}
 
 template<typename Type>
+List<Type>::List(List<Type> const& l):
+	t_(l.t_),
+	previous_(NULL),
+	next_(NULL),
+	last_(this),
+	N_(1)
+{ 
+	std::cout<<"copy constructor"<<std::endl;
+	if(l.N_>1){
+		List<Type> const* tmp(l.next_);
+		while(tmp){
+			append(tmp->t_);
+			tmp = tmp->next_;
+		}
+	}
+}
+
+template<typename Type>
 List<Type>::~List(){ 
-	//std::cout<<"kill"<<t_<<" "<<N_<<std::endl;
 	if(this->next_){
 		delete this->next_;
-		this->next_ = 0;
+		this->next_ = NULL;
 	}
 }
 /*}*/
@@ -64,62 +84,92 @@ List<Type>::~List(){
 /*{*/
 template<typename Type>
 std::ostream& operator<<(std::ostream& flux, List<Type> const& l){
-	for(unsigned int i(0); i<l.size();i++){
-		flux<<l[i]<<" ";
-	}
+	l.print(flux);
 	return flux;
 }
 
-
 template<typename Type>
-Type List<Type>::operator[](unsigned int i) const{
-	if(i != 0){
-		return (*next_)[--i];
-	} else {
-		return t_;
-	}
+Type List<Type>::operator[](unsigned int idx) const{
+	List<Type> const* tmp(this);
+	for(unsigned int i(0);i<idx;i++){ tmp = tmp->next_;}
+	return tmp->t_;
 }
 /*}*/
 
-/*methods*/
+/*methods that modify the class*/
 /*{*/
 template<typename Type>
 void List<Type>::append(Type const& t){
-	if(N_== 0){
+	if(N_==0){
 		t_ = t;
 	} else {
-		if(next_){
-			next_->append(t);
-		} else {
-			next_ = new List(t,N_);
-		}
+		last_->next_ = new List<Type>(t);
+		last_->next_->previous_ = last_;		
+		last_ = last_->next_;
 	}
 	N_++;
 }
 
 template<typename Type>
-void List<Type>::remove(unsigned int i){
+void List<Type>::pop(){
+	List<Type>* tmp(last_);
+	last_ = last_->previous_;
+	last_->next_ = NULL;
 	N_--;
-	if(i<2){
-		if(this->next_){
-			if(next_->next_){
-				List* tmp(next_->next_);
-				next_->next_ = 0;
-				if(i==0){ this->t_ = next_->t_; }
-				delete this->next_;
-				this->next_ = tmp;
-			} else {
-				delete this->next_;
-				this->next_ = NULL;
-			}
-		}
-		/*!\warning the senario where i remove the first and only entry may not
-		 * be correctly handled*/
-	} else { 
-		next_->remove(--i); 
-	}
+	delete tmp;
+}
 
+template<typename Type>
+void List<Type>::remove(unsigned int idx){
+	if(idx==0){
+		//if(N_!=1){ t_ = next_->t_; remove(1); }
+		if(N_!=1){ 
+			t_ = next_->t_; 
+			List<Type>* tmp(next_);
+			next_=tmp->next_;
+			tmp->next_=NULL;
+			delete tmp;
+		}
+		N_--;
+	} else {
+		if(idx!=N_-1){
+			List<Type>* tmp(this);
+			for(unsigned int i(0);i<idx;i++){ tmp = tmp->next_; }
+			List<Type>* next(tmp->next_);
+			List<Type>* previous(tmp->previous_);
+			tmp->next_ = NULL;
+			delete tmp;
+			previous->next_ = next;
+			next->previous_ = previous;
+			N_--;
+		} else {
+			pop();
+		}
+	}
 }
 /*}*/
 
+/*methods that return something*/
+/*{*/
+template<typename Type>
+List<Type> List<Type>::sublist(unsigned int a, unsigned int b) const {
+	List<Type> const* tmp(this);
+	for(unsigned int i(0);i<a;i++){ tmp = tmp->next_; }
+	List<Type> l(tmp->t_);
+	for(unsigned int i(0);i<b-a;i++){
+		tmp = tmp->next_; 
+		l.append(tmp->t_);
+	}
+	return l;
+}
+
+template<typename Type>
+void List<Type>::print(std::ostream& flux) const {
+	List<Type> const* tmp(this);
+	while(tmp){
+		flux<<tmp->get()<<" "; 
+		tmp = tmp->next_;
+	}
+}
+/*}*/
 #endif

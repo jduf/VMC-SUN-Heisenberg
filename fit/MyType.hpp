@@ -1,1 +1,0 @@
-../mytype/MyType.hpp

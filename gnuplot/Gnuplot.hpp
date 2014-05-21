@@ -6,7 +6,7 @@
 
 class Gnuplot {
 	public:
-		Gnuplot(std::string path, std::string filename);
+		Gnuplot(std::string const&  path, std::string const& filename);
 		~Gnuplot();
 
 		void operator=(std::string const& s){ plot_ = s + "\n"; }

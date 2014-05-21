@@ -1,7 +1,9 @@
 #ifndef DEF_MATRIX
 #define DEF_MATRIX
 
-#include "MyType.hpp"
+#include <cmath> //allow abs(double) and abs(complex) 
+#include <cassert>
+#include "IOFiles.hpp"
 
 /*{!Class that implement a static array as a Matrix
  *
@@ -9,7 +11,7 @@
  * - can be loaded with Read.hpp 
  }*/
 template<typename Type>
-class Matrix:public MyType<Type>{
+class Matrix{
 	public:
 		/*!Default constructor that initializes *m to NULL and N to 0*/
 		Matrix();
@@ -87,11 +89,7 @@ class Matrix:public MyType<Type>{
 		/*return the maximum value of the matrix*/
 		Type max() const;
 
-		void write_in_stream(std::ostream& flux) const;
-		void read_from_stream(std::istream& flux);
 #ifdef DEF_IOFILES
-		void write_in_file(IOFiles& w) const;
-		void read_from_file(IOFiles& r);
 		void header_rst(std::string const& s, RST& rst) const;
 #endif
 
@@ -164,43 +162,58 @@ Matrix<Type>::~Matrix(){
 /*i/o methods*/
 /*{*/
 template<typename Type>
-void Matrix<Type>::write_in_stream(std::ostream& flux) const {
-	for(unsigned int i(0);i<row_;i++){
-		for(unsigned int j(0);j<col_;j++){ flux<<m_[i+j*row_]<<" "; }
-		if(i+1 != row_){flux<<std::endl; }
+std::ostream& operator<<(std::ostream& flux, Matrix<Type> const& m){
+	for(unsigned int i(0);i<m.row();i++){
+		for(unsigned int j(0);j<m.col();j++){
+			flux<<m(i,j)<<" "; 
+		}
+		if(i+1 != m.row()){flux<<std::endl; }
 	}
+	return flux;
 }
 
 template<typename Type>
-void Matrix<Type>::read_from_stream(std::istream& flux){
-	for(unsigned int i(0);i<row_;i++){
-		for(unsigned int j(0);j<col_;j++){ flux>>m_[i+j*row_]; }
+std::istream& operator>>(std::istream& flux, Matrix<Type> const& m){
+	unsigned int row(m.row());
+	for(unsigned int i(0);i<row;i++){
+		for(unsigned int j(0);j<m.col();j++){ 
+			flux>>m.ptr()[i+j*row]; 
+		}
 	}
+	return flux;
 }
 
 #ifdef DEF_IOFILES
 template<typename Type>
-void Matrix<Type>::write_in_file(IOFiles& w) const {
-	w.write(row_);
-	w.write(col_);
-	w.write(m_,size_);
+void Matrix<Type>::header_rst(std::string const& s, RST& rst) const {
+	rst.def(s,tostring(m_[0])); 
 }
 
 template<typename Type>
-void Matrix<Type>::read_from_file(IOFiles& r) {
-	unsigned int row(0);
-	unsigned int col(0);
-	r.read(row);
-	r.read(col);
-	if(row != row_ || col != col_) {set(row,col,0);} 
-	r.read(m_,size_);
+IOFiles& operator<<(IOFiles& w, Matrix<Type> const& m){
+	if(w.is_binary()){
+		w<<m.row()<<m.col();
+		w.write(m.ptr(),m.size(),sizeof(Type));
+	} else {
+		w.stream()<<m;
+	}
+	return w;
 }
 
 template<typename Type>
-void Matrix<Type>::header_rst(std::string const& s, RST& rst) const{
-	rst.def(s + "(" + tostring(row_) + "x" + tostring(col_)+ ")","Matrix");
+IOFiles& operator>>(IOFiles& r, Matrix<Type>& m){
+	if(r.is_binary()){
+		unsigned int row(0);
+		unsigned int col(0);
+		r>>row>>col;
+		if(row != m.row() || col != m.col()) {m.set(row,col);} 
+		r.read(m.ptr(),m.size(),sizeof(Type));
+	} else {
+		r.stream()>>m;
+	}
+	return r;
 }
-#endif
+#endif 
 /*}*/
 
 /*arithmetic operators*/
@@ -487,4 +500,30 @@ Type Matrix<Type>::max() const {
 	return m;
 }
 /*}*/
+
+/*double real(T)*/
+/*{*/
+inline double real(double const& x){ return x; }
+
+inline double real(std::complex<double> const& x){ return std::real(x); }
+/*}*/
+
+/*double imag(T)*/
+/*{*/
+inline double imag(double const& x){ return x; }
+
+inline double imag(std::complex<double> const& x){ return std::imag(x); }
+/*}*/
+
+/*double norm_squared(T)*/
+/*{*/
+inline double norm_squared(double x){
+	return x*x;
+}
+
+inline double norm_squared(std::complex<double> x){
+	return std::norm(x);
+}
+/*}*/
+
 #endif

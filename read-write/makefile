@@ -1,4 +1,4 @@
-EXEC=test
+EXEC=
 
 test_SRCS=test.cpp Read.cpp Header.cpp RST.cpp Write.cpp
 

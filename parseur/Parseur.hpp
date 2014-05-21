@@ -1,10 +1,7 @@
 #ifndef DEF_PARSEUR
 #define DEF_PARSEUR
 
-#include <string>
-#include <sstream>
 #include <vector>
-
 #include "Vector.hpp"
 
 class Parseur{
@@ -126,9 +123,7 @@ void Parseur::set(unsigned int i, Vector<Type> &input){
 	sd>>d;
 	unsigned int n((b-a)/d+1);
 	input.set(n);
-	for(unsigned int j(0);j<n;j++){
-		input(j) = a+j*d;
-	}
+	for(unsigned int j(0);j<n;j++){ input(j) = a+j*d; }
 	used[i] = true;
 }
 #endif

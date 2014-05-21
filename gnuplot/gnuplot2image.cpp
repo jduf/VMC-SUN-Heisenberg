@@ -12,14 +12,9 @@ int main(int argc,char* argv[]){
 		const std::string ext(".gp");
 		if ( filename != ext && filename.size() > ext.size() && filename.substr(filename.size() - ext.size()) == ".gp" ) {
 			filename = filename.substr(0, filename.size() - ext.size());
-			std::string path;
-			if(filename[0] != '/'){
-				Linux c;
-				path = c.pwd();
-			}
+			std::string path("");
 
 			std::vector<std::string> tmp(string_split(path+filename,'/'));
-			path = "";
 			for(unsigned int i(0);i<tmp.size()-1;i++){ path += tmp[i] + "/"; }
 			filename = tmp[tmp.size()-1];
 

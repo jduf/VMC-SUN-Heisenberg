@@ -3,7 +3,7 @@
 
 #include "Time.hpp"
 #include "RST.hpp"
-#include "MyType.hpp"
+#include <complex>
 
 class Header:public RST{
 	public:
@@ -20,7 +20,7 @@ class Header:public RST{
 		void add(std::string const& s, std::string const& d);
 		void add(std::string const& s, std::complex<double> const& d);
 		template<typename Type>
-			void add(std::string const& s, MyType<Type> const& t);
+			void add(std::string const& s, Type const& t);
 
 	private:
 		std::string when();
@@ -29,7 +29,7 @@ class Header:public RST{
 std::ostream& operator<<(std::ostream& flux, Header const& h);
 
 template<typename Type>
-void Header::add(std::string const& s, MyType<Type> const& t){
+void Header::add(std::string const& s, Type const& t){
 	t.header_rst(s,(*this));
 }
 #endif

@@ -1,10 +1,15 @@
 #include "Gnuplot.hpp"
 
-Gnuplot::Gnuplot(std::string path, std::string filename):
+Gnuplot::Gnuplot(std::string const& path, std::string const& filename):
 	path_(path),
 	filename_(filename),
 	plot_("")
-{}
+{
+	if(path_[0] != '/'){
+		Linux c;
+		path_ = c.pwd() + path_;
+	}
+}
 
 Gnuplot::~Gnuplot(){}
 
@@ -30,6 +35,6 @@ void Gnuplot::create_image(bool silent){
 		command("mv /tmp/" + tmp + ".pdf " + path_ + filename_ + ".pdf");
 		command("rm /tmp/" + tmp + "*");
 	} else {
-		std::cerr<<"Gnuplot::create_image : can't create const& a plot"<<std::endl;
+		std::cerr<<"Gnuplot::create_image : can't create a plot"<<std::endl;
 	}
 }

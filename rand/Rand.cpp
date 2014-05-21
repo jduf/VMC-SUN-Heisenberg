@@ -106,7 +106,6 @@ Rand::Rand(int len) {
 		int i, j, k, l, m;
 		int ii, jj;
 
-
 		if (ij < 0 || ij > 31328){ stop("ranmar: 1st seed must be between 0 and 31328\n");}
 		if (kl < 0 || kl > 30081){ stop("ranmar: 1st seed must be between 0 and 30081\n");}
 		if (len < 0){ stop("ranmar: len < 0");}

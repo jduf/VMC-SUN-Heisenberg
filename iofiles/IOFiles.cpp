@@ -58,10 +58,10 @@ void IOFiles::open_txt(){
 void IOFiles::read_header(){
 	unsigned int N(0);
 	file_.seekg(-sizeof(unsigned int),std::ios::end);
-	read(N);
+	file_.read((char*)(&N),sizeof(unsigned int));
 	char* h(new char[N+1]);
 	file_.seekg(-sizeof(char)*N-sizeof(unsigned int),std::ios::end);
-	read(h,N);
+	file_.read(h,N);
 	h[N] = '\0';
 	h_->set(h);
 	delete[] h;
@@ -71,35 +71,32 @@ void IOFiles::read_header(){
 void IOFiles::write_header(){
 	std::string t(h_->get());
 	unsigned int N(t.size());
-	write(t.c_str(),t.size());
-	write(N);
+	file_.write(t.c_str(),N);
+	file_.write((char*)(&N),sizeof(unsigned int));
 }
 
 void IOFiles::read_string(std::string& t){
 	if(open_ && !write_){
 		if (binary_){
 			unsigned int N(0);
-			read(N);
+			file_.write((char*)(&N),sizeof(unsigned int));
 			char* tmp(new char[N+1]);
-			read(tmp,N);
+			file_.read(tmp,N);
 			tmp[N] = '\0';
 			t = tmp;
 			delete[] tmp;
-		} else {file_>>t;}
+		} else { file_>>t; }
 	} else {
 		std::cerr<<"IOFiles::read_basic_type(string) : can't read from "<<filename_<<std::endl;
 	}
 }
 
-void IOFiles::write_string(std::string const& t){
+void IOFiles::write_string(const char* t, unsigned int const& N){
 	if(open_ && write_){
 		if (binary_){
-			unsigned int N(t.size());
-			write(N);
-			write(t.c_str(),t.size());
-		} else {
-			file_<<t;
-		}
+			file_.write((char*)(&N),sizeof(unsigned int));
+			file_.write(t,N);
+		} else { file_<<t; }
 	} else {
 		std::cerr<<"IOFiles::write_basic_type(string) : can't write in "<<filename_<<std::endl;
 	}

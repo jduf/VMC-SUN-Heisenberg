@@ -3,6 +3,7 @@
 
 #include "Header.hpp"
 #include <fstream>
+#include <cstring>
 
 /*{Description*/
 /*!Class that allows to read/write datas from/in a binary or a text file.
@@ -25,38 +26,30 @@ class IOFiles{
 
 		/*!Stream operator forall types 
 		 * \warning doesn't work if Type=std::string */
-		template<typename Type>
-			IOFiles& operator>>(MyType<Type>& t);
-		IOFiles& operator>>(double& t){read_basic_type(t); return (*this);}
-		IOFiles& operator>>(std::complex<double>& t){read_basic_type(t); return (*this);}
-		IOFiles& operator>>(int& t){read_basic_type(t); return (*this);}
-		IOFiles& operator>>(unsigned int& t){read_basic_type(t); return (*this);}
-		IOFiles& operator>>(bool & t){read_basic_type(t); return (*this);}
+		IOFiles& operator>>(double& t){read(&t,1,sizeof(double)); return (*this);}
+		IOFiles& operator>>(std::complex<double>& t){read(&t,1,sizeof(std::complex<double>)); return (*this);}
+		IOFiles& operator>>(int& t){read(&t,1,sizeof(int)); return (*this);}
+		IOFiles& operator>>(unsigned int& t){read(&t,1,sizeof(unsigned int)); return (*this);}
+		IOFiles& operator>>(bool & t){read(&t,1,sizeof(bool)); return (*this);}
 		IOFiles& operator>>(std::string& t){read_string(t); return (*this);}
 
-		template<typename Type>
-			IOFiles& operator<<(MyType<Type> const& t);
-		IOFiles& operator<<(double const& t){write_basic_type(t); return (*this);}
-		IOFiles& operator<<(std::complex<double> const& t){write_basic_type(t); return (*this);}
-		IOFiles& operator<<(int const& t){write_basic_type(t); return (*this);}
-		IOFiles& operator<<(unsigned int const& t){write_basic_type(t); return (*this);}
-		IOFiles& operator<<(bool const& t){write_basic_type(t); return (*this);}
-		IOFiles& operator<<(std::string const& t){
-			write_string(t); return (*this);}
+		IOFiles& operator<<(double const& t){write(&t,1,sizeof(double)); return (*this);}
+		IOFiles& operator<<(std::complex<double> const& t){write(&t,1,sizeof(std::complex<double>)); return (*this);}
+		IOFiles& operator<<(int const& t){write(&t,1,sizeof(int)); return (*this);}
+		IOFiles& operator<<(unsigned int const& t){write(&t,1,sizeof(unsigned int)); return (*this);}
+		IOFiles& operator<<(bool const& t){write(&t,1,sizeof(bool)); return (*this);}
+		IOFiles& operator<<(const char* t){write_string(t,std::strlen(t)); return (*this);}
+		IOFiles& operator<<(std::string const& t){write_string(t.c_str(),t.size()); return (*this);}
 
 		template<typename Type>
-			void read(Type* m, unsigned int const& N);
+			void read(Type* m, unsigned int const& N, size_t const& type_size);
 		template<typename Type>
-			void read(Type& m);
-
-		template<typename Type>
-			void write(Type* m, unsigned int const& N);
-		template<typename Type>
-			void write(Type const& m);
-
+			void write(Type* m, unsigned int const& N, size_t const& type_size);
 		template<typename Type>
 			void operator()(std::string const& var, Type const& val);
 
+		/*!Returns file_*/
+		std::fstream& stream(){ return file_;}
 		/*!Returns true if the file is open as a binary file*/
 		bool is_binary() const {return binary_;}
 		/*!Returns true if the file is open*/
@@ -66,6 +59,7 @@ class IOFiles{
 
 		/*!Returns the header contained in the file*/
 		std::string get_header() const;
+		/*!Add string to header*/
 		void add_to_header(std::string const& s);
 
 		static std::string endl; //!<Gives a way to end lines
@@ -88,13 +82,9 @@ class IOFiles{
 		/*!Write the header*/
 		void write_header();
 
-		template<typename Type>
-			void read_basic_type(Type& t);
-		template<typename Type>
-			void write_basic_type(Type const& t);
-
+		/*!read string*/
 		void read_string(std::string& t);
-		void write_string(std::string const& t);
+		void write_string(const char* t, unsigned int const& N);
 
 		std::string filename_;	//!< name of the file to read from
 		bool write_;
@@ -105,65 +95,23 @@ class IOFiles{
 };
 
 template<typename Type>
-IOFiles& IOFiles::operator>>(MyType<Type>& t){
+void IOFiles::read(Type* t, unsigned int const& N, size_t const& type_size){
 	if(open_ && !write_){
-		if(binary_){ t.read_from_file(*this);}
-		else{file_>>t;}
+		if (binary_){ file_.read((char*)(t),N*type_size); }
+		else { file_>>*t; }
 	} else {
-		std::cerr<<"IOFiles::operator>>(MyType<Type>) : can't read from "<<filename_<<std::endl;
+		std::cerr<<"IOFiles::read(Type*,unsigned int,size_t) : can't read from "<<filename_<<std::endl;
 	}
-	return (*this);
 }
 
 template<typename Type>
-IOFiles& IOFiles::operator<<(MyType<Type> const& t){
+void IOFiles::write(Type* t, unsigned int const& N, size_t const& type_size){
 	if(open_ && write_){
-		if(binary_){t.write_in_file(*this);}
-		else{file_<<t<<std::flush;}
+		if (binary_){ file_.write((char*)(t),N*type_size); }
+		else {file_<<*t;}
 	} else {
-		std::cerr<<"IOFiles::operator<<(MyType<Type>) : can't write in "<<filename_<<std::endl;
+		std::cerr<<"IOFiles::write(Type*,unsigned int,size_t) : can't write in "<<filename_<<std::endl;
 	}
-	return (*this);
-}
-
-template<typename Type>
-void IOFiles::read_basic_type(Type& t){
-	if(open_ && !write_){
-		if (binary_){read(t);}
-		else {file_>>t;}
-	} else {
-		std::cerr<<"IOFiles::read_basic_type(Type) : can't read from "<<filename_<<std::endl;
-	}
-}
-
-template<typename Type>
-void IOFiles::write_basic_type(Type const& t){
-	if(open_ && write_){
-		if (binary_){write(t);}
-		else {file_<<t;}
-	} else {
-		std::cerr<<"IOFiles::write_basic_type(Type) : can't write in "<<filename_<<std::endl;
-	}
-}
-
-template<typename Type>
-void IOFiles::read(Type* m, unsigned int const& N){
-	file_.read((char*)(m),N*sizeof(Type));
-}
-
-template<typename Type>
-void IOFiles::write(Type* m, unsigned int const& N){
-	file_.write((char*)(m),N*sizeof(Type));
-}
-
-template<typename Type>
-void IOFiles::read(Type& m){
-	file_.read((char*)(&m),sizeof(Type));
-}
-
-template<typename Type>
-void IOFiles::write(Type const& m){
-	file_.write((char *)(&m),sizeof(Type));
 }
 
 template<typename Type>

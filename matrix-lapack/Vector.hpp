@@ -1,7 +1,9 @@
 #ifndef DEF_VECTOR
 #define DEF_VECTOR
 
-#include "MyType.hpp"
+#include <cmath> //allow abs(double) and abs(complex) 
+#include <cassert>
+#include "IOFiles.hpp"
 
 /*{!Class that implement a static array as a Vector
  *
@@ -9,7 +11,7 @@
  * - can be loaded with Read.hpp 
  }*/
 template<typename Type>
-class Vector:public MyType<Type>{
+class Vector{
 	public:
 		/*!Default constructor that initializes *m to NULL and N to 0*/
 		Vector();
@@ -51,7 +53,6 @@ class Vector:public MyType<Type>{
 		Vector<Type>& operator*=(Type const& d);
 		Vector<Type> operator*(Type const& d) const;
 
-
 		/*!Set the vector to 0*/
 		void set();
 		/*!Set the whole Vector to val*/
@@ -70,6 +71,7 @@ class Vector:public MyType<Type>{
 		Vector<Type> sort(Vector<unsigned int> const& index) const;
 		bool is_sorted() const;
 		Type mean() const;
+		Type variance() const;
 		Type max() const;
 		Type min() const;
 
@@ -78,11 +80,7 @@ class Vector:public MyType<Type>{
 		/*!Returns the pointer to the Vector*/
 		Type* ptr() const {return m_;}
 
-		void write_in_stream(std::ostream& flux) const;
-		void read_from_stream(std::istream& flux);
 #ifdef DEF_IOFILES
-		void write_in_file(IOFiles& w) const;
-		void read_from_file(IOFiles& r);
 		void header_rst(std::string const& s, RST& rst) const;
 #endif
 
@@ -132,35 +130,51 @@ Vector<Type>::~Vector(){
 /*i/o methods*/
 /*{*/
 template<typename Type>
-void Vector<Type>::write_in_stream(std::ostream& flux) const {
-	for(unsigned int i(0);i<size_;i++){ flux<<m_[i]<<" "; }
+std::ostream& operator<<(std::ostream& flux, Vector<Type> const& v){
+	for(unsigned int i(0);i<v.size();i++){
+		flux<<v(i)<<" "; 
+	}
+	return flux;
 }
 
 template<typename Type>
-void Vector<Type>::read_from_stream(std::istream& flux){
-	for(unsigned int i(0);i<size_;i++){ flux>>m_[i]; }
+std::istream& operator>>(std::istream& flux, Vector<Type> const& v){
+	for(unsigned int i(0);i<v.size();i++){
+		flux>>v.ptr()[i]; 
+	}
+	return flux;
 }
 
 #ifdef DEF_IOFILES
 template<typename Type>
-void Vector<Type>::write_in_file(IOFiles& w) const {
-	w.write(size_);
-	w.write(m_,size_);
+void Vector<Type>::header_rst(std::string const& s, RST& rst) const {
+	rst.def(s,tostring(m_[0])); 
 }
 
 template<typename Type>
-void Vector<Type>::read_from_file(IOFiles& r) {
-	unsigned int N(0);
-	r.read(N);
-	if(N != size_) {set(N);} 
-	r.read(m_,size_);
+IOFiles& operator<<(IOFiles& w, Vector<Type> const& v){
+	if(w.is_binary()){
+		w<<v.size();
+		w.write(v.ptr(),v.size(),sizeof(Type));
+	} else {
+		w.stream()<<v;
+	}
+	return w;
 }
 
 template<typename Type>
-void Vector<Type>::header_rst(std::string const& s, RST& rst) const{
-	rst.def(s + "(" + tostring(size_) + ")","Vector");
+IOFiles& operator>>(IOFiles& r, Vector<Type>& v){
+	if(r.is_binary()){
+		unsigned int size(0);
+		r>>size;
+		if(size != v.size()) {v.set(size);} 
+		r.read(v.ptr(),v.size(),sizeof(Type));
+	} else {
+		r.stream()>>v;
+	}
+	return r;
 }
-#endif
+#endif 
 /*}*/
 
 /*operators*/
@@ -332,13 +346,18 @@ Type Vector<Type>::max() const {
 
 template<typename Type>
 Type Vector<Type>::mean() const {
-	double m(0);
-	for(unsigned int i(0);i<size_;i++){
-		m+=m_[i];
-	}
+	double m(0.0);
+	for(unsigned int i(0);i<size_;i++){ m+=m_[i]; }
 	return m/size_;
 }
 
+template<typename Type>
+Type Vector<Type>::variance() const {
+	double m(mean());
+	double v(0.0);
+	for(unsigned int i(0);i<size_;i++){ v+=(m_[i]-m)*(m_[i]-m); }
+	return v/size_;
+}
 /*Sort*/
 /*{*/
 template<typename Type>
