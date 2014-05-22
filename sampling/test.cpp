@@ -1,4 +1,4 @@
-#include "SamplingSet.hpp"
+#include "Sampling.hpp"
 #include "Rand.hpp"
 #include<stdlib.h>
 #include<time.h>
@@ -24,7 +24,7 @@ void check_troyer(){
 	unsigned int const N(50);
 	unsigned int n(0);
 	unsigned int iter(0);
-	double tol(5e-5);
+	double tol(5e-4);
 	do{
 		iter++;
 		if(r.get(N)+1 <= n ){ n--; }/*because 0<=r.get(N)<N */
@@ -35,10 +35,10 @@ void check_troyer(){
 	unsigned int b(5);
 
 	Vector<double> H_wrong(N+1,0);
-	CorrelatedSamplesSet<double> H_right;
-	H_right.set(N+1,B,b);
+	DataSet<double> H_right;
+	H_right.set(N+1,B,b,true);
 	for( unsigned int i(0);i<N+1;i++){
-		H_right[i].plot("log"+tostring(i));
+		H_right[i].binning()->plot("log"+tostring(i));
 	}
 	iter=0;
 	do{
@@ -94,13 +94,13 @@ void check_flip_coin(){
 	unsigned int B(50);
 	unsigned int b(5);
 
-	double tol(0.5e-4);
+	double tol(5e-4);
 	double sup(0.0);
 	double diff(0.0);
 	double conv(0.0);
 
-	CorrelatedSamples<double> H;
-	H.set(B,b);
+	Data<double> H;
+	H.set(B,b,conv);
 	double xtot;
 	double x;
 	IOFiles w("coin.jdbin",true);
@@ -147,7 +147,7 @@ void check_flip_coin(){
 		else { std::cout<<"diff "<<std::abs(H.get_x()-xtot)<<" "<<H.get_x()<<" "<<xtot<<std::endl; }
 		if(H.get_conv()){ conv+=1.0;}
 		w<<H;
-		H.set(B,b);
+		H.set(B,b,true);
 	}
 	std::cout<<std::endl<<"=> probabilité x in [0:0.5] = "<<sup/N*100<<"%"<<std::endl;
 	std::cout<<"=> probabilité xtot==H.get_mean() = "<<diff/N*100<<"%"<<std::endl;
