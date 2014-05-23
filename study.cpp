@@ -3,7 +3,7 @@
 #include "Directory.hpp"
 #include "RSTFile.hpp"
 #include "Parseur.hpp"
-#include "SamplingSet.hpp"
+#include "Sampling.hpp"
 
 void build_rst(RSTFile& rst, std::string search_in, std::string info_dir, std::string analysis_dir, std::string info_name, std::string next_analysis_dir="");
 double extract_jdbin(std::string info_dir, std::string path, std::string filename, IOFiles* E_file=NULL);
@@ -167,19 +167,31 @@ void search_jdbin(std::string path, std::string info_dir, std::string analysis_d
 			rst.hyperlink(tostring(all_param(i)),all_links(i));
 		}
 
+		////if(d.size()>1){
+			////Gnuplot gp(analysis_dir,"Ep");
+			////gp+="set xlabel '$\\delta$' offset 0,1";
+			////gp+="set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1";
+			////gp+="stats 'runs.dat' u 5:6 name 'row' nooutput";
+			////gp+="stats 'runs.dat' u ($8 > 2?$5:1/0):($8 > 2?$6:1/0) name 'select' nooutput";
+			////gp+="stats 'mean.dat' u 5:6 name 'mean' nooutput";
+			////gp.xrange("row_min_x","row_max_x");
+			//////gp+="plot 'runs.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t '$N=" +tostring(N)+ "$ $m=" +tostring(m)+ "$ $n=" +tostring(n)+ "$ bc=" + BC + "',\\";
+			////gp+="plot 'runs.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t 'fix the title issue',\\";
+			//////gp+="     'mean.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t 'averaged over "+ tostring(nruns) + "',\\";
+			////gp+="     'mean.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t 'here too',\\";
+			////gp+="     mean_min_y w l t sprintf('min : (%3.4f,%3.4f)',mean_pos_min_y,mean_min_y)";
+			////gp.save_file();
+			////gp.create_image(true);
+			////rst.link_figure(analysis_dir+"Ep.png",analysis_dir+"Ep.png",analysis_dir+"Ep.gp",1000);
+		////}
 		if(d.size()>1){
 			Gnuplot gp(analysis_dir,"Ep");
 			gp+="set xlabel '$\\delta$' offset 0,1";
 			gp+="set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1";
-			gp+="stats 'runs.dat' u 5:6 name 'row' nooutput";
-			gp+="stats 'runs.dat' u ($8 > 2?$5:1/0):($8 > 2?$6:1/0) name 'select' nooutput";
-			gp+="stats 'mean.dat' u 5:6 name 'mean' nooutput";
-			gp.xrange("row_min_x","row_max_x");
-			//gp+="plot 'runs.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t '$N=" +tostring(N)+ "$ $m=" +tostring(m)+ "$ $n=" +tostring(n)+ "$ bc=" + BC + "',\\";
-			gp+="plot 'runs.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t 'fix the title issue',\\";
-			//gp+="     'mean.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t 'averaged over "+ tostring(nruns) + "',\\";
-			gp+="     'mean.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t 'here too',\\";
-			gp+="     mean_min_y w l t sprintf('min : (%3.4f,%3.4f)',mean_pos_min_y,mean_min_y)";
+			gp+="plot 'E.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t 'fix the title issue'";
+			//gp+="plot 'E.dat' u 5:(($6<select_max_y && $6>select_min_y)?$6:1/0):7 w e t 'fix the title issue',\\";
+			//gp+="plot for [IDX=0:"+tostring(nruns-1)+"] 'E.dat' i IDX u 1:($4==1?$2:1/0):3 w errorbars lt 1 lc 3 ps 0 notitle,\\";
+			//gp+="                   'E.dat' i " + tostring(nruns-1) + " IDX u 1:($4==1?$2:1/0):3 w errorbars lt 1 lc 1 ps 0 notitle,\\";
 			gp.save_file();
 			gp.create_image(true);
 			rst.link_figure(analysis_dir+"Ep.png",analysis_dir+"Ep.png",analysis_dir+"Ep.gp",1000);
@@ -188,6 +200,20 @@ void search_jdbin(std::string path, std::string info_dir, std::string analysis_d
 }
 
 void plot_corr(std::string path, std::string filename, unsigned int nruns, unsigned int N, unsigned int m, unsigned int n, std::string BC, double delta){
+	//Vector<double> poly_e(N/m,0);
+	//unsigned int i(0);
+	//while(i<corr.size()){
+		//for(unsigned int j(0);j<N/m;j++){
+			//poly_e(j) += corr(i);
+			//i++;
+		//}
+	//}
+	//poly_e /= n*m/N;
+	//poly_e.sort();
+	//gp+="set label '$\\Delta = "+tostring(poly_e(N/m-1)-poly_e(N/m-2))+"$' at 1,"+tostring((poly_e(N/m-1)+poly_e(N/m-2))/2.0);
+	//gp+="                   '"+filename+"-corr.dat' i " + tostring(nruns) + " u 1:2:3 w errorbars lt 1 lc 2 lw 2 notitle,\\";
+	//gp+=tostring(poly_e(N/m-1))+" lc 3 notitle, "+tostring(poly_e(N/m-2)) + " lc 3 notitle";
+
 	Gnuplot gp(path,filename+"-corr");
 	gp+="set xlabel 'site' offset 0,0.5";
 	gp+="set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$' offset 1";
@@ -255,18 +281,15 @@ double extract_jdbin(std::string info_dir, std::string path, std::string filenam
 
 		r>>type>>nruns>>ref>>N>>m>>n>>bc>>param;
 		for(unsigned int i(0);i<nruns+1;i++){//!< the +1 is the averages over all runs
-			r>>E>>corr;
+			r>>E>>corr>>long_range_corr;
 			for(unsigned int j(0);j<corr.size();j++){
 				corr_file<<j+0.5<<" "<<corr[j]<<IOFiles::endl;
 			}
 			corr_file<<IOFiles::endl<<IOFiles::endl;
-			if(type == 2){
-				r>>long_range_corr;
-				for(unsigned int j(0);j<long_range_corr.size();j++){
-					long_range_corr_file<<j+1<<" "<<long_range_corr[j]<<IOFiles::endl;
-				}
-				long_range_corr_file<<IOFiles::endl<<IOFiles::endl;
+			for(unsigned int j(0);j<long_range_corr.size();j++){
+				long_range_corr_file<<j+1<<" "<<long_range_corr[j]<<IOFiles::endl;
 			}
+			long_range_corr_file<<IOFiles::endl<<IOFiles::endl;
 			if(E_file){
 				(*E_file)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<param<<" "<<E<<IOFiles::endl;
 			}

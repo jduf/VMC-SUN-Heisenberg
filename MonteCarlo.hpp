@@ -55,7 +55,7 @@ class MonteCarlo{
 		 *
 		 * - convergence is reached
 		 * - time limit is up
-		 * - if the energy diverges
+		 * - kill=true
 		 *
 		 * If the E_ diverges, the simulation is restarted
 		 */
@@ -79,7 +79,7 @@ MonteCarlo<Type>::MonteCarlo(MCSystem<Type>* S, unsigned int tmax):
 	unsigned int thread(omp_get_thread_num());
 	rnd_ = new Rand(1e4,thread);
 	S_->init(thread);
-	if(S_->ready()){
+	if(S_->found_initial_state()){
 		double ratio(0.0);
 		for(unsigned int i(0);i<1e5;i++){
 			S_->swap();
@@ -88,7 +88,6 @@ MonteCarlo<Type>::MonteCarlo(MCSystem<Type>* S, unsigned int tmax):
 		}
 		S_->measure_new_step();
 	}
-	std::cout<<"ok MonteCarlo"<<std::endl;
 }
 
 template<typename Type>
@@ -101,13 +100,20 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*{*/
 template<typename Type>
 void MonteCarlo<Type>::run(){
-	std::cout<<S_->get_N()<<" "<<S_->get_n()<<std::endl;
-	if(S_->ready()){
+	if(S_->found_initial_state()){
 		do{next_step();}
-		while(keepon(5e-5));
+		while(keepon(1e-6));
 	}
-	S_->complete_analysis(5e-5);
-	std::cout<<"monteCarlo::run()"<<std::endl;
+	S_->complete_analysis(1e-6);
+}
+
+template<typename Type>
+void MonteCarlo<Type>::check(){
+	unsigned int i(0);
+	if(S_->found_initial_state()){/*passed the first two steps*/
+		do{ i++; next_step();}
+		while(keepon(1e-5));
+	}
 }
 /*}*/
 
@@ -126,21 +132,11 @@ void MonteCarlo<Type>::next_step(){
 template<typename Type>
 bool MonteCarlo<Type>::keepon(double const& tol){
 	if(time_.limit_reached(tmax_)){ return false; }
-	if(S_->is_converged(tol)){}
 	//if(std::abs(S_->get_energy())>1e2){ 
 		//std::cerr<<"Simulation diverges => is restarted"<<std::endl;
 		//S_->set();
 	//}
-	return true;
+	return !S_->is_converged(tol);
 }
 /*}*/
-
-template<typename Type>
-void MonteCarlo<Type>::check(){
-	unsigned int i(0);
-	if(S_->ready()){/*passed the first two steps*/
-		do{ i++; next_step();}
-		while(keepon(1e-5));
-	}
-}
 #endif

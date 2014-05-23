@@ -12,21 +12,24 @@ int main(int argc, char* argv[]){
 	unsigned int nruns(P.get<unsigned int>("nruns"));
 	unsigned int tmax(P.get<unsigned int>("tmax"));
 	CreateSystem cs(P);
-	std::string path("bla");
 	if(!P.status()){
-		//std::string path(init(cs));
+		std::string path(init(cs));
 		if(P.is_vector("param")){
 			Vector<double> param(P.get<Vector<double> >("param"));
 			for(unsigned int i(0);i<param.size();i++){
-				cs.create(param(i));
-				if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); } 
-				else { run<double>(cs,path,nruns,tmax,type); }
+				cs.create(param(i),type);
+				if(!cs.is_degenerate()){
+					if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); } 
+					else { run<double>(cs,path,nruns,tmax,type); }
+				}
 			}
 		} else {
 			double param(P.get<double>("param"));
-			cs.create(param);
-			if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); }
-			else { run<double>(cs,path,nruns,tmax,type); }
+			cs.create(param,type);
+			if(!cs.is_degenerate()){
+				if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); }
+				else { run<double>(cs,path,nruns,tmax,type); }
+			}
 		}
 	}
 }
@@ -46,8 +49,7 @@ std::string init(CreateSystem const& cs){
 
 template<typename Type>
 void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax, unsigned int const& type){
-	//IOFiles results(path+CS.get_filename()+".jdbin",true);
-	IOFiles results(path+"bla.jdbin",true);
+	IOFiles results(path+cs.get_filename()+".jdbin",true);
 	results("type of simulation",type);
 	results("number of simulations runned",nruns);
 	RST rst;
@@ -58,17 +60,15 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 	rst.title("Results","-");
 	results.add_to_header(rst.get());
 
-
-	std::cout<<"ok"<<std::endl;
 	Data<double> E;
 	DataSet<double> corr;
 	DataSet<double> long_range_corr;
 	E.set_conv(true);
 	std::cout<<"will need to correct that"<<std::endl;
-	corr.set(36,true);
-	//if(type == 2){
-	//long_range_corr.set(GS->get_n()/3,true);
-	//}
+	corr.set(cs.get_system().get_n());
+	if(type == 2){
+		long_range_corr.set(cs.get_system().get_n()/3);
+	}
 
 #pragma omp parallel for 
 	for(unsigned int i=0;i<nruns;i++){
@@ -86,9 +86,11 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 		}
 		delete S;
 	}
+
 	E.complete_analysis();
 	corr.complete_analysis();
-	long_range_corr.complete_analysis();
+		long_range_corr.complete_analysis();
+
 	rst.set();
 	rst.title("Mean results","-");
 	results.add_to_header(rst.get());

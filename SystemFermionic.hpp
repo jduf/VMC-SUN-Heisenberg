@@ -53,14 +53,10 @@ template<typename Type>
 SystemFermionic<Type>::SystemFermionic(CreateSystem const& cs, unsigned int const& type):
 	MCSystem<Type>(cs.get_system(),type),
 	Fermionic<Type>(cs.get_fermionic<Type>())
-{
-	std::cout<<"ok normal SystemFermionic"<<std::endl;
-}
+{}
 
 template<typename Type>
 void SystemFermionic<Type>::init(){
-	std::cout<<this->N_<<" "<<this->n_<<" "<<this->M_<<" "<<this->m_<<std::endl;
-	std::cout<<"SystemFermionic init"<<std::endl;
 	Ainv_ = new Matrix<Type>[this->N_];
 	for(unsigned int i(0); i < this->N_; i++){ Ainv_[i].set(this->M_,this->M_); }
 	tmp_.set(this->M_,this->M_);
@@ -104,12 +100,11 @@ void SystemFermionic<Type>::init(){
 		}
 	} while (!ipiv.ptr() && ++l<TRY_MAX);
 	if(l!=TRY_MAX){
-		this->ready_=true; /*2nd step successful*/
+		this->found_initial_state_=true; /*2nd step successful*/
 	} else {
 		std::cerr<<"No initial state found after "<<TRY_MAX<<"trials"<<std::endl;
-		this->ready_=false;
+		this->found_initial_state_=false;
 	}
-	std::cerr<<"SystemFermionic::init need to initialize only if non degenerate"<<std::endl;
 }
 
 template<typename Type>

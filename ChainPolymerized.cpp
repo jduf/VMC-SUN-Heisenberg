@@ -1,9 +1,8 @@
 #include"ChainPolymerized.hpp"
 
-ChainPolymerized::ChainPolymerized(unsigned int N, unsigned int n, unsigned int m, int bc):
-	Chain<double>(N,n,m,bc,"chain-polymerized")
+ChainPolymerized::ChainPolymerized(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
+	Chain<double>(N,n,m,bc,ref,"chain-polymerized")
 {
-	rst_.nl();
 	rst_.text("Spin chain, with different real hopping term.");
 	rst_.text("For N colors and m particules per sites, every");
 	rst_.text("N/m, there is a weaker bound, namely t-delta");
@@ -12,8 +11,7 @@ ChainPolymerized::ChainPolymerized(unsigned int N, unsigned int n, unsigned int 
 
 ChainPolymerized::~ChainPolymerized(){}
 
-bool ChainPolymerized::create(double delta){
-	filename_ += "-delta" + tostring(delta);
+void ChainPolymerized::create(double const& delta, unsigned int const& type){
 	delta_=delta;
 	T_.set(n_,n_,0);
 	EVec_.set(n_*N_,M_,0);
@@ -27,7 +25,6 @@ bool ChainPolymerized::create(double delta){
 			}
 		}
 	}
-	return !degenerate_;
 }
 
 void ChainPolymerized::compute_T(){

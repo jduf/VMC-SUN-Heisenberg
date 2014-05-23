@@ -1,15 +1,22 @@
 #include "SquarePiFlux.hpp"
 
-SquarePiFlux::SquarePiFlux(unsigned int N, unsigned int n, unsigned int m, int bc):
-	Square<std::complex<double> >(N,n,m,bc,"square-csl")
+SquarePiFlux::SquarePiFlux(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
+	Square<std::complex<double> >(N,n,m,bc,ref,"square-csl")
 {
 	rst_.text("Chiral spin liquid, with 2pi/N flux per plaquette");
 }
 
 SquarePiFlux::~SquarePiFlux(){}
 
-bool SquarePiFlux::create(double x){
+void SquarePiFlux::create(double const& x, unsigned int const& type){
 	std::cout<<"SquarePiFlux::create"<<x<<std::endl;
+	switch(type){
+		case 1:{}break;
+		default:{std::cerr<<"ChainFermi::create(x,type) : unknown type"<<std::endl;}
+	}
+	T_.set(n_,n_,0);
+	EVec_.set(n_*N_,M_,0);
+
 	compute_T();
 	diagonalize_T('H');
 	for(unsigned int spin(0);spin<N_;spin++){
@@ -19,7 +26,6 @@ bool SquarePiFlux::create(double x){
 			}
 		}
 	}
-	return !degenerate_;
 }
 
 void SquarePiFlux::compute_T(){

@@ -35,9 +35,7 @@ template<typename Type>
 SystemBosonic<Type>::SystemBosonic(CreateSystem const& cs, unsigned int const& type):
 	MCSystem<Type>(cs.get_system(),type),
 	Bosonic<Type>(cs.get_bosonic<Type>())
-{
-	std::cout<<"ok normal SystemBosonic"<<std::endl;
-}
+{}
 
 template<typename Type>
 void SystemBosonic<Type>::init(){

@@ -27,19 +27,13 @@ template<typename Type>
 Fermionic<Type>::Fermionic(Fermionic<Type> const& f):
 	T_(f.T_),
 	EVec_(f.EVec_)
-{
-	std::cout<<"ok normal Fermionic"<<std::endl;
-}
+{}
 
 template<typename Type>
-Fermionic<Type>::Fermionic() {
-	std::cout<<"ok default Fermionic"<<std::endl;
-}
+Fermionic<Type>::Fermionic(){}
 
 template<typename Type>
-Fermionic<Type>::~Fermionic(){
-	std::cout<<"~Fermionic"<<std::endl;
-}
+Fermionic<Type>::~Fermionic(){}
 /*}*/
 #endif
 

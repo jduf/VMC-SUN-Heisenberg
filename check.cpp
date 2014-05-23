@@ -11,7 +11,7 @@ int main(int argc, char* argv[]){
 		unsigned int type(P.get<unsigned int>(i));
 		double param(P.get<double>("param"));
 		unsigned int tmax(3);
-		cs.create(param);
+		cs.create(param,type);
 		std::cout<<"ok cs create"<<std::endl;
 
 		IOFiles w("check.jdbin",true);

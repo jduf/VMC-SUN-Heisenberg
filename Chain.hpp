@@ -6,7 +6,7 @@
 template<typename Type>
 class Chain: public GenericSystem<Type>{
 	public:
-		Chain(unsigned int N, unsigned int n, unsigned int m, int bc, std::string filename);
+		Chain(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref, std::string const& filename);
 		virtual ~Chain();
 
 	protected:
@@ -15,8 +15,8 @@ class Chain: public GenericSystem<Type>{
 };
 
 template<typename Type>
-Chain<Type>::Chain(unsigned int N, unsigned int n, unsigned int m, int bc, std::string filename):
-	GenericSystem<Type>(N,n,m,bc,2,filename),
+Chain<Type>::Chain(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref, std::string const& filename):
+	GenericSystem<Type>(N,n,m,bc,ref,2,filename),
 	a_(N/m)
 {
 	unsigned int ppmc(1);

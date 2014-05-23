@@ -1,14 +1,13 @@
 #ifndef DEF_SYSTEM
 #define DEF_SYSTEM
 
-#include "SamplingSet.hpp"
+#include "Sampling.hpp"
 #include "Matrix.hpp"
 
 /*!Class that contains the information on the state*/
 class System{
 	public:
-		System(unsigned int N, unsigned int n, unsigned int m, int bc);
-		System(System const& s);
+		System(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref);
 		virtual ~System();
 
 		unsigned int const& get_n() const { return n_;}
@@ -20,15 +19,18 @@ class System{
 		System const& get_system() const { return (*this);}
 
 		/*!Returns energy*/
-		CorrelatedSamples<double> const& get_energy() const {return E_;}
+		Data<double> const& get_energy() const {return E_;}
 		/*!Returns correlation*/
-		CorrelatedSamplesSet<double> const& get_corr() const {return corr_;}
+		DataSet<double> const& get_corr() const {return corr_;}
 		/*!Returns long range correlation*/
-		CorrelatedSamplesSet<double> const& get_long_range_corr() const {return long_range_corr_;}
+		DataSet<double> const& get_long_range_corr() const {return long_range_corr_;}
 
 		void save(IOFiles& w) const;
 
 	protected:
+		System(System const& s);
+
+		Vector<unsigned int> ref_;
 		unsigned int n_;//!< number of sites
 		unsigned int N_;//!< number of colors
 		unsigned int m_;//!< number of particles per site
@@ -37,9 +39,9 @@ class System{
 
 		Matrix<unsigned int> links_;	//!< list of links
 
-		CorrelatedSamples<double> E_;
-		CorrelatedSamplesSet<double> corr_;	
-		CorrelatedSamplesSet<double> long_range_corr_;
+		Data<double> E_;
+		DataSet<double> corr_;	
+		DataSet<double> long_range_corr_;
 
 	private:
 		System& operator=(System const& s);

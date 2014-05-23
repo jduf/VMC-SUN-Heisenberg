@@ -1,15 +1,18 @@
 #include"ChainFermi.hpp"
 
-ChainFermi::ChainFermi(unsigned int N, unsigned int n, unsigned int m, int bc):
-	Chain<double>(N,n,m,bc,"chain-fermi")
+ChainFermi::ChainFermi(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
+	Chain<double>(N,n,m,bc,ref,"chain-fermi")
 {
 	rst_.text("Spin ChainFermi, all the hopping parameters are real");
 }
 
 ChainFermi::~ChainFermi(){}
 
-bool ChainFermi::create(double x){
+void ChainFermi::create(double const& x, unsigned int const& type){
 	std::cout<<"ChainFermi::create "<<x<<std::endl;
+	T_.set(n_,n_,0);
+	EVec_.set(n_*N_,M_,0);
+
 	compute_T();
 	diagonalize_T('S');
 	for(unsigned int spin(0);spin<N_;spin++){
@@ -19,7 +22,7 @@ bool ChainFermi::create(double x){
 			}
 		}
 	}
-	return !degenerate_;
+
 }
 
 void ChainFermi::compute_T(){

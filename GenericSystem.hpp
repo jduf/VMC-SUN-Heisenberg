@@ -13,19 +13,20 @@ template<typename Type>
 class GenericSystem:public System, public Bosonic<Type>, public Fermionic<Type>{
 	public:
 		/*!Constructor N, n, m and z is the coordination number*/
-		GenericSystem(unsigned int N, unsigned int n, unsigned int m, int bc, unsigned int z, std::string filename); 
+		GenericSystem(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref, unsigned int const& z, std::string const& filename); 
 		/*Simple destructor*/
 		virtual ~GenericSystem();
 
 		Matrix<unsigned int> get_links() const { return links_;}
 		unsigned int get_num_links() const { return links_.row();}
-		std::string get_filename() const { return filename_;}
+		virtual	std::string get_filename() const = 0;
 
-		virtual bool create(double param) = 0;
+		virtual void create(double const& param, unsigned int const& type) = 0;
 		virtual void save(IOFiles& w) const;
 		virtual void check() = 0;
 
 		bool is_bosonic() { return false; }
+		bool is_degenerate() const { return degenerate_; }
 
 	protected:
 		unsigned int const z_;		//!< coordination number
@@ -42,8 +43,8 @@ class GenericSystem:public System, public Bosonic<Type>, public Fermionic<Type>{
 };
 
 template<typename Type>
-GenericSystem<Type>::GenericSystem(unsigned int N, unsigned int n, unsigned int m, int bc, unsigned int z, std::string filename): 
-	System(N,n,m,bc),
+GenericSystem<Type>::GenericSystem(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref, unsigned int const& z, std::string const& filename): 
+	System(N,n,m,bc,ref),
 	z_(z),
 	degenerate_(false),
 	filename_(filename)
@@ -96,12 +97,15 @@ void GenericSystem<Type>::diagonalize_T(char mat_type){
 	if(std::abs(EVal(M_) - EVal(M_-1))<1e-12){
 		std::cerr<<"Fermi level degenerate"<<std::endl;
 		degenerate_ = true;
+	} else {
+		degenerate_ = false;
 	}
 }
 
 template<typename Type>
 void GenericSystem<Type>::save(IOFiles& w) const {
 	w.add_to_header(rst_.get());
+	w("ref (type of wavefunction)",ref_);
 	w("N (N of SU(N))",N_);
 	w("m (# of particles per site)",m_);
 	w("n (# of site)",n_);

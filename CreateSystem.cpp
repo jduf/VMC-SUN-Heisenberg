@@ -16,16 +16,6 @@ CreateSystem::~CreateSystem(){
 }
 
 template<>
-GenericSystem<double>* CreateSystem::get() const { 
-	return RGL_;
-}
-
-template<>
-GenericSystem<std::complex<double> >* CreateSystem::get() const { 
-	return CGL_;
-}
-
-template<>
 Bosonic<double> const& CreateSystem::get_bosonic() const { 
 	return RGL_->get_bosonic();
 }
@@ -44,8 +34,6 @@ template<>
 Fermionic<std::complex<double> > const& CreateSystem::get_fermionic() const { 
 	return CGL_->get_fermionic();
 }
-
-
 
 void CreateSystem::parse(Parseur& P) {
 	std::string wf(P.get<std::string>("wf"));
@@ -131,9 +119,9 @@ void CreateSystem::init(unsigned int const& N, unsigned int const& n, unsigned i
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:{RGL_ = new ChainFermi(N,n,m,bc);}break;
+								case 0:{RGL_ = new ChainFermi(N,n,m,bc,ref_);}break;
 									   //case 1:{return ChainDimerized(N,n,m);}break;
-								case 2:{RGL_ = new ChainPolymerized(N,n,m,bc);}break;
+								case 2:{RGL_ = new ChainPolymerized(N,n,m,bc,ref_);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;
@@ -177,7 +165,7 @@ void CreateSystem::init(unsigned int const& N, unsigned int const& n, unsigned i
 					case 2:
 						{
 							switch(ref_(2)){
-								case 2:{CGL_ = new SquarePiFlux(N,n,m,bc);}break;
+								case 2:{CGL_ = new SquarePiFlux(N,n,m,bc,ref_);}break;
 									   //   case 3:{return SquareSU2PhiFlux(N,n,m);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
@@ -201,20 +189,4 @@ void CreateSystem::init(unsigned int const& N, unsigned int const& n, unsigned i
 			//}break;
 		default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 	}
-}
-
-void CreateSystem::save(IOFiles& w) const{
-	w("ref (type of wavefunction)",ref_);
-	if(RGL_){RGL_->save(w);}
-	if(CGL_){CGL_->save(w);}
-}
-
-void CreateSystem::check(){
-	if(RGL_){return RGL_->check();}
-	if(CGL_){return CGL_->check();}
-}
-
-void CreateSystem::create(double const& x){
-	if(RGL_){RGL_->create(x);}
-	if(CGL_){CGL_->create(x);}
 }

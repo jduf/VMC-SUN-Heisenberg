@@ -11,10 +11,19 @@ class CreateSystem{
 		CreateSystem(Parseur& P);
 		virtual ~CreateSystem();
 
-		void check();
-		void save(IOFiles& w) const;
-		void create(double const& x);
+		void create(double const& x, unsigned int const& type){
+			if(RGL_){RGL_->create(x,type);}
+			if(CGL_){CGL_->create(x,type);}
+		}
 
+		System const& get_system() const { 
+			if(RGL_) {return RGL_->get_system();}
+			else {return CGL_->get_system();}
+		}
+		std::string get_filename() const {
+			if(RGL_) {return RGL_->get_filename();}
+			else { return CGL_->get_filename();}
+		}
 		bool use_complex() const {
 			if(ref_(1) == 1){ return false; }
 			else { return true; }
@@ -23,16 +32,25 @@ class CreateSystem{
 			if(ref_(1) == 0){ return true; }
 			else { return false; }
 		}
-
-		//will be useless
-		template<typename Type>
-			GenericSystem<Type>* get() const;
-
-		System const& get_system() const { return RGL_->get_system(); }
+		bool is_degenerate() const {
+			if(RGL_) {return RGL_->is_degenerate();}
+			if(CGL_) {return CGL_->is_degenerate();}
+			return true;
+		}
 		template<typename Type>
 			Bosonic<Type> const& get_bosonic() const;
 		template<typename Type>
 			Fermionic<Type> const& get_fermionic() const;
+
+		void save(IOFiles& w) const{
+			if(RGL_){RGL_->save(w);}
+			if(CGL_){CGL_->save(w);}
+		}
+
+		void check(){
+			if(RGL_){return RGL_->check();}
+			if(CGL_){return CGL_->check();}
+		}
 
 	private:
 		Vector<unsigned int> ref_;

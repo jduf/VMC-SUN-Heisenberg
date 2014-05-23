@@ -21,7 +21,7 @@ class MCSystem: public System{
 		virtual void update();
 
 		/*!Returns the status*/
-		bool ready() const {return ready_;}
+		bool found_initial_state() const {return found_initial_state_;}
 
 		//{Description
 		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
@@ -42,7 +42,7 @@ class MCSystem: public System{
 
 		unsigned int type_;
 
-		bool ready_;	
+		bool found_initial_state_;	
 
 		Rand* rnd_;	//!< generator of random numbers 
 
@@ -63,33 +63,21 @@ template<typename Type>
 MCSystem<Type>::MCSystem(System const& S, unsigned int const& type):
 	System(S),
 	type_(type),
-	ready_(false),
+	found_initial_state_(false),
 	rnd_(NULL)
-{
-	std::cout<<"ok normal MCSystem"<<std::endl;
-}
+{}
 
 template<typename Type>
 MCSystem<Type>::~MCSystem(){
-	std::cout<<"~MCSystem"<<std::endl;
 	if(rnd_){delete rnd_;}
 }
 
 template<typename Type>
 void MCSystem<Type>::init(unsigned int const& thread){
-	std::cout<<"MCSystem init"<<std::endl;
 	s_.set(this->n_,this->M_);
 	rnd_ = new Rand(100,thread);
 	set(); 
 	init();
-}
-
-template<typename Type>
-void MCSystem<Type>::set(){
-	std::cout<<"MCSystem set"<<std::endl;
-	E_.set(50,5);
-	corr_.set(this->n_,50,5);
-	if(type_ == 2){ long_range_corr_.set(this->n_/3,50,5); }
 }
 /*}*/
 
@@ -142,7 +130,7 @@ void MCSystem<Type>::measure_new_step(){
 		}
 	}
 	E_ /= this->n_;
-	if(long_range_corr_.ptr()){
+	if(long_range_corr_.size()!=0){
 		unsigned int x0(this->n_/3);
 		for(unsigned int i(0);i<this->n_/3;i++){
 			long_range_corr_[i] = 0.0;
@@ -167,17 +155,24 @@ void MCSystem<Type>::add_sample(){
 
 template<typename Type>
 bool MCSystem<Type>::is_converged(double const& tol){ 
-	corr_.compute_convergence(tol); 
-	long_range_corr_.compute_convergence(tol); 
+	//corr_.compute_convergence(tol); 
+	//long_range_corr_.compute_convergence(tol); 
 	E_.compute_convergence(tol); 
 	return E_.get_conv();
 }
 
 template<typename Type>
 void MCSystem<Type>::complete_analysis(double const& tol){ 
+	E_.complete_analysis(tol); 
 	corr_.complete_analysis(tol); 
 	long_range_corr_.complete_analysis(tol); 
-	E_.complete_analysis(tol); 
+}
+
+template<typename Type>
+void MCSystem<Type>::set(){
+	E_.set(50,5,false);
+	corr_.set(this->n_,50,5,false);
+	if(type_ == 2){ long_range_corr_.set(this->n_/3,50,5,false); }
 }
 /*}*/
 

@@ -1,4 +1,4 @@
-EXEC=mc check study
+EXEC=mc check study 
 
 mc_SRCS=   mc.cpp    System.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp Gnuplot.cpp
 #min_SRCS= min.cpp   CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquarePiFlux.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp PSTricks.cpp Rand.cpp  Minimization.cpp
