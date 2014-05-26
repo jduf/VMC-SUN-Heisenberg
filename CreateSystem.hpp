@@ -9,11 +9,16 @@
 class CreateSystem{
 	public:
 		CreateSystem(Parseur& P);
+		CreateSystem(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc);
 		virtual ~CreateSystem();
 
 		void create(double const& x, unsigned int const& type){
 			if(RGL_){RGL_->create(x,type);}
 			if(CGL_){CGL_->create(x,type);}
+		}
+		void treat_one_sim(IOFiles& read, IOFiles& write, RSTFile& rst, std::string const& path, std::string const& filename){
+			if(RGL_){RGL_->treat_one_sim(read,write,rst,path,filename);}
+			if(CGL_){CGL_->treat_one_sim(read,write,rst,path,filename);}
 		}
 
 		System const& get_system() const { 

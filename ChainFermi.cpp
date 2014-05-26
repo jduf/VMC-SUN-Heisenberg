@@ -9,7 +9,7 @@ ChainFermi::ChainFermi(unsigned int const& N, unsigned int const& n, unsigned in
 ChainFermi::~ChainFermi(){}
 
 void ChainFermi::create(double const& x, unsigned int const& type){
-	std::cout<<"ChainFermi::create "<<x<<std::endl;
+	std::cout<<"ChainFermi::create "<<x<<" "<<type<<std::endl;
 	T_.set(n_,n_,0);
 	EVec_.set(n_*N_,M_,0);
 

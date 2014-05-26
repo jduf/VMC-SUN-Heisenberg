@@ -2,8 +2,8 @@
 
 #include "Directory.hpp"
 #include "RSTFile.hpp"
-#include "Parseur.hpp"
 #include "Sampling.hpp"
+#include "Parseur.hpp"
 
 void build_rst(RSTFile& rst, std::string search_in, std::string info_dir, std::string analysis_dir, std::string info_name, std::string next_analysis_dir="");
 double extract_jdbin(std::string info_dir, std::string path, std::string filename, IOFiles* E_file=NULL);

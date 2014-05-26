@@ -30,11 +30,11 @@ class System{
 	protected:
 		System(System const& s);
 
-		Vector<unsigned int> ref_;
-		unsigned int n_;//!< number of sites
-		unsigned int N_;//!< number of colors
-		unsigned int m_;//!< number of particles per site
-		unsigned int M_;//!< number of particles of each color 
+		Vector<unsigned int> const ref_;
+		unsigned int const n_;//!< number of sites
+		unsigned int const N_;//!< number of colors
+		unsigned int const m_;//!< number of particles per site
+		unsigned int const M_;//!< number of particles of each color 
 		int bc_;		//!< boundary condition
 
 		Matrix<unsigned int> links_;	//!< list of links

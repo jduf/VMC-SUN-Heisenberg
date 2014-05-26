@@ -12,6 +12,8 @@ class ChainFermi: public Chain<double>{
 		void check();
 		std::string get_filename() const { return filename_;}
 
+		void treat_one_sim(IOFiles& read, IOFiles& write, RSTFile& rst, std::string const& path, std::string const& filename){}
+
 	private:
 		void compute_P(Matrix<double>& P);
 		void compute_T();

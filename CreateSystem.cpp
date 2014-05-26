@@ -9,8 +9,15 @@ CreateSystem::CreateSystem(Parseur& P):
 	init(P.get<unsigned int>("N"),P.get<unsigned int>("n"),P.get<unsigned int>("m"),P.get<int>("bc"));
 }
 
+CreateSystem::CreateSystem(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc):
+	ref_(ref),
+	RGL_(NULL),
+	CGL_(NULL)
+{
+	init(N,n,m,bc);
+}
+
 CreateSystem::~CreateSystem(){
-	std::cout<<"~CreateSystem"<<std::endl;
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 }

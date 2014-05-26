@@ -12,6 +12,8 @@ class SquarePiFlux: public Square<std::complex<double> >{
 		void check();
 		std::string get_filename() const { return filename_;}
 
+		void treat_one_sim(IOFiles& read, IOFiles& write, RSTFile& rst, std::string const& path, std::string const& filename){}
+
 	protected:
 		void compute_T();
 };

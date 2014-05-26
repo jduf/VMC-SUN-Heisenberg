@@ -51,12 +51,12 @@ template<typename Type>
 void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax, unsigned int const& type){
 	IOFiles results(path+cs.get_filename()+".jdbin",true);
 	results("type of simulation",type);
-	results("number of simulations runned",nruns);
 	RST rst;
 	rst.title("Input","-");
 	results.add_to_header(rst.get());
 	rst.set();
 	cs.save(results);
+	results("number of simulations runned",nruns);
 	rst.title("Results","-");
 	results.add_to_header(rst.get());
 
