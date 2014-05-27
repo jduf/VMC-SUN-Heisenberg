@@ -64,11 +64,8 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 	DataSet<double> corr;
 	DataSet<double> long_range_corr;
 	E.set_conv(true);
-	std::cout<<"will need to correct that"<<std::endl;
-	corr.set(cs.get_system().get_n());
-	if(type == 2){
-		long_range_corr.set(cs.get_system().get_n()/3);
-	}
+	corr.set(cs.get_system().get_corr().size());
+	long_range_corr.set(cs.get_system().get_long_range_corr().size());
 
 #pragma omp parallel for 
 	for(unsigned int i=0;i<nruns;i++){

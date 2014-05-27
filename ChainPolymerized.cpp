@@ -12,8 +12,12 @@ ChainPolymerized::ChainPolymerized(unsigned int const& N, unsigned int const& n,
 ChainPolymerized::~ChainPolymerized(){}
 
 void ChainPolymerized::create(double const& delta, unsigned int const& type){
-	std::cout<<"chainpolymerized create type="<<type<<std::endl;
 	delta_=delta;
+	corr_.set(n_);
+	if(type==2){
+		long_range_corr_.set(n_/3);
+	}
+
 	T_.set(n_,n_,0);
 	EVec_.set(n_*N_,M_,0);
 
@@ -141,7 +145,6 @@ void ChainPolymerized::treat_one_sim(IOFiles& read, IOFiles& write, RSTFile& rst
 	poly_e /= n_*m_/N_;
 	poly_e.sort();
 
-	//write<<E_<<poly_e(N_/m_-2)-poly_e(N_/m_-1)<<IOFiles::endl;
 	write("E",E_);
 	write("polymerization strength",poly_e(N_/m_-2)-poly_e(N_/m_-1));
 	plot_corr(path,filename,nruns);
