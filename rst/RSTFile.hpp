@@ -9,11 +9,10 @@ class RSTFile:public RST{
 		RSTFile(std::string path, std::string filename);
 		~RSTFile();
 
-		void pdf() {pdf_= true;}
+		void save(bool pdf);
 
 	private:
 		std::string path_;
 		std::string filename_;
-		bool pdf_;
 };
 #endif

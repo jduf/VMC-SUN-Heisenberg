@@ -3,11 +3,12 @@
 RSTFile::RSTFile(std::string path,std::string filename):
 	RST(),
 	path_(path),
-	filename_(filename),
-	pdf_(false)
+	filename_(filename)
 {}
 
-RSTFile::~RSTFile() { 
+RSTFile::~RSTFile(){} 
+
+void RSTFile::save(bool pdf){
 	IOFiles w(path_ + filename_ + ".rst",true);
 	rst += RST_np;
 	w<<rst;
@@ -17,7 +18,7 @@ RSTFile::~RSTFile() {
 	if(command.status()){
 		std::cerr<<"RSTFile::~RSTFile() : the command function called returns an error for the html creation"<<std::endl; 
 	} else {
-		if(pdf_){
+		if(pdf){
 			command("rst2latex " + path_ + filename_ + ".rst " + path_ + filename_ + ".tex"); 
 			command("pdflatex -output-directory " + path_ + " "  + filename_ + ".tex");
 			if(command.status()){std::cerr<<"RSTFile::~RSTFile() : the command function called returns an error for the pdf creation"<<std::endl; }

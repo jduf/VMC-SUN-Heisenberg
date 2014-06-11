@@ -65,20 +65,16 @@ class Data{
 		void complete_analysis(double const& tol);
 		void complete_analysis();
 
-		void header_rst(std::string const& s, RST& rst) const;
-
 		/*maybe should return a const&*/
 		Type const& get_x() const { return x_; } 
 		Type const& get_dx() const { return dx_; } 
-		unsigned int const& get_N() const { return N_; }
 		bool const& get_conv() const { return conv_; } 
+		unsigned int const& get_N() const { return N_; }
 
 		void set_x(Type const& x){x_ = x;}
 		void set_dx(Type const& dx){dx_ = dx;}
 		void set_N(unsigned int const& N){N_ = N;}
 		void set_conv(bool const& conv){conv_ = conv;}
-
-		Binning<Type>* binning() const { return binning_; }
 
 		Data<Type>&  operator=(Type const& x){x_ =  x; return (*this);}
 		Data<Type>& operator+=(Type const& x){x_ += x; return (*this);}
@@ -86,7 +82,13 @@ class Data{
 		Data<Type>& operator/=(Type const& x){x_ /= x; return (*this);}
 		Data<Type>& operator*=(Type const& x){x_ *= x; return (*this);}
 
+		Binning<Type>* get_binning() const { return binning_; }
+
+		void header_rst(std::string const& s, RST& rst) const;
+
 	private:
+		Data<Type>(Data<Type> const& d);
+
 		Type x_;
 		Type dx_;
 		unsigned int N_;
@@ -398,7 +400,7 @@ void Data<Type>::add_sample(){
 
 template<typename Type>
 void Data<Type>::compute_convergence(double const& tol) {
-	if(binning_){binning_->compute_convergence(tol,x_,conv_);}
+	if(binning_){ binning_->compute_convergence(tol,dx_,conv_);}
 }
 
 template<typename Type>

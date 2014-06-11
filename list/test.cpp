@@ -14,10 +14,10 @@ int main(){
 	std::cout<<"will remove 1st entry"<<std::endl;
 	a.remove(0);
 	std::cout<<a<<std::endl;
-	std::cout<<"new list with 1 entry"<<std::endl;
-	List<double> b(0);
+	std::cout<<"new list with 1 entry set to 3"<<std::endl;
+	List<double> b(3);
 	std::cout<<b<<std::endl;
-	std::cout<<"will remove 1ss entry"<<std::endl;
+	std::cout<<"will remove 1st entry"<<std::endl;
 	b.remove(0);
 	std::cout<<b<<std::endl;
 	std::cout<<"new list copied from the first one between enty 3 and 5"<<std::endl;
@@ -26,4 +26,7 @@ int main(){
 	std::cout<<"will remove the 2nd entry"<<std::endl;
 	c.remove(1);
 	std::cout<<c<<std::endl;
+	std::cout<<"will swap the 2nd and 5th entry of the first list"<<std::endl;
+	a.swap(2,5);
+	std::cout<<a<<std::endl;
 }

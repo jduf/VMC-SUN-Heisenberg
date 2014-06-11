@@ -85,7 +85,13 @@ void IOFiles::read_string(std::string& t){
 			tmp[N] = '\0';
 			t = tmp;
 			delete[] tmp;
-		} else { file_>>t; }
+		} else {
+			std::string tmp("");
+			while(file_.good()){ 
+				getline(file_,tmp);
+				t += tmp + "\n";
+			}
+		}
 	} else {
 		std::cerr<<"IOFiles::read_basic_type(string) : can't read from "<<filename_<<std::endl;
 	}
@@ -96,7 +102,7 @@ void IOFiles::write_string(const char* t, unsigned int const& N){
 		if (binary_){
 			file_.write((char*)(&N),sizeof(unsigned int));
 			file_.write(t,N);
-		} else { file_<<t; }
+		} else { file_<<t<<std::flush; }
 	} else {
 		std::cerr<<"IOFiles::write_basic_type(string) : can't write in "<<filename_<<std::endl;
 	}
@@ -105,6 +111,11 @@ void IOFiles::write_string(const char* t, unsigned int const& N){
 
 /*public methods*/
 /*{*/
+void IOFiles::precision(unsigned int const& N){ 
+	if(binary_){ std::cerr<<"IOFiles::setprecision(unsigned int const& N) : has no effect on a binary file"; }
+	else{ file_.precision(N); }
+}
+
 void IOFiles::add_to_header(std::string const& s){
 	if(h_){ h_->add(s); }
 }

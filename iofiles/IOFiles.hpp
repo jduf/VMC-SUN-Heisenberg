@@ -57,10 +57,12 @@ class IOFiles{
 		/*!Returns the filename_ in which the class in writing*/
 		std::string get_filename() const { return filename_;};
 
-		/*!Returns the header contained in the file*/
-		std::string get_header() const;
+		/*!change the precion on the output text files*/
+		void precision(unsigned int const& N);
 		/*!Add string to header*/
 		void add_to_header(std::string const& s);
+		/*!Returns the header contained in the file*/
+		std::string get_header() const;
 
 		static std::string endl; //!<Gives a way to end lines
 
@@ -108,7 +110,7 @@ template<typename Type>
 void IOFiles::write(Type* t, unsigned int const& N, size_t const& type_size){
 	if(open_ && write_){
 		if (binary_){ file_.write((char*)(t),N*type_size); }
-		else {file_<<*t;}
+		else { file_<<*t; }
 	} else {
 		std::cerr<<"IOFiles::write(Type*,unsigned int,size_t) : can't write in "<<filename_<<std::endl;
 	}
