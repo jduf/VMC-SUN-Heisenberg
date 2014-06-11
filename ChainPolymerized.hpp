@@ -13,11 +13,6 @@ class ChainPolymerized: public Chain<double> {
 		void save(IOFiles& w) const;
 		std::string get_filename() const { return filename_ + "-delta" + tostring(delta_);}
 		
-		void plot_corr(std::string const& path, std::string const& filename, unsigned int const& nruns);
-		void plot_long_range_corr(std::string const& path, std::string const& filename, unsigned int const& nruns);
-
-		void treat_one_sim(IOFiles& read, IOFiles& write, RSTFile& rst, std::string const& path, std::string const& filename);
-
 	private:
 		void compute_P(Matrix<double>& P);
 		void compute_T();

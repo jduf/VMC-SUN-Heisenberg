@@ -40,8 +40,6 @@ class MonteCarlo{
 		/*!Get the pointer on the system*/
 		MCSystem<Type>* get_system() const { return S_;}
 
-		void check();
-
 	private:
 		/*!Forbids the copy constructor*/
 		MonteCarlo(MonteCarlo const& mc); 
@@ -60,7 +58,7 @@ class MonteCarlo{
 		 * If the E_ diverges, the simulation is restarted
 		 */
 		//}
-		bool keepon(double const& tol);
+		bool keepon();
 
 		unsigned int const tmax_;//!< Time limit in second, by default 5min
 		MCSystem<Type>* S_;		//!< Pointer to a Fermionic or Bosonic System 
@@ -102,18 +100,9 @@ template<typename Type>
 void MonteCarlo<Type>::run(){
 	if(S_->found_initial_state()){
 		do{next_step();}
-		while(keepon(1e-6));
+		while(keepon());
 	}
-	S_->complete_analysis(1e-6);
-}
-
-template<typename Type>
-void MonteCarlo<Type>::check(){
-	unsigned int i(0);
-	if(S_->found_initial_state()){/*passed the first two steps*/
-		do{ i++; next_step();}
-		while(keepon(1e-5));
-	}
+	S_->complete_analysis(1e-5);
 }
 /*}*/
 
@@ -130,13 +119,13 @@ void MonteCarlo<Type>::next_step(){
 }
 
 template<typename Type>
-bool MonteCarlo<Type>::keepon(double const& tol){
+bool MonteCarlo<Type>::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
-	//if(std::abs(S_->get_energy())>1e2){ 
-		//std::cerr<<"Simulation diverges => is restarted"<<std::endl;
-		//S_->set();
-	//}
-	return !S_->is_converged(tol);
+	if(std::abs(S_->get_energy().get_x())>1e2){ 
+		std::cerr<<"Simulation diverges => is restarted"<<std::endl;
+		S_->set();
+	}
+	return true;
 }
 /*}*/
 #endif

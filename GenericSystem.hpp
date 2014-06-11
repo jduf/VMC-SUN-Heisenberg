@@ -29,8 +29,6 @@ class GenericSystem:public System, public Bosonic<Type>, public Fermionic<Type>{
 		bool is_bosonic() { return false; }
 		bool is_degenerate() const { return degenerate_; }
 
-		virtual void treat_one_sim(IOFiles& read, IOFiles& write, RSTFile& rst, std::string const& path, std::string const& filename)=0;
-
 	protected:
 		unsigned int const z_;		//!< coordination number
 		bool degenerate_;			//!< no degeneracy at the fermi level

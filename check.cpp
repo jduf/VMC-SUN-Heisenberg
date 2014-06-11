@@ -34,6 +34,21 @@ int main(int argc, char* argv[]){
 			delete S;
 		}
 	} else {
-		//cs.check();
+		double param(P.get<double>("param"));
+		unsigned int tmax(3);
+		cs.create(param,1);
+		std::cout<<"check"<<std::endl;
+
+		if(cs.use_complex()){
+			MCSystem<std::complex<double> >* S(NULL);
+			S = new SystemFermionic<std::complex<double> >(cs,1);
+			MonteCarlo<std::complex<double> > sim(S,tmax);
+			delete S;
+		} else {
+			MCSystem<double>* S(NULL);
+			S = new SystemFermionic<double>(cs,1);
+			MonteCarlo<double> sim(S,tmax);
+			delete S;
+		}
 	}
 }

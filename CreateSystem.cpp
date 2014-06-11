@@ -9,37 +9,9 @@ CreateSystem::CreateSystem(Parseur& P):
 	init(P.get<unsigned int>("N"),P.get<unsigned int>("n"),P.get<unsigned int>("m"),P.get<int>("bc"));
 }
 
-CreateSystem::CreateSystem(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc):
-	ref_(ref),
-	RGL_(NULL),
-	CGL_(NULL)
-{
-	init(N,n,m,bc);
-}
-
 CreateSystem::~CreateSystem(){
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
-}
-
-template<>
-Bosonic<double> const& CreateSystem::get_bosonic() const { 
-	return RGL_->get_bosonic();
-}
-
-template<>
-Bosonic<std::complex<double> > const& CreateSystem::get_bosonic() const { 
-	return CGL_->get_bosonic();
-}
-
-template<>
-Fermionic<double> const& CreateSystem::get_fermionic() const { 
-	return RGL_->get_fermionic();
-}
-
-template<>
-Fermionic<std::complex<double> > const& CreateSystem::get_fermionic() const { 
-	return CGL_->get_fermionic();
 }
 
 void CreateSystem::parse(Parseur& P) {
@@ -197,3 +169,27 @@ void CreateSystem::init(unsigned int const& N, unsigned int const& n, unsigned i
 		default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 	}
 }
+
+/*specialization of get methods*/
+/*{*/
+template<>
+Bosonic<double> const& CreateSystem::get_bosonic() const { 
+	return RGL_->get_bosonic();
+}
+
+template<>
+Bosonic<std::complex<double> > const& CreateSystem::get_bosonic() const { 
+	return CGL_->get_bosonic();
+}
+
+template<>
+Fermionic<double> const& CreateSystem::get_fermionic() const { 
+	return RGL_->get_fermionic();
+}
+
+template<>
+Fermionic<std::complex<double> > const& CreateSystem::get_fermionic() const { 
+	return CGL_->get_fermionic();
+}
+/*}*/
+

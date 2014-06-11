@@ -12,11 +12,6 @@ class Analyse{
 		Analyse(std::string search_in);
 
 	private:
-		//GenericSystem<double>* GSR_;
-		//GenericSystem<std::complex<double> >* GSC_;
-
-		void print();
-
 		std::string sim_;
 		std::string info_;
 		std::string analysis_;
@@ -28,8 +23,19 @@ class Analyse{
 		List<RSTFile> rst_;
 
 		IOFiles* write_;
+		IOFiles* data_write_;
 
 		unsigned int level_;
+
+		Vector<unsigned int> ref_;
+		unsigned int N_;
+		unsigned int m_;
+		unsigned int n_;
+		int bc_;
+		Data<double> E_;
+		DataSet<double> corr_;
+		DataSet<double> long_range_corr_;
+
 
 		void recursive_search();
 		void search_jdbin();
