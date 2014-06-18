@@ -35,12 +35,12 @@ class System{
 		unsigned int const N_;//!< number of colors
 		unsigned int const m_;//!< number of particles per site
 		unsigned int const M_;//!< number of particles of each color 
-		int bc_;		//!< boundary condition
+		int bc_;//!< boundary condition
 
-		Matrix<unsigned int> links_;	//!< list of links
+		Matrix<unsigned int> links_;//!< list of links
 
 		Data<double> E_;
-		DataSet<double> corr_;	
+		DataSet<double> corr_;
 		DataSet<double> long_range_corr_;
 
 	private:

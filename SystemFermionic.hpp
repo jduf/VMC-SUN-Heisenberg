@@ -129,8 +129,9 @@ void SystemFermionic<Type>::update(){
 			for(unsigned int k(0);k<this->M_;k++){
 				t_tmp += this->EVec_(new_ev[c],k)*Ainv_[this->new_c[c]](k,j);
 			}
+			t_tmp /= w[c];
 			for(unsigned int i(0);i<this->M_;i++){
-				tmp_(i,j) = t_tmp*Ainv_[this->new_c[c]](i,new_r[c])/w[c];
+				tmp_(i,j) = t_tmp*Ainv_[this->new_c[c]](i,new_r[c]);
 			}
 		}
 		Ainv_[this->new_c[c]] -= tmp_;
@@ -169,7 +170,7 @@ Type SystemFermionic<Type>::ratio(){
 				w[c] += this->EVec_(new_ev[c],k)*Ainv_[this->new_c[c]](k,new_r[c]);
 			}
 		}
-		/*the minus is correct, it comes from <C|H|C'> because when H is
+		/*!the minus is correct, it comes from <C|H|C'> because when H is
 		 * applied on |C>, the operators are not in the correct color order, so
 		 * they need to be exchanged*/
 		return -w[0]*w[1];

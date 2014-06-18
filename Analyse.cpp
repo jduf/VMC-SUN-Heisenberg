@@ -153,7 +153,7 @@ void Analyse::search_jdbin(){
 			(*write_)("number of jdfiles",d.size());
 			write_->add_to_header("\n");
 		}
-		if(level_>4){
+		if(level_==3 || level_==5){
 			data_write_ = new IOFiles(analysis_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
 		}
 
@@ -165,21 +165,22 @@ void Analyse::search_jdbin(){
 			extract_jdbin();
 		}
 
-		//Vector<unsigned int> index(all_link_names_.sort());
-		//all_link_files_ = all_link_files_.sort(index);
 		for(unsigned int i(0);i<all_link_names_.size();i++){
 			rst_.last()->hyperlink(all_link_names_[i],all_link_files_[i]);
 		}
 
 		if(level_>1){ 
-			if(level_ == 5){
-				rst_.last()->link_figure(analysis_+path_+dir_.substr(0,dir_.size()-1)+".png","E.png",analysis_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000);
+			switch(level_){
+				case 5: 
+					{ rst_.last()->link_figure(analysis_+path_+dir_.substr(0,dir_.size()-1)+".png","E.png",analysis_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
+				case 3: 
+					{ rst_.last()->link_figure(analysis_+path_+dir_.substr(0,dir_.size()-1)+".png","d-merization.png",analysis_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
 			}
 			rst_.last()->text(write_->get_header());
 			delete write_;
 			write_ = NULL;
 		}
-		if(level_>4){
+		if(data_write_){
 			delete data_write_;
 			data_write_ = NULL;
 		}
@@ -215,30 +216,34 @@ void Analyse::extract_sim(){
 	data_write_->precision(10);
 	(*data_write_)<<"% delta E dE 0|1"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
+	Vector<double> poly_e(N_/m_,0);
+	bool is_mean_run;
 	for(unsigned int i(0);i<nruns+1;i++){ 
 		read>>E_>>corr_>>long_range_corr_;
-		(*data_write_)<<param<<" "<<E_.get_x()<<" "<<E_.get_dx();
-		if(i<nruns){ (*data_write_)<<" 0"<<IOFiles::endl; }
-		else { (*data_write_)<<" 1"<<IOFiles::endl; }
-		for(unsigned int j(0);j<corr_.size();j++){
-			corr_file<<j+0.5<<" "<<corr_[j]<<IOFiles::endl;
-		}
-		corr_file<<IOFiles::endl<<IOFiles::endl;
-		for(unsigned int j(0);j<long_range_corr_.size();j++){
-			long_range_corr_file<<j+1<<" "<<long_range_corr_[j]<<IOFiles::endl;
-		}
-		long_range_corr_file<<IOFiles::endl<<IOFiles::endl;
-	}
 
-	Vector<double> poly_e(N_/m_,0);
-	unsigned int i(0);
-	while(i<corr_.size()){
-		for(unsigned int j(0);j<N_/m_;j++){
-			poly_e(j) += corr_[i].get_x();
-			i++;
+		if(i<nruns){
+			unsigned int k(0);
+			while(k<corr_.size()){
+				for(unsigned int j(0);j<N_/m_;j++){
+					poly_e(j) += corr_[k].get_x();
+					k++;
+				}
+			}
+			is_mean_run = true;
+		} else {
+			is_mean_run = false;
 		}
+
+		(*data_write_)<<param<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<is_mean_run<<IOFiles::endl;
+		for(unsigned int j(0);j<corr_.size();j++){
+			corr_file<<j+0.5<<" "<<corr_[j]<<" "<<is_mean_run<<IOFiles::endl;
+		}
+		for(unsigned int j(0);j<long_range_corr_.size();j++){
+			long_range_corr_file<<j+1<<" "<<long_range_corr_[j]<<" "<<is_mean_run<<IOFiles::endl;
+		}
+
 	}
-	poly_e /= n_*m_/N_;
+	poly_e /= nruns*n_*m_/N_;
 	poly_e.sort();
 
 	(*write_)("ref (type of wavefunction)",ref_);
@@ -248,16 +253,17 @@ void Analyse::extract_sim(){
 	(*write_)("bc (boundary condition)",bc_);
 	(*write_)("param",param);
 	(*write_)("E",E_);
-	(*write_)("polymerization strength",poly_e(N_/m_-2)-poly_e(N_/m_-1));
+	(*write_)("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
 
 	/*{*/
 	Gnuplot gp(analysis_+path_+dir_,filename_+"-corr");
 	gp+="set xlabel 'site' offset 0,0.5";
 	gp+="set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$' offset 1";
 	gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(param)+"$'";
-	gp+="plot for [IDX=0:"+tostring(nruns-1)+"] '"+filename_+"-corr.dat' i IDX u 1:($4==1?$2:1/0):3 w errorbars lt 1 lc 3 ps 0 notitle,\\";
-	gp+="     for [IDX=0:"+tostring(nruns-1)+"] '"+filename_+"-corr.dat' i IDX u 1:($4==0?$2:1/0):3 w errorbars lt 1 lc 1 ps 0 notitle,\\";
-	gp+="                   '"+filename_+"-corr.dat' i " + tostring(nruns) + " u 1:2:3 w errorbars lt 1 lc 2 lw 2 notitle";
+	gp+="plot '"+filename_+"-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
+	gp+="     '"+filename_+"-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean',\\";
+	gp+="     "+tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merization="+tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
+	gp+="     "+tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
 	gp.save_file();
 	rst.link_figure(analysis_+path_+dir_+filename_+"-corr.png","Correlation on links",analysis_+path_+dir_+filename_+"-corr.gp",1000);
 
@@ -305,7 +311,6 @@ void Analyse::extract_sim(){
 
 void Analyse::extract_level_4(){
 	/*comparison of E(param_optimal)|n=fixé*/
-	//IOFiles read(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",false);
 	IOFiles read(sim_+path_+dir_+filename_+".jdbin",false);
 
 	unsigned int nof(0);
@@ -318,19 +323,20 @@ void Analyse::extract_level_4(){
 	Data<double> E;
 	double polymerization_strength;
 	read>>nof;
-	//IOFiles write(analysis_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
 
 	Data<double> min_E;
 	min_E.set_x(0.0);
 	double min_param(0.0);
 	double min_polymerization_strength(0.0);
 
+	unsigned int idx(0);
 	for(unsigned int i(0);i<nof;i++){
 		read>>ref>>N>>m>>n>>bc>>param>>E>>polymerization_strength;
 		if(E.get_x()<min_E.get_x()){ 
+			idx = i;
 			min_E = E;
 			min_param = param;
-			min_polymerization_strength=polymerization_strength;
+			min_polymerization_strength = polymerization_strength;
 		}
 	}
 	(*write_)("ref",ref);
@@ -345,16 +351,29 @@ void Analyse::extract_level_4(){
 	Gnuplot gp(analysis_+path_+dir_,filename_);
 	gp+="set xlabel '$\\delta$' offset 0,1";
 	gp+="set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1";
-	gp+="f(x) = a+b*(x-c)*(x-c)";
-	gp+="a=-1";
-	gp+="b=1";
-	gp+="c=1";
-	gp+="set fit quiet";
-	gp+="fit f(x) '"+filename_+".dat' u 1:($4==1?$2:1/0):3 via a,b,c";
-	gp+="set title '$N="+tostring(N)+"$ $m="+tostring(n)+"$ $n="+tostring(n)+"$'";
-	gp+="plot '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Independant measures',\\";
-	gp+="     '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Mean',\\";
-	gp+="     f(x) t sprintf('min %3.4f',c)";
+	if(idx==0){
+		gp+="f(x) = a+b*x**eta";
+		gp+="a="+tostring(min_E.get_x());
+		gp+="b=1";
+		gp+="eta=1";
+		gp+="set fit quiet";
+		gp+="fit f(x) '"+filename_+".dat' u 1:($4==0?$2:1/0):3 via a,b,eta";
+		gp+="set title '$N="+tostring(N)+"$ $m="+tostring(m)+"$ $n="+tostring(n)+"$'";
+		gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
+		gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean',\\";
+		gp+="     f(x) t sprintf('eta %3.4f',eta)";
+	} else {
+		gp+="f(x) = a+b*(x-c)*(x-c)";
+		gp+="a="+tostring(min_E.get_x());
+		gp+="b=1";
+		gp+="c="+tostring(min_param);
+		gp+="set fit quiet";
+		gp+="fit f(x) '"+filename_+".dat' u 1:($4==0?$2:1/0):3 via a,b,c";
+		gp+="set title '$N="+tostring(N)+"$ $m="+tostring(m)+"$ $n="+tostring(n)+"$'";
+		gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
+		gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean',\\";
+		gp+="     f(x) t sprintf('min %3.4f',c)";
+	}
 	gp.save_file();
 	gp.create_image(true);
 	all_link_names_.append(filename_);
@@ -376,6 +395,7 @@ void Analyse::extract_level_3(){
 	read>>nof;
 	for(unsigned int i(0);i<nof;i++){
 		read>>ref>>N>>m>>n>>bc>>param>>E>>polymerization_strength;
+		(*data_write_)<<n<<" "<<polymerization_strength<<IOFiles::endl;
 		(*write_)("ref",ref);
 		(*write_)("N",N);
 		(*write_)("m",m);
@@ -389,6 +409,14 @@ void Analyse::extract_level_3(){
 }
 
 void Analyse::extract_level_2(){
+	Gnuplot gp(analysis_+path_+dir_,filename_);
+	gp+="set xlabel '$n^{-1}$'";
+	gp.xrange(0,"");
+	gp.yrange(0,"");
+	gp+="set key bottom";
+	gp+="plot '"+filename_+".dat' u (1/$1):2 t 'd-merization strength'";
+	gp.save_file();
+	gp.create_image(true);
 	all_link_names_.append(filename_);
 }
 

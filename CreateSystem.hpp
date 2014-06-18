@@ -4,6 +4,8 @@
 #include "ChainPolymerized.hpp"
 #include "ChainFermi.hpp"
 #include "SquarePiFlux.hpp"
+#include "KagomeFermi.hpp"
+#include "KagomeVBC.hpp"
 #include "Parseur.hpp"
 
 class CreateSystem{

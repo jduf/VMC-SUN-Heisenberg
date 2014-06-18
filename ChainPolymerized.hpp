@@ -2,6 +2,7 @@
 #define DEF_CHAINPOLYMERIZED
 
 #include "Chain.hpp"
+#include "BandStructure.hpp"
 
 class ChainPolymerized: public Chain<double> {
 	public:

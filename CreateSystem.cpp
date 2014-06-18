@@ -78,6 +78,17 @@ void CreateSystem::parse(Parseur& P) {
 		ref_(2) = 4;
 	}
 
+	if( wf == "kagomefermi" ){
+		ref_(0) = 5;
+		ref_(1) = 1;
+		ref_(2) = 0;
+	}
+	if( wf == "kagomevbc" ){
+		ref_(0) = 5;
+		ref_(1) = 2;
+		ref_(2) = 1;
+	}
+
 	if( wf == "honeycombsu3" ){
 		ref_(0) = 6;
 		ref_(1) = 1;
@@ -145,7 +156,26 @@ void CreateSystem::init(unsigned int const& N, unsigned int const& n, unsigned i
 						{
 							switch(ref_(2)){
 								case 2:{CGL_ = new SquarePiFlux(N,n,m,bc,ref_);}break;
-									   //   case 3:{return SquareSU2PhiFlux(N,n,m);}break;
+								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+							}
+						}break;
+					default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+				}
+			}break;
+		case 5:
+			{
+				switch(ref_(1)){
+					case 1:
+						{
+							switch(ref_(2)){
+								case 0:{RGL_ = new KagomeFermi(N,n,m,bc,ref_);}break;
+								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+							}
+						} break;
+					case 2:
+						{
+							switch(ref_(2)){
+								case 1:{CGL_ = new KagomeVBC(N,n,m,bc,ref_);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;

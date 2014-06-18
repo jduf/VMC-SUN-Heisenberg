@@ -49,15 +49,15 @@ std::string init(CreateSystem const& cs){
 
 template<typename Type>
 void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax, unsigned int const& type){
-	IOFiles results(path+cs.get_filename()+".jdbin",true);
-	results("number of simulations runned",nruns);
+	IOFiles file_results(path+cs.get_filename()+".jdbin",true);
+	file_results("number of simulations runned",nruns);
 	RST rst;
 	rst.title("Input","-");
-	results.add_to_header(rst.get());
+	file_results.add_to_header(rst.get());
 	rst.set();
-	cs.save(results);
+	cs.save(file_results);
 	rst.title("Results","-");
-	results.add_to_header(rst.get());
+	file_results.add_to_header(rst.get());
 
 	Data<double> E;
 	DataSet<double> corr;
@@ -78,20 +78,20 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 			E.add_sample((sim.get_system())->get_energy());
 			corr.add_sample((sim.get_system())->get_corr());
 			long_range_corr.add_sample((sim.get_system())->get_long_range_corr());
-			(sim.get_system())->save(results);
+			(sim.get_system())->save(file_results);
 		}
 		delete S;
 	}
 
 	E.complete_analysis();
 	corr.complete_analysis();
-		long_range_corr.complete_analysis();
+	long_range_corr.complete_analysis();
 
 	rst.set();
 	rst.title("Mean results","-");
-	results.add_to_header(rst.get());
-	results("energy per site",E);
-	results("correlation on links",corr);
-	results("long range correlation",long_range_corr);
+	file_results.add_to_header(rst.get());
+	file_results("energy per site",E);
+	file_results("correlation on links",corr);
+	file_results("long range correlation",long_range_corr);
 
 }
