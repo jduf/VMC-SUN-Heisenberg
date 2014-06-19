@@ -16,7 +16,7 @@ class System{
 		unsigned int const& get_M() const { return M_;}
 		int const& get_bc() const { return bc_;}
 
-		System const& get_system() const { return (*this);}
+		System const* get_system() const { return this;}
 
 		/*!Returns energy*/
 		Data<double> const& get_energy() const {return E_;}
@@ -43,8 +43,9 @@ class System{
 		DataSet<double> corr_;
 		DataSet<double> long_range_corr_;
 
+		System():ref_(0),n_(0),N_(0),m_(0),M_(0){std::cout<<"system default"<<std::endl;};
+
 	private:
 		System& operator=(System const& s);
-		System();
 };
 #endif

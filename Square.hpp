@@ -6,7 +6,7 @@
 template<typename Type>
 class Square: public GenericSystem<Type>{
 	public:
-		Square(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref, std::string const& filename);
+		Square(std::string const& filename);
 		virtual ~Square();
 
 	protected:
@@ -18,8 +18,8 @@ class Square: public GenericSystem<Type>{
 };
 
 template<typename Type>
-Square<Type>::Square(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref, std::string const& filename):
-	GenericSystem<Type>(N,n,m,bc,ref,4,filename),
+Square<Type>::Square(std::string const& filename):
+	GenericSystem<Type>(4,filename),
 	Lx_(std::floor(std::sqrt(this->n_))),
 	Ly_(std::floor(std::sqrt(this->n_)))
 {

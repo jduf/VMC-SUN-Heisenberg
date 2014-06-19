@@ -1,7 +1,8 @@
 #include "KagomeVBC.hpp"
 
 KagomeVBC::KagomeVBC(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
-	Kagome<std::complex<double> >(N,n,m,bc,ref,1,1,9,"kagome-vbc")
+	System(N,n,m,bc,ref),
+	Kagome<std::complex<double> >(1,1,9,"kagome-vbc")
 {
 	rst_.text("KagomeVBC : All hopping term are identical, therefore the unit cell contains only 3 sites");
 }

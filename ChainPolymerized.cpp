@@ -1,8 +1,10 @@
 #include "ChainPolymerized.hpp"
 
 ChainPolymerized::ChainPolymerized(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
-	Chain<double>(N,n,m,bc,ref,"chain-polymerized")
+	System(N,n,m,bc,ref),
+	Chain<double>("chain-polymerized")
 {
+	std::cout<<"chainpolymerized"<<N<<" "<<N_<<std::endl;
 	rst_.text("Spin chain, with different real hopping term.");
 	rst_.text("For N colors and m particules per sites, every");
 	rst_.text("N/m, there is a weaker bound, namely t-delta");

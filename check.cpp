@@ -20,14 +20,14 @@ int main(int argc, char* argv[]){
 				cs.save(w);
 				if(cs.use_complex()){
 					MCSystem<std::complex<double> >* S(NULL);
-					S = new SystemFermionic<std::complex<double> >(cs,type);
+					S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system()),type); 
 					MonteCarlo<std::complex<double> > sim(S,tmax);
 					sim.run();
 					(sim.get_system())->save(w);
 					delete S;
 				} else {
-					MCSystem<double>* S(NULL);
-					S = new SystemFermionic<double>(cs,type);
+					MCSystem<double>* S(NULL); 
+					S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system()),type); 
 					MonteCarlo<double> sim(S,tmax);
 					sim.run();
 					(sim.get_system())->save(w);

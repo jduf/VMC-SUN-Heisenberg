@@ -1,16 +1,14 @@
 #ifndef DEF_BOSONIC
 #define DEF_BOSONIC
 
-#include "Matrix.hpp"
-#include "Vector.hpp"
+#include "System.hpp"
 
 /*!Class that contains the information on the state*/
 template<typename Type>
-class Bosonic{
+class Bosonic : public virtual System{
 	public:
 		Bosonic(Bosonic<Type> const& b);
 		virtual ~Bosonic();
-		Bosonic();
 
 		Vector<unsigned int> const& get_sl() const { return sl_;}
 		Matrix<unsigned int> const& get_nn() const { return nn_;}
@@ -27,21 +25,20 @@ class Bosonic{
 		Matrix<double> nu_;
 		Matrix<Type> omega_;
 
+		Bosonic(){};
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
 Bosonic<Type>::Bosonic(Bosonic<Type> const& b):
+	System(b),
 	sl_(b.sl_),
 	nn_(b.nn_),
 	cc_(b.cc_),
 	nu_(b.nu_),
 	omega_(b.omega_)
 {}
-
-template<typename Type>
-Bosonic<Type>::Bosonic(){}
 
 template<typename Type>
 Bosonic<Type>::~Bosonic(){}

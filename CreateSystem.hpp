@@ -18,7 +18,7 @@ class CreateSystem{
 			if(CGL_){CGL_->create(x,type);}
 		}
 
-		System const& get_system() const { 
+		System const* get_system() const { 
 			if(RGL_) {return RGL_->get_system();}
 			else {return CGL_->get_system();}
 		}

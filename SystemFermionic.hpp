@@ -5,9 +5,9 @@
 
 /*!Class that contains the information on the state*/
 template<typename Type>
-class SystemFermionic : public MCSystem<Type>, Fermionic<Type>{
+class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 	public:
-		SystemFermionic(CreateSystem const& cs, unsigned int const& type);
+		SystemFermionic(Fermionic<Type> const& S, unsigned int const& type);
 		~SystemFermionic();
 
 		/*!Set row and new_ev*/
@@ -15,20 +15,20 @@ class SystemFermionic : public MCSystem<Type>, Fermionic<Type>{
 		/*!Set row and new_ev*/
 		void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
 
-		//{Description
-		/*!Computes the ratio of the two determinants related to the current
+		/*{Description
+		*!Computes the ratio of the two determinants related to the current
 		 * and next configuration
 		 * - when particle of the same color are exchanged a minus sign arises 
 		 *   to conserve the Marshall-Peierls sign rule
 		 * - when two different colors are exchanged, computes the ratio using
 		 *   the determinant lemma
-		 */ //}
+		}*/
 		Type ratio();
-		//{Description
-		/*!Calls System::update() and then
+		/*{Description
+		*!Calls System::update() and then
 		 * - updates the Ainv_ matrices
 		 * - updates s_(new_s[i],1)
-		 */ //}
+		}*/ 
 		void update();
 
 	private:
@@ -50,9 +50,10 @@ class SystemFermionic : public MCSystem<Type>, Fermionic<Type>{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-SystemFermionic<Type>::SystemFermionic(CreateSystem const& cs, unsigned int const& type):
-	MCSystem<Type>(cs.get_system(),type),
-	Fermionic<Type>(cs.get_fermionic<Type>())
+SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S, unsigned int const& type):
+	System(S),
+	Fermionic<Type>(S),
+	MCSystem<Type>(S,type)
 {}
 
 template<typename Type>

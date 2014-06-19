@@ -1,7 +1,8 @@
 #include "KagomeFermi.hpp"
 
 KagomeFermi::KagomeFermi(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
-	Kagome<double>(N,n,m,bc,ref,1,1,3,"kagome-fermi")
+	System(N,n,m,bc,ref),
+	Kagome<double>(1,1,3,"kagome-fermi")
 {
 	rst_.text("KagomeFermi : All hopping term are identical, therefore the unit cell contains only 3 sites");
 }

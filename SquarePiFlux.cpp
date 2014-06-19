@@ -1,7 +1,8 @@
 #include "SquarePiFlux.hpp"
 
 SquarePiFlux::SquarePiFlux(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
-	Square<std::complex<double> >(N,n,m,bc,ref,"square-csl")
+	System(N,n,m,bc,ref),
+	Square<std::complex<double> >("square-csl")
 {
 	rst_.text("Chiral spin liquid, with 2pi/N flux per plaquette");
 }

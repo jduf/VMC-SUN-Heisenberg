@@ -1,8 +1,8 @@
 #ifndef DEF_BANDSTRUCTURE
 #define DEF_BANDSTRUCTURE
 
-#include "IOFiles.hpp"
 #include "Gnuplot.hpp"
+#include "Lapack.hpp"
 
 template<typename Type>
 class BandStructure{

@@ -6,7 +6,7 @@
 
 /*!Class that contains the information on the state*/
 template<typename Type>
-class MCSystem: public System{
+class MCSystem: public virtual System{
 	public:
 		MCSystem(System const& S, unsigned int const& type);
 		virtual ~MCSystem();
@@ -23,10 +23,10 @@ class MCSystem: public System{
 		/*!Returns the status*/
 		bool found_initial_state() const {return found_initial_state_;}
 
-		//{Description
-		/*!Computes the matrix element <a|H|b> where |a> and |b> differs by one
-		 * permutation */
-		//}
+		/*{Description
+		 * !Computes the matrix element <a|H|b> where |a> and |b> differs by one
+		 * permutation 
+		}*/
 		void measure_new_step();	
 		void add_sample();
 		bool is_converged(double const& tol);

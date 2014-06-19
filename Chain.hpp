@@ -6,7 +6,7 @@
 template<typename Type>
 class Chain: public GenericSystem<Type>{
 	public:
-		Chain(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref, std::string const& filename);
+		Chain(std::string const& filename);
 		virtual ~Chain();
 
 	protected:
@@ -15,13 +15,14 @@ class Chain: public GenericSystem<Type>{
 };
 
 template<typename Type>
-Chain<Type>::Chain(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref, std::string const& filename):
-	GenericSystem<Type>(N,n,m,bc,ref,2,filename),
-	a_(N/m)
+Chain<Type>::Chain(std::string const& filename):
+	GenericSystem<Type>(2,filename),
+	a_(this->N_/this->m_)
 {
+	std::cout<<"chain"<<std::endl;
 	unsigned int ppmc(1);
-	while(a_*m != ppmc*N && a_ < n){ a_ = ++ppmc * N/m; }
-	if(a_>n){ std::cerr<<"Chain::Chain(N,n,m,bc,filename) : no unit vector found"<<std::endl; } 
+	while(a_*this->m_ != ppmc*this->N_ && a_ < this->n_){ a_ = ++ppmc * this->N_/this->m_; }
+	if(a_>this->n_){ std::cerr<<"Chain::Chain(N,n,m,bc,filename) : no unit vector found"<<std::endl; } 
 	else { this->compute_links(); }
 }
 

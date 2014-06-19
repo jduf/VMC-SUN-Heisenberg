@@ -9,7 +9,9 @@ System::System(unsigned int const& N, unsigned int const& n, unsigned int const&
 	m_(m),
 	M_((m_*n_)/N_), 
 	bc_(bc)
-{}
+{
+	std::cout<<"system Nnm..."<<std::endl;
+}
 
 System::System(System const& s):
 	n_(s.n_),
@@ -18,7 +20,9 @@ System::System(System const& s):
 	M_(s.M_), 
 	bc_(s.bc_),
 	links_(s.links_)
-{}
+{
+	std::cout<<"system copy"<<std::endl;
+}
 
 System::~System(){}
 /*}*/

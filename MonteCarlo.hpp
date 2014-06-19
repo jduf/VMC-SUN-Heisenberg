@@ -48,16 +48,14 @@ class MonteCarlo{
 
 		/*!Find the next configuration and measure it*/
 		void next_step();
-		//{Private method that gives a shutoff condition
-		/*!Stops the simulation when
-		 *
+		/*{Private method that gives a shutoff condition 
+		 * !Stops the simulation when
 		 * - convergence is reached
 		 * - time limit is up
 		 * - kill=true
 		 *
 		 * If the E_ diverges, the simulation is restarted
-		 */
-		//}
+		}*/
 		bool keepon();
 
 		unsigned int const tmax_;//!< Time limit in second, by default 5min

@@ -2,18 +2,11 @@
 #define DEF_KAGOME
 
 #include "GenericSystem.hpp"
-#include "BandStructure.hpp"
 
 template<typename Type>
 class Kagome: public GenericSystem<Type>{
 	public:
-		Kagome(
-				unsigned int const& N,
-				unsigned int const& n, 
-				unsigned int const& m, 
-				int const& bc, 
-				Vector<unsigned int> const& ref,  
-				unsigned int const& Lx,
+		Kagome( unsigned int const& Lx,
 				unsigned int const& Ly,
 				unsigned int const& spuc, 
 				std::string const& filename);
@@ -29,16 +22,11 @@ class Kagome: public GenericSystem<Type>{
 
 template<typename Type>
 Kagome<Type>::Kagome(
-		unsigned int const& N, 
-		unsigned int const& n, 
-		unsigned int const& m, 
-		int const& bc, 
-		Vector<unsigned int> const& ref,  
 		unsigned int const& Lx,
 		unsigned int const& Ly,
 		unsigned int const& spuc,
 		std::string const& filename):
-	GenericSystem<Type>(N,n,m,bc,ref,4,filename),
+	GenericSystem<Type>(4,filename),
 	Lx_(Lx),
 	Ly_(Ly),
 	spuc_(spuc)

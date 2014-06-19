@@ -5,9 +5,9 @@
 
 /*!Class that contains the information on the state*/
 template<typename Type>
-class SystemBosonic : public MCSystem<Type>, Bosonic<Type>{
+class SystemBosonic : public Bosonic<Type>, public MCSystem<Type>{
 	public:
-		SystemBosonic(CreateSystem const& cs, unsigned int const& type);
+		SystemBosonic(Bosonic<Type> const& S, unsigned int const& type);
 		~SystemBosonic();
 
 		//{Description
@@ -32,9 +32,10 @@ class SystemBosonic : public MCSystem<Type>, Bosonic<Type>{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-SystemBosonic<Type>::SystemBosonic(CreateSystem const& cs, unsigned int const& type):
-	MCSystem<Type>(cs.get_system(),type),
-	Bosonic<Type>(cs.get_bosonic<Type>())
+SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S, unsigned int const& type):
+	System(S),
+	Bosonic<Type>(S),
+	MCSystem<Type>(S,type)
 {}
 
 template<typename Type>

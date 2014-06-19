@@ -35,8 +35,8 @@ int main(int argc, char* argv[]){
 }
 
 std::string init(CreateSystem const& cs){
-	std::string path("N"+tostring(cs.get_system().get_N())+"/m"+tostring(cs.get_system().get_m())+"/n"+tostring(cs.get_system().get_n())+"/");
-	switch(cs.get_system().get_bc()){
+	std::string path("N"+tostring(cs.get_system()->get_N())+"/m"+tostring(cs.get_system()->get_m())+"/n"+tostring(cs.get_system()->get_n())+"/");
+	switch(cs.get_system()->get_bc()){
 		case -1:{path += "A/";}break;
 		case 0: {path += "O/";}break;
 		case 1: {path += "P/";}break;
@@ -63,14 +63,14 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 	DataSet<double> corr;
 	DataSet<double> long_range_corr;
 	E.set_conv(true);
-	corr.set(cs.get_system().get_corr().size());
-	long_range_corr.set(cs.get_system().get_long_range_corr().size());
+	corr.set(cs.get_system()->get_corr().size());
+	long_range_corr.set(cs.get_system()->get_long_range_corr().size());
 
 #pragma omp parallel for 
 	for(unsigned int i=0;i<nruns;i++){
 		MCSystem<Type>* S(NULL);
-		if(cs.is_bosonic()){ S = new SystemBosonic<Type>(cs,type); } 
-		else { S = new SystemFermionic<Type>(cs,type); }
+		if(cs.is_bosonic()){ S = new SystemBosonic<Type>(*dynamic_cast<const Bosonic<Type>*>(cs.get_system()),type); } 
+		else { S = new SystemFermionic<Type>(*dynamic_cast<const Fermionic<Type>*>(cs.get_system()),type); }
 		MonteCarlo<Type> sim(S,tmax);
 		sim.run();
 #pragma omp critical

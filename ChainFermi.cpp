@@ -1,7 +1,8 @@
 #include"ChainFermi.hpp"
 
 ChainFermi::ChainFermi(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
-	Chain<double>(N,n,m,bc,ref,"chain-fermi")
+	System(N,n,m,bc,ref),
+	Chain<double>("chain-fermi")
 {
 	rst_.text("Spin ChainFermi, all the hopping parameters are real");
 }
