@@ -63,7 +63,7 @@ void KagomeVBC::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex
 	for(unsigned int j(0);j<Ly_;j++){
 		for(unsigned int i(0);i<Lx_-1;i++){
 			for(unsigned int k(0);k<spuc_;k++){
-				Px(spuc_*(i + j*Lx_) + k, spuc_*(i + j*Lx_) + k+spuc_) = 1.0;
+				Px(spuc_*(i + j*Lx_) + k, spuc_*(i + j*Lx_) + k + spuc_) = 1.0;
 			}
 		}
 		for(unsigned int k(0);k<spuc_;k++){
@@ -95,13 +95,8 @@ void KagomeVBC::create(double const& x, unsigned int const& type){
 	}
 }
 
-void KagomeVBC::check(){
-	compute_T();
-	//Matrix<std::complex<double> > Px;
-	//Matrix<std::complex<double> > Py;
-	//compute_P(Px,Py);
-	//BandStructure<std::complex<double> > bs(T_,Px,Py);
-	PSTricks ps("./","lattice",false);
+void KagomeVBC::lattice(){
+	PSTricks ps("./","lattice");
 	Matrix<int> nb;
 	double x0;
 	double x1;
@@ -126,168 +121,6 @@ void KagomeVBC::check(){
 	ps.polygon(xy,"linewidth="+tostring(1)+"pt,linecolor=red");
 	unsigned int s;
 
-	//for(unsigned int i(0);i<Lx_;i++) {
-		//for(unsigned int j(0);j<Ly_;j++) {
-			///*site 0*/
-			//s = spuc_*(i+j*Lx_);
-			//nb = get_neighbourg(s);
-			//x0 = ll*(0.5+sin(M_PI/6.0)) + i*4.0*cos(M_PI/6.0) + j*2.0*cos(M_PI/6.0);
-			///*0.05 is there so there is no problem with latex and it shows
-			// * better which sites are in the unit cell*/
-			//y0 = 0.05 + ll/2.0 + j*3.0; 
-			//ps.put(x0+0.2,y0+0.2,tostring(s));
-			//x1 = x0+ll*cos(3.0*M_PI/6.0);
-			//y1 = y0+ll*sin(3.0*M_PI/6.0);
-			//if(real(T_(s,nb(0,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*0-1*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(5.0*M_PI/6.0);
-			//y1 = y0+ll*sin(5.0*M_PI/6.0);
-			//if(real(T_(s,nb(1,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*0-8*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-//
-			///*site 1*/
-			//s = spuc_*(i+j*Lx_)+1;
-			//nb = get_neighbourg(s);
-			//x0 = x0+ll*cos(3.0*M_PI/6.0);
-			//y0 = y0+ll*sin(3.0*M_PI/6.0);
-			//ps.put(x0+0.2,y0-0.2,tostring(s));
-			//x1 = x0+ll*cos(1.0*M_PI/6.0);
-			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//if(real(T_(s,nb(0,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*1-2*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(3.0*M_PI/6.0);
-			//y1 = y0+ll*sin(3.0*M_PI/6.0);
-			//if(real(T_(s,nb(1,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*1-7*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-//
-			///*site 2*/
-			//s = spuc_*(i+j*Lx_)+2;
-			//nb = get_neighbourg(s);
-			//x0 = x0+ll*cos(1.0*M_PI/6.0);
-			//y0 = y0+ll*sin(1.0*M_PI/6.0);
-			//ps.put(x0,y0-0.2,tostring(spuc_*(i+j*Lx_)+2));
-			//x1 = x0+ll*cos(1.0*M_PI/6.0);
-			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//double x6(x1);
-			//double y6(y1);
-			//if(real(T_(s,nb(0,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*2-6*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(5.0*M_PI/6.0);
-			//y1 = y0+ll*sin(5.0*M_PI/6.0);
-			//if(real(T_(s,nb(1,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*2-7*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-//
-			///*site 3*/
-			//s = spuc_*(i+j*Lx_)+3;
-			//nb = get_neighbourg(s);
-			//x0 = x0+ll*cos(-1.0*M_PI/6.0);
-			//y0 = y0+ll*sin(-1.0*M_PI/6.0);
-			//ps.put(x0-0.2,y0-0.2,tostring(s));
-			//x1 = x0+ll*cos(3.0*M_PI/6.0);
-			//y1 = y0+ll*sin(3.0*M_PI/6.0);
-			//if(real(T_(s,nb(0,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*3-6*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(5.0*M_PI/6.0);
-			//y1 = y0+ll*sin(5.0*M_PI/6.0);
-			//if(real(T_(s,nb(1,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*3-2*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-//
-			///*site 4*/
-			//s = spuc_*(i+j*Lx_)+4;
-			//nb = get_neighbourg(s);
-			//x0 = x0+ll*cos(-3.0*M_PI/6.0);
-			//y0 = y0+ll*sin(-3.0*M_PI/6.0);
-			//ps.put(x0-0.2,y0+0.2,tostring(s));
-			//x1 = x0+ll*cos(1.0*M_PI/6.0);
-			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//double x8(x1);
-			//double y8(y1);
-			//if(real(T_(s,nb(0,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*4-8*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(3.0*M_PI/6.0);
-			//y1 = y0+ll*sin(3.0*M_PI/6.0);
-			//if(real(T_(s,nb(1,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*4-3*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-//
-			///*site 5*/
-			//s = spuc_*(i+j*Lx_)+5;
-			//nb = get_neighbourg(s);
-			//x0 = x0-ll*cos(1.0*M_PI/6.0);
-			//y0 = y0-ll*sin(1.0*M_PI/6.0);
-			//ps.put(x0,y0+0.2,tostring(s));
-			//x1 = x0+ll*cos(1.0*M_PI/6.0);
-			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//if(real(T_(s,nb(0,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*5-4*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(5.0*M_PI/6.0);
-			//y1 = y0+ll*sin(5.0*M_PI/6.0);
-			//if(real(T_(s,nb(1,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*0-1*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-//
-			///*site 6*/
-			//s = spuc_*(i+j*Lx_)+6;
-			//nb = get_neighbourg(s);
-			//x0 = x6;
-			//y0 = y6;
-			//ps.put(x0+0.2,y0-0.2,tostring(s));
-			//x1 = x0+ll*cos(1.0*M_PI/6.0);
-			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//if(real(T_(s,nb(0,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*6-5*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(3.0*M_PI/6.0);
-			//y1 = y0+ll*sin(3.0*M_PI/6.0);
-			//if(real(T_(s,nb(1,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*6-0*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-//
-			///*site 7*/
-			//s = spuc_*(i+j*Lx_)+7;
-			//nb = get_neighbourg(s);
-			//x0 = x0+ll*(cos(1.0*M_PI/6.0)+cos(-1.0*M_PI/6.0));
-			//y0 = y0+ll*(sin(1.0*M_PI/6.0)+sin(-1.0*M_PI/6.0));
-			//ps.put(x0-0.2,y0-0.2,tostring(s));
-			//x1 = x0+ll*cos(3.0*M_PI/6.0);
-			//y1 = y0+ll*sin(3.0*M_PI/6.0);
-			//if(real(T_(s,nb(0,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*7-5*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(5.0*M_PI/6.0);
-			//y1 = y0+ll*sin(5.0*M_PI/6.0);
-			//if(real(T_(s,nb(1,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*7-0*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-//
-			///*site 8*/
-			//s = spuc_*(i+j*Lx_)+8;
-			//nb = get_neighbourg(s);
-			//x0 = x8;
-			//y0 = y8;
-			//ps.put(x0,y0+0.2,tostring(s));
-			//x1 = x0+ll*cos(1.0*M_PI/6.0);
-			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//if(real(T_(s,nb(0,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*8-1*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(5.0*M_PI/6.0);
-			//y1 = y0+ll*sin(5.0*M_PI/6.0);
-			//if(real(T_(s,nb(1,0)))>0){ color = "green";}
-			//else { color = "blue"; }
-			///*8-3*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
-		//}
-	//}
 	for(unsigned int i(0);i<Lx_;i++) {
 		for(unsigned int j(0);j<Ly_;j++) {
 			/*site 0*/
@@ -454,5 +287,13 @@ void KagomeVBC::check(){
 		}
 	}
 	ps.add("\\end{pspicture}");
-	ps.pdf();
+	ps.save(true,true);
+}
+
+void KagomeVBC::check(){
+	compute_T();
+	Matrix<std::complex<double> > Px;
+	Matrix<std::complex<double> > Py;
+	compute_P(Px,Py);
+	BandStructure<std::complex<double> > bs(T_,Px,Py);
 }

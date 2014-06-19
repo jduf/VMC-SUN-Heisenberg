@@ -11,7 +11,7 @@ class MCSystem: public System{
 		MCSystem(System const& S, unsigned int const& type);
 		virtual ~MCSystem();
 
-		/*!Exchanges two particles of different color */
+		/*!Exchanges two particles of different colors*/
 		virtual void swap();
 		/*!Exchanges particle on site s1 with the one on site s2*/
 		virtual void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);

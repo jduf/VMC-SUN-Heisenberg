@@ -2,7 +2,6 @@
 #define DEF_KAGOMEFERMI
 
 #include "Kagome.hpp"
-#include "BandStructure.hpp"
 
 class KagomeFermi: public Kagome<double>{
 	public:

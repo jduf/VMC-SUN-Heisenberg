@@ -17,8 +17,8 @@ class Fermionic{
 		Fermionic<Type> const& get_fermionic() const { return (*this);}
 
 	protected:
-		Matrix<Type> T_;			//!< Gutzwiller Hamiltonian
-		Matrix<Type> EVec_;			//!< eigenvectors Matrix (transfer Matrix)
+		Matrix<Type> T_;	//!< Trial Hamiltonian
+		Matrix<Type> EVec_;	//!< eigenvectors Matrix (transfer Matrix)
 };
 
 /*constructors and destructor and initialization*/

@@ -2,6 +2,7 @@
 #define DEF_KAGOME
 
 #include "GenericSystem.hpp"
+#include "BandStructure.hpp"
 
 template<typename Type>
 class Kagome: public GenericSystem<Type>{
@@ -173,15 +174,15 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 					case 5:
 						{
 							nb(0,0) = i-5;
-							if(i>=(Lx_*9)){ nb(2,0) = i+1-Lx_*9; }
+							if(i>=(Lx_*9)){ nb(1,0) = i+1-Lx_*9; }
 							else { 
-								nb(2,0) = i+1+(Ly_-1)*Lx_*9;
-								nb(2,1) = this->bc_; 
+								nb(1,0) = i+1+(Ly_-1)*Lx_*9;
+								nb(1,1) = this->bc_; 
 							}
-							if(i>=(Lx_*9)){ nb(3,0) = i+2-Lx_*9; }
+							if(i>=(Lx_*9)){ nb(2,0) = i+2-Lx_*9; }
 							else { 
-								nb(3,0) = i+2+(Ly_-1)*Lx_*9;
-								nb(3,1) = this->bc_; 
+								nb(2,0) = i+2+(Ly_-1)*Lx_*9;
+								nb(2,1) = this->bc_; 
 							}
 							nb(3,0) = i-1;
 						}break;

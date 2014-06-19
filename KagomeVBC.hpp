@@ -2,8 +2,6 @@
 #define DEF_KAGOMEVBC
 
 #include "Kagome.hpp"
-#include "BandStructure.hpp"
-#include "PSTricks.hpp"
 
 class KagomeVBC: public Kagome<std::complex<double> >{
 	public:
