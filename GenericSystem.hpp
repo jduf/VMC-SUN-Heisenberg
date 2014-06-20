@@ -17,7 +17,6 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>{
 		/*Simple destructor*/
 		virtual ~GenericSystem();
 
-		unsigned int get_num_links() const { return this->links_.row();}
 		virtual	std::string get_filename() const = 0;
 
 		virtual void create(double const& param, unsigned int const& type) = 0;
@@ -28,7 +27,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>{
 
 	protected:
 		unsigned int const z_;		//!< coordination number
-		std::string filename_;		//!< filename of the System
+		std::string filename_;		//!< filename
 		RST rst_;
 
 		/*!return the neighbours of site i*/
@@ -43,7 +42,12 @@ GenericSystem<Type>::GenericSystem(unsigned int const& z, std::string const& fil
 	filename_(filename)
 { 
 	std::cout<<"genericsystem"<<std::endl;
-	if(this->M_*this->N_ != this->m_*this->n_){ std::cerr<<"GenericSystem::GenericSystem(N,n,m,z,filename) : there is not an equal number of color"<<std::endl; }
+	unsigned int n_tot(0);
+	for(unsigned int c(0);c<this->N_;c++){ 
+		this->M_(c) = (this->m_*this->n_ )/ this->N_;
+		n_tot += this->M_(c); 
+	}
+	if(n_tot != this->m_*this->n_){ std::cerr<<"GenericSystem::GenericSystem(N,n,m,z,filename) : there is not an equal number of color"<<std::endl; }
 	if(this->m_>this->N_){ std::cerr<<"GenericSystem::GenericSystem(N,n,m,z,filename) : m>N is impossible"<<std::endl;} 
 	filename_ += "-N" + tostring(this->N_);
 	filename_ += "-m" + tostring(this->m_);
@@ -83,7 +87,6 @@ void GenericSystem<Type>::compute_links(){
 	}
 }
 
-
 template<typename Type>
 void GenericSystem<Type>::save(IOFiles& w) const {
 	w.add_to_header(rst_.get());
@@ -91,6 +94,7 @@ void GenericSystem<Type>::save(IOFiles& w) const {
 	w("N (N of SU(N))",this->N_);
 	w("m (# of particles per site)",this->m_);
 	w("n (# of site)",this->n_);
+	//w("M (# of particles for each color)",this->M_);
 	w("bc (boundary condition)",this->bc_);
 }
 #endif

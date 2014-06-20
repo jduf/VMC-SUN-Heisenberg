@@ -74,7 +74,8 @@ MCSystem<Type>::~MCSystem(){
 
 template<typename Type>
 void MCSystem<Type>::init(unsigned int const& thread){
-	s_.set(this->n_,this->M_);
+	std::cerr<<"MCSystem init check that s_.set(n,m) is ok and not s_.set(n,M_)"<<std::endl;
+	s_.set(this->n_,this->m_);
 	rnd_ = new Rand(100,thread);
 	set(); 
 	init();

@@ -3,11 +3,11 @@
 /*constructors and destructor*/
 /*{*/
 System::System(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
-	ref_(ref),
 	n_(n),
 	N_(N), 
 	m_(m),
-	M_((m_*n_)/N_), 
+	ref_(ref),
+	M_(N),
 	bc_(bc)
 {
 	std::cout<<"system Nnm..."<<std::endl;
@@ -17,14 +17,13 @@ System::System(System const& s):
 	n_(s.n_),
 	N_(s.N_), 
 	m_(s.m_),
-	M_(s.M_), 
+	ref_(s.ref_),
+	M_(s.M_),
 	bc_(s.bc_),
 	links_(s.links_)
 {
 	std::cout<<"system copy"<<std::endl;
 }
-
-System::~System(){}
 /*}*/
 
 void System::save(IOFiles& w) const {

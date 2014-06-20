@@ -39,10 +39,6 @@ class CreateSystem{
 			if(CGL_) {return CGL_->is_degenerate();}
 			return true;
 		}
-		template<typename Type>
-			Bosonic<Type> const& get_bosonic() const;
-		template<typename Type>
-			Fermionic<Type> const& get_fermionic() const;
 
 		void save(IOFiles& w) const{
 			if(RGL_){RGL_->save(w);}

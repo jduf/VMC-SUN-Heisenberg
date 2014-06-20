@@ -25,7 +25,7 @@ class Bosonic : public virtual System{
 		Matrix<double> nu_;
 		Matrix<Type> omega_;
 
-		Bosonic(){};
+		Bosonic(){std::cout<<"bosonic default"<<std::endl;};
 };
 
 /*constructors and destructor*/

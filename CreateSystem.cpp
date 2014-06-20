@@ -199,27 +199,3 @@ void CreateSystem::init(unsigned int const& N, unsigned int const& n, unsigned i
 		default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 	}
 }
-
-/*specialization of get methods*/
-/*{*/
-template<>
-Bosonic<double> const& CreateSystem::get_bosonic() const { 
-	return RGL_->get_bosonic();
-}
-
-template<>
-Bosonic<std::complex<double> > const& CreateSystem::get_bosonic() const { 
-	return CGL_->get_bosonic();
-}
-
-template<>
-Fermionic<double> const& CreateSystem::get_fermionic() const { 
-	return RGL_->get_fermionic();
-}
-
-template<>
-Fermionic<std::complex<double> > const& CreateSystem::get_fermionic() const { 
-	return CGL_->get_fermionic();
-}
-/*}*/
-

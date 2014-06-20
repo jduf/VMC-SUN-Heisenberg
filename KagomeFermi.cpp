@@ -52,10 +52,13 @@ void KagomeFermi::create(double const& x, unsigned int const& type){
 	if(type!=2){std::cerr<<"KagomeFermi::create(double x, unsigned int const& type) : type unknown"<<x<<std::endl;}
 	compute_T();
 	diagonalize_T('S');
-	for(unsigned int spin(0);spin<N_;spin++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+spin*n_,j) = T_(i,j);
+	for(unsigned int c(0);c<N_;c++){
+		if(!is_degenerate(c)){
+			EVec_[c].set(n_,M_(c));
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = T_(i,j);
+				}
 			}
 		}
 	}

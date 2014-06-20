@@ -13,12 +13,12 @@ int main(int argc, char* argv[]){
 	unsigned int tmax(P.get<unsigned int>("tmax"));
 	CreateSystem cs(P);
 	if(!P.status()){
-		std::string path(init(cs));
 		if(P.is_vector("param")){
 			Vector<double> param(P.get<Vector<double> >("param"));
 			for(unsigned int i(0);i<param.size();i++){
 				cs.create(param(i),type);
 				if(!cs.is_degenerate()){
+					std::string path(init(cs));
 					if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); } 
 					else { run<double>(cs,path,nruns,tmax,type); }
 				}
@@ -27,6 +27,7 @@ int main(int argc, char* argv[]){
 			double param(P.get<double>("param"));
 			cs.create(param,type);
 			if(!cs.is_degenerate()){
+				std::string path(init(cs));
 				if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); }
 				else { run<double>(cs,path,nruns,tmax,type); }
 			}
@@ -93,5 +94,4 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 	file_results("energy per site",E);
 	file_results("correlation on links",corr);
 	file_results("long range correlation",long_range_corr);
-
 }

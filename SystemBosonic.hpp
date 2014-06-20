@@ -36,7 +36,9 @@ SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S, unsigned int const& t
 	System(S),
 	Bosonic<Type>(S),
 	MCSystem<Type>(S,type)
-{}
+{
+	std::cerr<<"SystemBosonic will need to check everything"<<std::endl;
+}
 
 template<typename Type>
 void SystemBosonic<Type>::init(){
@@ -48,10 +50,10 @@ void SystemBosonic<Type>::init(){
 		available(i) = i;
 	}
 	for(unsigned int c(0); c<this->N_; c++){
-		for(unsigned int i(0); i < this->M_; i++){
+		for(unsigned int i(0); i < this->M_(c); i++){
 			site = this->rnd_->get(N_as);
 			this->s_(available(site),0) = c;
-			this->s_(available(site),1) = c*this->M_+i;
+			this->s_(available(site),1) = c*this->M_(c)+i;
 			for(unsigned int j(site); j+1 < N_as; j++){
 				available(j) = available(j+1);
 			}

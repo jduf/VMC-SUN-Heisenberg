@@ -4,7 +4,7 @@ ChainPolymerized::ChainPolymerized(unsigned int const& N, unsigned int const& n,
 	System(N,n,m,bc,ref),
 	Chain<double>("chain-polymerized")
 {
-	std::cout<<"chainpolymerized"<<N<<" "<<N_<<std::endl;
+	std::cout<<"chainpolymerized"<<std::endl;
 	rst_.text("Spin chain, with different real hopping term.");
 	rst_.text("For N colors and m particules per sites, every");
 	rst_.text("N/m, there is a weaker bound, namely t-delta");
@@ -18,14 +18,15 @@ void ChainPolymerized::create(double const& delta, unsigned int const& type){
 	corr_.set(n_);
 	if(type==2){ long_range_corr_.set(n_/3); }
 
-	EVec_.set(n_*N_,M_,0);
-
+	init_fermionic();
 	compute_T();
 	diagonalize_T('S');
-	for(unsigned int spin(0);spin<N_;spin++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+spin*n_,j) = T_(i,j);
+	for(unsigned int c(0);c<N_;c++){
+		if(!is_degenerate(c)){
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = T_(i,j);
+				}
 			}
 		}
 	}
@@ -69,4 +70,5 @@ void ChainPolymerized::check(){
 	Matrix<double> P;
 	compute_P(P);
 	BandStructure<double> bs(T_,P);
+	std::cout<<T_<<std::endl;
 }

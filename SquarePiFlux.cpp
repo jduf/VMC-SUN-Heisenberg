@@ -16,14 +16,16 @@ void SquarePiFlux::create(double const& x, unsigned int const& type){
 		default:{std::cerr<<"ChainFermi::create(x,type) : unknown type"<<std::endl;}
 	}
 	T_.set(n_,n_,0);
-	EVec_.set(n_*N_,M_,0);
 
 	compute_T();
 	diagonalize_T('H');
-	for(unsigned int spin(0);spin<N_;spin++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+spin*n_,j) = T_(i,j);
+	for(unsigned int c(0);c<N_;c++){
+		if(!is_degenerate(c)){
+			EVec_[c].set(n_,M_(c));
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = T_(i,j);
+				}
 			}
 		}
 	}

@@ -86,11 +86,14 @@ void KagomeVBC::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex
 void KagomeVBC::create(double const& x, unsigned int const& type){
 	if(type!=2){std::cerr<<"KagomeVBC::create(double x, unsigned int const& type) : type unknown"<<x<<std::endl;}
 	compute_T();
-	diagonalize_T('S');
-	for(unsigned int spin(0);spin<N_;spin++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+spin*n_,j) = T_(i,j);
+	diagonalize_T('H');
+	for(unsigned int c(0);c<N_;c++){
+		if(!is_degenerate(c)){
+			EVec_[c].set(n_,M_(c));
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = T_(i,j);
+				}
 			}
 		}
 	}
@@ -292,9 +295,11 @@ void KagomeVBC::lattice(){
 }
 
 void KagomeVBC::check(){
+	init_fermionic();
 	compute_T();
-	Matrix<std::complex<double> > Px;
-	Matrix<std::complex<double> > Py;
-	compute_P(Px,Py);
-	BandStructure<std::complex<double> > bs(T_,Px,Py);
+	//Matrix<std::complex<double> > Px;
+	//Matrix<std::complex<double> > Py;
+	//compute_P(Px,Py);
+	//BandStructure<std::complex<double> > bs(T_,Px,Py);
+	lattice();
 }
