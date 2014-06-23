@@ -15,11 +15,11 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>{
 		/*!Constructor N, n, m and z is the coordination number*/
 		GenericSystem(unsigned int const& z, std::string const& filename); 
 		/*Simple destructor*/
-		virtual ~GenericSystem();
+		virtual ~GenericSystem(){}
 
-		virtual	std::string get_filename() const = 0;
+		std::string get_filename() const { return filename_; }
 
-		virtual void create(double const& param, unsigned int const& type) = 0;
+		virtual void create(unsigned int const& type) = 0;
 		virtual void save(IOFiles& w) const;
 		virtual void check() = 0;
 
@@ -42,13 +42,6 @@ GenericSystem<Type>::GenericSystem(unsigned int const& z, std::string const& fil
 	filename_(filename)
 { 
 	std::cout<<"genericsystem"<<std::endl;
-	unsigned int n_tot(0);
-	for(unsigned int c(0);c<this->N_;c++){ 
-		this->M_(c) = (this->m_*this->n_ )/ this->N_;
-		n_tot += this->M_(c); 
-	}
-	if(n_tot != this->m_*this->n_){ std::cerr<<"GenericSystem::GenericSystem(N,n,m,z,filename) : there is not an equal number of color"<<std::endl; }
-	if(this->m_>this->N_){ std::cerr<<"GenericSystem::GenericSystem(N,n,m,z,filename) : m>N is impossible"<<std::endl;} 
 	filename_ += "-N" + tostring(this->N_);
 	filename_ += "-m" + tostring(this->m_);
 	filename_ += "-n" + tostring(this->n_);
@@ -59,9 +52,6 @@ GenericSystem<Type>::GenericSystem(unsigned int const& z, std::string const& fil
 		default:{std::cerr<<"GenericSystem : Unknown boundary condition"<<std::endl;}
 	}
 }
-
-template<typename Type>
-GenericSystem<Type>::~GenericSystem(){}
 
 template<typename Type>
 void GenericSystem<Type>::compute_links(){

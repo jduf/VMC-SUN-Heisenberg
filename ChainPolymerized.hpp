@@ -5,13 +5,12 @@
 
 class ChainPolymerized: public Chain<double> {
 	public:
-		ChainPolymerized(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref);
+		ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, double delta);
 		~ChainPolymerized();
 
-		void create(double const& x, unsigned int const& type);
+		void create(unsigned int const& type);
 		void check();
 		void save(IOFiles& w) const;
-		std::string get_filename() const { return filename_ + "-delta" + tostring(delta_);}
 		
 	private:
 		void compute_P(Matrix<double>& P);

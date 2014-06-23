@@ -1,9 +1,12 @@
 #include "KagomeFermi.hpp"
 
-KagomeFermi::KagomeFermi(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
-	System(N,n,m,bc,ref),
+KagomeFermi::KagomeFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc):
+	System(ref,N,m,n,M,bc),
 	Kagome<double>(1,1,3,"kagome-fermi")
 {
+	init_fermionic();
+	compute_T();
+	
 	rst_.text("KagomeFermi : All hopping term are identical, therefore the unit cell contains only 3 sites");
 }
 
@@ -48,9 +51,9 @@ void KagomeFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
 	}
 }
 
-void KagomeFermi::create(double const& x, unsigned int const& type){
-	if(type!=2){std::cerr<<"KagomeFermi::create(double x, unsigned int const& type) : type unknown"<<x<<std::endl;}
-	compute_T();
+void KagomeFermi::create(unsigned int const& type){
+	if(type!=1){std::cerr<<"KagomeFermi::create(double x, unsigned int const& type) : type unknown"<<std::endl;}
+
 	diagonalize_T('S');
 	for(unsigned int c(0);c<N_;c++){
 		if(!is_degenerate(c)){

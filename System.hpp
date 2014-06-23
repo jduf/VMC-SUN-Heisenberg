@@ -7,12 +7,12 @@
 /*!Class that contains the information on the state*/
 class System{
 	public:
-		System(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref);
+		System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
 		virtual ~System(){}
 
-		unsigned int const& get_n() const { return n_;}
 		unsigned int const& get_N() const { return N_;}
 		unsigned int const& get_m() const { return m_;}
+		unsigned int const& get_n() const { return n_;}
 		int const& get_bc() const { return bc_;}
 
 		System const* get_system() const { return this;}
@@ -28,15 +28,15 @@ class System{
 
 	protected:
 		System(System const& s);
-		System():n_(0),N_(0),m_(0),ref_(0){std::cout<<"system default"<<std::endl;};
+		System():ref_(0),N_(0),m_(0),n_(0),bc_(0){std::cout<<"system default"<<std::endl;};
 
 		/*variables that will be saved*/
-		unsigned int const n_;//!< number of sites
+		Vector<unsigned int> const ref_;
 		unsigned int const N_;//!< number of colors
 		unsigned int const m_;//!< number of particles per site
-		Vector<unsigned int> const ref_;
+		unsigned int const n_;//!< number of sites
 		Vector<unsigned int> M_;//!< number of particles of each color 
-		int bc_;//!< boundary condition
+		int const bc_;//!< boundary condition
 
 		Data<double> E_;
 		DataSet<double> corr_;

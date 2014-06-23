@@ -1,9 +1,12 @@
 #include "KagomeVBC.hpp"
 
-KagomeVBC::KagomeVBC(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
-	System(N,n,m,bc,ref),
+KagomeVBC::KagomeVBC(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc):
+	System(ref,N,m,n,M,bc),
 	Kagome<std::complex<double> >(1,1,9,"kagome-vbc")
 {
+	init_fermionic();
+	compute_T();
+
 	rst_.text("KagomeVBC : All hopping term are identical, therefore the unit cell contains only 3 sites");
 }
 
@@ -83,9 +86,9 @@ void KagomeVBC::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex
 	}
 }
 
-void KagomeVBC::create(double const& x, unsigned int const& type){
-	if(type!=2){std::cerr<<"KagomeVBC::create(double x, unsigned int const& type) : type unknown"<<x<<std::endl;}
-	compute_T();
+void KagomeVBC::create(unsigned int const& type){
+	if(type!=1){std::cerr<<"KagomeVBC::create(double x, unsigned int const& type) : type unknown"<<std::endl;}
+
 	diagonalize_T('H');
 	for(unsigned int c(0);c<N_;c++){
 		if(!is_degenerate(c)){

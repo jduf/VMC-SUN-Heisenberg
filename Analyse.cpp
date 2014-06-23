@@ -33,9 +33,9 @@ Analyse::Analyse(std::string argv):
 				IOFiles r_readme("README",false);
 				std::string h;
 				r_readme>>h;
-				rst_.get()->text(h);
+				rst_.first().text(h);
 				recursive_search();
-				rst_.get()->save(false);
+				rst_.first().save(false);
 			}break; 
 		case 1: /*treat the repository given as argument*/
 			{
@@ -166,17 +166,17 @@ void Analyse::search_jdbin(){
 		}
 
 		for(unsigned int i(0);i<all_link_names_.size();i++){
-			rst_.last()->hyperlink(all_link_names_[i],all_link_files_[i]);
+			rst_.last().hyperlink(all_link_names_[i],all_link_files_[i]);
 		}
 
 		if(level_>1){ 
 			switch(level_){
 				case 5: 
-					{ rst_.last()->link_figure(analysis_+path_+dir_.substr(0,dir_.size()-1)+".png","E.png",analysis_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
+					{ rst_.last().link_figure(analysis_+path_+dir_.substr(0,dir_.size()-1)+".png","E.png",analysis_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
 				case 3: 
-					{ rst_.last()->link_figure(analysis_+path_+dir_.substr(0,dir_.size()-1)+".png","d-merization.png",analysis_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
+					{ rst_.last().link_figure(analysis_+path_+dir_.substr(0,dir_.size()-1)+".png","d-merization.png",analysis_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
 			}
-			rst_.last()->text(write_->get_header());
+			rst_.last().text(write_->get_header());
 			delete write_;
 			write_ = NULL;
 		}
@@ -186,7 +186,7 @@ void Analyse::search_jdbin(){
 		}
 		all_link_names_.clear();
 		all_link_files_.clear();
-		rst_.last()->save(false);
+		rst_.last().save(false);
 	}
 }
 

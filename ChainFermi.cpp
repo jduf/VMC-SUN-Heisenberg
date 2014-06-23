@@ -1,16 +1,19 @@
 #include"ChainFermi.hpp"
 
-ChainFermi::ChainFermi(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
-	System(N,n,m,bc,ref),
-	Chain<double>("chain-fermi")
+ChainFermi::ChainFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
+	System(ref,N,m,n,M,bc),
+	Chain<double>(n,"chain-fermi")
 {
+	init_fermionic();
+	compute_T();
+
 	rst_.text("Spin ChainFermi, all the hopping parameters are real");
 }
 
 ChainFermi::~ChainFermi(){}
 
-void ChainFermi::create(double const& x, unsigned int const& type){
-	std::cout<<"ChainFermi::create "<<x<<" "<<type<<std::endl;
+void ChainFermi::create(unsigned int const& type){
+	std::cout<<"ChainFermi::create "<<" "<<type<<std::endl;
 	T_.set(n_,n_,0);
 
 	compute_T();
@@ -46,7 +49,6 @@ void ChainFermi::compute_P(Matrix<double>& P){
 }
 
 void ChainFermi::check(){
-	bc_ = -1;
 	compute_T();
 	std::cout<<T_<<std::endl;
 }

@@ -13,22 +13,12 @@ int main(int argc, char* argv[]){
 	unsigned int tmax(P.get<unsigned int>("tmax"));
 	CreateSystem cs(P);
 	if(!P.status()){
-		if(P.is_vector("param")){
-			Vector<double> param(P.get<Vector<double> >("param"));
-			for(unsigned int i(0);i<param.size();i++){
-				cs.create(param(i),type);
-				if(!cs.is_degenerate()){
-					std::string path(init(cs));
-					if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); } 
-					else { run<double>(cs,path,nruns,tmax,type); }
-				}
-			}
-		} else {
-			double param(P.get<double>("param"));
-			cs.create(param,type);
+		while(!cs.is_over()){
+			cs.init();
+			cs.create(type);
 			if(!cs.is_degenerate()){
 				std::string path(init(cs));
-				if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); }
+				if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); } 
 				else { run<double>(cs,path,nruns,tmax,type); }
 			}
 		}

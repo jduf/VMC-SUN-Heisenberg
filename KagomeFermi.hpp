@@ -5,12 +5,11 @@
 
 class KagomeFermi: public Kagome<double>{
 	public:
-		KagomeFermi(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref);
+		KagomeFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
 		~KagomeFermi();
 
-		void create(double const& x, unsigned int const& type);
+		void create(unsigned int const& type);
 		void check();
-		std::string get_filename() const { return filename_; }
 
 	protected:
 		void compute_T();

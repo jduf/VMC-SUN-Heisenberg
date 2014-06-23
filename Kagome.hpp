@@ -13,8 +13,8 @@ class Kagome: public GenericSystem<Type>{
 		virtual ~Kagome();
 
 	protected:
-		unsigned int Lx_;//!< dimension of the lattice along x-axis
-		unsigned int Ly_;//!< dimension of the lattice along y-axis
+		unsigned int Lx_;//!< number of unit cell along the x-axis
+		unsigned int Ly_;//!< number of unit cell along the y-axis
 		unsigned int spuc_;
 
 		virtual Matrix<int> get_neighbourg(unsigned int i) const;

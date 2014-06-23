@@ -7,15 +7,17 @@
 #include "KagomeFermi.hpp"
 #include "KagomeVBC.hpp"
 #include "Parseur.hpp"
+#include "List.hpp"
 
 class CreateSystem{
 	public:
 		CreateSystem(Parseur& P);
 		virtual ~CreateSystem();
 
-		void create(double const& x, unsigned int const& type){
-			if(RGL_){RGL_->create(x,type);}
-			if(CGL_){CGL_->create(x,type);}
+		void init();
+		void create(unsigned int const& type){
+			if(RGL_){RGL_->create(type);}
+			if(CGL_){CGL_->create(type);}
 		}
 
 		System const* get_system() const { 
@@ -50,12 +52,21 @@ class CreateSystem{
 			if(CGL_){return CGL_->check();}
 		}
 
+		bool is_over(){ return over_; }
+
 	private:
 		Vector<unsigned int> ref_;
+		unsigned int const N_;
+		unsigned int const n_;
+		unsigned int const m_;
+		Vector<unsigned int> M_;
+		int const bc_;
+		List<double> d_;
+		bool over_;
+
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
 
 		void parse(Parseur& P);
-		void init(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc);
 };
 #endif

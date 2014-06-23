@@ -1,23 +1,20 @@
 #include "SquarePiFlux.hpp"
 
-SquarePiFlux::SquarePiFlux(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
-	System(N,n,m,bc,ref),
+SquarePiFlux::SquarePiFlux(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc):
+	System(ref,N,m,n,M,bc),
 	Square<std::complex<double> >("square-csl")
 {
+	init_fermionic();
+	compute_T();
+	
 	rst_.text("Chiral spin liquid, with 2pi/N flux per plaquette");
 }
 
 SquarePiFlux::~SquarePiFlux(){}
 
-void SquarePiFlux::create(double const& x, unsigned int const& type){
-	std::cout<<"SquarePiFlux::create"<<x<<std::endl;
-	switch(type){
-		case 1:{}break;
-		default:{std::cerr<<"ChainFermi::create(x,type) : unknown type"<<std::endl;}
-	}
-	T_.set(n_,n_,0);
+void SquarePiFlux::create(unsigned int const& type){
+	if(type!=1){ std::cerr<<"ChainFermi::create(x,type) : unknown type"<<std::endl;}
 
-	compute_T();
 	diagonalize_T('H');
 	for(unsigned int c(0);c<N_;c++){
 		if(!is_degenerate(c)){

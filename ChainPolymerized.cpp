@@ -1,25 +1,29 @@
 #include "ChainPolymerized.hpp"
 
-ChainPolymerized::ChainPolymerized(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc, Vector<unsigned int> const& ref):
-	System(N,n,m,bc,ref),
-	Chain<double>("chain-polymerized")
+ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, double delta):
+	System(ref,N,m,n,M,bc),
+	Chain<double>(n*m/N,"chain-polymerized"),
+	delta_(delta)
 {
-	std::cout<<"chainpolymerized"<<std::endl;
+	std::cout<<M_<<std::endl;
+	init_fermionic();
+	compute_T();
+
+	filename_ += "-delta" + tostring(delta_);
 	rst_.text("Spin chain, with different real hopping term.");
 	rst_.text("For N colors and m particules per sites, every");
 	rst_.text("N/m, there is a weaker bound, namely t-delta");
 	rst_.text("instead of t+delta. (t=1,delta>0)");
+
+	std::cout<<"chainpolymerized"<<std::endl;
 }
 
 ChainPolymerized::~ChainPolymerized(){}
 
-void ChainPolymerized::create(double const& delta, unsigned int const& type){
-	delta_=delta;
+void ChainPolymerized::create(unsigned int const& type){
 	corr_.set(n_);
 	if(type==2){ long_range_corr_.set(n_/3); }
 
-	init_fermionic();
-	compute_T();
 	diagonalize_T('S');
 	for(unsigned int c(0);c<N_;c++){
 		if(!is_degenerate(c)){
@@ -38,13 +42,14 @@ void ChainPolymerized::compute_T(){
 	double t(1.0);
 	T_.set(n_,n_,0);
 	Matrix<int> nb;
-	for(unsigned int i(0); i < n_; i += a_){
-		for(unsigned int j(0); j<a_-1; j++){
+	unsigned int a(n_/Lx_);
+	for(unsigned int i(0); i < n_; i += a){
+		for(unsigned int j(0); j<a; j++){
 			nb = get_neighbourg(i+j);
 			T_(i+j,nb(0,0)) = t+delta_;
 		}
-		nb = get_neighbourg(i+a_-1);
-		T_(i+a_-1,nb(0,0)) = nb(0,1)*(t-delta_);
+		nb = get_neighbourg(i+a-1);
+		T_(i+a-1,nb(0,0)) = nb(0,1)*(t-delta_);
 	}
 	T_ += T_.transpose();
 }
@@ -59,16 +64,15 @@ void ChainPolymerized::compute_P(Matrix<double>& P){
 	}
 }
 
-void ChainPolymerized::save(IOFiles& w) const{
-	GenericSystem<double>::save(w);
-	w("delta (t+-delta)",delta_);
-}
-
 void ChainPolymerized::check(){
 	delta_=0.1;
-	compute_T();
 	Matrix<double> P;
 	compute_P(P);
 	BandStructure<double> bs(T_,P);
 	std::cout<<T_<<std::endl;
+}
+
+void ChainPolymerized::save(IOFiles& w) const{
+	GenericSystem<double>::save(w);
+	w("delta (t+-delta)",delta_);
 }

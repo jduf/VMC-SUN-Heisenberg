@@ -13,9 +13,8 @@ int main(int argc, char* argv[]){
 		case 2:/*run a normal MonteCarlo*/
 			{
 				unsigned int type(P.get<unsigned int>(i));
-				double param(P.get<double>("param"));
 				unsigned int tmax(3);
-				cs.create(param,type);
+				cs.create(type);
 				IOFiles w("check.jdbin",true);
 				cs.save(w);
 				if(cs.use_complex()){

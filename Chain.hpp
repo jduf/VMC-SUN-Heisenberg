@@ -6,28 +6,23 @@
 template<typename Type>
 class Chain: public GenericSystem<Type>{
 	public:
-		Chain(std::string const& filename);
-		virtual ~Chain();
+		Chain(unsigned int const& Lx, std::string const& filename);
+		virtual ~Chain(){}
 
 	protected:
 		Matrix<int> get_neighbourg(unsigned int i) const;
-		unsigned int a_;//vector of the unit cell
+		unsigned int Lx_;//!< number of unit cell along the x-axis
 };
 
 template<typename Type>
-Chain<Type>::Chain(std::string const& filename):
+Chain<Type>::Chain(unsigned int const& Lx, std::string const& filename):
 	GenericSystem<Type>(2,filename),
-	a_(this->N_/this->m_)
+	Lx_(Lx)
 {
 	std::cout<<"chain"<<std::endl;
-	unsigned int ppmc(1);
-	while(a_*this->m_ != ppmc*this->N_ && a_ < this->n_){ a_ = ++ppmc * this->N_/this->m_; }
-	if(a_>this->n_){ std::cerr<<"Chain::Chain(N,n,m,bc,filename) : no unit vector found"<<std::endl; } 
-	else { this->compute_links(); }
+	if(Lx_ * this->N_ == this->m_ * this-> n_){ this->compute_links(); }
+	else { std::cerr<<"Chain(Lx,filename) : unit cell not compatible with number of site"<<std::endl; }
 }
-
-template<typename Type>
-Chain<Type>::~Chain(){}
 
 template<typename Type>
 Matrix<int> Chain<Type>::get_neighbourg(unsigned int i) const {

@@ -7,7 +7,7 @@ template<typename Type>
 class Square: public GenericSystem<Type>{
 	public:
 		Square(std::string const& filename);
-		virtual ~Square();
+		virtual ~Square(){}
 
 	protected:
 		unsigned int Lx_;//!< dimension of the lattice along x-axis
@@ -31,9 +31,6 @@ Square<Type>::Square(std::string const& filename):
 		std::cerr<<"Square::Square(N,n,m,bc,filename) : the cluster is not a square"<<std::endl;
 	}
 }
-
-template<typename Type>
-Square<Type>::~Square(){}
 
 template<typename Type>
 Matrix<int> Square<Type>::get_neighbourg(unsigned int i) const {

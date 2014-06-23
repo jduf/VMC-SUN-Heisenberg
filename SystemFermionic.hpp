@@ -66,23 +66,26 @@ void SystemFermionic<Type>::init(){
 	}
 	row_.set(this->n_,this->m_);
 
+	unsigned int c(0);
+	Vector<unsigned int> M_tmp(this->M_);
+	for(unsigned int p(0); p<this->m_; p++){
+		for(unsigned int s(0); s<this->n_; s++){
+			this->s_(s,p) = c;
+			M_tmp(c) -= 1;
+			if(!M_tmp(c)){ c++; }
+		}
+	}
+
 	Vector<int> ipiv;
 	unsigned int TRY_MAX(100);
 	unsigned int l(0);
 	double rcn(0.0);
-	unsigned int k(0);
-	for(unsigned int i(0); i<this->n_; i++){
-		for(unsigned int j(0); j<this->m_; j++){
-			this->s_(i,j) = ++k % this->N_;
-		}
-	}
 	do {
-		for(unsigned int i(0); i<100*this->N_*(this->n_*this->m_)*(this->n_*this->m_);i++){
+		for(unsigned int i(0);i<1000*this->N_*(this->n_*this->m_)*(this->n_*this->m_);i++){
 			MCSystem<Type>::swap();
 			this->s_(this->new_s[0],this->new_p[0]) = this->new_c[1];
 			this->s_(this->new_s[1],this->new_p[1]) = this->new_c[0];
 		}
-		unsigned int c(0);
 		Vector<unsigned int> row_tmp(this->N_,0);
 		for(unsigned int s(0); s < this->n_; s++){
 			for(unsigned int p(0); p < this->m_; p++){
@@ -94,11 +97,11 @@ void SystemFermionic<Type>::init(){
 				row_tmp(c)++;
 			}
 		}
-		for(unsigned int c(0); c<this->N_; c++){
-			Lapack<Type> inv(&Ainv_[c],false,'G');
+		for(unsigned int i(0); i<this->N_; i++){
+			Lapack<Type> inv(&Ainv_[i],false,'G');
 			ipiv = inv.is_singular(rcn);
 			if(ipiv.ptr()){ inv.inv(ipiv); }
-			else { c = this->N_; }
+			else { i = this->N_; }
 		}
 	} while (!ipiv.ptr() && ++l<TRY_MAX);
 	if(l!=TRY_MAX){

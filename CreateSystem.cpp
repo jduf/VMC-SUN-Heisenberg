@@ -2,11 +2,16 @@
 
 CreateSystem::CreateSystem(Parseur& P):
 	ref_(3,0),
+	N_(P.get<unsigned int>("N")),
+	n_(P.get<unsigned int>("n")),
+	m_(P.get<unsigned int>("m")),
+	M_(N_,(m_*n_ )/N_),
+	bc_(P.get<int>("bc")),
+	over_(false),
 	RGL_(NULL),
 	CGL_(NULL)
 {
 	parse(P);
-	init(P.get<unsigned int>("N"),P.get<unsigned int>("n"),P.get<unsigned int>("m"),P.get<int>("bc"));
 }
 
 CreateSystem::~CreateSystem(){
@@ -21,15 +26,17 @@ void CreateSystem::parse(Parseur& P) {
 		ref_(1) = 1;
 		ref_(2) = 0;
 	}
-	if( wf == "chaindimerized" ){
-		ref_(0) = 2;
-		ref_(1) = 1;
-		ref_(2) = 1;
-	}
 	if( wf == "chainpolymerized" ){
 		ref_(0) = 2;
 		ref_(1) = 1;
-		ref_(2) = 2;
+		ref_(2) = 1;
+		if(P.is_vector("delta")){ 
+			Vector<double> tmp(P.get<Vector<double> >("delta"));
+			for(unsigned int i(0);i<tmp.size();i++){
+				d_.append(tmp(i));
+			}
+		}
+		else { d_.append(P.get<double>("delta")); }
 	}
 
 	if( wf == "trianglefermi" ){
@@ -101,7 +108,7 @@ void CreateSystem::parse(Parseur& P) {
 	}
 }
 
-void CreateSystem::init(unsigned int const& N, unsigned int const& n, unsigned int const& m, int const& bc){
+void CreateSystem::init(){
 	switch(ref_(0)){
 		case 2:
 			{
@@ -109,9 +116,12 @@ void CreateSystem::init(unsigned int const& N, unsigned int const& n, unsigned i
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:{RGL_ = new ChainFermi(N,n,m,bc,ref_);}break;
-									   //case 1:{return ChainDimerized(N,n,m);}break;
-								case 2:{RGL_ = new ChainPolymerized(N,n,m,bc,ref_);}break;
+								case 0:{RGL_ = new ChainFermi(ref_,N_,m_,n_,M_,bc_);}break;
+								case 1:{
+										   RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,d_.last());
+										   d_.pop();
+										   if(!d_.size()){ over_ = true; }
+									   }break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;
@@ -155,7 +165,7 @@ void CreateSystem::init(unsigned int const& N, unsigned int const& n, unsigned i
 					case 2:
 						{
 							switch(ref_(2)){
-								case 2:{CGL_ = new SquarePiFlux(N,n,m,bc,ref_);}break;
+								case 2:{CGL_ = new SquarePiFlux(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;
@@ -168,14 +178,14 @@ void CreateSystem::init(unsigned int const& N, unsigned int const& n, unsigned i
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:{RGL_ = new KagomeFermi(N,n,m,bc,ref_);}break;
+								case 0:{RGL_ = new KagomeFermi(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						} break;
 					case 2:
 						{
 							switch(ref_(2)){
-								case 1:{CGL_ = new KagomeVBC(N,n,m,bc,ref_);}break;
+								case 1:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;
