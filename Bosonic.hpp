@@ -41,7 +41,9 @@ Bosonic<Type>::Bosonic(Bosonic<Type> const& b):
 {}
 
 template<typename Type>
-Bosonic<Type>::~Bosonic(){}
+Bosonic<Type>::~Bosonic(){
+	std::cout<<"destroy Bosonic"<<std::endl;
+}
 /*}*/
 #endif
 

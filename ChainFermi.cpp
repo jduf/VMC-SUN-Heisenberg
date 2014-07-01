@@ -12,12 +12,8 @@ ChainFermi::ChainFermi(Vector<unsigned int> const& ref, unsigned int const& N, u
 
 ChainFermi::~ChainFermi(){}
 
-void ChainFermi::create(unsigned int const& type){
-	std::cout<<"ChainFermi::create "<<" "<<type<<std::endl;
-	T_.set(n_,n_,0);
-
-	compute_T();
-	diagonalize_T('S');
+void ChainFermi::create(){
+	diagonalize_T();
 	for(unsigned int c(0);c<N_;c++){
 		if(!is_degenerate(c)){
 			EVec_[c].set(n_,M_(c));

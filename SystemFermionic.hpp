@@ -7,7 +7,7 @@
 template<typename Type>
 class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 	public:
-		SystemFermionic(Fermionic<Type> const& S, unsigned int const& type);
+		SystemFermionic(Fermionic<Type> const& S);
 		~SystemFermionic();
 
 		/*!Set row and new_ev*/
@@ -50,10 +50,10 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S, unsigned int const& type):
+SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	System(S),
 	Fermionic<Type>(S),
-	MCSystem<Type>(S,type)
+	MCSystem<Type>(S)
 {}
 
 template<typename Type>

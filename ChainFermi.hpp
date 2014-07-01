@@ -8,7 +8,7 @@ class ChainFermi: public Chain<double>{
 		ChainFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc);
 		~ChainFermi();
 
-		void create(unsigned int const& type);
+		void create();
 		void check();
 
 	private:

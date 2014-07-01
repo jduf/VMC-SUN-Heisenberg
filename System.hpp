@@ -2,13 +2,14 @@
 #define DEF_SYSTEM
 
 #include "Sampling.hpp"
-#include "Matrix.hpp"
 
 /*!Class that contains the information on the state*/
 class System{
 	public:
 		System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
-		virtual ~System(){}
+		virtual ~System(){
+	std::cout<<"destroy System"<<std::endl;
+		}
 
 		unsigned int const& get_N() const { return N_;}
 		unsigned int const& get_m() const { return m_;}

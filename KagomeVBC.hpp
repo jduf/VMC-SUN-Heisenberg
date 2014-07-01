@@ -8,7 +8,7 @@ class KagomeVBC: public Kagome<std::complex<double> >{
 		KagomeVBC(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
 		~KagomeVBC();
 
-		void create(unsigned int const& type);
+		void create();
 		void check();
 
 	protected:

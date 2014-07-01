@@ -3,25 +3,25 @@
 #include "MonteCarlo.hpp"
 
 std::string init(CreateSystem const& cs);
+
 template<typename Type>
-void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax, unsigned int const& type);
+void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax);
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	unsigned int type(P.get<unsigned int>("type"));
 	unsigned int nruns(P.get<unsigned int>("nruns"));
 	unsigned int tmax(P.get<unsigned int>("tmax"));
 	CreateSystem cs(P);
 	if(!P.status()){
-		while(!cs.is_over()){
+		do{
 			cs.init();
-			cs.create(type);
+			cs.create();
 			if(!cs.is_degenerate()){
 				std::string path(init(cs));
-				if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax,type); } 
-				else { run<double>(cs,path,nruns,tmax,type); }
+				if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax); } 
+				else { run<double>(cs,path,nruns,tmax); }
 			}
-		}
+		} while(!cs.is_over());
 	}
 }
 
@@ -39,7 +39,7 @@ std::string init(CreateSystem const& cs){
 }
 
 template<typename Type>
-void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax, unsigned int const& type){
+void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax){
 	IOFiles file_results(path+cs.get_filename()+".jdbin",true);
 	file_results("number of simulations runned",nruns);
 	RST rst;
@@ -60,8 +60,8 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 #pragma omp parallel for 
 	for(unsigned int i=0;i<nruns;i++){
 		MCSystem<Type>* S(NULL);
-		if(cs.is_bosonic()){ S = new SystemBosonic<Type>(*dynamic_cast<const Bosonic<Type>*>(cs.get_system()),type); } 
-		else { S = new SystemFermionic<Type>(*dynamic_cast<const Fermionic<Type>*>(cs.get_system()),type); }
+		if(cs.is_bosonic()){ S = new SystemBosonic<Type>(*dynamic_cast<const Bosonic<Type>*>(cs.get_system())); } 
+		else { S = new SystemFermionic<Type>(*dynamic_cast<const Fermionic<Type>*>(cs.get_system())); }
 		MonteCarlo<Type> sim(S,tmax);
 		sim.run();
 #pragma omp critical
@@ -69,7 +69,7 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 			E.add_sample((sim.get_system())->get_energy());
 			corr.add_sample((sim.get_system())->get_corr());
 			long_range_corr.add_sample((sim.get_system())->get_long_range_corr());
-			(sim.get_system())->save(file_results);
+			sim.get_system()->save(file_results);
 		}
 		delete S;
 	}

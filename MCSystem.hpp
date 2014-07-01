@@ -8,7 +8,7 @@
 template<typename Type>
 class MCSystem: public virtual System{
 	public:
-		MCSystem(System const& S, unsigned int const& type);
+		MCSystem(System const& S);
 		virtual ~MCSystem();
 
 		/*!Exchanges two particles of different colors*/
@@ -31,16 +31,14 @@ class MCSystem: public virtual System{
 		void add_sample();
 		bool is_converged(double const& tol);
 		void complete_analysis(double const& tol);
+		void reset();
 		
-		void set();
 		void init(unsigned int const& thread);
 
 	protected:
 		unsigned int new_c[2];//!< colors of the exchanged sites
 		unsigned int new_s[2];//!< sites that are exchanged
 		unsigned int new_p[2];//!< sites that are exchanged
-
-		unsigned int type_;
 
 		bool found_initial_state_;	
 
@@ -60,25 +58,23 @@ class MCSystem: public virtual System{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-MCSystem<Type>::MCSystem(System const& S, unsigned int const& type):
+MCSystem<Type>::MCSystem(System const& S):
 	System(S),
-	type_(type),
 	found_initial_state_(false),
 	rnd_(NULL)
 {}
 
 template<typename Type>
-MCSystem<Type>::~MCSystem(){
-	if(rnd_){delete rnd_;}
+void MCSystem<Type>::init(unsigned int const& thread){
+	s_.set(n_,m_);
+	rnd_ = new Rand(100,thread);
+	init();
 }
 
 template<typename Type>
-void MCSystem<Type>::init(unsigned int const& thread){
-	std::cerr<<"MCSystem init check that s_.set(n,m) is ok and not s_.set(n,M_)"<<std::endl;
-	s_.set(this->n_,this->m_);
-	rnd_ = new Rand(100,thread);
-	set(); 
-	init();
+MCSystem<Type>::~MCSystem(){
+	std::cout<<"destroy MCSystem"<<std::endl;
+	if(rnd_){delete rnd_;}
 }
 /*}*/
 
@@ -86,12 +82,12 @@ void MCSystem<Type>::init(unsigned int const& thread){
 /*{*/
 template<typename Type>
 void MCSystem<Type>::swap(){
-	new_s[0] = rnd_->get(this->n_);
-	new_p[0] = rnd_->get(this->m_);
+	new_s[0] = rnd_->get(n_);
+	new_p[0] = rnd_->get(m_);
 	new_c[0] = s_(new_s[0],new_p[0]);
 	do {
-		new_s[1] = rnd_->get(this->n_);
-		new_p[1] = rnd_->get(this->m_);
+		new_s[1] = rnd_->get(n_);
+		new_p[1] = rnd_->get(m_);
 		new_c[1] = s_(new_s[1],new_p[1]);
 	} while(is_new_state_forbidden() || new_c[0] == new_c[1]);
 }
@@ -115,31 +111,31 @@ void MCSystem<Type>::update(){
 
 template<typename Type>
 void MCSystem<Type>::measure_new_step(){
-	E_ = 0.0;
+	E_.set_x(0.0);
 	double r;
-	for(unsigned int i(0);i<this->links_.row();i++){
-		corr_[i] = 0.0;
-		for(unsigned int p0(0); p0<this->m_; p0++){
-			for(unsigned int p1(0); p1<this->m_; p1++){
+	for(unsigned int i(0);i<links_.row();i++){
+		corr_[i].set_x(0.0);
+		for(unsigned int p0(0); p0<m_; p0++){
+			for(unsigned int p1(0); p1<m_; p1++){
 				swap(links_(i,0),links_(i,1),p0,p1);
 				if(!is_new_state_forbidden()){ 
 					r = real(ratio());
-					E_ += r; 
-					corr_[i] += r;
+					E_.add(r); 
+					corr_[i].add(r);
 				}
 			}
 		}
 	}
-	E_ /= this->n_;
-	if(long_range_corr_.size()!=0){
-		unsigned int x0(this->n_/3);
-		for(unsigned int i(0);i<this->n_/3;i++){
-			long_range_corr_[i] = 0.0;
-			for(unsigned int p0(0); p0<this->m_; p0++){
-				for(unsigned int p1(0); p1<this->m_; p1++){
+	E_.divide(n_);
+	if(long_range_corr_.size()){
+		unsigned int x0(n_/3);
+		for(unsigned int i(0);i<n_/3;i++){
+			long_range_corr_[i].set_x(0.0);
+			for(unsigned int p0(0); p0<m_; p0++){
+				for(unsigned int p1(0); p1<m_; p1++){
 					swap(x0,x0+i+1,p0,p1);
 					if(!is_new_state_forbidden() && new_c[0]!=new_c[1]){ 
-						long_range_corr_[i] += real(ratio());;
+						long_range_corr_[i].add(real(ratio()));
 					}
 				}
 			}
@@ -170,10 +166,10 @@ void MCSystem<Type>::complete_analysis(double const& tol){
 }
 
 template<typename Type>
-void MCSystem<Type>::set(){
-	E_.set(50,5,false);
-	corr_.set(this->n_,50,5,false);
-	if(type_ == 2){ long_range_corr_.set(this->n_/3,50,5,false); }
+void MCSystem<Type>::reset(){ 
+	E_.reset(); 
+	corr_.reset(); 
+	long_range_corr_.reset(); 
 }
 /*}*/
 
@@ -181,7 +177,7 @@ void MCSystem<Type>::set(){
 /*{*/
 template<typename Type>
 bool MCSystem<Type>::is_new_state_forbidden(){
-	for(unsigned int i(0); i<this->m_; i++){
+	for(unsigned int i(0); i<m_; i++){
 		if(s_(new_s[0],i) == new_c[1] && i != new_p[0]){ return true; }
 		if(s_(new_s[1],i) == new_c[0] && i != new_p[1]){ return true; }
 	}

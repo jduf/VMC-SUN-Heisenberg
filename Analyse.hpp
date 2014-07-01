@@ -2,16 +2,15 @@
 #define DEF_ANALYSE
 
 #include "Directory.hpp"
-#include "List.hpp"
 #include "CreateSystem.hpp"
-#include "Parseur.hpp"
-#include "RSTFile.hpp"
 
 class Analyse{
 	public:
-		Analyse(std::string search_in);
+		Analyse();
+		virtual ~Analyse(){};
+		void go(std::string search_in);
 
-	private:
+	protected:
 		std::string sim_;
 		std::string info_;
 		std::string analysis_;
@@ -31,19 +30,22 @@ class Analyse{
 		unsigned int N_;
 		unsigned int m_;
 		unsigned int n_;
+		Vector<unsigned int> M_;
 		int bc_;
 		Data<double> E_;
 		DataSet<double> corr_;
 		DataSet<double> long_range_corr_;
 
-
 		void recursive_search();
 		void search_jdbin();
 		void extract_jdbin();
-		void extract_sim();
-		void extract_level_4();
-		void extract_level_3();
-		void extract_level_2();
-		void extract_level_1();
+
+		virtual void open_files(std::string const& jdfile, std::string const& datafile, Directory const& d)=0;
+		virtual void close_files()=0;
+		virtual void extract_level_5()=0;
+		virtual void extract_level_4();
+		virtual void extract_level_3();
+		virtual void extract_level_2();
+		virtual void extract_level_1();
 };
 #endif

@@ -7,7 +7,7 @@
 template<typename Type>
 class SystemBosonic : public Bosonic<Type>, public MCSystem<Type>{
 	public:
-		SystemBosonic(Bosonic<Type> const& S, unsigned int const& type);
+		SystemBosonic(Bosonic<Type> const& S);
 		~SystemBosonic();
 
 		//{Description
@@ -32,10 +32,10 @@ class SystemBosonic : public Bosonic<Type>, public MCSystem<Type>{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S, unsigned int const& type):
+SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S):
 	System(S),
 	Bosonic<Type>(S),
-	MCSystem<Type>(S,type)
+	MCSystem<Type>(S)
 {
 	std::cerr<<"SystemBosonic will need to check everything"<<std::endl;
 }

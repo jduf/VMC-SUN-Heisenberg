@@ -12,10 +12,8 @@ SquarePiFlux::SquarePiFlux(Vector<unsigned int> const& ref, unsigned int const& 
 
 SquarePiFlux::~SquarePiFlux(){}
 
-void SquarePiFlux::create(unsigned int const& type){
-	if(type!=1){ std::cerr<<"ChainFermi::create(x,type) : unknown type"<<std::endl;}
-
-	diagonalize_T('H');
+void SquarePiFlux::create(){
+	diagonalize_T();
 	for(unsigned int c(0);c<N_;c++){
 		if(!is_degenerate(c)){
 			EVec_[c].set(n_,M_(c));

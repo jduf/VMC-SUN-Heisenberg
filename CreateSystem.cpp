@@ -7,7 +7,8 @@ CreateSystem::CreateSystem(Parseur& P):
 	m_(P.get<unsigned int>("m")),
 	M_(N_,(m_*n_ )/N_),
 	bc_(P.get<int>("bc")),
-	over_(false),
+	type_(P.get<unsigned int>("type")),
+	over_(true),
 	RGL_(NULL),
 	CGL_(NULL)
 {
@@ -90,10 +91,15 @@ void CreateSystem::parse(Parseur& P) {
 		ref_(1) = 1;
 		ref_(2) = 0;
 	}
+	if( wf == "kagomedirac" ){
+		ref_(0) = 5;
+		ref_(1) = 1;
+		ref_(2) = 1;
+	}
 	if( wf == "kagomevbc" ){
 		ref_(0) = 5;
 		ref_(1) = 2;
-		ref_(2) = 1;
+		ref_(2) = 0;
 	}
 
 	if( wf == "honeycombsu3" ){
@@ -109,6 +115,9 @@ void CreateSystem::parse(Parseur& P) {
 }
 
 void CreateSystem::init(){
+	if(RGL_){delete RGL_;}
+	if(CGL_){delete CGL_;}
+	std::cout<<"will lunch new system "<<M_<<std::endl;
 	switch(ref_(0)){
 		case 2:
 			{
@@ -116,13 +125,16 @@ void CreateSystem::init(){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:{RGL_ = new ChainFermi(ref_,N_,m_,n_,M_,bc_);}break;
-								case 1:{
-										   RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,d_.last());
-										   d_.pop();
-										   if(!d_.size()){ over_ = true; }
-									   }break;
-								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+								case 0:
+									{RGL_ = new ChainFermi(ref_,N_,m_,n_,M_,bc_);}break;
+								case 1:
+									{
+										RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,d_.last());
+										d_.pop();
+										if(!d_.size()){ over_ = true; }
+									}break;
+								default:
+									{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;
 					default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
@@ -179,13 +191,14 @@ void CreateSystem::init(){
 						{
 							switch(ref_(2)){
 								case 0:{RGL_ = new KagomeFermi(ref_,N_,m_,n_,M_,bc_);}break;
+								case 1:{RGL_ = new KagomeDirac(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						} break;
 					case 2:
 						{
 							switch(ref_(2)){
-								case 1:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
+								case 0:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;
@@ -207,5 +220,17 @@ void CreateSystem::init(){
 			//}
 			//}break;
 		default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+	}
+	switch(type_){
+		case 3:
+			{
+				if(M_(0)){ 
+					M_(0) -= 1;
+					M_(1) += 1;
+					over_ = false;
+				} else {
+					over_ = true;
+				}
+			}break;
 	}
 }

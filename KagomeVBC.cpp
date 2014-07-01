@@ -7,54 +7,63 @@ KagomeVBC::KagomeVBC(Vector<unsigned int> const& ref, unsigned int const& N, uns
 	init_fermionic();
 	compute_T();
 
-	rst_.text("KagomeVBC : All hopping term are identical, therefore the unit cell contains only 3 sites");
+	rst_.text("KagomeVBC : 9 sites per unit cell, pi-flux through 1/3 of the honeycomb");
+	rst_.text("and -pi/6-flux through all triangles, so the total flux is null");
 }
 
-KagomeVBC::~KagomeVBC(){}
+KagomeVBC::~KagomeVBC(){
+	std::cout<<"destroy KagomeVBC"<<std::endl;
+}
 
 void KagomeVBC::compute_T(){
 	double t(1.0);
 	double phi(M_PI/6.0);
 	T_.set(n_,n_,0);
 	Matrix<int> nb;
-	/*0-flux per unit cell*/
+	unsigned int s(0);
 	for(unsigned int j(0);j<Ly_;j++){
 		for(unsigned int i(0);i<Lx_;i++){
 			/*site 0*/
-			nb = get_neighbourg(spuc_*(i + j*Lx_) + 0);
-			/*0-1*/ T_(spuc_*(i + j*Lx_) + 0, nb(0,0)) = std::polar(nb(0,1)*t,phi);
-			/*0-8*/ T_(spuc_*(i + j*Lx_) + 0, nb(1,0)) = std::polar(nb(1,1)*t,phi);
-			/*0-6*/ T_(spuc_*(i + j*Lx_) + 0, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
+			s = spuc_*(i + j*Lx_);
+			nb = get_neighbourg(s);
+			/*0-1*/ T_(s, nb(0,0)) = std::polar(nb(0,1)*t,phi);
+			/*0-8*/ T_(s, nb(1,0)) = std::polar(nb(1,1)*t,phi);
+			/*0-6*/ T_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
 
 			/*site 1*/
-			nb = get_neighbourg(spuc_*(i + j*Lx_) + 1);
-			/*1-2*/ T_(spuc_*(i + j*Lx_) + 1, nb(0,0)) = std::polar(nb(0,1)*t,-phi);
-			/*1-7*/ T_(spuc_*(i + j*Lx_) + 1, nb(1,0)) = std::polar(nb(1,1)*t,phi); 
-			/*1-8*/ T_(spuc_*(i + j*Lx_) + 1, nb(2,0)) = std::polar(nb(2,1)*t,-phi); 
+			s++;
+			nb = get_neighbourg(s);
+			/*1-2*/ T_(s, nb(0,0)) = std::polar(nb(0,1)*t,-phi);
+			/*1-7*/ T_(s, nb(1,0)) = std::polar(nb(1,1)*t,phi); 
+			/*1-8*/ T_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi); 
 
 			/*site 2*/
-			nb = get_neighbourg(spuc_*(i + j*Lx_) + 2);
-			/*2-3*/ T_(spuc_*(i + j*Lx_) + 2, nb(0,0)) = std::polar(nb(0,1)*t,phi);
-			/*2-6*/ T_(spuc_*(i + j*Lx_) + 2, nb(1,0)) = std::polar(nb(1,1)*t,phi);
-			/*2-7*/ T_(spuc_*(i + j*Lx_) + 2, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
+			s++;
+			nb = get_neighbourg(s);
+			/*2-3*/ T_(s, nb(0,0)) = std::polar(nb(0,1)*t,phi);
+			/*2-6*/ T_(s, nb(1,0)) = std::polar(nb(1,1)*t,phi);
+			/*2-7*/ T_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
 
 			/*site 3*/
-			nb = get_neighbourg(spuc_*(i + j*Lx_) + 3);
-			/*3-4*/ T_(spuc_*(i + j*Lx_) + 3, nb(0,0)) = std::polar(nb(0,1)*t,-phi);
-			/*3-8*/ T_(spuc_*(i + j*Lx_) + 3, nb(1,0)) = std::polar(nb(1,1)*t,-phi);
-			/*3-6*/ T_(spuc_*(i + j*Lx_) + 3, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
+			s++;
+			nb = get_neighbourg(s);
+			/*3-4*/ T_(s, nb(0,0)) = std::polar(nb(0,1)*t,-phi);
+			/*3-8*/ T_(s, nb(1,0)) = std::polar(nb(1,1)*t,-phi);
+			/*3-6*/ T_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
 
 			/*site 4*/
-			nb = get_neighbourg(spuc_*(i + j*Lx_) + 4);
-			/*4-5*/ T_(spuc_*(i + j*Lx_) + 4, nb(0,0)) = std::polar(nb(0,1)*t,phi);
-			/*4-7*/ T_(spuc_*(i + j*Lx_) + 4, nb(1,0)) = std::polar(nb(1,1)*t,-phi);
-			/*4-8*/ T_(spuc_*(i + j*Lx_) + 4, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
+			s++;
+			nb = get_neighbourg(s);
+			/*4-5*/ T_(s, nb(0,0)) = std::polar(nb(0,1)*t,phi);
+			/*4-7*/ T_(s, nb(1,0)) = std::polar(nb(1,1)*t,-phi);
+			/*4-8*/ T_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
 
 			/*site 5*/
-			nb = get_neighbourg(spuc_*(i + j*Lx_) + 5);
-			/*5-0*/ T_(spuc_*(i + j*Lx_) + 5, nb(0,0)) = std::polar(nb(0,1)*t,-phi);
-			/*5-6*/ T_(spuc_*(i + j*Lx_) + 5, nb(1,0)) = std::polar(nb(1,1)*t,-phi);
-			/*5-7*/ T_(spuc_*(i + j*Lx_) + 5, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
+			s++;
+			nb = get_neighbourg(s);
+			/*5-0*/ T_(s, nb(0,0)) = std::polar(nb(0,1)*t,-phi);
+			/*5-6*/ T_(s, nb(1,0)) = std::polar(nb(1,1)*t,-phi);
+			/*5-7*/ T_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
 
 		}
 	}
@@ -86,10 +95,11 @@ void KagomeVBC::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex
 	}
 }
 
-void KagomeVBC::create(unsigned int const& type){
-	if(type!=1){std::cerr<<"KagomeVBC::create(double x, unsigned int const& type) : type unknown"<<std::endl;}
+void KagomeVBC::create(){
+	E_.set(50,5,false);
+	corr_.set(links_.row(),50,5,false);
 
-	diagonalize_T('H');
+	diagonalize_T();
 	for(unsigned int c(0);c<N_;c++){
 		if(!is_degenerate(c)){
 			EVec_[c].set(n_,M_(c));
@@ -103,18 +113,16 @@ void KagomeVBC::create(unsigned int const& type){
 }
 
 void KagomeVBC::lattice(){
-	PSTricks ps("./","lattice");
 	Matrix<int> nb;
 	double x0;
 	double x1;
 	double y0;
 	double y1;
-	double ex(4.0*cos(M_PI/6.0));
-	double exy(2.0*cos(M_PI/6.0));
-	double ey(3);
-	std::string color("black");
 	double ll(1.0);
-	ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+filename_);
+	double ex(4.0*ll*cos(M_PI/6.0));
+	double exy(2.0*ll*cos(M_PI/6.0));
+	double ey(3.0);
+	std::string color("black");
 
 	Matrix<double> xy(4,2);
 	xy(0,0) = 0.0;
@@ -125,7 +133,10 @@ void KagomeVBC::lattice(){
 	xy(2,1) = ey;
 	xy(3,0) = exy;
 	xy(3,1) = ey;
-	ps.polygon(xy,"linewidth="+tostring(1)+"pt,linecolor=red");
+
+	PSTricks ps("./","lattice");
+	ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+filename_);
+	ps.polygon(xy,"linewidth=1pt,linecolor=red");
 	unsigned int s;
 
 	for(unsigned int i(0);i<Lx_;i++) {
@@ -133,25 +144,25 @@ void KagomeVBC::lattice(){
 			/*site 0*/
 			s = spuc_*(i+j*Lx_);
 			nb = get_neighbourg(s);
-			x0 = ll*(0.5+sin(M_PI/6.0)) + i*4.0*cos(M_PI/6.0) + j*2.0*cos(M_PI/6.0);
+			x0 = ll*(0.5+sin(M_PI/6.0)) + i*ex + j*exy;
 			/*0.05 is there so there is no problem with latex and it shows
 			 * better which sites are in the unit cell*/
-			y0 = 0.05 + ll/2.0 + j*3.0; 
+			y0 = 0.05 + ll/2.0 + j*ey; 
 			ps.put(x0+0.2,y0+0.2,tostring(s));
 			x1 = x0+ll*cos(3.0*M_PI/6.0);
 			y1 = y0+ll*sin(3.0*M_PI/6.0);
 			if(imag(T_(s,nb(0,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*0-1*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*0-1*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(9.0*M_PI/6.0);
 			y1 = y0+ll*sin(9.0*M_PI/6.0);
 			if(imag(T_(s,nb(2,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*0-6*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*0-6*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
 
 			/*site 1*/
-			s = spuc_*(i+j*Lx_)+1;
+			s++;
 			nb = get_neighbourg(s);
 			x0 = x0+ll*cos(3.0*M_PI/6.0);
 			y0 = y0+ll*sin(3.0*M_PI/6.0);
@@ -160,36 +171,36 @@ void KagomeVBC::lattice(){
 			y1 = y0+ll*sin(1.0*M_PI/6.0);
 			if(imag(T_(s,nb(0,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*1-2*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*1-2*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(7.0*M_PI/6.0);
 			y1 = y0+ll*sin(7.0*M_PI/6.0);
 			double x8(x1);
 			double y8(y1);
 			if(imag(T_(s,nb(2,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*1-8*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*1-8*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
 			/*site 2*/
-			s = spuc_*(i+j*Lx_)+2;
+			s++;
 			nb = get_neighbourg(s);
 			x0 = x0+ll*cos(1.0*M_PI/6.0);
 			y0 = y0+ll*sin(1.0*M_PI/6.0);
-			ps.put(x0,y0-0.2,tostring(spuc_*(i+j*Lx_)+2));
+			ps.put(x0,y0-0.2,tostring(s));
 			x1 = x0+ll*cos(-1.0*M_PI/6.0);
 			y1 = y0+ll*sin(-1.0*M_PI/6.0);
 			if(imag(T_(s,nb(0,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*2-3*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*2-3*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(5.0*M_PI/6.0);
 			y1 = y0+ll*sin(5.0*M_PI/6.0);
 			double x7(x1);
 			double y7(y1);
 			if(imag(T_(s,nb(2,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*2-7*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*2-7*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
 			/*site 3*/
-			s = spuc_*(i+j*Lx_)+3;
+			s++;
 			nb = get_neighbourg(s);
 			x0 = x0+ll*cos(-1.0*M_PI/6.0);
 			y0 = y0+ll*sin(-1.0*M_PI/6.0);
@@ -198,17 +209,17 @@ void KagomeVBC::lattice(){
 			y1 = y0+ll*sin(9.0*M_PI/6.0);
 			if(imag(T_(s,nb(0,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*3-4*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*3-4*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(3.0*M_PI/6.0);
 			y1 = y0+ll*sin(3.0*M_PI/6.0);
 			double x6(x1);
 			double y6(y1);
 			if(imag(T_(s,nb(2,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*3-6*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*3-6*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
 			/*site 4*/
-			s = spuc_*(i+j*Lx_)+4;
+			s++;
 			nb = get_neighbourg(s);
 			x0 = x0+ll*cos(-3.0*M_PI/6.0);
 			y0 = y0+ll*sin(-3.0*M_PI/6.0);
@@ -217,15 +228,15 @@ void KagomeVBC::lattice(){
 			y1 = y0+ll*sin(7.0*M_PI/6.0);
 			if(imag(T_(s,nb(0,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*4-5*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*4-5*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(1.0*M_PI/6.0);
 			y1 = y0+ll*sin(1.0*M_PI/6.0);
 			if(imag(T_(s,nb(2,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*4-8*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*4-8*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
 			/*site 5*/
-			s = spuc_*(i+j*Lx_)+5;
+			s++;
 			nb = get_neighbourg(s);
 			x0 = x0-ll*cos(1.0*M_PI/6.0);
 			y0 = y0-ll*sin(1.0*M_PI/6.0);
@@ -234,15 +245,15 @@ void KagomeVBC::lattice(){
 			y1 = y0+ll*sin(5.0*M_PI/6.0);
 			if(imag(T_(s,nb(0,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*5-0*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*5-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(11.0*M_PI/6.0);
 			y1 = y0+ll*sin(11.0*M_PI/6.0);
 			if(imag(T_(s,nb(2,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*5-7*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*5-7*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
 			/*site 6*/
-			s = spuc_*(i+j*Lx_)+6;
+			s++;
 			nb = get_neighbourg(s);
 			x0 = x6;
 			y0 = y6;
@@ -251,15 +262,15 @@ void KagomeVBC::lattice(){
 			y1 = y0+ll*sin(1.0*M_PI/6.0);
 			if(imag(T_(s,nb(0,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*6-5*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*6-5*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(7.0*M_PI/6.0);
 			y1 = y0+ll*sin(7.0*M_PI/6.0);
 			if(imag(T_(s,nb(2,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*6-2*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*6-2*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
 			/*site 7*/
-			s = spuc_*(i+j*Lx_)+7;
+			s++;
 			nb = get_neighbourg(s);
 			x0 = x7+ex;
 			y0 = y7;
@@ -268,15 +279,15 @@ void KagomeVBC::lattice(){
 			y1 = y0+ll*sin(3.0*M_PI/6.0);
 			if(imag(T_(s,nb(0,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*7-1*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*7-1*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(9.0*M_PI/6.0);
 			y1 = y0+ll*sin(9.0*M_PI/6.0);
 			if(imag(T_(s,nb(2,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*7-4*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*7-4*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
 			/*site 8*/
-			s = spuc_*(i+j*Lx_)+8;
+			s++;
 			nb = get_neighbourg(s);
 			x0 = x8+ex;
 			y0 = y8;
@@ -285,12 +296,12 @@ void KagomeVBC::lattice(){
 			y1 = y0+ll*sin(11.0*M_PI/6.0);
 			if(imag(T_(s,nb(0,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*8-0*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*8-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(5.0*M_PI/6.0);
 			y1 = y0+ll*sin(5.0*M_PI/6.0);
 			if(imag(T_(s,nb(2,0)))>0){ color = "green";}
 			else { color = "blue"; }
-			/*8-3*/	ps.line("->",x0,y0,x1,y1,"linewidth="+tostring(1)+"pt,linecolor="+color);
+			/*8-3*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 		}
 	}
 	ps.add("\\end{pspicture}");
@@ -298,8 +309,6 @@ void KagomeVBC::lattice(){
 }
 
 void KagomeVBC::check(){
-	init_fermionic();
-	compute_T();
 	//Matrix<std::complex<double> > Px;
 	//Matrix<std::complex<double> > Py;
 	//compute_P(Px,Py);

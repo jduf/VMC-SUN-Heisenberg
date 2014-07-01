@@ -15,11 +15,13 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>{
 		/*!Constructor N, n, m and z is the coordination number*/
 		GenericSystem(unsigned int const& z, std::string const& filename); 
 		/*Simple destructor*/
-		virtual ~GenericSystem(){}
+		virtual ~GenericSystem(){
+	std::cout<<"destroy GenericSystem"<<std::endl;
+		}
 
 		std::string get_filename() const { return filename_; }
 
-		virtual void create(unsigned int const& type) = 0;
+		virtual void create() = 0;
 		virtual void save(IOFiles& w) const;
 		virtual void check() = 0;
 
@@ -50,6 +52,10 @@ GenericSystem<Type>::GenericSystem(unsigned int const& z, std::string const& fil
 		case 0: {filename_ += "-O"; }break;
 		case 1: {filename_ += "-P"; }break;
 		default:{std::cerr<<"GenericSystem : Unknown boundary condition"<<std::endl;}
+	}
+	filename_ += "-M";
+	for(unsigned int i(0);i<this->M_.size();i++){
+		filename_  += "-" + tostring(this->M_(i));
 	}
 }
 
@@ -84,7 +90,7 @@ void GenericSystem<Type>::save(IOFiles& w) const {
 	w("N (N of SU(N))",this->N_);
 	w("m (# of particles per site)",this->m_);
 	w("n (# of site)",this->n_);
-	//w("M (# of particles for each color)",this->M_);
+	w("M (# of particles for each color)",this->M_);
 	w("bc (boundary condition)",this->bc_);
 }
 #endif

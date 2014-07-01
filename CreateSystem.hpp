@@ -5,6 +5,7 @@
 #include "ChainFermi.hpp"
 #include "SquarePiFlux.hpp"
 #include "KagomeFermi.hpp"
+#include "KagomeDirac.hpp"
 #include "KagomeVBC.hpp"
 #include "Parseur.hpp"
 #include "List.hpp"
@@ -15,9 +16,9 @@ class CreateSystem{
 		virtual ~CreateSystem();
 
 		void init();
-		void create(unsigned int const& type){
-			if(RGL_){RGL_->create(type);}
-			if(CGL_){CGL_->create(type);}
+		void create(){
+			if(RGL_){RGL_->create();}
+			if(CGL_){CGL_->create();}
 		}
 
 		System const* get_system() const { 
@@ -55,6 +56,8 @@ class CreateSystem{
 		bool is_over(){ return over_; }
 
 	private:
+		CreateSystem(CreateSystem const& cs);
+
 		Vector<unsigned int> ref_;
 		unsigned int const N_;
 		unsigned int const n_;
@@ -62,6 +65,7 @@ class CreateSystem{
 		Vector<unsigned int> M_;
 		int const bc_;
 		List<double> d_;
+		unsigned int type_;
 		bool over_;
 
 		GenericSystem<double>* RGL_;

@@ -23,6 +23,8 @@ System::System(System const& s):
 	n_(s.n_),
 	M_(s.M_),
 	bc_(s.bc_),
+	E_(s.E_),
+	corr_(s.corr_),
 	links_(s.links_)
 {
 	std::cout<<"system copy"<<std::endl;

@@ -77,7 +77,7 @@ MonteCarlo<Type>::MonteCarlo(MCSystem<Type>* S, unsigned int tmax):
 	S_->init(thread);
 	if(S_->found_initial_state()){
 		double ratio(0.0);
-		for(unsigned int i(0);i<1e5;i++){
+		for(unsigned int i(0);i<1e6;i++){
 			S_->swap();
 			ratio = norm_squared(S_->ratio());
 			if( ratio > rnd_->get() ){ S_->update(); }
@@ -121,7 +121,7 @@ bool MonteCarlo<Type>::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
 	if(std::abs(S_->get_energy().get_x())>1e2){ 
 		std::cerr<<"Simulation diverges => is restarted"<<std::endl;
-		S_->set();
+		S_->reset();
 	}
 	return true;
 }
