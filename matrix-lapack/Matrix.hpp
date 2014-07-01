@@ -5,6 +5,9 @@
 #include <cassert>
 #include "IOFiles.hpp"
 
+template<typename Type>
+class Vector;
+
 /*{!Class that implement a static array as a Matrix
  *
  * - can be saved with Write.hpp 
@@ -34,7 +37,7 @@ class Matrix{
 			assert(i<row_ && j<col_); return m_[i+j*row_]; };
 
 		/*!Deep copy assignment*/
-		Matrix<Type>& operator=(Matrix<Type> const& mat); 
+		Matrix<Type>& operator=(Matrix<Type> mat); 
 		/*!Additions this matrice with another*/
 		Matrix<Type>& operator+=(Matrix<Type> const& mat);
 		Matrix<Type> operator+(Matrix<Type> const& mat) const;
@@ -51,6 +54,9 @@ class Matrix{
 
 		Matrix<Type>& operator-=(Type const& d);
 		Matrix<Type>& operator/=(Type const& d);
+
+		/*!Multiplies a matrix by a vector (m1 *= v2 : m1 = m1*v2)*/
+		Vector<Type> operator*(Vector<Type> const& vec) const;
 
 		/*!Set the matrix to 0*/
 		void set();
@@ -71,9 +77,7 @@ class Matrix{
 		/*!Returns the conjugate transpose of complex matrix (may give an error) */
 		Matrix<Type> trans_conj() const;
 		/*!Returns the diagonal elements in an vector*/
-#ifdef DEF_VECTOR
 		Vector<Type> diag() const;
-#endif
 		/*!Returns the trace*/
 		Type trace() const;
 
@@ -94,58 +98,59 @@ class Matrix{
 #endif
 
 	protected:
-		Type *m_; //!< pointer to a static array
 		unsigned int row_; //!< number of rows
 		unsigned int col_; //!< number of columns
 		unsigned int size_; //!< size of the array
+		Type *m_; //!< pointer to a static array
 
 		void set_null_pointer(){m_=NULL;}
+		void swap_to_assign(Matrix<Type>& m1,Matrix<Type>& m2);
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
 Matrix<Type>::Matrix():
-	m_(NULL),
 	row_(0),
 	col_(0),
-	size_(0)
+	size_(0),
+	m_(NULL)
 {}
 
 template<typename Type>
 Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col):
-	m_(new Type[N_row*N_col]),
 	row_(N_row),
 	col_(N_col),
-	size_(N_col*N_row)
+	size_(N_col*N_row),
+	m_(size_?new Type[size_]:NULL)
 {} 
 
 template<typename Type>
 Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col, Type val):
-	m_(new Type[N_row*N_col]),
 	row_(N_row),
 	col_(N_col),
-	size_(N_col*N_row)
+	size_(N_col*N_row),
+	m_(size_?new Type[size_]:NULL)
 { 
 	for(unsigned int i(0);i<size_;i++){ m_[i] = val; }
 }
 
 template<typename Type>
 Matrix<Type>::Matrix(Matrix<Type> const& mat):
-	m_(new Type[mat.size_]),
 	row_(mat.row_),
 	col_(mat.col_),
-	size_(mat.size_)
+	size_(mat.size_),
+	m_(size_?new Type[size_]:NULL)
 {
 	for(unsigned int i(0);i<size_;i++){ m_[i] = mat.m_[i]; }
 }
 
 template<typename Type>
 Matrix<Type>::Matrix(Matrix<Type> *mat):
-	m_(mat->m_),
 	row_(mat->row_),
 	col_(mat->col_),
-	size_(mat->size_)
+	size_(mat->size_),
+	m_(mat->m_)
 { 
 	mat->set_null_pointer();
 }
@@ -156,6 +161,14 @@ Matrix<Type>::~Matrix(){
 		delete[]  m_;
 		m_ = NULL;
 	}
+}
+
+template<typename Type>
+void Matrix<Type>::swap_to_assign(Matrix<Type>& m1,Matrix<Type>& m2){
+	std::swap(m1.m_,m2.m_);
+	std::swap(m1.row_,m2.row_);
+	std::swap(m1.col_,m2.col_);
+	std::swap(m1.size_,m2.size_);
 }
 /*}*/
 
@@ -186,7 +199,7 @@ std::istream& operator>>(std::istream& flux, Matrix<Type> const& m){
 #ifdef DEF_IOFILES
 template<typename Type>
 void Matrix<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,tostring(m_[0])); 
+	rst.def(s,"Matrix("+tostring(row_)+","+tostring(col_)+")"); 
 }
 
 template<typename Type>
@@ -217,32 +230,17 @@ IOFiles& operator>>(IOFiles& r, Matrix<Type>& m){
 /*}*/
 
 /*arithmetic operators*/
-/*{*/
+/*{Matrix.operator(Matrix)*/
 template<typename Type>
-Matrix<Type>& Matrix<Type>::operator=(Matrix<Type> const& mat){
-	if(!mat.m_){ 
-		set();
-	} else {
-		if(col_ != mat.col_ ||  row_ != mat.row_){
-			if(m_){ delete[] m_;}
-			m_ = new Type[mat.size_];
-			size_ = mat.size_;
-			row_ = mat.row_;
-			col_ = mat.col_;
-		}
-		for(unsigned int i(0); i<size_; i++){
-			m_[i] = mat.m_[i];
-		}
-	}
+Matrix<Type>& Matrix<Type>::operator=(Matrix<Type> mat){
+	swap_to_assign(*this,mat);
 	return (*this);
 }
 
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator+=(Matrix<Type> const& mat){
 	assert(row_ == mat.row_ && col_ == mat.col_);
-	for(unsigned int i(0);i<size_;i++){
-		m_[i] += mat.m_[i];
-	}
+	for(unsigned int i(0);i<size_;i++){ m_[i] += mat.m_[i]; }
 	return (*this);
 }
 
@@ -256,9 +254,7 @@ Matrix<Type> Matrix<Type>::operator+(Matrix<Type> const& mat) const{
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator-=(Matrix<Type> const& mat){
 	assert(row_ == mat.row_ && col_ == mat.col_);
-	for(unsigned int i(0);i<size_;i++){
-		m_[i] -= mat.m_[i];
-	}
+	for(unsigned int i(0);i<size_;i++){ m_[i] -= mat.m_[i]; }
 	return (*this);
 }
 
@@ -306,6 +302,13 @@ Matrix<Type> Matrix<Type>::operator*(Matrix<Type> const& mat) const{
 }
 
 template<typename Type>
+Matrix<Type> operator*(Type const& d, Matrix<Type> const& mat) {
+	return mat*d;
+}
+/*}*/
+
+/*{Matrix.operator(Type)*/
+template<typename Type>
 Matrix<Type>& Matrix<Type>::operator*=(Type const& d){
 	for(unsigned int i(0);i<size_;i++){
 		m_[i] *= d; 
@@ -321,25 +324,32 @@ Matrix<Type> Matrix<Type>::operator*(Type const& d) const{
 }
 
 template<typename Type>
-Matrix<Type> operator*(Type const& d, Matrix<Type> const& mat) {
-	return mat*d;
-}
-
-template<typename Type>
 Matrix<Type>& Matrix<Type>::operator-=(Type const& d){
-	for(unsigned int i(0);i<size_;i++){
-		m_[i] -= d; 
-	}
+	for(unsigned int i(0);i<size_;i++){ m_[i] -= d; }
 	return (*this);
 }
 
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator/=(Type const& d){
-	for(unsigned int i(0);i<size_;i++){
-		m_[i] /= d; 
-	}
+	for(unsigned int i(0);i<size_;i++){ m_[i] /= d; }
 	return (*this);
 }
+/*}*/
+
+/*{Matrix.operator(Vector)*/
+template<typename Type>
+Vector<Type> Matrix<Type>::operator*(Vector<Type> const& vec) const {
+	assert(vec.size() == col_);
+	Vector<Type> tmp(row_);
+	for(unsigned int i(0);i<row_;i++){
+		tmp(i) = 0.0;
+		for(unsigned int j(0);j<col_;j++){
+			tmp(i) += m_[i+j*row_] * vec(j); 
+		}
+	}
+	return tmp;
+}
+/*}*/
 /*}*/
 
 /*methods that modify the class*/
@@ -428,7 +438,6 @@ inline Matrix<double> Matrix<double>::trans_conj() const {
 	return (*this).transpose();
 }
 
-#ifdef DEF_VECTOR
 template<typename Type>
 Vector<Type> Matrix<Type>::diag() const{
 	unsigned int N(0);
@@ -440,7 +449,6 @@ Vector<Type> Matrix<Type>::diag() const{
 	}
 	return v;
 }
-#endif
 
 template<>
 inline void Matrix<double>::print_mathematica() const {
@@ -500,30 +508,4 @@ Type Matrix<Type>::max() const {
 	return m;
 }
 /*}*/
-
-/*double real(T)*/
-/*{*/
-inline double real(double const& x){ return x; }
-
-inline double real(std::complex<double> const& x){ return std::real(x); }
-/*}*/
-
-/*double imag(T)*/
-/*{*/
-inline double imag(double const& x){ return x; }
-
-inline double imag(std::complex<double> const& x){ return std::imag(x); }
-/*}*/
-
-/*double norm_squared(T)*/
-/*{*/
-inline double norm_squared(double x){
-	return x*x;
-}
-
-inline double norm_squared(std::complex<double> x){
-	return std::norm(x);
-}
-/*}*/
-
 #endif

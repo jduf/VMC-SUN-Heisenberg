@@ -1,30 +1,13 @@
 #include "PSTricks.hpp"
 
-PSTricks::PSTricks(std::string path, std::string filename, bool silent):
+PSTricks::PSTricks(std::string path, std::string filename):
 	path_(path),
 	filename_(filename),
-	s_(""),
-	pdf_(false),
-	silent_(silent)
+	s_("")
 {
 	s_ +="\\documentclass[crop,pstricks,png]{standalone}\n" ;
 	s_ +="\\usepackage{pstricks-add}\n";
 	s_ +="\\begin{document}\n";
-}
-
-PSTricks::~PSTricks(){
-	{/*to make sure that the file w is closed after the brackets*/
-		IOFiles w(filename_ + ".tex",true);
-		s_ += "\\end{document}\n";
-		w<<s_;
-	}
-
-	Linux command;
-	if(silent_){ command("latex --shell-escape " + filename_ + ".tex > /dev/null 2> /dev/null");}
-	else{ command("latex --shell-escape " + filename_ + ".tex");}
-	if(pdf_){ command("dvipdf " + filename_ + ".dvi " + path_ + filename_ + ".pdf "); }
-	command("mv " + filename_ + "-1.png " + path_ + filename_ + ".png");
-	command("rm *.dvi *.aux *.log *.ps *.tex" );
 }
 
 void PSTricks::add(std::string s){
@@ -58,3 +41,19 @@ void PSTricks::pie(Vector<double> const& x, double r, std::string options){
 	}
 	s_ += "}{}{"+tostring(r)+"}\n";
 }
+
+void PSTricks::save(bool silent, bool pdf){
+	{/*to make sure that the file w is closed after the brackets*/
+		IOFiles w(path_+filename_ + ".tex",true);
+		s_ += "\\end{document}\n";
+		w<<s_;
+	}
+
+	Linux command;
+	if(silent){ command("latex --shell-escape " + filename_ + ".tex > /dev/null 2> /dev/null");}
+	else{ command("latex --shell-escape " + filename_ + ".tex");}
+	if(pdf){ command("dvipdf " + filename_ + ".dvi " + path_ + filename_ + ".pdf "); }
+	command("mv " + filename_ + "-1.png " + path_ + filename_ + ".png");
+	command("rm *.dvi *.aux *.log *.ps *.tex" );
+}
+

@@ -4,7 +4,6 @@
 #include "Directory.hpp" 
 #include "RSTFile.hpp" 
 
-
 #include <omp.h>
 
 int main(int argc,char* argv[]){

@@ -2,13 +2,12 @@
 #define DEF_PSTRICKS
 
 #include "Linux.hpp"
-#include "Matrix.hpp"
 #include "Vector.hpp"
 
 class PSTricks {
 	public:
-		PSTricks(std::string path, std::string filename, bool silent);
-		~PSTricks();
+		PSTricks(std::string path, std::string filename);
+		~PSTricks(){}
 
 		void add(std::string s);
 		void line(std::string linetype, double x0, double y0, double x1, double y1, std::string options);
@@ -17,7 +16,7 @@ class PSTricks {
 		void pie(Vector<double> const& x, double r, std::string options="");
 		void polygon(Matrix<double> const& x, std::string options="");
 
-		void pdf(){ pdf_ = true;}
+		void save(bool silent, bool pdf);
 
 	private:
 		std::string path_;

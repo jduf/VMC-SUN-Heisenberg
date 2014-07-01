@@ -42,8 +42,10 @@ void Directory::search_file_ext(std::string const& extension, std::string curr_d
 			if (entry->d_type == DT_REG || (follow_link && entry->d_type==DT_LNK) ){
 				std::string f(entry->d_name);
 				if (f.find(extension,f.size()-extension.size()) != std::string::npos){
-					path.push_back(curr_dir);
-					split_ext(f);
+					if(f.find(".") != std::string::npos){
+						path.push_back(curr_dir);
+						split_ext(f);
+					}
 				}
 			}
 		}
@@ -69,20 +71,15 @@ void Directory::list_dir(std::string curr_dir){
 	closedir(dir_point);
 }
 
-void Directory::print(){
-	for(unsigned int i(0);i<path.size();i++){
-		std::cout<<path[i];
-		if(i<fname.size()){
-			std::cout<<fname[i]<<ext[i];
-		}
-		std::cout<<std::endl;
-	}
-}
-
 void Directory::split_ext(std::string f){
-	unsigned int pos(f.find_last_of("."));
-	fname.push_back(f.substr(0,pos));
-	ext.push_back(f.substr(pos));
+	if(f.find(".") != std::string::npos){
+		size_t pos(f.find_last_of("."));
+		fname.push_back(f.substr(0,pos));
+		ext.push_back(f.substr(pos));
+	} else {
+		fname.push_back(f);
+		ext.push_back("");
+	}
 }
 
 void Directory::sort(){
@@ -117,3 +114,12 @@ void Directory::clear(){
 	ext.clear();
 }
 
+void Directory::print(){
+	for(unsigned int i(0);i<path.size();i++){
+		std::cout<<path[i];
+		if(i<fname.size()){
+			std::cout<<fname[i]<<ext[i];
+		}
+		std::cout<<std::endl;
+	}
+}

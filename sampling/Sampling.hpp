@@ -10,12 +10,15 @@ class Binning;
 template<typename Type>
 class Binning{
 	public:
-		/*!Default constructor (needed for BinningSet)*/
+		/*!Copy constructor*/
+		Binning(Binning const& b); 
+		/*!Default constructor*/
 		Binning(); 
 		/*!Destructor*/
 		~Binning();
 		/*!Set the class*/
 		void set(unsigned int const& B, unsigned int const& b);
+		void reset();
 		/*!Set a filename for the plot*/
 		void plot(std::string const& filename){ log_ = new IOFiles(filename,true);}
 
@@ -29,6 +32,8 @@ class Binning{
 		double compute_x() const;
 
 	private:
+		Binning& operator=(Binning d);
+
 		unsigned int B_;	//!< minimum number of biggest bins needed to compute variance
 		unsigned int b_;	//!< l_+b_ rank of the biggest bin (b !> 30)
 		unsigned int l_;	//!< rank of the "smallest" bin 
@@ -52,11 +57,15 @@ class Binning{
 template<typename Type>
 class Data{
 	public:
+		/*!Copy constructor*/
+		Data<Type>(Data<Type> const& d);
 		/*!Default constructor*/
 		Data();
 		/*!Destructor*/
 		~Data();
 		void set(unsigned int const& B, unsigned int const& b, bool const& conv);
+		void reset();
+		Data<Type>& operator=(Data<Type> d);
 
 		void add_sample(Data<Type> const& cs);
 		void add_sample();
@@ -65,7 +74,6 @@ class Data{
 		void complete_analysis(double const& tol);
 		void complete_analysis();
 
-		/*maybe should return a const&*/
 		Type const& get_x() const { return x_; } 
 		Type const& get_dx() const { return dx_; } 
 		bool const& get_conv() const { return conv_; } 
@@ -76,33 +84,36 @@ class Data{
 		void set_N(unsigned int const& N){N_ = N;}
 		void set_conv(bool const& conv){conv_ = conv;}
 
-		Data<Type>&  operator=(Type const& x){x_ =  x; return (*this);}
-		Data<Type>& operator+=(Type const& x){x_ += x; return (*this);}
-		Data<Type>& operator-=(Type const& x){x_ -= x; return (*this);}
-		Data<Type>& operator/=(Type const& x){x_ /= x; return (*this);}
-		Data<Type>& operator*=(Type const& x){x_ *= x; return (*this);}
+		void add(Type const& x){x_ += x;}
+		void substract(Type const& x){x_ -= x;}
+		void multiply(Type const& x){x_ *= x;}
+		void divide(Type const& x){x_ /= x;}
 
 		Binning<Type>* get_binning() const { return binning_; }
 
 		void header_rst(std::string const& s, RST& rst) const;
 
 	private:
-		Data<Type>(Data<Type> const& d);
-
 		Type x_;
 		Type dx_;
 		unsigned int N_;
 		bool conv_; 
 		Binning<Type>* binning_;
+
+		void swap_to_assign(Data<Type>& d1, Data<Type>& d2);
 };
 
 template<typename Type>
 class DataSet{
 	public:
+		/*!Copy constructor*/
+		DataSet<Type>(DataSet<Type> const& d);
 		/*!Default constructor*/
 		DataSet();
 		/*!Destructor*/
 		~DataSet();
+
+		void reset();
 		void set(unsigned int const& N);
 		void set(unsigned int const& N, unsigned int const& B, unsigned int const& b, bool const& conv);
 
@@ -123,8 +134,10 @@ class DataSet{
 		{assert(i<size_); return ds_[i];} 
 
 	private:
-		Data<Type>* ds_;
+		DataSet<Type>& operator=(DataSet<Type> d);
+
 		unsigned int size_;
+		Data<Type>* ds_;
 };
 
 /*Binning*/
@@ -146,6 +159,24 @@ Binning<Type>::Binning():
 {}
 
 template<typename Type>
+Binning<Type>::Binning(Binning const& b):
+	B_(b.B_),
+	b_(b.b_),
+	l_(b.l_),
+	DPL_(b.DPL_),
+	dpl_(b.dpl_),
+	logl_(b.logl_),
+	Ml_(b.Ml_),
+	m_bin_(b.m_bin_),
+	bin_(b_?new Vector<double>[b_]:NULL),
+	recompute_dx_usefull_(b.recompute_dx_usefull_),
+	addlog_(b.addlog_),
+	log_(b.log_?new IOFiles(log_->get_filename()+"bis",true):NULL)
+{
+	for(unsigned int i(0);i<b_;i++){ bin_[i] = b.bin_[i]; }
+}
+
+template<typename Type>
 void Binning<Type>::set(unsigned int const& B, unsigned int const& b){
 	if(!bin_){
 		B_ = B;
@@ -159,6 +190,22 @@ void Binning<Type>::set(unsigned int const& B, unsigned int const& b){
 		recompute_dx_usefull_ = false;
 		addlog_ = false;
 	}
+	Ml_.set(b_,0);
+	m_bin_.set(b_,0);
+	bin_[b_-1].set(2*B_,0);
+	for(unsigned int i(b_-1);i>0;i--){
+		bin_[i-1].set(2*bin_[i].size(),0);
+	}
+}
+
+template<typename Type>
+void Binning<Type>::reset(){
+	l_ = 0;
+	DPL_ = 1;
+	dpl_ = 0;
+	logl_ = 0;
+	recompute_dx_usefull_ = false;
+	addlog_ = false;
 	Ml_.set(b_,0);
 	m_bin_.set(b_,0);
 	bin_[b_-1].set(2*B_,0);
@@ -318,7 +365,17 @@ Data<Type>::Data():
 {}
 
 template<typename Type>
+Data<Type>::Data(Data<Type> const& d):
+	x_(d.x_),
+	dx_(d.dx_),
+	N_(d.N_),
+	conv_(d.conv_),
+	binning_(d.binning_?new Binning<Type>(*(d.binning_)):NULL)
+{}
+
+template<typename Type>
 void Data<Type>::set(unsigned int const& B, unsigned int const& b, bool const& conv){
+	if(binning_){ delete binning_; }
 	binning_ = new Binning<Type>();
 	binning_->set(B,b);
 	conv_ = conv;
@@ -326,8 +383,24 @@ void Data<Type>::set(unsigned int const& B, unsigned int const& b, bool const& c
 }
 
 template<typename Type>
+void Data<Type>::reset(){
+	x_ = 0.0;
+	dx_ = 0.0;
+	N_ = 1;
+	binning_->reset();
+}
+
+template<typename Type>
 Data<Type>::~Data(){
 	if(binning_){ delete binning_; }
+}
+
+template<typename Type>
+void Data<Type>::swap_to_assign(Data<Type>& d1, Data<Type>& d2){
+	std::swap(d1.x_,d2.x_);
+	std::swap(d1.dx_,d2.dx_);
+	std::swap(d1.N_,d2.N_);
+	std::swap(d1.binning_,d2.binning_);
 }
 /*}*/
 
@@ -381,6 +454,15 @@ IOFiles& operator>>(IOFiles& r, Data<Type>& d){
 }
 /*}*/
 
+/*operator*/
+/*{*/
+template<typename Type>
+Data<Type>& Data<Type>::operator=(Data<Type> d){
+	swap_to_assign(*this,d);
+	return (*this);
+}
+/*}*/
+
 /*public methods that modify the class*/
 /*{*/
 template<typename Type>
@@ -422,9 +504,19 @@ void Data<Type>::complete_analysis(){
 /*{*/
 template<typename Type>
 DataSet<Type>::DataSet():
-	ds_(NULL),
-	size_(0)
+	size_(0),
+	ds_(NULL)
 {}
+
+template<typename Type>
+DataSet<Type>::DataSet(DataSet<Type> const& ds):
+	size_(ds.size_),
+	ds_(size_?new Data<Type>[size_]:NULL)
+{
+	for(unsigned int i(0);i<size_;i++){
+		ds_[i] = ds.ds_[i];
+	}
+}
 
 template<typename Type>
 void DataSet<Type>::set(unsigned int const& N){
@@ -434,10 +526,13 @@ void DataSet<Type>::set(unsigned int const& N){
 }
 
 template<typename Type>
+void DataSet<Type>::reset(){
+	for(unsigned int i(0);i<size_;i++){ ds_[i].reset(); }
+}
+
+template<typename Type>
 void DataSet<Type>::set(unsigned int const& N, unsigned int const& B, unsigned int const& b, bool const& conv){
-	if(ds_){ delete[] ds_; }
-	ds_ = new Data<Type>[N];
-	size_ = N;
+	set(N);
 	for(unsigned int i(0);i<size_;i++){ ds_[i].set(B,b,conv); }
 }
 

@@ -8,7 +8,7 @@ CXX = g++
 
 NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic
-OPTION = -O3 
+OPTION = -O3 -fopenmp
 
 BUILD=build
 

@@ -1,10 +1,8 @@
 #ifndef DEF_MLAPACK
 #define DEF_MLAPACK
 
-#include "Matrix.hpp"
 #include "Vector.hpp"
 
-//work for a symmetric matrix
 /*{*/
 extern "C" void dsyev_( /*eigensystem of a real symmetric matrix*/
 		char const& jobz,
@@ -164,14 +162,14 @@ extern "C" void dorgqr_(
 		);
 /*}*/
 
-/*!Class that allows an easy use of the LAPACK routines
+/*{!Class that allows an easy use of the LAPACK routines
  * 
  * - compute determinant
  * - compute inverse
  * - compute eigensystem
  * - compute LU decomposition
  * - compute QR decomposition
- * */
+ *}*/
 template<typename Type>
 class Lapack{
 	public:
@@ -181,9 +179,10 @@ class Lapack{
 		/*!Destructor (delete m if use_new_matrix==true)*/
 		~Lapack();
 
-		/*!Specialized routine that computes the eigensystem*/
-		void eigensystem(Vector<double>* EVal, bool compute_EVec=false); 
-		void eigensystem(Vector<std::complex<double> >* EVal, Matrix<std::complex<double> >* EVec = NULL); 
+		/*!Specialized routine that computes the eigensystem, if computed, the
+		 * eigenvectors are given in column*/
+		void eigensystem(Vector<double>& EVal, bool compute_EVec=false);
+		void eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* EVec = NULL);
 		/*!Compute the determinant*/
 		Type det();
 		/*!Compute the LU decomposition*/
@@ -218,12 +217,20 @@ class Lapack{
 		 * matrix of the QR decomposition after the call of geqp3*/
 		void gqr(unsigned int k, double* tau);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
-		 * eigensystem of a symmetric real matrix*/
-		void syev(Vector<double>* EVal, char job);
+		 * eigensystem of a symmetric real matrix, if the eigenvectors are
+		 * required, they are stored in column in mat, otherwise mat is
+		 * destroyed*/
+		void syev(Vector<double>& EVal, char job);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
-		 * eigensystem of an hermitian complex matrix*/
-		void heev(Vector<double>* EVal, char job); 
-		void geev(Vector<std::complex<double> >* EVal, char jobvr, Matrix<std::complex<double> >* EVec);
+		 * eigensystem of an hermitian complex matrix, if the eigenvectors are
+		 * required, they are stored in column in mat, otherwise mat is
+		 * destroyed*/
+		void heev(Vector<double>& EVal, char job); 
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * eigensystem of an hermitian complex matrix, if the eigenvectors are
+		 * required, they are stored in column in mat, otherwise mat is
+		 * destroyed*/
+		void geev(Vector<std::complex<double> >& EVal, char jobvr, Matrix<std::complex<double> >* EVec);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * norm of an general real matrix*/
 		double lange(); 
@@ -243,18 +250,16 @@ class Lapack{
 /*{*/
 template<typename Type>
 Lapack<Type>::Lapack(Matrix<Type> *m, bool use_new_matrix, char matrix_type):
-	mat(NULL),
+	mat(use_new_matrix?new Matrix<Type>(*m):m),
 	use_new_matrix(use_new_matrix),
 	matrix_type(matrix_type)
 {
 	if(matrix_type == 'S' && m->row() != m->col()){ std::cerr<<"Lapack : constructor : the matix is not symmetric"<<std::endl; }
-	if(use_new_matrix){ this->mat = new Matrix<Type>(*m); }
-	else { this->mat = m; }
 }
 
 template<typename Type>
 Lapack<Type>::~Lapack(){
-	if(use_new_matrix){ delete this->mat; } 
+	if(use_new_matrix){ delete mat; } 
 }
 /*}*/
 
@@ -416,47 +421,36 @@ double Lapack<Type>::norm()  {
 }
 
 template<typename Type>
-void Lapack<Type>::eigensystem(Vector<double>* EVal, bool compute_EVec) {
+void Lapack<Type>::eigensystem(Vector<double>& EVal, bool compute_EVec) {
 	if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem : matrix is not square"<<std::endl;}
 	char jobvr('N');
 	if(compute_EVec){jobvr = 'V';}
 	switch(matrix_type){
 		case 'S':
-			{
-				syev(EVal,jobvr);
-				break;
-			}
+			{ syev(EVal,jobvr); } break;
 		case 'H':
-			{
-				heev(EVal,jobvr);
-				break;
-			}
+			{ heev(EVal,jobvr); } break;
 		default:
 			{
 				std::cerr<<"Lapack : eigensystem<double> : Matrix type "<<matrix_type<<" not implemented for real matrix"<<std::endl;
 				std::cerr<<"Lapack : eigensystem<double> : the only matrix type implemented are G,S"<<std::endl;
-				break;
-			}
+			} break;
 	}
 }
 
 template<typename Type>
-void Lapack<Type>::eigensystem(Vector<std::complex<double> >* EVal, Matrix<std::complex<double> >* EVec) {
+void Lapack<Type>::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* EVec) {
 	if(mat->row() != mat->col()){std::cerr<<"Lapack : eigensystem : matrix is not square"<<std::endl;}
 	char jobvr('N');
 	if(EVec){jobvr = 'V';}
 	switch(matrix_type){
 		case 'G':
-			{
-				geev(EVal,jobvr,EVec);
-				break;
-			}
+			{ geev(EVal,jobvr,EVec); }break;
 		default:
 			{
 				std::cerr<<"Lapack : eigensystem<double> : Matrix type "<<matrix_type<<" not implemented for real matrix"<<std::endl;
 				std::cerr<<"Lapack : eigensystem<double> : the only matrix type implemented are G,S"<<std::endl;
-				break;
-			}
+			} break;
 	}
 }
 /*}*/

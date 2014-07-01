@@ -38,7 +38,7 @@ void check_troyer(){
 	DataSet<double> H_right;
 	H_right.set(N+1,B,b,true);
 	for( unsigned int i(0);i<N+1;i++){
-		H_right[i].binning()->plot("log"+tostring(i));
+		H_right[i].get_binning()->plot("log"+tostring(i));
 	}
 	iter=0;
 	do{
@@ -48,9 +48,9 @@ void check_troyer(){
 
 		H_wrong(n) +=1.0;
 
-		H_right[n] = 1.0;
+		H_right[n].set_x(1.0);
 		H_right.add_sample();
-		H_right[n] = 0.0;
+		H_right[n].set_x(0.0);
 		if(!(iter % (M/10))){ H_right.compute_convergence(tol); }
 	} while (iter<M);
 	H_right.complete_analysis(tol);
@@ -112,7 +112,7 @@ void check_flip_coin(){
 			iter++;
 			//x=r.get();
 			x=(1.0*rand())/RAND_MAX;
-			H = x;
+			H.set_x(x);
 			H.add_sample(); 
 			xtot += x;
 			if(iter>1e4){ H.compute_convergence(tol); }

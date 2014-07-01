@@ -14,6 +14,7 @@ Fit::Fit(Vector<double> const& x, Vector<double> const& y, double (*f)(double, d
 void Fit::func(double *p, double *y, int m, int n, void *adata){
 	Fit* self = static_cast<Fit*>(adata);
 	for(int i(0);i<n;i++){ y[i] = (*self)(i,p); }
+	std::cout<<"find something to do with m"<<m<<std::endl;
 }
 
 Vector<double> Fit::fx() const {

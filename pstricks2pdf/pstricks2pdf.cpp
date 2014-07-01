@@ -26,8 +26,9 @@ int main(int argc, char* argv[]){
 				std::cout<<outname<<std::endl;
 
 				if(outname!=nameline){
-					PSTricks ps("./",outname,false);
+					PSTricks ps("./",outname);
 					ps.add(s.substr(a,b-a));
+					ps.save(false,true);
 				};
 			}
 		}

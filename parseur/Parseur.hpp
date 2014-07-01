@@ -6,12 +6,12 @@
 
 class Parseur{
 	public:
-		/*!Constructor
+		/*{!Constructor
 		 * \param argc simply the argc argument used in int main(int argc,
 		 * char* argv[])
 		 * \param argv[] simply the argc[] argument used in int main(int argc,
 		 * char* argv[]) 
-		 */
+		 }*/
 		Parseur(unsigned int argc, char* argv[]);
 		Parseur(unsigned int argc, char* argv[], unsigned int N_default);
 		/*! Destroys the static arrays and gives a warning when an argument has not been set */

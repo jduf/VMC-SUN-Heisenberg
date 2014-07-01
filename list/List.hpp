@@ -2,6 +2,7 @@
 #define DEF_LIST
 
 #include<iostream>
+#include <cassert>
 
 template<typename Type>
 class List{
@@ -11,15 +12,19 @@ class List{
 		List(List<Type> const& l);
 		~List(){ clear(); }
 
-		Type operator[](unsigned int idx) const;
+		Type const& operator[](unsigned int idx) const;
+		Type& operator[](unsigned int idx);
+		Type& first(){ return *t_; }
+		Type const& first() const { return *t_; }
+		Type& last() { return *(last_->t_); }
+		Type const& last() const { return *(last_->t_); }
 
 		unsigned int size() const { return N_;}
-		Type* get() const { return t_; }
-		Type* last() const { return last_->t_; }
 
 		void append(Type const& t);
 		void pop();
 		void remove(unsigned int idx);
+		void remove(unsigned int a, unsigned int b);
 		void clear();
 		void swap(unsigned int a, unsigned int b);
 
@@ -73,7 +78,6 @@ List<Type>::List(List<Type> const& l):
 		}
 	}
 }
-
 /*}*/
 
 /*operators*/
@@ -85,7 +89,16 @@ std::ostream& operator<<(std::ostream& flux, List<Type> const& l){
 }
 
 template<typename Type>
-Type List<Type>::operator[](unsigned int idx) const{
+Type const& List<Type>::operator[](unsigned int idx) const{
+	assert(idx<N_);
+	List<Type> const* tmp(this);
+	for(unsigned int i(0);i<idx;i++){ tmp = tmp->next_;}
+	return (*tmp->t_);
+}
+
+template<typename Type>
+Type& List<Type>::operator[](unsigned int idx) {
+	assert(idx<N_);
 	List<Type> const* tmp(this);
 	for(unsigned int i(0);i<idx;i++){ tmp = tmp->next_;}
 	return (*tmp->t_);
@@ -108,21 +121,24 @@ void List<Type>::append(Type const& t){
 template<typename Type>
 void List<Type>::pop(){
 	switch(N_){
-		case 0:{}break;
-		case 1:{
-				   last_ = this;
-				   next_ = NULL;
-				   delete t_;
-				   t_ = NULL;
-				   N_--;
-			   }break;
-		default:{
-					List<Type>* tmp(last_);
-					last_ = last_->previous_;
-					last_->next_ = NULL;
-					delete tmp;
-					N_--;
-				}
+		case 0:
+			{}break;
+		case 1:
+			{
+				last_ = this;
+				next_ = NULL;
+				delete t_;
+				t_ = NULL;
+				N_--;
+			}break;
+		default:
+			{
+				List<Type>* tmp(last_);
+				last_ = last_->previous_;
+				last_->next_ = NULL;
+				delete tmp;
+				N_--;
+			}
 	}
 }
 
@@ -130,9 +146,10 @@ template<typename Type>
 void List<Type>::remove(unsigned int idx){
 	if(idx==0){
 		if(N_!=1){ 
-			t_ = next_->t_; 
 			List<Type>* tmp(next_);
+			t_ = tmp->t_; 
 			next_ = tmp->next_;
+			if(N_!=2){ tmp->next_->previous_ = this; }
 			tmp->next_ = NULL;
 			tmp->t_ =  NULL;
 			delete tmp;
@@ -153,6 +170,27 @@ void List<Type>::remove(unsigned int idx){
 			N_--;
 		} else {
 			pop();
+		}
+	}
+}
+
+template<typename Type>
+void List<Type>::remove(unsigned int a, unsigned int b){
+	if(a==b){ remove(a); }
+	if(a>b){ remove(b,a); }
+	if(a<b){
+		if(a!=0){
+			List<Type>* list_a(this);
+			for(unsigned int i(0);i<a-1;i++){ list_a = list_a->next_; }
+			List<Type>* tmp(list_a->next_);
+			List<Type>* list_b(list_a);
+			for(unsigned int i(0);i<b-a-1;i++){ list_b = list_b->next_; }
+			list_a->next_ = list_b->next_;
+			list_b->next_ = NULL;
+			delete tmp;
+		} else {
+			remove(a+1,b);
+			remove(0);
 		}
 	}
 }
