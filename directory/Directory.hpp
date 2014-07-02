@@ -7,7 +7,10 @@
 
 class Directory {
 	public:
+		/*!Constructor*/
 		Directory();
+		/*!Destructor*/
+		~Directory(){}
 
 		inline std::string get_name(unsigned int i) const {return fname[i];};
 		inline std::string get_path(unsigned int i) const {return path[i];};
@@ -24,6 +27,11 @@ class Directory {
 		void clear();
 
 	private:
+		/*!Forbids copy*/
+		Directory(Directory const& d);
+		/*!Forbids assignment*/
+		Directory& operator=(Directory d);
+
 		std::string dir;
 		std::vector<std::string> fname;
 		std::vector<std::string> path;

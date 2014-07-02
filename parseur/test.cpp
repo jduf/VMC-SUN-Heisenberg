@@ -2,6 +2,7 @@
 
 int main(int argc,char* argv[]){
 	Parseur P(argc,argv);
+
 	double a(0);
 	std::string b("");
 	double c(0);

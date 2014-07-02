@@ -3,16 +3,19 @@
 
 #include <cmath> //allow abs(double) and abs(complex) 
 #include <cassert>
+#include <functional>
+#include <algorithm>
 #include "IOFiles.hpp"
 
 template<typename Type>
 class Vector;
 
-/*{!Class that implement a static array as a Matrix
+/*{*/
+/*!Class that implement a static array as a Matrix
  *
  * - can be saved with Write.hpp 
- * - can be loaded with Read.hpp 
- }*/
+ * - can be loaded with Read.hpp */
+/*}*/
 template<typename Type>
 class Matrix{
 	public:
@@ -24,8 +27,6 @@ class Matrix{
 		Matrix(unsigned int N_row, unsigned int N_col, Type val);
 		/*!Deep copy*/
 		Matrix(Matrix<Type> const& mat);
-		/*!Replace a pointer with an instance*/
-		Matrix(Matrix<Type> *map);
 		/*!Delete the static array*/
 		~Matrix();
 
@@ -36,24 +37,30 @@ class Matrix{
 		Type& operator()(unsigned int const& i, unsigned int const& j) {
 			assert(i<row_ && j<col_); return m_[i+j*row_]; };
 
-		/*!Deep copy assignment*/
+		/*!Assignment (using Copy-And-Swap Idiom)*/
 		Matrix<Type>& operator=(Matrix<Type> mat); 
 		/*!Additions this matrice with another*/
 		Matrix<Type>& operator+=(Matrix<Type> const& mat);
+		/*!Calls operator+=(Matrix<Type> const& mat)*/
 		Matrix<Type> operator+(Matrix<Type> const& mat) const;
 		/*!Substracts this matrice from another (m1 -= m2 : m1 = m1-m2)*/
 		Matrix<Type>& operator-=(Matrix<Type> const& mat);
+		/*!Calls operator-=(Matrix<Type> const& mat)*/
 		Matrix<Type> operator-(Matrix<Type> const& mat) const;
 		/*!Multiplies two matrices (m1 *= m2 : m1 = m1*m2)*/
 		Matrix<Type>& operator*=(Matrix<Type> const& mat);
+		/*!Calls operator*=(Matrix<Type> const& mat)*/
 		Matrix<Type> operator*(Matrix<Type> const& mat) const;
 
 		/*!Multiplies a matrix by a scalar Type*/
 		Matrix<Type>& operator*=(Type const& d);
+		/*!Calls operator*=(Type const& d)*/
 		Matrix<Type> operator*(Type const& d) const;
 
-		Matrix<Type>& operator-=(Type const& d);
+		/*!Devides a matrix by a scalar*/
 		Matrix<Type>& operator/=(Type const& d);
+		/*!Substracts a matrix by a scalar*/
+		Matrix<Type>& operator-=(Type const& d);
 
 		/*!Multiplies a matrix by a vector (m1 *= v2 : m1 = m1*v2)*/
 		Vector<Type> operator*(Vector<Type> const& vec) const;
@@ -74,7 +81,7 @@ class Matrix{
 
 		/*!Returns the transpose of any matrix*/
 		Matrix<Type> transpose() const;
-		/*!Returns the conjugate transpose of complex matrix (may give an error) */
+		/*!Returns the conjugate transpose of complex matrix*/
 		Matrix<Type> trans_conj() const;
 		/*!Returns the diagonal elements in an vector*/
 		Vector<Type> diag() const;
@@ -90,20 +97,25 @@ class Matrix{
 		/*!Returns the pointer to the matrix*/
 		Type* ptr() const { return m_; }
 
-		/*return the maximum value of the matrix*/
+		/*!Returns the maximal value of m_*/
 		Type max() const;
 
 #ifdef DEF_IOFILES
 		void header_rst(std::string const& s, RST& rst) const;
 #endif
 
-	protected:
+	private:
 		unsigned int row_; //!< number of rows
 		unsigned int col_; //!< number of columns
 		unsigned int size_; //!< size of the array
-		Type *m_; //!< pointer to a static array
+		Type* m_; //!< pointer to a static array
 
-		void set_null_pointer(){m_=NULL;}
+		/*{Description*/
+		/*!Set m_=NULL and all sizes to 0
+		 * \warning the use of this method may leed to a segmentation fault*/
+		/*}*/
+		void set_null_pointer();
+		/*!Copy-And-Swap Idiom*/
 		void swap_to_assign(Matrix<Type>& m1,Matrix<Type>& m2);
 };
 
@@ -143,16 +155,6 @@ Matrix<Type>::Matrix(Matrix<Type> const& mat):
 	m_(size_?new Type[size_]:NULL)
 {
 	for(unsigned int i(0);i<size_;i++){ m_[i] = mat.m_[i]; }
-}
-
-template<typename Type>
-Matrix<Type>::Matrix(Matrix<Type> *mat):
-	row_(mat->row_),
-	col_(mat->col_),
-	size_(mat->size_),
-	m_(mat->m_)
-{ 
-	mat->set_null_pointer();
 }
 
 template<typename Type>
@@ -230,6 +232,7 @@ IOFiles& operator>>(IOFiles& r, Matrix<Type>& m){
 /*}*/
 
 /*arithmetic operators*/
+/*{*/
 /*{Matrix.operator(Matrix)*/
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator=(Matrix<Type> mat){
@@ -404,6 +407,14 @@ template<typename Type>
 void Matrix<Type>::set(unsigned int row, unsigned int col, Type val){
 	this->set(row,col);
 	this->set(val);
+}
+
+template<typename Type>
+void  Matrix<Type>::set_null_pointer(){
+	row_ =0;
+	col_ = 0;
+	size_ = 0;
+	m_=NULL;
 }
 /*}*/
 

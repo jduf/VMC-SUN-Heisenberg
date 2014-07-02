@@ -2,14 +2,13 @@
 #define DEF_VECTOR
 
 #include "Matrix.hpp"
-#include<functional>
-#include<algorithm>
 
-/*{!Class that implement a static array as a Vector
+/*{Description*/
+/*!Class that implement a static array as a Vector
  *
  * - can be saved with Write.hpp 
- * - can be loaded with Read.hpp 
- }*/
+ * - can be loaded with Read.hpp */
+/*}*/
 template<typename Type>
 class Vector{
 	public:
@@ -26,18 +25,20 @@ class Vector{
 
 		/*!Accesses the (i,j)th entry of the Vector*/
 		Type const& operator()(unsigned int const& i) const 
-		{assert(i<size_); return m_[i];}
+		{assert(i<size_); return v_[i];}
 		/*!Sets the (i,j)th entry of the Vector*/
 		Type& operator()(unsigned int const& i) 
-		{assert(i<size_); return m_[i];}
+		{assert(i<size_); return v_[i];}
 
-		/*!Deep copy assignment*/
+		/*!Assignment (using Copy-And-Swap Idiom)*/
 		Vector<Type>& operator=(Vector<Type> vec); 
-		/*!Additions this vecrice with another*/
+		/*!Additions this vector with another (m1 += m2 : m1 = m1+m2)*/
 		Vector<Type>& operator+=(Vector<Type> const& vec);
+		/*!Calls operator+=(Vector<Type> const& vec)*/
 		Vector<Type> operator+(Vector<Type> const& vec) const;
-		/*!Substracts this vecrice from another (m1 -= m2 : m1 = m1-m2)*/
+		/*!Substracts this vector from another (m1 -= m2 : m1 = m1-m2)*/
 		Vector<Type>& operator-=(Vector<Type> const& vec);
+		/*!Calls operator-=(Vector<Type> const& vec)*/
 		Vector<Type> operator-(Vector<Type> const& vec) const;
 		/*!Multiplies two vectors (v1 *= v2 : v1 = v1*v2)*/
 		Vector<Type> operator*(Vector<Type> const& vec) const;
@@ -46,9 +47,11 @@ class Vector{
 
 		/*!Devides a vectors by a scalar*/
 		Vector<Type>& operator/=(Type const& d);
+		/*!Calls operator/=(Type const& d)*/
 		Vector<Type> operator/(Type const& d) const;
 		/*!Multiplies a vectors by a scalar*/
 		Vector<Type>& operator*=(Type const& d);
+		/*!Calls operator*=(Type const& d)*/
 		Vector<Type> operator*(Type const& d) const;
 
 		/*!Set the vector to 0*/
@@ -64,35 +67,49 @@ class Vector{
 		/*!Print the vector for vechevecica*/
 		void print_mathematica() const;
 
+		/*!Sort the datas according to std::sort(v_,v_+size_,cmp)*/
 		template<typename Function>
 			void sort(Function cmp);
+		/*{Description*/
+		/*!Sort the datas according cmp and my own implementation of sort. 
+		 * \param cmp comparison method (std::greater<Type>(), std::less<Type>(),...)
+		 * \param index stores the reordering */
+		/*}*/
 		template<typename Function>
 			void sort(Function cmp, Vector<unsigned int>& index);
+		/*!Returns true if the datas are sorted according cmp*/
 		template<typename Function>
 			bool is_sorted(Function cmp) const;
+		/*!Returns a Vector composed by v_ ordered by index*/
 		Vector<Type> order(Vector<unsigned int> const& index) const;
+		/*!Returns a v_[min:max]*/
 		Vector<Type> range(unsigned int min, unsigned int max) const;
 
+		/*!Returns the sum over all the elements in v_*/
 		Type sum() const;
+		/*!Returns the mean of the elements in v_*/
 		Type mean() const;
+		/*!Returns the variance of the elements in v_*/
 		Type variance() const;
+		/*!Returns the maximal value of v_*/
 		Type max() const;
+		/*!Returns the minimal value of v_*/
 		Type min() const;
 
 		/*!Returns the size of the Vector*/
 		unsigned int size() const {return size_;}
 		/*!Returns the pointer to the Vector*/
-		Type* ptr() const {return m_;}
+		Type* ptr() const {return v_;}
 
 #ifdef DEF_IOFILES
 		void header_rst(std::string const& s, RST& rst) const;
 #endif
 
-	protected:
+	private:
 		unsigned int size_; //!< number of rows
-		Type *m_; //!< pointer to a static array
+		Type *v_; //!< pointer to a static array
 
-		//void set_null_pointer(){m_=NULL;}
+		/*!Copy-And-Swap Idiom*/
 		void swap_to_assign(Vector<Type>& v1,Vector<Type>& v2);
 };
 
@@ -101,39 +118,39 @@ class Vector{
 template<typename Type>
 Vector<Type>::Vector():
 	size_(0),
-	m_(NULL)
+	v_(NULL)
 {}
 
 template<typename Type>
 Vector<Type>::Vector(unsigned int N):
 	size_(N),
-	m_(size_?new Type[size_]:NULL)
+	v_(size_?new Type[size_]:NULL)
 {} 
 
 template<typename Type>
 Vector<Type>::Vector(unsigned int N, Type val):
 	size_(N),
-	m_(size_?new Type[size_]:NULL)
+	v_(size_?new Type[size_]:NULL)
 {
-	for(unsigned int i(0); i<size_; i++){m_[i] = val;}
+	for(unsigned int i(0); i<size_; i++){v_[i] = val;}
 }
 
 template<typename Type>
 Vector<Type>::Vector(Vector<Type> const& vec):
 	size_(vec.size_),
-	m_(size_?new Type[size_]:NULL)
+	v_(size_?new Type[size_]:NULL)
 {
-	for(unsigned int i(0);i<size_;i++){ m_[i] = vec.m_[i]; }
+	for(unsigned int i(0);i<size_;i++){ v_[i] = vec.v_[i]; }
 }
 
 template<typename Type>
 Vector<Type>::~Vector(){
-	if(m_){ delete[]  m_; }
+	if(v_){ delete[]  v_; }
 }
 
 template<typename Type>
 void Vector<Type>::swap_to_assign(Vector<Type>& v1,Vector<Type>& v2){
-	std::swap(v1.m_,v2.m_);
+	std::swap(v1.v_,v2.v_);
 	std::swap(v1.size_,v2.size_);
 }
 /*}*/
@@ -199,7 +216,7 @@ Vector<Type>& Vector<Type>::operator=(Vector<Type> vec){
 template<typename Type>
 Vector<Type>& Vector<Type>::operator+=(Vector<Type> const& vec){
 	assert(size_ == vec.size_);
-	for(unsigned int i(0);i<size_;i++){ m_[i] += vec.m_[i]; }
+	for(unsigned int i(0);i<size_;i++){ v_[i] += vec.v_[i]; }
 	return (*this);
 }
 
@@ -213,7 +230,7 @@ Vector<Type> Vector<Type>::operator+(Vector<Type> const& vec) const{
 template<typename Type>
 Vector<Type>& Vector<Type>::operator-=(Vector<Type> const& vec){
 	assert(size_ == vec.size_);
-	for(unsigned int i(0);i<size_;i++){ m_[i] -= vec.m_[i]; }
+	for(unsigned int i(0);i<size_;i++){ v_[i] -= vec.v_[i]; }
 	return (*this);
 }
 
@@ -227,7 +244,7 @@ Vector<Type> Vector<Type>::operator-(Vector<Type> const& vec) const{
 template<typename Type>
 Vector<Type> Vector<Type>::operator*(Vector<Type> const& vec) const{
 	Type out(0.0);
-	for(unsigned int i(0);i<size_;i++){ out += m_[i] * vec.m_[i]; }
+	for(unsigned int i(0);i<size_;i++){ out += v_[i] * vec.v_[i]; }
 	return out;
 }
 
@@ -236,7 +253,7 @@ Matrix<Type> Vector<Type>::operator^(Vector<Type> const& vec) const{
 	Matrix<Type> out(vec.size(),vec.size());
 	for(unsigned int i(0);i<size_;i++){
 		for(unsigned int j(0);j<size_;j++){
-			out(i,j) = m_[i] * vec.m_[j];
+			out(i,j) = v_[i] * vec.v_[j];
 		}
 	}
 	return out;
@@ -244,7 +261,7 @@ Matrix<Type> Vector<Type>::operator^(Vector<Type> const& vec) const{
 
 template<typename Type>
 Vector<Type>& Vector<Type>::operator/=(Type const& d){
-	for(unsigned int i(0);i<size_;i++){ m_[i] /= d; }
+	for(unsigned int i(0);i<size_;i++){ v_[i] /= d; }
 	return (*this);
 }
 
@@ -257,7 +274,7 @@ Vector<Type> Vector<Type>::operator/(Type const& d) const{
 
 template<typename Type>
 Vector<Type>& Vector<Type>::operator*=(Type const& d){
-	for(unsigned int i(0);i<size_;i++){ m_[i] *= d; }
+	for(unsigned int i(0);i<size_;i++){ v_[i] *= d; }
 	return (*this);
 }
 
@@ -275,7 +292,7 @@ template<>
 inline Vector<double> Vector<double>::chop(double precision) const {
 	Vector<double > tmp(*this);
 	for(unsigned int i(0);i<size_;i++){
-		if(std::abs(tmp.m_[i]) < precision ){tmp.m_[i]=0.0;}
+		if(std::abs(tmp.v_[i]) < precision ){tmp.v_[i]=0.0;}
 	}
 	return tmp;
 }
@@ -284,24 +301,24 @@ template<>
 inline Vector<std::complex<double> > Vector<std::complex<double> >::chop(double precision) const{
 	Vector<std::complex<double> > tmp(*this);
 	for(unsigned int i(0);i<size_;i++){
-		if(std::abs(tmp.m_[i].imag()) < precision ){tmp.m_[i].imag(0.0);}
-		if(std::abs(tmp.m_[i].real()) < precision ){tmp.m_[i].real(0.0);}
+		if(std::abs(tmp.v_[i].imag()) < precision ){tmp.v_[i].imag(0.0);}
+		if(std::abs(tmp.v_[i].real()) < precision ){tmp.v_[i].real(0.0);}
 	}
 	return tmp;
 }
 
 template<typename Type>
 void Vector<Type>::set(){
-	if(m_){ delete[] m_; }
-	m_ = NULL;
+	if(v_){ delete[] v_; }
+	v_ = NULL;
 	size_ = 0;
 }
 
 template<typename Type>
 void Vector<Type>::set(unsigned int N){
 	if(size_ != N){ 
-		if(m_){ delete[] m_; }
-		m_ = new Type[N];
+		if(v_){ delete[] v_; }
+		v_ = new Type[N];
 		size_ = N;
 	}
 }
@@ -310,7 +327,7 @@ template<typename Type>
 void Vector<Type>::set(unsigned int N, Type const& val){
 	set(N);
 	for(unsigned int i(0); i<size_; i++){
-		m_[i] = val;
+		v_[i] = val;
 	}
 }
 /*}*/
@@ -319,7 +336,7 @@ template<typename Type>
 Vector<Type> Vector<Type>::range(unsigned int min, unsigned int max) const {
 	Vector<Type> out(max-min);
 	for(unsigned int i(0);i<max-min;i++){
-		out(i) = m_[min+i];
+		out(i) = v_[min+i];
 	}
 	return out;
 }
@@ -328,18 +345,18 @@ Vector<Type> Vector<Type>::range(unsigned int min, unsigned int max) const {
 /*{*/
 template<typename Type>
 Type Vector<Type>::min() const {
-	Type m(m_[0]);
+	Type m(v_[0]);
 	for(unsigned int i(1);i<size_;i++){
-		if(m>m_[i]){ m=m_[i]; }
+		if(m>v_[i]){ m=v_[i]; }
 	}
 	return m;
 }
 
 template<typename Type>
 Type Vector<Type>::max() const {
-	Type m(m_[0]);
+	Type m(v_[0]);
 	for(unsigned int i(1);i<size_;i++){
-		if(m<m_[i]){ m=m_[i]; }
+		if(m<v_[i]){ m=v_[i]; }
 	}
 	return m;
 }
@@ -347,7 +364,7 @@ Type Vector<Type>::max() const {
 template<typename Type>
 Type Vector<Type>::mean() const {
 	double m(0.0);
-	for(unsigned int i(0);i<size_;i++){ m+=m_[i]; }
+	for(unsigned int i(0);i<size_;i++){ m+=v_[i]; }
 	return m/size_;
 }
 
@@ -355,14 +372,14 @@ template<typename Type>
 Type Vector<Type>::variance() const {
 	double m(mean());
 	double v(0.0);
-	for(unsigned int i(0);i<size_;i++){ v+=(m_[i]-m)*(m_[i]-m); }
+	for(unsigned int i(0);i<size_;i++){ v+=(v_[i]-m)*(v_[i]-m); }
 	return v/size_;
 }
 
 template<typename Type>
 Type Vector<Type>::sum() const {
 	Type s(0.0);
-	for(unsigned int i(0);i<size_;i++){ s += m_[i];}
+	for(unsigned int i(0);i<size_;i++){ s += v_[i];}
 	return s;
 }
 /*}*/
@@ -372,7 +389,7 @@ Type Vector<Type>::sum() const {
 template<typename Type>
 template<typename Function>
 void Vector<Type>::sort(Function cmp){
-	std::sort(m_,m_+size_,cmp);
+	std::sort(v_,v_+size_,cmp);
 }
 
 template<typename Type>
@@ -382,8 +399,8 @@ void Vector<Type>::sort(Function cmp, Vector<unsigned int>& index){
 	for(unsigned int i(0);i<size_;i++) { index(i) = i; }
 	while(!is_sorted(cmp)) {
 		for(unsigned int i(0);i<size_-1;i++) {
-			if(!cmp(m_[i],m_[i+1])){
-				std::swap(m_[i],m_[i+1]);
+			if(!cmp(v_[i],v_[i+1])){
+				std::swap(v_[i],v_[i+1]);
 				std::swap(index(i),index(i+1));
 			}
 		}
@@ -394,7 +411,7 @@ template<typename Type>
 template<typename Function>
 bool Vector<Type>::is_sorted(Function cmp) const {
 	for(unsigned int i(0);i<size_-1;i++) {
-		if(!cmp(m_[i],m_[i+1])){ return false; }
+		if(!cmp(v_[i],v_[i+1])){ return false; }
 	}
 	return true;
 }
@@ -403,7 +420,7 @@ template<typename Type>
 Vector<Type> Vector<Type>::order(Vector<unsigned int> const& index) const{
 	Vector<Type> out(index.size());
 	for(unsigned int i(0);i<index.size();i++) {
-		out(i) = m_[index(i)];
+		out(i) = v_[index(i)];
 	}
 	return out;
 }
@@ -423,7 +440,7 @@ inline double imag(double const& x){ return x; }
 inline double imag(std::complex<double> const& x){ return std::imag(x); }
 /*}*/
 
-/*double norm_squared(T)*/
+/*double norv_squared(T)*/
 /*{*/
 inline double norm_squared(double x){ return x*x; }
 

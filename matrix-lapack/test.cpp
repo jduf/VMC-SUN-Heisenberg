@@ -7,28 +7,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-std::complex<double> projection(Matrix<double> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket){
-	unsigned int n(O.row());
-	Vector<std::complex<double> > tmp(n,0.0);
-	std::complex<double> out(0.0);;
-	for(unsigned int i(0);i<n;i++){
-		for(unsigned int j(0);j<n;j++){
-			tmp(i) += O(i,j)*base(j,ket);
-		}
-	}
-	for(unsigned int i(0);i<n;i++){
-		out += tmp(i)*std::conj(base(i,bra));
-	}
-	return out;
-}
-Matrix<double> create_to_check_constructor(){
-	Matrix<double> m(3,2,2);
-	return m;
-}
+std::complex<double> projection(Matrix<double> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket);
+Matrix<double> create_to_check_constructor();
 
 int main(){
-	/*operateurs*/
-	/////*{*/
+	/*{operateurs*/
 	//unsigned int N1_row(3);
 	//unsigned int N1_col(2);
 	////unsigned int N2_row(2);
@@ -77,10 +60,9 @@ int main(){
 	//std::cout<<v<<std::endl;
 	//std::cout<<std::endl;
 	//std::cout<<m1*v<<std::endl;
-	//// /*}*/
-	/*eigenvalue*/
-	/*{*/
-	///*{Symmetric matrix*/
+	/*}*/
+	///*{eigenvalue*/
+	///*{real symmetric matrix*/
 	//srand(time(NULL));
 	//unsigned int N_site(11);
 	//Matrix<double> S(N_site,N_site,0.0);
@@ -95,10 +77,11 @@ int main(){
 	//std::cout<<S<<std::endl;
 //
 	//std::cout<<"The original matrix is preserved (copy inside lapack)"<<std::endl;
-	//Lapack<double> Symmetric_copy(&S,true,'S');
+	//Lapack<double> Symmetric_copy(S,true,'S');
 	//Vector<double> eval;
 	//Symmetric_copy.eigensystem(eval,true);
-	//Matrix<double> U(Symmetric_copy.get_mat());
+	//Matrix<double> U;
+	//Symmetric_copy.set_mat(U);
 	//std::cout<<"Eigenvalues"<<std::endl;
 	//std::cout<<eval.chop()<<std::endl;
 	//std::cout<<"Diagonalization using eigenvector"<<std::endl;
@@ -113,7 +96,7 @@ int main(){
 	//}
 	//std::cout<<"The original matrix is preserved (explicit copy outside lapack)"<<std::endl;
 	//Matrix<double> S_lapack(S);
-	//Lapack<double> Symmetric_no_copy(&S_lapack,false,'S');
+	//Lapack<double> Symmetric_no_copy(S_lapack,false,'S');
 	//eval.set();
 	//Symmetric_no_copy.eigensystem(eval,true);
 	//Vector<double> vp((S_lapack.transpose()*S*S_lapack).diag().chop());
@@ -123,59 +106,26 @@ int main(){
 	//std::cout<<"Eigenvalues using the passage matrices"<<std::endl;
 	//std::cout<<vp<<std::endl;
 	///*}*/
-	/////*{*/
-	////std::cout<<"Original matrix"<<std::endl;
-	////std::cout<<H<<std::endl;;
-	////Matrix<double> T(H);
-	////Vector<double> EValOW(N_site);
-	////Vector<double> EValNOW(N_site);
+	/////*{complex hermitian matrix*/
+	////Matrix<std::complex<double> > M(3,3);
+	////M(0,0) = std::complex<double> (1,0); 
+	////M(1,1) = std::complex<double> (4,0); 
+	////M(2,2) = std::complex<double> (5,0); 
+	////M(0,1) = std::complex<double> (2,3); 
+	////M(1,0) = std::complex<double> (2,-3); 
+	////M(0,2) = std::complex<double> (6,4); 
+	////M(2,0) = std::complex<double> (6,-4); 
+	////M(1,2) = std::complex<double> (-4,-6); 
+	////M(2,1) = std::complex<double> (-4,6); 
 	////
-	////Lapack<double> EVecNOW(&T,true,'S');
-	////Lapack<double> EVecOW(&T,false,'S');
-	////EVecNOW.eigensystem(&EValNOW,true);
-	////EVecOW.eigensystem(&EValOW,true);
-	////EValNOW.chop();
-	////EValOW.chop();
-	////
-	////Matrix<double> Tinv(T); // T is now the passage matrix
-	////Lapack<double> Tinv_(&Tinv,false,'G'); 
-	////Tinv_.inv();
-	////Matrix<double> vp(Tinv*H*T);
-	////
-	////std::cout<<"Eigenvalues without overwriting the original matrix"<<std::endl;
-	////std::cout<<EValNOW.chop()<<std::endl;;
-	////std::cout<<"Eigenvalues with overwriting the original matrix"<<std::endl;
-	////std::cout<<EValOW.chop()<<std::endl;;
-	////std::cout<<"Eigenvalues using the passage matrices"<<std::endl;
-	////std::cout<<vp.diag().chop()<<std::endl;
-	////
-	////T.chop();
-	////std::cout<<"Passage matrix : Tinv.H.T = eigenvalues"<<std::endl;
-	////std::cout<<T<<std::endl;;
-	////std::cout<<std::endl;;
+	////Lapack<std::complex<double> > M_(M,false,'H');
+	////Vector<double> EVal2(3);
+	////M_.eigensystem(EVal2,true);
+	////std::cout<<"eval of a complex matrix"<<std::endl;;
+	////std::cout<<EVal2<<std::endl;
+	////std::cout<<-7.72113<<" "<<3.4124<<" "<<14.3087<<" (true eigenvalues)" << std::endl;
 	/////*}*/
-	/*complex hermitian matrix*/
-	/*{*/
-	Matrix<std::complex<double> > M(3,3);
-	M(0,0) = std::complex<double> (1,0); 
-	M(1,1) = std::complex<double> (4,0); 
-	M(2,2) = std::complex<double> (5,0); 
-	M(0,1) = std::complex<double> (2,3); 
-	M(1,0) = std::complex<double> (2,-3); 
-	M(0,2) = std::complex<double> (6,4); 
-	M(2,0) = std::complex<double> (6,-4); 
-	M(1,2) = std::complex<double> (-4,-6); 
-	M(2,1) = std::complex<double> (-4,6); 
-	
-	Lapack<std::complex<double> > M_(&M,false,'H');
-	Vector<double> EVal2(3);
-	M_.eigensystem(EVal2,true);
-	std::cout<<"eval of a complex matrix"<<std::endl;;
-	std::cout<<EVal2<<std::endl;
-	std::cout<<-7.72113<<" "<<3.4124<<" "<<14.3087<<" (true eigenvalues)" << std::endl;
-	/*}*/
-	/*complex general matrix*/
-	///*{*/
+	///*{complex general matrix*/
 	//Matrix<std::complex<double> > M(3,3);
 	//M(0,0) = std::complex<double> (1,0); 
 	//M(1,1) = std::complex<double> (4,0); 
@@ -187,16 +137,22 @@ int main(){
 	//M(1,2) = std::complex<double> (4,1); 
 	//M(2,1) = std::complex<double> (-2,6); 
 	//
-	//Lapack<std::complex<double> > M_(&M,false,'G');
-	//Matrix<std::complex<double> > EVec(3,3);
-	//Vector<std::complex<double> > EVal(3);
-	//M_.eigensystem(&EVal,&EVec);
-	//std::cout<<"eval of a genral complex matrix"<<std::endl;;
+	//Lapack<std::complex<double> > M_(M,true,'G');
+	//Matrix<std::complex<double> > EVec;
+	//Vector<std::complex<double> > EVal;
+	//M_.eigensystem(EVal,&EVec);
+	//std::cout<<"eval of a general complex matrix"<<std::endl;
 	//std::cout<<EVal<<std::endl;
+	//Lapack<std::complex<double> > inv_(EVec,true,'G');
+	//inv_.inv();
+	//Matrix<std::complex<double> > EVecinv;
+	//inv_.set_mat(EVecinv);
+//
+	//std::cout<<EVal<<std::endl;
+	//std::cout<<(EVecinv*M*EVec).chop()<<std::endl;
 	///*}*/
-	///*}*/
-	/*lu et det*/
-	///*{*/
+	/////*}*/
+	///*{lu et det*/
 	//Matrix<std::complex<double> > C(3,3);
 	//C(0,0)=std::complex<double> (-1.0,3.2);
 	//C(0,1)=std::complex<double> (-2.0,1.2);
@@ -237,8 +193,7 @@ int main(){
 	//std::cout<<"T=LU"<<std::endl;
 	//std::cout<<L*U<<std::endl;;
 	///*}*/
-	//inverse
-	///*{*/
+	///*{inverse*/
 	//Matrix<double> T1(3,3);
 	//T1(0,0)=-1.0;
 	//T1(0,1)=2.5;
@@ -330,8 +285,7 @@ int main(){
 	////std::cout<<(Tinv_new*T1)<<std::endl;;
 	////}
 	///*}*/
-	//qr factorisation
-	///*{*/
+	///*{qr factorisation*/
 	//Matrix<double> T(2,5);
 	//IOFiles r("QR.dat",false);
 	//r>>T;
@@ -349,8 +303,7 @@ int main(){
 	//std::cout<<std::endl;
 	//std::cout<<(T-Q*R*P).chop()<<std::endl;
 	///*}*/
-	/*sort*/
-	///*{*/
+	///*{sort*/
 	//srand(time(NULL));
 	//Vector<double> x(10,1.2);
 	//for(unsigned int i(1);i<10;i++){
@@ -362,8 +315,7 @@ int main(){
 	//std::cout<<"trillée "<<x_sorted<<std::endl;
 	//std::cout<<"trillée "<<x.sort(index)<<std::endl;
 	///*}*/
-	/*constructors check*/
-	///*{*/
+	///*{constructors check*/
 	//Matrix<double> m1;
 	//Matrix<double> m2(2,2) ;
 	//Matrix<double> m3(m2);
@@ -371,4 +323,24 @@ int main(){
 	//m1 = m4;
 	//Matrix<double> m5(&m1);
 	///*}*/
+}
+
+std::complex<double> projection(Matrix<double> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket){
+	unsigned int n(O.row());
+	Vector<std::complex<double> > tmp(n,0.0);
+	std::complex<double> out(0.0);;
+	for(unsigned int i(0);i<n;i++){
+		for(unsigned int j(0);j<n;j++){
+			tmp(i) += O(i,j)*base(j,ket);
+		}
+	}
+	for(unsigned int i(0);i<n;i++){
+		out += tmp(i)*std::conj(base(i,bra));
+	}
+	return out;
+}
+
+Matrix<double> create_to_check_constructor(){
+	Matrix<double> m(3,2,2);
+	return m;
 }

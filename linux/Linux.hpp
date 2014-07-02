@@ -6,15 +6,24 @@
 
 class Linux {
 	public:
-		Linux(){};
-		~Linux(){};
+		/*!Constructor*/
+		Linux(){}
+		/*!Destructor*/
+		~Linux(){}
 
-		void operator()(std::string c){ st=system(c.c_str()); }
+		/*!Execute a UNIX command and get its exit value*/
+		void operator()(std::string c){ ev_=system(c.c_str()); }
+		/*!Returns exit value of the last command*/
+		int status(){return ev_;}
+		/*!Returns a string containing the current path*/
 		std::string pwd(){ return std::string(get_current_dir_name()) + '/'; }
-		int status(){return st;}
 
 	private:
-		std::string command;
-		int st;
+		/*!Forbids copy*/
+		Linux(Linux const& l);
+		/*!Forbids assignment*/
+		Linux& operator=(Linux const& l);
+
+		int ev_;//!< exit value of the last UNIX command
 };
 #endif

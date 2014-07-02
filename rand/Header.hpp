@@ -7,15 +7,11 @@
 
 class Header:public RST{
 	public:
-		/*!Constructor*/
-		Header(){}
-		/*!Destructor*/
-		virtual ~Header(){}
+		Header(){};
+		~Header(){};
 
-		/*!Initializes the header with a title and the time of creation*/
 		void init(std::string const& s);
 
-		/*!Adds some text s to the Header*/
 		void add(std::string const& s);
 		void add(std::string const& s, double const& d);
 		void add(std::string const& s, bool const& d);
@@ -27,7 +23,6 @@ class Header:public RST{
 			void add(std::string const& s, Type const& t);
 
 	private:
-		/*!Returns the time when a Header is created*/
 		std::string when();
 };
 

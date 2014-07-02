@@ -122,7 +122,7 @@ Type Container::get(std::string name) const {
 		}
 	}
 	std::cerr<<"Container : get(string name) : no data with name "<<name<<std::endl;
-	return 0;
+	return Type();
 }
 
 template<typename Type>

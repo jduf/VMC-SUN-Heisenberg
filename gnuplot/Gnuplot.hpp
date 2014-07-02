@@ -6,8 +6,10 @@
 
 class Gnuplot {
 	public:
+		/*!Constructor for the creation of a .gp file in path/filename*/
 		Gnuplot(std::string const&  path, std::string const& filename);
-		~Gnuplot();
+		/*!Destructor*/
+		~Gnuplot(){}
 
 		void operator=(std::string const& s){ plot_ = s + "\n"; }
 		void operator+=(std::string const& s){ plot_ += s + "\n"; }
@@ -26,8 +28,13 @@ class Gnuplot {
 		void yrange(std::string const& a, double const& b){yrange(a,tostring(b));}
 
 	private:
-		std::string path_;
-		std::string filename_;
-		std::string plot_;
+		/*!Forbids copy*/
+		Gnuplot(Gnuplot const& g);
+		/*!Forbids assignment*/
+		Gnuplot& operator=(Gnuplot g);
+		
+		std::string path_;		//!< path of the .gp, .png and .pdf files
+		std::string filename_;	//!< filename (without the extension)
+		std::string plot_;		//!< text of the .gp file
 };
 #endif

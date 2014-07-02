@@ -1,17 +1,14 @@
 #include "RSTFile.hpp"
 
-RSTFile::RSTFile(std::string path,std::string filename):
-	RST(),
+RSTFile::RSTFile(std::string const& path, std::string const& filename):
 	path_(path),
 	filename_(filename)
 {}
 
-RSTFile::~RSTFile(){} 
-
 void RSTFile::save(bool pdf){
 	IOFiles w(path_ + filename_ + ".rst",true);
-	rst += RST_np;
-	w<<rst;
+	rst_ += RST_np_;
+	w<<rst_;
 	Linux command;
 	//command("rst2html --stylesheet=/home/jdufour/travail/cpp-dev/rst/css/voidspace.css --field-name-limit=0 " + path_  + filename_ + ".rst " + path_ + filename_ + ".html");  
 	command("rst2html --field-name-limit=0 " + path_  + filename_ + ".rst " + path_ + filename_ + ".html");  

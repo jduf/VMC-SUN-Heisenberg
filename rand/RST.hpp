@@ -2,16 +2,14 @@
 #define DEF_RST
 
 #include <string>
+#include <sstream> //-> tostring(T const& t)
 #include <iostream>
 
 class RST{
 	public:
-		/*!Constructor*/
 		RST();
-		/*!Constructor that sets rst_=rst*/
 		RST(std::string rst);
-		/*!Destructor*/
-		virtual ~RST(){}
+		virtual ~RST(){};
 
 		void title(std::string t,std::string symb);
 		void text(std::string t);
@@ -26,23 +24,22 @@ class RST{
 		void np();
 		void nl();
 
-		std::string const& get() const { return rst_;};
-		void set(std::string const& s="") { rst_ = s; };
+		std::string get() const { return rst;};
+		void set(std::string const& s="") { rst = s; };
 
 	protected:
-		std::string RST_nl_;	//!< string for a new line
-		std::string RST_np_;	//!< string for a new paragraph
-		std::string RST_item_;	//!< string for a new item
-		std::string rst_;		//!< text of the .rst file
+		std::string RST_nl;
+		std::string RST_np;
+		std::string RST_item;
+		std::string rst;
 };
 
-std::ostream& operator<<(std::ostream& flux, RST const& rst);
-
-#include <sstream> //-> tostring(T const& t)
 template<typename Type>
 std::string tostring(Type const& t){
 	std::ostringstream s;
 	s<<t;
 	return s.str();
 }
+
+std::ostream& operator<<(std::ostream& flux, RST const& rst);
 #endif

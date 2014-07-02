@@ -6,14 +6,14 @@
 template<>
 void Lapack<double>::getrf(Vector<int>& ipiv){
 	int info(1);
-	dgetrf_(mat->row(), mat->col(), mat->ptr(), mat->row(), ipiv.ptr(), info);
+	dgetrf_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), ipiv.ptr(), info);
 	if(info !=0){std::cerr<<"Lapack : getrf<double> : info="<<info<<std::endl;}
 }
 
 template<>
 void Lapack<std::complex<double> >::getrf(Vector<int>& ipiv){
 	int info(1);
-	zgetrf_(mat->row(), mat->col(), mat->ptr(), mat->row(), ipiv.ptr(), info);
+	zgetrf_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), ipiv.ptr(), info);
 	if(info !=0){std::cerr<<"Lapack : getrf<complex> : info="<<info<<std::endl;}
 }
 /*}*/
@@ -23,10 +23,10 @@ void Lapack<std::complex<double> >::getrf(Vector<int>& ipiv){
 template<>
 void Lapack<double>::geqp3(double* tau, int* jpvt){
 	int info(1);
-	int const lwork(4*mat->col());
+	int const lwork(4*mat_->col());
 	double* work(new double[lwork]);
 	
-	dgeqp3_(mat->row(), mat->col(), mat->ptr(), mat->row(), jpvt, tau, work, lwork, info);
+	dgeqp3_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), jpvt, tau, work, lwork, info);
 	if(info !=0){std::cerr<<"Lapack : getrf<double> : info="<<info<<std::endl;}
 	delete[] work;
 }
@@ -34,13 +34,13 @@ void Lapack<double>::geqp3(double* tau, int* jpvt){
 template<>
 void Lapack<double>::gqr(unsigned int k, double* tau){
 	int info(1);
-	//if(mat->row()>=mat->col()){ 
-		int const lwork(mat->col());
+	//if(mat_->row()>=mat_->col()){ 
+		int const lwork(mat_->col());
 		double* work(new double[lwork]);
-		unsigned int row(mat->row());
-		unsigned int col(mat->col());
+		unsigned int row(mat_->row());
+		unsigned int col(mat_->col());
 		if(col>row){ col=row; }
-		dorgqr_(row, col, k, mat->ptr(), row, tau, work, lwork, info); 
+		dorgqr_(row, col, k, mat_->ptr(), row, tau, work, lwork, info); 
 		delete[] work;
 		if(info !=0){std::cerr<<"Lapack : gqr<complex> : info="<<info<<std::endl;}
 }
@@ -48,17 +48,17 @@ void Lapack<double>::gqr(unsigned int k, double* tau){
 template<>
 void Lapack<std::complex<double> >::geqp3(double* tau, int* jpvt){
 	//int info(1);
-	//zgetrf_(mat->row(), mat->col(), mat->ptr(), mat->row(), jptv, info);
+	//zgetrf_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), jptv, info);
 	//if(info !=0){std::cerr<<"Lapack : getrf<complex> : info="<<info<<std::endl; }
-	std::cerr<<"Lapack : geqp3 : not implemented for Matrix<complex>"<<std::endl;
+	std::cerr<<"Lapack : geqp3 : not implemented for Matrix<complex>"<<tau<<" "<<jpvt<<std::endl;
 }
 
 template<>
 void Lapack<std::complex<double> >::gqr(unsigned int k, double* tau){
 	//int info(1);
-	//zgetrf_(mat->row(), mat->col(), mat->ptr(), mat->row(), jptv, info);
+	//zgetrf_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), jptv, info);
 	//if(info !=0){std::cerr<<"Lapack : getrf<complex> : info="<<info<<std::endl; }
-	std::cerr<<"Lapack : gqr : not implemented for Matrix<complex>"<<std::endl;
+	std::cerr<<"Lapack : gqr : not implemented for Matrix<complex>"<<k<<" "<<tau<<std::endl;
 }
 /*}*/
 /*}*/
@@ -67,22 +67,22 @@ void Lapack<std::complex<double> >::gqr(unsigned int k, double* tau){
 /*{*/
 template<>
 void Lapack<double>::getri(Vector<int>& ipiv){
-	unsigned int N(mat->row());
+	unsigned int N(mat_->row());
 	unsigned int const lwork(3*N);
 	double* work(new double[lwork]);
 	int info(1);
-	dgetri_(N, mat->ptr(), N, ipiv.ptr(), work, lwork, info);
+	dgetri_(N, mat_->ptr(), N, ipiv.ptr(), work, lwork, info);
 	if(info !=0){std::cerr<<"Lapack : getri<double> : info="<<info<<std::endl;}
 	delete[] work;
 }
 
 template<>
 void Lapack<std::complex<double> >::getri(Vector<int>& ipiv) {
-	unsigned int N(mat->row());
+	unsigned int N(mat_->row());
 	unsigned int const lwork(3*N);
 	std::complex<double>* work(new std::complex<double>[lwork]);
 	int info(1);
-	zgetri_(N, mat->ptr(), N, ipiv.ptr(), work, lwork, info);
+	zgetri_(N, mat_->ptr(), N, ipiv.ptr(), work, lwork, info);
 
 	if(info !=0){std::cerr<<"Lapack : getri<complex> : info="<<info<<std::endl;}
 	delete[] work;
@@ -93,12 +93,12 @@ void Lapack<std::complex<double> >::getri(Vector<int>& ipiv) {
 /*{*/
 template<>
 double Lapack<double>::gecon(double anorm) {
-	unsigned int N(mat->col());
+	unsigned int N(mat_->col());
 	int info(1);
 	double rcond(0);
 	double* work(new double[4*N]);
 	int* iwork(new int[N]);
-	dgecon_('1', N, mat->ptr(), N, anorm, rcond, work, iwork, info);
+	dgecon_('1', N, mat_->ptr(), N, anorm, rcond, work, iwork, info);
 	delete[] work;
 	delete[] iwork;
 	if(info !=0){
@@ -111,12 +111,12 @@ double Lapack<double>::gecon(double anorm) {
 
 template<>
 double Lapack<std::complex<double> >::gecon(double anorm) {
-	unsigned int N(mat->col());
+	unsigned int N(mat_->col());
 	int info(1);
 	double rcond(0);
 	std::complex<double> *work(new std::complex<double>[2*N]);
 	double *rwork(new double[2*N]);
-	zgecon_('1', N, mat->ptr(), N, anorm, rcond, work, rwork, info);
+	zgecon_('1', N, mat_->ptr(), N, anorm, rcond, work, rwork, info);
 	delete[] work;
 	delete[] rwork;
 	if(info !=0){
@@ -132,16 +132,16 @@ double Lapack<std::complex<double> >::gecon(double anorm) {
 /*{*/
 template<>
 double Lapack<double>::lange(){
-	double *work(new double[mat->row()]);
-	double anorm(dlange_('1', mat->row(), mat->col(), mat->ptr(), mat->row(), work));
+	double *work(new double[mat_->row()]);
+	double anorm(dlange_('1', mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), work));
 	delete[] work;
 	return anorm;
 }
 
 template<>
 double Lapack<std::complex<double> >::lange() {
-	double *work(new double[mat->row()]);
-	double anorm(zlange_('1', mat->row(), mat->col(), mat->ptr(), mat->row(), work));
+	double *work(new double[mat_->row()]);
+	double anorm(zlange_('1', mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), work));
 	delete[] work;
 	return anorm;
 }
@@ -151,16 +151,16 @@ double Lapack<std::complex<double> >::lange() {
 /*{*/
 template<>
 void Lapack<double>::syev(Vector<double>& EVal, char job){
-	unsigned int N(mat->row());
+	unsigned int N(mat_->row());
 	EVal.set(N);
 	int lwork(-1);
 	double wopt;
 	int info(1);
 
-	dsyev_(job, 'U', N, mat->ptr(), N, EVal.ptr(), &wopt, lwork, info);
+	dsyev_(job, 'U', N, mat_->ptr(), N, EVal.ptr(), &wopt, lwork, info);
 	lwork = int(wopt);
 	double* work(new double[lwork]);
-	dsyev_(job, 'U', N, mat->ptr(), N, EVal.ptr(), work, lwork, info);
+	dsyev_(job, 'U', N, mat_->ptr(), N, EVal.ptr(), work, lwork, info);
 
 	if(info) { std::cerr<<"Lapack : syev : info="<<info<<std::endl; }
 	delete[] work;
@@ -168,22 +168,22 @@ void Lapack<double>::syev(Vector<double>& EVal, char job){
 
 template<>
 void Lapack<std::complex<double> >::syev(Vector<double>& EVal, char job){
-	std::cerr<<"Lapack<double> : syev : complex symmetric not implemented"<<std::endl;
+	std::cerr<<"Lapack<double> : syev : complex symmetric not implemented"<<EVal<<" "<<job<<std::endl;
 }
 
 template<>
 void Lapack<std::complex<double> >::heev(Vector<double>& EVal, char job){
-	unsigned int N(mat->row());
+	unsigned int N(mat_->row());
 	EVal.set(N);
 	int lwork(-1);
 	std::complex<double> wopt;
 	double* rwork(new double[3*N-2]);
 	int info(1);
 
-	zheev_(job, 'U', N, mat->ptr(), N, EVal.ptr(), &wopt, lwork, rwork, info);
+	zheev_(job, 'U', N, mat_->ptr(), N, EVal.ptr(), &wopt, lwork, rwork, info);
 	lwork = int(wopt.real());
 	std::complex<double>* work(new std::complex<double>[lwork]);
-	zheev_(job, 'U', N, mat->ptr(), N, EVal.ptr(), work, lwork, rwork, info);
+	zheev_(job, 'U', N, mat_->ptr(), N, EVal.ptr(), work, lwork, rwork, info);
 
 	delete[] work;
 	delete[] rwork;
@@ -192,13 +192,13 @@ void Lapack<std::complex<double> >::heev(Vector<double>& EVal, char job){
 
 template<>
 void Lapack<double>::heev(Vector<double>& EVal, char job){
-	std::cerr<<"Lapack<double> : heev : real Hermitian is not implemented"<<std::endl;
+	std::cerr<<"Lapack<double>::heev() : heev : real Hermitian is not implemented"<<EVal<<" "<<job<<std::endl;
 }
 
 template<>
 void Lapack<double>::geev(Vector<std::complex<double> >& EVal, char jobvr, Matrix<std::complex<double> >* EVec){
-	std::cerr<<"Lapack : geev <double>: understand why slower than mathematica"<<std::endl;
-	unsigned int N(mat->row());
+	std::cerr<<"Lapack::geev<double> : understand why slower than mathematica"<<std::endl;
+	unsigned int N(mat_->row());
 	double* wr(new double[N]);
 	double* wi(new double[N]);
 	double* vl(new double[N]);
@@ -208,10 +208,10 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, char jobvr, Matri
 	int info(1);
 
 	char jobvl('N');/*don't compute the left eigenvector*/
-	dgeev_(jobvl, jobvr, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, &wopt, lwork, info); 
+	dgeev_(jobvl, jobvr, N, mat_->ptr(), N, wr, wi, vl, 1, vr, N, &wopt, lwork, info); 
 	lwork = int(wopt);
 	double* work(new double[lwork]);
-	dgeev_(jobvl, jobvr, N, mat->ptr(), N, wr, wi, vl, 1, vr, N, work, lwork, info); 
+	dgeev_(jobvl, jobvr, N, mat_->ptr(), N, wr, wi, vl, 1, vr, N, work, lwork, info); 
 
 	EVal.set(N);
 	for(unsigned int i(0);i<N;i++){
@@ -245,8 +245,8 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, char jobvr, Matri
 
 template<>
 void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >& EVal, char jobvr, Matrix<std::complex<double> >* EVec){
-	std::cerr<<"Lapack : geev <complex>: understand why slower than mathematica"<<std::endl;
-	unsigned int N(mat->row());
+	std::cerr<<"Lapack::geev<complex> : understand why slower than mathematica"<<std::endl;
+	unsigned int N(mat_->row());
 	EVal.set(N);
 	std::complex<double>* vl(NULL);
 	unsigned int ldvl(1);
@@ -259,12 +259,10 @@ void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >& EVal, ch
 	int info(1);
 
 	char jobvl('N');/*don't compute the left eigenvector*/
-	zgeev_(jobvl, jobvr, N, mat->ptr(), N, EVal.ptr(), vl, ldvl, EVec->ptr(), ldvr, &wopt, lwork, rwork, info); 
+	zgeev_(jobvl, jobvr, N, mat_->ptr(), N, EVal.ptr(), vl, ldvl, EVec->ptr(), ldvr, &wopt, lwork, rwork, info); 
 	lwork = int(wopt.real());
 	std::complex<double>* work(new std::complex<double>[N*N]);
-	zgeev_(jobvl, jobvr, N, mat->ptr(), N, EVal.ptr(), vl, ldvl, EVec->ptr(), ldvr, work, lwork, rwork, info); 
-
-	if(EVec) { std::cerr<<"Lapack : geev<complex> : can't get the eigenvectors"<<std::endl; }
+	zgeev_(jobvl, jobvr, N, mat_->ptr(), N, EVal.ptr(), vl, ldvl, EVec->ptr(), ldvr, work, lwork, rwork, info); 
 
 	delete[] vr;
 	delete[] work;

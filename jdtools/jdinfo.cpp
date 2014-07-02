@@ -52,7 +52,7 @@ void update_readme(Directory const& d, std::string const& directory_name){
 			rst.hyperlink(d.get_name(i), directory_name + "info/" + d.get_name(i) + ".html");
 		}
 	}
-	rst.pdf();
+	rst.save(true);
 }
 
 void create_rst_plot(unsigned int i, Directory const& d, std::string const& directory_name){

@@ -8,7 +8,7 @@
 
 int main(int argc,char* argv[]){
 	unsigned int min_args(2);
-	Parseur P(argc,argv,min_args);
+	Parseur P(argc,argv);
 	std::string ext(P.get<std::string>("e"));
 
 	unsigned int max_proc(P.get<unsigned int>("t"));

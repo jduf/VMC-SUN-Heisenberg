@@ -5,23 +5,25 @@
 #include <fstream>
 #include <cstring>
 
-/*{Description*/
-/*!Class that allows to read/write datas from/in a binary or a text file.
- *
- *When used with a text file
- * - the datas must be separated with a space
- * - only one matrix or array is safely read per file
- * - the size of the matrix or array has to be specified
- *
- *When used with a binary_ file
- * - many different kinds of datas can be extracted
-*/
+/*{*/
+ /*!Class that allows to read/write datas from/in a binary or a text file.
+ * 
+ * When used with a text file
+ *  - the datas must be separated with a space
+ *  - only one matrix or array is safely read per file
+ *  - the size of the matrix or array has to be specified
+ * 
+ * When used with a binary_ file
+ *  - many different kinds of datas can be extracted */
 /*}*/
 class IOFiles{
 	public:
-		/*!Opens a file named "filename_", reads from the filename_ the type of file*/
+		/*{Description*/
+		/*!Opens a file named filename_ and deduces from filename_ if the file
+		 * is a binary or a text file*/
+		/*}*/
 		IOFiles(std::string filename, bool write);
-		/*!Closes the file*/
+		/*!Destructor that closes the file*/
 		~IOFiles();
 
 		/*!Stream operator forall types 
@@ -47,6 +49,8 @@ class IOFiles{
 			void write(Type* m, unsigned int const& N, size_t const& type_size);
 		template<typename Type>
 			void operator()(std::string const& var, Type const& val);
+		template<typename Type>
+			Type read();
 
 		/*!Returns file_*/
 		std::fstream& stream(){ return file_;}
@@ -74,7 +78,6 @@ class IOFiles{
 
 		/*!Subroutine that check if the correct extension is given*/
 		void test_ext();
-
 		/*!Subroutine needed to open a binary file*/
 		void open_binary();
 		/*!Subroutine needed to open a text file*/
@@ -84,12 +87,13 @@ class IOFiles{
 		/*!Write the header*/
 		void write_header();
 
-		/*!read string*/
+		/*!Read string*/
 		void read_string(std::string& t);
+		/*!Write string*/
 		void write_string(const char* t, unsigned int const& N);
 
 		std::string filename_;	//!< name of the file to read from
-		bool write_;
+		bool write_;			//!< true if the file is writable
 		bool binary_; 			//!< true if the file is binary_
 		bool open_;				//!< true if the file is ready to be read from
 		std::fstream file_;		//!< text file to read form
@@ -114,6 +118,13 @@ void IOFiles::write(Type* t, unsigned int const& N, size_t const& type_size){
 	} else {
 		std::cerr<<"IOFiles::write(Type*,unsigned int,size_t) : can't write in "<<filename_<<std::endl;
 	}
+}
+
+template<typename Type>
+Type IOFiles::read(){
+	Type t;
+	(*this)>>t;
+	return t;
 }
 
 template<typename Type>

@@ -2,9 +2,6 @@
 #include "IOFiles.hpp"
 #include "Parseur.hpp"
 
-#include <string>
-#include <iostream>
-
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	std::string filename(P.get<std::string>("0"));

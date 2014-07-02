@@ -10,15 +10,14 @@ class Binning;
 template<typename Type>
 class Binning{
 	public:
+		/*!Constructor*/
+		Binning(unsigned int const& B, unsigned int const& b); 
 		/*!Copy constructor*/
 		Binning(Binning const& b); 
-		/*!Default constructor*/
-		Binning(); 
 		/*!Destructor*/
 		~Binning();
 		/*!Set the class*/
-		void set(unsigned int const& B, unsigned int const& b);
-		void reset();
+		void set();
 		/*!Set a filename for the plot*/
 		void plot(std::string const& filename){ log_ = new IOFiles(filename,true);}
 
@@ -32,10 +31,11 @@ class Binning{
 		double compute_x() const;
 
 	private:
+		/*!Forbids assigment*/
 		Binning& operator=(Binning d);
 
-		unsigned int B_;	//!< minimum number of biggest bins needed to compute variance
-		unsigned int b_;	//!< l_+b_ rank of the biggest bin (b !> 30)
+		unsigned int const B_;	//!< minimum number of biggest bins needed to compute variance
+		unsigned int const b_;	//!< l_+b_ rank of the biggest bin (b !> 30)
 		unsigned int l_;	//!< rank of the "smallest" bin 
 		unsigned int DPL_;	//!< 2^l_ maximum number of element in each bin of rank l_
 		unsigned int dpl_;	//!< current number of element in each bin of rank l_
@@ -43,7 +43,7 @@ class Binning{
 
 		Vector<unsigned int> Ml_;//!<number bins of rank l : Ml = M0/2^l
 		Vector<double> m_bin_;	//!< mean of the Binnings
-		Vector<double>*bin_;	//!< Binnings
+		Vector<double>* bin_;	//!< Binnings
 
 		bool recompute_dx_usefull_;	//!< true if dx should be recomputed
 		bool addlog_;				//!< true if should be added to the log_
@@ -57,14 +57,14 @@ class Binning{
 template<typename Type>
 class Data{
 	public:
-		/*!Copy constructor*/
-		Data<Type>(Data<Type> const& d);
 		/*!Default constructor*/
 		Data();
+		/*!Copy constructor*/
+		Data<Type>(Data<Type> const& d);
 		/*!Destructor*/
 		~Data();
 		void set(unsigned int const& B, unsigned int const& b, bool const& conv);
-		void reset();
+		void set();
 		Data<Type>& operator=(Data<Type> d);
 
 		void add_sample(Data<Type> const& cs);
@@ -106,14 +106,14 @@ class Data{
 template<typename Type>
 class DataSet{
 	public:
-		/*!Copy constructor*/
-		DataSet<Type>(DataSet<Type> const& d);
 		/*!Default constructor*/
 		DataSet();
+		/*!Copy constructor*/
+		DataSet<Type>(DataSet<Type> const& d);
 		/*!Destructor*/
 		~DataSet();
 
-		void reset();
+		void set();
 		void set(unsigned int const& N);
 		void set(unsigned int const& N, unsigned int const& B, unsigned int const& b, bool const& conv);
 
@@ -145,18 +145,12 @@ class DataSet{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-Binning<Type>::Binning():
-	B_(0),
-	b_(0),
-	l_(0),
-	DPL_(1),
-	dpl_(0),
-	logl_(0),
-	bin_(NULL),
-	recompute_dx_usefull_(false),
-	addlog_(false),
+Binning<Type>::Binning(unsigned int const& B, unsigned int const& b):
+	B_(B),
+	b_(b),
+	bin_(new Vector<double>[b]),
 	log_(NULL)
-{}
+{set();}
 
 template<typename Type>
 Binning<Type>::Binning(Binning const& b):
@@ -177,29 +171,7 @@ Binning<Type>::Binning(Binning const& b):
 }
 
 template<typename Type>
-void Binning<Type>::set(unsigned int const& B, unsigned int const& b){
-	if(!bin_){
-		B_ = B;
-		b_ = b;
-		bin_ = new Vector<double>[b];
-	} else {
-		l_ = 0;
-		DPL_ = 1;
-		dpl_ = 0;
-		logl_ = 0;
-		recompute_dx_usefull_ = false;
-		addlog_ = false;
-	}
-	Ml_.set(b_,0);
-	m_bin_.set(b_,0);
-	bin_[b_-1].set(2*B_,0);
-	for(unsigned int i(b_-1);i>0;i--){
-		bin_[i-1].set(2*bin_[i].size(),0);
-	}
-}
-
-template<typename Type>
-void Binning<Type>::reset(){
+void Binning<Type>::set(){
 	l_ = 0;
 	DPL_ = 1;
 	dpl_ = 0;
@@ -376,18 +348,19 @@ Data<Type>::Data(Data<Type> const& d):
 template<typename Type>
 void Data<Type>::set(unsigned int const& B, unsigned int const& b, bool const& conv){
 	if(binning_){ delete binning_; }
-	binning_ = new Binning<Type>();
-	binning_->set(B,b);
+	binning_ = new Binning<Type>(B,b);
 	conv_ = conv;
+	x_ = 0.0;
+	dx_ = 0.0;
 	N_ = 1;
 }
 
 template<typename Type>
-void Data<Type>::reset(){
+void Data<Type>::set(){
+	binning_->set();
 	x_ = 0.0;
 	dx_ = 0.0;
 	N_ = 1;
-	binning_->reset();
 }
 
 template<typename Type>
@@ -526,8 +499,8 @@ void DataSet<Type>::set(unsigned int const& N){
 }
 
 template<typename Type>
-void DataSet<Type>::reset(){
-	for(unsigned int i(0);i<size_;i++){ ds_[i].reset(); }
+void DataSet<Type>::set(){
+	for(unsigned int i(0);i<size_;i++){ ds_[i].set(); }
 }
 
 template<typename Type>

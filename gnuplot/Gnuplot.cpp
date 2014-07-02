@@ -11,8 +11,6 @@ Gnuplot::Gnuplot(std::string const& path, std::string const& filename):
 	}
 }
 
-Gnuplot::~Gnuplot(){}
-
 void Gnuplot::save_file(){
 	IOFiles w_gp(path_ + filename_+".gp",true);
 	w_gp<<plot_<<IOFiles::endl;
