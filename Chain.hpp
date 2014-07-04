@@ -6,23 +6,23 @@
 template<typename Type>
 class Chain: public GenericSystem<Type>{
 	public:
-		Chain(unsigned int const& Lx, std::string const& filename);
+		Chain(unsigned int const& spuc, std::string const& filename);
 		virtual ~Chain()=0;
 
 	protected:
 		Matrix<int> get_neighbourg(unsigned int i) const;
 		unsigned int Lx_;//!< number of unit cell along the x-axis
+		unsigned int spuc_;//!< site per unit cell
 };
 
 template<typename Type>
-Chain<Type>::Chain(unsigned int const& Lx, std::string const& filename):
+Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 	GenericSystem<Type>(2,filename),
-	Lx_(Lx)
+	Lx_(this->n_/spuc),
+	spuc_(spuc)
 {
-	if(Lx_ * this->N_ == this->m_ * this-> n_){ 
-		this->compute_links(); 
-		this->status_--;
-	} else { std::cerr<<"Chain(Lx,filename) : unit cell not compatible with number of site"<<std::endl; }
+	this->compute_links(); 
+	this->status_--;
 }
 
 template<typename Type>

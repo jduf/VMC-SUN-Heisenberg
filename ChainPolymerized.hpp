@@ -13,9 +13,8 @@ class ChainPolymerized: public Chain<double> {
 		void check();
 		
 	private:
-		void compute_P(Matrix<double>& P);
-		void compute_T();
-
 		double delta_;
+
+		void compute_T();
 };
 #endif

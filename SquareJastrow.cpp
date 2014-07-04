@@ -9,7 +9,7 @@ SquareJastrow::SquareJastrow(Vector<unsigned int> const& ref, unsigned int const
 	compute_sublattice();
 	compute_omega_cc();
 
-	rst_.text("Staggered magnetic field, Becca's idea to mimic an on site chemical potential");
+	system_info_.text("Staggered magnetic field, Becca's idea to mimic an on site chemical potential");
 	std::cout<<"check everything"<<std::endl;
 }
 

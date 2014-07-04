@@ -1,6 +1,5 @@
 /*!  @file check.cpp */
 
-#include "CreateSystem.hpp"
 #include "MonteCarlo.hpp"
 
 int main(int argc, char* argv[]){

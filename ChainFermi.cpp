@@ -2,13 +2,13 @@
 
 ChainFermi::ChainFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
 	System(ref,N,m,n,M,bc),
-	Chain<double>(n,"chain-fermi")
+	Chain<double>(1,"chain-fermi")
 {
 	if(status_==1){
 		init_fermionic();
 		compute_T();
 
-		rst_.text("Spin ChainFermi, all the hopping parameters are real");
+		system_info_.text("Spin ChainFermi, all the hopping parameters are real");
 	}
 }
 
@@ -40,16 +40,7 @@ void ChainFermi::create(){
 /*}*/
 
 /*{method needed for checking*/
-void ChainFermi::compute_P(Matrix<double>& P){
-	P.set(n_,n_);
-	P(n_ -1,0) = bc_;
-	for(unsigned int i(0); i< n_-1; i++){
-		P(i,i+1) = 1.0;
-	}
-}
-
 void ChainFermi::check(){
-	compute_T();
-	std::cout<<T_<<std::endl;
+	BandStructure<double> bs(T_,Lx_,spuc_,bc_);
 }
 /*}*/

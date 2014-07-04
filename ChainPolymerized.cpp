@@ -2,7 +2,7 @@
 
 ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, double delta):
 	System(ref,N,m,n,M,bc),
-	Chain<double>(n*m/N,"chain-polymerized"),
+	Chain<double>(N/m,"chain-polymerized"),
 	delta_(delta)
 {
 	if(status_==1){
@@ -10,10 +10,10 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 		compute_T();
 
 		filename_ += "-delta" + tostring(delta_);
-		rst_.text("Spin chain, with different real hopping term.");
-		rst_.text("For N colors and m particules per sites, every");
-		rst_.text("N/m, there is a weaker bound, namely t-delta");
-		rst_.text("instead of t+delta. (t=1,delta>0)");
+		system_info_.text("Spin chain, with different real hopping term.");
+		system_info_.text("For N colors and m particules per sites, every");
+		system_info_.text("N/m, there is a weaker bound, namely t-delta");
+		system_info_.text("instead of t+delta. (t=1,delta>0)");
 	}
 }
 
@@ -60,21 +60,7 @@ void ChainPolymerized::save(IOFiles& w) const{
 /*}*/
 
 /*{method needed for checking*/
-void ChainPolymerized::compute_P(Matrix<double>& P){
-	P.set(n_,n_,0);
-	for(unsigned int i(0);i<N_/m_;i++){
-		P(n_ -i-1,N_/m_-1-i) = bc_;
-	}
-	for(unsigned int i(0); i< n_-N_/m_; i++){
-		P(i,i+N_/m_) = 1.0;
-	}
-}
-
 void ChainPolymerized::check(){
-	delta_=0.1;
-	Matrix<double> P;
-	compute_P(P);
-	BandStructure<double> bs(T_,P);
-	std::cout<<T_<<std::endl;
+	BandStructure<double> bs(T_,Lx_,spuc_,bc_);
 }
 /*}*/

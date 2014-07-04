@@ -8,8 +8,8 @@ KagomeVBC::KagomeVBC(Vector<unsigned int> const& ref, unsigned int const& N, uns
 		init_fermionic();
 		compute_T();
 
-		rst_.text("KagomeVBC : 9 sites per unit cell, pi-flux through 1/3 of the hexagon");
-		rst_.text("and -pi/6-flux through all triangles, so the total flux is null");
+		system_info_.text("KagomeVBC : 9 sites per unit cell, pi-flux through 1/3 of the hexagon");
+		system_info_.text("and -pi/6-flux through all triangles, so the total flux is null");
 	}
 }
 
@@ -88,31 +88,6 @@ void KagomeVBC::create(){
 /*}*/
 
 /*{method needed for checking*/
-void KagomeVBC::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py){
-	Px.set(n_,n_,0);
-	Py.set(n_,n_,0);
-	for(unsigned int j(0);j<Ly_;j++){
-		for(unsigned int i(0);i<Lx_-1;i++){
-			for(unsigned int k(0);k<spuc_;k++){
-				Px(spuc_*(i + j*Lx_) + k, spuc_*(i + j*Lx_) + k + spuc_) = 1.0;
-			}
-		}
-		for(unsigned int k(0);k<spuc_;k++){
-			Px(spuc_*(Lx_-1 + j*Lx_) + k,spuc_*j*Lx_ + k) = bc_;
-		}
-	}
-	for(unsigned int i(0);i<Lx_;i++){
-		for(unsigned int j(0);j<Ly_-1;j++){
-			for(unsigned int k(0);k<spuc_;k++){
-				Py(spuc_*(i + j*Lx_) + k, spuc_*(i + (j+1)*Lx_) + k) = 1.0;
-			}
-		}
-		for(unsigned int k(0);k<spuc_;k++){
-			Py(spuc_*(i + (Ly_-1)*Lx_) + k, spuc_*i + k) = bc_;
-		}
-	}
-}
-
 void KagomeVBC::lattice(){
 	Matrix<int> nb;
 	double x0;
@@ -354,20 +329,17 @@ void KagomeVBC::check(){
 	//}
 	//std::cout<<k<<" "<<links_.row()<<std::endl;
 	///*}*/
-	/*{debug 4*/
-	Matrix<int> nb;
-	for(unsigned int s(0);s<n_;s++){
-		nb = get_neighbourg(s);
-		for(unsigned int i(0);i<z_;i++){
-			if(nb(i,1)<0){std::cout<<s<<" "<<nb(i,0)<<std::endl;}
-		}
-	}
-	/*}*/
+	///*{debug 4*/
+	//Matrix<int> nb;
+	//for(unsigned int s(0);s<n_;s++){
+		//nb = get_neighbourg(s);
+		//for(unsigned int i(0);i<z_;i++){
+			//if(nb(i,1)<0){std::cout<<s<<" "<<nb(i,0)<<std::endl;}
+		//}
+	//}
+	///*}*/
 	
-	//Matrix<std::complex<double> > Px;
-	//Matrix<std::complex<double> > Py;
-	//compute_P(Px,Py);
-	//BandStructure<std::complex<double> > bs(T_,Px,Py);
+	BandStructure<std::complex<double> > bs(T_,Lx_,Ly_,spuc_,bc_);
 	lattice();
 }
 /*}*/

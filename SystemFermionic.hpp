@@ -3,7 +3,7 @@
 
 #include "MCSystem.hpp"
 
-/*!Class that contains the information on the state*/
+/*!Class that contains all the necessary informations to sample the configuration of a fermionic system.*/
 template<typename Type>
 class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 	public:
@@ -32,7 +32,7 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 		 * - updates the Ainv_ matrices */
 		/*}*/
 		void update();
-
+		/*!Prints some info related to the system*/
 		void print();
 
 	private:
@@ -46,7 +46,7 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 		Matrix<Type>* tmp_;		//!< temporary matrix used during the update 
 		Type w[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0,0,w22)
 		unsigned int new_r[2];	//!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
-		unsigned int new_ev[2]; //!< new selected rows of the EVec matrix
+		unsigned int new_ev[2]; //!< newly selected rows of the EVec matrix
 };
 
 /*constructors and destructor and initialization*/

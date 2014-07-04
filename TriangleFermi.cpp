@@ -8,7 +8,7 @@ TriangleFermi::TriangleFermi(Vector<unsigned int> const& ref, unsigned int const
 		init_fermionic();
 		compute_T();
 
-		rst_.text("Fermi : all colors experience the same Hamiltonian");
+		system_info_.text("Fermi : all colors experience the same Hamiltonian");
 	}
 }
 
@@ -40,19 +40,6 @@ void TriangleFermi::create(){
 /*}*/
 
 /*{method needed for checking*/
-void TriangleFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
-	Px.set(n_,n_,0.0);
-	Py.set(n_,n_,0.0);
-	for(unsigned int i(0); i < n_; i++){
-		/*horizontal hopping*/
-		if( (i % Ly_)  < Ly_ - 1 ){ Px(i,i+1) = 1; }
-		else { Px(i,i+1-Lx_) = bc_; }
-		/*vertical hopping*/
-		if( i+Lx_ < n_ ){ Py(i,i+Lx_) = 1; }
-		else { Py(i,i-(Ly_-1)*Lx_) = bc_; }
-	}
-}
-
 void TriangleFermi::lattice(){
 	PSTricks ps("./",filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");

@@ -4,7 +4,7 @@
 #include "CreateSystem.hpp"
 #include "Rand.hpp"
 
-/*!Class that contains the information on the state*/
+/*!Abstract class that is used by MonteCarlo.hpp to sample the system.*/
 template<typename Type>
 class MCSystem: public virtual System{
 	public:
@@ -13,11 +13,11 @@ class MCSystem: public virtual System{
 		/*!Destructor*/
 		virtual ~MCSystem(){}
 
-		/*!Exchanges two particles of different colors*/
+		/*!Exchanges two particles of different colors on random sites*/
 		virtual void swap();
-		/*!Exchanges particle on site s1 with the one on site s2*/
+		/*!Exchanges the p0's particle of site s0 with the p1's of site s1*/
 		virtual void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
-		/*!Virtual method that is called by MonteCarlo */
+		/*!Pure virtual method that computes the ratio between two states*/
 		virtual Type ratio()=0;
 		/*!Updates only s_*/
 		virtual void update();

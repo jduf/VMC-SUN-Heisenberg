@@ -13,7 +13,6 @@ class KagomeVBC: public Kagome<std::complex<double> >{
 
 	protected:
 		void compute_T();
-		void compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py);
 		void lattice();
 };
 #endif

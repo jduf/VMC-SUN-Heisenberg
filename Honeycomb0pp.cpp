@@ -10,8 +10,8 @@ Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& 
 		compute_T();
 
 		filename_ += "-td" + tostring(td_);
-		rst_.text("Honeycomb0pp : 6 sites per unit cell, in the center hexagon there is a 0-flux,");
-		rst_.text("if td<0, the two other hexagons contain a pi-flux, if td>0, their flux is 0");
+		system_info_.text("Honeycomb0pp : 6 sites per unit cell, in the center hexagon there is a 0-flux,");
+		system_info_.text("if td<0, the two other hexagons contain a pi-flux, if td>0, their flux is 0");
 	}
 }
 
@@ -71,31 +71,6 @@ void Honeycomb0pp::save(IOFiles& w) const{
 /*}*/
 
 /*{method needed for checking*/
-void Honeycomb0pp::compute_P(Matrix<double>& Px, Matrix<double>& Py){
-	Px.set(n_,n_,0);
-	Py.set(n_,n_,0);
-	for(unsigned int j(0);j<Ly_;j++){
-		for(unsigned int i(0);i<Lx_-1;i++){
-			for(unsigned int k(0);k<spuc_;k++){
-				Px(spuc_*(i + j*Lx_) + k, spuc_*(i + j*Lx_)+ k+spuc_) = 1.0;
-			}
-		}
-		for(unsigned int k(0);k<spuc_;k++){
-			Px(spuc_*((Lx_-1) + j*Lx_) +k,spuc_*j*Lx_ + k) = bc_;
-		}
-	}
-	for(unsigned int i(0);i<Lx_;i++){
-		for(unsigned int j(0);j<Ly_-1;j++){
-			for(unsigned int k(0);k<spuc_;k++){
-				Py(spuc_*(i + j*Lx_) + k, spuc_*(i + (j+1)*Lx_) + k) = 1.0;
-			}
-		}
-		for(unsigned int k(0);k<spuc_;k++){
-			Py(spuc_*(i + (Ly_-1)*Lx_) + k, spuc_*i + k) = bc_;
-		}
-	}
-}
-
 void Honeycomb0pp::lattice(){
 	Matrix<int> nb;
 	double angle_p(2.0*M_PI/6.0);
@@ -276,6 +251,7 @@ void Honeycomb0pp::check(){
 	//compute_P(Px,Py);
 	//BandStructure<double> bs(T_,Px,Py);
 	
+	BandStructure<double> bs(T_,Lx_,Ly_,spuc_,bc_);
 	lattice();
 }
 /*}*/

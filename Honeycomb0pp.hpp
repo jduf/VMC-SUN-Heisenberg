@@ -17,7 +17,6 @@ class Honeycomb0pp: public Honeycomb<double>{
 
 		void compute_T();
 		void lattice();
-		void compute_P(Matrix<double>& Px, Matrix<double>& Py);
 };
 #endif
 

@@ -38,7 +38,7 @@ class System{
 		unsigned int const N_;	//!< number of colors
 		unsigned int const m_;	//!< number of particles per site
 		unsigned int const n_;	//!< number of sites
-		Vector<unsigned int> M_;//!< number of particles of each color 
+		Vector<unsigned int> const M_;//!< number of particles of each color 
 		int const bc_;			//!< boundary condition
 		unsigned int status_;	//!< 
 

@@ -4,9 +4,6 @@
 #include "AnalyseParameter.hpp"
 
 int main(int argc, char* argv[]){
-	//if(argc==1){ AnalyseMagnetization a(""); }
-	//else { AnalyseMagnetization a(argv[1]); }
-	
 	Parseur P(argc,argv);
 	unsigned int what(P.get<unsigned int>("what"));
 	unsigned int i(0);

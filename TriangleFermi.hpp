@@ -13,7 +13,6 @@ class TriangleFermi: public Triangle<double>{
 
 	protected:
 		void compute_T();
-		void compute_P(Matrix<double>& Px, Matrix<double>& Py);
 		void lattice();
 };
 #endif

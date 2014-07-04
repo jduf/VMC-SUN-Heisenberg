@@ -6,22 +6,20 @@
 
 /*{! Class MonteCarlo
  *
- * Implement the Monte-Carlo algorithm. This alorithm let a System evolves
- * according to a Markov process. To work properly, System has to contain at
+ * Implement the Monte-Carlo algorithm. This alorithm lets a System evolve
+ * according to a Markov process. To work properly, MCSystem has to contain at
  * least these methods : 
  *
- * - System::ratio() : compute the probability to accept the next configuration
- * - System::update() : update the old cufiguration to the new one
- * - System::measure() : measure an observable according to the current configuration 
+ * - Type System::ratio() : compute the probability to accept the next configuration
+ * - void System::update() : update the old cufiguration to the new one
+ * - void System::measure() : measure an observable according to the current configuration 
  *
- * The MonteCarlo class contains a pointer to System. According to the system,
- * the constructor creates a SystemFermionic or SystemBosonic. As the
- * constructors of these classes need a pointer to a CreateSystem, the
- * constructor of MonteCarlo must provide a pointer on the same class.
+ * The MonteCarlo class contains a pointer to MCSystem. The MCSystem is in
+ * reality either a SystemFermionic or a SystemBosonic. 
  *
  * Each time that a class is instanciated, a random number generator is created
- * according to the thread on which the code is running. The same thread number
- * is then transmitted to create the System.
+ * according to the seeds another random nunber generator provides. The same
+ * thread number is then transmitted to create the System.
  *
  * Once the System is created, it is thermalized.
  *
@@ -33,7 +31,7 @@ class MonteCarlo{
 		/*!Constructor*/
 		MonteCarlo(MCSystem<Type>* S, unsigned int const& tmax, Rand& seed);
 		/*!Simple destructor*/
-		~MonteCarlo(){};
+		~MonteCarlo(){}
 
 		/*!Run the Monte-Carlo algorithm*/
 		void run();

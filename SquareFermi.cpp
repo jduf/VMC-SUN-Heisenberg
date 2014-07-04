@@ -7,7 +7,7 @@ SquareFermi::SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N,
 	init_fermionic();
 	compute_T();
 
-	rst_.text("Fermi : all colors experience the same Hamiltonian");
+	system_info_.text("Fermi : all colors experience the same Hamiltonian");
 }
 
 /*{method needed for running*/

@@ -8,7 +8,7 @@ SquarePiFlux::SquarePiFlux(Vector<unsigned int> const& ref, unsigned int const& 
 		init_fermionic();
 		compute_T();
 
-		rst_.text("Chiral spin liquid, with 2pi/N flux per plaquette");
+		system_info_.text("Chiral spin liquid, with 2pi/N flux per plaquette");
 		std::cout<<"check everything"<<std::endl;
 	}
 }

@@ -3,20 +3,23 @@
 
 #include "PSTricks.hpp"
 #include "BandStructure.hpp"
-#include "RSTFile.hpp"
 #include "Bosonic.hpp"
 #include "Fermionic.hpp"
 
-/*!Class that creates a file containing all the necessary information to run a
- * Monte-Carlo simulation.  */
+/*!Abstract class that can produce any kind of system*/
 template<typename Type>
 class GenericSystem:public Bosonic<Type>, public Fermionic<Type>{
 	public:
-		/*!Constructor N, n, m and z is the coordination number*/
+		/*{Description*/
+		/*!Constructor requiring the coordination number and the name of the
+		 * system, all other parameters of System have already been set by the
+		 * most derived class (multiple inheritance)*/
+		/*}*/
 		GenericSystem(unsigned int const& z, std::string const& filename); 
-		/*Simple destructor*/
+		/*!Destructor*/
 		virtual ~GenericSystem(){}
 
+		/*!Get the name of the simulation*/
 		std::string get_filename() const { return filename_; }
 		bool is_bosonic() const { return false; }
 
@@ -27,11 +30,15 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>{
 	protected:
 		unsigned int const z_;	//!< coordination number
 		std::string filename_;	//!< filename
-		RST rst_;				//!< store information about the system
+		RST system_info_;		//!< store information about the system
 
-		/*!return the neighbours of site i*/
+		/*{Description*/
+		/*!Returns the neighbours of site i. This pure virtual method must be
+		 * defined here because it is needed by void
+		 * GenericSystem<Type>::compute_links()*/
+		/*}*/
 		virtual Matrix<int> get_neighbourg(unsigned int i) const = 0;
-		/*!compute the array of pairs of swapping sites*/
+		/*!Computes the array of links between neighbouring sites*/
 		void compute_links();
 };
 
@@ -94,7 +101,7 @@ void GenericSystem<Type>::compute_links(){
 
 template<typename Type>
 void GenericSystem<Type>::save(IOFiles& w) const {
-	w.add_to_header(rst_.get());
+	w.add_to_header(system_info_.get());
 	w("ref (type of wavefunction)",this->ref_);
 	w("N (N of SU(N))",this->N_);
 	w("m (# of particles per site)",this->m_);

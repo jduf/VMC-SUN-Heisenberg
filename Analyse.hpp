@@ -3,11 +3,12 @@
 
 #include "Directory.hpp"
 #include "CreateSystem.hpp"
+#include "RSTFile.hpp"
 
 class Analyse{
 	public:
 		Analyse();
-		virtual ~Analyse(){};
+		virtual ~Analyse(){}
 		void go(std::string search_in);
 
 	protected:

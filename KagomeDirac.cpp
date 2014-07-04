@@ -8,8 +8,8 @@ KagomeDirac::KagomeDirac(Vector<unsigned int> const& ref, unsigned int const& N,
 		init_fermionic();
 		compute_T();
 
-		rst_.text("KagomeDirac : 3 sites per unit cell, pi-flux per hexagon,");
-		rst_.text("no flux per triangle");
+		system_info_.text("KagomeDirac : 3 sites per unit cell, pi-flux per hexagon,");
+		system_info_.text("no flux per triangle");
 	}
 }
 
@@ -80,36 +80,6 @@ void KagomeDirac::create(){
 /*}*/
 
 /*{method needed for checking*/
-void KagomeDirac::compute_P(Matrix<double>& Px, Matrix<double>& Py){
-	Px.set(n_,n_,0);
-	Py.set(n_,n_,0);
-	unsigned int tmp;
-	for(unsigned int j(0);j<Ly_;j++){
-		for(unsigned int i(0);i<Lx_-1;i++){
-			tmp = spuc_*(i + j*Lx_);
-			for(unsigned int k(0);k<spuc_;k++){
-				Px(tmp+k, tmp+k+spuc_) = 1.0;
-			}
-		}
-		tmp = spuc_*((Lx_-1) + j*Lx_);
-		for(unsigned int k(0);k<spuc_;k++){
-			Px(tmp+k,spuc_*j*Lx_ + k) = bc_;
-		}
-	}
-	for(unsigned int i(0);i<Lx_;i++){
-		for(unsigned int j(0);j<Ly_-1;j++){
-			tmp = spuc_*(i + j*Lx_);
-			for(unsigned int k(0);k<spuc_;k++){
-				Py(tmp+k, tmp+spuc_*Lx_+k) = 1.0;
-			}
-		}
-		tmp = spuc_*(i + (Ly_-1)*Lx_);
-		for(unsigned int k(0);k<spuc_;k++){
-			Py(tmp+k, spuc_*i+k) = bc_;
-		}
-	}
-}
-
 void KagomeDirac::lattice(){
 	Matrix<int> nb;
 	double x0;
@@ -298,10 +268,7 @@ void KagomeDirac::check(){
 	//}
 	///*}*/
 	
-	//Matrix<double> Px;
-	//Matrix<double> Py;
-	//compute_P(Px,Py);
-	//BandStructure<double> bs(T_,Px,Py);
+	BandStructure<double> bs(T_,Lx_,Ly_,spuc_,bc_);
 	lattice();
 }
 /*}*/
