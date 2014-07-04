@@ -4,13 +4,25 @@ ChainFermi::ChainFermi(Vector<unsigned int> const& ref, unsigned int const& N, u
 	System(ref,N,m,n,M,bc),
 	Chain<double>(n,"chain-fermi")
 {
-	init_fermionic();
-	compute_T();
+	if(status_==1){
+		init_fermionic();
+		compute_T();
 
-	rst_.text("Spin ChainFermi, all the hopping parameters are real");
+		rst_.text("Spin ChainFermi, all the hopping parameters are real");
+	}
 }
 
-ChainFermi::~ChainFermi(){}
+/*{method needed for running*/
+void ChainFermi::compute_T(){
+	double t(1.0);
+	T_.set(n_,n_,0);
+	Matrix<int> nb;
+	for(unsigned int i(0); i< n_; i++){
+		nb = get_neighbourg(i);
+		T_(i,nb(0,0)) = nb(0,1)*t;
+	}
+	T_ += T_.transpose();
+}
 
 void ChainFermi::create(){
 	diagonalize_T();
@@ -25,17 +37,9 @@ void ChainFermi::create(){
 		}
 	}
 }
+/*}*/
 
-void ChainFermi::compute_T(){
-	double t(-1.0);
-	Matrix<int> nb;
-	for(unsigned int i(0); i< n_; i++){
-		nb = get_neighbourg(i);
-		T_(i,nb(0,0)) = nb(0,1)*t;
-	}
-	T_ += T_.transpose();
-}
-
+/*{method needed for checking*/
 void ChainFermi::compute_P(Matrix<double>& P){
 	P.set(n_,n_);
 	P(n_ -1,0) = bc_;
@@ -48,3 +52,4 @@ void ChainFermi::check(){
 	compute_T();
 	std::cout<<T_<<std::endl;
 }
+/*}*/

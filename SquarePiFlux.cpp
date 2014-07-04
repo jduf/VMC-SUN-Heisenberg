@@ -2,30 +2,18 @@
 
 SquarePiFlux::SquarePiFlux(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc):
 	System(ref,N,m,n,M,bc),
-	Square<std::complex<double> >("square-csl")
+	Square<std::complex<double> >(1,1,N,"square-csl")
 {
-	init_fermionic();
-	compute_T();
-	
-	rst_.text("Chiral spin liquid, with 2pi/N flux per plaquette");
-}
+	if(status_==1){
+		init_fermionic();
+		compute_T();
 
-SquarePiFlux::~SquarePiFlux(){}
-
-void SquarePiFlux::create(){
-	diagonalize_T();
-	for(unsigned int c(0);c<N_;c++){
-		if(!is_degenerate(c)){
-			EVec_[c].set(n_,M_(c));
-			for(unsigned int i(0);i<n_;i++){
-				for(unsigned int j(0);j<M_(c);j++){
-					EVec_[c](i,j) = T_(i,j);
-				}
-			}
-		}
+		rst_.text("Chiral spin liquid, with 2pi/N flux per plaquette");
+		std::cout<<"check everything"<<std::endl;
 	}
 }
 
+/*{method needed for running*/
 void SquarePiFlux::compute_T(){
 	double t(-1.0);
 	double phi(2*M_PI/N_);
@@ -43,10 +31,30 @@ void SquarePiFlux::compute_T(){
 	T_ += T_.trans_conj(); 
 }
 
+void SquarePiFlux::create(){
+	E_.set(50,5,false);
+	corr_.set(links_.row(),50,5,false);
+
+	diagonalize_T();
+	for(unsigned int c(0);c<N_;c++){
+		if(!is_degenerate(c)){
+			EVec_[c].set(n_,M_(c));
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = T_(i,j);
+				}
+			}
+		}
+	}
+}
+/*}*/
+
+/*{method needed for checking*/
 void SquarePiFlux::check(){
 	compute_T();
 	std::cout<<T_.chop(1e-6)<<std::endl;
 }
+/*}*/
 
 //{//csl for Vishvanath (uses majorana representation)
 //for(unsigned int i(0); i< Ly_; i++){

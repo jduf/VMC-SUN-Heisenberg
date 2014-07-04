@@ -34,9 +34,10 @@ void AnalyseParameter::extract_level_5(){
 	RSTFile rst(info_+path_+dir_,filename_);
 
 	unsigned int nruns;
+	unsigned int tmax;
 	double param;
 
-	read>>nruns>>ref_>>N_>>m_>>n_>>M_>>bc_>>param;
+	read>>nruns>>tmax>>ref_>>N_>>m_>>n_>>M_>>bc_>>param;
 	IOFiles corr_file(analysis_+path_+dir_+filename_+"-corr.dat",true);
 	IOFiles long_range_corr_file(analysis_+path_+dir_+filename_+"-long-range-corr.dat",true);//should not be delcared when type!=2
 	data_write_->precision(10);

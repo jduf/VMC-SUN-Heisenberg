@@ -8,7 +8,7 @@ CreateSystem::CreateSystem(Parseur& P):
 	M_(N_,(m_*n_ )/N_),
 	bc_(P.get<int>("bc")),
 	type_(P.get<unsigned int>("type")),
-	over_(true),
+	over_((type_==1)?false:true),
 	RGL_(NULL),
 	CGL_(NULL)
 {
@@ -20,7 +20,7 @@ CreateSystem::~CreateSystem(){
 	if(CGL_){delete CGL_;}
 }
 
-void CreateSystem::parse(Parseur& P) {
+void CreateSystem::parse(Parseur& P){
 	std::string wf(P.get<std::string>("wf"));
 	if( wf == "chainfermi" ){
 		ref_(0) = 2;
@@ -102,10 +102,17 @@ void CreateSystem::parse(Parseur& P) {
 		ref_(2) = 0;
 	}
 
-	if( wf == "honeycombsu3" ){
+	if( wf == "honeycomb0pp" ){
 		ref_(0) = 6;
 		ref_(1) = 1;
 		ref_(2) = 0;
+		if(P.is_vector("td")){ 
+			Vector<double> tmp(P.get<Vector<double> >("td"));
+			for(unsigned int i(0);i<tmp.size();i++){
+				d_.append(tmp(i));
+			}
+		}
+		else { d_.append(P.get<double>("td")); }
 	}
 	if( wf == "honeycombsu4" ){
 		ref_(0) = 6;
@@ -141,36 +148,37 @@ void CreateSystem::init(){
 				}
 			}break;
 		case 3:
-			//{
-			//switch(ref_(1)){
-			//case 0:{return TriangleJastrow(N,n,m);}break;
-			//case 1:
-			//   {
-			//   switch(ref_(2)){
-			//   case 0:{return TriangleFermi(N,n,m);}break;
-			//   case 1:{return TriangleMu(N,n,m);}break;
-			//   default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl; }break;
-			//   }
-			//   }break;
-			//case 2:
-			//   {
-			//   switch(ref_(2)){
-			//   case 4:{return TrianglePhi(N,n,m);}break;
-			//   default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl; }break;
-			//   }
-			//   }break;
-			//default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
-			//}
-			//}break;
-		case 4:
 			{
 				switch(ref_(1)){
-					//case 0:{return SquareJastrow(N,n,m);}break;
+					//case 0:{return TriangleJastrow(N,n,m);}break;
 					case 1:
 						{
 							switch(ref_(2)){
-								//   case 0:{return SquareFermi(N,n,m);}break;
-								//   case 1:{return SquareMu(N,n,m);}break;
+								case 0:{RGL_ = new TriangleFermi(ref_,N_,m_,n_,M_,bc_);}break;
+									   //   case 1:{return TriangleMu(N,n,m);}break;
+								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl; }break;
+							}
+						}break;
+						//case 2:
+						//   {
+						//   switch(ref_(2)){
+						//   case 4:{return TrianglePhi(N,n,m);}break;
+						//   default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl; }break;
+						//   }
+						//   }break;
+						//default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+				}
+			}break;
+		case 4:
+			{
+				switch(ref_(1)){
+					case 0:
+						{RGL_ = new SquareJastrow(ref_,N_,m_,n_,M_,bc_);}break;
+					case 1:
+						{
+							switch(ref_(2)){
+								case 0:{RGL_ = new SquareFermi(ref_,N_,m_,n_,M_,bc_);}break;
+									   //   case 1:{return SquareMu(N,n,m);}break;
 								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 							}
 						}break;
@@ -206,19 +214,24 @@ void CreateSystem::init(){
 				}
 			}break;
 		case 6:
-			//{
-			//switch(ref_(1)){
-			//case 1:
-			//{
-			//switch(ref_(2)){
-			//case 0:{return HoneycombSU3(N,n,m);}break;
-			//case 1:{return HoneycombSU4(N,n,m);}break;
-			//default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
-			//}
-			//}break;
-			//default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
-			//}
-			//}break;
+			{
+				switch(ref_(1)){
+					case 1:
+						{
+							switch(ref_(2)){
+								case 0:
+									{
+										RGL_ = new Honeycomb0pp(ref_,N_,m_,n_,M_,bc_,d_.last());
+										d_.pop();
+										if(!d_.size()){ over_ = true; }
+									}break;
+									//case 1:{return HoneycombSU4(N,n,m);}break;
+								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+							}
+						}break;
+					default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+				}
+			}break;
 		default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
 	}
 	switch(type_){

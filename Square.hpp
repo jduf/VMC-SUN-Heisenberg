@@ -6,31 +6,38 @@
 template<typename Type>
 class Square: public GenericSystem<Type>{
 	public:
-		Square(std::string const& filename);
-		virtual ~Square(){}
+		Square(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename);
+		virtual ~Square()=0;
 
 	protected:
 		unsigned int Lx_;//!< dimension of the lattice along x-axis
 		unsigned int Ly_;//!< dimension of the lattice along y-axis
+		unsigned int spuc_;//!< site per unit cell
 
-		double occupation_number(Vector<double>& ni);
 		Matrix<int> get_neighbourg(unsigned int i) const;
+		double occupation_number(Vector<double>& ni);
 };
 
 template<typename Type>
-Square<Type>::Square(std::string const& filename):
+Square<Type>::Square(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
 	GenericSystem<Type>(4,filename),
-	Lx_(std::floor(std::sqrt(this->n_))),
-	Ly_(std::floor(std::sqrt(this->n_)))
+	Lx_(sqrt(Lx*this->n_/(Ly*spuc))),
+	Ly_(sqrt(Ly*this->n_/(Lx*spuc))),
+	spuc_(spuc)
 {
-	std::cerr<<"Square::Square(N,n,m,filename) : need to set the boundary condition"<<std::endl;
+	std::cerr<<"Square::Square(N,n,m,filename) : need to set the boundary condition, and check everything"<<std::endl;
 	if(this->n_==Ly_*Lx_){
 		this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 		this->compute_links();
+		this->status_--;
 	} else {
-		std::cerr<<"Square::Square(N,n,m,bc,filename) : the cluster is not a square"<<std::endl;
+		std::cerr<<"Square<Type> : the cluster is impossible, n must be a"<<std::endl; 
+		std::cerr<<"             : multiple of "<<Lx*Ly*spuc_<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc_<<")"<<std::endl; 
 	}
 }
+
+template<typename Type>
+Square<Type>::~Square(){}
 
 template<typename Type>
 Matrix<int> Square<Type>::get_neighbourg(unsigned int i) const {

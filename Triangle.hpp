@@ -6,35 +6,34 @@
 template<typename Type>
 class Triangle: public GenericSystem<Type>{
 	public:
-		Triangle(unsigned int N, unsigned int n, unsigned int m, std::string filename);
-		virtual ~Triangle();
+		Triangle(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename);
+		virtual ~Triangle()=0;
 
 	protected:
 		unsigned int Lx_;//!< dimension of the lattice along x-axis
 		unsigned int Ly_;//!< dimension of the lattice along y-axis
+		unsigned int spuc_;//!< site per unit cell
 
 		double occupation_number(Vector<double>& ni);
 		Matrix<int> get_neighbourg(unsigned int i) const;
 };
 
 template<typename Type>
-Triangle<Type>::Triangle(unsigned int N, unsigned int n, unsigned int m, std::string filename):
-	GenericSystem<Type>(N,n,m,6,filename),
-	Lx_(std::floor(std::sqrt(this->n_))),
-	Ly_(std::floor(std::sqrt(this->n_)))
+Triangle<Type>::Triangle(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
+	GenericSystem<Type>(6,filename),
+	Lx_(sqrt(Lx*this->n_/(Ly*spuc))),
+	Ly_(sqrt(Ly*this->n_/(Lx*spuc))),
+	spuc_(spuc)
 {
-	this->bc_ = -1;
 	std::cerr<<"Triangle::Triangle(N,n,m,filename) : need to set the boundary condition"<<std::endl;
 	std::cerr<<"Triangle::Triangle(N,n,m,filename) : and need to check that they are correct"<<std::endl;
 	if(this->n_==Ly_*Lx_){
-		this->compute_sts();
 		this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-		if(this->bc_ != 0){
-			if(this->bc_ == 1){ this->filename_ += "-P";} 
-			else{ this->filename_ += "-A";}
-		}
+		this->compute_links();
+		this->status_--;
 	} else {
-		std::cerr<<"Triangle : the cluster is not a square"<<std::endl;
+		std::cerr<<"Triangle<Type> : the cluster is impossible, n must be a"<<std::endl; 
+		std::cerr<<"               : multiple of "<<Lx*Ly*spuc_<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc_<<")"<<std::endl; 
 	}
 }
 

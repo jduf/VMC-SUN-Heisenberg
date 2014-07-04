@@ -8,8 +8,10 @@
 template<typename Type>
 class MCSystem: public virtual System{
 	public:
-		MCSystem(System const& S);
-		virtual ~MCSystem();
+		/*!Constructor*/
+		MCSystem(System const& S, Rand& seed);
+		/*!Destructor*/
+		virtual ~MCSystem(){}
 
 		/*!Exchanges two particles of different colors*/
 		virtual void swap();
@@ -20,36 +22,28 @@ class MCSystem: public virtual System{
 		/*!Updates only s_*/
 		virtual void update();
 
-		/*!Returns the status*/
-		bool found_initial_state() const {return found_initial_state_;}
-
-		/*{Description
-		 * !Computes the matrix element <a|H|b> where |a> and |b> differs by one
-		 * permutation 
-		}*/
-		void measure_new_step();	
+		/*!Sample the system for the new step*/
+		void measure_new_step();
+		/*!Add the sample to the statistic*/
 		void add_sample();
+		/*!Returns true if the system is correctly sampled*/
 		bool is_converged(double const& tol);
+		/*!Calls complete_analysis of the sampled datas*/
 		void complete_analysis(double const& tol);
-		void reset();
 		
-		void init(unsigned int const& thread);
-
 	protected:
 		unsigned int new_c[2];//!< colors of the exchanged sites
 		unsigned int new_s[2];//!< sites that are exchanged
 		unsigned int new_p[2];//!< sites that are exchanged
 
-		bool found_initial_state_;	
-
-		Rand* rnd_;	//!< generator of random numbers 
-
-		Matrix<unsigned int> s_;//!< on the site i : s(i,0)=color, s(i,1)=row
+		Matrix<unsigned int> s_;	//!< s(site,particle)=color
+		Rand rnd_;					//!< generator of random numbers 
 
 	private:
-		MCSystem(MCSystem<Type> const&);
-		MCSystem& operator=(MCSystem<Type> const&);
-		virtual void init() = 0;
+		/*!Forbid copy*/
+		MCSystem(MCSystem<Type> const& mc);
+		/*!Forbid assigment*/
+		MCSystem& operator=(MCSystem<Type> const& mc);
 
 		/*!Check only if the new state has not the same color on one site*/
 		bool is_new_state_forbidden();
@@ -58,36 +52,23 @@ class MCSystem: public virtual System{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-MCSystem<Type>::MCSystem(System const& S):
+MCSystem<Type>::MCSystem(System const& S, Rand& seed):
 	System(S),
-	found_initial_state_(false),
-	rnd_(NULL)
+	s_(n_,m_),
+	rnd_(1e3,seed)
 {}
-
-template<typename Type>
-void MCSystem<Type>::init(unsigned int const& thread){
-	s_.set(n_,m_);
-	rnd_ = new Rand(100,thread);
-	init();
-}
-
-template<typename Type>
-MCSystem<Type>::~MCSystem(){
-	std::cout<<"destroy MCSystem"<<std::endl;
-	if(rnd_){delete rnd_;}
-}
 /*}*/
 
 /*public method*/
 /*{*/
 template<typename Type>
 void MCSystem<Type>::swap(){
-	new_s[0] = rnd_->get(n_);
-	new_p[0] = rnd_->get(m_);
+	new_s[0] = rnd_.get(n_);
+	new_p[0] = rnd_.get(m_);
 	new_c[0] = s_(new_s[0],new_p[0]);
 	do {
-		new_s[1] = rnd_->get(n_);
-		new_p[1] = rnd_->get(m_);
+		new_s[1] = rnd_.get(n_);
+		new_p[1] = rnd_.get(m_);
 		new_c[1] = s_(new_s[1],new_p[1]);
 	} while(is_new_state_forbidden() || new_c[0] == new_c[1]);
 }
@@ -104,7 +85,6 @@ void MCSystem<Type>::swap(unsigned int const& s0, unsigned int const& s1, unsign
 
 template<typename Type>
 void MCSystem<Type>::update(){
-	/*update the sites*/
 	s_(new_s[0],new_p[0]) = new_c[1];
 	s_(new_s[1],new_p[1]) = new_c[0];
 }
@@ -163,13 +143,6 @@ void MCSystem<Type>::complete_analysis(double const& tol){
 	E_.complete_analysis(tol); 
 	corr_.complete_analysis(tol); 
 	long_range_corr_.complete_analysis(tol); 
-}
-
-template<typename Type>
-void MCSystem<Type>::reset(){ 
-	E_.reset(); 
-	corr_.reset(); 
-	long_range_corr_.reset(); 
 }
 /*}*/
 

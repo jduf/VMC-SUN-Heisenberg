@@ -6,46 +6,36 @@
 template<typename Type>
 class Kagome: public GenericSystem<Type>{
 	public:
-		Kagome( unsigned int const& Lx,
-				unsigned int const& Ly,
-				unsigned int const& spuc, 
-				std::string const& filename);
-		virtual ~Kagome();
+		Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename);
+		virtual ~Kagome()=0;
 
 	protected:
 		unsigned int Lx_;//!< number of unit cell along the x-axis
 		unsigned int Ly_;//!< number of unit cell along the y-axis
 		unsigned int spuc_;//!< site per unit cell
 
-		virtual Matrix<int> get_neighbourg(unsigned int i) const;
+		Matrix<int> get_neighbourg(unsigned int i) const;
 };
 
 template<typename Type>
-Kagome<Type>::Kagome(
-		unsigned int const& Lx,
-		unsigned int const& Ly,
-		unsigned int const& spuc,
-		std::string const& filename):
+Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
 	GenericSystem<Type>(4,filename),
-	Lx_(Lx),
-	Ly_(Ly),
+	Lx_(sqrt(Lx*this->n_/(Ly*spuc))),
+	Ly_(sqrt(Ly*this->n_/(Lx*spuc))),
 	spuc_(spuc)
 {
-	unsigned int nc(sqrt(this->n_/spuc_));
-	Lx_ *= nc;
-	Ly_ *= nc;
 	if(this->n_==Ly_*Lx_*spuc_){
 		this->filename_ += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
 		this->compute_links();
+		this->status_--;
 	} else {
-		std::cerr<<"Kagome<Type> : the cluster not possible"<<std::endl;
+		std::cerr<<"Kagome<Type> : the cluster is impossible, n must be a"<<std::endl; 
+		std::cerr<<"             : multiple of "<<Lx*Ly*spuc_<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc_<<")"<<std::endl; 
 	}
 }
 
 template<typename Type>
-Kagome<Type>::~Kagome(){
-	std::cout<<"destroy Kagome"<<std::endl;
-}
+Kagome<Type>::~Kagome(){}
 
 template<typename Type>
 Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
@@ -139,9 +129,9 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 					case 0:
 						{ 
 							nb(0,0) = i+1; 
-							if(!(i%(Lx_*spuc_))){ nb(1,0) = i-1+Lx_*spuc_; }
+							if(i%(Lx_*spuc_)){ nb(1,0) = i-1; }
 							else { 
-								nb(1,0) = i-1; 
+								nb(1,0) = i-1+Lx_*spuc_; 
 								nb(1,1) = this->bc_; 
 							}
 							if(i>=(Lx_*spuc_)){ nb(2,0) = i+6-Lx_*spuc_; }
@@ -159,9 +149,9 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 								nb(1,0) = i-3+Lx_*spuc_; 
 								nb(1,1) = this->bc_; 
 							}
-							if(!((i-1)%(Lx_*spuc_))){ nb(2,0) = i-2+Lx_*spuc_; }
-							else { 
-								nb(2,0) = i-2; 
+							if((i-1)%(Lx_*spuc_)){ nb(2,0) = i-2; }
+							else {
+								nb(2,0) = i-2+Lx_*spuc_; 
 								nb(2,1) = this->bc_; 
 							}
 							nb(3,0) = i-1;

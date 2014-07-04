@@ -7,8 +7,10 @@
 template<typename Type>
 class SystemBosonic : public Bosonic<Type>, public MCSystem<Type>{
 	public:
-		SystemBosonic(Bosonic<Type> const& S);
-		~SystemBosonic();
+		/*!Constructor that creates an initial state*/
+		SystemBosonic(Bosonic<Type> const& S, Rand& seed);
+		/*!Destructor*/
+		~SystemBosonic(){};
 
 		//{Description
 		/*!Computes the ratio of the two Jastrow factor related to the current
@@ -21,28 +23,21 @@ class SystemBosonic : public Bosonic<Type>, public MCSystem<Type>{
 		Type ratio();
 
 	private:
-		/*!Forbids copy constructor*/
+		/*!Forbids copy*/
 		SystemBosonic(SystemBosonic const& S);
-		/*!Forbids assignment operator*/
+		/*!Forbids assignment*/
 		SystemBosonic& operator=(SystemBosonic const& S);
-
-		void init();
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S):
+SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S, Rand& seed):
 	System(S),
 	Bosonic<Type>(S),
-	MCSystem<Type>(S)
+	MCSystem<Type>(S,seed)
 {
 	std::cerr<<"SystemBosonic will need to check everything"<<std::endl;
-}
-
-template<typename Type>
-void SystemBosonic<Type>::init(){
-	std::cout<<"Bosonic"<<std::endl;
 	Vector<unsigned int> available(this->n_);
 	unsigned int N_as(this->n_);
 	unsigned int site(0);
@@ -51,7 +46,7 @@ void SystemBosonic<Type>::init(){
 	}
 	for(unsigned int c(0); c<this->N_; c++){
 		for(unsigned int i(0); i < this->M_(c); i++){
-			site = this->rnd_->get(N_as);
+			site = this->rnd_.get(N_as);
 			this->s_(available(site),0) = c;
 			this->s_(available(site),1) = c*this->M_(c)+i;
 			for(unsigned int j(site); j+1 < N_as; j++){
@@ -61,9 +56,6 @@ void SystemBosonic<Type>::init(){
 		}
 	}
 }
-
-template<typename Type>
-SystemBosonic<Type>::~SystemBosonic(){}
 /*}*/
 
 /*methods that return something related to the class*/

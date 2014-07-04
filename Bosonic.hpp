@@ -8,7 +8,7 @@ template<typename Type>
 class Bosonic : public virtual System{
 	public:
 		Bosonic(Bosonic<Type> const& b);
-		virtual ~Bosonic();
+		virtual ~Bosonic(){}
 
 		Vector<unsigned int> const& get_sl() const { return sl_;}
 		Matrix<unsigned int> const& get_nn() const { return nn_;}
@@ -19,13 +19,15 @@ class Bosonic : public virtual System{
 		Bosonic<Type> const& get_bosonic(){ return (*this);}
 
 	protected:
+		Bosonic(){};
+
 		Vector<unsigned int> sl_;
 		Matrix<unsigned int> nn_; //!< nn_(i,j):jth neighbour of the ith site
 		Matrix<unsigned int> cc_;
 		Matrix<double> nu_;
 		Matrix<Type> omega_;
 
-		Bosonic(){std::cout<<"bosonic default"<<std::endl;};
+		void init_bosonic(unsigned int const& z);
 };
 
 /*constructors and destructor*/
@@ -41,8 +43,11 @@ Bosonic<Type>::Bosonic(Bosonic<Type> const& b):
 {}
 
 template<typename Type>
-Bosonic<Type>::~Bosonic(){
-	std::cout<<"destroy Bosonic"<<std::endl;
+void Bosonic<Type>::init_bosonic(unsigned int const& z){
+	nn_.set(n_,z);
+	cc_.set(N_,N_);
+	sl_.set(n_);
+	omega_.set(N_,N_,1.0);
 }
 /*}*/
 #endif

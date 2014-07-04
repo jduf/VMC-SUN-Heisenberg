@@ -6,69 +6,145 @@
 template<typename Type>
 class Honeycomb: public GenericSystem<Type>{
 	public:
-		Honeycomb(unsigned int N, unsigned int n, unsigned int m, std::string filename);
-		virtual ~Honeycomb();
+		Honeycomb(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename);
+		virtual ~Honeycomb()=0;
 
 	protected:
 		unsigned int Lx_;//!< dimension of the lattice along x-axis
 		unsigned int Ly_;//!< dimension of the lattice along y-axis
+	unsigned int spuc_;//!< site per unit cell
 
-		virtual Matrix<int> get_neighbourg(unsigned int i) const;
+		Matrix<int> get_neighbourg(unsigned int i) const;
 };
 
 template<typename Type>
-Honeycomb<Type>::Honeycomb(unsigned int N, unsigned int n, unsigned int m, std::string filename):
-	GenericSystem<Type>(N,n,m,3,filename),
-	Lx_(floor(sqrt(this->M_))),
-	Ly_(floor(sqrt(this->M_)))
+Honeycomb<Type>::Honeycomb(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
+	GenericSystem<Type>(3,filename),
+	Lx_(sqrt(Lx*this->n_/(Ly*spuc))),
+	Ly_(sqrt(Ly*this->n_/(Lx*spuc))),
+	spuc_(spuc)
 {
-	std::cerr<<"Honeycomb will rewrite all the honeycomb things as a rectangular 12 sites unit cell"<<std::endl;
-	std::cerr<<"Honeycomb: need to set the boundary condition"<<std::endl;
-	this->bc_ = -1;
-	if(this->M_==Ly_*Lx_){
+	if(this->n_==Ly_*Lx_*spuc_){
 		this->filename_ += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
-		this->compute_sts();
+		this->compute_links();
+		this->status_--;
 	} else {
-		std::cerr<<"Honeycomb<Type> : the cluster is not a square"<<std::endl;
+		std::cerr<<"Honeycomb<Type> : the cluster is impossible, n must be a"<<std::endl; 
+		std::cerr<<"                : multiple of "<<Lx*Ly*spuc_<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc_<<")"<<std::endl; 
 	}
 }
 
 template<typename Type>
-Honeycomb<Type>::~Honeycomb(){
-	std::cerr<<"attention n!=Nm => System won't work"<<std::endl;
-}
+Honeycomb<Type>::~Honeycomb(){}
 
 template<typename Type>
 Matrix<int> Honeycomb<Type>::get_neighbourg(unsigned int i) const {
-	std::cerr<<"honecomb : need to define get_neighbourg "<<i<<std::endl;
-
-	//unsigned int i(0);
-	//for(unsigned int l(0);l<Ly_;l++){
-	//for(unsigned int c(0);c<Lx_;c++){
-	////0
-	//this->H_(i,i+1) = 1;
-	//if(l+1<Ly_){
-	//this->H_(i,i+1+Lx_*4) = 1;
-	//} else {
-	//this->H_(i+1-l*Lx_*4,i) = 1;
-	//}
-	//if(c==0){
-	//this->H_(i,i+Lx_*4-1) = 1;
-	//} else {
-	//this->H_(i-1,i) = 1;
-	//}
-	//i+=2;//2
-	//this->H_(i,i-1) = 1;
-	//this->H_(i,i+1) = 1; 
-	//if(l==0){
-	//this->H_(i,i+1+(Ly_-1)*Lx_*4) = 1;
-	//} else {
-	//this->H_(i,i+1-Lx_*4) = 1;
-	//}
-	//i+=2;//4
-	//}
-	//}
-	//this->H_ += this->H_.transpose();
-	return 0;
+	Matrix<int> nb(this->z_,2,1);
+	switch(spuc_){
+		case 6:
+			{
+				switch(i%6){
+					case 0:
+						{
+							/*+x+y neighbour*/
+							nb(0,0) = i+1;
+							/*-x neighbour*/
+							if(i%(spuc_*Lx_)){ nb(1,0) = i-3; }
+							else {
+								nb(1,0) = i-3+spuc_*Lx_;
+								nb(1,1) = this->bc_;
+							}
+							/*+x-y neighbour*/
+							nb(2,0) = i+5;
+						}break;
+					case 1:
+						{
+							/*+x neighbour*/
+							nb(0,0) = i+1;
+							/*-x+y neighbour*/
+							if(i<this->n_-spuc_*Lx_){ 
+								if((i-1)%(spuc_*Lx_)){ nb(1,0) = i-3+spuc_*Lx_ ; }
+								else {
+									nb(1,0) = i-3+2*spuc_*Lx_;
+									nb(1,1) = this->bc_;
+								}
+							} else {
+								if(i-1!=this->n_-spuc_*Lx_){
+									nb(1,0) = i-3-spuc_*Lx_*(Ly_-1);
+									nb(1,1) = this->bc_;
+								} else {
+									nb(1,0) = -2+spuc_*Lx_;
+									nb(1,1) = this->bc_*this->bc_;
+								}
+							}
+							/*-x-y neighbour*/
+							nb(2,0) = i-1;
+						}break;
+					case 2:
+						{
+							/*+x-y neighbour*/
+							nb(0,0) = i+1;
+							/*+x+y neighbour*/
+							if(i<this->n_-spuc_*Lx_){ nb(1,0) = i+3+spuc_*Lx_; }
+							else {
+								nb(1,0) = i+3-spuc_*Lx_*(Ly_-1);
+								nb(1,1) = this->bc_;
+							}
+							/*-x neighbour*/
+							nb(2,0) = i-1;
+						}break;
+					case 3:
+						{
+							/*-x-y neighbour*/
+							nb(0,0) = i+1;
+							/*+x neighbour*/
+							if((i+3)%(spuc_*Lx_)){ nb(1,0) = i+3; }
+							else {
+								nb(1,0) = i+3-spuc_*Lx_;
+								nb(1,1) = this->bc_;
+							}
+							/*-x+y neighbour*/
+							nb(2,0) = i-1;
+						}break;
+					case 4:
+						{
+							/*-x neighbour*/
+							nb(0,0) = i+1;
+							/*+x-y neighbour*/
+							if(i>spuc_*Lx_){ 
+								if((i+2)%(spuc_*Lx_)){ nb(1,0) = i+3-spuc_*Lx_; }
+								else {
+									nb(1,0) = i+3-2*spuc_*Lx_;
+									nb(1,1) = this->bc_;
+								}
+							} else {
+								if(i+2!=spuc_*Lx_){
+									nb(1,0) = i+3+spuc_*Lx_*(Ly_-1);
+									nb(1,1) = this->bc_;
+								} else {
+									nb(1,0) = this->n_+1-spuc_*Lx_;
+									nb(1,1) = this->bc_*this->bc_;
+								}
+							}
+							/*+x+y neighbour*/
+							nb(2,0) = i-1;
+						}break;
+					case 5:
+						{
+							/*-x+y neighbour*/
+							nb(0,0) = i-5;
+							/*-x-y neighbour*/
+							if(i>spuc_*Lx_){ nb(1,0) = i-3-spuc_*Lx_; }
+							else {
+								nb(1,0) = i-3+spuc_*Lx_*(Ly_-1);
+								nb(1,1) = this->bc_;
+							}
+							/*+x neighbour*/
+							nb(2,0) = i-1;
+						}break;
+				}
+			}break;
+	}
+	return nb;
 }
 #endif

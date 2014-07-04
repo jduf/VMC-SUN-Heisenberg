@@ -8,7 +8,6 @@ class AnalyseParameter : public Analyse{
 		AnalyseParameter(){}
 		~AnalyseParameter(){}
 
-
 	protected:
 		void open_files(std::string const& jdfile, std::string const& datafile, Directory const& d);
 		void close_files();

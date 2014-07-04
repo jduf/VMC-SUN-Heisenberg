@@ -1,13 +1,18 @@
 #include "TriangleFermi.hpp"
 
-TriangleFermi::TriangleFermi(unsigned int N, unsigned int n, unsigned int m):
-	Triangle<double>(N,n,m,"triangle-fermi")
+TriangleFermi::TriangleFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
+	System(ref,N,m,n,M,bc),
+	Triangle<double>(1,1,1,"triangle-fermi")
 {
-	rst_.text("Fermi : all colors experience the same Hamiltonian");
+	if(status_==1){
+		init_fermionic();
+		compute_T();
+
+		rst_.text("Fermi : all colors experience the same Hamiltonian");
+	}
 }
 
-TriangleFermi::~TriangleFermi(){}
-
+/*{method needed for running*/
 void TriangleFermi::compute_T(){
 	double t(-1.0);
 	Matrix<int> nb;
@@ -20,6 +25,21 @@ void TriangleFermi::compute_T(){
 	T_ += T_.transpose();
 }
 
+void TriangleFermi::create(){
+	diagonalize_T();
+	for(unsigned int c(0);c<N_;c++){
+		if(!is_degenerate(c)){
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = T_(i,j);
+				}
+			}
+		}
+	}
+}
+/*}*/
+
+/*{method needed for checking*/
 void TriangleFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
 	Px.set(n_,n_,0.0);
 	Py.set(n_,n_,0.0);
@@ -34,7 +54,7 @@ void TriangleFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
 }
 
 void TriangleFermi::lattice(){
-	PSTricks ps(filename_+"-lattice");
+	PSTricks ps("./",filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
 	double e1(0.5);
 	double e2(sqrt(3.0)/2.0);
@@ -50,24 +70,21 @@ void TriangleFermi::lattice(){
 
 		color = "black";
 		y1 = nb(0,0)/Ly_;
-		if((i+1) % Lx_ ){
-			x1 = nb(0,0)%Lx_;
-		} else {
+		if((i+1) % Lx_ ){ x1 = nb(0,0)%Lx_; }
+		else {
 			x1 = x0 + 1;
 			color = "blue";
 		}
 		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
 
 		color = "black";
-		if((i+1) % Lx_ ){
-			x1 = nb(1,0)%Lx_;
-		} else {
+		if((i+1) % Lx_ ){ x1 = nb(1,0)%Lx_; }
+		else {
 			x1 = x0 + 1;
 			color = "blue";
 		}
-		if( i+Lx_<this->n_){ 
-			y1 = nb(1,0)/Ly_;
-		} else {
+		if( i+Lx_<this->n_){ y1 = nb(1,0)/Ly_; }
+		else {
 			y1 = y0 + 1;
 			color = "blue";
 		}
@@ -75,20 +92,19 @@ void TriangleFermi::lattice(){
 
 		color = "black";
 		x1=nb(2,0)%Lx_;
-		if( i+Lx_<this->n_){ 
-			y1 = nb(2,0)/Ly_;
-		} else {
+		if( i+Lx_<this->n_){ y1 = nb(2,0)/Ly_; }
+		else {
 			y1 = y0 + 1;
 			color = "blue";
 		}
 		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
 	}
 
-	diagonalize_T('S');
+	diagonalize_T();
 
 	double r(0.2);
 	Vector<double> ada(n_,0);
-	double max(occupation_number(ada));
+	//double max(occupation_number(ada));
 	Vector<double> tmp(2);
 	for(unsigned int i(0);i<n_;i++){
 		x0 = i%Lx_;
@@ -113,21 +129,7 @@ void TriangleFermi::lattice(){
 	ps.add("\\end{pspicture}");
 }
 
-void TriangleFermi::study(){
-	compute_T();
-	//compute_P();
-	//band_structure();
+void TriangleFermi::check(){
 	lattice();
 }
-
-void TriangleFermi::create(double x){
-	compute_T();
-	diagonalize_T('S');
-	for(unsigned int spin(0);spin<N_;spin++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+spin*n_,j) = T_(i,j);
-			}
-		}
-	}
-}
+/*}*/

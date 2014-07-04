@@ -4,14 +4,15 @@ KagomeFermi::KagomeFermi(Vector<unsigned int> const& ref, unsigned int const& N,
 	System(ref,N,m,n,M,bc),
 	Kagome<double>(1,1,3,"kagome-fermi")
 {
-	init_fermionic();
-	compute_T();
-	
-	rst_.text("KagomeFermi : All hopping term are identical, no flux, 3 sites per unit cell");
+	if(status_==1){
+		init_fermionic();
+		compute_T();
+
+		rst_.text("KagomeFermi : All hopping term are identical, no flux, 3 sites per unit cell");
+	}
 }
 
-KagomeFermi::~KagomeFermi(){}
-
+/*{method needed for running*/
 void KagomeFermi::compute_T(){
 	double t(1.0);
 	T_.set(n_,n_,0);
@@ -41,6 +42,25 @@ void KagomeFermi::compute_T(){
 	T_ += T_.transpose();
 }
 
+void KagomeFermi::create(){
+	E_.set(50,5,false);
+	corr_.set(links_.row(),50,5,false);
+
+	diagonalize_T();
+	for(unsigned int c(0);c<N_;c++){
+		if(!is_degenerate(c)){
+			EVec_[c].set(n_,M_(c));
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = T_(i,j);
+				}
+			}
+		}
+	}
+}
+/*}*/
+
+/*{method needed for checking*/
 void KagomeFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
 	std::cerr<<"KagomeFermi::compute_P : undefined method"<<Px<<Py<<std::endl;
 	Px.set(n_,n_,0);
@@ -67,23 +87,6 @@ void KagomeFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
 	}
 }
 
-void KagomeFermi::create(){
-	E_.set(50,5,false);
-	corr_.set(links_.row(),50,5,false);
-
-	diagonalize_T();
-	for(unsigned int c(0);c<N_;c++){
-		if(!is_degenerate(c)){
-			EVec_[c].set(n_,M_(c));
-			for(unsigned int i(0);i<n_;i++){
-				for(unsigned int j(0);j<M_(c);j++){
-					EVec_[c](i,j) = T_(i,j);
-				}
-			}
-		}
-	}
-}
-
 void KagomeFermi::lattice(){
 	Matrix<int> nb;
 	double x0;
@@ -96,18 +99,25 @@ void KagomeFermi::lattice(){
 	double ey(2.0*ll*sin(2.0*M_PI/6.0));
 	std::string color("black");
 
-	Matrix<double> xy(4,2);
-	xy(0,0) = 0.0;
-	xy(0,1) = 0.0;
-	xy(1,0) = ex;
-	xy(1,1) = 0.0;
-	xy(2,0) = ex + exy;
-	xy(2,1) = ey;
-	xy(3,0) = exy;
-	xy(3,1) = ey;
 	PSTricks ps("./","lattice");
 	ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+filename_);
-	ps.polygon(xy,"linewidth=1pt,linecolor=red");
+	Matrix<double> cell(4,2);
+	cell(0,0) = 0.0;
+	cell(0,1) = 0.0;
+	cell(1,0) = ex;
+	cell(1,1) = 0.0;
+	cell(2,0) = ex + exy;
+	cell(2,1) = ey;
+	cell(3,0) = exy;
+	cell(3,1) = ey;
+	ps.polygon(cell,"linewidth=1pt,linecolor=red");
+	cell(1,0)*=Lx_;
+	cell(2,0) = Lx_*ex + Ly_*exy;
+	cell(2,1)*=Ly_;
+	cell(3,0)*=Ly_;
+	cell(3,1)*=Ly_;
+	ps.polygon(cell,"linewidth=1pt,linecolor=red,linestyle=dashed");
+
 	unsigned int s;
 	for(unsigned int i(0);i<Lx_;i++) {
 		for(unsigned int j(0);j<Ly_;j++) {
@@ -168,9 +178,59 @@ void KagomeFermi::lattice(){
 }
 
 void KagomeFermi::check(){
-	//Matrix<double> Px;
-	//Matrix<double> Py;
+	///*{debug 1*/
+	//Matrix<int> nb;
+	//for(unsigned int i(0);i<n_;i++){
+		//nb = get_neighbourg(i);
+		//std::cout<<i<<" ";
+		//for(unsigned int j(0);j<z_;j++){
+			//std::cout<<nb(j,0)<<" ";
+		//}
+		//std::cout<<std::endl;
+	//}
+	///*}*/
+	///*{debug 2*/
+	//Matrix<int> nb;
+	//double t(1.0);
+	//Matrix<double> Ttest(n_,n_,0);
+	//for(unsigned int s(0);s<n_;s++){
+		//nb = get_neighbourg(s);
+		//for(unsigned int i(0);i<z_;i++){ Ttest(s,nb(i,0)) = t; }
+	//}
+	//for(unsigned int i(0);i<n_;i++){
+		//for(unsigned int j(0);j<n_;j++){
+			//if(std::abs(Ttest(i,j)-T_(i,j))>0.2){
+				//std::cout<<i<<" "<<j<<std::endl;
+			//}
+		//}
+	//}
+	///*}*/
+	///*{debug 3*/
+	//unsigned int k(0);
+	//for(unsigned int i(0);i<n_;i++){
+		//for(unsigned int j(0);j<n_;j++){
+			//if(T_(i,j)!=0){
+				//k++;
+				////std::cout<<i<<" "<<j<<" "<<T_(i,j)<<std::endl;
+			//}
+		//}
+	//}
+	//std::cout<<k<<" "<<links_.row()<<std::endl;
+	///*}*/
+	///*{debug 4*/
+	//Matrix<int> nb;
+	//for(unsigned int s(0);s<n_;s++){
+		//nb = get_neighbourg(s);
+		//for(unsigned int i(0);i<z_;i++){
+			//if(nb(i,1)<0){std::cout<<s<<" "<<nb(i,0)<<std::endl;}
+		//}
+	//}
+	///*}*/
+
+	//Matrix<std::complex<double> > Px;
+	//Matrix<std::complex<double> > Py;
 	//compute_P(Px,Py);
-	//BandStructure<double> bs(T_,Px,Py);
+	//BandStructure<std::complex<double> > bs(T_,Px,Py);
 	lattice();
 }
+/*}*/

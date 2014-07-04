@@ -7,7 +7,7 @@ template<typename Type>
 class Chain: public GenericSystem<Type>{
 	public:
 		Chain(unsigned int const& Lx, std::string const& filename);
-		virtual ~Chain(){}
+		virtual ~Chain()=0;
 
 	protected:
 		Matrix<int> get_neighbourg(unsigned int i) const;
@@ -19,10 +19,14 @@ Chain<Type>::Chain(unsigned int const& Lx, std::string const& filename):
 	GenericSystem<Type>(2,filename),
 	Lx_(Lx)
 {
-	std::cout<<"chain"<<std::endl;
-	if(Lx_ * this->N_ == this->m_ * this-> n_){ this->compute_links(); }
-	else { std::cerr<<"Chain(Lx,filename) : unit cell not compatible with number of site"<<std::endl; }
+	if(Lx_ * this->N_ == this->m_ * this-> n_){ 
+		this->compute_links(); 
+		this->status_--;
+	} else { std::cerr<<"Chain(Lx,filename) : unit cell not compatible with number of site"<<std::endl; }
 }
+
+template<typename Type>
+Chain<Type>::~Chain(){}
 
 template<typename Type>
 Matrix<int> Chain<Type>::get_neighbourg(unsigned int i) const {

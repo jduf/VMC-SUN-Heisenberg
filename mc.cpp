@@ -15,14 +15,17 @@ int main(int argc, char* argv[]){
 	if(!P.status()){
 		do{
 			cs.init();
-			cs.create();
-			if(!cs.is_degenerate()){
-				std::string path(init(cs));
-				if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax); } 
-				else { run<double>(cs,path,nruns,tmax); }
+			if(cs.get_status()==1){
+				cs.create();
+				if(!cs.is_degenerate()){
+					std::string path(init(cs));
+					if(cs.use_complex()){ run<std::complex<double> >(cs,path,nruns,tmax); } 
+					else { run<double>(cs,path,nruns,tmax); }
+				}
 			}
 		} while(!cs.is_over());
 	}
+	return cs.get_status();
 }
 
 std::string init(CreateSystem const& cs){
@@ -42,6 +45,7 @@ template<typename Type>
 void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax){
 	IOFiles file_results(path+cs.get_filename()+".jdbin",true);
 	file_results("number of simulations runned",nruns);
+	file_results("tmax",tmax);
 	RST rst;
 	rst.title("Input","-");
 	file_results.add_to_header(rst.get());
@@ -59,16 +63,17 @@ void run(CreateSystem const& cs, std::string const& path, unsigned int const& nr
 
 #pragma omp parallel for 
 	for(unsigned int i=0;i<nruns;i++){
+		Rand rnd(4,omp_get_thread_num());
 		MCSystem<Type>* S(NULL);
-		if(cs.is_bosonic()){ S = new SystemBosonic<Type>(*dynamic_cast<const Bosonic<Type>*>(cs.get_system())); } 
-		else { S = new SystemFermionic<Type>(*dynamic_cast<const Fermionic<Type>*>(cs.get_system())); }
-		MonteCarlo<Type> sim(S,tmax);
+		if(cs.is_bosonic()){ S = new SystemBosonic<Type>(*dynamic_cast<const Bosonic<Type>*>(cs.get_system()),rnd); } 
+		else { S = new SystemFermionic<Type>(*dynamic_cast<const Fermionic<Type>*>(cs.get_system()),rnd); }
+		MonteCarlo<Type> sim(S,tmax,rnd);
 		sim.run();
 #pragma omp critical
 		{
-			E.add_sample((sim.get_system())->get_energy());
-			corr.add_sample((sim.get_system())->get_corr());
-			long_range_corr.add_sample((sim.get_system())->get_long_range_corr());
+			E.add_sample(sim.get_system()->get_energy());
+			corr.add_sample(sim.get_system()->get_corr());
+			long_range_corr.add_sample(sim.get_system()->get_long_range_corr());
 			sim.get_system()->save(file_results);
 		}
 		delete S;

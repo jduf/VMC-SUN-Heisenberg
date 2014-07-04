@@ -12,29 +12,32 @@ int main(int argc, char* argv[]){
 			{
 				unsigned int tmax(3);
 				cs.init();
-				cs.create();
-				IOFiles w("check.jdbin",true);
-				cs.save(w);
-				if(cs.use_complex()){
-					MCSystem<std::complex<double> >* S(NULL);
-					S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system())); 
-					MonteCarlo<std::complex<double> > sim(S,tmax);
-					sim.run();
-					sim.get_system()->save(w);
-					delete S;
-				} else {
-					MCSystem<double>* S(NULL); 
-					S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())); 
-					MonteCarlo<double> sim(S,tmax);
-					sim.run();
-					sim.get_system()->save(w);
-					delete S;
+				if(cs.get_status()==1){
+					cs.create();
+					IOFiles w("check.jdbin",true);
+					cs.save(w);
+					Rand rnd(4);
+					if(cs.use_complex()){
+						MCSystem<std::complex<double> >* S(NULL);
+						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system()),rnd); 
+						MonteCarlo<std::complex<double> > sim(S,tmax,rnd);
+						sim.run();
+						sim.get_system()->save(w);
+						delete S;
+					} else {
+						MCSystem<double>* S(NULL); 
+						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system()),rnd); 
+						MonteCarlo<double> sim(S,tmax,rnd);
+						sim.run();
+						sim.get_system()->save(w);
+						delete S;
+					}
 				}
 			} break;
 		case 2:/*call CreateSystem::check*/
 			{ 
 				cs.init();
-				cs.check(); 
+				if(cs.get_status()==1){ cs.check(); }
 			} break;
 		default:{std::cerr<<"check : unknown what"<<std::endl;}
 	}

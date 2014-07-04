@@ -1,21 +1,20 @@
 #include "SquareJastrow.hpp"
 
-SquareJastrow::SquareJastrow(unsigned int N, unsigned int n, unsigned int m):
-	Square<double>(N,n,m,"square-Jastrow"),
-	nn_(n_,z_),
-	cc_(N_,N_),
-	sl_(n_),
-	omega_(N_,N_,1.0)
+SquareJastrow::SquareJastrow(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
+	System(ref,N,m,n,M,bc),
+	Square<double>(1,1,1,"square-jastrow")
 {
-	rst_.text("Staggered magnetic field, Becca's idea to mimic an on site chemical potential");
+	init_bosonic(z_);
 	compute_nn();
 	compute_sublattice();
 	compute_omega_cc();
+
+	rst_.text("Staggered magnetic field, Becca's idea to mimic an on site chemical potential");
+	std::cout<<"check everything"<<std::endl;
 }
 
-SquareJastrow::~SquareJastrow(){}
-
-void SquareJastrow::create(double x){
+/*{method needed for running*/
+void SquareJastrow::create(){
 	//nu_.set(z_,x.size()+1);
 	//for(unsigned int i(0);i<z_;i++){
 		//for(unsigned int j(0);j<Nfreedom_;j++){
@@ -47,9 +46,7 @@ void SquareJastrow::compute_sublattice(){
 	unsigned int k(0);
 	for(unsigned int i(0);i<n_;i++){
 		sl_(i) = k % N_;
-		if((i+1)%Lx_==0){
-			k++;
-		}
+		if((i+1)%Lx_==0){ k++; }
 		k++;
 	}
 }
@@ -79,8 +76,18 @@ void SquareJastrow::compute_omega_cc(){
 	}
 }
 
+void SquareJastrow::save(IOFiles& w) const {
+	GenericSystem<double>::save(w);
+	w("nn (nearst neighbours)",nn_);
+	w("cc (to match nu and x)",cc_);
+	w("sl (sublattice)",sl_);
+	w("omega (omega)",omega_);
+}
+/*}*/
+
+/*{method needed for checking*/
 void SquareJastrow::lattice(Matrix<unsigned int> const& lat){
-	PSTricks ps(filename_+"-lattice");
+	PSTricks ps("./",filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
 	Matrix<int> nb;
 	double x0, y0, x1, y1;
@@ -134,10 +141,7 @@ void SquareJastrow::lattice(Matrix<unsigned int> const& lat){
 	ps.add("\\end{pspicture}");
 }
 
-void SquareJastrow::save(IOFiles& w) const {
-	GenericSystem<double>::save(w);
-	w("nn (nearst neighbours)",nn_);
-	w("cc (to match nu and x)",cc_);
-	w("sl (sublattice)",sl_);
-	w("omega (omega)",omega_);
+void SquareJastrow::check(){
+	std::cout<<"void SquareJastrow::check() : nothing to do"<<std::endl;
 }
+/*}*/

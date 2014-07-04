@@ -31,9 +31,9 @@ template <typename Type>
 class MonteCarlo{
 	public:
 		/*!Constructor*/
-		MonteCarlo(MCSystem<Type>* S, unsigned int tmax); 
+		MonteCarlo(MCSystem<Type>* S, unsigned int const& tmax, Rand& seed);
 		/*!Simple destructor*/
-		~MonteCarlo();
+		~MonteCarlo(){};
 
 		/*!Run the Monte-Carlo algorithm*/
 		void run();
@@ -41,54 +41,47 @@ class MonteCarlo{
 		MCSystem<Type>* get_system() const { return S_;}
 
 	private:
-		/*!Forbids the copy constructor*/
+		/*!Forbids copy*/
 		MonteCarlo(MonteCarlo const& mc); 
-		/*!Forbids the assignment operator*/
+		/*!Forbids assignment*/
 		MonteCarlo const& operator=(MonteCarlo const& mc);
 
 		/*!Find the next configuration and measure it*/
 		void next_step();
-		/*{Private method that gives a shutoff condition 
+		/*{Description*/
+		/* Private method that gives a shutoff condition 
 		 * !Stops the simulation when
 		 * - convergence is reached
 		 * - time limit is up
 		 * - kill=true
 		 *
-		 * If the E_ diverges, the simulation is restarted
-		}*/
+		 * If the E_ diverges, the simulation is restarted */
+		/*}*/
 		bool keepon();
 
 		unsigned int const tmax_;//!< Time limit in second, by default 5min
 		MCSystem<Type>* S_;		//!< Pointer to a Fermionic or Bosonic System 
-		Rand* rnd_;				//!< Pointer to a random number generator
 		Time time_; 			//!< To stop the simulation after time_limit seconds
+		Rand rnd_;				//!< Pointer to a random number generator
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-MonteCarlo<Type>::MonteCarlo(MCSystem<Type>* S, unsigned int tmax):
+MonteCarlo<Type>::MonteCarlo(MCSystem<Type>* S, unsigned int const& tmax, Rand& seed):
 	tmax_(tmax),
 	S_(S),
-	rnd_(NULL)
+	rnd_(1e5,seed)
 {
-	unsigned int thread(omp_get_thread_num());
-	rnd_ = new Rand(1e4,thread);
-	S_->init(thread);
-	if(S_->found_initial_state()){
+	if(S_->get_status()==0){
 		double ratio(0.0);
 		for(unsigned int i(0);i<1e6;i++){
 			S_->swap();
 			ratio = norm_squared(S_->ratio());
-			if( ratio > rnd_->get() ){ S_->update(); }
+			if( ratio > rnd_.get() ){ S_->update(); }
 		}
 		S_->measure_new_step();
 	}
-}
-
-template<typename Type>
-MonteCarlo<Type>::~MonteCarlo(){
-	delete rnd_;
 }
 /*}*/
 
@@ -96,7 +89,7 @@ MonteCarlo<Type>::~MonteCarlo(){
 /*{*/
 template<typename Type>
 void MonteCarlo<Type>::run(){
-	if(S_->found_initial_state()){
+	if(S_->get_status()==0){
 		do{next_step();}
 		while(keepon());
 	}
@@ -109,7 +102,7 @@ void MonteCarlo<Type>::run(){
 template<typename Type>
 void MonteCarlo<Type>::next_step(){
 	S_->swap();
-	if( norm_squared(S_->ratio()) > rnd_->get() ){
+	if( norm_squared(S_->ratio()) > rnd_.get() ){
 		S_->update();
 		S_->measure_new_step();
 	}
@@ -121,7 +114,7 @@ bool MonteCarlo<Type>::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
 	if(std::abs(S_->get_energy().get_x())>1e2){ 
 		std::cerr<<"Simulation diverges => is restarted"<<std::endl;
-		S_->reset();
+		S_->set();
 	}
 	return true;
 }

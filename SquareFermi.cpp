@@ -1,13 +1,16 @@
 #include "SquareFermi.hpp"
 
-SquareFermi::SquareFermi(unsigned int N, unsigned int n, unsigned int m):
-	Square<double>(N,n,m,"square-fermi")
+SquareFermi::SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
+	System(ref,N,m,n,M,bc),
+	Square<double>(1,1,1,"square-fermi")
 {
+	init_fermionic();
+	compute_T();
+
 	rst_.text("Fermi : all colors experience the same Hamiltonian");
 }
 
-SquareFermi::~SquareFermi(){}
-
+/*{method needed for running*/
 void SquareFermi::compute_T(){
 	double t(-1.0);
 	Matrix<int> nb;
@@ -20,6 +23,21 @@ void SquareFermi::compute_T(){
 	T_ += T_.transpose();
 }
 
+void SquareFermi::create(){
+	diagonalize_T();
+	for(unsigned int c(0);c<N_;c++){
+		if(!is_degenerate(c)){
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = T_(i,j);
+				}
+			}
+		}
+	}
+}
+/*}*/
+
+/*{method needed for checking*/
 void SquareFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
 	Px.set(n_,n_,0.0);
 	Py.set(n_,n_,0.0);
@@ -34,21 +52,15 @@ void SquareFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
 }
 
 void SquareFermi::lattice(){
-	PSTricks ps(filename_+"-lattice");
+	PSTricks ps("./",filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
 	Matrix<int> nb;
 	for(unsigned int i(0);i<n_;i++){
 		nb = get_neighbourg(i);
-		if((i+1) % Lx_ ){
-			ps.line("-", i%Lx_, i/Ly_, nb(0,0)%Lx_, nb(0,0)/Ly_, "linewidth=1pt,linecolor=black");
-		} else {
-			ps.line("-", i%Lx_, i/Ly_, i%Lx_+1, nb(0,0)/Ly_, "linewidth=1pt,linecolor=blue");
-		}
-		if( i+Lx_<this->n_){ 
-			ps.line("-", i%Lx_, i/Ly_, nb(1,0)%Lx_, nb(1,0)/Ly_, "linewidth=1pt,linecolor=black");
-		} else {
-			ps.line("-", i%Lx_, i/Ly_, nb(1,0)%Lx_, i/Ly_+1, "linewidth=1pt,linecolor=blue");
-		}
+		if((i+1) % Lx_ ){ ps.line("-", i%Lx_, i/Ly_, nb(0,0)%Lx_, nb(0,0)/Ly_, "linewidth=1pt,linecolor=black"); }
+		else { ps.line("-", i%Lx_, i/Ly_, i%Lx_+1, nb(0,0)/Ly_, "linewidth=1pt,linecolor=blue"); }
+		if( i+Lx_<this->n_){ ps.line("-", i%Lx_, i/Ly_, nb(1,0)%Lx_, nb(1,0)/Ly_, "linewidth=1pt,linecolor=black"); }
+		else { ps.line("-", i%Lx_, i/Ly_, nb(1,0)%Lx_, i/Ly_+1, "linewidth=1pt,linecolor=blue"); }
 	}
 
 	double r(0.2);
@@ -62,19 +74,8 @@ void SquareFermi::lattice(){
 	ps.add("\\end{pspicture}");
 }
 
-void SquareFermi::create(double x){
-	compute_T();
-	diagonalize_T('S');
-	for(unsigned int spin(0);spin<N_;spin++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_;j++){
-				EVec_(i+spin*n_,j) = T_(i,j);
-			}
-		}
-	}
-}
-
 void SquareFermi::check(){
 	compute_T();
 	std::cout<<T_.chop(1e-6)<<std::endl;
 }
+/*}*/

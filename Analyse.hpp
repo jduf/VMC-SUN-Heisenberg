@@ -47,5 +47,11 @@ class Analyse{
 		virtual void extract_level_3();
 		virtual void extract_level_2();
 		virtual void extract_level_1();
+
+	private:
+		/*Forbids copy*/
+		Analyse(Analyse const& a);
+		/*Forbids assignment*/
+		Analyse& operator=(Analyse const& a);
 };
 #endif

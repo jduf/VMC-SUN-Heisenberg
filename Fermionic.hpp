@@ -8,7 +8,9 @@
 template<typename Type>
 class Fermionic : public virtual System{
 	public:
+		/*!Copy Constructor*/
 		Fermionic(Fermionic<Type> const& f);
+		/*!Destructor*/
 		virtual ~Fermionic();
 
 		Matrix<Type> const& get_EVec() const { return EVec_;}
@@ -17,6 +19,9 @@ class Fermionic : public virtual System{
 		bool is_degenerate() const { return degenerate_;}
 
 	protected:
+		/*!Default Constructor*/
+		Fermionic();
+
 		Matrix<Type> T_;	//!< trial Hamiltonian
 		Vector<double> eval_;
 		Matrix<Type>* EVec_;//!< eigenvectors matrix (transfer matrix)
@@ -26,8 +31,6 @@ class Fermionic : public virtual System{
 		void diagonalize_T();
 		bool is_degenerate(unsigned int const& c);
 		void init_fermionic();
-
-		Fermionic();
 };
 
 /*constructors and destructor and initialization*/
@@ -36,39 +39,40 @@ template<typename Type>
 Fermionic<Type>::Fermionic(Fermionic<Type> const& f):
 	System(f),
 	T_(f.T_),
-	EVec_(NULL),
+	EVec_(f.EVec_?new Matrix<Type>[f.N_]:NULL),
 	degenerate_(false)
 {
-	std::cerr<<"Fermionic copy do something for the partial copy"<<std::endl;
-	if(f.EVec_){
-		EVec_ = new Matrix<Type>[f.N_];
-		for(unsigned int i(0);i<N_;i++){ EVec_[i] = f.EVec_[i]; }
-	}
+	for(unsigned int i(0);i<N_;i++){ EVec_[i] = f.EVec_[i]; }
 }
 
 template<typename Type>
 Fermionic<Type>::Fermionic():
 	EVec_(NULL),
 	degenerate_(false)
-{std::cout<<"fermionic default"<<N_<<std::endl;}
+{}
+
+template<typename Type>
+void Fermionic<Type>::init_fermionic(){
+	if(!EVec_){ EVec_ = new Matrix<Type>[N_];}
+	for(unsigned int c(0);c<N_;c++){ EVec_[c].set(n_,M_(c)); }
+}
 
 template<typename Type>
 Fermionic<Type>::~Fermionic(){
-	std::cout<<"destroy Fermionic"<<std::endl;
 	if(EVec_){ delete[] EVec_; }
 }
 /*}*/
 
 template<>
 inline void Fermionic<double>::diagonalize_T(){
-	Lapack<double> ES(&T_,false,'S');
-	ES.eigensystem(&eval_,true);
+	Lapack<double> ES(T_,false,'S');
+	ES.eigensystem(eval_,true);
 }
 
 template<>
 inline void Fermionic<std::complex<double> >::diagonalize_T(){
-	Lapack<std::complex<double> >ES(&T_,false,'H');
-	ES.eigensystem(&eval_,true);
+	Lapack<std::complex<double> >ES(T_,false,'H');
+	ES.eigensystem(eval_,true);
 }
 
 template<typename Type>
@@ -81,12 +85,6 @@ bool Fermionic<Type>::is_degenerate(unsigned int const& c) {
 		//return true;
 		//} else {
 		//return false;
-}
-
-template<typename Type>
-void Fermionic<Type>::init_fermionic(){
-	if(!EVec_){ EVec_ = new Matrix<Type>[N_];}
-	for(unsigned int c(0);c<N_;c++){ EVec_[c].set(n_,M_(c)); }
 }
 #endif
 

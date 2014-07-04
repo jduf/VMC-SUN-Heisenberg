@@ -7,7 +7,9 @@
 template<typename Type>
 class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 	public:
-		SystemFermionic(Fermionic<Type> const& S);
+		/*!Constructor that creates an initial state*/
+		SystemFermionic(Fermionic<Type> const& S, Rand& seed);
+		/*!Destructor that deletes Ainv and tmp*/
 		~SystemFermionic();
 
 		/*!Set row and new_ev*/
@@ -24,20 +26,20 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 		 *   the determinant lemma
 		}*/
 		Type ratio();
-		/*{Description
-		*!Calls System::update() and then
-		 * - updates the Ainv_ matrices
-		 * - updates s_(new_s[i],1)
-		}*/ 
+		/*{Description*/
+		/*!Calls System::update() and then
+		 * - updates row_
+		 * - updates the Ainv_ matrices */
+		/*}*/
 		void update();
 
-	private:
-		/*!Forbids copy constructor*/
-		SystemFermionic(SystemFermionic const& S);
-		/*!Forbids assignment operator*/
-		SystemFermionic& operator=(SystemFermionic const& S);
+		void print();
 
-		void init();
+	private:
+		/*!Forbids copy*/
+		SystemFermionic(SystemFermionic const& S);
+		/*!Forbids assignment*/
+		SystemFermionic& operator=(SystemFermionic const& S);
 
 		Matrix<unsigned int> row_;
 		Matrix<Type> *Ainv_;	//!< inverse of A
@@ -50,14 +52,11 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
+SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S, Rand& seed):
 	System(S),
 	Fermionic<Type>(S),
-	MCSystem<Type>(S)
-{}
-
-template<typename Type>
-void SystemFermionic<Type>::init(){
+	MCSystem<Type>(S,seed)
+{ 
 	Ainv_ = new Matrix<Type>[this->N_];
 	tmp_ = new Matrix<Type>[this->N_];
 	for(unsigned int c(0); c<this->N_; c++){ 
@@ -81,7 +80,7 @@ void SystemFermionic<Type>::init(){
 	unsigned int l(0);
 	double rcn(0.0);
 	do {
-		for(unsigned int i(0);i<1000*this->N_*(this->n_*this->m_)*(this->n_*this->m_);i++){
+		for(unsigned int i(0);i<this->N_*(this->n_*this->m_)*(this->n_*this->m_);i++){
 			MCSystem<Type>::swap();
 			this->s_(this->new_s[0],this->new_p[0]) = this->new_c[1];
 			this->s_(this->new_s[1],this->new_p[1]) = this->new_c[0];
@@ -98,18 +97,14 @@ void SystemFermionic<Type>::init(){
 			}
 		}
 		for(unsigned int i(0); i<this->N_; i++){
-			Lapack<Type> inv(&Ainv_[i],false,'G');
+			Lapack<Type> inv(Ainv_[i],false,'G');
 			ipiv = inv.is_singular(rcn);
 			if(ipiv.ptr()){ inv.inv(ipiv); }
 			else { i = this->N_; }
 		}
 	} while (!ipiv.ptr() && ++l<TRY_MAX);
-	if(l!=TRY_MAX){
-		this->found_initial_state_=true; /*2nd step successful*/
-	} else {
-		std::cerr<<"No initial state found after "<<TRY_MAX<<"trials"<<std::endl;
-		this->found_initial_state_=false;
-	}
+	if(l!=TRY_MAX){ this->status_--; }
+	else { std::cerr<<"No initial state found after "<<TRY_MAX<<"trials"<<std::endl; }
 }
 
 template<typename Type>
@@ -121,6 +116,24 @@ SystemFermionic<Type>::~SystemFermionic(){
 
 /*methods that modify the class*/
 /*{*/
+template<typename Type>
+void SystemFermionic<Type>::swap(){
+	MCSystem<Type>::swap();
+	new_r[0] = row_(this->new_s[0],this->new_p[0]); 
+	new_r[1] = row_(this->new_s[1],this->new_p[1]); 
+	new_ev[0] = this->new_s[1];
+	new_ev[1] = this->new_s[0];
+}
+
+template<typename Type>
+void SystemFermionic<Type>::swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
+	MCSystem<Type>::swap(s0,s1,p0,p1);
+	new_r[0] = row_(this->new_s[0],this->new_p[0]); 
+	new_r[1] = row_(this->new_s[1],this->new_p[1]); 
+	new_ev[0] = this->new_s[1];
+	new_ev[1] = this->new_s[0];
+}
+
 template<typename Type>
 void SystemFermionic<Type>::update(){
 	MCSystem<Type>::update();
@@ -144,24 +157,6 @@ void SystemFermionic<Type>::update(){
 		}
 		Ainv_[c_tmp] -= tmp_[c_tmp];
 	}
-}
-
-template<typename Type>
-void SystemFermionic<Type>::swap(){
-	MCSystem<Type>::swap();
-	new_r[0] = row_(this->new_s[0],this->new_p[0]); 
-	new_r[1] = row_(this->new_s[1],this->new_p[1]); 
-	new_ev[0] = this->new_s[1];
-	new_ev[1] = this->new_s[0];
-}
-
-template<typename Type>
-void SystemFermionic<Type>::swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
-	MCSystem<Type>::swap(s0,s1,p0,p1);
-	new_r[0] = row_(this->new_s[0],this->new_p[0]); 
-	new_r[1] = row_(this->new_s[1],this->new_p[1]); 
-	new_ev[0] = this->new_s[1];
-	new_ev[1] = this->new_s[0];
 }
 /*}*/
 
@@ -187,4 +182,21 @@ Type SystemFermionic<Type>::ratio(){
 	}
 }
 /*}*/
+
+template<typename Type>
+void SystemFermionic<Type>::print(){
+	Matrix<Type>* A(new Matrix<Type>[this->N_]);
+	for(unsigned int c(0);c<this->N_;c++){ A[c].set(this->M_(c),this->M_(c)); } 
+	unsigned int c(0);
+	for(unsigned int s(0);s<this->n_;s++){
+		for(unsigned int p(0);p<this->m_;p++){
+			c = this->s_(s,p);
+			for(unsigned int j(0);j<this->M_(c);j++){
+				A[c](row_(s,p),j) = this->EVec_[c](s,j);
+			}
+		}
+	}
+	for(unsigned int c(0);c<this->N_;c++){ std::cout<<(A[c]*Ainv_[c]).chop()<<std::endl<<std::endl; }
+	delete[] A;
+}
 #endif

@@ -15,22 +15,19 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>{
 		/*!Constructor N, n, m and z is the coordination number*/
 		GenericSystem(unsigned int const& z, std::string const& filename); 
 		/*Simple destructor*/
-		virtual ~GenericSystem(){
-	std::cout<<"destroy GenericSystem"<<std::endl;
-		}
+		virtual ~GenericSystem(){}
 
 		std::string get_filename() const { return filename_; }
+		bool is_bosonic() const { return false; }
 
 		virtual void create() = 0;
-		virtual void save(IOFiles& w) const;
 		virtual void check() = 0;
-
-		bool is_bosonic() { return false; }
+		virtual void save(IOFiles& w) const;
 
 	protected:
-		unsigned int const z_;		//!< coordination number
-		std::string filename_;		//!< filename
-		RST rst_;
+		unsigned int const z_;	//!< coordination number
+		std::string filename_;	//!< filename
+		RST rst_;				//!< store information about the system
 
 		/*!return the neighbours of site i*/
 		virtual Matrix<int> get_neighbourg(unsigned int i) const = 0;
@@ -43,7 +40,6 @@ GenericSystem<Type>::GenericSystem(unsigned int const& z, std::string const& fil
 	z_(z),
 	filename_(filename)
 { 
-	std::cout<<"genericsystem"<<std::endl;
 	filename_ += "-N" + tostring(this->N_);
 	filename_ += "-m" + tostring(this->m_);
 	filename_ += "-n" + tostring(this->n_);
@@ -61,19 +57,32 @@ GenericSystem<Type>::GenericSystem(unsigned int const& z, std::string const& fil
 
 template<typename Type>
 void GenericSystem<Type>::compute_links(){
+	unsigned int z_link(0);
+	unsigned int incr(0);
+	if(z_%2){
+		if(this->n_%2){ 
+			std::cerr<<"void GenericSystem<Type>::compute_links() : can't compute links_"<<std::endl;
+		} else {
+			z_link = z_;
+			incr = 2;
+		}
+	} else {
+		z_link = z_/2;
+		incr = 1;
+	}
 	unsigned int k(0);
 	Matrix<int> nb;
-	for(unsigned int i(0); i<this->n_;i++){
+	for(unsigned int i(0);i<this->n_;i+=incr){
 		nb = get_neighbourg(i);
-		for(unsigned int j(0); j<z_/2; j++){
+		for(unsigned int j(0);j<z_link;j++){
 			if(nb(j,1)!=0){ k++; }
 		}
 	}
 	this->links_.set(k,2);
 	k=0;
-	for(unsigned int i(0); i<this->n_;i++){
+	for(unsigned int i(0);i<this->n_;i+=incr){
 		nb = get_neighbourg(i);
-		for(unsigned int j(0); j<z_/2; j++){
+		for(unsigned int j(0);j<z_link;j++){
 			if(nb(j,1)!=0){
 				this->links_(k,0) = i;
 				this->links_(k,1) = nb(j,0);

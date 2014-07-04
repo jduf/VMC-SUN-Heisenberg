@@ -5,10 +5,10 @@
 
 class SquareFermi: public Square<double>{
 	public:
-		SquareFermi(unsigned int N, unsigned int n, unsigned int m);
-		~SquareFermi();
+		SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc);
+		~SquareFermi(){}
 
-		void create(double x);
+		void create();
 		void check();
 
 	protected:

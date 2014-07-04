@@ -4,17 +4,16 @@ KagomeVBC::KagomeVBC(Vector<unsigned int> const& ref, unsigned int const& N, uns
 	System(ref,N,m,n,M,bc),
 	Kagome<std::complex<double> >(1,1,9,"kagome-vbc")
 {
-	init_fermionic();
-	compute_T();
+	if(status_==1){
+		init_fermionic();
+		compute_T();
 
-	rst_.text("KagomeVBC : 9 sites per unit cell, pi-flux through 1/3 of the honeycomb");
-	rst_.text("and -pi/6-flux through all triangles, so the total flux is null");
+		rst_.text("KagomeVBC : 9 sites per unit cell, pi-flux through 1/3 of the hexagon");
+		rst_.text("and -pi/6-flux through all triangles, so the total flux is null");
+	}
 }
 
-KagomeVBC::~KagomeVBC(){
-	std::cout<<"destroy KagomeVBC"<<std::endl;
-}
-
+/*{method needed for running*/
 void KagomeVBC::compute_T(){
 	double t(1.0);
 	double phi(M_PI/6.0);
@@ -70,6 +69,25 @@ void KagomeVBC::compute_T(){
 	T_ += T_.trans_conj();
 }
 
+void KagomeVBC::create(){
+	E_.set(50,5,false);
+	corr_.set(links_.row(),50,5,false);
+
+	diagonalize_T();
+	for(unsigned int c(0);c<N_;c++){
+		if(!is_degenerate(c)){
+			EVec_[c].set(n_,M_(c));
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = T_(i,j);
+				}
+			}
+		}
+	}
+}
+/*}*/
+
+/*{method needed for checking*/
 void KagomeVBC::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py){
 	Px.set(n_,n_,0);
 	Py.set(n_,n_,0);
@@ -95,23 +113,6 @@ void KagomeVBC::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex
 	}
 }
 
-void KagomeVBC::create(){
-	E_.set(50,5,false);
-	corr_.set(links_.row(),50,5,false);
-
-	diagonalize_T();
-	for(unsigned int c(0);c<N_;c++){
-		if(!is_degenerate(c)){
-			EVec_[c].set(n_,M_(c));
-			for(unsigned int i(0);i<n_;i++){
-				for(unsigned int j(0);j<M_(c);j++){
-					EVec_[c](i,j) = T_(i,j);
-				}
-			}
-		}
-	}
-}
-
 void KagomeVBC::lattice(){
 	Matrix<int> nb;
 	double x0;
@@ -124,21 +125,26 @@ void KagomeVBC::lattice(){
 	double ey(3.0);
 	std::string color("black");
 
-	Matrix<double> xy(4,2);
-	xy(0,0) = 0.0;
-	xy(0,1) = 0.0;
-	xy(1,0) = ex;
-	xy(1,1) = 0.0;
-	xy(2,0) = ex + exy;
-	xy(2,1) = ey;
-	xy(3,0) = exy;
-	xy(3,1) = ey;
-
 	PSTricks ps("./","lattice");
 	ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+filename_);
-	ps.polygon(xy,"linewidth=1pt,linecolor=red");
-	unsigned int s;
+	Matrix<double> cell(4,2);
+	cell(0,0) = 0.0;
+	cell(0,1) = 0.0;
+	cell(1,0) = ex;
+	cell(1,1) = 0.0;
+	cell(2,0) = ex + exy;
+	cell(2,1) = ey;
+	cell(3,0) = exy;
+	cell(3,1) = ey;
+	ps.polygon(cell,"linewidth=1pt,linecolor=red");
+	cell(1,0)*= Lx_;
+	cell(2,0) = Lx_*ex + Ly_*exy;
+	cell(2,1)*= Ly_;
+	cell(3,0)*= Ly_;
+	cell(3,1)*= Ly_;
+	ps.polygon(cell,"linewidth=1pt,linecolor=red,linestyle=dashed");
 
+	unsigned int s;
 	for(unsigned int i(0);i<Lx_;i++) {
 		for(unsigned int j(0);j<Ly_;j++) {
 			/*site 0*/
@@ -309,9 +315,59 @@ void KagomeVBC::lattice(){
 }
 
 void KagomeVBC::check(){
+	///*{debug 1*/
+	//Matrix<int> nb;
+	//for(unsigned int i(0);i<n_;i++){
+		//nb = get_neighbourg(i);
+		//std::cout<<i<<" ";
+		//for(unsigned int j(0);j<z_;j++){
+			//std::cout<<nb(j,0)<<" ";
+		//}
+		//std::cout<<std::endl;
+	//}
+	///*}*/
+	///*{debug 2*/
+	//Matrix<int> nb;
+	//double t(1.0);
+	//Matrix<double> Ttest(n_,n_,0);
+	//for(unsigned int s(0);s<n_;s++){
+		//nb = get_neighbourg(s);
+		//for(unsigned int i(0);i<z_;i++){ Ttest(s,nb(i,0)) = t; }
+	//}
+	//for(unsigned int i(0);i<n_;i++){
+		//for(unsigned int j(0);j<n_;j++){
+			//if(std::abs(Ttest(i,j)-norm_squared(T_(i,j)))>0.2){
+				//std::cout<<i<<" "<<j<<std::endl;
+			//}
+		//}
+	//}
+	///*}*/
+	///*{debug 3*/
+	//unsigned int k(0);
+	//for(unsigned int i(0);i<n_;i++){
+		//for(unsigned int j(0);j<n_;j++){
+			//if(norm_squared(T_(i,j))!=0){
+				//k++;
+				//std::cout<<i<<" "<<j<<" "<<T_(i,j)<<std::endl;
+			//}
+		//}
+	//}
+	//std::cout<<k<<" "<<links_.row()<<std::endl;
+	///*}*/
+	/*{debug 4*/
+	Matrix<int> nb;
+	for(unsigned int s(0);s<n_;s++){
+		nb = get_neighbourg(s);
+		for(unsigned int i(0);i<z_;i++){
+			if(nb(i,1)<0){std::cout<<s<<" "<<nb(i,0)<<std::endl;}
+		}
+	}
+	/*}*/
+	
 	//Matrix<std::complex<double> > Px;
 	//Matrix<std::complex<double> > Py;
 	//compute_P(Px,Py);
 	//BandStructure<std::complex<double> > bs(T_,Px,Py);
 	lattice();
 }
+/*}*/

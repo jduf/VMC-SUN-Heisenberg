@@ -8,12 +8,11 @@ System::System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned 
 	m_(m),
 	n_(n),
 	M_(M),
-	bc_(bc)
+	bc_(bc),
+	status_(3)
 {
-	if(M_.sum() != m_*n_ || m_>N_){ 
-		std::cerr<<"System::System(N,n,m,M,bc,ref) : Bad initialization"<<std::endl; 
-	}
-	std::cout<<"system Nnm..."<<std::endl;
+	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<"System::System(N,n,m,M,bc,ref) : Bad initialization"<<std::endl; } 
+	else{status_--;}
 }
 
 System::System(System const& s):
@@ -23,16 +22,21 @@ System::System(System const& s):
 	n_(s.n_),
 	M_(s.M_),
 	bc_(s.bc_),
+	status_(s.status_),
 	E_(s.E_),
 	corr_(s.corr_),
 	links_(s.links_)
-{
-	std::cout<<"system copy"<<std::endl;
-}
+{}
 /*}*/
 
 void System::save(IOFiles& w) const {
 	w("energy per site",E_);
 	w("correlation on links",corr_);
 	w("long range correlation",long_range_corr_);
+}
+
+void System::set(){ 
+	E_.set(); 
+	corr_.set(); 
+	long_range_corr_.set(); 
 }
