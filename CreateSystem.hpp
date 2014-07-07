@@ -22,9 +22,15 @@
 class CreateSystem{
 	public:
 		CreateSystem(Parseur& P);
+		CreateSystem(IOFiles* read);
 		virtual ~CreateSystem();
 
 		void init();
+		void analyse(IOSystem const& t){
+			if(RGL_){RGL_->analyse(t);}
+			if(CGL_){CGL_->analyse(t);}
+		}
+
 		void create(){
 			if(RGL_){RGL_->create();}
 			if(CGL_){CGL_->create();}

@@ -1,13 +1,7 @@
 #include "Analyse.hpp"
 
 Analyse::Analyse():
-	sim_("sim/"),
-	info_("info/"),
-	analysis_("analysis/"),
-	path_(),
-	dir_(""),
-	filename_(""),
-	write_(NULL),
+	IOSystem(""),
 	level_(0)
 {}
 
@@ -17,7 +11,7 @@ void Analyse::go(std::string argv){
 	path_ = argv;
 	sim_ = root+sim_;
 	info_ = root+info_;
-	analysis_ = root+analysis_;
+	analyse_ = root+analyse_;
 	/*info_dir must be root as the RSTFiles are saved in the parent directory*/
 
 	unsigned int study;
@@ -78,7 +72,7 @@ void Analyse::go(std::string argv){
 						}
 					}
 					info_ = tmp[tmp.size()-1];
-					analysis_ += tmp[tmp.size()-1] + "/";
+					analyse_ += tmp[tmp.size()-1] + "/";
 					path_ = argv;
 
 					rst_.append(RSTFile(info_,filename_));
@@ -127,7 +121,7 @@ void Analyse::recursive_search(){
 	if(d.size()>0){ d.sort(); }
 	Linux command;
 	command("mkdir -p " + info_+path_+dir_);
-	command("mkdir -p " + analysis_+path_+dir_);
+	command("mkdir -p " + analyse_+path_+dir_);
 	level_++;
 	for(unsigned int i(0);i<d.size();i++){
 		rst_.append(RSTFile(info_+path_+dir_,d.get_name(i)));
@@ -151,7 +145,7 @@ void Analyse::search_jdbin(){
 	Directory d;
 	d.search_file_ext(".jdbin",sim_+path_+dir_,false,false);
 	if(d.size()>0){ 
-		open_files(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",analysis_+path_+dir_.substr(0,dir_.size()-1)+".dat",d);
+		open_files(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",d);
 
 		d.sort();
 		std::cout<<"lev "<<level_<<" : "<<sim_+path_+dir_<<std::endl;

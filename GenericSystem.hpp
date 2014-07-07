@@ -5,10 +5,11 @@
 #include "BandStructure.hpp"
 #include "Bosonic.hpp"
 #include "Fermionic.hpp"
+#include "IOSystem.hpp"
 
 /*!Abstract class that can produce any kind of system*/
 template<typename Type>
-class GenericSystem:public Bosonic<Type>, public Fermionic<Type>{
+class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSystem{
 	public:
 		/*{Description*/
 		/*!Constructor requiring the coordination number and the name of the
@@ -29,7 +30,6 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>{
 
 	protected:
 		unsigned int const z_;	//!< coordination number
-		std::string filename_;	//!< filename
 		RST system_info_;		//!< store information about the system
 
 		/*{Description*/
@@ -44,8 +44,8 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>{
 
 template<typename Type>
 GenericSystem<Type>::GenericSystem(unsigned int const& z, std::string const& filename): 
-	z_(z),
-	filename_(filename)
+	IOSystem(filename),
+	z_(z)
 { 
 	filename_ += "-N" + tostring(this->N_);
 	filename_ += "-m" + tostring(this->m_);

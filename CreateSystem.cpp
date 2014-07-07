@@ -15,6 +15,19 @@ CreateSystem::CreateSystem(Parseur& P):
 	parse(P);
 }
 
+CreateSystem::CreateSystem(IOFiles* read):
+	ref_(read->get<Vector<unsigned int> >()),
+	N_(read->get<unsigned int>()),
+	n_(read->get<unsigned int>()),
+	m_(read->get<unsigned int>()),
+	M_(read->get<Vector<unsigned int> >()),
+	bc_(read->get<int>()),
+	type_(0),
+	over_(true),
+	RGL_(NULL),
+	CGL_(NULL)
+{}
+
 CreateSystem::~CreateSystem(){
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
