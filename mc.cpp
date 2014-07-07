@@ -44,13 +44,18 @@ std::string init(CreateSystem const& cs){
 template<typename Type>
 void run(CreateSystem const& cs, std::string const& path, unsigned int const& nruns, unsigned int const& tmax){
 	IOFiles file_results(path+cs.get_filename()+".jdbin",true);
-	file_results("number of simulations runned",nruns);
-	file_results("tmax",tmax);
 	RST rst;
 	rst.title("Input","-");
 	file_results.add_to_header(rst.get());
-	rst.set();
 	cs.save(file_results);
+
+	rst.set();
+	rst.title("Simulation's parameters","-");
+	file_results.add_to_header(rst.get());
+	file_results("number of simulations runned",nruns);
+	file_results("tmax",tmax);
+
+	rst.set();
 	rst.title("Results","-");
 	file_results.add_to_header(rst.get());
 

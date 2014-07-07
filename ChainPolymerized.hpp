@@ -11,7 +11,7 @@ class ChainPolymerized: public Chain<double> {
 		void create();
 		void save(IOFiles& w) const;
 		void check();
-		void analyse(IOSystem const& t);
+		std::string analyse(IOSystem const& t);
 		
 	private:
 		double delta_;

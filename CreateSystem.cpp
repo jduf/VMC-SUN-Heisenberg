@@ -3,8 +3,8 @@
 CreateSystem::CreateSystem(Parseur& P):
 	ref_(3,0),
 	N_(P.get<unsigned int>("N")),
-	n_(P.get<unsigned int>("n")),
 	m_(P.get<unsigned int>("m")),
+	n_(P.get<unsigned int>("n")),
 	M_(N_,(m_*n_ )/N_),
 	bc_(P.get<int>("bc")),
 	type_(P.get<unsigned int>("type")),
@@ -18,12 +18,12 @@ CreateSystem::CreateSystem(Parseur& P):
 CreateSystem::CreateSystem(IOFiles* read):
 	ref_(read->get<Vector<unsigned int> >()),
 	N_(read->get<unsigned int>()),
-	n_(read->get<unsigned int>()),
 	m_(read->get<unsigned int>()),
+	n_(read->get<unsigned int>()),
 	M_(read->get<Vector<unsigned int> >()),
 	bc_(read->get<int>()),
 	type_(0),
-	over_(true),
+	over_(false),
 	RGL_(NULL),
 	CGL_(NULL)
 {}
@@ -134,10 +134,9 @@ void CreateSystem::parse(Parseur& P){
 	}
 }
 
-void CreateSystem::init(){
+void CreateSystem::init(IOFiles* read){
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
-	std::cout<<"will lunch new system "<<M_<<std::endl;
 	switch(ref_(0)){
 		case 2:
 			{
@@ -149,6 +148,7 @@ void CreateSystem::init(){
 									{RGL_ = new ChainFermi(ref_,N_,m_,n_,M_,bc_);}break;
 								case 1:
 									{
+										if(read){ d_.append(read->get<double>()); }
 										RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,d_.last());
 										d_.pop();
 										if(!d_.size()){ over_ = true; }

@@ -11,15 +11,19 @@ int main(int argc, char* argv[]){
 		case 1:
 			{
 				AnalyseParameter analyse; 
-				if(P.search("dir",i)){analyse.go("");}
+				if(!P.search("dir",i)){analyse.go("");}
 				else {analyse.go(P.get<std::string>(i));}
-			}
+			}break;
 		case 2:
 			{
 				AnalyseMagnetization analyse; 
-				if(P.search("dir",i)){analyse.go("");}
+				if(!P.search("dir",i)){analyse.go("");}
 				else {analyse.go(P.get<std::string>(i));}
-			}
+			}break;
+		default:
+			{
+				std::cerr<<"study : unknown study"<<std::endl;
+			}break;
 	}
 
 }

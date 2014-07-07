@@ -65,15 +65,15 @@ void ChainPolymerized::check(){
 }
 /*}*/
 
-void ChainPolymerized::analyse(IOSystem const& t){
+std::string ChainPolymerized::analyse(IOSystem const& t){
 	IOSystem::analyse(t);
-	//RSTFile rst(info_+path_+dir_,filename_);
+	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
 
 	unsigned int nruns;
-	//unsigned int tmax;
+	unsigned int tmax;
 	double param;
 
-	//read>>nruns>>tmax>>ref_>>N_>>m_>>n_>>M_>>bc_>>param;
+	(*read_)>>nruns>>tmax;
 	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true);
 	IOFiles long_range_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);//should not be delcared when type!=2
 	data_write_->precision(10);
@@ -124,7 +124,7 @@ void ChainPolymerized::analyse(IOSystem const& t){
 	gp+="     "+tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merization="+tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
 	gp+="     "+tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
 	gp.save_file();
-	//rst.link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlation on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
+	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlation on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
 
 	unsigned int length(long_range_corr_.size());
 	if(length>0){
@@ -159,11 +159,13 @@ void ChainPolymerized::analyse(IOSystem const& t){
 		gp+="                   '"+filename_+"-long-range-corr.dat' i "+tostring(nruns)+" u 1:2:3 w errorbars lt 1 lc 2 lw 2 notitle,\\";
 		gp+="                   f(x) notitle";
 		gp.save_file();
-		//rst.link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
+		rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
 	}
 	/*}*/
 
-	//rst.text(read.get_header());
-	//rst.save(false);
-	//all_link_names_.append(tostring(param));
+	rst_file_->text(read_->get_header());
+	rst_file_->save(false);
+	delete rst_file_;
+	rst_file_ = NULL;
+	return tostring(param);
 }

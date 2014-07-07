@@ -29,12 +29,11 @@ void AnalyseParameter::close_files(){
 }
 
 void AnalyseParameter::extract_level_5(){
-
 	/*E(param)|n=fixé*/
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	CreateSystem cs(read_);
-	cs.init();
-	cs.analyse(*this);
+	cs.init(read_);
+	all_link_names_.append(cs.analyse(*this));
 
 	delete read_;
 	read_ = NULL;
@@ -110,30 +109,30 @@ void AnalyseParameter::extract_level_4(){
 
 void AnalyseParameter::extract_level_3(){
 	/*evolution in function of n*/
-	IOFiles read(sim_+path_+dir_+filename_+".jdbin",false);
-
-	unsigned int nof;
-	Vector<unsigned int> ref;
-	unsigned int N;
-	unsigned int m;
-	unsigned int n;
-	int bc;
-	double param;
-	Data<double> E;
-	double polymerization_strength;
-	read>>nof;
-	for(unsigned int i(0);i<nof;i++){
-		read>>ref>>N>>m>>n>>bc>>param>>E>>polymerization_strength;
-		(*data_write_)<<n<<" "<<polymerization_strength<<IOFiles::endl;
-		(*jd_write_)("ref",ref);
-		(*jd_write_)("N",N);
-		(*jd_write_)("m",m);
-		(*jd_write_)("n",n);
-		(*jd_write_)("bc",bc);
-		(*jd_write_)("E",E);
-		(*jd_write_)("param",param);
-		(*jd_write_)("polymerization strength",polymerization_strength);
-	}
+	//IOFiles read(sim_+path_+dir_+filename_+".jdbin",false);
+//
+	//unsigned int nof;
+	//Vector<unsigned int> ref;
+	//unsigned int N;
+	//unsigned int m;
+	//unsigned int n;
+	//int bc;
+	//double param;
+	//Data<double> E;
+	//double polymerization_strength;
+	//read>>nof;
+	//for(unsigned int i(0);i<nof;i++){
+		//read>>ref>>N>>m>>n>>bc>>param>>E>>polymerization_strength;
+		//(*data_write_)<<n<<" "<<polymerization_strength<<IOFiles::endl;
+		//(*jd_write_)("ref",ref);
+		//(*jd_write_)("N",N);
+		//(*jd_write_)("m",m);
+		//(*jd_write_)("n",n);
+		//(*jd_write_)("bc",bc);
+		//(*jd_write_)("E",E);
+		//(*jd_write_)("param",param);
+		//(*jd_write_)("polymerization strength",polymerization_strength);
+	//}
 	all_link_names_.append(filename_);
 }
 

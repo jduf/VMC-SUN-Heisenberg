@@ -1,7 +1,7 @@
 #ifndef DEF_IOSYSTEM
 #define DEF_IOSYSTEM
 
-#include "IOFiles.hpp"
+#include "RSTFile.hpp"
 
 class IOSystem{
 	public:
@@ -9,7 +9,7 @@ class IOSystem{
 		IOSystem(IOSystem const& a);
 		virtual ~IOSystem(){};
 
-		virtual void analyse(IOSystem const& t);
+		virtual std::string analyse(IOSystem const& t);
 
 	protected:
 		std::string sim_;
@@ -22,6 +22,7 @@ class IOSystem{
 		IOFiles* read_;
 		IOFiles* jd_write_;
 		IOFiles* data_write_;
+		RSTFile* rst_file_;
 
 	private:
 		IOSystem& operator=(IOSystem a);

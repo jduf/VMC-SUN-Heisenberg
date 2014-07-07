@@ -48,7 +48,7 @@ BandStructure<Type>::BandStructure(Matrix<Type> const& T, unsigned int const& L,
 	bc_(bc)
 {
 	compute_TP();
-	std::cout<<T*Px_-Px_*T<<std::endl;
+	//std::cout<<T*Px_-Px_*T<<std::endl;
 
 	Lapack<Type> ES(TP_,false,'G');
 	ES.eigensystem(eval_,&evec_);
@@ -76,8 +76,8 @@ BandStructure<Type>::BandStructure(Matrix<Type> const& T, unsigned int const& Lx
 {
 	compute_TP();
 
-	std::cout<<T*Px_-Px_*T<<std::endl;
-	std::cout<<T*Py_-Py_*T<<std::endl;
+	//std::cout<<T*Px_-Px_*T<<std::endl;
+	//std::cout<<T*Py_-Py_*T<<std::endl;
 
 	Lapack<Type> ES(TP_,false,'G');
 	ES.eigensystem(eval_,&evec_);

@@ -25,10 +25,11 @@ class CreateSystem{
 		CreateSystem(IOFiles* read);
 		virtual ~CreateSystem();
 
-		void init();
-		void analyse(IOSystem const& t){
-			if(RGL_){RGL_->analyse(t);}
-			if(CGL_){CGL_->analyse(t);}
+		void init(IOFiles* read=NULL);
+		std::string analyse(IOSystem const& t){
+			if(RGL_){return RGL_->analyse(t);}
+			if(CGL_){return CGL_->analyse(t);}
+			return "";
 		}
 
 		void create(){
@@ -82,8 +83,8 @@ class CreateSystem{
 
 		Vector<unsigned int> ref_;
 		unsigned int const N_;
-		unsigned int const n_;
 		unsigned int const m_;
+		unsigned int const n_;
 		Vector<unsigned int> M_;
 		int const bc_;
 		List<double> d_;
