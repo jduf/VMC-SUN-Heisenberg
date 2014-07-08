@@ -65,15 +65,14 @@ void ChainPolymerized::check(){
 }
 /*}*/
 
-std::string ChainPolymerized::analyse(IOSystem const& t){
-	IOSystem::analyse(t);
+std::string ChainPolymerized::extract_level_6(){
 	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
 
 	unsigned int nruns;
 	unsigned int tmax;
-	double param;
 
 	(*read_)>>nruns>>tmax;
+	//std::cout<<delta_<<" "<<N_<<" "<<m_<<" "<<n_<<" "<<M_<<" "<<tmax<<" "<<nruns<<std::endl;
 	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true);
 	IOFiles long_range_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);//should not be delcared when type!=2
 	data_write_->precision(10);
@@ -93,7 +92,7 @@ std::string ChainPolymerized::analyse(IOSystem const& t){
 			}
 		}
 
-		(*data_write_)<<param<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
+		(*data_write_)<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 		for(unsigned int j(0);j<corr_.size();j++){
 			corr_file<<j+0.5<<" "<<corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 		}
@@ -105,12 +104,13 @@ std::string ChainPolymerized::analyse(IOSystem const& t){
 	poly_e /= nruns*n_*m_/N_;
 	poly_e.sort(std::less<double>());
 
-	(*jd_write_)("ref (type of wavefunction)",ref_);
-	(*jd_write_)("N (N of SU(N))",N_);
-	(*jd_write_)("m (# of particles per site)",m_);
-	(*jd_write_)("n (# of site)",n_);
-	(*jd_write_)("bc (boundary condition)",bc_);
-	(*jd_write_)("param",param);
+	//(*jd_write_)("ref (type of wavefunction)",ref_);
+	//(*jd_write_)("N (N of SU(N))",N_);
+	//(*jd_write_)("m (# of particles per site)",m_);
+	//(*jd_write_)("n (# of site)",n_);
+	//(*jd_write_)("M (# of particles for each color)",M_);
+	//(*jd_write_)("bc (boundary condition)",bc_);
+	(*jd_write_)("delta",delta_);
 	(*jd_write_)("E",E_);
 	(*jd_write_)("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
 
@@ -118,7 +118,7 @@ std::string ChainPolymerized::analyse(IOSystem const& t){
 	Gnuplot gp(analyse_+path_+dir_,filename_+"-corr");
 	gp+="set xlabel 'site' offset 0,0.5";
 	gp+="set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$' offset 1";
-	gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(param)+"$'";
+	gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(delta_)+"$'";
 	gp+="plot '"+filename_+"-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
 	gp+="     '"+filename_+"-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean',\\";
 	gp+="     "+tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merization="+tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
@@ -134,7 +134,7 @@ std::string ChainPolymerized::analyse(IOSystem const& t){
 		gp.yrange("1.1*STATS_min_y","1.1*STATS_max_y");
 		gp+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
 		gp+="set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(j)>$' offset 1";
-		gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(param)+"$'";
+		gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(delta_)+"$'";
 		gp+="set key right bottom";
 		gp+="a=1.0";
 		gp+="b=1.0";
@@ -167,5 +167,79 @@ std::string ChainPolymerized::analyse(IOSystem const& t){
 	rst_file_->save(false);
 	delete rst_file_;
 	rst_file_ = NULL;
-	return tostring(param);
+
+	return tostring(delta_);
+}
+
+std::string ChainPolymerized::extract_level_5(){
+	std::cout<<"extract 5"<<std::endl;
+	/*comparison of E(param_optimal)|n=fixé*/
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
+	std::cout<<"need to save the number of file or find a way to guess the end of a file"<<std::endl;
+	unsigned int nof(3);
+	double param(0.0);
+	double polymerization_strength;
+	(*read_)>>nof;
+
+	Data<double> min_E;
+	min_E.set_x(0.0);
+	double min_delta(0.0);
+	double min_polymerization_strength(0.0);
+
+	unsigned int idx(0);
+	for(unsigned int i(0);i<nof;i++){
+		if(!i){(*read_)>>delta_;}
+		(*read_)>>E_>>polymerization_strength;
+		if(E_.get_x()<min_E.get_x()){ 
+			idx = i;
+			min_E = E_;
+			min_delta = delta_;
+			min_polymerization_strength = polymerization_strength;
+		}
+	}
+	delta_ = min_delta;
+
+	(*jd_write_)("ref (type of wavefunction)",ref_);
+	(*jd_write_)("N (N of SU(N))",N_);
+	(*jd_write_)("m (# of particles per site)",m_);
+	(*jd_write_)("n (# of site)",n_);
+	(*jd_write_)("bc (boundary condition)",bc_);
+	(*jd_write_)("param",param);
+	(*jd_write_)("min E",min_E);
+	(*jd_write_)("polymerization strength",min_polymerization_strength);
+
+	Gnuplot gp(analyse_+path_+dir_,filename_);
+	gp+="set xlabel '$\\delta$' offset 0,1";
+	gp+="set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1";
+	if(idx==0){
+		gp+="f(x) = a+b*x**eta";
+		gp+="a="+tostring(min_E.get_x());
+		gp+="b=1";
+		gp+="eta=1";
+		gp+="set fit quiet";
+		gp+="fit f(x) '"+filename_+".dat' u 1:($4==0?$2:1/0):3 via a,b,eta";
+		gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$'";
+		gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
+		gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean',\\";
+		gp+="     f(x) t sprintf('eta %3.4f',eta)";
+	} else {
+		gp+="f(x) = a+b*(x-c)*(x-c)";
+		gp+="a="+tostring(min_E.get_x());
+		gp+="b=1";
+		gp+="c="+tostring(delta_);
+		gp+="set fit quiet";
+		gp+="fit f(x) '"+filename_+".dat' u 1:($4==0?$2:1/0):3 via a,b,c";
+		gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$'";
+		gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
+		gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean',\\";
+		gp+="     f(x) t sprintf('min %3.4f',c)";
+	}
+	gp.save_file();
+	gp.create_image(true);
+
+	delete read_;
+	read_ = NULL;
+
+	return filename_;
 }

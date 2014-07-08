@@ -12,9 +12,10 @@ class AnalyseParameter : public Analyse{
 		void open_files(std::string const& jdfile, std::string const& datafile, Directory const& d);
 		void close_files();
 
-		void extract_level_5();
-		void extract_level_4();
-		void extract_level_3();
-		void extract_level_2();
+		std::string extract_level_6();
+		std::string extract_level_5();
+		std::string extract_level_4();
+		std::string extract_level_3();
+		std::string extract_level_2();
 };
 #endif

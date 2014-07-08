@@ -14,10 +14,10 @@ void AnalyseMagnetization::open_files(std::string const& jdfile, std::string con
 void AnalyseMagnetization::close_files(){
 	if(jd_write_){ 
 		switch(level_){
-			case 5:{ rst_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","E.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
-			case 4:{ rst_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","M.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
+			case 5:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","E.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
+			case 4:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","M.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
 		}
-		rst_.last().text(jd_write_->get_header());
+		rst_file_.last().text(jd_write_->get_header());
 		delete jd_write_;
 		jd_write_ = NULL;
 	}
@@ -27,7 +27,7 @@ void AnalyseMagnetization::close_files(){
 	}
 }
 
-void AnalyseMagnetization::extract_level_5(){
+std::string AnalyseMagnetization::extract_level_5(){
 	/*E(param)|n=fixé*/
 	std::cerr<<"here should call theblalb"<<std::endl;
 	//IOFiles read_(sim_+path_+dir_+filename_+".jdbin",false);
@@ -54,10 +54,11 @@ void AnalyseMagnetization::extract_level_5(){
 //
 	//rst.text(read.get_header());
 	//rst.save(false);
-	//all_link_names_.append(tostring(M_(0)));
+	//return tostring(M_(0));
+	return "";
 }
 
-void AnalyseMagnetization::extract_level_4(){
+std::string AnalyseMagnetization::extract_level_4(){
 	/*comparison of E(param_optimal)|n=fixé*/
 	//IOFiles read(sim_+path_+dir_+filename_+".jdbin",false);
 //
@@ -89,13 +90,13 @@ void AnalyseMagnetization::extract_level_4(){
 	//gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'mean',\\";
 	//gp.save_file();
 	//gp.create_image(true);
-	//all_link_names_.append(filename_);
+	return filename_;
 }
 
-void AnalyseMagnetization::extract_level_3(){
+std::string AnalyseMagnetization::extract_level_3(){
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp+="plot '"+filename_+".dat' u 1:2 t 'Independant measures',\\";
 	gp.save_file();
 	gp.create_image(true);
-	all_link_names_.append(filename_);
+	return filename_;
 }

@@ -31,9 +31,9 @@ class BandStructure{
 		void compute_TP();
 
 	private:
-		/*Forbids copy*/
+		/*!Forbids copy*/
 		BandStructure(BandStructure const& bs);
-		/*Forbids assignment*/
+		/*!Forbids assignment*/
 		BandStructure& operator=(BandStructure bs);
 };
 	

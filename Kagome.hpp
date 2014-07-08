@@ -6,6 +6,12 @@
 template<typename Type>
 class Kagome: public GenericSystem<Type>{
 	public:
+		/*{Description*/
+		/*!Constructor that organises the n sites according to the ratio Lx/Ly
+		 * for a system with spuc sites per unit cell. Calls the
+		 * GenericSystem<Type>(4,filename), to construct a system with 4 links
+		 * per sites */
+		/*}*/
 		Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename);
 		virtual ~Kagome()=0;
 

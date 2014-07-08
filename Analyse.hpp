@@ -15,7 +15,7 @@ class Analyse: public IOSystem{
 	protected:
 		List<std::string> all_link_names_;
 		List<std::string> all_link_files_;
-		List<RSTFile> rst_;
+		List<RSTFile> rst_file_;
 
 		unsigned int level_;
 
@@ -25,11 +25,6 @@ class Analyse: public IOSystem{
 
 		virtual void open_files(std::string const& jdfile, std::string const& datafile, Directory const& d)=0;
 		virtual void close_files()=0;
-		virtual void extract_level_5()=0;
-		virtual void extract_level_4();
-		virtual void extract_level_3();
-		virtual void extract_level_2();
-		virtual void extract_level_1();
 
 	private:
 		/*Forbids copy*/

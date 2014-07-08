@@ -26,13 +26,13 @@ void Analyse::go(std::string argv){
 	switch(study){
 		case 0: /*treat everything*/
 			{
-				rst_.append(RSTFile(root,"README"));
+				rst_file_.append(RSTFile(root,"README"));
 				IOFiles r_readme("README",false);
 				std::string h;
 				r_readme>>h;
-				rst_.first().text(h);
+				rst_file_.first().text(h);
 				recursive_search();
-				rst_.first().save(false);
+				rst_file_.first().save(false);
 			}break; 
 		case 1: /*treat the repository given as argument*/
 			{
@@ -75,7 +75,7 @@ void Analyse::go(std::string argv){
 					analyse_ += tmp[tmp.size()-1] + "/";
 					path_ = argv;
 
-					rst_.append(RSTFile(info_,filename_));
+					rst_file_.append(RSTFile(info_,filename_));
 					recursive_search();
 				}
 			}break;
@@ -124,7 +124,7 @@ void Analyse::recursive_search(){
 	command("mkdir -p " + analyse_+path_+dir_);
 	level_++;
 	for(unsigned int i(0);i<d.size();i++){
-		rst_.append(RSTFile(info_+path_+dir_,d.get_name(i)));
+		rst_file_.append(RSTFile(info_+path_+dir_,d.get_name(i)));
 
 		std::string tmp_path(path_);
 		std::string tmp_dir(dir_);
@@ -135,7 +135,7 @@ void Analyse::recursive_search(){
 
 		path_ = tmp_path;
 		dir_ = tmp_dir;
-		rst_.pop();
+		rst_file_.pop();
 	}
 	search_jdbin();
 	level_--;
@@ -152,45 +152,18 @@ void Analyse::search_jdbin(){
 		for(unsigned int i(0); i<d.size();i++){
 			std::cout<<"-------> "<<d.get_name(i)<<std::endl;
 			filename_ = d.get_name(i);
-			extract_jdbin();
+			all_link_names_.append(analyse(level_,NULL));
+			all_link_files_.append(info_+path_+dir_+filename_+".html");
 		}
 
 		for(unsigned int i(0);i<all_link_names_.size();i++){
-			rst_.last().hyperlink(all_link_names_[i],all_link_files_[i]);
+			rst_file_.last().hyperlink(all_link_names_[i],all_link_files_[i]);
 		}
 
 		close_files();
-
 		all_link_names_.clear();
 		all_link_files_.clear();
-		rst_.last().save(false);
+		rst_file_.last().save(false);
 	}
 }
 
-void Analyse::extract_jdbin(){
-	switch(level_){
-		case 1:{extract_level_1();}break;
-		case 2:{extract_level_2();}break;
-		case 3:{extract_level_3();}break;
-		case 4:{extract_level_4();}break;
-		case 5:{extract_level_5();}break;
-		default:{std::cerr<<"Analyse::search_jdbin() : level_="<<level_<<" undefined"<<std::endl;}
-	}
-	all_link_files_.append(info_+path_+dir_+filename_+".html");
-}
-
-void Analyse::extract_level_4(){
-	all_link_names_.append(filename_);
-}
-
-void Analyse::extract_level_3(){
-	all_link_names_.append(filename_);
-}
-
-void Analyse::extract_level_2(){
-	all_link_names_.append(filename_);
-}
-
-void Analyse::extract_level_1(){
-	all_link_names_.append(filename_);
-}

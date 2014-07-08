@@ -22,8 +22,11 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 
 		/*!Get the name of the simulation*/
 		std::string get_filename() const { return filename_; }
+		/*{Description*/
+		/*!Returns true if the system if bosonic 
+		 * \warning not correctly implemented*/
+		/*}*/
 		bool is_bosonic() const { return false; }
-
 		virtual void create() = 0;
 		virtual void check() = 0;
 		virtual void save(IOFiles& w) const;
@@ -48,18 +51,22 @@ GenericSystem<Type>::GenericSystem(unsigned int const& z, std::string const& fil
 	z_(z)
 { 
 	filename_ += "-N" + tostring(this->N_);
+	path_ += "N" + tostring(this->N_);
 	filename_ += "-m" + tostring(this->m_);
+	path_ += "/m" + tostring(this->m_);
 	filename_ += "-n" + tostring(this->n_);
+	path_ += "/n" + tostring(this->n_);
 	switch(this->bc_){
-		case -1:{filename_ += "-A"; }break;
-		case 0: {filename_ += "-O"; }break;
-		case 1: {filename_ += "-P"; }break;
+		case -1:{filename_ += "-A"; path_ += "/A/"; }break;
+		case 0: {filename_ += "-O"; path_ += "/O/"; }break;
+		case 1: {filename_ += "-P"; path_ += "/P/"; }break;
 		default:{std::cerr<<"GenericSystem : Unknown boundary condition"<<std::endl;}
 	}
 	filename_ += "-M";
 	for(unsigned int i(0);i<this->M_.size();i++){
-		filename_  += "-" + tostring(this->M_(i));
+		filename_  += tostring(this->M_(i));
 	}
+	path_ += tostring(this->ref_(0))+tostring(this->ref_(1))+tostring(this->ref_(2))+"/";
 }
 
 template<typename Type>
@@ -101,6 +108,7 @@ void GenericSystem<Type>::compute_links(){
 
 template<typename Type>
 void GenericSystem<Type>::save(IOFiles& w) const {
+	std::cout<<&w<<" "<<jd_write_<<std::endl;
 	w.add_to_header(system_info_.get());
 	w("ref (type of wavefunction)",this->ref_);
 	w("N (N of SU(N))",this->N_);

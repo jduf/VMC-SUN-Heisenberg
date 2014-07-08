@@ -7,9 +7,11 @@ class IOSystem{
 	public:
 		IOSystem(std::string const& filename);
 		IOSystem(IOSystem const& a);
-		virtual ~IOSystem(){};
+		virtual ~IOSystem(){}
 
-		virtual std::string analyse(IOSystem const& t);
+		std::string analyse(unsigned int const& level, IOSystem* t);
+		IOFiles* open_and_get_jd_write();
+		void close_jd_write(){delete jd_write_;} 
 
 	protected:
 		std::string sim_;
@@ -23,6 +25,13 @@ class IOSystem{
 		IOFiles* jd_write_;
 		IOFiles* data_write_;
 		RSTFile* rst_file_;
+
+		virtual std::string extract_level_1();
+		virtual std::string extract_level_2();
+		virtual std::string extract_level_3();
+		virtual std::string extract_level_4();
+		virtual std::string extract_level_5();
+		virtual std::string extract_level_6();
 
 	private:
 		IOSystem& operator=(IOSystem a);

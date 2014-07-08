@@ -47,8 +47,8 @@ class MonteCarlo{
 		/*!Find the next configuration and measure it*/
 		void next_step();
 		/*{Description*/
-		/* Private method that gives a shutoff condition 
-		 * !Stops the simulation when
+		/*!Private method that gives a shutoff condition 
+		 * Stops the simulation when
 		 * - convergence is reached
 		 * - time limit is up
 		 * - kill=true

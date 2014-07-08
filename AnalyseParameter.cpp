@@ -4,10 +4,11 @@
 void AnalyseParameter::open_files(std::string const& jdfile, std::string const& datafile, Directory const& d){
 	if(level_>1){ 
 		jd_write_ = new IOFiles(jdfile,true);
-		(*jd_write_)("number of jdfiles",d.size());
+		std::cout<<"need to save the number of file or find a way to guess the end of a file"<<std::endl;
+		//(*jd_write_)("number of jdfiles",d.size());
 		jd_write_->add_to_header("\n");
 	}
-	if(level_==3 || level_==5){
+	if(level_==4 || level_==6){
 		data_write_ = new IOFiles(datafile,true);
 	}
 }
@@ -15,10 +16,10 @@ void AnalyseParameter::open_files(std::string const& jdfile, std::string const& 
 void AnalyseParameter::close_files(){
 	if(jd_write_){ 
 		switch(level_){
-			case 5:{ rst_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","E.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
-			case 3:{ rst_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","d-merization.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
+			case 6:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","E.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
+			case 4:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","d-merization.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
 		}
-		rst_.last().text(jd_write_->get_header());
+		rst_file_.last().text(jd_write_->get_header());
 		delete jd_write_;
 		jd_write_ = NULL;
 	}
@@ -28,18 +29,36 @@ void AnalyseParameter::close_files(){
 	}
 }
 
-void AnalyseParameter::extract_level_5(){
+std::string AnalyseParameter::extract_level_6(){
 	/*E(param)|n=fixé*/
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
 	CreateSystem cs(read_);
 	cs.init(read_);
-	all_link_names_.append(cs.analyse(*this));
+	cs.save(*jd_write_);
+	std::string link_name(cs.analyse(level_,this));
 
 	delete read_;
 	read_ = NULL;
+
+	return link_name;
 }
 
-void AnalyseParameter::extract_level_4(){
+std::string AnalyseParameter::extract_level_5(){
+	/*E(param)|n=fixé*/
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
+	CreateSystem cs(read_);
+	cs.init(read_);
+	std::string link_name(cs.analyse(level_,this));
+
+	delete read_;
+	read_ = NULL;
+
+	return link_name;
+}
+
+std::string AnalyseParameter::extract_level_4(){
 	/*comparison of E(param_optimal)|n=fixé*/
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
@@ -101,13 +120,14 @@ void AnalyseParameter::extract_level_4(){
 	//}
 	//gp.save_file();
 	//gp.create_image(true);
-	all_link_names_.append(filename_);
 
 	delete read_;
 	read_ = NULL;
+
+	return filename_;
 }
 
-void AnalyseParameter::extract_level_3(){
+std::string AnalyseParameter::extract_level_3(){
 	/*evolution in function of n*/
 	//IOFiles read(sim_+path_+dir_+filename_+".jdbin",false);
 //
@@ -133,10 +153,10 @@ void AnalyseParameter::extract_level_3(){
 		//(*jd_write_)("param",param);
 		//(*jd_write_)("polymerization strength",polymerization_strength);
 	//}
-	all_link_names_.append(filename_);
+	return filename_;
 }
 
-void AnalyseParameter::extract_level_2(){
+std::string AnalyseParameter::extract_level_2(){
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp+="set xlabel '$n^{-1}$'";
 	gp.xrange(0,"");
@@ -145,5 +165,5 @@ void AnalyseParameter::extract_level_2(){
 	gp+="plot '"+filename_+".dat' u (1/$1):2 t 'd-merization strength'";
 	gp.save_file();
 	gp.create_image(true);
-	all_link_names_.append(filename_);
+	return filename_;
 }

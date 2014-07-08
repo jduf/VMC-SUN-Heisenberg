@@ -6,13 +6,19 @@
 template<typename Type>
 class Chain: public GenericSystem<Type>{
 	public:
+		/*{Description*/
+		/*!Constructor of a system with spuc sites per unit cell. Calls the
+		 * GenericSystem<Type>(2,filename), to construct a system with 2 links
+		 * per sites */
+		/*}*/
 		Chain(unsigned int const& spuc, std::string const& filename);
 		virtual ~Chain()=0;
 
 	protected:
-		Matrix<int> get_neighbourg(unsigned int i) const;
 		unsigned int Lx_;//!< number of unit cell along the x-axis
 		unsigned int spuc_;//!< site per unit cell
+
+		Matrix<int> get_neighbourg(unsigned int i) const;
 };
 
 template<typename Type>

@@ -38,12 +38,51 @@ void IOSystem::swap_to_assign(IOSystem& t1, IOSystem& t2){
 	std::swap(t1.data_write_,t2.data_write_);
 }
 
-std::string IOSystem::analyse(IOSystem const& t){
-	*this = t;
-	return "";
+std::string IOSystem::analyse(unsigned int const& level, IOSystem* t){
+	if(t){ *this = *t; }
+	switch(level){
+		case 1:{return extract_level_1();}break;
+		case 2:{return extract_level_2();}break;
+		case 3:{return extract_level_3();}break;
+		case 4:{return extract_level_4();}break;
+		case 5:{return extract_level_5();}break;
+		case 6:{return extract_level_6();}break;
+		default:
+			   {
+				   std::cerr<<"Analyse::search_jdbin() : level_="<<level<<" undefined"<<std::endl;
+				   return "";
+			   }
+	}
 }
 
 IOSystem& IOSystem::operator=(IOSystem t){
 	swap_to_assign(*this,t);
 	return (*this);
+}
+
+std::string IOSystem::extract_level_6(){
+	return filename_;
+}
+std::string IOSystem::extract_level_5(){
+	return filename_;
+}
+std::string IOSystem::extract_level_4(){
+	return filename_;
+}
+std::string IOSystem::extract_level_3(){
+	return filename_;
+}
+std::string IOSystem::extract_level_2(){
+	return filename_;
+}
+std::string IOSystem::extract_level_1(){
+	return filename_;
+}
+
+IOFiles* IOSystem::open_and_get_jd_write(){
+	Linux command;
+	command("mkdir -p "+path_);
+	if(jd_write_){std::cerr<<"already pas bien"<<std::endl;}
+	jd_write_ = new IOFiles(path_+filename_+".jdbin",true);
+	return jd_write_;
 }

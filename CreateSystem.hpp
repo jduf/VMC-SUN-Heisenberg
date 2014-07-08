@@ -25,10 +25,19 @@ class CreateSystem{
 		CreateSystem(IOFiles* read);
 		virtual ~CreateSystem();
 
+		IOFiles* open_and_get_jd_write() const {
+			if(RGL_){return RGL_->open_and_get_jd_write();}
+			if(CGL_){return CGL_->open_and_get_jd_write();}
+			return NULL;
+		}
+		void close_jd_write() const {
+			if(RGL_){return RGL_->close_jd_write();}
+			if(CGL_){return CGL_->close_jd_write();}
+		}
 		void init(IOFiles* read=NULL);
-		std::string analyse(IOSystem const& t){
-			if(RGL_){return RGL_->analyse(t);}
-			if(CGL_){return CGL_->analyse(t);}
+		std::string analyse(unsigned int const& level, IOSystem* t){
+			if(RGL_){return RGL_->analyse(level,t);}
+			if(CGL_){return CGL_->analyse(level,t);}
 			return "";
 		}
 
@@ -47,8 +56,8 @@ class CreateSystem{
 		bool is_over(){ return over_; }
 
 		System const* get_system() const { 
-			if(RGL_){return RGL_->get_system();}
-			if(CGL_){return CGL_->get_system();}
+			if(RGL_){return RGL_;}
+			if(CGL_){return CGL_;}
 			return NULL;
 		}
 		std::string get_filename() const {
