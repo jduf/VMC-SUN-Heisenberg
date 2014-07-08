@@ -144,15 +144,16 @@ void Analyse::recursive_search(){
 void Analyse::search_jdbin(){
 	Directory d;
 	d.search_file_ext(".jdbin",sim_+path_+dir_,false,false);
+	nof_ = d.size();
 	if(d.size()>0){ 
-		open_files(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",d);
+		open_files();
 
 		d.sort();
 		std::cout<<"lev "<<level_<<" : "<<sim_+path_+dir_<<std::endl;
 		for(unsigned int i(0); i<d.size();i++){
 			std::cout<<"-------> "<<d.get_name(i)<<std::endl;
 			filename_ = d.get_name(i);
-			all_link_names_.append(analyse(level_,NULL));
+			all_link_names_.append(analyse(level_));
 			all_link_files_.append(info_+path_+dir_+filename_+".html");
 		}
 

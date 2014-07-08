@@ -3,8 +3,6 @@
 
 #include "Directory.hpp"
 #include "CreateSystem.hpp"
-#include "RSTFile.hpp"
-#include "IOSystem.hpp"
 
 class Analyse: public IOSystem{
 	public:
@@ -18,12 +16,13 @@ class Analyse: public IOSystem{
 		List<RSTFile> rst_file_;
 
 		unsigned int level_;
+		unsigned int nof_;
 
 		void recursive_search();
 		void search_jdbin();
 		void extract_jdbin();
 
-		virtual void open_files(std::string const& jdfile, std::string const& datafile, Directory const& d)=0;
+		virtual void open_files()=0;
 		virtual void close_files()=0;
 
 	private:

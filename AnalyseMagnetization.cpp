@@ -1,13 +1,11 @@
 #include "AnalyseMagnetization.hpp"
 
-void AnalyseMagnetization::open_files(std::string const& jdfile, std::string const& datafile, Directory const& d){
+void AnalyseMagnetization::open_files(){
 	if(level_>1){ 
-		jd_write_ = new IOFiles(jdfile,true);
-		(*jd_write_)("number of jdfiles",d.size());
-		jd_write_->add_to_header("\n");
+		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
 	}
 	if(level_==5 || level_ == 4){
-		data_write_ = new IOFiles(datafile,true);
+		data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
 	}
 }
 

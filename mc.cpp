@@ -53,17 +53,20 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 #pragma omp parallel for 
 	for(unsigned int i=0;i<nruns;i++){
 		Rand rnd(4,omp_get_thread_num());
+
 		MCSystem<Type>* S(NULL);
 		if(cs.is_bosonic()){ S = new SystemBosonic<Type>(*dynamic_cast<const Bosonic<Type>*>(cs.get_system()),rnd); } 
 		else { S = new SystemFermionic<Type>(*dynamic_cast<const Fermionic<Type>*>(cs.get_system()),rnd); }
+
 		MonteCarlo<Type> sim(S,tmax,rnd);
 		sim.run();
+
 #pragma omp critical
 		{
-			E.add_sample(sim.get_system()->get_energy());
-			corr.add_sample(sim.get_system()->get_corr());
-			long_range_corr.add_sample(sim.get_system()->get_long_range_corr());
-			sim.get_system()->save(*file_results);
+			E.add_sample(S->get_energy());
+			corr.add_sample(S->get_corr());
+			long_range_corr.add_sample(S->get_long_range_corr());
+			S->save(*file_results);
 		}
 		delete S;
 	}

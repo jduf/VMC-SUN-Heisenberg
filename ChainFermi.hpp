@@ -13,5 +13,8 @@ class ChainFermi: public Chain<double>{
 
 	private:
 		void compute_T();
+		std::string extract_level_6();
+		std::string extract_level_5();
+		std::string extract_level_3();
 };
 #endif

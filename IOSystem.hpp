@@ -9,7 +9,8 @@ class IOSystem{
 		IOSystem(IOSystem const& a);
 		virtual ~IOSystem(){}
 
-		std::string analyse(unsigned int const& level, IOSystem* t);
+		void set_IOSystem(IOSystem* t);
+		std::string analyse(unsigned int const& level);
 		IOFiles* open_and_get_jd_write();
 		void close_jd_write(){delete jd_write_;} 
 

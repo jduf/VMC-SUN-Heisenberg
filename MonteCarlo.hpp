@@ -35,8 +35,6 @@ class MonteCarlo{
 
 		/*!Run the Monte-Carlo algorithm*/
 		void run();
-		/*!Get the pointer on the system*/
-		MCSystem<Type>* get_system() const { return S_;}
 
 	private:
 		/*!Forbids copy*/

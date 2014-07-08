@@ -35,12 +35,16 @@ class CreateSystem{
 			if(CGL_){return CGL_->close_jd_write();}
 		}
 		void init(IOFiles* read=NULL);
-		std::string analyse(unsigned int const& level, IOSystem* t){
-			if(RGL_){return RGL_->analyse(level,t);}
-			if(CGL_){return CGL_->analyse(level,t);}
+		std::string analyse(unsigned int const& level){
+			if(RGL_){return RGL_->analyse(level);}
+			if(CGL_){return CGL_->analyse(level);}
 			return "";
 		}
 
+		void set_IOSystem(IOSystem* ios){
+			if(RGL_){RGL_->set_IOSystem(ios);}
+			if(CGL_){CGL_->set_IOSystem(ios);}
+		}
 		void create(){
 			if(RGL_){RGL_->create();}
 			if(CGL_){CGL_->create();}

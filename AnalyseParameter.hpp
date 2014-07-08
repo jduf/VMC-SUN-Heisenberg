@@ -9,7 +9,7 @@ class AnalyseParameter : public Analyse{
 		~AnalyseParameter(){}
 
 	protected:
-		void open_files(std::string const& jdfile, std::string const& datafile, Directory const& d);
+		void open_files();
 		void close_files();
 
 		std::string extract_level_6();

@@ -255,3 +255,61 @@ void Honeycomb0pp::check(){
 	lattice();
 }
 /*}*/
+
+/*{method needed for analysing*/
+std::string Honeycomb0pp::extract_level_6(){
+	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
+
+	unsigned int nruns;
+	unsigned int tmax;
+
+	(*read_)>>nruns>>tmax;
+	data_write_->precision(10);
+	(*data_write_)<<"% td E dE 0|1"<<IOFiles::endl;
+	/* the +1 is the averages over all runs */
+	for(unsigned int i(0);i<nruns+1;i++){ 
+		(*read_)>>E_>>corr_>>long_range_corr_;
+		(*data_write_)<<td_<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
+	}
+
+	(*jd_write_)("td/th (ratio of the hopping parameters)",td_);
+	(*jd_write_)("E",E_);
+
+	rst_file_->text(read_->get_header());
+	rst_file_->save(false);
+	delete rst_file_;
+	rst_file_ = NULL;
+
+	return tostring(td_);
+}
+
+std::string Honeycomb0pp::extract_level_5(){
+	double min_td(td_);
+	Data<double> min_E;
+	min_E.set_x(0.0);
+
+	unsigned int nof(0);
+	(*read_)>>nof;
+	for(unsigned int i(0);i<nof;i++){
+		(*read_)>>td_>>E_;
+		if(E_.get_x()<min_E.get_x()){ 
+			min_E = E_;
+			min_td = td_;
+		}
+	}
+	td_ = min_td;
+
+	save(*jd_write_);
+	(*jd_write_)("energy per site",min_E);
+
+	Gnuplot gp(analyse_+path_+dir_,filename_);
+	gp+="set xlabel '$\\dfrac{t_d}{t_h}$' offset 0,1";
+	gp+="set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1";
+	gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
+	gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean'";
+	gp.save_file();
+	gp.create_image(true);
+
+	return filename_;
+}
+/*}*/

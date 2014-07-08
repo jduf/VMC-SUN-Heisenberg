@@ -16,20 +16,17 @@ CreateSystem::CreateSystem(Parseur& P):
 }
 
 CreateSystem::CreateSystem(IOFiles* read):
-	ref_(read->get<Vector<unsigned int> >()),
-	N_(read->get<unsigned int>()),
-	m_(read->get<unsigned int>()),
-	n_(read->get<unsigned int>()),
-	M_(read->get<Vector<unsigned int> >()),
-	bc_(read->get<int>()),
+	ref_(read->read<Vector<unsigned int> >()),
+	N_(read->read<unsigned int>()),
+	m_(read->read<unsigned int>()),
+	n_(read->read<unsigned int>()),
+	M_(read->read<Vector<unsigned int> >()),
+	bc_(read->read<int>()),
 	type_(0),
 	over_(false),
 	RGL_(NULL),
 	CGL_(NULL)
-{
-
-	std::cout<<N_<<" "<<m_<<" "<<n_<<" "<<M_<<" "<<ref_<<std::endl;
-}
+{}
 
 CreateSystem::~CreateSystem(){
 	if(RGL_){delete RGL_;}
@@ -138,7 +135,6 @@ void CreateSystem::parse(Parseur& P){
 }
 
 void CreateSystem::init(IOFiles* read){
-	std::cout<<"create ";
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 	switch(ref_(0)){
@@ -149,11 +145,13 @@ void CreateSystem::init(IOFiles* read){
 						{
 							switch(ref_(2)){
 								case 0:
-									{RGL_ = new ChainFermi(ref_,N_,m_,n_,M_,bc_);}break;
+									{
+										RGL_ = new ChainFermi(ref_,N_,m_,n_,M_,bc_);
+										over_ = true;
+									}break;
 								case 1:
 									{
-										if(read){ d_.append(read->get<double>()); }
-										std::cout<<"chain poly"<<std::endl;
+										if(read){ d_.append(read->read<double>()); }
 										RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,d_.last());
 										d_.pop();
 										if(!d_.size()){ over_ = true; }
@@ -239,6 +237,7 @@ void CreateSystem::init(IOFiles* read){
 							switch(ref_(2)){
 								case 0:
 									{
+										if(read){ d_.append(read->read<double>()); }
 										RGL_ = new Honeycomb0pp(ref_,N_,m_,n_,M_,bc_,d_.last());
 										d_.pop();
 										if(!d_.size()){ over_ = true; }

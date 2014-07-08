@@ -65,6 +65,7 @@ void ChainPolymerized::check(){
 }
 /*}*/
 
+/*{method needed for analysing*/
 std::string ChainPolymerized::extract_level_6(){
 	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
 
@@ -72,16 +73,14 @@ std::string ChainPolymerized::extract_level_6(){
 	unsigned int tmax;
 
 	(*read_)>>nruns>>tmax;
-	//std::cout<<delta_<<" "<<N_<<" "<<m_<<" "<<n_<<" "<<M_<<" "<<tmax<<" "<<nruns<<std::endl;
 	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true);
-	IOFiles long_range_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);//should not be delcared when type!=2
+	IOFiles long_range_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);//should not be declared when type!=2
 	data_write_->precision(10);
 	(*data_write_)<<"% delta E dE 0|1"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
 	Vector<double> poly_e(N_/m_,0);
 	for(unsigned int i(0);i<nruns+1;i++){ 
 		(*read_)>>E_>>corr_>>long_range_corr_;
-
 		if(i<nruns){
 			unsigned int k(0);
 			while(k<corr_.size()){
@@ -91,8 +90,7 @@ std::string ChainPolymerized::extract_level_6(){
 				}
 			}
 		}
-
-		(*data_write_)<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
+		(*data_write_)<<delta_<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 		for(unsigned int j(0);j<corr_.size();j++){
 			corr_file<<j+0.5<<" "<<corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 		}
@@ -104,12 +102,6 @@ std::string ChainPolymerized::extract_level_6(){
 	poly_e /= nruns*n_*m_/N_;
 	poly_e.sort(std::less<double>());
 
-	//(*jd_write_)("ref (type of wavefunction)",ref_);
-	//(*jd_write_)("N (N of SU(N))",N_);
-	//(*jd_write_)("m (# of particles per site)",m_);
-	//(*jd_write_)("n (# of site)",n_);
-	//(*jd_write_)("M (# of particles for each color)",M_);
-	//(*jd_write_)("bc (boundary condition)",bc_);
 	(*jd_write_)("delta",delta_);
 	(*jd_write_)("E",E_);
 	(*jd_write_)("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
@@ -172,25 +164,17 @@ std::string ChainPolymerized::extract_level_6(){
 }
 
 std::string ChainPolymerized::extract_level_5(){
-	std::cout<<"extract 5"<<std::endl;
-	/*comparison of E(param_optimal)|n=fixé*/
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
-
-	std::cout<<"need to save the number of file or find a way to guess the end of a file"<<std::endl;
-	unsigned int nof(3);
-	double param(0.0);
+	double min_delta(delta_);
+	double min_polymerization_strength(0.0);
 	double polymerization_strength;
-	(*read_)>>nof;
-
 	Data<double> min_E;
 	min_E.set_x(0.0);
-	double min_delta(0.0);
-	double min_polymerization_strength(0.0);
 
+	unsigned int nof(0);
 	unsigned int idx(0);
+	(*read_)>>nof;
 	for(unsigned int i(0);i<nof;i++){
-		if(!i){(*read_)>>delta_;}
-		(*read_)>>E_>>polymerization_strength;
+		(*read_)>>delta_>>E_>>polymerization_strength;
 		if(E_.get_x()<min_E.get_x()){ 
 			idx = i;
 			min_E = E_;
@@ -200,13 +184,9 @@ std::string ChainPolymerized::extract_level_5(){
 	}
 	delta_ = min_delta;
 
-	(*jd_write_)("ref (type of wavefunction)",ref_);
-	(*jd_write_)("N (N of SU(N))",N_);
-	(*jd_write_)("m (# of particles per site)",m_);
-	(*jd_write_)("n (# of site)",n_);
-	(*jd_write_)("bc (boundary condition)",bc_);
-	(*jd_write_)("param",param);
-	(*jd_write_)("min E",min_E);
+	save(*jd_write_);
+
+	(*jd_write_)("energy per site",min_E);
 	(*jd_write_)("polymerization strength",min_polymerization_strength);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
@@ -238,8 +218,14 @@ std::string ChainPolymerized::extract_level_5(){
 	gp.save_file();
 	gp.create_image(true);
 
-	delete read_;
-	read_ = NULL;
+	return filename_;
+}
+
+std::string ChainPolymerized::extract_level_3(){
+	double polymerization_strength;
+	(*read_)>>E_>>polymerization_strength;
+	(*data_write_)<<n_<<" "<<polymerization_strength<<IOFiles::endl;
 
 	return filename_;
 }
+/*}*/

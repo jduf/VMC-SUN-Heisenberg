@@ -9,13 +9,6 @@ class System{
 		System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
 		virtual ~System(){}
 
-		//unsigned int const& get_N() const { return N_;}
-		//unsigned int const& get_m() const { return m_;}
-		//unsigned int const& get_n() const { return n_;}
-		//int const& get_bc() const { return bc_;}
-
-		//System const* get_system() const { return this;}
-
 		/*!Returns energy*/
 		Data<double> const& get_energy() const {return E_;}
 		/*!Returns correlation*/

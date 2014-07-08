@@ -38,8 +38,7 @@ void IOSystem::swap_to_assign(IOSystem& t1, IOSystem& t2){
 	std::swap(t1.data_write_,t2.data_write_);
 }
 
-std::string IOSystem::analyse(unsigned int const& level, IOSystem* t){
-	if(t){ *this = *t; }
+std::string IOSystem::analyse(unsigned int const& level){
 	switch(level){
 		case 1:{return extract_level_1();}break;
 		case 2:{return extract_level_2();}break;
@@ -54,6 +53,8 @@ std::string IOSystem::analyse(unsigned int const& level, IOSystem* t){
 			   }
 	}
 }
+
+void IOSystem::set_IOSystem(IOSystem* t){ *this = *t; }
 
 IOSystem& IOSystem::operator=(IOSystem t){
 	swap_to_assign(*this,t);

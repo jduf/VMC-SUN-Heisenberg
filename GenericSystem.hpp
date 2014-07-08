@@ -108,7 +108,6 @@ void GenericSystem<Type>::compute_links(){
 
 template<typename Type>
 void GenericSystem<Type>::save(IOFiles& w) const {
-	std::cout<<&w<<" "<<jd_write_<<std::endl;
 	w.add_to_header(system_info_.get());
 	w("ref (type of wavefunction)",this->ref_);
 	w("N (N of SU(N))",this->N_);
