@@ -14,5 +14,8 @@ class KagomeFermi: public Kagome<double>{
 	protected:
 		void compute_T();
 		void lattice();
+		std::string extract_level_7();
+		std::string extract_level_6();
+		std::string extract_level_4();
 };
 #endif

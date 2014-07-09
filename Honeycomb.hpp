@@ -6,13 +6,19 @@
 template<typename Type>
 class Honeycomb: public GenericSystem<Type>{
 	public:
+		/*{Description*/
+		/*!Constructor that organises the n sites according to the ratio Lx/Ly
+		 * for a system with spuc sites per unit cell. Calls the
+		 * GenericSystem<Type>(3,filename), to construct a system with 3 links
+		 * per sites */
+		/*}*/
 		Honeycomb(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename);
 		virtual ~Honeycomb()=0;
 
 	protected:
-		unsigned int Lx_;//!< dimension of the lattice along x-axis
-		unsigned int Ly_;//!< dimension of the lattice along y-axis
-	unsigned int spuc_;//!< site per unit cell
+		unsigned int Lx_;	//!< dimension of the lattice along x-axis
+		unsigned int Ly_;	//!< dimension of the lattice along y-axis
+		unsigned int spuc_;	//!< site per unit cell
 
 		Matrix<int> get_neighbourg(unsigned int i) const;
 };

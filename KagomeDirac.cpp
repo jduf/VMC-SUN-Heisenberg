@@ -2,7 +2,7 @@
 
 KagomeDirac::KagomeDirac(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc):
 	System(ref,N,m,n,M,bc),
-	Kagome<double>(1,1,6,"kagome-dirac")
+	Kagome<double>(2,3,6,"kagome-dirac")
 {
 	if(status_==1){
 		init_fermionic();
@@ -270,5 +270,48 @@ void KagomeDirac::check(){
 	
 	BandStructure<double> bs(T_,Lx_,Ly_,spuc_,bc_);
 	lattice();
+}
+/*}*/
+
+/*{method needed for analysing*/
+std::string KagomeDirac::extract_level_7(){
+	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
+	unsigned int nruns;
+	unsigned int tmax;
+
+	(*read_)>>nruns>>tmax;
+	/* the +1 is the averages over all runs */
+	for(unsigned int i(0);i<nruns+1;i++){ 
+		(*read_)>>E_>>corr_>>long_range_corr_;
+	}
+	(*jd_write_)("energy per site",E_);
+
+	rst_file_->text(read_->get_header());
+	rst_file_->save(false);
+	delete rst_file_;
+	rst_file_ = NULL;
+
+	return filename_;
+}
+
+std::string KagomeDirac::extract_level_6(){
+	unsigned int nof(0);
+	(*read_)>>nof;
+	save();
+	for(unsigned int i(0);i<nof;i++){
+		(*read_)>>E_;
+		(*data_write_)<<M_(0)<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<ref_(0)<<ref_(1)<<ref_(2)<<IOFiles::endl;
+	}
+	(*jd_write_)("energy per site",E_);
+
+	return filename_;
+}
+
+std::string KagomeDirac::extract_level_4(){
+	(*read_)>>E_;
+	(*jd_write_)("energy per site",E_);
+	(*data_write_)<<M_(0)<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<ref_(0)<<ref_(1)<<ref_(2)<<IOFiles::endl;
+
+	return filename_;
 }
 /*}*/

@@ -257,7 +257,7 @@ void Honeycomb0pp::check(){
 /*}*/
 
 /*{method needed for analysing*/
-std::string Honeycomb0pp::extract_level_6(){
+std::string Honeycomb0pp::extract_level_7(){
 	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
 
 	unsigned int nruns;
@@ -283,7 +283,7 @@ std::string Honeycomb0pp::extract_level_6(){
 	return tostring(td_);
 }
 
-std::string Honeycomb0pp::extract_level_5(){
+std::string Honeycomb0pp::extract_level_6(){
 	double min_td(td_);
 	Data<double> min_E;
 	min_E.set_x(0.0);
@@ -303,7 +303,7 @@ std::string Honeycomb0pp::extract_level_5(){
 	(*jd_write_)("energy per site",min_E);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
-	gp+="set xlabel '$\\dfrac{t_d}{t_h}$' offset 0,1";
+	gp+="set xlabel '$\\dfrac{t_d}{t_h}$'";
 	gp+="set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1";
 	gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
 	gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean'";

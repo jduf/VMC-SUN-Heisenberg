@@ -25,7 +25,7 @@ class Bosonic : public virtual System{
 		Matrix<unsigned int> nn_; //!< nn_(i,j):jth neighbour of the ith site
 		Matrix<unsigned int> cc_;
 		Matrix<double> nu_;
-		Matrix<Type> omega_;
+		Matrix<Type> omega_; //!< \warning maybe not a complex<double> but a double. before it was Type
 
 		void init_bosonic(unsigned int const& z);
 };

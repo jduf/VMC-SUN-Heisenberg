@@ -59,15 +59,17 @@ GenericSystem<Type>::GenericSystem(unsigned int const& z, std::string const& fil
 	path_ += "/m" + tostring(this->m_);
 	filename_ += "-n" + tostring(this->n_);
 	path_ += "/n" + tostring(this->n_);
+	filename_ += "-M";
+	path_ += "/M";
+	for(unsigned int i(0);i<this->M_.size();i++){
+		filename_  += "-" + tostring(this->M_(i));
+		path_ +=  "-"+tostring(this->M_(i));
+	}
 	switch(this->bc_){
 		case -1:{filename_ += "-A"; path_ += "/A/"; }break;
 		case 0: {filename_ += "-O"; path_ += "/O/"; }break;
 		case 1: {filename_ += "-P"; path_ += "/P/"; }break;
 		default:{std::cerr<<"GenericSystem : Unknown boundary condition"<<std::endl;}
-	}
-	filename_ += "-M";
-	for(unsigned int i(0);i<this->M_.size();i++){
-		filename_  += tostring(this->M_(i));
 	}
 	path_ += tostring(this->ref_(0))+tostring(this->ref_(1))+tostring(this->ref_(2))+"/";
 }
@@ -116,7 +118,7 @@ void GenericSystem<Type>::save() const {
 	(*jd_write_)("N (N of SU(N))",this->N_);
 	(*jd_write_)("m (# of particles per site)",this->m_);
 	(*jd_write_)("n (# of site)",this->n_);
-	(*jd_write_)("M (# of particles for each color)",this->M_);
+	(*jd_write_)("M (# of particles of each color, "+tostring(this->M_(0))+")",this->M_);
 	(*jd_write_)("bc (boundary condition)",this->bc_);
 }
 #endif

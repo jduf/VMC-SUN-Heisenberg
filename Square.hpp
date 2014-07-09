@@ -16,9 +16,9 @@ class Square: public GenericSystem<Type>{
 		virtual ~Square()=0;
 
 	protected:
-		unsigned int Lx_;//!< dimension of the lattice along x-axis
-		unsigned int Ly_;//!< dimension of the lattice along y-axis
-		unsigned int spuc_;//!< site per unit cell
+		unsigned int Lx_;	//!< dimension of the lattice along x-axis
+		unsigned int Ly_;	//!< dimension of the lattice along y-axis
+		unsigned int spuc_;	//!< site per unit cell
 
 		Matrix<int> get_neighbourg(unsigned int i) const;
 };

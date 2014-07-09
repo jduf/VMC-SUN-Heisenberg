@@ -50,7 +50,7 @@ void ChainFermi::check(){
 /*}*/
 
 /*{method needed for analysing*/
-std::string ChainFermi::extract_level_6(){
+std::string ChainFermi::extract_level_7(){
 	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
 
 	unsigned int nruns;
@@ -147,7 +147,7 @@ std::string ChainFermi::extract_level_6(){
 	return filename_;
 }
 
-std::string ChainFermi::extract_level_5(){
+std::string ChainFermi::extract_level_6(){
 	double min_polymerization_strength(0.0);
 	double polymerization_strength;
 	Data<double> min_E;
@@ -166,6 +166,17 @@ std::string ChainFermi::extract_level_5(){
 	save();
 	(*jd_write_)("energy per site",min_E);
 	(*jd_write_)("polymerization strength",min_polymerization_strength);
+
+	return filename_;
+}
+
+std::string ChainFermi::extract_level_4(){
+	double polymerization_strength;
+	(*read_)>>E_>>polymerization_strength;
+
+	save();
+	(*jd_write_)("energy per site",E_);
+	(*jd_write_)("polymerization strength",polymerization_strength);
 
 	return filename_;
 }

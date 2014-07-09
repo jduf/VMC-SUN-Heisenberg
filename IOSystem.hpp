@@ -11,8 +11,8 @@ class IOSystem{
 		void set_IOSystem(IOSystem* t);
 		std::string analyse(unsigned int const& level);
 
-		/*!Returns the filename with the path*/
-		std::string get_filename() const { return path_+filename_; }
+		/*!Returns the filename with the path and create the directory tree*/
+		std::string get_filename() const;
 		void init_output_file(IOFiles& output);
 
 	protected:
@@ -34,6 +34,7 @@ class IOSystem{
 		virtual std::string extract_level_4(){return filename_;}
 		virtual std::string extract_level_5(){return filename_;}
 		virtual std::string extract_level_6(){return filename_;}
+		virtual std::string extract_level_7(){return filename_;}
 
 	private:
 		/*!Forbids copy*/

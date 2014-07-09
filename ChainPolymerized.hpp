@@ -11,14 +11,14 @@ class ChainPolymerized: public Chain<double> {
 		void create();
 		void save() const;
 		void check();
-		std::string analyse();
 		
 	private:
 		double delta_;//!< polymerization parameter 
 
 		void compute_T();
+		std::string extract_level_7();
 		std::string extract_level_6();
-		std::string extract_level_5();
+		std::string extract_level_4();
 		std::string extract_level_3();
 };
 #endif

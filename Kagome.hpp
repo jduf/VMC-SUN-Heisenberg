@@ -16,9 +16,9 @@ class Kagome: public GenericSystem<Type>{
 		virtual ~Kagome()=0;
 
 	protected:
-		unsigned int Lx_;//!< number of unit cell along the x-axis
-		unsigned int Ly_;//!< number of unit cell along the y-axis
-		unsigned int spuc_;//!< site per unit cell
+		unsigned int Lx_;	//!< number of unit cell along the x-axis
+		unsigned int Ly_;	//!< number of unit cell along the y-axis
+		unsigned int spuc_;	//!< site per unit cell
 
 		Matrix<int> get_neighbourg(unsigned int i) const;
 };

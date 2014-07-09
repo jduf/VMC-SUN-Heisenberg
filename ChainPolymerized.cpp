@@ -66,7 +66,7 @@ void ChainPolymerized::check(){
 /*}*/
 
 /*{method needed for analysing*/
-std::string ChainPolymerized::extract_level_6(){
+std::string ChainPolymerized::extract_level_7(){
 	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
 
 	unsigned int nruns;
@@ -103,7 +103,7 @@ std::string ChainPolymerized::extract_level_6(){
 	poly_e.sort(std::less<double>());
 
 	(*jd_write_)("delta",delta_);
-	(*jd_write_)("E",E_);
+	(*jd_write_)("energy per site",E_);
 	(*jd_write_)("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
 
 	/*{*/
@@ -163,7 +163,7 @@ std::string ChainPolymerized::extract_level_6(){
 	return tostring(delta_);
 }
 
-std::string ChainPolymerized::extract_level_5(){
+std::string ChainPolymerized::extract_level_6(){
 	double min_delta(delta_);
 	double min_polymerization_strength(0.0);
 	double polymerization_strength;
@@ -185,7 +185,6 @@ std::string ChainPolymerized::extract_level_5(){
 	delta_ = min_delta;
 
 	save();
-
 	(*jd_write_)("energy per site",min_E);
 	(*jd_write_)("polymerization strength",min_polymerization_strength);
 
@@ -217,6 +216,16 @@ std::string ChainPolymerized::extract_level_5(){
 	}
 	gp.save_file();
 	gp.create_image(true);
+
+	return filename_;
+}
+
+std::string ChainPolymerized::extract_level_4(){
+	double polymerization_strength;
+	(*read_)>>E_>>polymerization_strength;
+	save();
+	(*jd_write_)("energy per site",E_);
+	(*jd_write_)("polymerization strength",polymerization_strength);
 
 	return filename_;
 }

@@ -15,8 +15,8 @@ class Chain: public GenericSystem<Type>{
 		virtual ~Chain()=0;
 
 	protected:
-		unsigned int Lx_;//!< number of unit cell along the x-axis
-		unsigned int spuc_;//!< site per unit cell
+		unsigned int Lx_;	//!< number of unit cell along the x-axis
+		unsigned int spuc_;	//!< site per unit cell
 
 		Matrix<int> get_neighbourg(unsigned int i) const;
 };

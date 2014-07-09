@@ -59,21 +59,22 @@ void SquareJastrow::compute_omega_cc(){
 		cc_(1,0) = 1;
 		cc_(1,1) = 1;
 	}
-	if(N_==3){
-		omega_(1,1) = std::polar(1.0,2.0*M_PI/3.0);
-		omega_(2,2) = std::polar(1.0,2.0*M_PI/3.0);
-		omega_(1,2) = std::polar(1.0,4.0*M_PI/3.0);
-		omega_(2,1) = std::polar(1.0,4.0*M_PI/3.0);
-		cc_(0,0) = 0;
-		cc_(0,1) = 1;
-		cc_(0,2) = 2;
-		cc_(1,0) = 1;
-		cc_(1,1) = 3;
-		cc_(1,2) = 4;
-		cc_(2,0) = 2;
-		cc_(2,1) = 4;
-		cc_(2,2) = 4;
-	}
+	/*!\warning omega might need to be complex*/
+	//if(N_==3){
+		//omega_(1,1) = std::polar(1.0,2.0*M_PI/3.0);
+		//omega_(2,2) = std::polar(1.0,2.0*M_PI/3.0);
+		//omega_(1,2) = std::polar(1.0,4.0*M_PI/3.0);
+		//omega_(2,1) = std::polar(1.0,4.0*M_PI/3.0);
+		//cc_(0,0) = 0;
+		//cc_(0,1) = 1;
+		//cc_(0,2) = 2;
+		//cc_(1,0) = 1;
+		//cc_(1,1) = 3;
+		//cc_(1,2) = 4;
+		//cc_(2,0) = 2;
+		//cc_(2,1) = 4;
+		//cc_(2,2) = 4;
+	//}
 }
 
 void SquareJastrow::save() const {

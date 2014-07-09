@@ -1,15 +1,14 @@
 #include "AnalyseParameter.hpp"
 
-
 void AnalyseParameter::open_files(){
 	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); }
-	if(level_==3 || level_==6){ data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); }
+	if(level_==3 || level_==7){ data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); }
 }
 
 void AnalyseParameter::close_files(){
 	if(jd_write_){ 
 		switch(level_){
-			case 6:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","E.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
+			case 7:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","E.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
 			case 3:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","d-merization.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
 		}
 		rst_file_.last().text(jd_write_->get_header());
@@ -22,7 +21,7 @@ void AnalyseParameter::close_files(){
 	}
 }
 
-std::string AnalyseParameter::extract_level_6(){
+std::string AnalyseParameter::extract_level_7(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
 	CreateSystem cs(read_);
@@ -42,7 +41,7 @@ std::string AnalyseParameter::extract_level_6(){
 	return link_name;
 }
 
-std::string AnalyseParameter::extract_level_5(){
+std::string AnalyseParameter::extract_level_6(){
 	/*E(param)|n=fixé*/
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
@@ -59,7 +58,7 @@ std::string AnalyseParameter::extract_level_5(){
 	return link_name;
 }
 
-std::string AnalyseParameter::extract_level_4(){
+std::string AnalyseParameter::extract_level_5(){
 	/*compare wavefunctions*/
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
@@ -86,8 +85,6 @@ std::string AnalyseParameter::extract_level_4(){
 	(*jd_write_)("number of jdfiles",nof_);
 	for(unsigned int i(0);i<nof_;i++){
 		CreateSystem cs(read_);
-		/*might be a way to init and set_IOSystem at the same time, but first need
-		 * to check if won't be a problem somewhere else*/
 		cs.init(read_,this);
 		(*read_)>>E>>polymerization_strength;
 
@@ -102,6 +99,22 @@ std::string AnalyseParameter::extract_level_4(){
 	read_ = NULL;
 
 	return filename_;
+}
+
+std::string AnalyseParameter::extract_level_4(){
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	(*read_)>>nof_;
+
+	CreateSystem cs(read_);
+	cs.init(read_,this);
+	(*jd_write_)("number of jdfiles",nof_);
+	jd_write_->add_to_header("\n");
+	std::string link_name(cs.analyse(level_));
+
+	delete read_;
+	read_ = NULL;
+
+	return link_name;
 }
 
 std::string AnalyseParameter::extract_level_3(){
@@ -131,4 +144,3 @@ std::string AnalyseParameter::extract_level_2(){
 	gp.create_image(true);
 	return filename_;
 }
-

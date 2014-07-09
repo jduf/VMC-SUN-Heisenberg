@@ -15,15 +15,15 @@ class BandStructure{
 		virtual ~BandStructure(){}
 
 	protected:
-		Matrix<Type> Px_;//!< translation operator along x-axis
-		Matrix<Type> Py_;//!< translation operator along y-axis
-		Matrix<Type> TP_;//!< T+alpha*Px_+beta*Py_
+		Matrix<Type> Px_;			//!< translation operator along x-axis
+		Matrix<Type> Py_;			//!< translation operator along y-axis
+		Matrix<Type> TP_;			//!< T+alpha*Px_+beta*Py_
 		Matrix<std::complex<double> > evec_;//!< eigenvectors of TP_
 		Vector<std::complex<double> > eval_;//!< eigenvalues of TP_
-		unsigned int const Lx_;//!< number of unit cell along the x-axis
-		unsigned int const Ly_;//!< number of unit cell along the y-axis
-		unsigned int const spuc_;//!< site per unit cell
-		int const bc_;//!< boundary condition
+		unsigned int const Lx_;		//!< number of unit cell along the x-axis
+		unsigned int const Ly_;		//!< number of unit cell along the y-axis
+		unsigned int const spuc_;	//!< site per unit cell
+		int const bc_;				//!< boundary condition
 
 		/*!Evaluate the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int idx);

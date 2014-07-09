@@ -13,11 +13,6 @@ class SquareJastrow: public Square<double>{
 		void save() const;
 
 	protected:
-		Matrix<unsigned int> nn_;
-		Matrix<unsigned int> cc_;
-		Vector<unsigned int> sl_;
-		Matrix<std::complex<double> > omega_;
-
 		void compute_nn();
 		void compute_sublattice();
 		void compute_omega_cc();
