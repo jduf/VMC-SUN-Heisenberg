@@ -9,7 +9,7 @@ class ChainPolymerized: public Chain<double> {
 		~ChainPolymerized(){}
 
 		void create();
-		void save(IOFiles& w) const;
+		void save() const;
 		void check();
 		std::string analyse();
 		

@@ -64,9 +64,9 @@ void Honeycomb0pp::create(){
 	}
 }
 
-void Honeycomb0pp::save(IOFiles& w) const{
-	GenericSystem<double>::save(w);
-	w("td/th (ratio of the hopping parameters)",td_);
+void Honeycomb0pp::save() const{
+	GenericSystem<double>::save();
+	(*jd_write_)("td/th (ratio of the hopping parameters)",td_);
 }
 /*}*/
 
@@ -299,7 +299,7 @@ std::string Honeycomb0pp::extract_level_5(){
 	}
 	td_ = min_td;
 
-	save(*jd_write_);
+	save();
 	(*jd_write_)("energy per site",min_E);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);

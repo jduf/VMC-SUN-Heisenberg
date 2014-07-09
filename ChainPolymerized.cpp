@@ -53,9 +53,9 @@ void ChainPolymerized::create(){
 	}
 }
 
-void ChainPolymerized::save(IOFiles& w) const{
-	GenericSystem<double>::save(w);
-	w("delta (t+-delta)",delta_);
+void ChainPolymerized::save() const {
+	GenericSystem<double>::save();
+	(*jd_write_)("delta (t+-delta)",delta_);
 }
 /*}*/
 
@@ -184,7 +184,7 @@ std::string ChainPolymerized::extract_level_5(){
 	}
 	delta_ = min_delta;
 
-	save(*jd_write_);
+	save();
 
 	(*jd_write_)("energy per site",min_E);
 	(*jd_write_)("polymerization strength",min_polymerization_strength);

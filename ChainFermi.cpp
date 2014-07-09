@@ -163,7 +163,7 @@ std::string ChainFermi::extract_level_5(){
 		}
 	}
 
-	save(*jd_write_);
+	save();
 	(*jd_write_)("energy per site",min_E);
 	(*jd_write_)("polymerization strength",min_polymerization_strength);
 

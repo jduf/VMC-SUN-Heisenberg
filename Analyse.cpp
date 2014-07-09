@@ -167,4 +167,3 @@ void Analyse::search_jdbin(){
 		rst_file_.last().save(false);
 	}
 }
-

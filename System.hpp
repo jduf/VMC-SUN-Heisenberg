@@ -18,8 +18,6 @@ class System{
 		/*!Returns the status of the system*/
 		unsigned int const& get_status(){return status_;}
 
-		void save(IOFiles& w) const;
-
 		void set();
 
 	protected:

@@ -27,21 +27,18 @@ int main(int argc, char* argv[]){
 
 template<typename Type>
 void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& tmax){
-	IOFiles* file_results(cs.open_and_get_jd_write());
+	IOFiles file_results(cs.get_filename()+".jdbin",true);
+	cs.init_output_file(file_results);
+	cs.save();
+
 	RST rst;
-	rst.title("Input","-");
-	file_results->add_to_header(rst.get());
-	cs.save(*file_results);
-
-	rst.set();
 	rst.title("Simulation's parameters","-");
-	file_results->add_to_header(rst.get());
-	(*file_results)("number of simulations runned",nruns);
-	(*file_results)("tmax",tmax);
-
+	file_results.add_to_header(rst.get());
+	file_results("number of simulations runned",nruns);
+	file_results("tmax",tmax);
 	rst.set();
 	rst.title("Results","-");
-	file_results->add_to_header(rst.get());
+	file_results.add_to_header(rst.get());
 
 	Data<double> E;
 	DataSet<double> corr;
@@ -66,7 +63,9 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 			E.add_sample(S->get_energy());
 			corr.add_sample(S->get_corr());
 			long_range_corr.add_sample(S->get_long_range_corr());
-			S->save(*file_results);
+			file_results("energy per site",S->get_energy());
+			file_results("correlation on links",S->get_corr());
+			file_results("long range correlation",S->get_long_range_corr());
 		}
 		delete S;
 	}
@@ -77,9 +76,8 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 
 	rst.set();
 	rst.title("Mean results","-");
-	file_results->add_to_header(rst.get());
-	(*file_results)("energy per site",E);
-	(*file_results)("correlation on links",corr);
-	(*file_results)("long range correlation",long_range_corr);
-	cs.close_jd_write();
+	file_results.add_to_header(rst.get());
+	file_results("energy per site",E);
+	file_results("correlation on links",corr);
+	file_results("long range correlation",long_range_corr);
 }

@@ -14,21 +14,26 @@ int main(int argc, char* argv[]){
 				if(cs.get_status()==1){
 					cs.create();
 					IOFiles w("check.jdbin",true);
-					cs.save(w);
+					cs.init_output_file(w);
+					cs.save();
 					Rand rnd(4);
 					if(cs.use_complex()){
 						MCSystem<std::complex<double> >* S(NULL);
 						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system()),rnd); 
 						MonteCarlo<std::complex<double> > sim(S,tmax,rnd);
 						sim.run();
-						S->save(w);
+						w("energy per site",S->get_energy());
+						w("correlation on links",S->get_corr());
+						w("long range correlation",S->get_long_range_corr());
 						delete S;
 					} else {
 						MCSystem<double>* S(NULL); 
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system()),rnd); 
 						MonteCarlo<double> sim(S,tmax,rnd);
 						sim.run();
-						S->save(w);
+						w("energy per site",S->get_energy());
+						w("correlation on links",S->get_corr());
+						w("long range correlation",S->get_long_range_corr());
 						delete S;
 					}
 				}

@@ -19,7 +19,7 @@ class Bosonic : public virtual System{
 		Bosonic<Type> const& get_bosonic(){ return (*this);}
 
 	protected:
-		Bosonic(){};
+		Bosonic(){}
 
 		Vector<unsigned int> sl_;
 		Matrix<unsigned int> nn_; //!< nn_(i,j):jth neighbour of the ith site

@@ -12,7 +12,7 @@ class BandStructure{
 		/*!Constructor for a 2D BandStructure*/
 		BandStructure(Matrix<Type> const& T, unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, int const& bc);
 		/*!Destructor*/
-		virtual ~BandStructure(){};
+		virtual ~BandStructure(){}
 
 	protected:
 		Matrix<Type> Px_;//!< translation operator along x-axis

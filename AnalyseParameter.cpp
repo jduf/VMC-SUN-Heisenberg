@@ -26,14 +26,10 @@ std::string AnalyseParameter::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
 	CreateSystem cs(read_);
-	/*might be a way to init and set_IOSystem at the same time, but first need
-	 * to check if won't be a problem somewhere else*/
-	cs.init(read_);
-	cs.set_IOSystem(this);
-	/*save only once the general datas*/
-	/*will save twice delta...*/
+	cs.init(read_,this);
+	/*Only one call of cs.save() is needed*/
 	if(!all_link_names_.size()){ 
-		cs.save(*jd_write_);
+		cs.save();
 		jd_write_->add_to_header("\n");
 		(*jd_write_)("number of jdfiles",nof_);
 		jd_write_->add_to_header("\n");
@@ -51,12 +47,8 @@ std::string AnalyseParameter::extract_level_5(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
 	CreateSystem cs(read_);
-	/*might be a way to init and set_IOSystem at the same time, but first need
-	 * to check if won't be a problem somewhere else*/
-	cs.init(read_);
-	cs.set_IOSystem(this);
-	/*save only once the general datas*/
-	/*will save twice delta...*/
+	cs.init(read_,this);
+	/*Only one call of cs.save() is needed*/
 	if(!all_link_names_.size()){ (*jd_write_)("number of jdfiles",nof_); }
 	jd_write_->add_to_header("\n");
 	std::string link_name(cs.analyse(level_));
@@ -79,10 +71,7 @@ std::string AnalyseParameter::extract_level_4(){
 	E.set_x(10.0);
 	for(unsigned int i(0);i<nof_;i++){
 		CreateSystem cs(read_);
-		/*might be a way to init and set_IOSystem at the same time, but first need
-		 * to check if won't be a problem somewhere else*/
-		cs.init(read_);
-		cs.set_IOSystem(this);
+		cs.init(read_,this);
 		(*read_)>>E>>polymerization_strength;
 		if(E.get_x()<min_E.get_x()){ 
 			idx = i;
@@ -99,13 +88,12 @@ std::string AnalyseParameter::extract_level_4(){
 		CreateSystem cs(read_);
 		/*might be a way to init and set_IOSystem at the same time, but first need
 		 * to check if won't be a problem somewhere else*/
-		cs.init(read_);
-		cs.set_IOSystem(this);
+		cs.init(read_,this);
 		(*read_)>>E>>polymerization_strength;
 
 		if(i==idx){
 			jd_write_->add_to_header("\n");
-			cs.save(*jd_write_); 
+			cs.save(); 
 			(*jd_write_)("energy per site",min_E);
 			(*jd_write_)("polymerization strength",polymerization_strength);
 		}
@@ -121,10 +109,7 @@ std::string AnalyseParameter::extract_level_3(){
 	(*read_)>>nof_;
 
 	CreateSystem cs(read_);
-	/*might be a way to init and set_IOSystem at the same time, but first need
-	 * to check if won't be a problem somewhere else*/
-	cs.init(read_);
-	cs.set_IOSystem(this);
+	cs.init(read_,this);
 	(*jd_write_)("number of jdfiles",nof_);
 	jd_write_->add_to_header("\n");
 	std::string link_name(cs.analyse(level_));

@@ -134,7 +134,7 @@ void CreateSystem::parse(Parseur& P){
 	}
 }
 
-void CreateSystem::init(IOFiles* read){
+void CreateSystem::init(IOFiles* read, IOSystem* ios){
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 	switch(ref_(0)){
@@ -157,10 +157,10 @@ void CreateSystem::init(IOFiles* read){
 										if(!d_.size()){ over_ = true; }
 									}break;
 								default:
-									{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+									{error();}break;
 							}
 						}break;
-					default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+					default:{error();}break;
 				}
 			}break;
 		case 3:
@@ -172,17 +172,17 @@ void CreateSystem::init(IOFiles* read){
 							switch(ref_(2)){
 								case 0:{RGL_ = new TriangleFermi(ref_,N_,m_,n_,M_,bc_);}break;
 									   //   case 1:{return TriangleMu(N,n,m);}break;
-								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl; }break;
+								default:{error();}break;
 							}
 						}break;
 						//case 2:
 						//   {
 						//   switch(ref_(2)){
 						//   case 4:{return TrianglePhi(N,n,m);}break;
-						//   default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl; }break;
+						//   default:{error();}break;
 						//   }
 						//   }break;
-						//default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+						//default:{error();}break;
 				}
 			}break;
 		case 4:
@@ -195,17 +195,17 @@ void CreateSystem::init(IOFiles* read){
 							switch(ref_(2)){
 								case 0:{RGL_ = new SquareFermi(ref_,N_,m_,n_,M_,bc_);}break;
 									   //   case 1:{return SquareMu(N,n,m);}break;
-								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+								default:{error();}break;
 							}
 						}break;
 					case 2:
 						{
 							switch(ref_(2)){
 								case 2:{CGL_ = new SquarePiFlux(ref_,N_,m_,n_,M_,bc_);}break;
-								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+								default:{error();}break;
 							}
 						}break;
-					default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+					default:{error();}break;
 				}
 			}break;
 		case 5:
@@ -216,17 +216,17 @@ void CreateSystem::init(IOFiles* read){
 							switch(ref_(2)){
 								case 0:{RGL_ = new KagomeFermi(ref_,N_,m_,n_,M_,bc_);}break;
 								case 1:{RGL_ = new KagomeDirac(ref_,N_,m_,n_,M_,bc_);}break;
-								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+								default:{error();}break;
 							}
 						} break;
 					case 2:
 						{
 							switch(ref_(2)){
 								case 0:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
-								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+								default:{error();}break;
 							}
 						}break;
-					default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+					default:{error();}break;
 				}
 			}break;
 		case 6:
@@ -243,13 +243,13 @@ void CreateSystem::init(IOFiles* read){
 										if(!d_.size()){ over_ = true; }
 									}break;
 									//case 1:{return HoneycombSU4(N,n,m);}break;
-								default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+								default:{error();}break;
 							}
 						}break;
-					default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+					default:{error();}break;
 				}
 			}break;
-		default:{std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;}break;
+		default:{error();}break;
 	}
 	switch(type_){
 		case 3:
@@ -263,4 +263,13 @@ void CreateSystem::init(IOFiles* read){
 				}
 			}break;
 	}
+	if(ios){
+			if(RGL_){RGL_->set_IOSystem(ios);}
+			if(CGL_){CGL_->set_IOSystem(ios);}
+	}
+}
+
+void CreateSystem::error(){
+	std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;
+	over_ = true;
 }

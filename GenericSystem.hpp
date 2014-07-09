@@ -20,16 +20,19 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*!Destructor*/
 		virtual ~GenericSystem(){}
 
-		/*!Get the name of the simulation*/
-		std::string get_filename() const { return filename_; }
 		/*{Description*/
 		/*!Returns true if the system if bosonic 
 		 * \warning not correctly implemented*/
 		/*}*/
 		bool is_bosonic() const { return false; }
+		/*{Description*/
+		/*!Saves ref_, N_, m_, n_, M_ and bc_ in jd_write_. As the method is
+		 * virtual, a call on this method will call first child::save() const
+		 * if it exists*/
+		/*}*/
+		virtual void save() const;
 		virtual void create() = 0;
 		virtual void check() = 0;
-		virtual void save(IOFiles& w) const;
 
 	protected:
 		unsigned int const z_;	//!< coordination number
@@ -107,13 +110,13 @@ void GenericSystem<Type>::compute_links(){
 }
 
 template<typename Type>
-void GenericSystem<Type>::save(IOFiles& w) const {
-	w.add_to_header(system_info_.get());
-	w("ref (type of wavefunction)",this->ref_);
-	w("N (N of SU(N))",this->N_);
-	w("m (# of particles per site)",this->m_);
-	w("n (# of site)",this->n_);
-	w("M (# of particles for each color)",this->M_);
-	w("bc (boundary condition)",this->bc_);
+void GenericSystem<Type>::save() const {
+	jd_write_->add_to_header(system_info_.get());
+	(*jd_write_)("ref (type of wavefunction)",this->ref_);
+	(*jd_write_)("N (N of SU(N))",this->N_);
+	(*jd_write_)("m (# of particles per site)",this->m_);
+	(*jd_write_)("n (# of site)",this->n_);
+	(*jd_write_)("M (# of particles for each color)",this->M_);
+	(*jd_write_)("bc (boundary condition)",this->bc_);
 }
 #endif

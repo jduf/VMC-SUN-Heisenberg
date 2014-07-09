@@ -25,45 +25,38 @@ class CreateSystem{
 		CreateSystem(IOFiles* read);
 		virtual ~CreateSystem();
 
-		IOFiles* open_and_get_jd_write() const {
-			if(RGL_){return RGL_->open_and_get_jd_write();}
-			if(CGL_){return CGL_->open_and_get_jd_write();}
-			return NULL;
-		}
-		void close_jd_write() const {
-			if(RGL_){return RGL_->close_jd_write();}
-			if(CGL_){return CGL_->close_jd_write();}
-		}
-		void init(IOFiles* read=NULL);
-		std::string analyse(unsigned int const& level){
+		void init(IOFiles* read=NULL, IOSystem* ios=NULL);
+
+		std::string analyse(unsigned int const& level) {
 			if(RGL_){return RGL_->analyse(level);}
 			if(CGL_){return CGL_->analyse(level);}
 			return "";
 		}
-
-		void set_IOSystem(IOSystem* ios){
-			if(RGL_){RGL_->set_IOSystem(ios);}
-			if(CGL_){CGL_->set_IOSystem(ios);}
+		void init_output_file(IOFiles& output) const {
+			if(RGL_){RGL_->init_output_file(output);}
+			if(CGL_){CGL_->init_output_file(output);}
 		}
-		void create(){
+		void create() const {
 			if(RGL_){RGL_->create();}
 			if(CGL_){CGL_->create();}
 		}
-		void save(IOFiles& w) const{
-			if(RGL_){RGL_->save(w);}
-			if(CGL_){CGL_->save(w);}
+		void save() const {
+			if(RGL_){RGL_->save();}
+			if(CGL_){CGL_->save();}
 		}
-		void check(){
+		void check() const {
 			if(RGL_){return RGL_->check();}
 			if(CGL_){return CGL_->check();}
 		}
-		bool is_over(){ return over_; }
+		bool is_over() const { return over_; }
 
+		/*!Returns a pointer on the GenericSystem created*/
 		System const* get_system() const { 
 			if(RGL_){return RGL_;}
 			if(CGL_){return CGL_;}
 			return NULL;
 		}
+		/*!Returns the filename with the path*/
 		std::string get_filename() const {
 			if(RGL_){return RGL_->get_filename();}
 			if(CGL_){return CGL_->get_filename();}
@@ -108,5 +101,6 @@ class CreateSystem{
 		GenericSystem<std::complex<double> >* CGL_;
 
 		void parse(Parseur& P);
+		void error();
 };
 #endif

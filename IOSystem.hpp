@@ -6,13 +6,14 @@
 class IOSystem{
 	public:
 		IOSystem(std::string const& filename);
-		IOSystem(IOSystem const& a);
 		virtual ~IOSystem(){}
 
 		void set_IOSystem(IOSystem* t);
 		std::string analyse(unsigned int const& level);
-		IOFiles* open_and_get_jd_write();
-		void close_jd_write(){delete jd_write_;} 
+
+		/*!Returns the filename with the path*/
+		std::string get_filename() const { return path_+filename_; }
+		void init_output_file(IOFiles& output);
 
 	protected:
 		std::string sim_;
@@ -27,16 +28,17 @@ class IOSystem{
 		IOFiles* data_write_;
 		RSTFile* rst_file_;
 
-		virtual std::string extract_level_1();
-		virtual std::string extract_level_2();
-		virtual std::string extract_level_3();
-		virtual std::string extract_level_4();
-		virtual std::string extract_level_5();
-		virtual std::string extract_level_6();
+		virtual std::string extract_level_1(){return filename_;}
+		virtual std::string extract_level_2(){return filename_;}
+		virtual std::string extract_level_3(){return filename_;}
+		virtual std::string extract_level_4(){return filename_;}
+		virtual std::string extract_level_5(){return filename_;}
+		virtual std::string extract_level_6(){return filename_;}
 
 	private:
+		/*!Forbids copy*/
+		IOSystem(IOSystem const& ios);
+		/*!Forbids assigment*/
 		IOSystem& operator=(IOSystem a);
-		/*!Copy-And-Swap Idiom*/
-		void swap_to_assign(IOSystem& t1, IOSystem& t2);
 };
 #endif

@@ -29,12 +29,6 @@ System::System(System const& s):
 {}
 /*}*/
 
-void System::save(IOFiles& w) const {
-	w("energy per site",E_);
-	w("correlation on links",corr_);
-	w("long range correlation",long_range_corr_);
-}
-
 void System::set(){ 
 	E_.set(); 
 	corr_.set(); 

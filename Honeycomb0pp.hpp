@@ -9,7 +9,7 @@ class Honeycomb0pp: public Honeycomb<double>{
 		~Honeycomb0pp(){}
 
 		void create();
-		void save(IOFiles& w) const;
+		void save() const;
 		void check();
 
 	protected:
