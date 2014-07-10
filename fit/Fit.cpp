@@ -8,6 +8,7 @@ Fit::Fit(Vector<double> const& x, Vector<double> const& y, double (*f)(double, d
 {
 	double info[10];
 	ret_ = dlevmar_dif(func,p_.ptr(),y.ptr(),p_.size(),y.size(),1e2,NULL,info,NULL,NULL,this);
+	std::cout<<ret_<<std::endl;
 	p = p_;
 }
 

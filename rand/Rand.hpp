@@ -56,13 +56,23 @@
 }*/
 class Rand{
 	public:
-		/*!Constructor initialises new generator with length, seeds ij and kl*/
+		/*!Constructor initialises generator with length, seeds ij and kl*/
 		Rand(int len, int ij, int kl);
-		/*!Constructor initialises generator with length len from seed given by an other Rand*/
+		/*{Description*/
+		/*!Constructor initialises generator with length len from seed given
+		 * by an other Rand*/
+		/*}*/
 		Rand(int len, Rand& seed);
-		/*!Constructor initialises generator with length len from seeds determined from system time*/
+		/*{Description*/
+		/*!Constructor initialises generator with length len from seeds
+		 * determined from system time*/
+		/*}*/
 		Rand(int len);
-		/*!Constructor initialises generator with length len from seeds determined from system time but different on any given thread in the systemr*/
+		/*{Description*/
+		/*!Constructor initialises generator with length len from seeds
+		 * determined from system time but different on any given thread in
+		 * the systemr*/
+		/*}*/
 		Rand(int len, int threadnumber);
 		/*!Destructor*/
 		~Rand();

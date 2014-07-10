@@ -11,6 +11,9 @@ std::complex<double> projection(Matrix<double> const& O, Matrix<std::complex<dou
 Matrix<double> create_to_check_constructor();
 
 int main(){
+	std::complex<double> a(-6e-16,23);
+	std::complex<double> b(5e-16,23);
+	std::cout<<(are_equal(a,b,1e-14,1e-13)?"a==b":"a!=b")<<std::endl;
 	/*{operateurs*/
 	//unsigned int N1_row(3);
 	//unsigned int N1_col(2);
@@ -208,7 +211,7 @@ int main(){
 	//
 	//std::cout<<"T1 : well defined"<<std::endl;
 	//std::cout<<T1<<std::endl;
-	//Lapack<double> Over(&T1inv,false,'G'); // Tinv va être écrasé
+	//Lapack<double> Over(T1inv,false,'G'); // Tinv va être écrasé
 	//double rcond(0.0);	
 	//Vector<int> P1(Over.is_singular(rcond));
 	//Over.inv(P1);
@@ -231,22 +234,24 @@ int main(){
 	//T2(2,1)=0;
 	//T2(2,2)=1e-200;
 	//
-	//Lapack<double> Keep(&T2,true,'G'); // T2 va être conservé
+	//Lapack<double> Keep(T2,true,'G'); // T2 va être conservé
 	//std::cout<<"T2 looks singular"<<std::endl;
 	//std::cout<<T2<<std::endl;
 	//Vector<int> P2(Keep.is_singular(rcond));
 	//Keep.inv(P2);
-	//Matrix<double> T2inv_lapack(Keep.get_mat());
+	//Matrix<double> T2inv_lapack;
+	//Keep.set_mat(T2inv_lapack);
 	//
 	//std::cout<<"get Tinv from lapack --> no inversion has been made"<<std::endl;
 	//std::cout<<T2inv_lapack<<std::endl;
 	//std::cout<<std::endl;
 	//
-	//Lapack<double> Keep2(&T2,true,'G'); // T2 va être conservé
+	//Lapack<double> Keep2(T2,true,'G'); // T2 va être conservé
 	//Keep2.inv();
 	//std::cout<<"T2 looks singular but will be inverted anyway"<<std::endl;
-	//Matrix<double> T2inv_lapack2(Keep2.get_mat());
-	//
+	//Matrix<double> T2inv_lapack2;
+	//Keep2.set_mat(T2inv_lapack2);
+//
 	//std::cout<<"get T2inv from lapack"<<std::endl;
 	//std::cout<<T2inv_lapack2<<std::endl;
 	//std::cout<<"result of the inversion of the singular matrix I="<<std::endl;
@@ -265,18 +270,18 @@ int main(){
 	//C(2,2)=std::complex<double>(1e-200,2);
 	//
 	//
-	//Lapack<std::complex<double> > inv(&C,true,'G');
+	//Lapack<std::complex<double> > inv(C,true,'G');
 	//Vector<int> P3(inv.is_singular(rcond));
 	//inv.inv(P3);
 	//
-	//Matrix<std::complex<double> > Cinv(inv.get_mat());
+	//Matrix<std::complex<double> > Cinv;
+	//inv.set_mat(Cinv);
 	//std::cout<<"complex matrix"<<std::endl;
 	//std::cout<<C<<std::endl;
 	//std::cout<<"its inverse matrix"<<std::endl;
 	//std::cout<<Cinv<<std::endl;
 	//std::cout<<"I"<<std::endl;
-	//std::cout<<(C*Cinv).chop()<<std::endl;
-	//
+	//std::cout<<(C*Cinv).chop()<<std::endl<<std::endl;
 	////std::cout<<"check that there is no memory leaks"<<std::endl;;
 	////for(unsigned int i(0);i<10000000;i++){
 	////Lapack<double> Over(&T1,true,'G'); 

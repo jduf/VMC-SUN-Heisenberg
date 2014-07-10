@@ -32,10 +32,10 @@ class Matrix{
 
 		/*!Accesses the (i,j)th entry of the matrix*/
 		Type const& operator()(unsigned int const& i, unsigned int const& j)
-			const { assert(i<row_ && j<col_); return m_[i+j*row_]; };
+			const { assert(i<row_ && j<col_); return mat_[i+j*row_]; };
 		/*!Sets the (i,j)th entry of the matrix*/
 		Type& operator()(unsigned int const& i, unsigned int const& j) {
-			assert(i<row_ && j<col_); return m_[i+j*row_]; };
+			assert(i<row_ && j<col_); return mat_[i+j*row_]; };
 
 		/*!Assignment (using Copy-And-Swap Idiom)*/
 		Matrix<Type>& operator=(Matrix<Type> mat); 
@@ -95,9 +95,9 @@ class Matrix{
 		/*!Returns the number of columns of the matrix*/
 		unsigned int col() const { return col_; }
 		/*!Returns the pointer to the matrix*/
-		Type* ptr() const { return m_; }
+		Type* ptr() const { return mat_; }
 
-		/*!Returns the maximal value of m_*/
+		/*!Returns the maximal value of mat_*/
 		Type max() const;
 
 #ifdef DEF_IOFILES
@@ -108,10 +108,10 @@ class Matrix{
 		unsigned int row_; //!< number of rows
 		unsigned int col_; //!< number of columns
 		unsigned int size_; //!< size of the array
-		Type* m_; //!< pointer to a static array
+		Type* mat_; //!< pointer to a static array
 
 		/*{Description*/
-		/*!Set m_=NULL and all sizes to 0
+		/*!Set mat_=NULL and all sizes to 0
 		 * \warning the use of this method may leed to a segmentation fault*/
 		/*}*/
 		void set_null_pointer();
@@ -126,7 +126,7 @@ Matrix<Type>::Matrix():
 	row_(0),
 	col_(0),
 	size_(0),
-	m_(NULL)
+	mat_(NULL)
 {}
 
 template<typename Type>
@@ -134,7 +134,7 @@ Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col):
 	row_(N_row),
 	col_(N_col),
 	size_(N_col*N_row),
-	m_(size_?new Type[size_]:NULL)
+	mat_(size_?new Type[size_]:NULL)
 {} 
 
 template<typename Type>
@@ -142,9 +142,9 @@ Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col, Type val):
 	row_(N_row),
 	col_(N_col),
 	size_(N_col*N_row),
-	m_(size_?new Type[size_]:NULL)
+	mat_(size_?new Type[size_]:NULL)
 { 
-	for(unsigned int i(0);i<size_;i++){ m_[i] = val; }
+	for(unsigned int i(0);i<size_;i++){ mat_[i] = val; }
 }
 
 template<typename Type>
@@ -152,22 +152,22 @@ Matrix<Type>::Matrix(Matrix<Type> const& mat):
 	row_(mat.row_),
 	col_(mat.col_),
 	size_(mat.size_),
-	m_(size_?new Type[size_]:NULL)
+	mat_(size_?new Type[size_]:NULL)
 {
-	for(unsigned int i(0);i<size_;i++){ m_[i] = mat.m_[i]; }
+	for(unsigned int i(0);i<size_;i++){ mat_[i] = mat.mat_[i]; }
 }
 
 template<typename Type>
 Matrix<Type>::~Matrix(){
-	if(m_){
-		delete[]  m_;
-		m_ = NULL;
+	if(mat_){
+		delete[]  mat_;
+		mat_ = NULL;
 	}
 }
 
 template<typename Type>
 void Matrix<Type>::swap_to_assign(Matrix<Type>& m1,Matrix<Type>& m2){
-	std::swap(m1.m_,m2.m_);
+	std::swap(m1.mat_,m2.mat_);
 	std::swap(m1.row_,m2.row_);
 	std::swap(m1.col_,m2.col_);
 	std::swap(m1.size_,m2.size_);
@@ -243,7 +243,7 @@ Matrix<Type>& Matrix<Type>::operator=(Matrix<Type> mat){
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator+=(Matrix<Type> const& mat){
 	assert(row_ == mat.row_ && col_ == mat.col_);
-	for(unsigned int i(0);i<size_;i++){ m_[i] += mat.m_[i]; }
+	for(unsigned int i(0);i<size_;i++){ mat_[i] += mat.mat_[i]; }
 	return (*this);
 }
 
@@ -257,7 +257,7 @@ Matrix<Type> Matrix<Type>::operator+(Matrix<Type> const& mat) const{
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator-=(Matrix<Type> const& mat){
 	assert(row_ == mat.row_ && col_ == mat.col_);
-	for(unsigned int i(0);i<size_;i++){ m_[i] -= mat.m_[i]; }
+	for(unsigned int i(0);i<size_;i++){ mat_[i] -= mat.mat_[i]; }
 	return (*this);
 }
 
@@ -273,16 +273,16 @@ Matrix<Type>& Matrix<Type>::operator*=(Matrix<Type> const& mat){
 	assert(col_==mat.row_);
 	Matrix<Type> tmp(*this);
 	if(col_!=row_ || mat.col_!=mat.row_ ){
-		if(m_){ delete[] m_;}
-		m_ = new Type[row_*mat.col_];
+		if(mat_){ delete[] mat_;}
+		mat_ = new Type[row_*mat.col_];
 		size_ = row_*mat.col_;
 		col_ = mat.col_;
 	}
 	for(unsigned int i(0);i<row_;i++){
 		for(unsigned int j(0);j<col_;j++){
-			m_[i+j*row_] = 0.0;
+			mat_[i+j*row_] = 0.0;
 			for(unsigned int k(0);k<tmp.col_;k++){
-				m_[i+j*row_] += tmp.m_[i+k*tmp.row_] * mat.m_[k+j*mat.row_];
+				mat_[i+j*row_] += tmp.mat_[i+k*tmp.row_] * mat.mat_[k+j*mat.row_];
 			}
 		}
 	}
@@ -295,9 +295,9 @@ Matrix<Type> Matrix<Type>::operator*(Matrix<Type> const& mat) const{
 	Matrix<Type> matout(row_,mat.col_);
 	for(unsigned int i(0);i<matout.row_;i++){
 		for(unsigned int j(0);j<matout.col_;j++){
-			matout.m_[i+j*matout.row_] = 0.0;
+			matout.mat_[i+j*matout.row_] = 0.0;
 			for(unsigned int k(0);k<mat.row_;k++){
-				matout.m_[i+j*matout.row_] += m_[i+k*row_] * mat.m_[k+j*mat.row_];
+				matout.mat_[i+j*matout.row_] += mat_[i+k*row_] * mat.mat_[k+j*mat.row_];
 			}
 		}
 	}
@@ -314,7 +314,7 @@ Matrix<Type> operator*(Type const& d, Matrix<Type> const& mat) {
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator*=(Type const& d){
 	for(unsigned int i(0);i<size_;i++){
-		m_[i] *= d; 
+		mat_[i] *= d; 
 	}
 	return (*this);
 }
@@ -328,13 +328,13 @@ Matrix<Type> Matrix<Type>::operator*(Type const& d) const{
 
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator-=(Type const& d){
-	for(unsigned int i(0);i<size_;i++){ m_[i] -= d; }
+	for(unsigned int i(0);i<size_;i++){ mat_[i] -= d; }
 	return (*this);
 }
 
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator/=(Type const& d){
-	for(unsigned int i(0);i<size_;i++){ m_[i] /= d; }
+	for(unsigned int i(0);i<size_;i++){ mat_[i] /= d; }
 	return (*this);
 }
 /*}*/
@@ -347,7 +347,7 @@ Vector<Type> Matrix<Type>::operator*(Vector<Type> const& vec) const {
 	for(unsigned int i(0);i<row_;i++){
 		tmp(i) = 0.0;
 		for(unsigned int j(0);j<col_;j++){
-			tmp(i) += m_[i+j*row_] * vec(j); 
+			tmp(i) += mat_[i+j*row_] * vec(j); 
 		}
 	}
 	return tmp;
@@ -361,7 +361,7 @@ template<>
 inline Matrix<double> Matrix<double>::chop(double precision) const {
 	Matrix<double> tmp(*this);
 	for(unsigned int i(0);i<tmp.size_;i++){
-		if(std::abs(tmp.m_[i]) < precision ){tmp.m_[i]=0.0;}
+		if(std::abs(tmp.mat_[i]) < precision ){tmp.mat_[i]=0.0;}
 	}
 	return tmp;
 }
@@ -370,16 +370,16 @@ template<>
 inline Matrix<std::complex<double> > Matrix<std::complex<double> >::chop(double precision) const{
 	Matrix<std::complex<double> > tmp(*this);
 	for(unsigned int i(0);i<tmp.size_;i++){
-		if(std::abs(tmp.m_[i].imag()) < precision ){tmp.m_[i].imag(0.0);}
-		if(std::abs(tmp.m_[i].real()) < precision ){tmp.m_[i].real(0.0);}
+		if(std::abs(tmp.mat_[i].imag()) < precision ){tmp.mat_[i].imag(0.0);}
+		if(std::abs(tmp.mat_[i].real()) < precision ){tmp.mat_[i].real(0.0);}
 	}
 	return tmp;
 }
 
 template<typename Type>
 void Matrix<Type>::set(){
-	if(m_){ delete[] m_; }
-	m_ = NULL;
+	if(mat_){ delete[] mat_; }
+	mat_ = NULL;
 	row_ = 0;
 	col_ = 0;
 	size_ = 0;
@@ -388,15 +388,15 @@ void Matrix<Type>::set(){
 template<typename Type>
 void Matrix<Type>::set(Type const& val){
 	for(unsigned int i(0); i<size_; i++){
-		m_[i] = val;
+		mat_[i] = val;
 	}
 }
 
 template<typename Type>
 void Matrix<Type>::set(unsigned int row, unsigned int col){
 	if(col_ != col || row_ != row){ 
-		if(m_){ delete[] m_; }
-		m_ = new Type[row*col];
+		if(mat_){ delete[] mat_; }
+		mat_ = new Type[row*col];
 		row_ = row;
 		col_ = col;
 		size_ = row*col;
@@ -414,7 +414,7 @@ void  Matrix<Type>::set_null_pointer(){
 	row_ =0;
 	col_ = 0;
 	size_ = 0;
-	m_=NULL;
+	mat_=NULL;
 }
 /*}*/
 
@@ -425,7 +425,7 @@ Matrix<Type> Matrix<Type>::transpose() const{
 	Matrix<Type> tmp(col_,row_);
 	for(unsigned int i(0);i<col_;i++){
 		for(unsigned int j(0);j<row_;j++){
-			tmp.m_[i+j*tmp.row_] = m_[j+i*row_];
+			tmp.mat_[i+j*tmp.row_] = mat_[j+i*row_];
 		}
 	}
 	return tmp;
@@ -436,7 +436,7 @@ inline Matrix<std::complex<double> > Matrix<std::complex<double> >::trans_conj()
 	Matrix<std::complex<double> > tmp(col_,row_);
 	for(unsigned int i(0);i<col_;i++){
 		for(unsigned int j(0);j<row_;j++){
-			tmp.m_[i+j*tmp.row_] = std::conj(m_[j+i*row_]);
+			tmp.mat_[i+j*tmp.row_] = std::conj(mat_[j+i*row_]);
 		}
 	}
 	return tmp;
@@ -456,7 +456,7 @@ Vector<Type> Matrix<Type>::diag() const{
 	else{N=row_;}
 	Vector<Type> v(N);
 	for(unsigned int i(0);i<N;i++){
-		v(i) = m_[i*(row_+1)];
+		v(i) = mat_[i*(row_+1)];
 	}
 	return v;
 }
@@ -466,7 +466,7 @@ inline void Matrix<double>::print_mathematica() const {
 	std::cout<<"{{";
 	for(unsigned int i(0);i<row_;i++){
 		for(unsigned int j(0);j<col_;j++){
-			std::cout<<m_[i+j*row_];
+			std::cout<<mat_[i+j*row_];
 			if(j+1==col_){
 				if(i+1==row_){std::cout<<"}}"<<std::endl;}
 				else{std::cout<<"},"<<std::endl<<"{";}
@@ -484,7 +484,7 @@ inline void Matrix<std::complex<double> >::print_mathematica() const {
 	for(unsigned int i(0);i<row_;i++){
 		std::cout<<"{ ";
 		for(unsigned int j(0);j<col_;j++){
-			a=m_[i+j*row_];
+			a=mat_[i+j*row_];
 			std::cout<<a.real();
 			if(a.imag()>0){std::cout<<"+";}
 			else{std::cout<<"-";}
@@ -505,16 +505,16 @@ Type Matrix<Type>::trace() const {
 	Type t(0.0);
 	std::cerr<<"Matrix : trace : need to be checked"<<std::endl;
 	for(unsigned int i(0);i<k;i++){
-		t += m_[i*(row_+1)];
+		t += mat_[i*(row_+1)];
 	}
 	return t;
 }
 
 template<typename Type>
 Type Matrix<Type>::max() const {
-	Type m(m_[0]);
+	Type m(mat_[0]);
 	for(unsigned int i(1);i<size_;i++){
-		if(m_[i]>m){m=m_[i];}
+		if(mat_[i]>m){m=mat_[i];}
 	}
 	return m;
 }

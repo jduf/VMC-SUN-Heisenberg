@@ -8,13 +8,13 @@ IOFiles::IOFiles(std::string filename, bool write):
 	binary_(false),
 	open_(false),
 	file_(NULL),
-	h_(NULL)
+	header_(NULL)
 {
 	test_ext();
 	if(binary_){open_binary();}
 	else{open_txt();}
 	if(binary_ && open_){
-		if(write_){h_->init(filename_);}
+		if(write_){header_->init(filename_);}
 		else{read_header();}
 	}
 }
@@ -22,7 +22,7 @@ IOFiles::IOFiles(std::string filename, bool write):
 IOFiles::~IOFiles(){
 	if(open_ && binary_){
 		if(write_){write_header();}
-		delete h_;
+		delete header_;
 	}
 	file_.close();
 }
@@ -36,7 +36,7 @@ void IOFiles::test_ext(){
 	std::string ext("bin");
 	if(filename_.find(ext, (filename_.size() - ext.size())) != std::string::npos){ 
 		ext = ".jd" + ext;
-		if(filename_.find(ext, (filename_.size() - ext.size())) != std::string::npos){h_ = new Header;}
+		if(filename_.find(ext, (filename_.size() - ext.size())) != std::string::npos){header_ = new Header;}
 		binary_ = true;
 	}
 }
@@ -63,13 +63,13 @@ void IOFiles::read_header(){
 	file_.seekg(-sizeof(char)*N-sizeof(unsigned int),std::ios::end);
 	file_.read(h,N);
 	h[N] = '\0';
-	h_->set(h);
+	header_->set(h);
 	delete[] h;
 	file_.seekg(0,std::ios::beg);
 }
 
 void IOFiles::write_header(){
-	std::string t(h_->get());
+	std::string t(header_->get());
 	unsigned int N(t.size());
 	file_.write(t.c_str(),N);
 	file_.write((char*)(&N),sizeof(unsigned int));
@@ -117,12 +117,12 @@ void IOFiles::precision(unsigned int const& N){
 }
 
 void IOFiles::add_to_header(std::string const& s){
-	if(h_){ h_->add(s); }
+	if(header_){ header_->add(s); }
 }
 
 std::string IOFiles::get_header() const { 
-	if(h_ && open_){
-		return h_->get();
+	if(header_ && open_){
+		return header_->get();
 	} else {
 		std::cerr<<"IOFiles::get_header() : can't read from "<<filename_<<std::endl;
 		return 0;

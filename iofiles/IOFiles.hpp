@@ -97,7 +97,7 @@ class IOFiles{
 		bool binary_; 			//!< true if the file is binary_
 		bool open_;				//!< true if the file is ready to be read from
 		std::fstream file_;		//!< text file to read form
-		Header* h_;				//!< pointer to a header (actually it will be a footer)
+		Header* header_;		//!< pointer to a header (actually it will be a footer)
 };
 
 template<typename Type>
@@ -129,9 +129,9 @@ Type IOFiles::read(){
 
 template<typename Type>
 void IOFiles::operator()(std::string const& var, Type const& val){
-	if(h_ && open_ && write_){
+	if(header_ && open_ && write_){
 		(*this)<<val;
-		h_->add(var,val);
+		header_->add(var,val);
 	} else {
 		std::cerr<<"IOFiles::operator()(string,val) : can't write in "<<filename_<<std::endl;
 	}	
