@@ -146,7 +146,14 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 							switch(ref_(2)){
 								case 0:
 									{
-										RGL_ = new ChainFermi(ref_,N_,m_,n_,M_,bc_);
+										RGL_ = new ChainFermi<double>(ref_,N_,m_,n_,M_,bc_);
+										if(RGL_->is_degenerate()){
+											/*make some test to check if degenerate*/
+											delete RGL_;
+											RGL_=NULL;
+											CGL_ = new ChainFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);
+											ref_(1)=2;
+										}
 										over_ = true;
 									}break;
 								case 1:
@@ -264,8 +271,8 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 			}break;
 	}
 	if(ios){
-			if(RGL_){RGL_->set_IOSystem(ios);}
-			if(CGL_){CGL_->set_IOSystem(ios);}
+		if(RGL_){RGL_->set_IOSystem(ios);}
+		if(CGL_){CGL_->set_IOSystem(ios);}
 	}
 }
 

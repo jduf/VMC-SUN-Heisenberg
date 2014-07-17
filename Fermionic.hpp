@@ -13,10 +13,10 @@ class Fermionic : public virtual System{
 		/*!Destructor*/
 		virtual ~Fermionic();
 
-		Matrix<Type> const& get_EVec() const { return EVec_;}
+		Matrix<Type> const& get_EVec() const { return EVec_; }
 
-		Fermionic<Type> const& get_fermionic() const { return (*this);}
-		bool is_degenerate() const { return degenerate_;}
+		Fermionic<Type> const& get_fermionic() const { return (*this); }
+		bool is_degenerate() const { return degenerate_; }
 
 	protected:
 		/*!Default Constructor*/
@@ -29,7 +29,6 @@ class Fermionic : public virtual System{
 		
 		/*!compute the eigenvectors from the mean field Hamiltonian*/
 		void diagonalize_T();
-		bool is_degenerate(unsigned int const& c);
 		void init_fermionic();
 };
 
@@ -67,24 +66,26 @@ template<>
 inline void Fermionic<double>::diagonalize_T(){
 	Lapack<double> ES(T_,false,'S');
 	ES.eigensystem(eval_,true);
+	for(unsigned int c(0);c<N_;c++){
+		if(std::abs(eval_(M_(c)) - eval_(M_(c)-1))<1e-12){
+			std::cerr<<"Degenerate for the color : "<<c<<std::endl;
+			degenerate_= true;
+			c=N_;
+		}
+	}
 }
 
 template<>
 inline void Fermionic<std::complex<double> >::diagonalize_T(){
 	Lapack<std::complex<double> >ES(T_,false,'H');
 	ES.eigensystem(eval_,true);
-}
-
-template<typename Type>
-bool Fermionic<Type>::is_degenerate(unsigned int const& c) {
-	if(std::abs(eval_(M_(c)) - eval_(M_(c)-1))<1e-12){
-		std::cerr<<"Fermi level degenerate"<<std::endl;
-		//degenerate_=true;
+	for(unsigned int c(0);c<N_;c++){
+		if(std::abs(eval_(M_(c)) - eval_(M_(c)-1))<1e-12){
+			std::cerr<<"Degenerate for the color : "<<c<<std::endl;
+			degenerate_= true;
+			c=N_;
+		}
 	}
-	return false;
-		//return true;
-		//} else {
-		//return false;
 }
 #endif
 

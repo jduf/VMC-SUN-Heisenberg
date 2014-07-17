@@ -6,7 +6,6 @@ KagomeFermi::KagomeFermi(Vector<unsigned int> const& ref, unsigned int const& N,
 {
 	if(status_==1){
 		init_fermionic();
-		compute_T();
 
 		system_info_.text("KagomeFermi : All hopping term are identical, no flux, 3 sites per unit cell");
 	}
@@ -46,14 +45,13 @@ void KagomeFermi::create(){
 	E_.set(50,5,false);
 	corr_.set(links_.row(),50,5,false);
 
+	compute_T();
 	diagonalize_T();
 	for(unsigned int c(0);c<N_;c++){
-		if(!is_degenerate(c)){
-			EVec_[c].set(n_,M_(c));
-			for(unsigned int i(0);i<n_;i++){
-				for(unsigned int j(0);j<M_(c);j++){
-					EVec_[c](i,j) = T_(i,j);
-				}
+		EVec_[c].set(n_,M_(c));
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_(c);j++){
+				EVec_[c](i,j) = T_(i,j);
 			}
 		}
 	}
@@ -155,12 +153,12 @@ void KagomeFermi::check(){
 	///*{debug 1*/
 	//Matrix<int> nb;
 	//for(unsigned int i(0);i<n_;i++){
-		//nb = get_neighbourg(i);
-		//std::cout<<i<<" ";
-		//for(unsigned int j(0);j<z_;j++){
-			//std::cout<<nb(j,0)<<" ";
-		//}
-		//std::cout<<std::endl;
+	//nb = get_neighbourg(i);
+	//std::cout<<i<<" ";
+	//for(unsigned int j(0);j<z_;j++){
+	//std::cout<<nb(j,0)<<" ";
+	//}
+	//std::cout<<std::endl;
 	//}
 	///*}*/
 	///*{debug 2*/
@@ -168,36 +166,36 @@ void KagomeFermi::check(){
 	//double t(1.0);
 	//Matrix<double> Ttest(n_,n_,0);
 	//for(unsigned int s(0);s<n_;s++){
-		//nb = get_neighbourg(s);
-		//for(unsigned int i(0);i<z_;i++){ Ttest(s,nb(i,0)) = t; }
+	//nb = get_neighbourg(s);
+	//for(unsigned int i(0);i<z_;i++){ Ttest(s,nb(i,0)) = t; }
 	//}
 	//for(unsigned int i(0);i<n_;i++){
-		//for(unsigned int j(0);j<n_;j++){
-			//if(std::abs(Ttest(i,j)-T_(i,j))>0.2){
-				//std::cout<<i<<" "<<j<<std::endl;
-			//}
-		//}
+	//for(unsigned int j(0);j<n_;j++){
+	//if(std::abs(Ttest(i,j)-T_(i,j))>0.2){
+	//std::cout<<i<<" "<<j<<std::endl;
+	//}
+	//}
 	//}
 	///*}*/
 	///*{debug 3*/
 	//unsigned int k(0);
 	//for(unsigned int i(0);i<n_;i++){
-		//for(unsigned int j(0);j<n_;j++){
-			//if(T_(i,j)!=0){
-				//k++;
-				////std::cout<<i<<" "<<j<<" "<<T_(i,j)<<std::endl;
-			//}
-		//}
+	//for(unsigned int j(0);j<n_;j++){
+	//if(T_(i,j)!=0){
+	//k++;
+	////std::cout<<i<<" "<<j<<" "<<T_(i,j)<<std::endl;
+	//}
+	//}
 	//}
 	//std::cout<<k<<" "<<links_.row()<<std::endl;
 	///*}*/
 	///*{debug 4*/
 	//Matrix<int> nb;
 	//for(unsigned int s(0);s<n_;s++){
-		//nb = get_neighbourg(s);
-		//for(unsigned int i(0);i<z_;i++){
-			//if(nb(i,1)<0){std::cout<<s<<" "<<nb(i,0)<<std::endl;}
-		//}
+	//nb = get_neighbourg(s);
+	//for(unsigned int i(0);i<z_;i++){
+	//if(nb(i,1)<0){std::cout<<s<<" "<<nb(i,0)<<std::endl;}
+	//}
 	//}
 	///*}*/
 

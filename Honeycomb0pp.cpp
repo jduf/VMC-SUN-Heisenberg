@@ -7,7 +7,6 @@ Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& 
 {
 	if(status_==1){
 		init_fermionic();
-		compute_T();
 
 		filename_ += "-td" + tostring(td_);
 		system_info_.text("Honeycomb0pp : 6 sites per unit cell, in the center hexagon there is a 0-flux,");
@@ -52,13 +51,12 @@ void Honeycomb0pp::create(){
 	E_.set(50,5,false);
 	corr_.set(links_.row(),50,5,false);
 
+	compute_T();
 	diagonalize_T();
 	for(unsigned int c(0);c<N_;c++){
-		if(!is_degenerate(c)){
-			for(unsigned int i(0);i<n_;i++){
-				for(unsigned int j(0);j<M_(c);j++){
-					EVec_[c](i,j) = T_(i,j);
-				}
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_(c);j++){
+				EVec_[c](i,j) = T_(i,j);
 			}
 		}
 	}
@@ -198,12 +196,12 @@ void Honeycomb0pp::check(){
 	///*{debug 1*/
 	//Matrix<int> nb;
 	//for(unsigned int i(0);i<n_;i++){
-		//nb = get_neighbourg(i);
-		//std::cout<<i<<" ";
-		//for(unsigned int j(0);j<z_;j++){
-			//std::cout<<nb(j,0)<<" ";
-		//}
-		//std::cout<<std::endl;
+	//nb = get_neighbourg(i);
+	//std::cout<<i<<" ";
+	//for(unsigned int j(0);j<z_;j++){
+	//std::cout<<nb(j,0)<<" ";
+	//}
+	//std::cout<<std::endl;
 	//}
 	///*}*/
 	///*{debug 2*/
@@ -211,38 +209,38 @@ void Honeycomb0pp::check(){
 	//Matrix<int> nb;
 	//Matrix<double> Ttest(n_,n_,0);
 	//for(unsigned int s(0);s<n_;s++){
-		//nb = get_neighbourg(s);
-		//for(unsigned int i(0);i<z_;i++){
-			//Ttest(s,nb(i,0)) = t;
-		//}
+	//nb = get_neighbourg(s);
+	//for(unsigned int i(0);i<z_;i++){
+	//Ttest(s,nb(i,0)) = t;
+	//}
 	//}
 	//for(unsigned int i(0);i<n_;i++){
-		//for(unsigned int j(0);j<n_;j++){
-			//if(std::abs(Ttest(i,j)-std::abs(T_(i,j)))>0.2){
-				//std::cout<<i<<" "<<j<<std::endl;
-			//}
-		//}
+	//for(unsigned int j(0);j<n_;j++){
+	//if(std::abs(Ttest(i,j)-std::abs(T_(i,j)))>0.2){
+	//std::cout<<i<<" "<<j<<std::endl;
+	//}
+	//}
 	//}
 	///*}*/
 	///*{debug 3*/
 	//unsigned int k(0);
 	//for(unsigned int i(0);i<n_;i++){
-		//for(unsigned int j(0);j<n_;j++){
-			//if(T_(i,j)!=0){
-				//k++;
-				//std::cout<<i<<" "<<j<<" "<<T_(i,j)<<std::endl;
-			//}
-		//}
+	//for(unsigned int j(0);j<n_;j++){
+	//if(T_(i,j)!=0){
+	//k++;
+	//std::cout<<i<<" "<<j<<" "<<T_(i,j)<<std::endl;
+	//}
+	//}
 	//}
 	//std::cout<<k<<" "<<links_.row()<<std::endl;
 	///*}*/
 	///*{debug 4*/
 	//Matrix<int> nb;
 	//for(unsigned int s(0);s<n_;s++){
-		//nb = get_neighbourg(s);
-		//for(unsigned int i(0);i<z_;i++){
-			//if(nb(i,1)<0){std::cout<<s<<" "<<nb(i,0)<<std::endl;}
-		//}
+	//nb = get_neighbourg(s);
+	//for(unsigned int i(0);i<z_;i++){
+	//if(nb(i,1)<0){std::cout<<s<<" "<<nb(i,0)<<std::endl;}
+	//}
 	//}
 	///*}*/
 
@@ -250,7 +248,7 @@ void Honeycomb0pp::check(){
 	//Matrix<double> Py;
 	//compute_P(Px,Py);
 	//BandStructure<double> bs(T_,Px,Py);
-	
+
 	BandStructure<double> bs(T_,Lx_,Ly_,spuc_,bc_);
 	lattice();
 }

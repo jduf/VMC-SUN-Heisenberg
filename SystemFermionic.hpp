@@ -181,7 +181,6 @@ Type SystemFermionic<Type>::ratio(){
 		return -w[0]*w[1];
 	}
 }
-/*}*/
 
 template<typename Type>
 void SystemFermionic<Type>::print(){
@@ -199,4 +198,5 @@ void SystemFermionic<Type>::print(){
 	for(unsigned int c(0);c<this->N_;c++){ std::cout<<(A[c]*Ainv_[c]).chop()<<std::endl<<std::endl; }
 	delete[] A;
 }
+/*}*/
 #endif

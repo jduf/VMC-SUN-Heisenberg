@@ -4,10 +4,11 @@ SquareFermi::SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N,
 	System(ref,N,m,n,M,bc),
 	Square<double>(1,1,1,"square-fermi")
 {
-	init_fermionic();
-	compute_T();
+	if(this->status_==1){
+		init_fermionic();
 
-	system_info_.text("Fermi : all colors experience the same Hamiltonian");
+		system_info_.text("Fermi : all colors experience the same Hamiltonian");
+	}
 }
 
 /*{method needed for running*/
@@ -24,13 +25,12 @@ void SquareFermi::compute_T(){
 }
 
 void SquareFermi::create(){
+	compute_T();
 	diagonalize_T();
 	for(unsigned int c(0);c<N_;c++){
-		if(!is_degenerate(c)){
-			for(unsigned int i(0);i<n_;i++){
-				for(unsigned int j(0);j<M_(c);j++){
-					EVec_[c](i,j) = T_(i,j);
-				}
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_(c);j++){
+				EVec_[c](i,j) = T_(i,j);
 			}
 		}
 	}

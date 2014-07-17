@@ -25,6 +25,7 @@ int main(int argc, char* argv[]){
 						w("energy per site",S->get_energy());
 						w("correlation on links",S->get_corr());
 						w("long range correlation",S->get_long_range_corr());
+						std::cout<<S->get_energy()<<std::endl;
 						delete S;
 					} else {
 						MCSystem<double>* S(NULL); 
@@ -34,6 +35,7 @@ int main(int argc, char* argv[]){
 						w("energy per site",S->get_energy());
 						w("correlation on links",S->get_corr());
 						w("long range correlation",S->get_long_range_corr());
+						std::cout<<S->get_energy()<<std::endl;
 						delete S;
 					}
 				}

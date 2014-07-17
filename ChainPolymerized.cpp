@@ -7,7 +7,6 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 {
 	if(status_==1){
 		init_fermionic();
-		compute_T();
 
 		filename_ += "-delta" + tostring(delta_);
 		system_info_.text("Spin chain, with different real hopping term.");
@@ -41,13 +40,12 @@ void ChainPolymerized::create(){
 	corr_.set(links_.row(),50,5,false);
 	//if(type==2){ long_range_corr_.set(n_/3); }
 
+	compute_T();
 	diagonalize_T();
 	for(unsigned int c(0);c<N_;c++){
-		if(!is_degenerate(c)){
-			for(unsigned int i(0);i<n_;i++){
-				for(unsigned int j(0);j<M_(c);j++){
-					EVec_[c](i,j) = T_(i,j);
-				}
+		for(unsigned int i(0);i<n_;i++){
+			for(unsigned int j(0);j<M_(c);j++){
+				EVec_[c](i,j) = T_(i,j);
 			}
 		}
 	}
