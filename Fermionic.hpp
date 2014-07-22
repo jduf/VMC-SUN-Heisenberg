@@ -64,8 +64,7 @@ Fermionic<Type>::~Fermionic(){
 
 template<>
 inline void Fermionic<double>::diagonalize_T(){
-	Lapack<double> ES(T_,false,'S');
-	ES.eigensystem(eval_,true);
+	Lapack<double>(T_,false,'S').eigensystem(eval_,true);
 	for(unsigned int c(0);c<N_;c++){
 		if(std::abs(eval_(M_(c)) - eval_(M_(c)-1))<1e-12){
 			std::cerr<<"Degenerate for the color : "<<c<<std::endl;
@@ -77,8 +76,7 @@ inline void Fermionic<double>::diagonalize_T(){
 
 template<>
 inline void Fermionic<std::complex<double> >::diagonalize_T(){
-	Lapack<std::complex<double> >ES(T_,false,'H');
-	ES.eigensystem(eval_,true);
+	Lapack<std::complex<double> >(T_,false,'H').eigensystem(eval_,true);
 	for(unsigned int c(0);c<N_;c++){
 		if(std::abs(eval_(M_(c)) - eval_(M_(c)-1))<1e-12){
 			std::cerr<<"Degenerate for the color : "<<c<<std::endl;

@@ -112,7 +112,7 @@ void CreateSystem::parse(Parseur& P){
 	if( wf == "kagomevbc" ){
 		ref_(0) = 5;
 		ref_(1) = 2;
-		ref_(2) = 0;
+		ref_(2) = 3;
 	}
 
 	if( wf == "honeycomb0pp" ){
@@ -147,13 +147,6 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 								case 0:
 									{
 										RGL_ = new ChainFermi<double>(ref_,N_,m_,n_,M_,bc_);
-										if(RGL_->is_degenerate()){
-											/*make some test to check if degenerate*/
-											delete RGL_;
-											RGL_=NULL;
-											CGL_ = new ChainFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);
-											ref_(1)=2;
-										}
 										over_ = true;
 									}break;
 								case 1:
@@ -163,8 +156,18 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 										d_.pop();
 										if(!d_.size()){ over_ = true; }
 									}break;
-								default:
-									{error();}break;
+								default: {error();}break;
+							}
+						}break;
+					case 2:
+						{
+							switch(ref_(2)){
+								case 0:
+									{
+										CGL_ = new ChainFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);
+										over_ = true;
+									}break;
+								default: {error();}break;
 							}
 						}break;
 					default:{error();}break;
@@ -221,7 +224,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:{RGL_ = new KagomeFermi(ref_,N_,m_,n_,M_,bc_);}break;
+								case 0:{RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_);}break;
 								case 1:{RGL_ = new KagomeDirac(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{error();}break;
 							}
@@ -229,7 +232,8 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					case 2:
 						{
 							switch(ref_(2)){
-								case 0:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
+								case 0:{CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);}break;
+								case 2:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{error();}break;
 							}
 						}break;
@@ -279,4 +283,22 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 void CreateSystem::error(){
 	std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;
 	over_ = true;
-}
+}  
+
+void CreateSystem::create(){
+	if(RGL_){
+		RGL_->create();
+		if(RGL_->is_degenerate()){
+			delete RGL_;
+			RGL_=NULL;
+			ref_(1)=2;
+			init();
+			if(CGL_){CGL_->create();}
+		}
+	} else {
+		if(CGL_){CGL_->create();}
+		if(CGL_ && CGL_->is_degenerate()){
+			std::cout<<"void CreateSystem::create() : behaviour undefined"<<std::endl;
+		}
+	}
+}  

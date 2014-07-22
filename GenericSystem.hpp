@@ -9,7 +9,7 @@
 
 /*!Abstract class that can produce any kind of system*/
 template<typename Type>
-class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSystem{
+class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public BandStructure<Type>, public IOSystem{
 	public:
 		/*{Description*/
 		/*!Constructor requiring the coordination number and the name of the

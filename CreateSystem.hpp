@@ -36,10 +36,7 @@ class CreateSystem{
 			if(RGL_){RGL_->init_output_file(output);}
 			if(CGL_){CGL_->init_output_file(output);}
 		}
-		void create() const {
-			if(RGL_){RGL_->create();}
-			if(CGL_){CGL_->create();}
-		}
+		void create();
 		void save() const {
 			if(RGL_){RGL_->save();}
 			if(CGL_){CGL_->save();}

@@ -13,14 +13,24 @@ class BandStructure{
 		BandStructure(Matrix<Type> const& T, unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, int const& bc);
 		/*!Destructor*/
 		virtual ~BandStructure(){}
-		void dostuff(unsigned int const& a, unsigned int const&b, Matrix<std::complex<double> >& evec, Vector<double> const& eval);
+
+		void diagonalize_subspace_Tx(unsigned int const& a, unsigned int const&b, Matrix<std::complex<double> >& evec, Vector<double> const& eval);
+		void diagonalize_subspace_Ty(unsigned int const& a, unsigned int const&b, Matrix<std::complex<double> >& evec, Vector<double> const& eval);
+		void diagonalize_everything(Matrix<std::complex<double> >& evec, Matrix<std::complex<double> >& eval);
 		Vector<double> check(Matrix<std::complex<double> >& evec);
 		void save();
+
+		void compute_band_structure();
+		Matrix<std::complex<double> > get_evec() const { return evec_; };
+		Vector<double> get_E() const { return E_; };
+		Vector<double> get_px() const { return px_; };
+		Vector<double> get_py() const { return py_; };
 
 	protected:
 		Matrix<Type> mat_;			//!< matrix used to get the band structure
 		Matrix<Type> Tx_;			//!< translation operator along x-axis
 		Matrix<Type> Ty_;			//!< translation operator along y-axis
+		Matrix<Type> evec_;			//!< translation operator along y-axis
 		Vector<double> E_;			//!< eigenvalue of the Hamiltonian T_
 		Vector<double> px_;			//!< eigenvalue of the translation along x
 		Vector<double> py_;			//!< eigenvalue of the translation along y
@@ -28,21 +38,22 @@ class BandStructure{
 		unsigned int const Ly_;		//!< number of unit cell along the y-axis
 		unsigned int const spuc_;	//!< site per unit cell
 		int const bc_;				//!< boundary condition
-		unsigned int const dim_;
+		unsigned int const dim_;	//!< dimension of the lattice
 
-		/*!Evaluate the value of an operator O as <bra|O|ket>*/
-		std::complex<double> projection(Matrix<Type> const& O, Matrix<Type> const& evec, unsigned int const& idx, unsigned int const& jdx) const;
-		/*!Evaluate the value of an operator O as <bra|O|ket>*/
-		void compute_translation_operator();
-		void compute_band_structure();
 
 	private:
 		/*!Forbids copy*/
 		BandStructure(BandStructure const& bs);
 		/*!Forbids assignment*/
 		BandStructure& operator=(BandStructure bs);
+
+		/*!Evaluate the value of an operator O as <bra|O|ket>*/
+		std::complex<double> projection(Matrix<Type> const& O, Matrix<Type> const& evec, unsigned int const& idx, unsigned int const& jdx) const;
+		/*!Creates Tx and Ty*/
+		void init();
 };
 	
+/*{constructors*/
 template<typename Type>
 BandStructure<Type>::BandStructure(Matrix<Type> const& T, unsigned int const& L, unsigned int const& spuc, int const& bc):
 	mat_(T),
@@ -54,7 +65,9 @@ BandStructure<Type>::BandStructure(Matrix<Type> const& T, unsigned int const& L,
 	spuc_(spuc),
 	bc_(bc),
 	dim_(1)
-{ compute_translation_operator(); }
+{ init(); 
+
+}
 	
 template<typename Type>
 BandStructure<Type>::BandStructure(Matrix<Type> const& T, unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, int const& bc):
@@ -69,16 +82,16 @@ BandStructure<Type>::BandStructure(Matrix<Type> const& T, unsigned int const& Lx
 	spuc_(spuc),
 	bc_(bc),
 	dim_(2)
-{}
+{ init(); }
 
 template<typename Type>
-void BandStructure<Type>::compute_translation_operator(){
+void BandStructure<Type>::init(){
 	unsigned int tmp;
 	double t;
 	switch(dim_){
 		case 1:
 			{
-				t = 1.0;
+				t = 3.0;
 				for(unsigned int i(0); i<Lx_-1; i++){ 
 					tmp = spuc_*i;
 					for(unsigned int k(0);k<spuc_;k++){
@@ -120,34 +133,19 @@ void BandStructure<Type>::compute_translation_operator(){
 		default:{ std::cerr<<"BandStructure : dim_ undefined"<<std::endl;}
 	}
 }
+/*}*/
 
+/*{public methods*/
 template<typename Type>
 void BandStructure<Type>::compute_band_structure(){
-	Lapack<Type> ES(((dim_==1)?mat_+Tx_:mat_+Tx_+Ty_),true,'G');
-	Matrix<std::complex<double> > evec;
 	Vector<std::complex<double> > eval;
-	ES.eigensystem(eval,&evec);
+	Matrix<std::complex<double> > M((dim_==1)?mat_+Tx_:mat_+Tx_+Ty_);
+	Lapack<Type>(M,true,'G').eigensystem(eval,&evec_);
 	for(unsigned int i(0);i<mat_.row();i++){
-		E_(i) = projection(mat_,evec,i,i).real();
-		px_(i) = log(projection(Tx_,evec,i,i)).imag();
-		if(dim_==2){ py_(i) = log(projection(Ty_,evec,i,i)).imag(); }
-		//px_(i) = log(projection(Px_,i)).imag();
-		//if(dim_==2){ py_(i) = log(projection(Ty_,i)).imag(); }
+		E_(i) = projection(mat_,evec_,i,i).real();
+		px_(i) = log(projection(Tx_,evec_,i,i)).imag();
+		if(dim_==2){ py_(i) = log(projection(Ty_,evec_,i,i)).imag(); }
 	}
-}
-
-template<typename Type>
-std::complex<double> BandStructure<Type>::projection(Matrix<Type> const& O, Matrix<Type> const& evec, unsigned int const& idx, unsigned int const& jdx) const {
-	std::complex<double> tmp;
-	std::complex<double> out(0.0);
-	for(unsigned int i(0);i<O.row();i++){
-		tmp = 0.0;
-		for(unsigned int j(0);j<O.col();j++){
-			tmp += O(i,j)*evec(j,idx);
-		}
-		out += std::conj(evec(i,jdx))*tmp;
-	}
-	return out;
 }
 
 template<typename Type>
@@ -167,31 +165,27 @@ void BandStructure<Type>::save(){
 }
 
 template<typename Type>
-void BandStructure<Type>::dostuff(unsigned int const& a, unsigned int const&b, Matrix<std::complex<double> >& evec, Vector<double> const& eval){
+void BandStructure<Type>::diagonalize_subspace_Tx(unsigned int const& a, unsigned int const&b, Matrix<std::complex<double> >& evec, Vector<double> const& eval){
 	if(b-a!=1){
-		Matrix<std::complex<double> > tmp_mat(b-a,b-a);
-		for(unsigned int i(0);i<b-a;i++){
-			for(unsigned int j(0);j<b-a;j++){
-				tmp_mat(i,j) = projection(Tx_,evec,a+i,a+j);
-			}
-		}
-		Lapack<std::complex<double> > tmp_diag(tmp_mat,false,'G');
-		Vector<std::complex<double> > tmp_eval;
-		Matrix<std::complex<double> > tmp_evec;
-		tmp_diag.eigensystem(tmp_eval,&tmp_evec);
-
-		for(unsigned int i(0);i<b-a;i++){
-			px_(a+i) = log(tmp_eval(i)).imag();
-			E_(a+i) = eval(a+i);
-		}
-		
 		Matrix<std::complex<double> > evec_old(evec.row(),b-a);
-
 		for(unsigned int i(0);i<evec.row();i++){
 			for(unsigned int j(0);j<b-a;j++){
 				evec_old(i,j) = evec(i,a+j);
 			}
 		}
+
+		Matrix<std::complex<double> > tmp_mat(b-a,b-a);
+		for(unsigned int i(0);i<b-a;i++){
+			for(unsigned int j(0);j<b-a;j++){
+				tmp_mat(i,j) = projection(Tx_,evec_old,i,j);
+			}
+		}
+
+		Lapack<std::complex<double> > tmp_diag(tmp_mat,false,'G');
+		Vector<std::complex<double> > tmp_eval;
+		Matrix<std::complex<double> > tmp_evec;
+		tmp_diag.eigensystem(tmp_eval,&tmp_evec);
+
 		std::complex<double> tmp;
 		for(unsigned int i(0);i<evec.row();i++){
 			for(unsigned int j(0);j<b-a;j++){
@@ -202,10 +196,168 @@ void BandStructure<Type>::dostuff(unsigned int const& a, unsigned int const&b, M
 				evec(i,a+j) = tmp;
 			}
 		}
+
+		for(unsigned int i(0);i<b-a;i++){
+			px_(a+i)= log(tmp_eval(i)).imag();
+			E_(a+i) = eval(a+i);
+		}
 	} else {
-		px_(a) = log(projection(Tx_,evec,a,a)).imag();
+		px_(a)= log(projection(Tx_,evec,a,a)).imag();
 		E_(a) = eval(a);
 	}
+}
+
+//template<typename Type>
+//void BandStructure<Type>::diagonalize_everything(Matrix<std::complex<double> >& evec, Matrix<std::complex<double> >& eval){
+	//Matrix<Type>* O(new Matrix<Type>[dim_]);
+	//O[0] = Tx_;
+	//if(dim_==2){ O[1] = Ty_; }
+//
+	//unsigned int a;
+	//unsigned int b;
+	//unsigned int n(evec.row());//can be replaced by n_
+	//for(unsigned int o(0);o<dim_;o++){
+//
+			//std::cout<<"mat "<<(evec.transpose()*evec).chop()<<std::endl<<std::endl;
+		//a = 0;
+		//b = 0;
+		//while(a != n){
+			//do{b++;}
+			//while(b != n && are_equal(eval(b,o),eval(b-1,o),1e-14));
+			//std::cout<<o<<" "<<a<<" "<<b<<std::endl;
+//
+			//if(b-a>1){
+				///*copy the old eigenvectors*/
+				//Matrix<std::complex<double> > evec_old(evec.row(),b-a);
+				//for(unsigned int i(0);i<evec.row();i++){
+					//for(unsigned int j(0);j<b-a;j++){
+						//evec_old(i,j) = evec(i,a+j);
+					//}
+				//}
+				///*project the old eigenvectors on the operator O[o]*/
+				//Matrix<std::complex<double> > tmp_mat(b-a,b-a);
+				//for(unsigned int i(0);i<b-a;i++){
+					//for(unsigned int j(0);j<b-a;j++){
+						//tmp_mat(i,j) = projection(O[o],evec_old,i,j);
+					//}
+				//}
+				///*diagonalize the subspace and compute the eigenvectors*/
+				//Lapack<std::complex<double> > tmp_diag(tmp_mat,false,'G');
+				//Matrix<std::complex<double> > tmp_evec;
+				//Vector<std::complex<double> > tmp_eval;
+				//tmp_diag.eigensystem(tmp_eval,&tmp_evec);
+				//std::cout<<tmp_eval<<std::endl;
+				///*copy the eigenvalue in a sorted order*/
+				//for(unsigned int i(0);i<b-a;i++){ 
+					//tmp_eval(i) = log(tmp_eval(i));
+				//}
+				//Vector<unsigned int> index;
+				//tmp_eval.sort(&less_equal_complex, index);
+				//for(unsigned int i(0);i<b-a;i++){ 
+					//eval(a+i,o+1) = tmp_eval(i); 
+				//}
+				///*create the linear combination of the old vectors, the new
+				// * vectors are eigenvectors of the operator O[o]*/
+				//for(unsigned int i(0);i<evec.row();i++){
+					//for(unsigned int j(0);j<b-a;j++){
+						//evec(i,a+j) = 0.0;
+						//for(unsigned int k(0);k<b-a;k++){
+							//evec(i,a+j)	+= evec_old(i,k)*tmp_evec(k,index(j));
+						//}
+					//}
+				//}
+				//Matrix<std::complex<double> > evecinv(evec);
+				//Lapack<std::complex<double> > (evecinv,false,'G').inv();
+				//std::cout<<(evecinv*O[o]*evec).chop()<<std::endl<<std::endl;
+//
+			//} else {
+				//eval(a,o+1) = log(projection(O[o],evec,a,a));
+			//}
+			//a=b;
+		//}
+	//}
+	//delete[] O;
+//}
+
+template<typename Type>
+void BandStructure<Type>::diagonalize_everything(Matrix<std::complex<double> >& evec, Matrix<std::complex<double> >& eval){
+	Matrix<Type>* O(new Matrix<Type>[dim_]);
+	O[0] = Tx_;
+	if(dim_==2){ O[1] = Ty_; }
+
+	unsigned int a;
+	unsigned int b;
+	unsigned int n(evec.row());//can be replaced by n_
+	for(unsigned int o(0);o<dim_;o++){
+		a = 0;
+		b = 0;
+		while(a != n){
+			do{b++;}
+			while(b != n && are_equal(eval(b,o),eval(b-1,o),1e-14));
+			std::cout<<o<<" "<<b-a<<std::endl;
+
+			if(b-a>1){
+				/*copy the old eigenvectors*/
+				Matrix<std::complex<double> > evec_old(evec.row(),b-a);
+				for(unsigned int i(0);i<evec.row();i++){
+					for(unsigned int j(0);j<b-a;j++){
+						evec_old(i,j) = evec(i,a+j);
+					}
+				}
+				/*project the old eigenvectors on the operator O[o]*/
+				Matrix<std::complex<double> > tmp_mat(b-a,b-a);
+				for(unsigned int i(0);i<b-a;i++){
+					for(unsigned int j(0);j<b-a;j++){
+						tmp_mat(i,j) = projection(O[o],evec_old,i,j);
+					}
+				}
+				/*diagonalize the subspace and compute the eigenvectors*/
+				Matrix<std::complex<double> > tmp_evec;
+				//Vector<std::complex<double> > tmp_eval;
+				//Lapack<std::complex<double> >(tmp_mat,false,'G').eigensystem(tmp_eval,&tmp_evec);
+				Vector<double> tmp_eval;
+				Lapack<std::complex<double> >(tmp_mat,false,'H').eigensystem(tmp_eval,true);
+				//std::cout<<tmp_eval<<std::endl;
+				/*copy the eigenvalue in a sorted order*/
+				//for(unsigned int i(0);i<b-a;i++){ 
+					//tmp_eval(i) = log(tmp_eval(i));
+				//}
+				Vector<unsigned int> index;
+				tmp_eval.sort(&less_equal_complex, index);
+				for(unsigned int i(0);i<b-a;i++){ 
+					eval(a+i,o+1) = tmp_eval(i); 
+				}
+				/*create the linear combination of the old vectors, the new
+				 * vectors are eigenvectors of the operator O[o]*/
+				for(unsigned int i(0);i<evec.row();i++){
+					for(unsigned int j(0);j<b-a;j++){
+						evec(i,a+j) = 0.0;
+						for(unsigned int k(0);k<b-a;k++){
+							//evec(i,a+j)	+= evec_old(i,k)*tmp_evec(k,index(j));
+							evec(i,a+j)	+= evec_old(i,k)*tmp_mat(k,index(j));
+						}
+					}
+				}
+				Matrix<std::complex<double> > evecinv(evec);
+				Lapack<std::complex<double> >(evecinv,false,'G').inv();
+				std::cout<<(evecinv*O[o]*evec).chop()<<std::endl<<std::endl;
+			} else {
+				eval(a,o+1) = log(projection(O[o],evec,a,a));
+			}
+			a=b;
+		}
+		//std::cout<<"here"<<std::endl;
+		//for(unsigned int i(0);i<evec.row();i++){
+			//for(unsigned int j(0);j<evec.row();j++){
+				//std::complex<double> tmp(0);
+				//for(unsigned int k(0);k<evec.row();k++){
+					//tmp += O[o](i,k)*evec(k,j);
+				//}
+				//std::cout<<tmp-evec(i,j)*eval(i,o)<<std::endl;
+			//}
+		//}
+	}
+	delete[] O;
 }
 
 template<typename Type>
@@ -217,4 +369,21 @@ Vector<double> BandStructure<Type>::check(Matrix<std::complex<double> >& evec){
 	for(unsigned int i(0);i<evec.row();i++){ p(i) = log(m(i,i)).imag(); }
 	return p;
 }
+/*}*/
+
+/*{private methods*/
+template<typename Type>
+std::complex<double> BandStructure<Type>::projection(Matrix<Type> const& O, Matrix<Type> const& evec, unsigned int const& idx, unsigned int const& jdx) const {
+	std::complex<double> tmp;
+	std::complex<double> out(0.0);
+	for(unsigned int i(0);i<O.row();i++){
+		tmp = 0.0;
+		for(unsigned int j(0);j<O.col();j++){
+			tmp += O(i,j)*evec(j,idx);
+		}
+		out += std::conj(evec(i,jdx))*tmp;
+	}
+	return out;
+}
+/*}*/
 #endif
