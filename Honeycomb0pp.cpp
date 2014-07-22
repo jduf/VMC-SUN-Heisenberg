@@ -249,7 +249,7 @@ void Honeycomb0pp::check(){
 	//compute_P(Px,Py);
 	//BandStructure<double> bs(T_,Px,Py);
 
-	BandStructure<double> bs(T_,Lx_,Ly_,spuc_,bc_);
+	//BandStructure<double> bs(T_,Lx_,Ly_,spuc_,bc_);
 	lattice();
 }
 /*}*/

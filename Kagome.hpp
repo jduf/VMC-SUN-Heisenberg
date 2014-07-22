@@ -2,9 +2,10 @@
 #define DEF_KAGOME
 
 #include "GenericSystem.hpp"
+#include "System2D.hpp"
 
 template<typename Type>
-class Kagome: public GenericSystem<Type>{
+class Kagome: public GenericSystem<Type>, public System2D<Type>{
 	public:
 		/*{Description*/
 		/*!Constructor that organises the n sites according to the ratio Lx/Ly
@@ -16,27 +17,21 @@ class Kagome: public GenericSystem<Type>{
 		virtual ~Kagome()=0;
 
 	protected:
-		unsigned int Lx_;	//!< number of unit cell along the x-axis
-		unsigned int Ly_;	//!< number of unit cell along the y-axis
-		unsigned int spuc_;	//!< site per unit cell
-
 		Matrix<int> get_neighbourg(unsigned int i) const;
 };
 
 template<typename Type>
 Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
 	GenericSystem<Type>(4,filename),
-	Lx_(sqrt(Lx*this->n_/(Ly*spuc))),
-	Ly_(sqrt(Ly*this->n_/(Lx*spuc))),
-	spuc_(spuc)
+	System2D<Type>(Lx,Ly,spuc)
 {
-	if(this->n_==Ly_*Lx_*spuc_){
-		this->filename_ += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
+	if(this->n_==this->Ly_*this->Lx_*this->spuc_){
+		this->filename_ += "-" + tostring(this->Lx_) +"x"+ tostring(this->Ly_);
 		this->compute_links();
 		this->status_--;
 	} else {
 		std::cerr<<"Kagome<Type> : the cluster is impossible, n must be a"<<std::endl; 
-		std::cerr<<"             : multiple of "<<Lx*Ly*spuc_<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc_<<")"<<std::endl; 
+		std::cerr<<"             : multiple of "<<Lx*Ly*this->spuc_<<" ("<<Lx<<"x"<<Ly<<"x"<<this->spuc_<<")"<<std::endl; 
 	}
 }
 
@@ -46,7 +41,7 @@ Kagome<Type>::~Kagome(){}
 template<typename Type>
 Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 	Matrix<int> nb(this->z_,2,1);
-	switch(spuc_){
+	switch(this->spuc_){
 		case 3: case 6:
 			{
 				switch(i%3){
@@ -57,24 +52,24 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 							/*+x+y neighbour*/
 							nb(1,0) = i+2;
 							/*-x neighbour*/
-							if(i%(spuc_*Lx_)){ nb(2,0) = i-2; }
+							if(i%(this->spuc_*this->Lx_)){ nb(2,0) = i-2; }
 							else {
-								nb(2,0) = i-2+spuc_*Lx_;
+								nb(2,0) = i-2+this->spuc_*this->Lx_;
 								nb(2,1) = this->bc_;
 							}
 							/*-x-y neighbour*/
-							if(i+1>=spuc_*Lx_){ nb(3,0) = i+2-spuc_*Lx_; } 
+							if(i+1>=this->spuc_*this->Lx_){ nb(3,0) = i+2-this->spuc_*this->Lx_; } 
 							else {
-								nb(3,0) = i+2+(Ly_-1)*spuc_*Lx_;
+								nb(3,0) = i+2+(this->Ly_-1)*this->spuc_*this->Lx_;
 								nb(3,1) = this->bc_;
 							}
 						}break;
 					case 1:
 						{
 							/*+x neighbour*/
-							if((i+2)%(spuc_*Lx_)){ nb(0,0) = i+2; }
+							if((i+2)%(this->spuc_*this->Lx_)){ nb(0,0) = i+2; }
 							else {
-								nb(0,0) = i+2-spuc_*Lx_;
+								nb(0,0) = i+2-this->spuc_*this->Lx_;
 								nb(0,1) = this->bc_;
 							}
 							/*-x+y neighbour*/
@@ -82,18 +77,18 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 							/*-x neighbour*/
 							nb(2,0) = i-1;
 							/*+x-y neighbour*/
-							if(i+1>=spuc_*Lx_){
-								if((i+2)%(spuc_*Lx_)){ nb(3,0) = i+4-spuc_*Lx_; } 
+							if(i+1>=this->spuc_*this->Lx_){
+								if((i+2)%(this->spuc_*this->Lx_)){ nb(3,0) = i+4-this->spuc_*this->Lx_; } 
 								else {
-									nb(3,0) = i+4-2*spuc_*Lx_; 
+									nb(3,0) = i+4-2*this->spuc_*this->Lx_; 
 									nb(3,1) = this->bc_;
 								}
 							} else {
-								if((i+2)%(spuc_*Lx_)){
-									nb(3,0) = i+4+(Ly_-1)*spuc_*Lx_;
+								if((i+2)%(this->spuc_*this->Lx_)){
+									nb(3,0) = i+4+(this->Ly_-1)*this->spuc_*this->Lx_;
 									nb(3,1) = this->bc_;
 								} else {
-									nb(3,0) = Lx_*(Ly_-1)*spuc_+2; 
+									nb(3,0) = this->Lx_*(this->Ly_-1)*this->spuc_+2; 
 									nb(3,1) = this->bc_*this->bc_;
 								}
 							}
@@ -101,24 +96,24 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 					case 2:
 						{
 							/*+x+y neighbour*/
-							if(i<this->n_-spuc_*Lx_){ nb(0,0) = i+spuc_*Lx_-2; }
+							if(i<this->n_-this->spuc_*this->Lx_){ nb(0,0) = i+this->spuc_*this->Lx_-2; }
 							else { 
-								nb(0,0) = i-2-spuc_*Lx_*(Ly_-1);
+								nb(0,0) = i-2-this->spuc_*this->Lx_*(this->Ly_-1);
 								nb(0,1) = this->bc_;
 							}
 							/*-x+y neighbour*/
-							if((i-2)%(spuc_*Lx_)){
-								if(i<this->n_-spuc_*Lx_){ nb(1,0) = i-4+spuc_*Lx_; }
+							if((i-2)%(this->spuc_*this->Lx_)){
+								if(i<this->n_-this->spuc_*this->Lx_){ nb(1,0) = i-4+this->spuc_*this->Lx_; }
 								else {
-									nb(1,0) = i-4-spuc_*Lx_*(Ly_-1);
+									nb(1,0) = i-4-this->spuc_*this->Lx_*(this->Ly_-1);
 									nb(1,1) = this->bc_;
 								}
 							} else {
-								if(i<this->n_-spuc_*Lx_){
-									nb(1,0) = i-4+2*spuc_*Lx_;
+								if(i<this->n_-this->spuc_*this->Lx_){
+									nb(1,0) = i-4+2*this->spuc_*this->Lx_;
 									nb(1,1) = this->bc_;
 								} else {
-									nb(1,0) = spuc_*Lx_-2;
+									nb(1,0) = this->spuc_*this->Lx_-2;
 									nb(1,1) = this->bc_*this->bc_;
 								}
 							}
@@ -135,14 +130,14 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 					case 0:
 						{ 
 							nb(0,0) = i+1; 
-							if(i%(Lx_*spuc_)){ nb(1,0) = i-1; }
+							if(i%(this->Lx_*this->spuc_)){ nb(1,0) = i-1; }
 							else { 
-								nb(1,0) = i-1+Lx_*spuc_; 
+								nb(1,0) = i-1+this->Lx_*this->spuc_; 
 								nb(1,1) = this->bc_; 
 							}
-							if(i>=(Lx_*spuc_)){ nb(2,0) = i+6-Lx_*spuc_; }
+							if(i>=(this->Lx_*this->spuc_)){ nb(2,0) = i+6-this->Lx_*this->spuc_; }
 							else { 
-								nb(2,0) = i+6+(Ly_-1)*Lx_*spuc_;
+								nb(2,0) = i+6+(this->Ly_-1)*this->Lx_*this->spuc_;
 								nb(2,1) = this->bc_; 
 							}
 							nb(3,0) = i+5;
@@ -150,14 +145,14 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 					case 1:
 						{
 							nb(0,0) = i+1;
-							if((i-1)%(Lx_*spuc_)!=0){ nb(1,0) = i-3; }
+							if((i-1)%(this->Lx_*this->spuc_)!=0){ nb(1,0) = i-3; }
 							else {
-								nb(1,0) = i-3+Lx_*spuc_; 
+								nb(1,0) = i-3+this->Lx_*this->spuc_; 
 								nb(1,1) = this->bc_; 
 							}
-							if((i-1)%(Lx_*spuc_)){ nb(2,0) = i-2; }
+							if((i-1)%(this->Lx_*this->spuc_)){ nb(2,0) = i-2; }
 							else {
-								nb(2,0) = i-2+Lx_*spuc_; 
+								nb(2,0) = i-2+this->Lx_*this->spuc_; 
 								nb(2,1) = this->bc_; 
 							}
 							nb(3,0) = i-1;
@@ -166,9 +161,9 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 						{
 							nb(0,0) = i+1;
 							nb(1,0) = i+4;
-							if((i-2)%(Lx_*spuc_)!=0){ nb(2,0) = i-4; }
+							if((i-2)%(this->Lx_*this->spuc_)!=0){ nb(2,0) = i-4; }
 							else {
-								nb(2,0) = i-4+Lx_*spuc_; 
+								nb(2,0) = i-4+this->Lx_*this->spuc_; 
 								nb(2,1) = this->bc_; 
 							}
 							nb(3,0) = i-1;
@@ -183,9 +178,9 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 					case 4:
 						{
 							nb(0,0) = i+1;
-							if(i>=(Lx_*spuc_)){ nb(1,0) = i+3-Lx_*spuc_; }
+							if(i>=(this->Lx_*this->spuc_)){ nb(1,0) = i+3-this->Lx_*this->spuc_; }
 							else { 
-								nb(1,0) = i+3+(Ly_-1)*Lx_*spuc_;
+								nb(1,0) = i+3+(this->Ly_-1)*this->Lx_*this->spuc_;
 								nb(1,1) = this->bc_; 
 							}
 							nb(2,0) = i+4;
@@ -194,28 +189,28 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 					case 5:
 						{
 							nb(0,0) = i-5;
-							if(i>=(Lx_*spuc_)){ nb(1,0) = i+1-Lx_*spuc_; }
+							if(i>=(this->Lx_*this->spuc_)){ nb(1,0) = i+1-this->Lx_*this->spuc_; }
 							else { 
-								nb(1,0) = i+1+(Ly_-1)*Lx_*spuc_;
+								nb(1,0) = i+1+(this->Ly_-1)*this->Lx_*this->spuc_;
 								nb(1,1) = this->bc_; 
 							}
-							if(i>=(Lx_*spuc_)){ nb(2,0) = i+2-Lx_*spuc_; }
+							if(i>=(this->Lx_*this->spuc_)){ nb(2,0) = i+2-this->Lx_*this->spuc_; }
 							else { 
-								nb(2,0) = i+2+(Ly_-1)*Lx_*spuc_;
+								nb(2,0) = i+2+(this->Ly_-1)*this->Lx_*this->spuc_;
 								nb(2,1) = this->bc_; 
 							}
 							nb(3,0) = i-1;
 						}break;
 					case 6:
 						{
-							if(i<(Ly_-1)*Lx_*spuc_){ nb(0,0) = i-1+Lx_*spuc_; }
+							if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(0,0) = i-1+this->Lx_*this->spuc_; }
 							else {
-								nb(0,0) = i-1-(Ly_-1)*Lx_*spuc_;
+								nb(0,0) = i-1-(this->Ly_-1)*this->Lx_*this->spuc_;
 								nb(0,1) = this->bc_; 
 							}
-							if(i<(Ly_-1)*Lx_*spuc_){ nb(1,0) = i-6+Lx_*spuc_; }
+							if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(1,0) = i-6+this->Lx_*this->spuc_; }
 							else {
-								nb(1,0) = i-6-(Ly_-1)*Lx_*spuc_;
+								nb(1,0) = i-6-(this->Ly_-1)*this->Lx_*this->spuc_;
 								nb(1,1) = this->bc_; 
 							}
 							nb(2,0) = i-4;
@@ -223,37 +218,37 @@ Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
 						}break;
 					case 7:
 						{
-							if((i+2)%(Lx_*spuc_)!=0){ nb(0,0) = i+3; }
+							if((i+2)%(this->Lx_*this->spuc_)!=0){ nb(0,0) = i+3; }
 							else {
-								nb(0,0) = i+3-Lx_*spuc_;
+								nb(0,0) = i+3-this->Lx_*this->spuc_;
 								nb(0,1) = this->bc_; 
 							}
-							if((i+2)%(Lx_*spuc_)!=0){ nb(1,0) = i+4; }
+							if((i+2)%(this->Lx_*this->spuc_)!=0){ nb(1,0) = i+4; }
 							else {
-								nb(1,0) = i+4-Lx_*spuc_;
+								nb(1,0) = i+4-this->Lx_*this->spuc_;
 								nb(1,1) = this->bc_; 
 							}
-							if(i<(Ly_-1)*Lx_*spuc_){ nb(2,0) = i-3+Lx_*spuc_; }
+							if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(2,0) = i-3+this->Lx_*this->spuc_; }
 							else {
-								nb(2,0) = i-3-(Ly_-1)*Lx_*spuc_;
+								nb(2,0) = i-3-(this->Ly_-1)*this->Lx_*this->spuc_;
 								nb(2,1) = this->bc_; 
 							}
-							if(i<(Ly_-1)*Lx_*spuc_){ nb(3,0) = i-2+Lx_*spuc_; }
+							if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(3,0) = i-2+this->Lx_*this->spuc_; }
 							else {
-								nb(3,0) = i-2-(Ly_-1)*Lx_*spuc_;
+								nb(3,0) = i-2-(this->Ly_-1)*this->Lx_*this->spuc_;
 								nb(3,1) = this->bc_; 
 							}
 						}break;
 					case 8:
 						{
-							if((i+1)%(Lx_*spuc_)!=0){ nb(0,0) = i+1; }
+							if((i+1)%(this->Lx_*this->spuc_)!=0){ nb(0,0) = i+1; }
 							else {
-								nb(0,0) = i+1-Lx_*spuc_;
+								nb(0,0) = i+1-this->Lx_*this->spuc_;
 								nb(0,1) = this->bc_; 
 							}
-							if((i+1)%(Lx_*spuc_)!=0){ nb(1,0) = i+2; }
+							if((i+1)%(this->Lx_*this->spuc_)!=0){ nb(1,0) = i+2; }
 							else {
-								nb(1,0) = i+2-Lx_*spuc_;
+								nb(1,0) = i+2-this->Lx_*this->spuc_;
 								nb(1,1) = this->bc_; 
 							}
 							nb(2,0) = i-5;

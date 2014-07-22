@@ -337,7 +337,7 @@ void KagomeVBC::check(){
 	//}
 	///*}*/
 
-	BandStructure<std::complex<double> > bs(T_,Lx_,Ly_,spuc_,bc_);
+	//BandStructure<std::complex<double> > bs(T_,Lx_,Ly_,spuc_,bc_);
 	lattice();
 }
 /*}*/

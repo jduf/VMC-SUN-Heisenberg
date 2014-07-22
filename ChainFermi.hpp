@@ -2,6 +2,7 @@
 #define DEF_CHAINFERMI
 
 #include "Chain.hpp"
+#include "BandStructure.hpp"
 
 template<typename Type>
 class ChainFermi: public Chain<Type>{

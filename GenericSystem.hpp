@@ -2,14 +2,13 @@
 #define DEF_GENERICSYSTEM
 
 #include "PSTricks.hpp"
-#include "BandStructure.hpp"
 #include "Bosonic.hpp"
 #include "Fermionic.hpp"
 #include "IOSystem.hpp"
 
 /*!Abstract class that can produce any kind of system*/
 template<typename Type>
-class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public BandStructure<Type>, public IOSystem{
+class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSystem{
 	public:
 		/*{Description*/
 		/*!Constructor requiring the coordination number and the name of the

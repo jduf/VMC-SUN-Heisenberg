@@ -78,7 +78,7 @@ template<>
 inline void Fermionic<std::complex<double> >::diagonalize_T(){
 	Lapack<std::complex<double> >(T_,false,'H').eigensystem(eval_,true);
 	for(unsigned int c(0);c<N_;c++){
-		if(std::abs(eval_(M_(c)) - eval_(M_(c)-1))<1e-12){
+		if(are_equal(eval_(M_(c)),eval_(M_(c)-1),1e-12)){
 			std::cerr<<"Degenerate for the color : "<<c<<std::endl;
 			degenerate_= true;
 			c=N_;

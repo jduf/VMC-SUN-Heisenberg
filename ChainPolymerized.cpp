@@ -59,7 +59,7 @@ void ChainPolymerized::save() const {
 
 /*{method needed for checking*/
 void ChainPolymerized::check(){
-	BandStructure<double> bs(T_,Lx_,spuc_,bc_);
+	//BandStructure<double> bs(T_,Lx_,spuc_,bc_);
 }
 /*}*/
 

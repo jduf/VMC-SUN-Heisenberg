@@ -40,7 +40,6 @@ class BandStructure{
 		int const bc_;				//!< boundary condition
 		unsigned int const dim_;	//!< dimension of the lattice
 
-
 	private:
 		/*!Forbids copy*/
 		BandStructure(BandStructure const& bs);
