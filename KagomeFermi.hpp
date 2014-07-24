@@ -14,7 +14,7 @@ class KagomeFermi: public Kagome<Type>{
 		bool is_over(){std::cout<<"bla"<<std::endl; return this->over_; }
 
 	protected:
-		void compute_T();
+		void compute_H();
 		void lattice();
 		std::string extract_level_7();
 		std::string extract_level_6();
@@ -35,9 +35,9 @@ KagomeFermi<Type>::KagomeFermi(Vector<unsigned int> const& ref, unsigned int con
 
 /*{method needed for running*/
 template<typename Type>
-void KagomeFermi<Type>::compute_T(){
+void KagomeFermi<Type>::compute_H(){
 	double t(1.0);
-	this->T_.set(this->n_,this->n_,0);
+	this->H_.set(this->n_,this->n_,0);
 	Matrix<int> nb;
 	unsigned int s(0);
 	for(unsigned int i(0);i<this->Lx_;i++){
@@ -45,23 +45,23 @@ void KagomeFermi<Type>::compute_T(){
 			/*site 0*/
 			s = this->spuc_*(i + j*this->Lx_);
 			nb = this->get_neighbourg(s);
-			/*0-1*/this->T_(s,nb(0,0)) = nb(0,1)*t;
-			/*0-1*/this->T_(s,nb(2,0)) = nb(2,1)*t;
+			/*0-1*/this->H_(s,nb(0,0)) = nb(0,1)*t;
+			/*0-1*/this->H_(s,nb(2,0)) = nb(2,1)*t;
 
 			/*site 1*/
 			s++;
 			nb = this->get_neighbourg(s);
-			/*0-1*/this->T_(s,nb(1,0)) = nb(1,1)*t;
-			/*0-1*/this->T_(s,nb(3,0)) = nb(3,1)*t;
+			/*0-1*/this->H_(s,nb(1,0)) = nb(1,1)*t;
+			/*0-1*/this->H_(s,nb(3,0)) = nb(3,1)*t;
 
 			/*site 2*/
 			s++;
 			nb = this->get_neighbourg(s);
-			/*0-1*/this->T_(s,nb(0,0)) = nb(0,1)*t;
-			/*0-1*/this->T_(s,nb(2,0)) = nb(2,1)*t;
+			/*0-1*/this->H_(s,nb(0,0)) = nb(0,1)*t;
+			/*0-1*/this->H_(s,nb(2,0)) = nb(2,1)*t;
 		}
 	}
-	this->T_ += this->T_.transpose();
+	this->H_ += this->H_.transpose();
 }
 /*}*/
 
@@ -111,11 +111,11 @@ void KagomeFermi<Type>::lattice(){
 			ps.put(x0-0.2,y0+0.2,tostring(s));
 			x1 = x0+ll;
 			y1 = y0;
-			if(real(this->T_(s,nb(0,0)))>0){ color = "green"; }
+			if(real(this->H_(s,nb(0,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-1*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0-ll;
-			if(real(this->T_(s,nb(2,0)))>0){ color = "green"; }
+			if(real(this->H_(s,nb(2,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-1*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -126,12 +126,12 @@ void KagomeFermi<Type>::lattice(){
 			ps.put(x0+0.2,y0+0.2,tostring(s));
 			x1 = x0+ll*cos(4.0*M_PI/6.0);
 			y1 = y0+ll*sin(4.0*M_PI/6.0);
-			if(real(this->T_(s,nb(1,0)))>0){ color = "green"; }
+			if(real(this->H_(s,nb(1,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*1-2*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(10.0*M_PI/6.0);
 			y1 = y0+ll*sin(10.0*M_PI/6.0);
-			if(real(this->T_(s,nb(3,0)))>0){ color = "green"; }
+			if(real(this->H_(s,nb(3,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*1-2*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -143,12 +143,12 @@ void KagomeFermi<Type>::lattice(){
 			ps.put(x0+0.2,y0,tostring(s));
 			x1 = x0+ll*cos(2.0*M_PI/6.0);
 			y1 = y0+ll*sin(2.0*M_PI/6.0);
-			if(real(this->T_(s,nb(0,0)))>0){ color = "green"; }
+			if(real(this->H_(s,nb(0,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(8.0*M_PI/6.0);
 			y1 = y0+ll*sin(8.0*M_PI/6.0);
-			if(real(this->T_(s,nb(2,0)))>0){ color = "green"; }
+			if(real(this->H_(s,nb(2,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 		}
@@ -180,7 +180,7 @@ void KagomeFermi<Type>::check(){
 	//}
 	//for(unsigned int i(0);i<this->n_;i++){
 	//for(unsigned int j(0);j<this->n_;j++){
-	//if(std::abs(Ttest(i,j)-this->T_(i,j))>0.2){
+	//if(std::abs(Ttest(i,j)-this->H_(i,j))>0.2){
 	//std::cout<<i<<" "<<j<<std::endl;
 	//}
 	//}
@@ -190,9 +190,9 @@ void KagomeFermi<Type>::check(){
 	//unsigned int k(0);
 	//for(unsigned int i(0);i<this->n_;i++){
 	//for(unsigned int j(0);j<this->n_;j++){
-	//if(this->T_(i,j)!=0){
+	//if(this->H_(i,j)!=0){
 	//k++;
-	////std::cout<<i<<" "<<j<<" "<<this->T_(i,j)<<std::endl;
+	////std::cout<<i<<" "<<j<<" "<<this->H_(i,j)<<std::endl;
 	//}
 	//}
 	//}

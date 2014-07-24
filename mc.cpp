@@ -1,6 +1,7 @@
 /*!  @file mc.cpp */
 
 #include "MonteCarlo.hpp"
+#include "CreateSystem.hpp"
 
 template<typename Type>
 void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& tmax);

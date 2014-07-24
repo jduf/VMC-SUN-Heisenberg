@@ -1,6 +1,7 @@
 /*!  @file check.cpp */
 
 #include "MonteCarlo.hpp"
+#include "CreateSystem.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);

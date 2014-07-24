@@ -2,6 +2,7 @@
 #define DEF_SYSTEMBOSONIC
 
 #include "MCSystem.hpp"
+#include "Bosonic.hpp"
 
 /*!Class that contains the information on the state*/
 template<typename Type>

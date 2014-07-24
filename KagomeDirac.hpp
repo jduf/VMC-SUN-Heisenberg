@@ -12,7 +12,7 @@ class KagomeDirac: public Kagome<double>{
 		void check();
 
 	protected:
-		void compute_T();
+		void compute_H();
 		void lattice();
 
 		std::string extract_level_7();

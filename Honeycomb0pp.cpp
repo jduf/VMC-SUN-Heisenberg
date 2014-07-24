@@ -15,9 +15,9 @@ Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& 
 }
 
 /*{method needed for running*/
-void Honeycomb0pp::compute_T(){
+void Honeycomb0pp::compute_H(){
 	double th(1.0);
-	T_.set(n_,n_,0);
+	H_.set(n_,n_,0);
 	Matrix<int> nb;
 	unsigned int s(0);
 	for(unsigned int i(0);i<Lx_;i++){
@@ -25,38 +25,38 @@ void Honeycomb0pp::compute_T(){
 			/*site 0*/
 			s = spuc_*(i+j*Lx_);
 			nb = get_neighbourg(s);
-			T_(s,nb(0,0)) = nb(0,1)*th;
-			T_(s,nb(1,0)) = nb(1,1)*td_;
-			T_(s,nb(2,0)) = nb(2,1)*th;
+			H_(s,nb(0,0)) = nb(0,1)*th;
+			H_(s,nb(1,0)) = nb(1,1)*td_;
+			H_(s,nb(2,0)) = nb(2,1)*th;
 
 			/*site 2*/
 			s+=2;
 			nb = get_neighbourg(s);
-			T_(s,nb(0,0)) = nb(0,1)*th;
-			T_(s,nb(1,0)) = nb(1,1)*td_;
-			T_(s,nb(2,0)) = nb(2,1)*th;
+			H_(s,nb(0,0)) = nb(0,1)*th;
+			H_(s,nb(1,0)) = nb(1,1)*td_;
+			H_(s,nb(2,0)) = nb(2,1)*th;
 			
 			/*site 2*/
 			s+=2;
 			nb = get_neighbourg(s);
-			T_(s,nb(0,0)) = nb(0,1)*th;
-			T_(s,nb(1,0)) = nb(1,1)*td_;
-			T_(s,nb(2,0)) = nb(2,1)*th;
+			H_(s,nb(0,0)) = nb(0,1)*th;
+			H_(s,nb(1,0)) = nb(1,1)*td_;
+			H_(s,nb(2,0)) = nb(2,1)*th;
 		}
 	}
-	T_ += T_.transpose();
+	H_ += H_.transpose();
 }
 
 void Honeycomb0pp::create(){
 	E_.set(50,5,false);
 	corr_.set(links_.row(),50,5,false);
 
-	compute_T();
-	diagonalize_T();
+	compute_H();
+	diagonalize_H(H_);
 	for(unsigned int c(0);c<N_;c++){
 		for(unsigned int i(0);i<n_;i++){
 			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = T_(i,j);
+				EVec_[c](i,j) = H_(i,j);
 			}
 		}
 	}
@@ -113,17 +113,17 @@ void Honeycomb0pp::lattice(){
 			ps.put(x0+0.2,y0,tostring(s));
 			x1 = x0+ll*cos(angle_p);
 			y1 = y0+ll*sin(angle_p);
-			if(T_(s,nb(0,0))>0){ color = "green"; }
+			if(H_(s,nb(0,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0-ll;
 			y1 = y0;
-			if(T_(s,nb(1,0))>0){ color = "green"; }
+			if(H_(s,nb(1,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(angle_n);
 			y1 = y0+ll*sin(angle_n);
-			if(T_(s,nb(2,0))>0){ color = "green"; }
+			if(H_(s,nb(2,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -140,17 +140,17 @@ void Honeycomb0pp::lattice(){
 			ps.put(x0-0.2,y0-0.2,tostring(s));
 			x1 = x0+ll*cos(angle_n);
 			y1 = y0+ll*sin(angle_n);
-			if(T_(s,nb(0,0))>0){ color = "green"; }
+			if(H_(s,nb(0,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(angle_p);
 			y1 = y0+ll*sin(angle_p);
-			if(T_(s,nb(1,0))>0){ color = "green"; }
+			if(H_(s,nb(1,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0-ll;
 			y1 = y0;
-			if(T_(s,nb(2,0))>0){ color = "green"; }
+			if(H_(s,nb(2,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -168,17 +168,17 @@ void Honeycomb0pp::lattice(){
 			ps.put(x0-0.2,y0+0.2,tostring(s));
 			x1 = x0-ll;
 			y1 = y0;
-			if(T_(s,nb(0,0))>0){ color = "green"; }
+			if(H_(s,nb(0,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(angle_n);
 			y1 = y0+ll*sin(angle_n);
-			if(T_(s,nb(1,0))>0){ color = "green"; }
+			if(H_(s,nb(1,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(angle_p);
 			y1 = y0+ll*sin(angle_p);
-			if(T_(s,nb(2,0))>0){ color = "green"; }
+			if(H_(s,nb(2,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -216,7 +216,7 @@ void Honeycomb0pp::check(){
 	//}
 	//for(unsigned int i(0);i<n_;i++){
 	//for(unsigned int j(0);j<n_;j++){
-	//if(std::abs(Ttest(i,j)-std::abs(T_(i,j)))>0.2){
+	//if(std::abs(Ttest(i,j)-std::abs(H_(i,j)))>0.2){
 	//std::cout<<i<<" "<<j<<std::endl;
 	//}
 	//}
@@ -226,9 +226,9 @@ void Honeycomb0pp::check(){
 	//unsigned int k(0);
 	//for(unsigned int i(0);i<n_;i++){
 	//for(unsigned int j(0);j<n_;j++){
-	//if(T_(i,j)!=0){
+	//if(H_(i,j)!=0){
 	//k++;
-	//std::cout<<i<<" "<<j<<" "<<T_(i,j)<<std::endl;
+	//std::cout<<i<<" "<<j<<" "<<H_(i,j)<<std::endl;
 	//}
 	//}
 	//}
@@ -247,9 +247,9 @@ void Honeycomb0pp::check(){
 	//Matrix<double> Px;
 	//Matrix<double> Py;
 	//compute_P(Px,Py);
-	//BandStructure<double> bs(T_,Px,Py);
+	//BandStructure<double> bs(H_,Px,Py);
 
-	//BandStructure<double> bs(T_,Lx_,Ly_,spuc_,bc_);
+	//BandStructure<double> bs(H_,Lx_,Ly_,spuc_,bc_);
 	lattice();
 }
 /*}*/

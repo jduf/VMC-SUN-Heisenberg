@@ -2,6 +2,7 @@
 #define DEF_SYSTEMFERMIONIC
 
 #include "MCSystem.hpp"
+#include "Fermionic.hpp"
 
 /*!Class that contains all the necessary informations to sample the configuration of a fermionic system.*/
 template<typename Type>

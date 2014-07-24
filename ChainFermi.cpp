@@ -6,15 +6,15 @@ void ChainFermi<double>::create(){
 	corr_.set(links_.row(),50,5,false);
 	//if(type==2){ long_range_corr_.set(n_/3); }
 
-	compute_T();
-	diagonalize_T();
+	compute_H();
+	diagonalize_H(H_);
 
 	if(!degenerate_){
 		for(unsigned int c(0);c<N_;c++){
 			EVec_[c].set(n_,M_(c));
 			for(unsigned int i(0);i<n_;i++){
 				for(unsigned int j(0);j<M_(c);j++){
-					EVec_[c](i,j) = T_(i,j);
+					EVec_[c](i,j) = H_(i,j);
 				}
 			}
 		}
@@ -29,9 +29,6 @@ void ChainFermi<std::complex<double> >::create(){
 	//if(type==2){ long_range_corr_.set(n_/3); }
 
 	compute_T();/*T contains the hopping amplitudes*/
-	BandStructure<std::complex<double> > bs(T_,Lx_,spuc_,bc_);
-	bs.compute_band_structure();
-	bs.save();
 
 	//diagonalize_T();/*T contains the eigenvectors*/
 //
@@ -40,23 +37,23 @@ void ChainFermi<std::complex<double> >::create(){
 	//while(a != n_){
 		//do{b++;}
 		//while(b != n_ && are_equal(eval_(b),eval_(b-1),1e-14));
-		//bs.diagonalize_subspace_Tx(a,b,T_,eval_);
+		//bs.diagonalize_subspace_Tx(a,b,H_,eval_);
 		//a=b;
 	//}
 	//bs.save();
 //
-	//Vector<double> P(bs.check(T_));
+	//Vector<double> P(bs.check(H_));
 	//for(unsigned int c(0);c<N_;c++){
 		//double p(0);
 		//double e(0);
 		//EVec_[c].set(n_,M_(c));
 		//for(unsigned int i(0);i<n_;i++){
 			//for(unsigned int j(0);j<M_(c)-1;j++){
-				//EVec_[c](i,j) = T_(i,j);
+				//EVec_[c](i,j) = H_(i,j);
 				//p+=P(i);
 				//e+=eval_(i);
 			//}
-			//EVec_[c](i,M_(c)-1) = T_(i,M_(c)-1);
+			//EVec_[c](i,M_(c)-1) = H_(i,M_(c)-1);
 			//p+=                      P(M_(c)-1);
 			//e+=                  eval_(M_(c)-1);
 		//}
@@ -70,9 +67,9 @@ void ChainFermi<std::complex<double> >::create(){
 		EVec_[c].set(n_,M_(c));
 		for(unsigned int i(0);i<n_;i++){
 			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = T_(i,j);
+				EVec_[c](i,j) = evec_(i,j);
 			}
 		}
 	}
-	T_.set();
+	H_.set();
 }

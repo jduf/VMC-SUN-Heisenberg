@@ -15,7 +15,7 @@ class ChainPolymerized: public Chain<double> {
 	private:
 		double delta_;//!< polymerization parameter 
 
-		void compute_T();
+		void compute_H();
 		std::string extract_level_7();
 		std::string extract_level_6();
 		std::string extract_level_4();

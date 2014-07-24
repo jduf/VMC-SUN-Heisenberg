@@ -17,22 +17,22 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 }
 
 /*{method needed for running*/
-void ChainPolymerized::compute_T(){
+void ChainPolymerized::compute_H(){
 	/*!If t<0, delta<0 otherwise no polymerization occurs
 	 * If t>0, delta>0 otherwise no polymerization occurs */
 	double t(1.0);
-	T_.set(n_,n_,0);
+	H_.set(n_,n_,0);
 	Matrix<int> nb;
-	unsigned int a(n_/Lx_);
+	unsigned int a(n_/L_);
 	for(unsigned int i(0); i < n_; i += a){
 		for(unsigned int j(0); j<a; j++){
 			nb = get_neighbourg(i+j);
-			T_(i+j,nb(0,0)) = t+delta_;
+			H_(i+j,nb(0,0)) = t+delta_;
 		}
 		nb = get_neighbourg(i+a-1);
-		T_(i+a-1,nb(0,0)) = nb(0,1)*(t-delta_);
+		H_(i+a-1,nb(0,0)) = nb(0,1)*(t-delta_);
 	}
-	T_ += T_.transpose();
+	H_ += H_.transpose();
 }
 
 void ChainPolymerized::create(){
@@ -40,12 +40,12 @@ void ChainPolymerized::create(){
 	corr_.set(links_.row(),50,5,false);
 	//if(type==2){ long_range_corr_.set(n_/3); }
 
-	compute_T();
-	diagonalize_T();
+	compute_H();
+	diagonalize_H(H_);
 	for(unsigned int c(0);c<N_;c++){
 		for(unsigned int i(0);i<n_;i++){
 			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = T_(i,j);
+				EVec_[c](i,j) = H_(i,j);
 			}
 		}
 	}
@@ -59,7 +59,7 @@ void ChainPolymerized::save() const {
 
 /*{method needed for checking*/
 void ChainPolymerized::check(){
-	//BandStructure<double> bs(T_,Lx_,spuc_,bc_);
+	//BandStructure<double> bs(H_,Lx_,spuc_,bc_);
 }
 /*}*/
 

@@ -1,7 +1,7 @@
 #ifndef DEF_MCSYSTEM
 #define DEF_MCSYSTEM
 
-#include "CreateSystem.hpp"
+#include "System.hpp"
 #include "Rand.hpp"
 
 /*!Abstract class that is used by MonteCarlo.hpp to sample the system.*/

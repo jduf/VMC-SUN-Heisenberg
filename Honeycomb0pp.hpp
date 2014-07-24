@@ -15,7 +15,7 @@ class Honeycomb0pp: public Honeycomb<double>{
 	protected:
 		double td_;
 
-		void compute_T();
+		void compute_H();
 		void lattice();
 		std::string extract_level_7();
 		std::string extract_level_6();

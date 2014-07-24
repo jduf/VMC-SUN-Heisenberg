@@ -13,9 +13,9 @@ KagomeDirac::KagomeDirac(Vector<unsigned int> const& ref, unsigned int const& N,
 }
 
 /*{method needed for running*/
-void KagomeDirac::compute_T(){
+void KagomeDirac::compute_H(){
 	double t(1.0);
-	T_.set(n_,n_,0);
+	H_.set(n_,n_,0);
 	Matrix<int> nb;
 	unsigned int s(0);
 	for(unsigned int i(0);i<Lx_;i++){
@@ -23,54 +23,54 @@ void KagomeDirac::compute_T(){
 			/*site 0*/
 			s = spuc_*(i + j*Lx_);
 			nb = get_neighbourg(s);
-			/*0-1*/T_(s,nb(0,0)) = nb(0,1)*t;
-			/*0-1*/T_(s,nb(2,0)) = nb(2,1)*t;
+			/*0-1*/H_(s,nb(0,0)) = nb(0,1)*t;
+			/*0-1*/H_(s,nb(2,0)) = nb(2,1)*t;
 
 			/*site 1*/
 			s++;
 			nb = get_neighbourg(s);
-			/*0-1*/T_(s,nb(1,0)) = nb(1,1)*t;
-			/*0-1*/T_(s,nb(3,0)) = -nb(3,1)*t;
+			/*0-1*/H_(s,nb(1,0)) = nb(1,1)*t;
+			/*0-1*/H_(s,nb(3,0)) = -nb(3,1)*t;
 
 			/*site 2*/
 			s++;
 			nb = get_neighbourg(s);
-			/*0-1*/T_(s,nb(0,0)) = -nb(0,1)*t;
-			/*0-1*/T_(s,nb(2,0)) = nb(2,1)*t;
+			/*0-1*/H_(s,nb(0,0)) = -nb(0,1)*t;
+			/*0-1*/H_(s,nb(2,0)) = nb(2,1)*t;
 
 			/*site 3*/
 			s++;
 			nb = get_neighbourg(s);
-			/*0-1*/T_(s,nb(0,0)) = nb(0,1)*t;
-			/*0-1*/T_(s,nb(2,0)) = -nb(2,1)*t;
+			/*0-1*/H_(s,nb(0,0)) = nb(0,1)*t;
+			/*0-1*/H_(s,nb(2,0)) = -nb(2,1)*t;
 
 			/*site 4*/
 			s++;
 			nb = get_neighbourg(s);
-			/*0-1*/T_(s,nb(1,0)) = nb(1,1)*t;
-			/*0-1*/T_(s,nb(3,0)) = -nb(3,1)*t;
+			/*0-1*/H_(s,nb(1,0)) = nb(1,1)*t;
+			/*0-1*/H_(s,nb(3,0)) = -nb(3,1)*t;
 
 			/*site 5*/
 			s++;
 			nb = get_neighbourg(s);
-			/*0-1*/T_(s,nb(0,0)) = nb(0,1)*t;
-			/*0-1*/T_(s,nb(2,0)) = nb(2,1)*t;
+			/*0-1*/H_(s,nb(0,0)) = nb(0,1)*t;
+			/*0-1*/H_(s,nb(2,0)) = nb(2,1)*t;
 		}
 	}
-	T_ += T_.transpose();
+	H_ += H_.transpose();
 }
 
 void KagomeDirac::create(){
 	E_.set(50,5,false);
 	corr_.set(links_.row(),50,5,false);
 
-	compute_T();
-	diagonalize_T();
+	compute_H();
+	diagonalize_H(H_);
 	for(unsigned int c(0);c<N_;c++){
 		EVec_[c].set(n_,M_(c));
 		for(unsigned int i(0);i<n_;i++){
 			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = T_(i,j);
+				EVec_[c](i,j) = H_(i,j);
 			}
 		}
 	}
@@ -120,11 +120,11 @@ void KagomeDirac::lattice(){
 			ps.put(x0-0.2,y0+0.2,tostring(s));
 			x1 = x0+ll;
 			y1 = y0;
-			if(T_(s,nb(0,0))>0){ color = "green"; }
+			if(H_(s,nb(0,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0-ll;
-			if(T_(s,nb(2,0))>0){ color = "green"; }
+			if(H_(s,nb(2,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -137,12 +137,12 @@ void KagomeDirac::lattice(){
 			ps.put(x0+0.2,y0+0.2,tostring(s));
 			x1 = x0+ll*cos(4.0*M_PI/6.0);
 			y1 = y0+ll*sin(4.0*M_PI/6.0);
-			if(T_(s,nb(1,0))>0){ color = "green"; }
+			if(H_(s,nb(1,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*1-2*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(10.0*M_PI/6.0);
 			y1 = y0+ll*sin(10.0*M_PI/6.0);
-			if(T_(s,nb(3,0))>0){ color = "green"; }
+			if(H_(s,nb(3,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*1-2*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -154,12 +154,12 @@ void KagomeDirac::lattice(){
 			ps.put(x0+0.2,y0,tostring(s));
 			x1 = x0+ll*cos(2.0*M_PI/6.0);
 			y1 = y0+ll*sin(2.0*M_PI/6.0);
-			if(T_(s,nb(0,0))>0){ color = "green"; }
+			if(H_(s,nb(0,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(8.0*M_PI/6.0);
 			y1 = y0+ll*sin(8.0*M_PI/6.0);
-			if(T_(s,nb(2,0))>0){ color = "green"; }
+			if(H_(s,nb(2,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -170,11 +170,11 @@ void KagomeDirac::lattice(){
 			y0 = y3;
 			ps.put(x0-0.2,y0+0.2,tostring(s));
 			x1 = x0+ll;
-			if(T_(s,nb(0,0))>0){ color = "green"; }
+			if(H_(s,nb(0,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0-ll;
-			if(T_(s,nb(2,0))>0){ color = "green"; }
+			if(H_(s,nb(2,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -185,12 +185,12 @@ void KagomeDirac::lattice(){
 			ps.put(x0+0.2,y0+0.2,tostring(s));
 			x1 = x0+ll*cos(4.0*M_PI/6.0);
 			y1 = y0+ll*sin(4.0*M_PI/6.0);
-			if(T_(s,nb(1,0))>0){ color = "green"; }
+			if(H_(s,nb(1,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(10.0*M_PI/6.0);
 			y1 = y0+ll*sin(10.0*M_PI/6.0);
-			if(T_(s,nb(3,0))>0){ color = "green"; }
+			if(H_(s,nb(3,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -202,12 +202,12 @@ void KagomeDirac::lattice(){
 			ps.put(x0+0.2,y0,tostring(s));
 			x1 = x0+ll*cos(2.0*M_PI/6.0);
 			y1 = y0+ll*sin(2.0*M_PI/6.0);
-			if(T_(s,nb(0,0))>0){ color = "green"; }
+			if(H_(s,nb(0,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(8.0*M_PI/6.0);
 			y1 = y0+ll*sin(8.0*M_PI/6.0);
-			if(T_(s,nb(2,0))>0){ color = "green"; }
+			if(H_(s,nb(2,0))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 		}
@@ -238,7 +238,7 @@ void KagomeDirac::check(){
 	//}
 	//for(unsigned int i(0);i<n_;i++){
 		//for(unsigned int j(0);j<n_;j++){
-			//if(std::abs(Ttest(i,j)-std::abs(T_(i,j)))>0.2){
+			//if(std::abs(Ttest(i,j)-std::abs(H_(i,j)))>0.2){
 				//std::cout<<i<<" "<<j<<std::endl;
 			//}
 		//}
@@ -248,9 +248,9 @@ void KagomeDirac::check(){
 	//unsigned int k(0);
 	//for(unsigned int i(0);i<n_;i++){
 		//for(unsigned int j(0);j<n_;j++){
-			//if(T_(i,j)!=0){
+			//if(H_(i,j)!=0){
 				//k++;
-				//std::cout<<i<<" "<<j<<" "<<T_(i,j)<<std::endl;
+				//std::cout<<i<<" "<<j<<" "<<H_(i,j)<<std::endl;
 			//}
 		//}
 	//}
@@ -266,7 +266,7 @@ void KagomeDirac::check(){
 	//}
 	///*}*/
 	
-	//BandStructure<double> bs(T_,Lx_,Ly_,spuc_,bc_);
+	//BandStructure<double> bs(H_,Lx_,Ly_,spuc_,bc_);
 	lattice();
 }
 /*}*/

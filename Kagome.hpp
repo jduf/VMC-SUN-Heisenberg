@@ -1,11 +1,10 @@
 #ifndef DEF_KAGOME
 #define DEF_KAGOME
 
-#include "GenericSystem.hpp"
 #include "System2D.hpp"
 
 template<typename Type>
-class Kagome: public GenericSystem<Type>, public System2D<Type>{
+class Kagome: public System2D<Type>{
 	public:
 		/*{Description*/
 		/*!Constructor that organises the n sites according to the ratio Lx/Ly
@@ -22,8 +21,7 @@ class Kagome: public GenericSystem<Type>, public System2D<Type>{
 
 template<typename Type>
 Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename, unsigned int const& sel0, unsigned int const& sel1):
-	GenericSystem<Type>(4,filename),
-	System2D<Type>(Lx,Ly,spuc,sel0,sel1)
+	System2D<Type>(Lx,Ly,spuc,4,filename,sel0,sel1)
 {
 	if(this->n_==this->Ly_*this->Lx_*this->spuc_){
 		this->filename_ += "-" + tostring(this->Lx_) +"x"+ tostring(this->Ly_);

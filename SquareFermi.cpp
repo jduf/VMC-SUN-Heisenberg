@@ -12,25 +12,25 @@ SquareFermi::SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N,
 }
 
 /*{method needed for running*/
-void SquareFermi::compute_T(){
+void SquareFermi::compute_H(){
 	double t(-1.0);
 	Matrix<int> nb;
 	for(unsigned int i(0); i < n_; i++){
 		nb = get_neighbourg(i);
 		for(unsigned int j(0);j<2;j++){
-			T_(i,nb(j,0)) = nb(j,1)*t;
+			H_(i,nb(j,0)) = nb(j,1)*t;
 		}
 	}
-	T_ += T_.transpose();
+	H_ += H_.transpose();
 }
 
 void SquareFermi::create(){
-	compute_T();
-	diagonalize_T();
+	compute_H();
+	diagonalize_H(H_);
 	for(unsigned int c(0);c<N_;c++){
 		for(unsigned int i(0);i<n_;i++){
 			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = T_(i,j);
+				EVec_[c](i,j) = H_(i,j);
 			}
 		}
 	}
@@ -38,19 +38,6 @@ void SquareFermi::create(){
 /*}*/
 
 /*{method needed for checking*/
-void SquareFermi::compute_P(Matrix<double>& Px, Matrix<double>& Py){
-	Px.set(n_,n_,0.0);
-	Py.set(n_,n_,0.0);
-	for(unsigned int i(0); i < n_; i++){
-		/*horizontal hopping*/
-		if( (i % Ly_)  < Ly_ - 1 ){ Px(i,i+1) = 1; }
-		else { Px(i,i+1-Lx_) = bc_; }
-		/*vertical hopping*/
-		if( i+Lx_ < n_ ){ Py(i,i+Lx_) = 1; }
-		else { Py(i,i-(Ly_-1)*Lx_) = bc_; }
-	}
-}
-
 void SquareFermi::lattice(){
 	PSTricks ps("./",filename_+"-lattice");
 	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
@@ -75,7 +62,7 @@ void SquareFermi::lattice(){
 }
 
 void SquareFermi::check(){
-	compute_T();
-	std::cout<<T_.chop(1e-6)<<std::endl;
+	compute_H();
+	std::cout<<H_.chop(1e-6)<<std::endl;
 }
 /*}*/

@@ -12,7 +12,7 @@ class KagomeVBC: public Kagome<std::complex<double> >{
 		void check();
 
 	protected:
-		void compute_T();
+		void compute_H();
 		void lattice();
 		std::string extract_level_7();
 		std::string extract_level_6();

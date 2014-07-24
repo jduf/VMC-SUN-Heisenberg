@@ -5,6 +5,8 @@
 #include "Bosonic.hpp"
 #include "Fermionic.hpp"
 #include "IOSystem.hpp"
+#include "Combination.hpp"
+#include "Rand.hpp"
 
 /*!Abstract class that can produce any kind of system*/
 template<typename Type>
@@ -15,7 +17,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		 * system, all other parameters of System have already been set by the
 		 * most derived class (multiple inheritance)*/
 		/*}*/
-		GenericSystem(unsigned int const& z, std::string const& filename); 
+		GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename); 
 		/*!Destructor*/
 		virtual ~GenericSystem(){}
 
@@ -34,6 +36,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void check() = 0;
 
 	protected:
+		unsigned int const spuc_;//!< site per unit cell
 		unsigned int const z_;	//!< coordination number
 		RST system_info_;		//!< store information about the system
 
@@ -48,8 +51,9 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 };
 
 template<typename Type>
-GenericSystem<Type>::GenericSystem(unsigned int const& z, std::string const& filename): 
+GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename): 
 	IOSystem(filename),
+	spuc_(spuc),
 	z_(z)
 { 
 	filename_ += "-N" + tostring(this->N_);

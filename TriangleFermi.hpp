@@ -12,7 +12,7 @@ class TriangleFermi: public Triangle<double>{
 		void check();
 
 	protected:
-		void compute_T();
+		void compute_H();
 		void lattice();
 };
 #endif

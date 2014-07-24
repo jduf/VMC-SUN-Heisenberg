@@ -12,25 +12,25 @@ TriangleFermi::TriangleFermi(Vector<unsigned int> const& ref, unsigned int const
 }
 
 /*{method needed for running*/
-void TriangleFermi::compute_T(){
+void TriangleFermi::compute_H(){
 	double t(-1.0);
 	Matrix<int> nb;
 	for(unsigned int i(0); i < n_; i++){
 		nb = get_neighbourg(i);
 		for(unsigned int j(0);j<3;j++){
-			T_(i,nb(j,0)) = nb(j,1)*t;
+			H_(i,nb(j,0)) = nb(j,1)*t;
 		}
 	}
-	T_ += T_.transpose();
+	H_ += H_.transpose();
 }
 
 void TriangleFermi::create(){
-	compute_T();
-	diagonalize_T();
+	compute_H();
+	diagonalize_H(H_);
 	for(unsigned int c(0);c<N_;c++){
 		for(unsigned int i(0);i<n_;i++){
 			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = T_(i,j);
+				EVec_[c](i,j) = H_(i,j);
 			}
 		}
 	}
@@ -85,7 +85,7 @@ void TriangleFermi::lattice(){
 		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
 	}
 
-	diagonalize_T();
+	diagonalize_H(H_);
 
 	double r(0.2);
 	Vector<double> ada(n_,0);

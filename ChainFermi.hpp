@@ -2,7 +2,6 @@
 #define DEF_CHAINFERMI
 
 #include "Chain.hpp"
-#include "BandStructure.hpp"
 
 template<typename Type>
 class ChainFermi: public Chain<Type>{
@@ -14,7 +13,7 @@ class ChainFermi: public Chain<Type>{
 		void check();
 
 	private:
-		void compute_T();
+		void compute_H();
 		std::string extract_level_7();
 		std::string extract_level_6();
 		std::string extract_level_4();
@@ -35,15 +34,15 @@ ChainFermi<Type>::ChainFermi(Vector<unsigned int> const& ref, unsigned int const
 
 /*{method needed for running*/
 template<typename Type>
-void ChainFermi<Type>::compute_T(){
+void ChainFermi<Type>::compute_H(){
 	double t(1.0);
-	this->T_.set(this->n_,this->n_,0);
+	this->H_.set(this->n_,this->n_,0);
 	Matrix<int> nb;
 	for(unsigned int i(0);i<this->n_;i++){
 		nb = this->get_neighbourg(i);
-		this->T_(i,nb(0,0)) = nb(0,1)*t;
+		this->H_(i,nb(0,0)) = nb(0,1)*t;
 	}
-	this->T_ += this->T_.transpose();
+	this->H_ += this->H_.transpose();
 }
 /*}*/
 

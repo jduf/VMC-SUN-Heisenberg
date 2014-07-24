@@ -1,10 +1,10 @@
 #ifndef DEF_HONEYCOMB
 #define DEF_HONEYCOMB
 
-#include "GenericSystem.hpp"
+#include "System2D.hpp"
 
 template<typename Type>
-class Honeycomb: public GenericSystem<Type>{
+class Honeycomb: public System2D<Type>{
 	public:
 		/*{Description*/
 		/*!Constructor that organises the n sites according to the ratio Lx/Ly
@@ -16,27 +16,20 @@ class Honeycomb: public GenericSystem<Type>{
 		virtual ~Honeycomb()=0;
 
 	protected:
-		unsigned int Lx_;	//!< dimension of the lattice along x-axis
-		unsigned int Ly_;	//!< dimension of the lattice along y-axis
-		unsigned int spuc_;	//!< site per unit cell
-
 		Matrix<int> get_neighbourg(unsigned int i) const;
 };
 
 template<typename Type>
 Honeycomb<Type>::Honeycomb(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
-	GenericSystem<Type>(3,filename),
-	Lx_(sqrt(Lx*this->n_/(Ly*spuc))),
-	Ly_(sqrt(Ly*this->n_/(Lx*spuc))),
-	spuc_(spuc)
+	System2D<Type>(Lx,Ly,spuc,3,filename,0,0)
 {
-	if(this->n_==Ly_*Lx_*spuc_){
-		this->filename_ += "-" + tostring(Lx_) +"x"+ tostring(Ly_);
+	if(this->n_==this->Ly_*this->Lx_*this->spuc_){
+		this->filename_ += "-" + tostring(this->Lx_) +"x"+ tostring(this->Ly_);
 		this->compute_links();
 		this->status_--;
 	} else {
 		std::cerr<<"Honeycomb<Type> : the cluster is impossible, n must be a"<<std::endl; 
-		std::cerr<<"                : multiple of "<<Lx*Ly*spuc_<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc_<<")"<<std::endl; 
+		std::cerr<<"                : multiple of "<<Lx*Ly*this->spuc_<<" ("<<Lx<<"x"<<Ly<<"x"<<this->spuc_<<")"<<std::endl; 
 	}
 }
 
@@ -46,7 +39,7 @@ Honeycomb<Type>::~Honeycomb(){}
 template<typename Type>
 Matrix<int> Honeycomb<Type>::get_neighbourg(unsigned int i) const {
 	Matrix<int> nb(this->z_,2,1);
-	switch(spuc_){
+	switch(this->spuc_){
 		case 6:
 			{
 				switch(i%6){
@@ -55,9 +48,9 @@ Matrix<int> Honeycomb<Type>::get_neighbourg(unsigned int i) const {
 							/*+x+y neighbour*/
 							nb(0,0) = i+1;
 							/*-x neighbour*/
-							if(i%(spuc_*Lx_)){ nb(1,0) = i-3; }
+							if(i%(this->spuc_*this->Lx_)){ nb(1,0) = i-3; }
 							else {
-								nb(1,0) = i-3+spuc_*Lx_;
+								nb(1,0) = i-3+this->spuc_*this->Lx_;
 								nb(1,1) = this->bc_;
 							}
 							/*+x-y neighbour*/
@@ -68,18 +61,18 @@ Matrix<int> Honeycomb<Type>::get_neighbourg(unsigned int i) const {
 							/*+x neighbour*/
 							nb(0,0) = i+1;
 							/*-x+y neighbour*/
-							if(i<this->n_-spuc_*Lx_){ 
-								if((i-1)%(spuc_*Lx_)){ nb(1,0) = i-3+spuc_*Lx_ ; }
+							if(i<this->n_-this->spuc_*this->Lx_){ 
+								if((i-1)%(this->spuc_*this->Lx_)){ nb(1,0) = i-3+this->spuc_*this->Lx_ ; }
 								else {
-									nb(1,0) = i-3+2*spuc_*Lx_;
+									nb(1,0) = i-3+2*this->spuc_*this->Lx_;
 									nb(1,1) = this->bc_;
 								}
 							} else {
-								if(i-1!=this->n_-spuc_*Lx_){
-									nb(1,0) = i-3-spuc_*Lx_*(Ly_-1);
+								if(i-1!=this->n_-this->spuc_*this->Lx_){
+									nb(1,0) = i-3-this->spuc_*this->Lx_*(this->Ly_-1);
 									nb(1,1) = this->bc_;
 								} else {
-									nb(1,0) = -2+spuc_*Lx_;
+									nb(1,0) = -2+this->spuc_*this->Lx_;
 									nb(1,1) = this->bc_*this->bc_;
 								}
 							}
@@ -91,9 +84,9 @@ Matrix<int> Honeycomb<Type>::get_neighbourg(unsigned int i) const {
 							/*+x-y neighbour*/
 							nb(0,0) = i+1;
 							/*+x+y neighbour*/
-							if(i<this->n_-spuc_*Lx_){ nb(1,0) = i+3+spuc_*Lx_; }
+							if(i<this->n_-this->spuc_*this->Lx_){ nb(1,0) = i+3+this->spuc_*this->Lx_; }
 							else {
-								nb(1,0) = i+3-spuc_*Lx_*(Ly_-1);
+								nb(1,0) = i+3-this->spuc_*this->Lx_*(this->Ly_-1);
 								nb(1,1) = this->bc_;
 							}
 							/*-x neighbour*/
@@ -104,9 +97,9 @@ Matrix<int> Honeycomb<Type>::get_neighbourg(unsigned int i) const {
 							/*-x-y neighbour*/
 							nb(0,0) = i+1;
 							/*+x neighbour*/
-							if((i+3)%(spuc_*Lx_)){ nb(1,0) = i+3; }
+							if((i+3)%(this->spuc_*this->Lx_)){ nb(1,0) = i+3; }
 							else {
-								nb(1,0) = i+3-spuc_*Lx_;
+								nb(1,0) = i+3-this->spuc_*this->Lx_;
 								nb(1,1) = this->bc_;
 							}
 							/*-x+y neighbour*/
@@ -117,18 +110,18 @@ Matrix<int> Honeycomb<Type>::get_neighbourg(unsigned int i) const {
 							/*-x neighbour*/
 							nb(0,0) = i+1;
 							/*+x-y neighbour*/
-							if(i>spuc_*Lx_){ 
-								if((i+2)%(spuc_*Lx_)){ nb(1,0) = i+3-spuc_*Lx_; }
+							if(i>this->spuc_*this->Lx_){ 
+								if((i+2)%(this->spuc_*this->Lx_)){ nb(1,0) = i+3-this->spuc_*this->Lx_; }
 								else {
-									nb(1,0) = i+3-2*spuc_*Lx_;
+									nb(1,0) = i+3-2*this->spuc_*this->Lx_;
 									nb(1,1) = this->bc_;
 								}
 							} else {
-								if(i+2!=spuc_*Lx_){
-									nb(1,0) = i+3+spuc_*Lx_*(Ly_-1);
+								if(i+2!=this->spuc_*this->Lx_){
+									nb(1,0) = i+3+this->spuc_*this->Lx_*(this->Ly_-1);
 									nb(1,1) = this->bc_;
 								} else {
-									nb(1,0) = this->n_+1-spuc_*Lx_;
+									nb(1,0) = this->n_+1-this->spuc_*this->Lx_;
 									nb(1,1) = this->bc_*this->bc_;
 								}
 							}
@@ -140,9 +133,9 @@ Matrix<int> Honeycomb<Type>::get_neighbourg(unsigned int i) const {
 							/*-x+y neighbour*/
 							nb(0,0) = i-5;
 							/*-x-y neighbour*/
-							if(i>spuc_*Lx_){ nb(1,0) = i-3-spuc_*Lx_; }
+							if(i>this->spuc_*this->Lx_){ nb(1,0) = i-3-this->spuc_*this->Lx_; }
 							else {
-								nb(1,0) = i-3+spuc_*Lx_*(Ly_-1);
+								nb(1,0) = i-3+this->spuc_*this->Lx_*(this->Ly_-1);
 								nb(1,1) = this->bc_;
 							}
 							/*+x neighbour*/

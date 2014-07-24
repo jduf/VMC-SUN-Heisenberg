@@ -12,8 +12,7 @@ class SquareFermi: public Square<double>{
 		void check();
 
 	protected:
-		void compute_T();
-		void compute_P(Matrix<double>& Px, Matrix<double>& Py);
+		void compute_H();
 		void lattice();
 };
 #endif
