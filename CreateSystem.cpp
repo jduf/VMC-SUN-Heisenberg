@@ -103,6 +103,8 @@ void CreateSystem::parse(Parseur& P){
 		ref_(0) = 5;
 		ref_(1) = 1;
 		ref_(2) = 0;
+		sel0_ = 0;
+		sel1_ = 0;
 	}
 	if( wf == "kagomedirac" ){
 		ref_(0) = 5;
@@ -135,6 +137,8 @@ void CreateSystem::parse(Parseur& P){
 }
 
 void CreateSystem::init(IOFiles* read, IOSystem* ios){
+	M_(1) = 8;
+	M_(0) = 40;
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 	switch(ref_(0)){
@@ -224,7 +228,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:{RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_);}break;
+								case 0:{RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);}break;
 								case 1:{RGL_ = new KagomeDirac(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{error();}break;
 							}
@@ -232,7 +236,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					case 2:
 						{
 							switch(ref_(2)){
-								case 0:{CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);}break;
+								case 0:{CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);}break;
 								case 2:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{error();}break;
 							}
@@ -265,6 +269,18 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 	switch(type_){
 		case 3:
 			{
+				if(CGL_){
+					sel0_++;
+					over_ = false;
+					if(sel0_==9){ 
+						sel1_++;
+						sel0_ = 0;
+						if(sel1_==639){ over_ = true; }
+					}
+				}
+			}break;
+		case 4:
+			{
 				if(M_(0)){ 
 					M_(0) -= 1;
 					M_(1) += 1;
@@ -275,8 +291,8 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 			}break;
 	}
 	if(ios){
-		if(RGL_){RGL_->set_IOSystem(ios);}
-		if(CGL_){CGL_->set_IOSystem(ios);}
+		if(RGL_){ RGL_->set_IOSystem(ios); }
+		if(CGL_){ CGL_->set_IOSystem(ios); }
 	}
 }
 
@@ -293,10 +309,10 @@ void CreateSystem::create(){
 			RGL_=NULL;
 			ref_(1)=2;
 			init();
-			if(CGL_){CGL_->create();}
+			if(CGL_){ CGL_->create(); }
 		}
 	} else {
-		if(CGL_){CGL_->create();}
+		if(CGL_){ CGL_->create(); }
 		if(CGL_ && CGL_->is_degenerate()){
 			std::cout<<"void CreateSystem::create() : behaviour undefined"<<std::endl;
 		}

@@ -93,7 +93,9 @@ class CreateSystem{
 		List<double> d_;
 		unsigned int type_;
 		bool over_;
-
+		unsigned int sel0_;
+		unsigned int sel1_;
+	
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
 

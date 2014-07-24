@@ -6,11 +6,12 @@
 template<typename Type>
 class KagomeFermi: public Kagome<Type>{
 	public:
-		KagomeFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
+		KagomeFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, unsigned int& sel0, unsigned int& sel1);
 		~KagomeFermi(){}
 
 		void create();
 		void check();
+		bool is_over(){std::cout<<"bla"<<std::endl; return this->over_; }
 
 	protected:
 		void compute_T();
@@ -21,9 +22,9 @@ class KagomeFermi: public Kagome<Type>{
 };
 
 template<typename Type>
-KagomeFermi<Type>::KagomeFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc):
+KagomeFermi<Type>::KagomeFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, unsigned int& sel0, unsigned int& sel1):
 	System(ref,N,m,n,M,bc),
-	Kagome<Type>(1,1,3,"kagome-fermi")
+	Kagome<Type>(1,1,3,"kagome-fermi",sel0,sel1)
 {
 	if(this->status_==1){
 		this->init_fermionic();
@@ -62,7 +63,6 @@ void KagomeFermi<Type>::compute_T(){
 	}
 	this->T_ += this->T_.transpose();
 }
-
 /*}*/
 
 /*{method needed for checking*/

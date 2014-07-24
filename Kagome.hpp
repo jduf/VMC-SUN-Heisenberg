@@ -13,7 +13,7 @@ class Kagome: public GenericSystem<Type>, public System2D<Type>{
 		 * GenericSystem<Type>(4,filename), to construct a system with 4 links
 		 * per sites */
 		/*}*/
-		Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename);
+		Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename, unsigned int const& sel0=0, unsigned int const& sel1=0);
 		virtual ~Kagome()=0;
 
 	protected:
@@ -21,9 +21,9 @@ class Kagome: public GenericSystem<Type>, public System2D<Type>{
 };
 
 template<typename Type>
-Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
+Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename, unsigned int const& sel0, unsigned int const& sel1):
 	GenericSystem<Type>(4,filename),
-	System2D<Type>(Lx,Ly,spuc)
+	System2D<Type>(Lx,Ly,spuc,sel0,sel1)
 {
 	if(this->n_==this->Ly_*this->Lx_*this->spuc_){
 		this->filename_ += "-" + tostring(this->Lx_) +"x"+ tostring(this->Ly_);

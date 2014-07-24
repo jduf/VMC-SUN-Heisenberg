@@ -10,9 +10,9 @@ template<typename Type>
 class System2D: public virtual System{
 	public:
 		/*!Constructor*/
-		System2D(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc);
+		System2D(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, unsigned int const& sel0, unsigned int const& sel1);
 		/*!Destructor*/
-		virtual ~System2D(){}
+		virtual ~System2D();
 
 	protected:
 		Matrix<Type> H_;			//!< matrix used to get the band structure
@@ -25,11 +25,13 @@ class System2D: public virtual System{
 		unsigned int const Lx_;		//!< number of unit cell along the x-axis
 		unsigned int const Ly_;		//!< number of unit cell along the y-axis
 		unsigned int const spuc_;	//!< site per unit cell
+		unsigned int sel_[2];
+		Vector<unsigned int>* select_;//!< eigenvalue of the Hamiltonian T_
 
 		void compute_TxTy();
 		void compute_band_structure();
 		void plot_band_structure();
-		void select();
+		void select_eigenvectors();
 
 	private:
 		/*!Forbids copy*/
@@ -43,11 +45,20 @@ class System2D: public virtual System{
 	
 /*{constructors*/
 template<typename Type>
-System2D<Type>::System2D(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc):
-	Lx_(sqrt(Lx*this->n_/(Ly*spuc))),
-	Ly_(sqrt(Ly*this->n_/(Lx*spuc))),
-	spuc_(spuc)
-{}
+System2D<Type>::System2D(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, unsigned int const& sel0, unsigned int const& sel1):
+	Lx_(sqrt(Lx*n_/(Ly*spuc))),
+	Ly_(sqrt(Ly*n_/(Lx*spuc))),
+	spuc_(spuc),
+	select_(new Vector<unsigned int>[N_])
+{
+	sel_[0]= sel0;
+	sel_[1]= sel1;
+}
+
+template<typename Type>
+System2D<Type>::~System2D(){
+	if(select_){ delete[] select_;}
+}
 /*}*/
 
 /*{protected methods*/
@@ -144,40 +155,49 @@ void System2D<Type>::plot_band_structure(){
 }
 
 template<typename Type>
-void System2D<Type>::select(){
-	for(unsigned int i(0);i<n_;i++){
-		std::cout<<e_(i)<<(i+1==M_(0)?"|":" ");
-	}
-	std::cout<<std::endl;
-	unsigned int a(M_(0)-1);
-	unsigned int b(M_(0)-1);
-	while(are_equal(e_(b+1),e_(b))){b++;}
-	b++;
-	std::cout<<M_(0)<<" "<<b<<std::endl;
-	if(b!=M_(0)){
-		while(are_equal(e_(a-1),e_(a))){a--;}
-		std::cout<<M_(0)<<" "<<a<<std::endl;
-	}
-	std::cout<<e_.range(a,b)<<std::endl;
-	Vector<unsigned int> comb;
-	Combination cbn(M_(0)-a,b-a,comb);
-	do{ 
-		std::cout<<comb<<std::endl;
-		double Px(0.0);
-		double Py(0.0);
+void System2D<Type>::select_eigenvectors(){
+	//std::cout<<e_<<std::endl;
+	unsigned int iter(0);
+	double Px(0.0);
+	double Py(0.0);
+	for(unsigned int c(0);c<N_;c++){
+		unsigned int a(M_(c)-1);
+		unsigned int b(M_(c)-1);
+		//std::cout<<a<<" "<<b<<std::endl;
+		do{b++;} while (b+1<n_ && are_equal(e_(b),e_(b-1)));
+		//std::cout<<a<<" "<<b<<std::endl;
+		if(b!=M_(c)){ while(a>0 && are_equal(e_(a-1),e_(a))){a--;} }
+		//std::cout<<a<<" "<<b<<std::endl;
+		//std::cout<<e_.range(a,b)<<std::endl;
+		Vector<unsigned int> cnk;
+		Combination cbn;
+		cbn.set(M_(c)-a,b-a,cnk);
+		select_[c].set(M_(c));
+		for(unsigned int i(0);i<a;i++){ select_[c](i) = i; }
+		//do{ 
+		//for(unsigned int i(0);i+a<M_(c);i++){ select_[c](a+i) = a+cnk(i); }
+		//double Px(0.0);
+		//double Py(0.0);
+		//double  e(0.0);
+		//for(unsigned int i(0);i<M_(c);i++){
+		////Px+= (are_equal(std::abs(px_(a+comb(j))),M_PI,1e-8)?0:px_(a+comb(j)));
+		////Py+= (are_equal(std::abs(py_(a+comb(j))),M_PI,1e-8)?0:py_(a+comb(j)));
+		//e += e_(select_[c](i));
+		//}
+		//std::cout<<Px<<" "<<Py<<" "<<e<<std::endl;
+		//} while (cbn.next());
+		while(iter++<sel_[c] && cbn.next());
+		for(unsigned int i(0);i+a<M_(c);i++){ select_[c](a+i) = a+cnk(i); }
 		double  e(0.0);
-		for(unsigned int j(0);j<a;j++){
-			Px+= (are_equal(std::abs(px_(j)),M_PI,1e-8)?0:px_(j));
-			Py+= (are_equal(std::abs(py_(j)),M_PI,1e-8)?0:px_(j));
-			e += e_(j);
+		for(unsigned int i(0);i<M_(c);i++){
+			Px+= are_equal(std::abs(px_(select_[c](i))),M_PI,1e-12)?0:px_(select_[c](i));
+			Py+= are_equal(std::abs(py_(select_[c](i))),M_PI,1e-12)?0:py_(select_[c](i));
+			e +=  e_(select_[c](i));
 		}
-		for(unsigned int j(0);a+j<M_(0);j++){
-			Px+= (are_equal(std::abs(px_(a+comb(j))),M_PI,1e-8)?0:px_(a+comb(j)));
-			Py+= (are_equal(std::abs(py_(a+comb(j))),M_PI,1e-8)?0:py_(a+comb(j)));
-			e += e_(a+comb(j));
-		}
-		std::cout<<e<<" "<<Px<<" "<<Py<<std::endl;
-	} while (cbn.next());
+	}
+	if(are_equal(Px,0.) && are_equal(Py,0.)){
+		std::cout<<iter<<std::endl;
+	}
 }
 /*}*/
 

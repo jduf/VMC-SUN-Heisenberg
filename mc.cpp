@@ -80,4 +80,5 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 	file_results("energy per site",E);
 	file_results("correlation on links",corr);
 	file_results("long range correlation",long_range_corr);
+	std::cout<<E<<std::endl;
 }
