@@ -70,7 +70,6 @@ void System1D<Type>::compute_band_structure(){
 	e_.set(this->n_);
 	Rand rnd(1e4);
 	Matrix<Type> M;
-	bool degenerate;
 	unsigned int iter(0);
 	do{
 		/*may be optimized : */
@@ -79,23 +78,24 @@ void System1D<Type>::compute_band_structure(){
 
 		Vector<std::complex<double> > eval;
 		Lapack<Type>(M,true,'G').eigensystem(eval,&evec_);
-		for(unsigned int i(0);i<this->n_;i++){
-			e_(i) = projection(H_,i).real();
-		}
 
-		degenerate = false;
+		this->degenerate_ = false;
 		for(unsigned int i(0);i<this->n_;i++){
 			for(unsigned int j(i+1);j<this->n_;j++){
-				if(are_equal(eval(i),eval(j),1e-10)){
-					degenerate = true;
+				if(are_equal(eval(i),eval(j),1e-10,1e10)){
+					this->degenerate_ = true;
+					i=j=this->n_;
 				}
 			}
 		}
-	} while ( degenerate && iter++<1e2);
-	if( iter>1e2 ){ std::cerr<<"void System1D<Type>::compute_band_structure() : degenerate"<<std::endl; }
+	} while ( this->degenerate_ && iter++<1e2);
+	if( iter>=1e2 ){ std::cerr<<"void System1D<Type>::compute_band_structure() : degenerate"<<std::endl; }
 	else {
 		Vector<unsigned int> index;
 		Matrix<std::complex<double> > evec_tmp(evec_);
+		for(unsigned int i(0);i<this->n_;i++){
+			e_(i) = projection(H_,i).real();
+		}
 		e_.sort(std::less_equal<double>(),index);
 		p_.set(this->n_);
 		for(unsigned int i(0);i<this->n_;i++){

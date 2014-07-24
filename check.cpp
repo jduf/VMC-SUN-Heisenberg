@@ -80,6 +80,7 @@ int main(int argc, char* argv[]){
 			{ 
 				cs.init();
 				cs.create();
+				cs.check();
 			} break;
 		case 4:/*call CreateSystem::check*/
 			{ 

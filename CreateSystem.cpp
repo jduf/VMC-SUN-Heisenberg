@@ -137,8 +137,8 @@ void CreateSystem::parse(Parseur& P){
 }
 
 void CreateSystem::init(IOFiles* read, IOSystem* ios){
-	M_(1) = 8;
-	M_(0) = 40;
+	//M_(1) = 8;
+	//M_(0) = 40;
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 	switch(ref_(0)){
@@ -229,7 +229,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 						{
 							switch(ref_(2)){
 								case 0:{RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);}break;
-								case 1:{RGL_ = new KagomeDirac(ref_,N_,m_,n_,M_,bc_);}break;
+								case 1:{RGL_ = new KagomeDirac<double>(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{error();}break;
 							}
 						} break;
@@ -237,6 +237,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 						{
 							switch(ref_(2)){
 								case 0:{CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);}break;
+								case 1:{CGL_ = new KagomeDirac<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);}break;
 								case 2:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{error();}break;
 							}
@@ -276,6 +277,8 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 						sel1_++;
 						sel0_ = 0;
 						if(sel1_==639){ over_ = true; }
+						//sel0_ = sel1_;
+						//if(sel1_==9){ over_ = true; }
 					}
 				}
 			}break;
@@ -314,7 +317,7 @@ void CreateSystem::create(){
 	} else {
 		if(CGL_){ CGL_->create(); }
 		if(CGL_ && CGL_->is_degenerate()){
-			std::cout<<"void CreateSystem::create() : behaviour undefined"<<std::endl;
+			std::cerr<<"void CreateSystem::create() : behaviour undefined"<<std::endl;
 		}
 	}
 }  
