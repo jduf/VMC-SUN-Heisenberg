@@ -1,5 +1,9 @@
 #include "AnalyseParameter.hpp"
 
+AnalyseParameter::AnalyseParameter(std::string const& sim):
+	Analyse(sim)
+{}
+
 void AnalyseParameter::open_files(){
 	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); }
 	if(level_==3 || level_==7){ data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); }

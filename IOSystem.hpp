@@ -5,7 +5,7 @@
 
 class IOSystem{
 	public:
-		IOSystem(std::string const& filename);
+		IOSystem(std::string const& filename = "", std::string const& sim = "sim/");
 		virtual ~IOSystem(){}
 
 		void set_IOSystem(IOSystem* t);

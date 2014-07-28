@@ -6,7 +6,7 @@
 
 class Analyse: public IOSystem{
 	public:
-		Analyse();
+		Analyse(std::string const& sim);
 		virtual ~Analyse(){}
 		void go(std::string search_in);
 

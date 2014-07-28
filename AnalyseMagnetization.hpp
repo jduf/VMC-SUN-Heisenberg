@@ -5,7 +5,7 @@
 
 class AnalyseMagnetization : public Analyse{
 	public:
-		AnalyseMagnetization(){}
+		AnalyseMagnetization(std::string const& sim);
 		~AnalyseMagnetization(){}
 
 	protected:
@@ -16,5 +16,6 @@ class AnalyseMagnetization : public Analyse{
 		std::string extract_level_5();
 		std::string extract_level_4();
 		std::string extract_level_3();
+		std::string extract_level_2();
 };
 #endif

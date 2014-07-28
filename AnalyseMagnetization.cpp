@@ -1,10 +1,18 @@
 #include "AnalyseMagnetization.hpp"
 
+AnalyseMagnetization::AnalyseMagnetization(std::string const& sim):
+	Analyse(sim)
+{}
+
 void AnalyseMagnetization::open_files(){
 	if(level_>1){ 
 		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
 	}
-	if(level_ == 6 || level_==4){
+	if(level_ == 4){
+		(*jd_write_)("number of jdfiles",nof_);
+		jd_write_->add_to_header("\n");
+	}
+	if(level_ == 6 || level_==4 || level_== 3){
 		data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
 	}
 }
@@ -13,6 +21,7 @@ void AnalyseMagnetization::close_files(){
 	if(jd_write_){ 
 		switch(level_){
 			case 4:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
+			case 3:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
 		}
 		rst_file_.last().text(jd_write_->get_header());
 		delete jd_write_;
@@ -110,10 +119,16 @@ std::string AnalyseMagnetization::extract_level_4(){
 	std::string link_name(cs.analyse(level_));
 	jd_write_->add_to_header("\n");
 
+	delete read_;
+	read_ = NULL;
+
 	return filename_;
 }
 
 std::string AnalyseMagnetization::extract_level_3(){
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	(*read_)>>nof_;
+
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp+="set xlabel '$M$' offset 0,1";
 	gp+="set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1";
@@ -123,5 +138,42 @@ std::string AnalyseMagnetization::extract_level_3(){
 	gp.save_file();
 	gp.create_image(true);
 
+	Vector<unsigned int> ref;
+	Vector<unsigned int> M;
+	unsigned int N;
+	unsigned int m;
+	unsigned int n;
+	int bc;
+	Data<double> E;
+	Vector<unsigned int> vM(nof_);
+	Vector<double> vE(nof_);
+	vM(0) = 0;
+	vE(0) = 2;
+	for(unsigned int i(1);i<nof_;i++){
+		(*read_)>>ref>>N>>m>>n>>M>>bc>>E;
+		vE(i) = E.get_x();
+		vM(i) = M(0);
+	}
+
+	Vector<unsigned int> index;
+	vM.sort(std::less_equal<unsigned int>(),index);
+	vE = vE.order(index);
+	for(unsigned int i(1);i<nof_;i++){
+		(*data_write_)<<-(vE(i)-vE(i-1))/(vM(i)-vM(i-1))<<" "<<1-vM(i)/double(vM(nof_-1))<<IOFiles::endl;
+	}
+
+	delete read_;
+	read_ = NULL;
+
+	return filename_;
+}
+
+std::string AnalyseMagnetization::extract_level_2(){
+	Gnuplot gp(analyse_+path_+dir_,filename_);
+	gp+="set key left";
+	gp+="plot '"+filename_+".dat' u 1:2 notitle,\\";
+	gp+="     1.0/3.0, 5.0/9.0, 7.0/9.0";
+	gp.save_file();
+	gp.create_image(true);
 	return filename_;
 }

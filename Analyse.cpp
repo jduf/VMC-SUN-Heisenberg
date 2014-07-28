@@ -1,7 +1,7 @@
 #include "Analyse.hpp"
 
-Analyse::Analyse():
-	IOSystem(""),
+Analyse::Analyse(std::string const& sim):
+	IOSystem("",sim),
 	level_(0)
 {}
 
@@ -38,46 +38,42 @@ void Analyse::go(std::string argv){
 			{
 				if(argv[argv.size()-1] != '/'){ argv += "/"; }
 				std::vector<std::string> tmp(string_split(argv,'/'));
-				if(tmp.size()<2){
-					std::cerr<<"study : if the update of the whole sim/ directory is requested, then call '\\study' with no argument"<<std::endl;
-				} else {
-					for(unsigned int i(1);i<tmp.size()-1;i++){
-						if(i+2==tmp.size()){/*to update the previous rst file*/
-							Directory d;
-							std::string tmp_local(sim_);
-							for(unsigned int j(1);j<=i;j++){ tmp_local += tmp[j] + "/"; }
-							d.list_dir(tmp_local);
-							d.sort();
-							RSTFile rst(info_,tmp[i]);
-							for(unsigned int j(0);j<d.size();j++){
-								rst.hyperlink(d.get_path(j)+d.get_name(j),info_+tmp[i]+"/"+d.get_name(j)+".html");
-								rst.nl();
-							}
-						}
-						path_ += tmp[i] + "/";
-					}
-					if(tmp.size()==2){/*to update the previous REAME.rst file*/
+				for(unsigned int i(1);i<tmp.size()-1;i++){
+					if(i+2==tmp.size()){/*to update the previous rst file*/
 						Directory d;
-						d.list_dir(root+"sim/");
+						std::string tmp_local(sim_);
+						for(unsigned int j(1);j<=i;j++){ tmp_local += tmp[j] + "/"; }
+						d.list_dir(tmp_local);
 						d.sort();
-						filename_ = "README";
-						IOFiles rst_readme(root+filename_,false);
-						std::string h;
-						rst_readme>>h;
-						RSTFile rst(root,filename_);
-						rst.text(h);
+						RSTFile rst(info_,tmp[i]);
 						for(unsigned int j(0);j<d.size();j++){
-							rst.hyperlink(d.get_path(j)+d.get_name(j),info_+d.get_name(j)+".html");
+							rst.hyperlink(d.get_path(j)+d.get_name(j),info_+tmp[i]+"/"+d.get_name(j)+".html");
 							rst.nl();
 						}
 					}
-					info_ = tmp[tmp.size()-1];
-					analyse_ += tmp[tmp.size()-1] + "/";
-					path_ = argv;
-
-					rst_file_.append(RSTFile(info_,filename_));
-					recursive_search();
+					path_ += tmp[i] + "/";
 				}
+				if(tmp.size()==2){/*to update the previous REAME.rst file*/
+					Directory d;
+					d.list_dir(root+"sim/");
+					d.sort();
+					filename_ = "README";
+					IOFiles rst_readme(root+filename_,false);
+					std::string h;
+					rst_readme>>h;
+					RSTFile rst(root,filename_);
+					rst.text(h);
+					for(unsigned int j(0);j<d.size();j++){
+						rst.hyperlink(d.get_path(j)+d.get_name(j),info_+d.get_name(j)+".html");
+						rst.nl();
+					}
+				}
+				info_ = tmp[tmp.size()-1];
+				analyse_ += tmp[tmp.size()-1] + "/";
+				path_ = argv;
+
+				rst_file_.append(RSTFile(info_,filename_));
+				recursive_search();
 			}break;
 			//case 2:  /*treat only one jdbin file*/
 			//{

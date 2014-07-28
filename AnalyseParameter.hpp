@@ -5,7 +5,7 @@
 
 class AnalyseParameter : public Analyse{
 	public:
-		AnalyseParameter(){}
+		AnalyseParameter(std::string const& sim);
 		~AnalyseParameter(){}
 
 	protected:

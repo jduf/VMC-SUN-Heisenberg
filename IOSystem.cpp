@@ -1,7 +1,7 @@
 #include "IOSystem.hpp"
 
-IOSystem::IOSystem(std::string const& filename):
-	sim_("sim/"),
+IOSystem::IOSystem(std::string const& filename, std::string const& sim):
+	sim_(sim),
 	info_("info/"),
 	analyse_("analyse/"),
 	path_(""),
