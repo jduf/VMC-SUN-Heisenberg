@@ -17,7 +17,7 @@ class BandStructure{
 		void diagonalize_subspace_Tx(unsigned int const& a, unsigned int const&b, Matrix<std::complex<double> >& evec, Vector<double> const& eval);
 		void diagonalize_subspace_Ty(unsigned int const& a, unsigned int const&b, Matrix<std::complex<double> >& evec, Vector<double> const& eval);
 		void diagonalize_everything(Matrix<std::complex<double> >& evec, Matrix<std::complex<double> >& eval);
-		Vector<double> check(Matrix<std::complex<double> >& evec);
+		void check(Matrix<std::complex<double> >O, Matrix<std::complex<double> > const& evec, Matrix<std::complex<double> > const& eval, unsigned int idx);
 		void save();
 
 		void compute_band_structure();
@@ -278,6 +278,12 @@ void BandStructure<Type>::diagonalize_subspace_Tx(unsigned int const& a, unsigne
 	//delete[] O;
 //}
 
+
+inline bool sort_complex(std::complex<double> a, std::complex<double> b){
+	if(are_equal(a.real(),b.real(),1e-12)){ return a.imag()<=b.imag(); }
+	else{ return a.real()<=b.real(); }
+}
+
 template<typename Type>
 void BandStructure<Type>::diagonalize_everything(Matrix<std::complex<double> >& evec, Matrix<std::complex<double> >& eval){
 	Matrix<Type>* O(new Matrix<Type>[dim_]);
@@ -311,20 +317,19 @@ void BandStructure<Type>::diagonalize_everything(Matrix<std::complex<double> >& 
 					}
 				}
 				/*diagonalize the subspace and compute the eigenvectors*/
-				Matrix<std::complex<double> > tmp_evec;
-				//Vector<std::complex<double> > tmp_eval;
-				//Lapack<std::complex<double> >(tmp_mat,false,'G').eigensystem(tmp_eval,&tmp_evec);
-				Vector<double> tmp_eval;
-				Lapack<std::complex<double> >(tmp_mat,false,'H').eigensystem(tmp_eval,true);
+				Vector<std::complex<double> > tmp_eval;
+				Matrix<std::complex<double> > r_tmp_evec;
+				Matrix<std::complex<double> > l_tmp_evec;
+				Lapack<std::complex<double> >(tmp_mat,false,'G').eigensystem(tmp_eval,&r_tmp_evec,&l_tmp_evec);
 				//std::cout<<tmp_eval<<std::endl;
 				/*copy the eigenvalue in a sorted order*/
 				//for(unsigned int i(0);i<b-a;i++){ 
 					//tmp_eval(i) = log(tmp_eval(i));
 				//}
 				Vector<unsigned int> index;
-				tmp_eval.sort(&less_equal_complex, index);
+				tmp_eval.sort(&sort_complex,index);
 				for(unsigned int i(0);i<b-a;i++){ 
-					eval(a+i,o+1) = tmp_eval(i); 
+					eval(a+i,o+1) = tmp_eval(index(i)); 
 				}
 				/*create the linear combination of the old vectors, the new
 				 * vectors are eigenvectors of the operator O[o]*/
@@ -332,8 +337,7 @@ void BandStructure<Type>::diagonalize_everything(Matrix<std::complex<double> >& 
 					for(unsigned int j(0);j<b-a;j++){
 						evec(i,a+j) = 0.0;
 						for(unsigned int k(0);k<b-a;k++){
-							//evec(i,a+j)	+= evec_old(i,k)*tmp_evec(k,index(j));
-							evec(i,a+j)	+= evec_old(i,k)*tmp_mat(k,index(j));
+							evec(i,a+j)	+= evec_old(i,k)*r_tmp_evec(k,index(j));
 						}
 					}
 				}
@@ -356,17 +360,27 @@ void BandStructure<Type>::diagonalize_everything(Matrix<std::complex<double> >& 
 			//}
 		//}
 	}
+	std::cout<<eval<<std::endl;
+	check(O[0],evec,eval,1);
 	delete[] O;
 }
 
 template<typename Type>
-Vector<double> BandStructure<Type>::check(Matrix<std::complex<double> >& evec){
-	Matrix<std::complex<double> > m(evec.trans_conj()*Tx_*evec);
-	//std::cout<<m.chop()<<std::endl;
-	//std::cout<<(evec.trans_conj()*mat_*evec).diag().chop()<<std::endl;
-	Vector<double> p(evec.row());
-	for(unsigned int i(0);i<evec.row();i++){ p(i) = log(m(i,i)).imag(); }
-	return p;
+void BandStructure<Type>::check(Matrix<std::complex<double> > O, Matrix<std::complex<double> > const& evec, Matrix<std::complex<double> > const& eval, unsigned int idx){
+	for(unsigned int i(0);i<O.row();i++){
+		O(i,i) -= eval(0,idx);
+	}
+	std::complex<double> tmp;
+	for(unsigned int i(0);i<O.row();i++){
+		for(unsigned int j(0);j<O.col();j++){
+			tmp = 0;
+			for(unsigned int k(0);k<O.col();k++){
+				tmp += O(i,k)*evec(k,j);
+			}
+			//if(!are_equal(tmp,0)){ std::cout<<i<<" "<<j<<std::endl;}
+		}
+	}
+	std::cout<<(O*evec).chop()<<std::endl;
 }
 /*}*/
 

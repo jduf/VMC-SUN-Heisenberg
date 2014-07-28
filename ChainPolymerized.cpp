@@ -38,7 +38,7 @@ void ChainPolymerized::compute_H(){
 void ChainPolymerized::create(){
 	E_.set(50,5,false);
 	corr_.set(links_.row(),50,5,false);
-	//if(type==2){ long_range_corr_.set(n_/3); }
+	long_range_corr_.set(n_/3,50,5,false);
 
 	compute_H();
 	diagonalize_H(H_);
@@ -144,10 +144,9 @@ std::string ChainPolymerized::extract_level_7(){
 				   }break;
 			default :{ gp+="fit ["+tostring(N_-1)+":] f(x) '"+filename_+"-long-range-corr.dat' i "+tostring(nruns)+" via a,b,eta"; }break;
 		}
-		gp+="plot for [IDX=0:"+tostring(nruns-1)+"] '"+filename_+"-long-range-corr.dat' i IDX u 1:($4==1?$2:1/0):3 w errorbars lt 1 lc 3 ps 0 notitle,\\";
-		gp+="     for [IDX=0:"+tostring(nruns-1)+"] '"+filename_+"-long-range-corr.dat' i IDX u 1:($4==0?$2:1/0):3 w errorbars lt 1 lc 1 ps 0 notitle,\\";
-		gp+="                   '"+filename_+"-long-range-corr.dat' i "+tostring(nruns)+" u 1:2:3 w errorbars lt 1 lc 2 lw 2 notitle,\\";
-		gp+="                   f(x) notitle";
+		gp+="plot '"+filename_+"-long-range-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
+		gp+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean',\\";
+		gp+="     f(x) notitle";
 		gp.save_file();
 		rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
 	}

@@ -2,6 +2,7 @@
 #define DEF_KAGOMEFERMI
 
 #include "Kagome.hpp"
+#include "BandStructure.hpp"
 
 template<typename Type>
 class KagomeFermi: public Kagome<Type>{
@@ -208,7 +209,8 @@ void KagomeFermi<Type>::check(){
 	//}
 	///*}*/
 
-	compute_H();
+	this->plot_band_structure();
+
 	///*{Rotation matrix : [R,T]!=0*/
 	//Matrix<Type> R(this->H_.row(),this->H_.col(),0);
 	//Matrix<int> nb;

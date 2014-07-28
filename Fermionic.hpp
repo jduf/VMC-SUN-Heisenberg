@@ -83,6 +83,5 @@ inline void Fermionic<std::complex<double> >::diagonalize_H(Matrix<std::complex<
 		}
 	}
 }
-
 #endif
 

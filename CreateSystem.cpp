@@ -114,7 +114,7 @@ void CreateSystem::parse(Parseur& P){
 	if( wf == "kagomevbc" ){
 		ref_(0) = 5;
 		ref_(1) = 2;
-		ref_(2) = 3;
+		ref_(2) = 2;
 	}
 
 	if( wf == "honeycomb0pp" ){
@@ -137,8 +137,8 @@ void CreateSystem::parse(Parseur& P){
 }
 
 void CreateSystem::init(IOFiles* read, IOSystem* ios){
-	M_(1) = 8;
-	M_(0) = 40;
+	//M_(1) = 8;
+	//M_(0) = 40;
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 	switch(ref_(0)){

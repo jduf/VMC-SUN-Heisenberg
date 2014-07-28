@@ -87,62 +87,13 @@ void System2D<Type>::compute_TxTy(){
 	}
 }
 
-//template<typename Type>
-//void System2D<Type>::compute_band_structure(){
-	//e_.set(this->n_);
-	//Rand rnd(1e4);
-	//Matrix<Type> M;
-	//unsigned int iter(0);
-	//Vector<std::complex<double> > eval;
-	//do{
-		///*may be optimized : */
-		//M  = H_;
-		//M += Tx_*Type(rnd.get()*rnd.get(1e1));
-		//M += Ty_*Type(rnd.get()*rnd.get(1e1));
-//
-		//Lapack<Type>(M,true,'G').eigensystem(eval,&evec_);
-//
-		//this->degenerate_ = false;
-		//for(unsigned int i(0);i<this->n_;i++){
-			//for(unsigned int j(i+1);j<this->n_;j++){
-				//if(are_equal(eval(i),eval(j),1e-14,1e-12)){
-					//this->degenerate_ = true;
-					//i=j=this->n_;
-				//}
-			//}
-		//}
-	//} while ( this->degenerate_ && iter++<1e2);
-	//if( iter>=1e2 ){ std::cerr<<"void System2D<Type>::compute_band_structure() : degenerate"<<std::endl; }
-	//else {
-		//std::cout<<iter<<std::endl;
-		//Vector<unsigned int> index;
-		//Matrix<std::complex<double> > evec_tmp(evec_);
-		//for(unsigned int i(0);i<this->n_;i++){
-			//e_(i) = projection(H_,i).real();
-		//}
-		//e_.sort(std::less_equal<double>(),index);
-		//px_.set(this->n_);
-		//py_.set(this->n_);
-		//for(unsigned int i(0);i<this->n_;i++){
-			//for(unsigned int j(0);j<this->n_;j++){
-				//std::swap(evec_(i,j),evec_tmp(i,index(j)));
-			//}
-		//}
-		//for(unsigned int i(0);i<this->n_;i++){
-			//px_(i) = log(projection(Tx_,i)).imag();
-			//py_(i) = log(projection(Ty_,i)).imag();
-		//}
-	//}
-//
-//}
-
 template<typename Type>
 void System2D<Type>::compute_band_structure(){
 	Rand rnd(1e4);
 	Matrix<Type> M;
 	/*may be optimized : */
 	unsigned int nbr_deg;
-	do{
+	//do{
 		nbr_deg = 0;
 		M  = H_;
 		M += Tx_*Type(rnd.get()*rnd.get(1e5));
@@ -171,16 +122,17 @@ void System2D<Type>::compute_band_structure(){
 			px_(i) = log(projection(Tx_,i)).imag();
 			py_(i) = log(projection(Ty_,i)).imag();
 		}
-		std::cerr<<"eval degenerate"<<std::endl;
 		for(unsigned int i(0);i<this->n_;i++){
 			for(unsigned int j(i+1);j<this->n_;j++){
 				if(are_equal(eval(i),eval(j),1e-14,1e-12)){
 					//std::cerr<<px_(i)<<" "<<px_(j)<<" "<<py_(i)<<" "<<py_(j)<<" "<<e_(i)<<" "<<e_(j)<<" "<<eval(i)<<" "<<eval(j)<<std::endl;
 					nbr_deg++;
+					j=this->n_;
 				}
 			}
 		}
-	} while (nbr_deg>1);
+		std::cerr<<"eval degenerate "<<nbr_deg<<std::endl;
+	//} while (nbr_deg>10);
 }
 
 template<typename Type>
@@ -192,114 +144,9 @@ void System2D<Type>::plot_band_structure(){
 
 	Gnuplot gp("./","spectrum");
 	gp.xrange("-pi","pi");
-	gp+="splot 'spectrum.dat' u 1:2:3 ,\\";
-	gp+="      'spectrum-2.dat' u 1:2:3";
+	gp+="splot 'spectrum.dat' u 1:2:3";
 	gp.save_file();
 }
-
-//template<typename Type>
-//void System2D<Type>::select_eigenvectors(){
-	////std::cout<<e_<<std::endl;
-	//unsigned int iter(0);
-	//double Px(0.0);
-	//double Py(0.0);
-	//for(unsigned int c(0);c<this->N_;c++){
-		//unsigned int a(this->M_(c)-1);
-		//unsigned int b(this->M_(c)-1);
-		////std::cout<<a<<" "<<b<<std::endl;
-		//do{b++;} while (b+1<this->n_ && are_equal(e_(b),e_(b-1)));
-		////std::cout<<a<<" "<<b<<std::endl;
-		//if(b!=this->M_(c)){ while(a>0 && are_equal(e_(a-1),e_(a))){a--;} }
-		////std::cout<<a<<" "<<b<<std::endl;
-		////std::cout<<e_.range(a,b)<<std::endl;
-		//Vector<unsigned int> cnk;
-		//Combination cbn;
-		//cbn.set(this->M_(c)-a,b-a,cnk);
-		//select_[c].set(this->M_(c));
-		//for(unsigned int i(0);i<a;i++){ select_[c](i) = i; }
-		////do{ 
-		////for(unsigned int i(0);i+a<M_(c);i++){ select_[c](a+i) = a+cnk(i); }
-		////double Px(0.0);
-		////double Py(0.0);
-		////double  e(0.0);
-		////for(unsigned int i(0);i<M_(c);i++){
-		//////Px+= (are_equal(std::abs(px_(a+comb(j))),M_PI,1e-8)?0:px_(a+comb(j)));
-		//////Py+= (are_equal(std::abs(py_(a+comb(j))),M_PI,1e-8)?0:py_(a+comb(j)));
-		////e += e_(select_[c](i));
-		////}
-		////std::cout<<Px<<" "<<Py<<" "<<e<<std::endl;
-		////} while (cbn.next());
-		//while(iter++<sel_[c] && cbn.next());
-		//for(unsigned int i(0);i+a<this->M_(c);i++){ select_[c](a+i) = a+cnk(i); }
-		//double  e(0.0);
-		//for(unsigned int i(0);i<this->M_(c);i++){
-			//Px+= are_equal(std::abs(px_(select_[c](i))),M_PI,1e-12)?0:px_(select_[c](i));
-			//Py+= are_equal(std::abs(py_(select_[c](i))),M_PI,1e-12)?0:py_(select_[c](i));
-			//e +=  e_(select_[c](i));
-		//}
-	//}
-	//if(are_equal(Px,0.) && are_equal(Py,0.)){
-		//std::cout<<iter<<std::endl;
-	//}
-//}
-
-//template<typename Type>
-//void System2D<Type>::select_eigenvectors(){
-	////std::cout<<e_<<std::endl;
-	//unsigned int iter(0);
-	//for(unsigned int c(0);c<this->N_;c++){
-		//unsigned int a(this->M_(c)-1);
-		//unsigned int b(this->M_(c)-1);
-		//do{b++;} while (b+1<this->n_ && are_equal(e_(b),e_(b-1)));
-		//if(b!=this->M_(c)){ while(a>0 && are_equal(e_(a-1),e_(a))){a--;} }
-		//Vector<unsigned int> cnk;
-		//Combination cbn;
-		//cbn.set(this->M_(c)-a,b-a,cnk);
-		//select_[c].set(this->M_(c));
-		//for(unsigned int i(0);i<a;i++){ select_[c](i) = i; }
-		////do{ 
-		////for(unsigned int i(0);i+a<M_(c);i++){ select_[c](a+i) = a+cnk(i); }
-		////double Px(0.0);
-		////double Py(0.0);
-		////double  e(0.0);
-		////for(unsigned int i(0);i<M_(c);i++){
-		//////Px+= (are_equal(std::abs(px_(a+comb(j))),M_PI,1e-8)?0:px_(a+comb(j)));
-		//////Py+= (are_equal(std::abs(py_(a+comb(j))),M_PI,1e-8)?0:py_(a+comb(j)));
-		////e += e_(select_[c](i));
-		////}
-		////std::cout<<Px<<" "<<Py<<" "<<e<<std::endl;
-		////} while (cbn.next());
-		//while(iter++<sel_[c] && cbn.next());
-		//for(unsigned int i(0);i+a<this->M_(c);i++){ select_[c](a+i) = a+cnk(i); }
-		//double  e(0.0);
-		//double Px(0.0);
-		//double Py(0.0);
-		//for(unsigned int i(0);i<this->M_(c);i++){
-			//Px+= are_equal(std::abs(px_(select_[c](i))),M_PI,1e-12)?0:px_(select_[c](i));
-			//Py+= are_equal(std::abs(py_(select_[c](i))),M_PI,1e-12)?0:py_(select_[c](i));
-			//e +=  e_(select_[c](i));
-		//}
-		//if(!are_equal(Px,0.) || !are_equal(Py,0.)){ this->degenerate_ = true;}
-		//else {
-			//Px = 0.0;
-			//Py = 0.0;
-			//for(unsigned int i(a);i<this->M_(c);i++){
-				//Px+= are_equal(std::abs(px_(select_[c](i))),M_PI,1e-12)?0:px_(select_[c](i));
-				//Py+= are_equal(std::abs(py_(select_[c](i))),M_PI,1e-12)?0:py_(select_[c](i));
-			//}
-			//if(!are_equal(Px,0.) || !are_equal(Py,0.)){ this->degenerate_ = true;}
-		//}
-	//}
-	////if(are_equal(Px,0.) && are_equal(Py,0.)){
-	////this->degenerate_ = false;
-	////for(unsigned int c(0);c<this->N_;c++){
-	////std::cout<<px_(select_[c](this->M_(c)-1))<<" "<<py_(select_[c](this->M_(c)-1))<<" ";
-	////}
-	////} else {
-	////std::cout<<sel_[0]<<" "<<sel_[1]<<std::endl;
-	////this->degenerate_ = true;
-	////}
-//}
 
 template<typename Type>
 void System2D<Type>::select_eigenvectors(){
@@ -337,7 +184,6 @@ void System2D<Type>::select_eigenvectors(){
 		}
 	}
 	if(!this->degenerate_){
-		std::cout<<"1"<<std::endl;
 		//for(unsigned int c(0);c<this->N_;c++){
 			//for(unsigned int i(0);i<pxpy[c].row();i++){
 				//std::cout<<pxpy[c](i,0)<<" "<<pxpy[c](i,1)<<" ";

@@ -275,8 +275,7 @@ void KagomeDirac<Type>::check(){
 	//}
 	///*}*/
 	
-	//BandStructure<double> bs(this->H_,this->Lx_,this->Ly_,this->spuc_,bc_);
-	this->lattice();
+	this->plot_band_structure();
 }
 /*}*/
 

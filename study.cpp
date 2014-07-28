@@ -13,13 +13,13 @@ int main(int argc, char* argv[]){
 		switch(what){
 			case 1:
 				{
-					AnalyseParameter analyse("sim-kagome/"); 
+					AnalyseParameter analyse("sim/"); 
 					if(!P.search("dir",i)){analyse.go("");}
 					else {analyse.go(P.get<std::string>(i));}
 				}break;
 			case 2:
 				{
-					AnalyseMagnetization analyse("sim-kagome/"); 
+					AnalyseMagnetization analyse("sim/"); 
 					if(!P.search("dir",i)){analyse.go("");}
 					else {analyse.go(P.get<std::string>(i));}
 				}break;

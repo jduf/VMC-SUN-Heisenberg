@@ -74,14 +74,19 @@ void KagomeVBC::create(){
 
 	compute_H();
 	diagonalize_H(H_);
-	for(unsigned int c(0);c<N_;c++){
-		EVec_[c].set(n_,M_(c));
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = H_(i,j);
+	if(!degenerate_){
+		for(unsigned int c(0);c<N_;c++){
+			EVec_[c].set(n_,M_(c));
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = H_(i,j);
+				}
 			}
 		}
 	}
+	compute_H();
+	compute_TxTy();
+	compute_band_structure();
 }
 /*}*/
 
@@ -338,7 +343,7 @@ void KagomeVBC::check(){
 	///*}*/
 
 	//BandStructure<std::complex<double> > bs(H_,Lx_,Ly_,spuc_,bc_);
-	lattice();
+	plot_band_structure();
 }
 /*}*/
 
