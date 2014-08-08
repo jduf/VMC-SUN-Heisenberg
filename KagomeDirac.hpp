@@ -96,7 +96,7 @@ void KagomeDirac<Type>::lattice(){
 	double ex(4.0*ll);
 	double exy(2.0*ll*cos(2.0*M_PI/6.0));
 	double ey(2.0*ll*sin(2.0*M_PI/6.0));
-	std::string color("black");
+	std::string color;
 
 	PSTricks ps("./","lattice");
 	ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+this->filename_);

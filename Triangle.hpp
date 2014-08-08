@@ -25,14 +25,7 @@ Triangle<Type>::Triangle(unsigned int const& Lx, unsigned int const& Ly, unsigne
 {
 	std::cerr<<"Triangle::Triangle(N,n,m,filename) : need to set the boundary condition"<<std::endl;
 	std::cerr<<"Triangle::Triangle(N,n,m,filename) : and need to check that they are correct"<<std::endl;
-	if(this->n_==this->Ly_*this->Lx_){
-		this->filename_ += "-" + tostring(this->Lx_) + "x" + tostring(this->Ly_);
-		this->compute_links();
-		this->status_--;
-	} else {
-		std::cerr<<"Triangle<Type> : the cluster is impossible, n must be a"<<std::endl; 
-		std::cerr<<"               : multiple of "<<Lx*Ly*this->spuc_<<" ("<<Lx<<"x"<<Ly<<"x"<<this->spuc_<<")"<<std::endl; 
-	}
+	if(this->status_==1){ this->compute_links(); }
 }
 
 template<typename Type>

@@ -41,6 +41,7 @@ System1D<Type>::System1D(unsigned int const& spuc, unsigned int const& z, std::s
 {
 	sel_[0]= 0;
 	sel_[1]= 0;
+	this->status_--;
 }
 
 template<typename Type>

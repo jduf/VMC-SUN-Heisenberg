@@ -23,14 +23,7 @@ template<typename Type>
 Honeycomb<Type>::Honeycomb(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
 	System2D<Type>(Lx,Ly,spuc,3,filename,0,0)
 {
-	if(this->n_==this->Ly_*this->Lx_*this->spuc_){
-		this->filename_ += "-" + tostring(this->Lx_) +"x"+ tostring(this->Ly_);
-		this->compute_links();
-		this->status_--;
-	} else {
-		std::cerr<<"Honeycomb<Type> : the cluster is impossible, n must be a"<<std::endl; 
-		std::cerr<<"                : multiple of "<<Lx*Ly*this->spuc_<<" ("<<Lx<<"x"<<Ly<<"x"<<this->spuc_<<")"<<std::endl; 
-	}
+	if(this->status_==1){ this->compute_links(); }
 }
 
 template<typename Type>

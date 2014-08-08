@@ -31,6 +31,7 @@ class System2D: public GenericSystem<Type>{
 		Vector<double> e_;			//!< eigenvalue of the Hamiltonian T_
 		Vector<double> px_;			//!< eigenvalue of the translation along x
 		Vector<double> py_;			//!< eigenvalue of the translation along y
+
 	private:
 		unsigned int sel_[2];
 
@@ -46,6 +47,13 @@ System2D<Type>::System2D(unsigned int const& Lx, unsigned int const& Ly, unsigne
 {
 	sel_[0]= sel0;
 	sel_[1]= sel1;
+	if(this->n_==Ly_*Lx_){
+		this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
+		this->status_--;
+	} else {
+		std::cerr<<"System2D<Type> : the cluster is impossible, n must be a"<<std::endl; 
+		std::cerr<<"               : multiple of "<<Lx*Ly*spuc<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc<<")"<<std::endl; 
+	}
 }
 
 template<typename Type>

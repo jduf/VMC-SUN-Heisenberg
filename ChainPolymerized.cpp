@@ -38,7 +38,7 @@ void ChainPolymerized::compute_H(){
 void ChainPolymerized::create(){
 	E_.set(50,5,false);
 	corr_.set(links_.row(),50,5,false);
-	long_range_corr_.set(n_/3,50,5,false);
+	long_range_corr_.set(links_.row(),50,5,false);
 
 	compute_H();
 	diagonalize_H(H_);
@@ -59,26 +59,29 @@ void ChainPolymerized::save() const {
 
 /*{method needed for checking*/
 void ChainPolymerized::check(){
-	//BandStructure<double> bs(H_,Lx_,spuc_,bc_);
+	this->create();
 }
 /*}*/
 
 /*{method needed for analysing*/
 std::string ChainPolymerized::extract_level_7(){
 	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
+	data_write_->precision(10);
 
+	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true);
+	IOFiles long_range_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);//should not be declared when type!=2
+
+	Vector<double> poly_e(N_/m_,0);
+	Vector<double> lrc_mean;
 	unsigned int nruns;
 	unsigned int tmax;
 
 	(*read_)>>nruns>>tmax;
-	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true);
-	IOFiles long_range_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);//should not be declared when type!=2
-	data_write_->precision(10);
 	(*data_write_)<<"% delta E dE 0|1"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
-	Vector<double> poly_e(N_/m_,0);
 	for(unsigned int i(0);i<nruns+1;i++){ 
 		(*read_)>>E_>>corr_>>long_range_corr_;
+		if(lrc_mean.size() == 0){ lrc_mean.set(long_range_corr_.size(),0);}
 		if(i<nruns){
 			unsigned int k(0);
 			while(k<corr_.size()){
@@ -94,8 +97,8 @@ std::string ChainPolymerized::extract_level_7(){
 		}
 		for(unsigned int j(0);j<long_range_corr_.size();j++){
 			long_range_corr_file<<j+1<<" "<<long_range_corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
+			if(i<nruns){ lrc_mean(j) += long_range_corr_[j].get_x();}
 		}
-
 	}
 	poly_e /= nruns*n_*m_/N_;
 	poly_e.sort(std::less<double>());
@@ -116,14 +119,30 @@ std::string ChainPolymerized::extract_level_7(){
 	gp.save_file();
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlation on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
 
-	unsigned int length(long_range_corr_.size());
-	if(length>0){
+	if(this->long_range_corr_.size()>0){
+		unsigned int llr(long_range_corr_.size());
+		Vector<std::complex<double> > Ck(llr,0.0);
+		std::complex<double> normalize(0.0);
+		double dk(2.0*M_PI/llr);
+
+		lrc_mean /= nruns;
+		for(unsigned int k(0);k<llr;k++){
+			for(unsigned int i(0);i<llr;i++){
+				Ck(k) += std::polar(lrc_mean(i),dk*k*i);
+			}
+			normalize += Ck(k); 
+		}
+		Ck /= dk*normalize;
+
+		IOFiles data_sf(analyse_+path_+dir_+filename_+"-structure-factor.dat",true);
+		for(unsigned int k(0);k<llr;k++){
+			data_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<" "<<std::abs(Ck(k))<<IOFiles::endl;
+		}
+
 		Gnuplot gp(analyse_+path_+dir_,filename_+"-long-range-corr");
-		gp+="stats '"+filename_+"-long-range-corr.dat' nooutput";
-		gp.xrange(0,length+1);
-		gp.yrange("1.1*STATS_min_y","1.1*STATS_max_y");
+		gp.xrange(0,llr+1);
 		gp+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
-		gp+="set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(j)>$' offset 1";
+		gp+="set ylabel '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m}{N}$' offset 1";
 		gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(delta_)+"$'";
 		gp+="set key right bottom";
 		gp+="a=1.0";
@@ -134,21 +153,34 @@ std::string ChainPolymerized::extract_level_7(){
 		gp+="f(x) = a/(x*x) + b*cos(2.0*pi*x*m/N)/(x**eta)";
 		gp+="set fit quiet";
 		switch(N_/m_){
-			case 2:{ gp+="fit [3:"+tostring(length)+"] f(x) '"+filename_+"-long-range-corr.dat' i "+tostring(nruns)+" via a,b,eta"; } break;
+			case 2:{ gp+="fit [3:"+tostring(llr)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; } break;
 			case 3:{
-					   switch((length + 1) % 3){
-						   case 0:{ gp+="fit [2:"+tostring(length)+"] f(x) '"+filename_+"-long-range-corr.dat' i "+tostring(nruns)+" via a,b,eta"; }break;
-						   case 1:{ gp+="fit [5:"+tostring(length)+"] f(x) '"+filename_+"-long-range-corr.dat' i "+tostring(nruns)+" via a,b,eta"; }break;
-						   case 2:{ gp+="fit [3:"+tostring(length)+"] f(x) '"+filename_+"-long-range-corr.dat' i "+tostring(nruns)+" via a,b,eta"; }break;
+					   switch((llr + 1) % 3){
+						   case 0:{ gp+="fit [2:"+tostring(llr)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
+						   case 1:{ gp+="fit [5:"+tostring(llr)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
+						   case 2:{ gp+="fit [3:"+tostring(llr)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
 					   }break;
 				   }break;
-			default :{ gp+="fit ["+tostring(N_-1)+":] f(x) '"+filename_+"-long-range-corr.dat' i "+tostring(nruns)+" via a,b,eta"; }break;
+			default :{ gp+="fit ["+tostring(N_-1)+":] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
 		}
 		gp+="plot '"+filename_+"-long-range-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
 		gp+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean',\\";
-		gp+="     f(x) notitle";
+		gp+="     f(x) t sprintf('$\\eta=%f$',eta)";
 		gp.save_file();
+		gp.create_image(true);
 		rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
+
+		Gnuplot gpsf(analyse_+path_+dir_,filename_+"-structure-factor");
+		gpsf+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(delta_)+"$'";
+		gpsf+="set key bottom";
+		gpsf.xrange("0","2*pi");
+		gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2,'$\\pi$' pi,'$3\\pi/2$' 3*pi/2,'$2\\pi$' 2 *pi)";
+		gpsf+="plot '"+filename_+"-structure-factor.dat' u 1:2 t 'real',\\";
+		gpsf+="     '"+filename_+"-structure-factor.dat' u 1:3 t 'imag',\\";
+		gpsf+="     '"+filename_+"-structure-factor.dat' u 1:4 t 'norm'";
+		gpsf.save_file();
+		gpsf.create_image(true);
+		rst_file_->link_figure(analyse_+path_+dir_+filename_+"-structure-factor.png","Structure factor",analyse_+path_+dir_+filename_+"-structure-factor.gp",1000);
 	}
 	/*}*/
 

@@ -22,8 +22,7 @@ template<typename Type>
 Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,2,filename)
 {
-	this->compute_links(); 
-	this->status_--;
+	if(this->status_==1){ this->compute_links(); }
 }
 
 template<typename Type>

@@ -4,11 +4,10 @@ template<>
 void ChainFermi<double>::create(){
 	E_.set(50,5,false);
 	corr_.set(links_.row(),50,5,false);
-	//if(type==2){ long_range_corr_.set(n_/3); }
+	long_range_corr_.set(links_.row(),50,5,false);
 
 	compute_H();
 	diagonalize_H(H_);
-
 	if(!degenerate_){
 		for(unsigned int c(0);c<N_;c++){
 			EVec_[c].set(n_,M_(c));
@@ -26,7 +25,7 @@ void ChainFermi<std::complex<double> >::create(){
 	std::cout<<"complex"<<std::endl;
 	E_.set(50,5,false);
 	corr_.set(links_.row(),50,5,false);
-	//if(type==2){ long_range_corr_.set(n_/3); }
+	long_range_corr_.set(links_.row(),50,5,false);
 
 	compute_T();/*T contains the hopping amplitudes*/
 

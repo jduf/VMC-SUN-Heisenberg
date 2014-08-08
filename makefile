@@ -2,7 +2,7 @@ EXEC=mc check study
 
 mc_SRCS=   mc.cpp    System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp TriangleFermi.cpp SquareFermi.cpp SquarePiFlux.cpp SquareJastrow.cpp KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp Honeycomb0pp.cpp Lapack.cpp Rand.cpp Combination.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
 check_SRCS=check.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp TriangleFermi.cpp SquareFermi.cpp SquarePiFlux.cpp SquareJastrow.cpp KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp Honeycomb0pp.cpp Lapack.cpp Rand.cpp Combination.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
-study_SRCS=study.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp TriangleFermi.cpp SquareFermi.cpp SquarePiFlux.cpp SquareJastrow.cpp KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp Honeycomb0pp.cpp Lapack.cpp Rand.cpp Combination.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp Directory.cpp Analyse.cpp AnalyseParameter.cpp AnalyseMagnetization.cpp
+study_SRCS=study.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp TriangleFermi.cpp SquareFermi.cpp SquarePiFlux.cpp SquareJastrow.cpp KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp Honeycomb0pp.cpp Lapack.cpp Rand.cpp Combination.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp Directory.cpp Analyse.cpp AnalyseEnergy.cpp AnalyseParameter.cpp AnalyseMagnetization.cpp AnalyseLongRangeCorrelation.cpp
 
 #-----------------------------------------------------------------
 

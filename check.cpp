@@ -79,7 +79,6 @@ int main(int argc, char* argv[]){
 		case 3:/*call CreateSystem::check*/
 			{ 
 				cs.init();
-				cs.create();
 				cs.check();
 			} break;
 		case 4:/*call CreateSystem::check*/

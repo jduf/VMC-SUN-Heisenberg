@@ -38,7 +38,7 @@ Fermionic<Type>::Fermionic(Fermionic<Type> const& f):
 	EVec_(f.EVec_?new Matrix<Type>[f.N_]:NULL),
 	degenerate_(f.degenerate_)
 {
-	for(unsigned int i(0);i<N_;i++){ EVec_[i] = f.EVec_[i]; }
+	for(unsigned int c(0);c<N_;c++){ EVec_[c] = f.EVec_[c]; }
 }
 
 template<typename Type>
@@ -58,6 +58,7 @@ Fermionic<Type>::~Fermionic(){
 	if(EVec_){ delete[] EVec_; }
 }
 /*}*/
+
 template<>
 inline void Fermionic<double>::diagonalize_H(Matrix<double>& H){
 	Vector<double> eval;

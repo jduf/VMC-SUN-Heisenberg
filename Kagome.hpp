@@ -23,14 +23,7 @@ template<typename Type>
 Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename, unsigned int const& sel0, unsigned int const& sel1):
 	System2D<Type>(Lx,Ly,spuc,4,filename,sel0,sel1)
 {
-	if(this->n_==this->Ly_*this->Lx_*this->spuc_){
-		this->filename_ += "-" + tostring(this->Lx_) +"x"+ tostring(this->Ly_);
-		this->compute_links();
-		this->status_--;
-	} else {
-		std::cerr<<"Kagome<Type> : the cluster is impossible, n must be a"<<std::endl; 
-		std::cerr<<"             : multiple of "<<Lx*Ly*this->spuc_<<" ("<<Lx<<"x"<<Ly<<"x"<<this->spuc_<<")"<<std::endl; 
-	}
+	if(this->status_==1){ this->compute_links(); }
 }
 
 template<typename Type>

@@ -26,9 +26,7 @@ class MCSystem: public virtual System{
 		void measure_new_step();
 		/*!Add the sample to the statistic*/
 		void add_sample();
-		/*!Returns true if the system is correctly sampled*/
-		bool is_converged(double const& tol);
-		/*!Calls complete_analysis of the sampled datas*/
+		///*!Calls complete_analysis of the sampled datas*/
 		void complete_analysis(double const& tol);
 		
 	protected:
@@ -103,20 +101,20 @@ void MCSystem<Type>::measure_new_step(){
 					E_.add(r); 
 					corr_[i].add(r);
 				}
+				/*if the new state is forbidden, r=0 and therefore there is no
+				 * need to complete the else condition*/
 			}
 		}
 	}
 	E_.divide(n_);
+
 	if(long_range_corr_.size()){
-		unsigned int x0(n_/3);
-		for(unsigned int i(0);i<n_/3;i++){
+		for(unsigned int i(0);i<long_range_corr_.size();i++){
 			long_range_corr_[i].set_x(0.0);
 			for(unsigned int p0(0); p0<m_; p0++){
 				for(unsigned int p1(0); p1<m_; p1++){
-					swap(x0,x0+i+1,p0,p1);
-					if(!is_new_state_forbidden() && new_c[0]!=new_c[1]){ 
-						long_range_corr_[i].add(real(ratio()));
-					}
+					swap(0,i,p0,p1);
+					if(!is_new_state_forbidden() && new_c[0] == new_c[1]){ long_range_corr_[i].add(1); }
 				}
 			}
 		}
@@ -131,18 +129,13 @@ void MCSystem<Type>::add_sample(){
 }
 
 template<typename Type>
-bool MCSystem<Type>::is_converged(double const& tol){ 
-	//corr_.compute_convergence(tol); 
-	//long_range_corr_.compute_convergence(tol); 
-	E_.compute_convergence(tol); 
-	return E_.get_conv();
-}
-
-template<typename Type>
 void MCSystem<Type>::complete_analysis(double const& tol){ 
 	E_.complete_analysis(tol); 
 	corr_.complete_analysis(tol); 
 	long_range_corr_.complete_analysis(tol); 
+	for(unsigned int i(0);i<long_range_corr_.size();i++){
+		long_range_corr_[i].substract(1.0*m_*m_/N_);
+	}
 }
 /*}*/
 
@@ -158,4 +151,3 @@ bool MCSystem<Type>::is_new_state_forbidden(){
 }
 /*}*/
 #endif
-

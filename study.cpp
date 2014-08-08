@@ -1,7 +1,9 @@
-/*!  @file study.cpp */
+/*! @file study.cpp */
 
 #include "AnalyseMagnetization.hpp"
 #include "AnalyseParameter.hpp"
+#include "AnalyseLongRangeCorrelation.hpp"
+#include "AnalyseEnergy.hpp"
 
 int main(int argc, char* argv[]){
 	Linux command;
@@ -11,6 +13,12 @@ int main(int argc, char* argv[]){
 		unsigned int what(P.get<unsigned int>("what"));
 		unsigned int i(0);
 		switch(what){
+			case 0:
+				{
+					AnalyseEnergy analyse("sim/"); 
+					if(!P.search("dir",i)){analyse.go("");}
+					else {analyse.go(P.get<std::string>(i));}
+				}break;
 			case 1:
 				{
 					AnalyseParameter analyse("sim/"); 
@@ -20,6 +28,12 @@ int main(int argc, char* argv[]){
 			case 2:
 				{
 					AnalyseMagnetization analyse("sim/"); 
+					if(!P.search("dir",i)){analyse.go("");}
+					else {analyse.go(P.get<std::string>(i));}
+				}break;
+			case 3:
+				{
+					AnalyseLongRangeCorrelation analyse("sim/"); 
 					if(!P.search("dir",i)){analyse.go("");}
 					else {analyse.go(P.get<std::string>(i));}
 				}break;
