@@ -13,9 +13,11 @@ class Triangle: public System2D<Type>{
 		 * per sites */
 		/*}*/
 		Triangle(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename);
+		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Triangle()=0;
 
 	protected:
+		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int i) const;
 };
 

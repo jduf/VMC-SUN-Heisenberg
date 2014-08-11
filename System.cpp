@@ -25,7 +25,7 @@ System::System(System const& s):
 	status_(s.status_),
 	E_(s.E_),
 	corr_(s.corr_),
-	long_range_corr_(s.long_range_corr_),
+	lr_corr_(s.lr_corr_),
 	links_(s.links_)
 {}
 /*}*/
@@ -33,5 +33,5 @@ System::System(System const& s):
 void System::set(){ 
 	E_.set(); 
 	corr_.set(); 
-	long_range_corr_.set(); 
+	lr_corr_.set(); 
 }

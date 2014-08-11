@@ -12,9 +12,11 @@ class Chain: public System1D<Type>{
 		 * per sites */
 		/*}*/
 		Chain(unsigned int const& spuc, std::string const& filename);
+		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Chain()=0;
 
 	protected:
+		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int i) const;
 };
 

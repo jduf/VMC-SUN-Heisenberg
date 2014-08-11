@@ -108,13 +108,13 @@ void MCSystem<Type>::measure_new_step(){
 	}
 	E_.divide(n_);
 
-	if(long_range_corr_.size()){
-		for(unsigned int i(0);i<long_range_corr_.size();i++){
-			long_range_corr_[i].set_x(0.0);
+	if(lr_corr_.size()){
+		for(unsigned int i(0);i<lr_corr_.size();i++){
+			lr_corr_[i].set_x(0.0);
 			for(unsigned int p0(0); p0<m_; p0++){
 				for(unsigned int p1(0); p1<m_; p1++){
 					swap(0,i,p0,p1);
-					if(!is_new_state_forbidden() && new_c[0] == new_c[1]){ long_range_corr_[i].add(1); }
+					if(!is_new_state_forbidden() && new_c[0] == new_c[1]){ lr_corr_[i].add(1); }
 				}
 			}
 		}
@@ -125,16 +125,16 @@ template<typename Type>
 void MCSystem<Type>::add_sample(){
 	E_.add_sample();
 	corr_.add_sample();
-	long_range_corr_.add_sample();
+	lr_corr_.add_sample();
 }
 
 template<typename Type>
 void MCSystem<Type>::complete_analysis(double const& tol){ 
 	E_.complete_analysis(tol); 
 	corr_.complete_analysis(tol); 
-	long_range_corr_.complete_analysis(tol); 
-	for(unsigned int i(0);i<long_range_corr_.size();i++){
-		long_range_corr_[i].substract(1.0*m_*m_/N_);
+	lr_corr_.complete_analysis(tol); 
+	for(unsigned int i(0);i<lr_corr_.size();i++){
+		lr_corr_[i].substract(1.0*m_*m_/N_);
 	}
 }
 /*}*/

@@ -27,7 +27,7 @@ void IOSystem::set_IOSystem(IOSystem* t){
 
 std::string IOSystem::get_filename() const { 
 	Linux command;
-	command("mkdir -p "+path_);
+	command("/bin/mkdir -p "+path_);
 	return path_+filename_; 
 }
 

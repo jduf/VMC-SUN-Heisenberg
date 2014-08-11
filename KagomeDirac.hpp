@@ -289,7 +289,7 @@ std::string KagomeDirac<Type>::extract_level_7(){
 	(*this->read_)>>nruns>>tmax;
 	/* the +1 is the averages over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){ 
-		(*this->read_)>>this->E_>>this->corr_>>this->long_range_corr_;
+		(*this->read_)>>this->E_>>this->corr_>>this->lr_corr_;
 	}
 	(*this->jd_write_)("energy per site",this->E_);
 

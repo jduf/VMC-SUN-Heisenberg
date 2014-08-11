@@ -13,9 +13,11 @@ class Kagome: public System2D<Type>{
 		 * per sites */
 		/*}*/
 		Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename, unsigned int const& sel0=0, unsigned int const& sel1=0);
+		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Kagome()=0;
 
 	protected:
+		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int i) const;
 };
 

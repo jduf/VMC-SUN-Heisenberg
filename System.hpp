@@ -14,7 +14,7 @@ class System{
 		/*!Returns correlation*/
 		DataSet<double> const& get_corr() const {return corr_;}
 		/*!Returns long range correlation*/
-		DataSet<double> const& get_long_range_corr() const {return long_range_corr_;}
+		DataSet<double> const& get_lr_corr() const {return lr_corr_;}
 		/*!Returns the status of the system*/
 		unsigned int const& get_status(){return status_;}
 
@@ -22,22 +22,22 @@ class System{
 
 	protected:
 		System(System const& s);
-		System():ref_(0),N_(0),m_(0),n_(0),bc_(0){std::cout<<"system default"<<std::endl;};
+		System():ref_(0),N_(0),m_(0),n_(0),bc_(0){std::cout<<"System::System() : should not be called"<<std::endl;};
 
 		/*variables that will be saved*/
-		Vector<unsigned int> const ref_;
-		unsigned int const N_;	//!< number of colors
-		unsigned int const m_;	//!< number of particles per site
-		unsigned int const n_;	//!< number of sites
-		Vector<unsigned int> const M_;//!< number of particles of each color 
-		int const bc_;			//!< boundary condition
-		unsigned int status_;	//!< 
+		Vector<unsigned int> const ref_;//!< type of system 
+		unsigned int const N_;			//!< number of colors
+		unsigned int const m_;			//!< number of particles per site
+		unsigned int const n_;			//!< number of sites
+		Vector<unsigned int> const M_;	//!< number of particles of each color 
+		int const bc_;					//!< boundary condition
+		unsigned int status_;			//!< status of the simulation
 
-		Data<double> E_;
-		DataSet<double> corr_;
-		DataSet<double> long_range_corr_;
+		Data<double> E_; 				//!< energy of the system
+		DataSet<double> corr_;			//!< correlation between neighbouring sites
+		DataSet<double> lr_corr_;		//!< long range correlation 
 
-		Matrix<unsigned int> links_;//!< list of links
+		Matrix<unsigned int> links_;	//!< list of links
 
 	private:
 		/*!Forbids assignment*/

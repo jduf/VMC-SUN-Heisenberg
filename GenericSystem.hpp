@@ -41,9 +41,11 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		RST system_info_;		//!< store information about the system
 
 		/*{Description*/
-		/*!Returns the neighbours of site i. This pure virtual method must be
-		 * defined here because it is needed by void
-		 * GenericSystem<Type>::compute_links()*/
+		/*!Returns the neighbours of site i. 
+		 *
+		 * This pure virtual method must be defined here because it is needed
+		 * by GenericSystem<Type>::compute_links()
+		 */
 		/*}*/
 		virtual Matrix<int> get_neighbourg(unsigned int i) const = 0;
 		/*!Computes the array of links between neighbouring sites*/

@@ -38,7 +38,7 @@ void ChainPolymerized::compute_H(){
 void ChainPolymerized::create(){
 	E_.set(50,5,false);
 	corr_.set(links_.row(),50,5,false);
-	long_range_corr_.set(links_.row(),50,5,false);
+	lr_corr_.set(links_.row(),50,5,false);
 
 	compute_H();
 	diagonalize_H(H_);
@@ -59,7 +59,8 @@ void ChainPolymerized::save() const {
 
 /*{method needed for checking*/
 void ChainPolymerized::check(){
-	this->create();
+	compute_H();
+	plot_band_structure();
 }
 /*}*/
 
@@ -69,7 +70,7 @@ std::string ChainPolymerized::extract_level_7(){
 	data_write_->precision(10);
 
 	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true);
-	IOFiles long_range_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);//should not be declared when type!=2
+	IOFiles lr_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);//should not be declared when type!=2
 
 	Vector<double> poly_e(N_/m_,0);
 	Vector<double> lrc_mean;
@@ -80,8 +81,8 @@ std::string ChainPolymerized::extract_level_7(){
 	(*data_write_)<<"% delta E dE 0|1"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){ 
-		(*read_)>>E_>>corr_>>long_range_corr_;
-		if(lrc_mean.size() == 0){ lrc_mean.set(long_range_corr_.size(),0);}
+		(*read_)>>E_>>corr_>>lr_corr_;
+		if(lrc_mean.size() == 0){ lrc_mean.set(lr_corr_.size(),0);}
 		if(i<nruns){
 			unsigned int k(0);
 			while(k<corr_.size()){
@@ -95,9 +96,9 @@ std::string ChainPolymerized::extract_level_7(){
 		for(unsigned int j(0);j<corr_.size();j++){
 			corr_file<<j+0.5<<" "<<corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 		}
-		for(unsigned int j(0);j<long_range_corr_.size();j++){
-			long_range_corr_file<<j+1<<" "<<long_range_corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
-			if(i<nruns){ lrc_mean(j) += long_range_corr_[j].get_x();}
+		for(unsigned int j(0);j<lr_corr_.size();j++){
+			lr_corr_file<<j+1<<" "<<lr_corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
+			if(i<nruns){ lrc_mean(j) += lr_corr_[j].get_x();}
 		}
 	}
 	poly_e /= nruns*n_*m_/N_;
@@ -119,8 +120,8 @@ std::string ChainPolymerized::extract_level_7(){
 	gp.save_file();
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlation on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
 
-	if(this->long_range_corr_.size()>0){
-		unsigned int llr(long_range_corr_.size());
+	if(this->lr_corr_.size()>0){
+		unsigned int llr(lr_corr_.size());
 		Vector<std::complex<double> > Ck(llr,0.0);
 		std::complex<double> normalize(0.0);
 		double dk(2.0*M_PI/llr);
@@ -139,42 +140,46 @@ std::string ChainPolymerized::extract_level_7(){
 			data_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<" "<<std::abs(Ck(k))<<IOFiles::endl;
 		}
 
-		Gnuplot gp(analyse_+path_+dir_,filename_+"-long-range-corr");
-		gp.xrange(0,llr+1);
-		gp+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
-		gp+="set ylabel '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m}{N}$' offset 1";
-		gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(delta_)+"$'";
-		gp+="set key right bottom";
-		gp+="a=1.0";
-		gp+="b=1.0";
-		gp+="eta=1.0";
-		gp+="m="+tostring(m_)+".0";
-		gp+="N="+tostring(N_)+".0";
-		gp+="f(x) = a/(x*x) + b*cos(2.0*pi*x*m/N)/(x**eta)";
-		gp+="set fit quiet";
+		Gnuplot gplr(analyse_+path_+dir_,filename_+"-long-range-corr");
+		gplr.xrange(0,llr+1);
+		gplr+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
+		gplr+="set ylabel '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m}{N}$' offset 1";
+		gplr+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(delta_)+"$'";
+		gplr+="set key right bottom";
+		gplr+="a=1.0";
+		gplr+="b=1.0";
+		gplr+="eta=1.0";
+		gplr+="m="+tostring(m_)+".0";
+		gplr+="N="+tostring(N_)+".0";
+		gplr+="f(x) = a/(x*x) + b*cos(2.0*pi*x*m/N)/(x**eta)";
+		gplr+="set fit quiet";
 		switch(N_/m_){
-			case 2:{ gp+="fit [3:"+tostring(llr)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; } break;
+			case 2:{ gplr+="fit [3:"+tostring(llr/2)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; } break;
 			case 3:{
 					   switch((llr + 1) % 3){
-						   case 0:{ gp+="fit [2:"+tostring(llr)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
-						   case 1:{ gp+="fit [5:"+tostring(llr)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
-						   case 2:{ gp+="fit [3:"+tostring(llr)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
+						   case 0:{ gplr+="fit [2:"+tostring(llr/2)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
+						   case 1:{ gplr+="fit [5:"+tostring(llr/2)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
+						   case 2:{ gplr+="fit [3:"+tostring(llr/2)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
 					   }break;
 				   }break;
-			default :{ gp+="fit ["+tostring(N_-1)+":] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
+			default :{ gplr+="fit ["+tostring(N_-1)+":"+tostring(llr/2)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
 		}
-		gp+="plot '"+filename_+"-long-range-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
-		gp+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean',\\";
-		gp+="     f(x) t sprintf('$\\eta=%f$',eta)";
-		gp.save_file();
-		gp.create_image(true);
+		gplr+="plot '"+filename_+"-long-range-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
+		gplr+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean',\\";
+		gplr+="     f(x) t sprintf('$\\eta=%f$',eta)";
+		gplr.save_file();
+		gplr.create_image(true);
 		rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
 
 		Gnuplot gpsf(analyse_+path_+dir_,filename_+"-structure-factor");
 		gpsf+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(delta_)+"$'";
 		gpsf+="set key bottom";
 		gpsf.xrange("0","2*pi");
-		gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2,'$\\pi$' pi,'$3\\pi/2$' 3*pi/2,'$2\\pi$' 2 *pi)";
+		switch(N_/m_){
+			case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0,'$\\pi$' pi,'$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
+			case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
+			default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
+		}
 		gpsf+="plot '"+filename_+"-structure-factor.dat' u 1:2 t 'real',\\";
 		gpsf+="     '"+filename_+"-structure-factor.dat' u 1:3 t 'imag',\\";
 		gpsf+="     '"+filename_+"-structure-factor.dat' u 1:4 t 'norm'";

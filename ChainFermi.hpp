@@ -3,6 +3,26 @@
 
 #include "Chain.hpp"
 
+/*{Description*/
+/*!1D chain with all hopping term having the same amplitude. The band structure
+ * looks like this :
+ *
+ *     n_ even, bc_ = 1 |    bc_ = -1
+ *                      | 
+ *           +          |      + +
+ *         +   +        |    +     +
+ *       +       +      |  +         +
+ *                 +    | 
+ *     -----------------|---------------
+ *     n_ odd, bc_ = 1  |    bc_ = -1
+ *                      | 
+ *           +          |      + +
+ *         +   +        |    +     +
+ *       +       +      |            +
+ *     -----------------|---------------
+ *  
+ */
+/*}*/
 template<typename Type>
 class ChainFermi: public Chain<Type>{
 	public:
@@ -48,7 +68,9 @@ void ChainFermi<Type>::compute_H(){
 /*{method needed for checking*/
 template<typename Type>
 void ChainFermi<Type>::check(){
-	this->create();
+	this->compute_H();
+	this->plot_band_structure();
+	this->degenerate_ = true;
 }
 /*}*/
 
@@ -59,7 +81,7 @@ std::string ChainFermi<Type>::extract_level_7(){
 	this->data_write_->precision(10);
 
 	IOFiles corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-corr.dat",true);
-	IOFiles long_range_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.dat",true);//should not be delcared when type!=2
+	IOFiles lr_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.dat",true);//should not be delcared when type!=2
 
 	Vector<double> lrc_mean;
 	unsigned int nruns;
@@ -69,18 +91,18 @@ std::string ChainFermi<Type>::extract_level_7(){
 	(*this->data_write_)<<"% E dE 0|1"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){ 
-		(*this->read_)>>this->E_>>this->corr_>>this->long_range_corr_;
-		if(lrc_mean.size() == 0){ lrc_mean.set(this->long_range_corr_.size(),0);}
+		(*this->read_)>>this->E_>>this->corr_>>this->lr_corr_;
+		if(lrc_mean.size() == 0){ lrc_mean.set(this->lr_corr_.size(),0);}
 		(*this->data_write_)<<" "<<this->E_.get_x()<<" "<<this->E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 		for(unsigned int j(0);j<this->corr_.size();j++){
 			corr_file<<j+0.5<<" "<<this->corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 		}
-		for(unsigned int j(0);j<this->long_range_corr_.size();j++){
-			long_range_corr_file<<j<<" "<<this->long_range_corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
-			if(i<nruns){ lrc_mean(j) += this->long_range_corr_[j].get_x();}
+		for(unsigned int j(0);j<this->lr_corr_.size();j++){
+			lr_corr_file<<j<<" "<<this->lr_corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
+			if(i<nruns){ lrc_mean(j) += this->lr_corr_[j].get_x();}
 		}
-		if(this->long_range_corr_.size()>0){
-			long_range_corr_file<<this->n_<<" "<<this->long_range_corr_[0]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
+		if(this->lr_corr_.size()>0){
+			lr_corr_file<<this->n_<<" "<<this->lr_corr_[0]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 		}
 	}
 	(*this->jd_write_)("E",this->E_);
@@ -95,8 +117,8 @@ std::string ChainFermi<Type>::extract_level_7(){
 	gp.save_file();
 	this->rst_file_->link_figure(this->analyse_+this->path_+this->dir_+this->filename_+"-corr.png","Correlation on links",this->analyse_+this->path_+this->dir_+this->filename_+"-corr.gp",1000);
 
-	if(this->long_range_corr_.size()>0){
-		unsigned int llr(this->long_range_corr_.size());
+	if(this->lr_corr_.size()>0){
+		unsigned int llr(this->lr_corr_.size());
 		Vector<std::complex<double> > Ck(llr,0.0);
 		std::complex<double> normalize(0.0);
 		double dk(2.0*M_PI/llr);
@@ -118,7 +140,7 @@ std::string ChainFermi<Type>::extract_level_7(){
 		Gnuplot gplr(this->analyse_+this->path_+this->dir_,this->filename_+"-long-range-corr");
 		gplr.xrange(0,llr);
 		gplr+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
-		gplr+="set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(j)>$' offset 1";
+		gplr+="set ylabel '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m}{N}$' offset 1";
 		gplr+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
 		gplr+="set key right bottom";
 		gplr+="a=1.0";
@@ -136,7 +158,11 @@ std::string ChainFermi<Type>::extract_level_7(){
 		gpsf+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
 		gpsf+="set key bottom";
 		gpsf.xrange("0","2*pi");
-		gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2,'$\\pi$' pi,'$3\\pi/2$' 3*pi/2,'$2\\pi$' 2 *pi)";
+		switch(this->N_/this->m_){
+			case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0,'$\\pi$' pi,'$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
+			case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
+			default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
+		}
 		gpsf+="plot '"+this->filename_+"-structure-factor.dat' u 1:2 t 'real',\\";
 		gpsf+="     '"+this->filename_+"-structure-factor.dat' u 1:3 t 'imag',\\";
 		gpsf+="     '"+this->filename_+"-structure-factor.dat' u 1:4 t 'norm'";

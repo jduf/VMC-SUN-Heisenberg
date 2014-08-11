@@ -43,10 +43,10 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 
 	Data<double> E;
 	DataSet<double> corr;
-	DataSet<double> long_range_corr;
+	DataSet<double> lr_corr;
 	E.set_conv(true);
 	corr.set(cs.get_system()->get_corr().size());
-	long_range_corr.set(cs.get_system()->get_long_range_corr().size());
+	lr_corr.set(cs.get_system()->get_lr_corr().size());
 
 #pragma omp parallel for 
 	for(unsigned int i=0;i<nruns;i++){
@@ -63,23 +63,23 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 		{
 			E.add_sample(S->get_energy());
 			corr.add_sample(S->get_corr());
-			long_range_corr.add_sample(S->get_long_range_corr());
+			lr_corr.add_sample(S->get_lr_corr());
 			file_results("energy per site",S->get_energy());
 			file_results("correlation on links",S->get_corr());
-			file_results("long range correlation",S->get_long_range_corr());
+			file_results("long range correlation",S->get_lr_corr());
 		}
 		delete S;
 	}
 
 	E.complete_analysis();
 	corr.complete_analysis();
-	long_range_corr.complete_analysis();
+	lr_corr.complete_analysis();
 
 	rst.set();
 	rst.title("Mean results","-");
 	file_results.add_to_header(rst.get());
 	file_results("energy per site",E);
 	file_results("correlation on links",corr);
-	file_results("long range correlation",long_range_corr);
+	file_results("long range correlation",lr_corr);
 	std::cout<<E<<std::endl;
 }

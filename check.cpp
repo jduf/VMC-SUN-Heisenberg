@@ -25,7 +25,7 @@ int main(int argc, char* argv[]){
 						sim.run();
 						w("energy per site",S->get_energy());
 						w("correlation on links",S->get_corr());
-						w("long range correlation",S->get_long_range_corr());
+						w("long range correlation",S->get_lr_corr());
 						std::cout<<S->get_energy()<<std::endl;
 						delete S;
 					} else {
@@ -35,7 +35,7 @@ int main(int argc, char* argv[]){
 						sim.run();
 						w("energy per site",S->get_energy());
 						w("correlation on links",S->get_corr());
-						w("long range correlation",S->get_long_range_corr());
+						w("long range correlation",S->get_lr_corr());
 						std::cout<<S->get_energy()<<std::endl;
 						delete S;
 					}
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]){
 							sim.run();
 							w("energy per site",S->get_energy());
 							w("correlation on links",S->get_corr());
-							w("long range correlation",S->get_long_range_corr());
+							w("long range correlation",S->get_lr_corr());
 							std::cout<<S->get_energy()<<std::endl;
 							delete S;
 						} else {
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]){
 							sim.run();
 							w("energy per site",S->get_energy());
 							w("correlation on links",S->get_corr());
-							w("long range correlation",S->get_long_range_corr());
+							w("long range correlation",S->get_lr_corr());
 							std::cout<<S->get_energy()<<std::endl;
 							delete S;
 						}
@@ -86,6 +86,7 @@ int main(int argc, char* argv[]){
 				do{
 					cs.init();
 					cs.create();
+					cs.check();
 				} while (!cs.is_over());
 			} break;
 		default:{std::cerr<<"check : unknown what"<<std::endl;}

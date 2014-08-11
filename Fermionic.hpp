@@ -67,7 +67,6 @@ inline void Fermionic<double>::diagonalize_H(Matrix<double>& H){
 		if(std::abs(eval(M_(c)) - eval(M_(c)-1))<1e-12){
 			std::cerr<<"Degenerate for the color : "<<c<<std::endl;
 			degenerate_= true;
-			c=N_;
 		}
 	}
 }
@@ -80,7 +79,6 @@ inline void Fermionic<std::complex<double> >::diagonalize_H(Matrix<std::complex<
 		if(are_equal(eval(M_(c)),eval(M_(c)-1),1e-12)){
 			std::cerr<<"Degenerate for the color : "<<c<<std::endl;
 			degenerate_= true;
-			c=N_;
 		}
 	}
 }
