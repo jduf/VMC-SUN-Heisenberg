@@ -18,6 +18,7 @@ class Chain: public System1D<Type>{
 	protected:
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int i) const;
+		std::string extract_level_3();
 };
 
 template<typename Type>
@@ -44,5 +45,14 @@ Matrix<int> Chain<Type>::get_neighbourg(unsigned int i) const {
 		nb(1,1) = this->bc_;
 	}
 	return nb;
+}
+
+template<typename Type>
+std::string Chain<Type>::extract_level_3(){
+	double polymerization_strength;
+	(*this->read_)>>this->E_>>polymerization_strength;
+	(*this->data_write_)<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<IOFiles::endl;
+
+	return this->filename_;
 }
 #endif

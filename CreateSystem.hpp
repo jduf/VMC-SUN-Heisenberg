@@ -22,7 +22,7 @@
 class CreateSystem{
 	public:
 		CreateSystem(Parseur& P);
-		CreateSystem(IOFiles* read);
+		CreateSystem(IOFiles* r);
 		virtual ~CreateSystem();
 
 		void init(IOFiles* read=NULL, IOSystem* ios=NULL);

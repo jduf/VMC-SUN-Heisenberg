@@ -35,8 +35,8 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 	RST rst;
 	rst.title("Simulation's parameters","-");
 	file_results.add_to_header(rst.get());
-	file_results("number of simulations runned",nruns);
-	file_results("tmax",tmax);
+	file_results.write("number of simulations runned",nruns);
+	file_results.write("tmax",tmax);
 	rst.set();
 	rst.title("Results","-");
 	file_results.add_to_header(rst.get());
@@ -64,9 +64,9 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 			E.add_sample(S->get_energy());
 			corr.add_sample(S->get_corr());
 			lr_corr.add_sample(S->get_lr_corr());
-			file_results("energy per site",S->get_energy());
-			file_results("correlation on links",S->get_corr());
-			file_results("long range correlation",S->get_lr_corr());
+			file_results.write("energy per site",S->get_energy());
+			file_results.write("correlation on links",S->get_corr());
+			file_results.write("long range correlation",S->get_lr_corr());
 		}
 		delete S;
 	}
@@ -78,8 +78,8 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 	rst.set();
 	rst.title("Mean results","-");
 	file_results.add_to_header(rst.get());
-	file_results("energy per site",E);
-	file_results("correlation on links",corr);
-	file_results("long range correlation",lr_corr);
+	file_results.write("energy per site",E);
+	file_results.write("correlation on links",corr);
+	file_results.write("long range correlation",lr_corr);
 	std::cout<<E<<std::endl;
 }

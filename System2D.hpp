@@ -47,7 +47,7 @@ System2D<Type>::System2D(unsigned int const& Lx, unsigned int const& Ly, unsigne
 {
 	sel_[0]= sel0;
 	sel_[1]= sel1;
-	if(this->n_==Ly_*Lx_){
+	if(this->n_==this->spuc_*Lx_*Ly_){
 		this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 		this->status_--;
 	} else {

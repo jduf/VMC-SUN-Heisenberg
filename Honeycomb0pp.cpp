@@ -64,7 +64,7 @@ void Honeycomb0pp::create(){
 
 void Honeycomb0pp::save() const{
 	GenericSystem<double>::save();
-	(*jd_write_)("td/th (ratio of the hopping parameters)",td_);
+	jd_write_->write("td/th (ratio of the hopping parameters)",td_);
 }
 /*}*/
 
@@ -103,6 +103,7 @@ void Honeycomb0pp::lattice(){
 	ps.polygon(cell,"linewidth=1pt,linecolor=red,linestyle=dashed");
 
 	unsigned int s(0);
+	unsigned int lw(0);
 	for(unsigned int i(0);i<Lx_;i++){
 		for(unsigned int j(0);j<Ly_;j++){
 			/*site 0*/
@@ -115,17 +116,20 @@ void Honeycomb0pp::lattice(){
 			y1 = y0+ll*sin(angle_p);
 			if(H_(s,nb(0,0))>0){ color = "green"; }
 			else { color = "blue"; }
-			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
+			lw=std::abs(H_(s,nb(0,0)));
+			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
 			x1 = x0-ll;
 			y1 = y0;
 			if(H_(s,nb(1,0))>0){ color = "green"; }
 			else { color = "blue"; }
-			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
+			lw=std::abs(H_(s,nb(1,0)));
+			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
 			x1 = x0+ll*cos(angle_n);
 			y1 = y0+ll*sin(angle_n);
 			if(H_(s,nb(2,0))>0){ color = "green"; }
 			else { color = "blue"; }
-			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
+			lw=std::abs(H_(s,nb(2,0)));
+			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
 
 			/*site 1*/
 			s++;
@@ -142,17 +146,20 @@ void Honeycomb0pp::lattice(){
 			y1 = y0+ll*sin(angle_n);
 			if(H_(s,nb(0,0))>0){ color = "green"; }
 			else { color = "blue"; }
-			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
+			lw=std::abs(H_(s,nb(0,0)));
+			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
 			x1 = x0+ll*cos(angle_p);
 			y1 = y0+ll*sin(angle_p);
 			if(H_(s,nb(1,0))>0){ color = "green"; }
 			else { color = "blue"; }
-			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
+			lw=std::abs(H_(s,nb(1,0)));
+			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
 			x1 = x0-ll;
 			y1 = y0;
 			if(H_(s,nb(2,0))>0){ color = "green"; }
 			else { color = "blue"; }
-			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
+			lw=std::abs(H_(s,nb(2,0)));
+			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
 
 			/*site 3*/
 			s++;
@@ -170,17 +177,20 @@ void Honeycomb0pp::lattice(){
 			y1 = y0;
 			if(H_(s,nb(0,0))>0){ color = "green"; }
 			else { color = "blue"; }
-			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
+			lw=std::abs(H_(s,nb(0,0)));
+			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
 			x1 = x0+ll*cos(angle_n);
 			y1 = y0+ll*sin(angle_n);
 			if(H_(s,nb(1,0))>0){ color = "green"; }
 			else { color = "blue"; }
-			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
+			lw=std::abs(H_(s,nb(1,0)));
+			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
 			x1 = x0+ll*cos(angle_p);
 			y1 = y0+ll*sin(angle_p);
 			if(H_(s,nb(2,0))>0){ color = "green"; }
 			else { color = "blue"; }
-			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
+			lw=std::abs(H_(s,nb(2,0)));
+			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
 
 			/*site 5*/
 			s++;
@@ -244,12 +254,7 @@ void Honeycomb0pp::check(){
 	//}
 	///*}*/
 
-	//Matrix<double> Px;
-	//Matrix<double> Py;
-	//compute_P(Px,Py);
-	//BandStructure<double> bs(H_,Px,Py);
-
-	//BandStructure<double> bs(H_,Lx_,Ly_,spuc_,bc_);
+	compute_H();
 	lattice();
 }
 /*}*/
@@ -270,8 +275,8 @@ std::string Honeycomb0pp::extract_level_7(){
 		(*data_write_)<<td_<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 	}
 
-	(*jd_write_)("td/th (ratio of the hopping parameters)",td_);
-	(*jd_write_)("E",E_);
+	jd_write_->write("td/th (ratio of the hopping parameters)",td_);
+	jd_write_->write("E",E_);
 
 	rst_file_->text(read_->get_header());
 	rst_file_->save(false);
@@ -298,7 +303,7 @@ std::string Honeycomb0pp::extract_level_6(){
 	td_ = min_td;
 
 	save();
-	(*jd_write_)("energy per site",min_E);
+	jd_write_->write("energy per site",min_E);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp+="set xlabel '$\\dfrac{t_d}{t_h}$'";

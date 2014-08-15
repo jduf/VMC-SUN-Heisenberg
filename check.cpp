@@ -23,9 +23,9 @@ int main(int argc, char* argv[]){
 						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system()),rnd); 
 						MonteCarlo<std::complex<double> > sim(S,tmax,rnd);
 						sim.run();
-						w("energy per site",S->get_energy());
-						w("correlation on links",S->get_corr());
-						w("long range correlation",S->get_lr_corr());
+						w.write("energy per site",S->get_energy());
+						w.write("correlation on links",S->get_corr());
+						w.write("long range correlation",S->get_lr_corr());
 						std::cout<<S->get_energy()<<std::endl;
 						delete S;
 					} else {
@@ -33,9 +33,9 @@ int main(int argc, char* argv[]){
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system()),rnd); 
 						MonteCarlo<double> sim(S,tmax,rnd);
 						sim.run();
-						w("energy per site",S->get_energy());
-						w("correlation on links",S->get_corr());
-						w("long range correlation",S->get_lr_corr());
+						w.write("energy per site",S->get_energy());
+						w.write("correlation on links",S->get_corr());
+						w.write("long range correlation",S->get_lr_corr());
 						std::cout<<S->get_energy()<<std::endl;
 						delete S;
 					}
@@ -57,9 +57,9 @@ int main(int argc, char* argv[]){
 							S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system()),rnd); 
 							MonteCarlo<std::complex<double> > sim(S,tmax,rnd);
 							sim.run();
-							w("energy per site",S->get_energy());
-							w("correlation on links",S->get_corr());
-							w("long range correlation",S->get_lr_corr());
+							w.write("energy per site",S->get_energy());
+							w.write("correlation on links",S->get_corr());
+							w.write("long range correlation",S->get_lr_corr());
 							std::cout<<S->get_energy()<<std::endl;
 							delete S;
 						} else {
@@ -67,9 +67,9 @@ int main(int argc, char* argv[]){
 							S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system()),rnd); 
 							MonteCarlo<double> sim(S,tmax,rnd);
 							sim.run();
-							w("energy per site",S->get_energy());
-							w("correlation on links",S->get_corr());
-							w("long range correlation",S->get_lr_corr());
+							w.write("energy per site",S->get_energy());
+							w.write("correlation on links",S->get_corr());
+							w.write("long range correlation",S->get_lr_corr());
 							std::cout<<S->get_energy()<<std::endl;
 							delete S;
 						}

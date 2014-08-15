@@ -119,11 +119,11 @@ void GenericSystem<Type>::compute_links(){
 template<typename Type>
 void GenericSystem<Type>::save() const {
 	jd_write_->add_to_header(system_info_.get());
-	(*jd_write_)("ref (type of wavefunction)",this->ref_);
-	(*jd_write_)("N (N of SU(N))",this->N_);
-	(*jd_write_)("m (# of particles per site)",this->m_);
-	(*jd_write_)("n (# of site)",this->n_);
-	(*jd_write_)("M (# of particles of each color, "+tostring(this->M_(0))+")",this->M_);
-	(*jd_write_)("bc (boundary condition)",this->bc_);
+	jd_write_->write("ref (type of wavefunction)",this->ref_);
+	jd_write_->write("N (N of SU(N))",this->N_);
+	jd_write_->write("m (# of particles per site)",this->m_);
+	jd_write_->write("n (# of site)",this->n_);
+	jd_write_->write("M (# of particles of each color, "+tostring(this->M_(0))+")",this->M_);
+	jd_write_->write("bc (boundary condition)",this->bc_);
 }
 #endif

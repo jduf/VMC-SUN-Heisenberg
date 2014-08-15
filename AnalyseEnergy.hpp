@@ -12,7 +12,6 @@ class AnalyseEnergy : public Analyse{
 		void open_files();
 		void close_files();
 
-		std::string extract_level_7();
 		std::string extract_level_6();
 		std::string extract_level_5();
 		std::string extract_level_4();

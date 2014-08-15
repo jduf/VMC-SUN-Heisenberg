@@ -9,7 +9,7 @@ void AnalyseMagnetization::open_files(){
 		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
 	}
 	if(level_ == 4){
-		(*jd_write_)("number of jdfiles",nof_);
+		jd_write_->write("number of jdfiles",nof_);
 		jd_write_->add_to_header("\n");
 	}
 	if(level_ == 6 || level_==4 || level_== 3){
@@ -33,32 +33,12 @@ void AnalyseMagnetization::close_files(){
 	}
 }
 
-std::string AnalyseMagnetization::extract_level_7(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
-
-	CreateSystem cs(read_);
-	cs.init(read_,this);
-	/*Only one call of cs.save() is needed*/
-	if(!all_link_names_.size()){ 
-		cs.save();
-		jd_write_->add_to_header("\n");
-		(*jd_write_)("number of jdfiles",nof_);
-		jd_write_->add_to_header("\n");
-	}
-	std::string link_name(cs.analyse(level_));
-
-	delete read_;
-	read_ = NULL;
-
-	return link_name;
-}
-
 std::string AnalyseMagnetization::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
 	CreateSystem cs(read_);
 	cs.init(read_,this);
-	if(!all_link_names_.size()){ (*jd_write_)("number of jdfiles",nof_); }
+	if(!all_link_names_.size()){ jd_write_->write("number of jdfiles",nof_); }
 	jd_write_->add_to_header("\n");
 	std::string link_name(cs.analyse(level_));
 
@@ -91,7 +71,7 @@ std::string AnalyseMagnetization::extract_level_5(){
 
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
-	(*jd_write_)("number of jdfiles",nof_);
+	jd_write_->write("number of jdfiles",nof_);
 	jd_write_->add_to_header("\n");
 	for(unsigned int i(0);i<nof_;i++){
 		CreateSystem cs(read_);
@@ -99,7 +79,7 @@ std::string AnalyseMagnetization::extract_level_5(){
 		(*read_)>>E;
 		if(i==idx){
 			cs.save(); 
-			(*jd_write_)("energy per site",E);
+			jd_write_->write("energy per site",E);
 		}
 	}
 

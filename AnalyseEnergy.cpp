@@ -22,26 +22,6 @@ void AnalyseEnergy::close_files(){
 	}
 }
 
-std::string AnalyseEnergy::extract_level_7(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
-
-	CreateSystem cs(read_);
-	cs.init(read_,this);
-	/*Only one call of cs.save() is needed*/
-	if(!all_link_names_.size()){ 
-		jd_write_->add_to_header("\n");
-		(*jd_write_)("number of jdfiles",nof_);
-		jd_write_->add_to_header("\n");
-		cs.save();
-	}
-	std::string link_name(cs.analyse(level_));
-
-	delete read_;
-	read_ = NULL;
-
-	return link_name;
-}
-
 std::string AnalyseEnergy::extract_level_6(){ return extract_default();}
 
 std::string AnalyseEnergy::extract_level_5(){ return extract_default();}
@@ -51,11 +31,11 @@ std::string AnalyseEnergy::extract_level_4(){ return extract_default();}
 std::string AnalyseEnergy::extract_level_3(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	(*read_)>>nof_;
-	jd_write_->add_to_header("\n");
-	(*jd_write_)("number of jdfiles",nof_);
-	jd_write_->add_to_header("\n");
-
+	//(*read_)>>nof_;
+	//jd_write_->add_to_header("\n");
+	//jd_write_->write("number of jdfiles",nof_);
+	//jd_write_->add_to_header("\n");
+//
 	CreateSystem cs(read_);
 	cs.init(read_,this);
 	cs.save();
@@ -87,21 +67,19 @@ std::string AnalyseEnergy::extract_level_2(){
 std::string AnalyseEnergy::extract_default(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	(*read_)>>nof_;
-	jd_write_->add_to_header("\n");
-	(*jd_write_)("number of jdfiles",nof_);
-	jd_write_->add_to_header("\n");
-
+	//jd_write_->add_to_header("\n");
+	//jd_write_->write("number of jdfiles",nof_);
+	//jd_write_->add_to_header("\n");
+//
 	CreateSystem cs(read_);
 	cs.init(read_,this);
 	cs.save();
 	Data<double> E_;
 	(*read_)>>E_;
-	(*jd_write_)("energy per site",E_);
+	jd_write_->write("energy per site",E_);
 
 	delete read_;
 	read_ = NULL;
 
 	return filename_;
 }
-

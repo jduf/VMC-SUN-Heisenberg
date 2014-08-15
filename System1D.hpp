@@ -68,6 +68,7 @@ System1D<Type>::System1D(unsigned int const& spuc, unsigned int const& z, std::s
 	L_(this->n_/spuc),
 	select_(new Vector<unsigned int>[this->N_])
 {
+	if(this->N_%this->m_){std::cout<<"System1D : maybe problematric, m doesn't devide N, so check everywhere in the code where N/m appears"<<std::endl;}
 	this->status_--;
 }
 

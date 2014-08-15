@@ -126,7 +126,7 @@ std::string SquarePiFlux::extract_level_7(){
 		(*read_)>>E_>>corr_>>lr_corr_;
 		(*data_write_)<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 	}
-	(*jd_write_)("energy per site",E_);
+	jd_write_->write("energy per site",E_);
 
 	rst_file_->text(read_->get_header());
 	rst_file_->save(false);

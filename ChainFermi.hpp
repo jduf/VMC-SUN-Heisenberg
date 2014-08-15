@@ -36,7 +36,6 @@ class ChainFermi: public Chain<Type>{
 		void compute_H();
 		std::string extract_level_7();
 		std::string extract_level_6();
-		std::string extract_level_3();
 };
 
 template<typename Type>
@@ -47,7 +46,8 @@ ChainFermi<Type>::ChainFermi(Vector<unsigned int> const& ref, unsigned int const
 	if(this->status_==1){
 		this->init_fermionic();
 
-		this->system_info_.text("Spin ChainFermi, all the hopping parameters are real");
+		this->system_info_.text("+ Spin chain with real and identical hopping");
+		this->system_info_.text("  term between each sites :");
 	}
 }
 
@@ -105,7 +105,8 @@ std::string ChainFermi<Type>::extract_level_7(){
 			lr_corr_file<<this->n_<<" "<<this->lr_corr_[0]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 		}
 	}
-	(*this->jd_write_)("E",this->E_);
+	this->jd_write_->write("energy per site",this->E_);
+	this->jd_write_->write("polymerization strength",0.0);
 
 	/*{*/
 	Gnuplot gp(this->analyse_+this->path_+this->dir_,this->filename_+"-corr");
@@ -143,13 +144,15 @@ std::string ChainFermi<Type>::extract_level_7(){
 		gplr+="set ylabel '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m}{N}$' offset 1";
 		gplr+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
 		gplr+="set key right bottom";
-		gplr+="a=1.0";
-		gplr+="b=1.0";
-		gplr+="eta=1.0";
 		gplr+="m="+tostring(this->m_)+".0";
 		gplr+="N="+tostring(this->N_)+".0";
+		gplr+="n="+tostring(this->n_)+".0";
+		gplr+="f(x) = bpi*cos(2.0*pi*x*m/N)*(x**(-ap)+(n-x)**(-ap))+b0*(x**(-a0)+(n-x)**(-a0))";
+		gplr+="set fit quiet";
+		gplr+="fit ["+tostring(this->spuc_*ceil(this->L_*0.2))+":"+tostring(this->spuc_*floor(this->L_*0.8))+"] f(x) '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) via b0,bpi,ap,a0"; 
 		gplr+="plot '"+this->filename_+"-long-range-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
-		gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean'";
+		gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean',\\";
+		gplr+="     f(x) t sprintf('$a_\\pi=%f$, $a_0=%f$',ap,a0)";
 		gplr.save_file();
 		gplr.create_image(true);
 		this->rst_file_->link_figure(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.png","Long range correlation",this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.gp",1000);
@@ -182,28 +185,22 @@ std::string ChainFermi<Type>::extract_level_7(){
 
 template<typename Type>
 std::string ChainFermi<Type>::extract_level_6(){
+	double polymerization_strength;
 	Data<double> min_E;
 	min_E.set_x(0.0);
 
 	unsigned int nof(0);
 	(*this->read_)>>nof;
 	for(unsigned int i(0);i<nof;i++){
-		(*this->read_)>>this->E_;
+		(*this->read_)>>this->E_>>polymerization_strength;
 		if(this->E_.get_x()<min_E.get_x()){ 
 			min_E = this->E_;
 		}
 	}
 
 	this->save();
-	(*this->jd_write_)("energy per site",min_E);
-
-	return this->filename_;
-}
-
-template<typename Type>
-std::string ChainFermi<Type>::extract_level_3(){
-	(*this->read_)>>this->E_;
-	(*this->data_write_)<<this->n_<<" "<<this->E_<<IOFiles::endl;
+	this->jd_write_->write("energy per site",min_E);
+	this->jd_write_->write("polymerization strength",0.0);
 
 	return this->filename_;
 }

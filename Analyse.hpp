@@ -18,17 +18,18 @@ class Analyse: public IOSystem{
 		unsigned int level_;
 		unsigned int nof_;
 
-		void recursive_search();
-		void search_jdbin();
-		void extract_jdbin();
-
 		virtual void open_files()=0;
 		virtual void close_files()=0;
+		std::string extract_level_7();
 
 	private:
 		/*Forbids copy*/
 		Analyse(Analyse const& a);
 		/*Forbids assignment*/
 		Analyse& operator=(Analyse const& a);
+		
+		void recursive_search();
+		void search_jdbin();
+		void extract_jdbin();
 };
 #endif

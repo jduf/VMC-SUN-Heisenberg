@@ -9,10 +9,10 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 		init_fermionic();
 
 		filename_ += "-delta" + tostring(delta_);
-		system_info_.text("Spin chain, with different real hopping term.");
-		system_info_.text("For N colors and m particules per sites, every");
-		system_info_.text("N/m, there is a weaker bound, namely t-delta");
-		system_info_.text("instead of t+delta. (t=1,delta>0)");
+		system_info_.text("+ Spin chain, with different real hopping term.");
+		system_info_.text("  For N colors and m particules per sites, every");
+		system_info_.text("  N/m, there is a weaker bound, namely t-delta");
+		system_info_.text("  instead of t+delta. (t=1,delta>0) :");
 	}
 }
 
@@ -53,7 +53,7 @@ void ChainPolymerized::create(){
 
 void ChainPolymerized::save() const {
 	GenericSystem<double>::save();
-	(*jd_write_)("delta (t+-delta)",delta_);
+	jd_write_->write("delta (t+-delta)",delta_);
 }
 /*}*/
 
@@ -97,16 +97,19 @@ std::string ChainPolymerized::extract_level_7(){
 			corr_file<<j+0.5<<" "<<corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 		}
 		for(unsigned int j(0);j<lr_corr_.size();j++){
-			lr_corr_file<<j+1<<" "<<lr_corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
+			lr_corr_file<<j<<" "<<lr_corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 			if(i<nruns){ lrc_mean(j) += lr_corr_[j].get_x();}
+		}
+		if(this->lr_corr_.size()>0){
+			lr_corr_file<<n_<<" "<<lr_corr_[0]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 		}
 	}
 	poly_e /= nruns*n_*m_/N_;
 	poly_e.sort(std::less<double>());
 
-	(*jd_write_)("delta",delta_);
-	(*jd_write_)("energy per site",E_);
-	(*jd_write_)("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
+	jd_write_->write("delta",delta_);
+	jd_write_->write("energy per site",E_);
+	jd_write_->write("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
 
 	/*{*/
 	Gnuplot gp(analyse_+path_+dir_,filename_+"-corr");
@@ -146,27 +149,16 @@ std::string ChainPolymerized::extract_level_7(){
 		gplr+="set ylabel '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m}{N}$' offset 1";
 		gplr+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(delta_)+"$'";
 		gplr+="set key right bottom";
-		gplr+="a=1.0";
-		gplr+="b=1.0";
-		gplr+="eta=1.0";
 		gplr+="m="+tostring(m_)+".0";
 		gplr+="N="+tostring(N_)+".0";
+		gplr+="n="+tostring(n_)+".0";
 		gplr+="f(x) = a/(x*x) + b*cos(2.0*pi*x*m/N)/(x**eta)";
+		gplr+="f(x) = bpi*cos(2.0*pi*x*m/N)*(x**(-ap)+(n-x)**(-ap))+b0*(x**(-a0)+(n-x)**(-a0))";
 		gplr+="set fit quiet";
-		switch(N_/m_){
-			case 2:{ gplr+="fit [3:"+tostring(llr/2)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; } break;
-			case 3:{
-					   switch((llr + 1) % 3){
-						   case 0:{ gplr+="fit [2:"+tostring(llr/2)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
-						   case 1:{ gplr+="fit [5:"+tostring(llr/2)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
-						   case 2:{ gplr+="fit [3:"+tostring(llr/2)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
-					   }break;
-				   }break;
-			default :{ gplr+="fit ["+tostring(N_-1)+":"+tostring(llr/2)+"] f(x) '"+filename_+"-long-range-corr.dat' via a,b,eta"; }break;
-		}
+		gplr+="fit ["+tostring(spuc_*ceil(L_*0.2))+":"+tostring(spuc_*floor(L_*0.8))+"] f(x) '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) via b0,bpi,ap,a0"; 
 		gplr+="plot '"+filename_+"-long-range-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
 		gplr+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean',\\";
-		gplr+="     f(x) t sprintf('$\\eta=%f$',eta)";
+		gplr+="     f(x) t sprintf('$a_\\pi=%f$, $a_0=%f$',ap,a0)";
 		gplr.save_file();
 		gplr.create_image(true);
 		rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
@@ -219,8 +211,8 @@ std::string ChainPolymerized::extract_level_6(){
 	delta_ = min_delta;
 
 	save();
-	(*jd_write_)("energy per site",min_E);
-	(*jd_write_)("polymerization strength",min_polymerization_strength);
+	jd_write_->write("energy per site",min_E);
+	jd_write_->write("polymerization strength",min_polymerization_strength);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp+="set xlabel '$\\delta$' offset 0,1";
@@ -250,24 +242,6 @@ std::string ChainPolymerized::extract_level_6(){
 	}
 	gp.save_file();
 	gp.create_image(true);
-
-	return filename_;
-}
-
-std::string ChainPolymerized::extract_level_4(){
-	double polymerization_strength;
-	(*read_)>>E_>>polymerization_strength;
-	save();
-	(*jd_write_)("energy per site",E_);
-	(*jd_write_)("polymerization strength",polymerization_strength);
-
-	return filename_;
-}
-
-std::string ChainPolymerized::extract_level_3(){
-	double polymerization_strength;
-	(*read_)>>E_>>polymerization_strength;
-	(*data_write_)<<n_<<" "<<polymerization_strength<<IOFiles::endl;
 
 	return filename_;
 }

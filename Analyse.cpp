@@ -98,9 +98,11 @@ void Analyse::search_jdbin(){
 		open_files();
 
 		d.sort();
-		std::cout<<"lev "<<level_<<" : "<<sim_+path_+dir_<<std::endl;
+		std::cout<<"lev "<<level_<<" : "<<path_+dir_<<std::endl;
 		for(unsigned int i(0); i<d.size();i++){
-			std::cout<<"-------> "<<d.get_name(i)<<std::endl;
+			for(unsigned int j(0);j<6+path_.size()+dir_.size();j++){ std::cout<<" "; }
+			std::cout<<"|->"<<d.get_name(i)<<std::endl;
+
 			filename_ = d.get_name(i);
 			all_link_names_.append(analyse(level_));
 			all_link_files_.append(info_+path_+dir_+filename_+".html");
@@ -115,4 +117,24 @@ void Analyse::search_jdbin(){
 		all_link_files_.clear();
 		rst_file_.last().save(false);
 	}
+}
+
+std::string Analyse::extract_level_7(){
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
+	CreateSystem cs(read_);
+	cs.init(read_,this);
+	/*Only one call of cs.save() is needed*/
+	if(!all_link_names_.size()){ 
+		cs.save();
+		jd_write_->add_to_header("\n");
+		jd_write_->write("number of jdfiles",nof_);
+		jd_write_->add_to_header("\n");
+	}
+	std::string link_name(cs.analyse(level_));
+
+	delete read_;
+	read_ = NULL;
+
+	return link_name;
 }

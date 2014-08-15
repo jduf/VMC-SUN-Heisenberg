@@ -15,13 +15,13 @@ CreateSystem::CreateSystem(Parseur& P):
 	parse(P);
 }
 
-CreateSystem::CreateSystem(IOFiles* read):
-	ref_(read->read<Vector<unsigned int> >()),
-	N_(read->read<unsigned int>()),
-	m_(read->read<unsigned int>()),
-	n_(read->read<unsigned int>()),
-	M_(read->read<Vector<unsigned int> >()),
-	bc_(read->read<int>()),
+CreateSystem::CreateSystem(IOFiles* r):
+	ref_(r->read<Vector<unsigned int> >()),
+	N_(r->read<unsigned int>()),
+	m_(r->read<unsigned int>()),
+	n_(r->read<unsigned int>()),
+	M_(r->read<Vector<unsigned int> >()),
+	bc_(r->read<int>()),
 	type_(0),
 	over_(false),
 	RGL_(NULL),
