@@ -137,6 +137,8 @@ void CreateSystem::parse(Parseur& P){
 }
 
 void CreateSystem::init(IOFiles* read, IOSystem* ios){
+	//M_(1)++;
+	//M_(0)--;
 	//M_(1) = 8;
 	//M_(0) = 40;
 	if(RGL_){delete RGL_;}

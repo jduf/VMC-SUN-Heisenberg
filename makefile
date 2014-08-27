@@ -6,7 +6,7 @@ study_SRCS=study.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp Cha
 
 #-----------------------------------------------------------------
 
-CXX = g++
+CXX = g++ -std=c++11
 
 NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic

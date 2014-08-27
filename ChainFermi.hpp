@@ -149,7 +149,7 @@ std::string ChainFermi<Type>::extract_level_7(){
 		gplr+="n="+tostring(this->n_)+".0";
 		gplr+="f(x) = bpi*cos(2.0*pi*x*m/N)*(x**(-ap)+(n-x)**(-ap))+b0*(x**(-a0)+(n-x)**(-a0))";
 		gplr+="set fit quiet";
-		gplr+="fit ["+tostring(this->spuc_*ceil(this->L_*0.2))+":"+tostring(this->spuc_*floor(this->L_*0.8))+"] f(x) '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) via b0,bpi,ap,a0"; 
+		gplr+="fit ["+tostring(this->spuc_*ceil(this->L_*0.2))+":"+tostring(this->spuc_*floor(this->L_*0.8))+"] f(x) '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via b0,bpi,ap,a0"; 
 		gplr+="plot '"+this->filename_+"-long-range-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
 		gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean',\\";
 		gplr+="     f(x) t sprintf('$a_\\pi=%f$, $a_0=%f$',ap,a0)";
@@ -198,6 +198,7 @@ std::string ChainFermi<Type>::extract_level_6(){
 		}
 	}
 
+	this->jd_write_->add_to_header("\n");
 	this->save();
 	this->jd_write_->write("energy per site",min_E);
 	this->jd_write_->write("polymerization strength",0.0);

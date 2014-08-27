@@ -51,7 +51,7 @@ template<typename Type>
 std::string Chain<Type>::extract_level_3(){
 	double polymerization_strength;
 	(*this->read_)>>this->E_>>polymerization_strength;
-	(*this->data_write_)<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<IOFiles::endl;
+	(*this->data_write_)<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<" "<<this->bc_<<IOFiles::endl;
 
 	return this->filename_;
 }

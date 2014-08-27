@@ -25,7 +25,7 @@ void ChainPolymerized::compute_H(){
 	Matrix<int> nb;
 	unsigned int a(n_/L_);
 	for(unsigned int i(0); i < n_; i += a){
-		for(unsigned int j(0); j<a; j++){
+		for(unsigned int j(0); j<a-1; j++){
 			nb = get_neighbourg(i+j);
 			H_(i+j,nb(0,0)) = t+delta_;
 		}
@@ -86,7 +86,8 @@ std::string ChainPolymerized::extract_level_7(){
 		if(i<nruns){
 			unsigned int k(0);
 			while(k<corr_.size()){
-				for(unsigned int j(0);j<N_/m_;j++){
+				/*the condition k<corr_.size() is usefull with open boundary conditions*/
+				for(unsigned int j(0);j<N_/m_ && k<corr_.size() ;j++){
 					poly_e(j) += corr_[k].get_x();
 					k++;
 				}
@@ -155,7 +156,7 @@ std::string ChainPolymerized::extract_level_7(){
 		gplr+="f(x) = a/(x*x) + b*cos(2.0*pi*x*m/N)/(x**eta)";
 		gplr+="f(x) = bpi*cos(2.0*pi*x*m/N)*(x**(-ap)+(n-x)**(-ap))+b0*(x**(-a0)+(n-x)**(-a0))";
 		gplr+="set fit quiet";
-		gplr+="fit ["+tostring(spuc_*ceil(L_*0.2))+":"+tostring(spuc_*floor(L_*0.8))+"] f(x) '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) via b0,bpi,ap,a0"; 
+		gplr+="fit ["+tostring(spuc_*ceil(L_*0.2))+":"+tostring(spuc_*floor(L_*0.8))+"] f(x) '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via b0,bpi,ap,a0"; 
 		gplr+="plot '"+filename_+"-long-range-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
 		gplr+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean',\\";
 		gplr+="     f(x) t sprintf('$a_\\pi=%f$, $a_0=%f$',ap,a0)";
@@ -210,6 +211,7 @@ std::string ChainPolymerized::extract_level_6(){
 	}
 	delta_ = min_delta;
 
+	jd_write_->add_to_header("\n");
 	save();
 	jd_write_->write("energy per site",min_E);
 	jd_write_->write("polymerization strength",min_polymerization_strength);
@@ -223,7 +225,7 @@ std::string ChainPolymerized::extract_level_6(){
 		gp+="b=1";
 		gp+="eta=1";
 		gp+="set fit quiet";
-		gp+="fit f(x) '"+filename_+".dat' u 1:($4==0?$2:1/0):3 via a,b,eta";
+		gp+="fit f(x) '"+filename_+".dat' u 1:($4==0?$2:1/0):3 zerror via a,b,eta";
 		gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$'";
 		gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
 		gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean',\\";
@@ -234,7 +236,7 @@ std::string ChainPolymerized::extract_level_6(){
 		gp+="b=1";
 		gp+="c="+tostring(delta_);
 		gp+="set fit quiet";
-		gp+="fit f(x) '"+filename_+".dat' u 1:($4==0?$2:1/0):3 via a,b,c";
+		gp+="fit f(x) '"+filename_+".dat' u 1:($4==0?$2:1/0):3 zerror via a,b,c";
 		gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$'";
 		gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
 		gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean',\\";

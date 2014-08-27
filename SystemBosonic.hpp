@@ -69,32 +69,32 @@ Type SystemBosonic<Type>::ratio(){
 		/*not sure the -1 is correct*/
 		return 1.0;
 	} else {
-		Type omegab_a(0.0);//omega_next/omega_current
+		Type omegab_a(0.0);//this->omega_next/this->omega_current
 		/*next state*/
-		omegab_a = omega_(sl_(this->new_s[1]),this->new_c[0])
-			* omega_(sl_(this->new_s[0]),this->new_c[1]); 
+		omegab_a = this->omega_(this->sl_(this->new_s[1]),this->new_c[0])
+			* this->omega_(this->sl_(this->new_s[0]),this->new_c[1]); 
 		/*current state*/
-		omegab_a /= omega_(sl_(this->new_s[0]),this->new_c[0])
-			* omega_(sl_(this->new_s[1]),this->new_c[1]);
+		omegab_a /= this->omega_(this->sl_(this->new_s[0]),this->new_c[0])
+			* this->omega_(this->sl_(this->new_s[1]),this->new_c[1]);
 
 		double jastrow(0.0);
 		unsigned int c0,c1;
 		for(unsigned int i(0);i<this->nn_.col();i++){
 			c0=this->s_(this->nn_(this->new_s[0],i),0);
 			c1=this->s_(this->nn_(this->new_s[1],i),0);
-			if(nn_(this->new_s[0],i) != this->new_s[1]){
-				jastrow += nu_(i, cc_(this->new_c[0], c0));
-				jastrow -= nu_(i, cc_(this->new_c[1], c0));
+			if(this->nn_(this->new_s[0],i) != this->new_s[1]){
+				jastrow += this->nu_(i, this->cc_(this->new_c[0], c0));
+				jastrow -= this->nu_(i, this->cc_(this->new_c[1], c0));
 			} else {
-				jastrow += nu_(i, cc_(this->new_c[0], c0))/2.0;
-				jastrow -= nu_(i, cc_(this->new_c[1], this->new_c[0]))/2.0;
+				jastrow += this->nu_(i, this->cc_(this->new_c[0], c0))/2.0;
+				jastrow -= this->nu_(i, this->cc_(this->new_c[1], this->new_c[0]))/2.0;
 			}
-			if(nn_(this->new_s[1],i) != this->new_s[0]){
-				jastrow += nu_(i, cc_(this->new_c[1], c1));
-				jastrow -= nu_(i, cc_(this->new_c[0], c1));
+			if(this->nn_(this->new_s[1],i) != this->new_s[0]){
+				jastrow += this->nu_(i, this->cc_(this->new_c[1], c1));
+				jastrow -= this->nu_(i, this->cc_(this->new_c[0], c1));
 			} else {
-				jastrow += nu_(i, cc_(this->new_c[1], c1))/2.0;
-				jastrow -= nu_(i, cc_(this->new_c[0], this->new_c[1]))/2.0;
+				jastrow += this->nu_(i, this->cc_(this->new_c[1], c1))/2.0;
+				jastrow -= this->nu_(i, this->cc_(this->new_c[0], this->new_c[1]))/2.0;
 			}
 		}
 		return exp(jastrow)*omegab_a;

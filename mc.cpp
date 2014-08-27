@@ -44,7 +44,6 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 	Data<double> E;
 	DataSet<double> corr;
 	DataSet<double> lr_corr;
-	E.set_conv(true);
 	corr.set(cs.get_system()->get_corr().size());
 	lr_corr.set(cs.get_system()->get_lr_corr().size());
 
