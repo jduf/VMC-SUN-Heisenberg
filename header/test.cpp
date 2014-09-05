@@ -10,9 +10,9 @@ void write_bin(){
 	Vector<std::complex<double> > C(3,c);
 
 	IOFiles write("data.jdbin",true);
-	write("a",a);	
-	write("A",A);	
-	write("C",C);	
+	write.write("a",a);	
+	write.write("A",A);	
+	write.write("C",C);	
 }
 
 void read_bin(){

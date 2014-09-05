@@ -4,7 +4,7 @@ test_SRCS=test.cpp Parseur.cpp PSO.cpp Rand.cpp IOFiles.cpp RST.cpp Header.cpp
 
 #-----------------------------------------------------------------
 
-CXX = g++
+CXX = g++ -std=c++11
 
 NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic

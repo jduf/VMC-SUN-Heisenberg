@@ -4,7 +4,7 @@ pstricks2pdf_SRCS=pstricks2pdf.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp Di
 
 #-----------------------------------------------------------------
 
-CXX = g++
+CXX = g++ -std=c++11
 
 NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic

@@ -4,7 +4,7 @@ test_SRCS=test.cpp Read.cpp Header.cpp RST.cpp Write.cpp
 
 #-----------------------------------------------------------------
 
-CXX = g++
+CXX = g++ -std=c++11
 
 NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic

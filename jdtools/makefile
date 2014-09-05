@@ -6,7 +6,7 @@ jdtags_SRCS = jdtags.cpp Directory.cpp Header.cpp Parseur.cpp IOFiles.cpp RST.cp
 jdfind_SRCS = jdfind.cpp Directory.cpp Header.cpp Parseur.cpp IOFiles.cpp RST.cpp RSTFile.cpp
 #-----------------------------------------------------------------
 
-CXX = g++
+CXX = g++ -std=c++11
 
 NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic

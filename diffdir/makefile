@@ -4,7 +4,7 @@ diffdir_SRCS=diffdir.cpp Directory.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cp
 
 #-----------------------------------------------------------------
 
-CXX = g++
+CXX = g++ -std=c++11
 
 NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic

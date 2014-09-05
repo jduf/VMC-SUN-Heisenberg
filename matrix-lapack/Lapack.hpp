@@ -192,16 +192,16 @@ class Lapack{
 		/*{Description*/
 		/*!Specialized routine that computes the eigensystem. If the
 		 * eigenvectors are computed (EVec != NULL), they are stored in column
-		 * in EVec.  In any case, mat_ is overwritten*/
+		 * in EVec. In any case, mat_ is overwritten*/
 		/*}*/
-		void eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* EVec);
+		void eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec=NULL, Matrix<std::complex<double> >* LEVec=NULL);
 		/*!Computes the determinant*/
 		Type det();
 		/*!Computes the LU decomposition*/
 		void lu(Matrix<Type>& L, Matrix<Type>& U);
 		/*!Computes the QR decomposition*/
 		void qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation=false);
-		/*!Computes the inverse */
+		/*!Computes the inverse*/
 		void inv();
 		/*{Description*/
 		/*!Computes the inverse when Vector<int> is_singular(double& rcn=0.0)
@@ -254,7 +254,7 @@ class Lapack{
 		 * eigensystem of a general matrix, if the eigenvectors are
 		 * required, they are stored in column in EVec, In any case, mat_ is
 		 * overwritten*/
-		void geev(Vector<std::complex<double> >& EVal, char jobvr, Matrix<std::complex<double> >* EVec);
+		void geev(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * norm of an general real matrix*/
 		double lange(); 
@@ -318,13 +318,17 @@ void Lapack<Type>::inv(Vector<int>& ipiv){
 
 template<typename Type>
 void Lapack<Type>::inv(){
-	if (matrix_type_ != 'G'){
-		std::cerr<<"Lapack : inv : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-		std::cerr<<"Lapack : inv : the only matrix type implemented is G"<<std::endl;
+	if (mat_->row() != mat_->col()) {
+		std::cerr<<"void Lapack<Type>::inv() : no inverse for a rectangular matrix"<<std::endl;
 	} else {
-		Vector<int> ipiv(mat_->row());
-		getrf(ipiv);
-		getri(ipiv);
+		if (matrix_type_ != 'G'){
+			std::cerr<<"void Lapack<Type>::inv() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
+			std::cerr<<"                           the only matrix type implemented is G"<<std::endl;
+		} else {
+			Vector<int> ipiv(std::min(mat_->row(),mat_->col()));
+			getrf(ipiv);
+			getri(ipiv);
+		}
 	}
 }
 
@@ -419,8 +423,12 @@ Vector<int> Lapack<Type>::is_singular(double& rcn){
 
 		rcn = gecon(m_norm);
 		if(rcn<1e-10){
-			std::cerr<<"Lapack : is_singular : reciproc_cond_numb="<<rcn<<std::endl;
-			ipiv.set();//!set the output matrix to NULL pointer
+			if(rcn<1e-10){
+				std::cerr<<"Lapack : is_singular : reciproc_cond_numb="<<rcn<<std::endl;
+				ipiv.set();//!set the output matrix to NULL pointer
+			}  else {
+				std::cerr<<"Lapack : is_singular : reciproc_cond_numb="<<rcn<<" but will proceed to the inversion anyway"<<std::endl;
+			}
 		}
 	}
 	return ipiv;
@@ -456,17 +464,18 @@ void Lapack<Type>::eigensystem(Vector<double>& EVal, bool compute_EVec){
 }
 
 template<typename Type>
-void Lapack<Type>::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* EVec){
+void Lapack<Type>::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec){
 	if(mat_->row() != mat_->col()){std::cerr<<"Lapack : eigensystem : matrix is not square"<<std::endl;}
-	char jobvr('N');
-	if(EVec){jobvr = 'V';}
 	switch(matrix_type_){
 		case 'G':
-			{ geev(EVal,jobvr,EVec); } break;
+			{
+				geev(EVal,REVec,LEVec); 
+				mat_->set();
+			} break;
 		default:
 			{
-				std::cerr<<"Lapack : eigensystem<double> : Matrix type "<<matrix_type_<<" not implemented for real matrix"<<std::endl;
-				std::cerr<<"Lapack : eigensystem<double> : the only matrix type implemented are G,S"<<std::endl;
+				std::cerr<<"Lapack<Type>::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* EVec) : Matrix type "<<matrix_type_<<" not implemented for real matrix"<<std::endl;
+				std::cerr<<"                                                                                                    : the only matrix type implemented are G"<<std::endl;
 			} break;
 	}
 }

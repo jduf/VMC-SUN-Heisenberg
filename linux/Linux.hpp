@@ -3,6 +3,7 @@
 
 #include <cstdlib> 
 #include <string>
+#include <unistd.h>
 
 class Linux {
 	public:

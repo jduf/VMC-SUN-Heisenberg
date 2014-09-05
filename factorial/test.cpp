@@ -7,7 +7,7 @@ int main(){
 	int f(1);
 	for(unsigned int i(1);i<n;i++){
 		f *= i;
-		std::cout<<i<<" "<<f<<std::endl;
+		std::cout<<"i="<<i<<" f="<<f<<std::endl;
 	}
 	std::cout<<"final time "<<t.elapsed()<<std::endl;
 }

@@ -66,9 +66,6 @@ class Vector{
 		/*!Sets the entries to zero if they are close to 0*/
 		Vector<Type> chop(double precision = 1e-10) const;
 
-		/*!Print the vector for vechevecica*/
-		void print_mathematica() const;
-
 		/*!Sort the datas according to std::sort(vec_,vec_+size_,cmp)*/
 		template<typename Function>
 			void sort(Function cmp);
@@ -309,8 +306,8 @@ template<>
 inline Vector<std::complex<double> > Vector<std::complex<double> >::chop(double precision) const{
 	Vector<std::complex<double> > tmp(*this);
 	for(unsigned int i(0);i<size_;i++){
-		if(std::abs(tmp.vec_[i].imag()) < precision ){tmp.vec_[i].imag(0.0);}
 		if(std::abs(tmp.vec_[i].real()) < precision ){tmp.vec_[i].real(0.0);}
+		if(std::abs(tmp.vec_[i].imag()) < precision ){tmp.vec_[i].imag(0.0);}
 	}
 	return tmp;
 }
@@ -447,7 +444,7 @@ inline double imag(double const& x){ return x; }
 inline double imag(std::complex<double> const& x){ return std::imag(x); }
 /*}*/
 
-/*double norvec_squared(T)*/
+/*double norm_squared(T)*/
 /*{*/
 inline double norm_squared(double x){ return x*x; }
 

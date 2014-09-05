@@ -11,6 +11,7 @@ void RSTFile::save(bool pdf){
 	w<<rst_;
 	Linux command;
 	command("rst2html --stylesheet=/home/jdufour/travail/cpp-dev/rst/css/nice.css --field-name-limit=0 " + path_  + filename_ + ".rst " + path_ + filename_ + ".html");  
+	//command("rst2html --stylesheet=/home/jdufour/rst2html5.css --field-name-limit=0 " + path_  + filename_ + ".rst " + path_ + filename_ + ".html");  
 	//command("rst2html --field-name-limit=0 " + path_  + filename_ + ".rst " + path_ + filename_ + ".html");  
 	if(command.status()){
 		std::cerr<<"RSTFile::~RSTFile() : the command function called returns an error for the html creation"<<std::endl; 

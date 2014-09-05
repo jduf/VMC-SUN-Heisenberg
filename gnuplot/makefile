@@ -5,7 +5,7 @@ gnuplot2image_SRCS=gnuplot2image.cpp Gnuplot.cpp Parseur.cpp IOFiles.cpp Header.
 
 #-----------------------------------------------------------------
 
-CXX = g++
+CXX = g++ -std=c++11
 
 NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic

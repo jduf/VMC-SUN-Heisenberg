@@ -27,7 +27,7 @@ IOFiles::~IOFiles(){
 	file_.close();
 }
 
-std::string IOFiles::endl="\n";
+std::string const IOFiles::endl("\n");
 /*}*/
 
 /*private methods used in the constructors, destructor or with open(std::string filename_)*/

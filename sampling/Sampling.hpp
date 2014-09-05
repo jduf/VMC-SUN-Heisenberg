@@ -28,7 +28,7 @@ class Binning{
 		/*!Set x_ to the mean value, dx_ to the variance, plot logl_ if any*/
 		void complete_analysis(double const& tol, Type& x, Type& dx, bool& conv);
 		/*!Compute the mean value*/
-		double compute_x() const;
+		Type const& get_x() const { return m_bin_(0); }
 
 	private:
 		/*!Forbids assigment*/
@@ -42,8 +42,8 @@ class Binning{
 		unsigned int logl_;	//!< number of Delta_l stored in log
 
 		Vector<unsigned int> Ml_;//!<number bins of rank l : Ml = M0/2^l
-		Vector<double> m_bin_;	//!< mean of the Binnings
-		Vector<double>* bin_;	//!< Binnings
+		Vector<Type> m_bin_;	//!< mean of the Binnings
+		Vector<Type>*  bin_;	//!< Binnings
 
 		bool recompute_dx_usefull_;	//!< true if dx should be recomputed
 		bool addlog_;				//!< true if should be added to the log_
@@ -74,7 +74,10 @@ class Data{
 		void complete_analysis(double const& tol);
 		void complete_analysis();
 
-		Type const& get_x() const { return x_; } 
+		Type const& get_x() const {
+			if(binning_){ return binning_->get_x(); }
+			else { return x_; } 
+		} 
 		Type const& get_dx() const { return dx_; } 
 		bool const& get_conv() const { return conv_; } 
 		unsigned int const& get_N() const { return N_; }
@@ -239,7 +242,7 @@ void Binning<Type>::compute_convergence(double const& tol, Type& dx, bool& conv)
 		Vector<double> var_bin(b_,0.0);
 		for(unsigned int l(0);l<b_;l++){
 			for(unsigned int j(0);j<Ml_(l);j++){
-				var_bin(l) += (bin_[l](j)-m_bin_(l))*(bin_[l](j)-m_bin_(l));
+				var_bin(l) += norm_squared(bin_[l](j)-m_bin_(l));
 			}
 			var_bin(l) = sqrt(var_bin(l) / (Ml_(l)*(Ml_(l)-1)));
 		}
@@ -265,7 +268,7 @@ void Binning<Type>::compute_convergence(double const& tol, Type& dx, bool& conv)
 			dx = yb - num/den * ( xb + 2.0*(l_+b_) ); 
 		} else { dx = yb; }
 
-		double criteria(num/den*compute_x());
+		Type criteria(num/den*m_bin_(0));
 
 		if(std::abs(criteria)<tol){ conv = true; }
 		else{ conv = false; }
@@ -284,7 +287,7 @@ template<typename Type>
 void Binning<Type>::complete_analysis(double const& tol, Type& x, Type& dx, bool& conv){
 	recompute_dx_usefull_ = addlog_ = true;
 	compute_convergence(tol,dx,conv);
-	x = compute_x();
+	x = m_bin_(0);
 	if(l_>0 && log_){
 		Gnuplot gp("./",log_->get_filename());
 		gp.xrange(0,"");
@@ -298,13 +301,6 @@ void Binning<Type>::complete_analysis(double const& tol, Type& x, Type& dx, bool
 		gp.save_file();
 		gp.create_image(true);
 	} 
-}
-
-template<typename Type>
-double Binning<Type>::compute_x() const {
-	double x(0.0);
-	for(unsigned int i(0);i<Ml_(0);i++){ x += bin_[0](i); }
-	return x/Ml_(0); 
 }
 /*}*/
 
@@ -373,6 +369,7 @@ void Data<Type>::swap_to_assign(Data<Type>& d1, Data<Type>& d2){
 	std::swap(d1.x_,d2.x_);
 	std::swap(d1.dx_,d2.dx_);
 	std::swap(d1.N_,d2.N_);
+	std::swap(d1.conv_,d2.conv_);
 	std::swap(d1.binning_,d2.binning_);
 }
 /*}*/

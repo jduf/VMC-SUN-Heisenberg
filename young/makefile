@@ -5,7 +5,7 @@ young_SRCS=young.cpp YoungTableau.cpp
 
 #-----------------------------------------------------------------
 
-CXX = g++
+CXX = g++ -std=c++11
 
 NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic

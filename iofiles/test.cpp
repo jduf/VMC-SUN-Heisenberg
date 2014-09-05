@@ -11,7 +11,7 @@ void write_bin(){
 	std::string slt("salut");
 	IOFiles write("data.jdbin",true);
 	write<<a<<M<<c<<slt;
-	write("Vector",v);
+	write.write("Vector",v);
 }
 
 void read_bin(){

@@ -43,14 +43,18 @@ class IOFiles{
 		IOFiles& operator<<(const char* t){write_string(t,std::strlen(t)); return (*this);}
 		IOFiles& operator<<(std::string const& t){write_string(t.c_str(),t.size()); return (*this);}
 
+		/*Allow to extract personal classes or data*/
 		template<typename Type>
 			void read(Type* m, unsigned int const& N, size_t const& type_size);
-		template<typename Type>
-			void write(Type* m, unsigned int const& N, size_t const& type_size);
-		template<typename Type>
-			void operator()(std::string const& var, Type const& val);
+		/*!Read file and extract a Type value. Usefull for initialization*/
 		template<typename Type>
 			Type read();
+		/*Allow to write personal classes or data*/
+		template<typename Type>
+			void write(Type* m, unsigned int const& N, size_t const& type_size);
+		/*Write val with label var*/
+		template<typename Type>
+			void write(std::string const& var, Type const& val);
 
 		/*!Returns file_*/
 		std::fstream& stream(){ return file_;}
@@ -68,7 +72,7 @@ class IOFiles{
 		/*!Returns the header contained in the file*/
 		std::string get_header() const;
 
-		static std::string endl; //!<Gives a way to end lines
+		static std::string const endl; //!<Gives a way to end lines
 
 	private:
 		/*!Forbids copy constructor*/
@@ -128,7 +132,7 @@ Type IOFiles::read(){
 }
 
 template<typename Type>
-void IOFiles::operator()(std::string const& var, Type const& val){
+void IOFiles::write(std::string const& var, Type const& val){
 	if(header_ && open_ && write_){
 		(*this)<<val;
 		header_->add(var,val);

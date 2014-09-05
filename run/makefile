@@ -4,7 +4,7 @@ run_SRCS=run.cpp Directory.cpp Header.cpp Parseur.cpp RST.cpp RSTFile.cpp IOFile
 
 #-----------------------------------------------------------------
 
-CXX = g++
+CXX = g++ -std=c++11
 
 NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic
