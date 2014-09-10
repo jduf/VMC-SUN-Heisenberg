@@ -211,7 +211,8 @@ class Lapack{
 		void inv(Vector<int>& ipiv);
 		/*!Computes the norm of the matrix*/
 		double norm();
-		/*!Checks if a matrix is singular*/
+		/*!Checks if a matrix is singular, the smaller rcn is, the more the
+		 * matrix is ill-defined*/
 		Vector<int> is_singular(double& rcn=0.0);
 
 		void set_mat(Matrix<Type>& mat) const { mat = *mat_; }
@@ -420,16 +421,8 @@ Vector<int> Lapack<Type>::is_singular(double& rcn){
 		ipiv.set(std::min(mat_->row(),mat_->col()));
 		double m_norm(lange());
 		getrf(ipiv);
-
 		rcn = gecon(m_norm);
-		if(rcn<1e-10){
-			if(rcn<1e-10){
-				std::cerr<<"Lapack : is_singular : reciproc_cond_numb="<<rcn<<std::endl;
-				ipiv.set();//!set the output matrix to NULL pointer
-			}  else {
-				std::cerr<<"Lapack : is_singular : reciproc_cond_numb="<<rcn<<" but will proceed to the inversion anyway"<<std::endl;
-			}
-		}
+		if(rcn<1e-5){ ipiv.set(); }//!set the output matrix to NULL pointer 
 	}
 	return ipiv;
 }

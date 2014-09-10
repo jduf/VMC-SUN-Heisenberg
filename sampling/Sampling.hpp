@@ -63,6 +63,7 @@ class Data{
 		Data<Type>(Data<Type> const& d);
 		/*!Destructor*/
 		~Data();
+		void set(Type const& x, Type const& dx, unsigned int const& N, bool const& conv);
 		void set(unsigned int const& B, unsigned int const& b, bool const& conv);
 		void set();
 		Data<Type>& operator=(Data<Type> d);
@@ -83,14 +84,17 @@ class Data{
 		unsigned int const& get_N() const { return N_; }
 
 		void set_x(Type const& x){x_ = x;}
-		void set_dx(Type const& dx){dx_ = dx;}
-		void set_N(unsigned int const& N){N_ = N;}
-		void set_conv(bool const& conv){conv_ = conv;}
 
 		void add(Type const& x){x_ += x;}
-		void substract(Type const& x){x_ -= x;}
-		void multiply(Type const& x){x_ *= x;}
-		void divide(Type const& x){x_ /= x;}
+		void substract(Type const& x){ x_ -= x; }
+		void multiply(Type const& x){ 
+			x_ *= x;
+			if(!binning_){ dx_ *= sqrt(x); }
+		}
+		void divide(Type const& x){ 
+			x_ /= x; 
+			if(!binning_){ dx_ /= sqrt(x); }
+		}
 
 		Binning<Type>* get_binning() const { return binning_; }
 
@@ -340,6 +344,14 @@ Data<Type>::Data(Data<Type> const& d):
 {}
 
 template<typename Type>
+void Data<Type>::set(Type const& x, Type const& dx, unsigned int const& N, bool const& conv){
+	x_ = x;
+	dx_ = dx;
+	N_ = N;
+	conv_ = conv;
+}
+
+template<typename Type>
 void Data<Type>::set(unsigned int const& B, unsigned int const& b, bool const& conv){
 	if(binning_){ delete binning_; }
 	binning_ = new Binning<Type>(B,b);
@@ -387,10 +399,7 @@ std::istream& operator>>(std::istream& flux, Data<Type>& d){
 	unsigned int N(0);
 	bool conv(false);
 	flux>>x>>dx>>N>>conv;
-	d.set_x(x);
-	d.set_dx(dx);
-	d.set_N(N);
-	d.set_conv(conv);
+	d.set(x,dx,N,conv);
 	return flux;
 }
 
@@ -414,10 +423,7 @@ IOFiles& operator>>(IOFiles& r, Data<Type>& d){
 	unsigned int N(0);
 	bool conv(false);
 	r>>x>>dx>>N>>conv;
-	d.set_x(x);
-	d.set_dx(dx);
-	d.set_N(N);
-	d.set_conv(conv);
+	d.set(x,dx,N,conv);
 	return r;
 }
 /*}*/
@@ -455,7 +461,11 @@ void Data<Type>::compute_convergence(double const& tol) {
 
 template<typename Type>
 void Data<Type>::complete_analysis(double const& tol){
-	if(binning_){ binning_->complete_analysis(tol,x_,dx_,conv_); }
+	if(binning_){
+		binning_->complete_analysis(tol,x_,dx_,conv_); 
+		delete binning_;
+		binning_ = NULL;
+	}
 }
 
 template<typename Type>

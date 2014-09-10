@@ -8,8 +8,8 @@ void check_flip_coin();
 void read_output_files();
 
 int main(){
-	check_troyer();
-	//check_flip_coin();
+	//check_troyer();
+	check_flip_coin();
 	read_output_files();
 }
 
@@ -17,18 +17,22 @@ void check_troyer(){
 	std::cout<<"tiré de Mathias Troyer"<<std::endl<<std::endl;
 	std::cout<<"+ il faut que le graphe log.pdf montre une convergence (pente null)";
 	std::cout<<"pour M=100000, mais pas pour M=10000 si p=24"<<std::endl;
-	std::cout<<"+ les barre d'erreur de plot.pdf doivent contenir P(x)"<<std::endl<<std::endl;
+	std::cout<<"+ les barre d'erreur de plot.pdf doivent contenir P(x)"<<std::endl;
+	std::cout<<"+ avec M=1e4 devrait reproduire fig 4 de son article"<<std::endl<<std::endl;
 
-	Rand r(10);
-	unsigned int const M(1e5);
+
+	unsigned int const M(1e4);
 	unsigned int const N(50);
-	unsigned int n(0);
 	unsigned int iter(0);
+	unsigned int n(0);
+	unsigned int r;
 	double tol(5e-4);
+	RandDouble rnd(0,N);
 	do{
-		iter++;
-		if(r.get(N)+1 <= n ){ n--; }/*because 0<=r.get(N)<N */
-		else {n++;}
+		r = rnd.get();
+		if(r < n){n--;}
+		if(r > n){n++;}
+		if(r != n){ iter++; }
 	} while (iter<M/5);
 
 	unsigned int B(50);
@@ -37,43 +41,47 @@ void check_troyer(){
 	Vector<double> H_wrong(N+1,0);
 	DataSet<double> H_right;
 	H_right.set(N+1,B,b,true);
-	for( unsigned int i(0);i<N+1;i++){
-		H_right[i].get_binning()->plot("log"+tostring(i));
-	}
 	iter=0;
+	//for( unsigned int i(0);i<N+1;i++){
+		//H_right[i].get_binning()->plot("log"+tostring(i));
+	//}
+	
 	do{
-		iter++;
-		if(r.get(N)+1 <= n ){ n--; }/*because 0<=r.get(N)<N */
-		else {n++;}
+		r = rnd.get();
+		if(r < n){n--;}
+		if(r > n){n++;}
+		if(r != n){
+			iter++;
+			H_wrong(n) +=1.0;
 
-		H_wrong(n) +=1.0;
-
-		H_right[n].set_x(1.0);
-		H_right.add_sample();
-		H_right[n].set_x(0.0);
-		if(!(iter % (M/10))){ H_right.compute_convergence(tol); }
+			H_right[n].set_x(1.0);
+			H_right.add_sample();
+			H_right[n].set_x(0.0);
+			if(!(iter % (M/10))){ H_right.compute_convergence(tol); }
+		}
 	} while (iter<M);
 	H_right.complete_analysis(tol);
 
-	{
-		IOFiles hist_right("hist_right.dat",true);
-		hist_right<<H_right<<IOFiles::endl; 
-		IOFiles hist_wrong("hist_wrong.dat",true);
-		for(unsigned int i(0);i<N;i++){ 
-			hist_wrong<<i<<" "<<H_wrong(i)/M<<" "<<sqrt((H_wrong(i)/M)*(1-H_wrong(i)/M)/(iter-1))<<IOFiles::endl;
-		}
+	IOFiles hist_right("hist_right.dat",true);
+	for(unsigned int i(0);i<N+1;i++){ 
+		hist_right<<i<<" "<<H_right[i].get_x()<<" "<<H_right[i].get_dx()<<" "<<H_right[i].get_conv()<<IOFiles::endl;
+	}
+	IOFiles hist_wrong("hist_wrong.dat",true);
+	for(unsigned int i(0);i<N+1;i++){ 
+		hist_wrong<<i<<" "<<H_wrong(i)/M<<" "<<sqrt((H_wrong(i)/M)*(1-H_wrong(i)/M)/(iter-1))<<IOFiles::endl;
 	}
 
 	Gnuplot gp("./","plot");
+	gp.xrange(10,40);
 	gp.yrange(0,0.12);
 	gp+="N = "+tostring(N);
 	gp+="fac(x) = (int(x)==0) ? 1.0 : int(x) * fac(int(x)-1.0)";
 	gp+="P(x) = fac(N)/(2**N*fac(x)*fac(N-x))";
-	gp+="set sample 51";
-	gp+="plot P(x) w p t '$P(x)$',\\";
-	gp+="\t'hist_wrong.dat' w errorbars  t 'wrong',\\";
-	gp+="\t'hist_right.dat' u :($3==1?$1:1/0):2 w errorbars t 'correct converged',\\";
-	gp+="\t'hist_right.dat' u :($3==0?$1:1/0):2 w errorbars t 'correct not converged'";
+	gp+="set sample 31";
+	gp+="plot P(x) w l t '$P(x)$',\\";
+	gp+="     'hist_right.dat' u 1:($4==1?$2:1/0):3 w errorbars t 'correct converged',\\";
+	gp+="     'hist_right.dat' u 1:($4==0?$2:1/0):3 w errorbars t 'correct not converged',\\";
+	gp+="     'hist_wrong.dat' w errorbars  t 'wrong'";
 	gp.save_file();
 	gp.create_image(true);
 }
@@ -86,15 +94,14 @@ void check_flip_coin(){
 	std::cout<<"est vrai. Alors forcément xtot!=H.get_mean()."<<std::endl;
 	std::cout<<"+ si 1e-10<diff<1e-16, c'est une approximation numérique"<<std::endl<<std::endl;
 
-	Rand r(10000);
-	srand(time(NULL));
+	RandDouble rnd(0.0,1.0);
 	unsigned int N(10);
 	unsigned int iter(0);
 
 	unsigned int B(50);
 	unsigned int b(5);
 
-	double tol(5e-4);
+	double tol(5e-5);
 	double sup(0.0);
 	double diff(0.0);
 	double conv(0.0);
@@ -110,8 +117,7 @@ void check_flip_coin(){
 		xtot=0.0;
 		do{ 
 			iter++;
-			//x=r.get();
-			x=(1.0*rand())/RAND_MAX;
+			x=rnd.get();
 			H.set_x(x);
 			H.add_sample(); 
 			xtot += x;

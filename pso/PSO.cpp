@@ -17,7 +17,7 @@ PSO::PSO(unsigned int Nbees, unsigned int Nfreedom, double cg, double cp, unsign
 	cg_(cg),
 	cp_(cp),
 	chi_(-2.0/(2.0-(cp+cg)-sqrt((cp+cg)*(cp+cg)-4*(cp+cg)))),
-	rnd_(1e4)
+	rnd_(0.0,1.0)
 {
 	if(cg_+cp_<4){
 		std::cerr<<"PSO::PSO(Nparam,cg,cp,*f) : cg+cp<4 => chi=nan. Redefinition cg=cp=2.05"<<std::endl;

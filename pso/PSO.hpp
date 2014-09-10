@@ -43,6 +43,6 @@ class PSO {
 		double cg_;
 		double cp_;
 		double chi_;
-		Rand rnd_;
+		RandDouble rnd_;
 };
 #endif

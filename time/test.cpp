@@ -1,6 +1,7 @@
 #include "Time.hpp"
 
 #include<iostream>
+#include<unistd.h>
 
 int main(){
 	Time t;
