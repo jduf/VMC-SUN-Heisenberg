@@ -11,6 +11,7 @@ class System{
 
 		/*!Returns energy*/
 		Data<double> const& get_energy() const {return E_;}
+		Data<double>& get_energy() {return E_;}
 		/*!Returns correlation*/
 		DataSet<double> const& get_corr() const {return corr_;}
 		/*!Returns long range correlation*/
@@ -34,10 +35,10 @@ class System{
 		unsigned int status_;			//!< status of the simulation
 
 		Data<double> E_; 				//!< energy of the system
-		DataSet<double> corr_;			//!< correlation between neighbouring sites
+		DataSet<double> corr_;			//!< correlation between neighbours
 		DataSet<double> lr_corr_;		//!< long range correlation 
 
-		Matrix<unsigned int> links_;	//!< list of links
+		Matrix<unsigned int> links_;	//!< bonds <i,j> exchanged by H
 
 	private:
 		/*!Forbids assignment*/

@@ -66,6 +66,7 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 			file_results.write("energy per site",S->get_energy());
 			file_results.write("correlation on links",S->get_corr());
 			file_results.write("long range correlation",S->get_lr_corr());
+			std::cout<<S->get_energy()<<std::endl;
 		}
 		delete S;
 	}

@@ -108,8 +108,12 @@ void MonteCarlo<Type>::next_step(){
 template<typename Type>
 bool MonteCarlo<Type>::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
+	if(time_.progress(tmax_/20)){
+		S_->get_energy().compute_convergence(1e-5);
+		std::cout<<"E="<<S_->get_energy().get_x()<<" ("<<S_->get_energy().get_dx()<<") after "<<100.0*time_.elapsed()/tmax_<<"%"<<std::endl;
+	}
 	if(std::abs(S_->get_energy().get_x())>1e2){ 
-		std::cerr<<"Simulation diverges => is restarted"<<std::endl;
+		std::cerr<<"Simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
 		S_->set();
 	}
 	return true;

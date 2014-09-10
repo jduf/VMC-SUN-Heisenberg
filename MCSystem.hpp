@@ -96,13 +96,13 @@ void MCSystem<Type>::measure_new_step(){
 		for(unsigned int p0(0); p0<m_; p0++){
 			for(unsigned int p1(0); p1<m_; p1++){
 				swap(links_(i,0),links_(i,1),p0,p1);
+				/*if the new state is forbidden, r=0 and therefore there is no
+				 * need to complete the else condition*/
 				if(!is_new_state_forbidden()){ 
 					r = real(ratio());
 					E_.add(r); 
 					corr_[i].add(r);
 				}
-				/*if the new state is forbidden, r=0 and therefore there is no
-				 * need to complete the else condition*/
 			}
 		}
 	}
@@ -111,6 +111,7 @@ void MCSystem<Type>::measure_new_step(){
 	if(lr_corr_.size()){
 		for(unsigned int i(0);i<lr_corr_.size();i++){
 			lr_corr_[i].set_x(0.0);
+			/*might be a good idea to speed up this to take s over all n_*/
 			for(unsigned int s(0);s<N_/m_;s++){
 				for(unsigned int p0(0); p0<m_; p0++){
 					for(unsigned int p1(0); p1<m_; p1++){
