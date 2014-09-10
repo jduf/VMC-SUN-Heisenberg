@@ -236,10 +236,10 @@ void Binning<Type>::add_sample(Type const& x){
 
 template<typename Type>
 void Binning<Type>::compute_convergence(double const& tol, Type& dx, bool& conv){
-	if(recompute_dx_usefull_ && Ml_(b_-1)>B_){
+	if(recompute_dx_usefull_ && Ml_(b_-1)>=B_){
 		recompute_dx_usefull_ = false;
 		/*!Compute the variance for each bin*/
-		Vector<double> var_bin(b_,0.0);
+		Vector<Type> var_bin(b_,0.0);
 		for(unsigned int l(0);l<b_;l++){
 			for(unsigned int j(0);j<Ml_(l);j++){
 				var_bin(l) += norm_squared(bin_[l](j)-m_bin_(l));
@@ -247,10 +247,13 @@ void Binning<Type>::compute_convergence(double const& tol, Type& dx, bool& conv)
 			var_bin(l) = sqrt(var_bin(l) / (Ml_(l)*(Ml_(l)-1)));
 		}
 
-		/*!Do a linear regression*/
-		Vector<double> x(b_);
-		double xb(0);
-		double yb(0);
+		/*!Do a linear regression and if the slope is almost flat, the system
+		 * is believed to be converged*/
+		Vector<Type> x(b_);
+		Type xb(0);
+		Type yb(0);
+		Type num(0);
+		Type den(0);
 		for(unsigned int i(0);i<b_;i++){
 			x(i) = l_+i;
 			xb += x(i);
@@ -258,18 +261,13 @@ void Binning<Type>::compute_convergence(double const& tol, Type& dx, bool& conv)
 		}
 		xb /= b_;
 		yb /= b_;
-		double num(0);
-		double den(0);
 		for(unsigned int i(0);i<b_;i++){
 			num += (x(i)-xb)*(var_bin(i)-yb);
 			den += (x(i)-xb)*(x(i)-xb);
 		}
-		if(num/den>0.0){
-			dx = yb - num/den * ( xb + 2.0*(l_+b_) ); 
-		} else { dx = yb; }
-
+		dx = yb;
+		if(num/den>0.0){ dx += num/den * xb; } 
 		Type criteria(num/den*m_bin_(0));
-
 		if(std::abs(criteria)<tol){ conv = true; }
 		else{ conv = false; }
 
@@ -295,7 +293,7 @@ void Binning<Type>::complete_analysis(double const& tol, Type& x, Type& dx, bool
 		gp+="set xlabel '$\\ell$'";
 		gp+="set ylabel '$\\Delta_{\\ell}$' rotate by 0 offset 2";
 		gp+="set key left bottom";
-		gp+="plot for [IDX=0:"+tostring(logl_-1)+"] '"+log_->get_filename()+"' i IDX t columnheader(1)";
+		gp+="plot for [IDX=0:"+tostring(logl_-1)+"] '"+log_->get_filename()+"' i IDX t columnheader(1), "+tostring(dx);
 		if(log_){delete log_;}
 		log_=NULL;
 		gp.save_file();

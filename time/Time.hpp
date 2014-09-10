@@ -11,7 +11,7 @@ class Time{
 		~Time(){}
 		/*!Set to present time*/
 		void set(){
-			rawtime_ = time(0);
+			rawtime_ = lastcall_ = time(0);
 			time_ = localtime(&rawtime_);
 		}
 
@@ -28,9 +28,18 @@ class Time{
 		/*!Returns the current sec*/
 		int sec() const { return time_->tm_sec;}
 
-		/*!Returns true if limit*/
-		bool limit_reached(time_t limit) const {
-			return (elapsed() > limit)?true:false;
+		/*!Returns true if time limit (in second) has been reached*/
+		bool limit_reached(time_t const& limit) const 
+		{ return time(0)>limit+rawtime_; }
+		/*!Returns true if time limit (in second) has been reached*/
+		bool progress(time_t const& every_s_seconds)
+		{
+			if(time(0) > (every_s_seconds+lastcall_)){
+				lastcall_ = time(0); 
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 		/*!Returns the elapsed from the instantiation or last call of set*/
@@ -42,7 +51,8 @@ class Time{
 		/*!Forbids assignment*/
 		Time& operator=(Time const& l);
 
-		time_t rawtime_;	//!< return value of time(0)
-		struct tm* time_;	//!< return value of localtime(time(0))
+		time_t rawtime_; //!< return value of time(0)
+		time_t lastcall_;//!< last call to Time::progress(...)  
+		struct tm* time_;//!< return value of localtime(time(0))
 };
 #endif

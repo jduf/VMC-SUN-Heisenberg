@@ -236,14 +236,12 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::compl
 		REVec->set(N,N);
 		for(unsigned int j(0);j<N;j++){
 			if(j==N-1 || !(wi[j]*wi[j+1]<0 && are_equal(wr[j],wr[j+1]))){
-				std::cout<<j<<" real    "<<wr[j]<<" "<<wi[j]<<std::endl;
-				for(unsigned int i(0);i<N;i++){
-					(*REVec)(i,j) = vr[i+j*N];
-				}
+				//std::cout<<j<<" real    "<<wr[j]<<" "<<wi[j]<<std::endl;
+				for(unsigned int i(0);i<N;i++){ (*REVec)(i,j) = vr[i+j*N]; }
 			} else {
-				std::cout<<j<<" complex "<<wi[j]<<" "<<wi[j+1]<<" "<<wr[j]<<" "<<wr[j+1]<<std::endl;
+				//std::cout<<j<<" complex "<<wi[j]<<" "<<wi[j+1]<<" "<<wr[j]<<" "<<wr[j+1]<<std::endl;
 				for(unsigned int i(0);i<N;i++){
-					(*REVec)(i,j) = std::complex<double>(vr[i+j*N], vr[i+(1+j)*N]);
+					(*REVec)(i,j)  =std::complex<double>(vr[i+j*N], vr[i+(1+j)*N]);
 					(*REVec)(i,j+1)=std::complex<double>(vr[i+j*N],-vr[i+(1+j)*N]);
 				}
 				j++;
@@ -252,8 +250,20 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::compl
 		delete[] vr;
 	}
 	if(LEVec){
+		std::cerr<<"void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec) : might be a proble because LU*RU != 1 but LU*A*RU = diag"<<std::endl; 
+		LEVec->set(N,N);
+		for(unsigned int j(0);j<N;j++){
+			if(j==N-1 || !(wi[j]*wi[j+1]<0 && are_equal(wr[j],wr[j+1]))){
+				for(unsigned int i(0);i<N;i++){ (*LEVec)(j,i) = vl[i+j*N]; }
+			} else {
+				for(unsigned int i(0);i<N;i++){
+					(*LEVec)(j,i)  =std::complex<double>(vl[i+j*N],-vl[i+(1+j)*N]);
+					(*LEVec)(j+1,i)=std::complex<double>(vl[i+j*N], vl[i+(1+j)*N]);
+				}
+				j++;
+			}
+		}
 		delete[] vl;
-		std::cerr<<"void Lapack<double>::geev(Vector<std::complex<double> >& EVal, char jobvr, char jobvl, Matrix<std::complex<double> >* LEVec, Matrix<std::complex<double> >* REVec) : left eigenvector not implemented"<<std::endl;
 	}
 
 	delete[] wr;

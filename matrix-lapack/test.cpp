@@ -11,9 +11,52 @@ std::complex<double> projection(Matrix<double> const& O, Matrix<std::complex<dou
 Matrix<double> create_to_check_constructor();
 
 int main(){
-	std::complex<double> a(-6e-16,23);
-	std::complex<double> b(5e-16,23);
-	std::cout<<(are_equal(a,b,1e-14,1e-13)?"a==b":"a!=b")<<std::endl;
+	//std::complex<double> a(-6e-16,23);
+	//std::complex<double> b(5e-16,23);
+	//std::cout<<(are_equal(a,b,1e-14,1e-13)?"a==b":"a!=b")<<std::endl;
+	//
+	//Matrix<double> Tinv(3,3);
+	//Tinv(0,0)=-1.0;
+	//Tinv(0,1)=2.5;
+	//Tinv(0,2)=5;
+	//Tinv(1,0)=0;
+	//Tinv(1,1)=-12;
+	//Tinv(1,2)=-145.42;
+	//Tinv(2,0)=7;
+	//Tinv(2,1)=54;
+	//Tinv(2,2)=47;
+	//Matrix<double> T(Tinv);
+//
+	//Lapack<double> inv(Tinv,false,'G');
+	//inv.inv();
+//
+	//std::cout<<Tinv*T<<std::endl;
+	//std::cout<<std::endl;
+//
+	//Matrix<std::complex<double> > RU;
+	//Matrix<std::complex<double> > LU;
+	//Vector<std::complex<double> > eval;
+	//Lapack<double> evec(T,true,'G');
+	//evec.eigensystem(eval,&RU,&LU);
+//
+	//std::cout<<eval<<std::endl;
+	//std::cout<<std::endl;
+//
+	//Matrix<std::complex<double> > tmp(T.row(),T.col(),0.0);
+	//for(unsigned int i(0);i<T.row();i++){
+		//for(unsigned int j(0);j<T.col();j++){
+			//for(unsigned int k(0);k<T.col();k++){
+				//tmp(i,j) += T(i,k)*RU(k,j);
+			//}
+		//}
+	//}
+//
+	////Lapack<std::complex<double> > bla(RU,false,'G');
+	////bla.inv();
+	//std::cout<<(LU*tmp).chop()<<std::endl;
+	//std::cout<<std::endl;
+	//std::cout<<(LU*RU).chop()<<std::endl;
+	
 	/*{operateurs*/
 	//unsigned int N1_row(3);
 	//unsigned int N1_col(2);
@@ -204,7 +247,7 @@ int main(){
 	//T1(1,0)=0;
 	//T1(1,1)=-12;
 	//T1(1,2)=-145.42;
-	//T1(2,0)=	7;
+	//T1(2,0)=7;
 	//T1(2,1)=54;
 	//T1(2,2)=47;
 	//Matrix<double> T1inv(T1);

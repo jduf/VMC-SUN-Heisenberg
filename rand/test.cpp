@@ -1,15 +1,23 @@
 #include "Rand.hpp"
 #include "Matrix.hpp"
 #include<omp.h>
+#include<random>
 
 void check_basic();
 void check_time();
-void check_openmp();
+void check_openmp_RANMAR();
+void check_openmp_mt();
+void check_minimal_number_RANMAR();
+void check_minimal_number_mt();
+double fRand(double fMin=0.0 , double fMax = 1.0);
 
 int main(){
-	check_basic();
+	//check_basic();
 	//check_time();
-	//check_openmp();
+	check_openmp_mt();
+	//check_openmp_RANMAr();
+	//check_minimal_number_RANMAR();
+	//check_minimal_number_mt();
 }
 
 void check_basic(){
@@ -42,7 +50,7 @@ void check_time(){
 	std::cout<<t.elapsed()<<std::endl;
 }
 
-void check_openmp(){
+void check_openmp_RANMAR(){
 	std::cout<<"Rand declared inside openmp"<<std::endl;
 	Matrix<double> m(20,4);
 #pragma omp parallel for num_threads(m.col())
@@ -79,4 +87,63 @@ void check_openmp(){
 
 	std::cout<<m<<std::endl;
 
+}
+
+void check_openmp_mt(){
+	std::cout<<"mt declared inside openmp"<<std::endl;
+	Matrix<double> m(20,4);
+#pragma omp parallel for num_threads(m.col())
+	for(unsigned int i=0;i<m.col();i++){ 
+		unsigned int thread(omp_get_thread_num());
+		std::random_device rd;
+		std::mt19937_64 mt(rd());
+		std::uniform_real_distribution<double> dist0(0,1);
+		for(unsigned int j(0);j<m.row();j++){ 
+			m(j,thread)=dist0(mt); 
+		}
+	}
+	std::cout<<m<<std::endl;
+
+	std::cout<<"two different mt declared inside openmp"<<std::endl;
+#pragma omp parallel for num_threads(m.col())
+	for(unsigned int i=0;i<m.col();i++){ 
+		unsigned int thread(omp_get_thread_num());
+		std::random_device rd;
+		std::mt19937_64 mt1(rd());
+		std::mt19937_64 mt2(rd());
+		std::uniform_real_distribution<double> dist(0,1);
+		for(unsigned int j(0);j<m.row();j++){ m(j,thread)=dist(mt1)-dist(mt2); }
+	}
+	std::cout<<m<<std::endl;
+}
+
+void check_minimal_number_RANMAR(){
+	Time t;
+	double min(10);
+	double tmp;
+	Rand rnd1(10);
+	unsigned int i(0);
+	while(!t.limit_reached(10)){ 
+		tmp = rnd1.get(); 
+		i++;
+		if(tmp<min){ min = tmp; }
+		if(t.progress(1)){ std::cout<<i<<" "<<min<<std::endl; }
+	}
+}
+
+void check_minimal_number_mt(){
+	Time t;
+	double min(10);
+	double tmp;
+	unsigned int i(0);
+	std::random_device rd;
+	std::mt19937_64 mt(rd());
+	std::uniform_real_distribution<double> dist(0,1);
+
+	while(!t.limit_reached(300)){ 
+		tmp = dist(mt); 
+		i++;
+		if(tmp<min){ min = tmp; }
+		if(t.progress(1)){ std::cout<<i<<" "<<min<<std::endl; }
+	}
 }
