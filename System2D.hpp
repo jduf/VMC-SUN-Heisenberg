@@ -97,15 +97,14 @@ void System2D<Type>::compute_TxTy(){
 
 template<typename Type>
 void System2D<Type>::compute_band_structure(){
-	Rand rnd(1e4);
 	Matrix<Type> M;
 	/*may be optimized : */
 	unsigned int nbr_deg;
 	//do{
 		nbr_deg = 0;
 		M  = H_;
-		M += Tx_*Type(rnd.get()*rnd.get(1e5));
-		M += Ty_*Type(rnd.get()*rnd.get(1e5));
+		M += Tx_*Type(3.0);
+		M += Ty_*Type(7.0);
 
 		Vector<unsigned int> index;
 		Vector<std::complex<double> > eval;

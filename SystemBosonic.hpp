@@ -9,7 +9,7 @@ template<typename Type>
 class SystemBosonic : public Bosonic<Type>, public MCSystem<Type>{
 	public:
 		/*!Constructor that creates an initial state*/
-		SystemBosonic(Bosonic<Type> const& S, Rand& seed);
+		SystemBosonic(Bosonic<Type> const& S);
 		/*!Destructor*/
 		~SystemBosonic(){};
 
@@ -33,21 +33,24 @@ class SystemBosonic : public Bosonic<Type>, public MCSystem<Type>{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S, Rand& seed):
+SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S):
 	System(S),
 	Bosonic<Type>(S),
-	MCSystem<Type>(S,seed)
+	MCSystem<Type>(S)
 {
 	std::cerr<<"SystemBosonic will need to check everything"<<std::endl;
 	Vector<unsigned int> available(this->n_);
+
+	std::cerr<<"wrong because at each step N_as is decreased"<<std::endl;
 	unsigned int N_as(this->n_);
+	RandUnsignedInt rnd(0,N_as-1);
 	unsigned int site(0);
 	for(unsigned int i(0); i < this->n_; i++){
 		available(i) = i;
 	}
 	for(unsigned int c(0); c<this->N_; c++){
 		for(unsigned int i(0); i < this->M_(c); i++){
-			site = this->rnd_.get(N_as);
+			site = rnd.get();
 			this->s_(available(site),0) = c;
 			this->s_(available(site),1) = c*this->M_(c)+i;
 			for(unsigned int j(site); j+1 < N_as; j++){
@@ -63,7 +66,7 @@ SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S, Rand& seed):
 /*{*/
 template<typename Type> 
 Type SystemBosonic<Type>::ratio(){
-	if(this->new_c[0] == this->new_c[1]){
+	if(this->new_c_[0] == this->new_c_[1]){
 		/*!the minus sign is required because two particles are exchanged
 		 *(Marshall-Peirels sign rule)*/
 		/*not sure the -1 is correct*/
@@ -71,30 +74,30 @@ Type SystemBosonic<Type>::ratio(){
 	} else {
 		Type omegab_a(0.0);//this->omega_next/this->omega_current
 		/*next state*/
-		omegab_a = this->omega_(this->sl_(this->new_s[1]),this->new_c[0])
-			* this->omega_(this->sl_(this->new_s[0]),this->new_c[1]); 
+		omegab_a = this->omega_(this->sl_(this->new_s_[1]),this->new_c_[0])
+			* this->omega_(this->sl_(this->new_s_[0]),this->new_c_[1]); 
 		/*current state*/
-		omegab_a /= this->omega_(this->sl_(this->new_s[0]),this->new_c[0])
-			* this->omega_(this->sl_(this->new_s[1]),this->new_c[1]);
+		omegab_a /= this->omega_(this->sl_(this->new_s_[0]),this->new_c_[0])
+			* this->omega_(this->sl_(this->new_s_[1]),this->new_c_[1]);
 
 		double jastrow(0.0);
 		unsigned int c0,c1;
 		for(unsigned int i(0);i<this->nn_.col();i++){
-			c0=this->s_(this->nn_(this->new_s[0],i),0);
-			c1=this->s_(this->nn_(this->new_s[1],i),0);
-			if(this->nn_(this->new_s[0],i) != this->new_s[1]){
-				jastrow += this->nu_(i, this->cc_(this->new_c[0], c0));
-				jastrow -= this->nu_(i, this->cc_(this->new_c[1], c0));
+			c0=this->s_(this->nn_(this->new_s_[0],i),0);
+			c1=this->s_(this->nn_(this->new_s_[1],i),0);
+			if(this->nn_(this->new_s_[0],i) != this->new_s_[1]){
+				jastrow += this->nu_(i, this->cc_(this->new_c_[0], c0));
+				jastrow -= this->nu_(i, this->cc_(this->new_c_[1], c0));
 			} else {
-				jastrow += this->nu_(i, this->cc_(this->new_c[0], c0))/2.0;
-				jastrow -= this->nu_(i, this->cc_(this->new_c[1], this->new_c[0]))/2.0;
+				jastrow += this->nu_(i, this->cc_(this->new_c_[0], c0))/2.0;
+				jastrow -= this->nu_(i, this->cc_(this->new_c_[1], this->new_c_[0]))/2.0;
 			}
-			if(this->nn_(this->new_s[1],i) != this->new_s[0]){
-				jastrow += this->nu_(i, this->cc_(this->new_c[1], c1));
-				jastrow -= this->nu_(i, this->cc_(this->new_c[0], c1));
+			if(this->nn_(this->new_s_[1],i) != this->new_s_[0]){
+				jastrow += this->nu_(i, this->cc_(this->new_c_[1], c1));
+				jastrow -= this->nu_(i, this->cc_(this->new_c_[0], c1));
 			} else {
-				jastrow += this->nu_(i, this->cc_(this->new_c[1], c1))/2.0;
-				jastrow -= this->nu_(i, this->cc_(this->new_c[0], this->new_c[1]))/2.0;
+				jastrow += this->nu_(i, this->cc_(this->new_c_[1], c1))/2.0;
+				jastrow -= this->nu_(i, this->cc_(this->new_c_[0], this->new_c_[1]))/2.0;
 			}
 		}
 		return exp(jastrow)*omegab_a;

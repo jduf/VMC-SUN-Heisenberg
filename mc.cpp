@@ -37,6 +37,7 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 	file_results.add_to_header(rst.get());
 	file_results.write("number of simulations runned",nruns);
 	file_results.write("tmax",tmax);
+	std::cout<<file_results.get_header()<<std::endl;
 	rst.set();
 	rst.title("Results","-");
 	file_results.add_to_header(rst.get());
@@ -47,15 +48,14 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 	corr.set(cs.get_system()->get_corr().size());
 	lr_corr.set(cs.get_system()->get_lr_corr().size());
 
+
 #pragma omp parallel for 
 	for(unsigned int i=0;i<nruns;i++){
-		Rand rnd(4,omp_get_thread_num());
-
 		MCSystem<Type>* S(NULL);
-		if(cs.is_bosonic()){ S = new SystemBosonic<Type>(*dynamic_cast<const Bosonic<Type>*>(cs.get_system()),rnd); } 
-		else { S = new SystemFermionic<Type>(*dynamic_cast<const Fermionic<Type>*>(cs.get_system()),rnd); }
+		if(cs.is_bosonic()){ S = new SystemBosonic<Type>(*dynamic_cast<const Bosonic<Type>*>(cs.get_system())); } 
+		else { S = new SystemFermionic<Type>(*dynamic_cast<const Fermionic<Type>*>(cs.get_system())); }
 
-		MonteCarlo<Type> sim(S,tmax,rnd);
+		MonteCarlo<Type> sim(S,tmax);
 		sim.run();
 
 #pragma omp critical

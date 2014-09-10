@@ -17,11 +17,10 @@ int main(int argc, char* argv[]){
 					IOFiles w("check.jdbin",true);
 					cs.init_output_file(w);
 					cs.save();
-					Rand rnd(4);
 					if(cs.use_complex()){
 						MCSystem<std::complex<double> >* S(NULL);
-						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system()),rnd); 
-						MonteCarlo<std::complex<double> > sim(S,tmax,rnd);
+						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system())); 
+						MonteCarlo<std::complex<double> > sim(S,tmax);
 						sim.run();
 						w.write("energy per site",S->get_energy());
 						w.write("correlation on links",S->get_corr());
@@ -30,8 +29,8 @@ int main(int argc, char* argv[]){
 						delete S;
 					} else {
 						MCSystem<double>* S(NULL); 
-						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system()),rnd); 
-						MonteCarlo<double> sim(S,tmax,rnd);
+						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())); 
+						MonteCarlo<double> sim(S,tmax);
 						sim.run();
 						w.write("energy per site",S->get_energy());
 						w.write("correlation on links",S->get_corr());
@@ -51,11 +50,10 @@ int main(int argc, char* argv[]){
 						IOFiles w("check.jdbin",true);
 						cs.init_output_file(w);
 						cs.save();
-						Rand rnd(4);
 						if(cs.use_complex()){
 							MCSystem<std::complex<double> >* S(NULL);
-							S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system()),rnd); 
-							MonteCarlo<std::complex<double> > sim(S,tmax,rnd);
+							S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system())); 
+							MonteCarlo<std::complex<double> > sim(S,tmax);
 							sim.run();
 							w.write("energy per site",S->get_energy());
 							w.write("correlation on links",S->get_corr());
@@ -64,8 +62,8 @@ int main(int argc, char* argv[]){
 							delete S;
 						} else {
 							MCSystem<double>* S(NULL); 
-							S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system()),rnd); 
-							MonteCarlo<double> sim(S,tmax,rnd);
+							S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())); 
+							MonteCarlo<double> sim(S,tmax);
 							sim.run();
 							w.write("energy per site",S->get_energy());
 							w.write("correlation on links",S->get_corr());

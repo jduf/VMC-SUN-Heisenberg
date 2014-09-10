@@ -18,8 +18,9 @@ void AnalyseChain::open_files(){
 	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); 
 		if(level_==6){ jd_write_->write("number of wavefunction",nof_); } 
 		if(level_==5){ jd_write_->write("number of boundary condition",nof_); }
+		if(level_==3 || level_==7){ data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); }
+		if(level_==3){ (*data_write_)<<"%N m bc n E(x,dx,#,conv) d-strength"<<IOFiles::endl; }
 	}
-	if(level_==3 || level_==7){ data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); }
 }
 
 void AnalyseChain::close_files(){
@@ -155,25 +156,26 @@ std::string AnalyseChain::extract_level_2(){
 	gpenergy+="set ylabel '$\\frac{E}{n}$' rotate by 0 offset 1";
 	gpenergy+="set key bottom";
 	gpenergy.xrange(0,"");
-	gpenergy+="f(x)=a*x+b";
-	gpenergy+="a=1.0";
-	gpenergy+="b=1.0";
+	gpenergy+="f(x)=a*x**b+E0";
+	gpenergy+="a=-1.0";
+	gpenergy+="b=2.0";
+	gpenergy+="E0=-1.0";
 	gpenergy+="set fit quiet";
-	gpenergy+="fit f(x) '"+filename_+".dat' u (1/$1):2:3 zerror via a,b";
-	gpenergy+="plot '"+filename_+".dat' u (1/$1):($7==1?$2:1/0):3 w e t 'P',\\";
-	gpenergy+="     '"+filename_+".dat' u (1/$1):($7==0?$2:1/0):3 w e t 'O',\\";
-	gpenergy+="     f(x) t sprintf('$E=%f$',b)";
+	gpenergy+="fit f(x) '"+filename_+".dat' u (1/$4):($10==1?$5:1/0):6 zerror via a,b,E0";
+	gpenergy+="plot '"+filename_+".dat' u (1/$4):($10==1?$5:1/0):6 w e t 'P',\\";
+	gpenergy+="     '"+filename_+".dat' u (1/$4):($10==0?$5:1/0):6 w e t 'O',\\";
+	gpenergy+="     f(x) t sprintf('$E=%f$',E0)";
 	gpenergy.save_file();
 	gpenergy.create_image(true);
 
 	Gnuplot gppolym(analyse_+path_+dir_,filename_+"-polymerization");
 	gppolym+="set xlabel '$n^{-1}$'";
-	gppolym+="set ylabel 'd-merization strenght' offset 1";
+	gppolym+="set ylabel 'd-merization strength' offset 1";
 	gppolym+="set key bottom";
 	gppolym.xrange(0,"");
 	gppolym.yrange(0,"");
-	gppolym+="plot '"+filename_+".dat' u (1/$1):($7==1?$6:1/0) t 'P',\\";
-	gppolym+="     '"+filename_+".dat' u (1/$1):($7==0?$6:1/0) t 'O'\\";
+	gppolym+="plot '"+filename_+".dat' u (1/$4):($10==1?$9:1/0) t 'P',\\";
+	gppolym+="     '"+filename_+".dat' u (1/$4):($10==0?$9:1/0) t 'O'\\";
 	gppolym.save_file();
 	gppolym.create_image(true);
 

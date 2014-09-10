@@ -8,7 +8,7 @@ CreateSystem::CreateSystem(Parseur& P):
 	M_(N_,(m_*n_ )/N_),
 	bc_(P.get<int>("bc")),
 	type_(P.get<unsigned int>("type")),
-	over_((type_==1)?false:true),
+	over_(false),
 	RGL_(NULL),
 	CGL_(NULL)
 {
@@ -270,7 +270,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 		default:{error();}break;
 	}
 	switch(type_){
-		case 3:
+		case 2:
 			{
 				if(CGL_){
 					sel0_++;
@@ -284,7 +284,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					}
 				}
 			}break;
-		case 4:
+		case 3:
 			{
 				if(M_(0)){ 
 					M_(0) -= 1;

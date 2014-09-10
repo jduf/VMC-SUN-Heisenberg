@@ -80,99 +80,115 @@ std::string ChainFermi<Type>::extract_level_7(){
 	this->rst_file_ = new RSTFile(this->info_+this->path_+this->dir_,this->filename_);
 	this->data_write_->precision(10);
 
+	/*extract jdbin*/
+	/*{*/
 	IOFiles corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-corr.dat",true);
-	IOFiles lr_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.dat",true);//should not be delcared when type!=2
+	IOFiles lr_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.dat",true);
 
-	Vector<double> lrc_mean;
+	Vector<double> lrc_mean(this->links_.row(),0);
 	unsigned int nruns;
 	unsigned int tmax;
 
 	(*this->read_)>>nruns>>tmax;
-	(*this->data_write_)<<"% E dE 0|1"<<IOFiles::endl;
+	(*this->data_write_)<<"%E dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
+	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
+	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){ 
 		(*this->read_)>>this->E_>>this->corr_>>this->lr_corr_;
-		if(lrc_mean.size() == 0){ lrc_mean.set(this->lr_corr_.size(),0);}
-		(*this->data_write_)<<" "<<this->E_.get_x()<<" "<<this->E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
+		(*this->data_write_)<<this->E_<<" "<<(i<nruns)<<IOFiles::endl;
 		for(unsigned int j(0);j<this->corr_.size();j++){
-			corr_file<<j+0.5<<" "<<this->corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
+			corr_file<<j+0.5<<" "<<this->corr_[j]<<" "<<(i<nruns)<<IOFiles::endl;
 		}
 		for(unsigned int j(0);j<this->lr_corr_.size();j++){
-			lr_corr_file<<j<<" "<<this->lr_corr_[j]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
-			if(i<nruns){ lrc_mean(j) += this->lr_corr_[j].get_x();}
+			lr_corr_file<<j<<" "<<this->lr_corr_[j]<<" "<<(i<nruns)<<IOFiles::endl;
 		}
-		if(this->lr_corr_.size()>0){
-			lr_corr_file<<this->n_<<" "<<this->lr_corr_[0]<<" "<<(i<nruns?true:false)<<IOFiles::endl;
+		if(i<nruns){
+			for(unsigned int j(0);j<this->lr_corr_.size();j++){
+				if(i<nruns){ lrc_mean(j) += this->lr_corr_[j].get_x()/nruns; }
+			}
+		} else {
+			for(unsigned int j(0);j<this->lr_corr_.size();j++){
+				if(this->lr_corr_[j].get_conv()){ lrc_mean(j) = this->lr_corr_[j].get_x(); } 
+			}
 		}
 	}
+
 	this->jd_write_->write("energy per site",this->E_);
 	this->jd_write_->write("polymerization strength",0.0);
-
+	/*}*/
+	/*nearest neighbourg correlations*/
 	/*{*/
 	Gnuplot gp(this->analyse_+this->path_+this->dir_,this->filename_+"-corr");
 	gp+="set xlabel 'site' offset 0,0.5";
 	gp+="set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$' offset 1";
 	gp+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
-	gp+="plot '"+this->filename_+"-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
-	gp+="     '"+this->filename_+"-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean'";
+	gp+="plot '"+this->filename_+"-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
+	gp+="     '"+this->filename_+"-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
+	gp+="     '"+this->filename_+"-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean'";
 	gp.save_file();
+	gp.create_image(true);
 	this->rst_file_->link_figure(this->analyse_+this->path_+this->dir_+this->filename_+"-corr.png","Correlation on links",this->analyse_+this->path_+this->dir_+this->filename_+"-corr.gp",1000);
+	/*}*/
+	/*long range correlations*/
+	/*{*/
+	Gnuplot gplr(this->analyse_+this->path_+this->dir_,this->filename_+"-long-range-corr");
+	gplr.xrange(this->N_/this->m_,this->n_-this->N_/this->m_);
+	gplr+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
+	gplr+="set ylabel '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$' offset 1";
+	gplr+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
+	gplr+="set key center bottom";
+	gplr+="set sample 1000";
+	gplr+="m="+tostring(this->m_)+".0";
+	gplr+="N="+tostring(this->N_)+".0";
+	gplr+="n="+tostring(this->n_)+".0";
+	gplr+="f(x) = bpi*cos(2.0*pi*x*m/N)*(x**(-ap)+(n-x)**(-ap))+b0*(x**(-a0)+(n-x)**(-a0))";
+	gplr+="set fit quiet";
+	gplr+="fit f(x) '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via b0,bpi,ap,a0"; 
+	gplr+="plot '"+this->filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
+	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
+	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
+	gplr+="     f(x) lc 7 lw 0.5 t sprintf('$a_\\pi=%f$, $a_0=%f$',ap,a0)";
+	gplr.save_file();
+	gplr.create_image(true);
+	this->rst_file_->link_figure(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.png","Long range correlation",this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.gp",1000);
+	/*}*/
+	/*structure factor*/
+	/*{*/
+	unsigned int llr(this->lr_corr_.size());
+	Vector<std::complex<double> > Ck(llr,0.0);
+	std::complex<double> normalize(0.0);
+	double dk(2.0*M_PI/llr);
 
-	if(this->lr_corr_.size()>0){
-		unsigned int llr(this->lr_corr_.size());
-		Vector<std::complex<double> > Ck(llr,0.0);
-		std::complex<double> normalize(0.0);
-		double dk(2.0*M_PI/llr);
-
-		lrc_mean /= nruns;
-		for(unsigned int k(0);k<llr;k++){
-			for(unsigned int i(0);i<llr;i++){
-				Ck(k) += std::polar(lrc_mean(i),dk*k*i);
-			}
-			normalize += Ck(k); 
+	for(unsigned int k(0);k<llr;k++){
+		for(unsigned int i(0);i<llr;i++){
+			Ck(k) += std::polar(lrc_mean(i),dk*k*i);
 		}
-		Ck /= dk*normalize;
-
-		IOFiles data_sf(this->analyse_+this->path_+this->dir_+this->filename_+"-structure-factor.dat",true);
-		for(unsigned int k(0);k<llr;k++){
-			data_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<" "<<std::abs(Ck(k))<<IOFiles::endl;
-		}
-
-		Gnuplot gplr(this->analyse_+this->path_+this->dir_,this->filename_+"-long-range-corr");
-		gplr.xrange(0,llr);
-		gplr+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
-		gplr+="set ylabel '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m}{N}$' offset 1";
-		gplr+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
-		gplr+="set key right bottom";
-		gplr+="m="+tostring(this->m_)+".0";
-		gplr+="N="+tostring(this->N_)+".0";
-		gplr+="n="+tostring(this->n_)+".0";
-		gplr+="f(x) = bpi*cos(2.0*pi*x*m/N)*(x**(-ap)+(n-x)**(-ap))+b0*(x**(-a0)+(n-x)**(-a0))";
-		gplr+="set fit quiet";
-		gplr+="fit ["+tostring(this->spuc_*ceil(this->L_*0.2))+":"+tostring(this->spuc_*floor(this->L_*0.8))+"] f(x) '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via b0,bpi,ap,a0"; 
-		gplr+="plot '"+this->filename_+"-long-range-corr.dat' u 1:($6==1?$2:1/0):3 w errorbars lt 1 lc 1 lw 2 t 'Independant measures',\\";
-		gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 2 lw 2 t 'Mean',\\";
-		gplr+="     f(x) t sprintf('$a_\\pi=%f$, $a_0=%f$',ap,a0)";
-		gplr.save_file();
-		gplr.create_image(true);
-		this->rst_file_->link_figure(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.png","Long range correlation",this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.gp",1000);
-
-		Gnuplot gpsf(this->analyse_+this->path_+this->dir_,this->filename_+"-structure-factor");
-		gpsf+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
-		gpsf+="set key bottom";
-		gpsf.xrange("0","2*pi");
-		switch(this->N_/this->m_){
-			case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0,'$\\pi$' pi,'$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
-			case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
-			default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
-		}
-		gpsf+="plot '"+this->filename_+"-structure-factor.dat' u 1:2 t 'real',\\";
-		gpsf+="     '"+this->filename_+"-structure-factor.dat' u 1:3 t 'imag',\\";
-		gpsf+="     '"+this->filename_+"-structure-factor.dat' u 1:4 t 'norm'";
-		gpsf.save_file();
-		gpsf.create_image(true);
-		this->rst_file_->link_figure(this->analyse_+this->path_+this->dir_+this->filename_+"-structure-factor.png","Structure factor",this->analyse_+this->path_+this->dir_+this->filename_+"-structure-factor.gp",1000);
+		normalize += Ck(k); 
 	}
+	Ck /= dk*normalize;
+
+	IOFiles data_sf(this->analyse_+this->path_+this->dir_+this->filename_+"-structure-factor.dat",true);
+	for(unsigned int k(0);k<llr;k++){
+		data_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<IOFiles::endl;
+	}
+
+	Gnuplot gpsf(this->analyse_+this->path_+this->dir_,this->filename_+"-structure-factor");
+	gpsf+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
+	gpsf+="set key bottom";
+	gpsf.xrange("0","2*pi");
+	switch(this->N_/this->m_){
+		case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0, '$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
+		case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
+		default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
+	}
+	gpsf+="set xlabel '$k$' offset 0,0.5";
+	gpsf+="set ylabel '$<S(k)>$' offset 2";
+	gpsf+="plot '"+this->filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";
+	gpsf+="     '"+this->filename_+"-structure-factor.dat' u 1:3 lt 1 lc 7 t 'imag'";
+	gpsf.save_file();
+	gpsf.create_image(true);
+	this->rst_file_->link_figure(this->analyse_+this->path_+this->dir_+this->filename_+"-structure-factor.png","Structure factor",this->analyse_+this->path_+this->dir_+this->filename_+"-structure-factor.gp",1000);
 	/*}*/
 
 	this->rst_file_->text(this->read_->get_header());

@@ -3,6 +3,7 @@
 
 #include "SystemBosonic.hpp"
 #include "SystemFermionic.hpp"
+#include <omp.h>
 
 /*{! Class MonteCarlo
  *
@@ -29,7 +30,7 @@ template <typename Type>
 class MonteCarlo{
 	public:
 		/*!Constructor*/
-		MonteCarlo(MCSystem<Type>* S, unsigned int const& tmax, Rand& seed);
+		MonteCarlo(MCSystem<Type>* S, unsigned int const& tmax);
 		/*!Simple destructor*/
 		~MonteCarlo(){}
 
@@ -58,16 +59,16 @@ class MonteCarlo{
 		unsigned int const tmax_;//!< Time limit in second, by default 5min
 		MCSystem<Type>* S_;		//!< Pointer to a Fermionic or Bosonic System 
 		Time time_; 			//!< To stop the simulation after time_limit seconds
-		Rand rnd_;				//!< Pointer to a random number generator
+		RandDouble rnd_;		//!< Pointer to a random number generator
 };
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-MonteCarlo<Type>::MonteCarlo(MCSystem<Type>* S, unsigned int const& tmax, Rand& seed):
+MonteCarlo<Type>::MonteCarlo(MCSystem<Type>* S, unsigned int const& tmax):
 	tmax_(tmax),
 	S_(S),
-	rnd_(1e5,seed)
+	rnd_(0.0,1.0)
 {
 	if(S_->get_status()==0){
 		double ratio(0.0);
@@ -108,9 +109,12 @@ void MonteCarlo<Type>::next_step(){
 template<typename Type>
 bool MonteCarlo<Type>::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
-	if(time_.progress(tmax_/20)){
-		S_->get_energy().compute_convergence(1e-5);
-		std::cout<<"E="<<S_->get_energy().get_x()<<" ("<<S_->get_energy().get_dx()<<") after "<<100.0*time_.elapsed()/tmax_<<"%"<<std::endl;
+	if(time_.progress(tmax_/21)){
+		if(!omp_get_thread_num()){
+			S_->get_energy().compute_convergence(1e-5);
+			std::cerr<<"E="<<S_->get_energy().get_x()<<" ("<<S_->get_energy().get_dx()<<") after "<<100.0*time_.elapsed()/tmax_<<"%"<<std::endl;
+			S_->set();
+		}
 	}
 	if(std::abs(S_->get_energy().get_x())>1e2){ 
 		std::cerr<<"Simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
