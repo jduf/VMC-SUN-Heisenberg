@@ -67,15 +67,14 @@ void ChainPolymerized::check(){
 /*{method needed for analysing*/
 std::string ChainPolymerized::extract_level_7(){
 	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
-	data_write_->precision(10);
 
-	/*extract jdbin*/
+	/*!extract jdbin*/
 	/*{*/
 	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true);
 	IOFiles lr_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);
 
-	Vector<double> poly_e(N_/m_,0);
 	Vector<double> lrc_mean(links_.row(),0);
+	Vector<double> poly_e(N_/m_,0);
 	unsigned int nruns;
 	unsigned int tmax;
 
@@ -83,7 +82,7 @@ std::string ChainPolymerized::extract_level_7(){
 	(*data_write_)<<"%delta E dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
-	/* the +1 is the mean over all runs */
+	/*!the +1 is the average over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){ 
 		(*read_)>>E_>>corr_>>lr_corr_;
 		(*data_write_)<<delta_<<" "<<E_<<" "<<(i<nruns)<<IOFiles::endl;
@@ -94,6 +93,9 @@ std::string ChainPolymerized::extract_level_7(){
 			lr_corr_file<<j<<" "<<lr_corr_[j]<<" "<<(i<nruns)<<IOFiles::endl;
 		}
 		if(i<nruns){
+			for(unsigned int j(0);j<lr_corr_.size();j++){
+				lrc_mean(j) += lr_corr_[j].get_x()/nruns;
+			}
 			unsigned int k(0);
 			while(k<corr_.size()){
 				/*the condition k<corr_.size() is usefull with open boundary conditions*/
@@ -101,9 +103,6 @@ std::string ChainPolymerized::extract_level_7(){
 					poly_e(j) += corr_[k].get_x();
 					k++;
 				}
-			}
-			for(unsigned int j(0);j<lr_corr_.size();j++){
-				if(i<nruns){ lrc_mean(j) += lr_corr_[j].get_x()/nruns; }
 			}
 		} else {
 			for(unsigned int j(0);j<lr_corr_.size();j++){
@@ -113,16 +112,12 @@ std::string ChainPolymerized::extract_level_7(){
 	}
 	poly_e /= nruns*n_*m_/N_;
 	poly_e.sort(std::less<double>());
-
-	jd_write_->write("delta",delta_);
-	jd_write_->write("energy per site",E_);
-	jd_write_->write("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
 	/*}*/
-	/*nearest neighbourg correlations*/
+	/*!nearest neighbourg correlations*/
 	/*{*/
 	Gnuplot gp(analyse_+path_+dir_,filename_+"-corr");
 	gp+="set xlabel 'site' offset 0,0.5";
-	gp+="set ylabel '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$' offset 1";
+	gp+="set y2label '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$'";
 	gp+="set key center";
 	gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(delta_)+"$'";
 	gp+="plot '"+filename_+"-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
@@ -134,30 +129,39 @@ std::string ChainPolymerized::extract_level_7(){
 	gp.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlation on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
 	/*}*/
-	/*long range correlations*/
+	/*!long range correlations*/
 	/*{*/
+	unsigned int xi(1);
+	unsigned int xf(n_);
+	Vector<double> exponents(4);
+	compute_critical_exponents(xi,xf,exponents,lrc_mean);
+
 	Gnuplot gplr(analyse_+path_+dir_,filename_+"-long-range-corr");
 	gplr.xrange(N_/m_,n_-N_/m_);
 	gplr+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
-	gplr+="set ylabel '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$' offset 1";
+	gplr+="set y2label '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$' offset 1";
 	gplr+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $\\delta="+tostring(delta_)+"$'";
 	gplr+="set key center bottom";
 	gplr+="set sample 1000";
 	gplr+="m="+tostring(m_)+".0";
 	gplr+="N="+tostring(N_)+".0";
 	gplr+="n="+tostring(n_)+".0";
-	gplr+="f(x) = bpi*cos(2.0*pi*x*m/N)*(x**(-ap)+(n-x)**(-ap))+b0*(x**(-a0)+(n-x)**(-a0))";
+	gplr+="p0 = 1.0";
+	gplr+="p1 = 2.0-2.0/N";
+	gplr+="p2 = -1.0";
+	gplr+="p3 = 2.0";
+	gplr+="f(x) = p0*cos(2.0*pi*x*m/N)*(x**(-p1)+(n-x)**(-p1))+p2*(x**(-p3)+(n-x)**(-p3))";
 	gplr+="set fit quiet";
-	gplr+="fit f(x) '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via b0,bpi,ap,a0"; 
+	gplr+="fit [" + tostring(xi) + ":" + tostring(xf) + "] f(x) '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via p0,p1,p2,p3"; 
 	gplr+="plot '"+filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gplr+="     '"+filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gplr+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
-	gplr+="     f(x) lc 7 lw 0.5 t sprintf('$a_\\pi=%f$, $a_0=%f$',ap,a0)";
+	gplr+="     f(x) lc 7 lw 0.5 t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
 	gplr.save_file();
 	gplr.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
 	/*}*/
-	/*structure factor*/
+	/*!structure factor*/
 	/*{*/
 	unsigned int llr(lr_corr_.size());
 	Vector<std::complex<double> > Ck(llr,0.0);
@@ -187,12 +191,19 @@ std::string ChainPolymerized::extract_level_7(){
 		default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
 	}
 	gpsf+="set xlabel '$k$' offset 0,0.5";
-	gpsf+="set ylabel '$<S(k)>$' offset 2";
+	gpsf+="set y2label '$<S(k)>$'";
 	gpsf+="plot '"+filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";
 	gpsf+="     '"+filename_+"-structure-factor.dat' u 1:3 lt 1 lc 7 t 'imag'";
 	gpsf.save_file();
 	gpsf.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-structure-factor.png","Structure factor",analyse_+path_+dir_+filename_+"-structure-factor.gp",1000);
+	/*}*/
+	/*!save some additionnal values */
+	/*{*/
+	jd_write_->write("delta",delta_);
+	jd_write_->write("energy per site",E_);
+	jd_write_->write("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
+	jd_write_->write("critical exponents",exponents);
 	/*}*/
 
 	rst_file_->text(read_->get_header());
@@ -204,38 +215,41 @@ std::string ChainPolymerized::extract_level_7(){
 }
 
 std::string ChainPolymerized::extract_level_6(){
-	double min_delta(delta_);
-	double min_polymerization_strength(0.0);
 	double polymerization_strength;
-	Data<double> min_E;
-	min_E.set_x(0.0);
+	Vector<double> exponents;
+	Vector<double> tmp_exponents;
+	double tmp_polymerization_strength;
+	double tmp_delta;
+	Data<double> tmp_E;
+	E_.set_x(1e33);
+	unsigned int idx(0);
 
 	unsigned int nof(0);
-	unsigned int idx(0);
 	(*read_)>>nof;
 	for(unsigned int i(0);i<nof;i++){
-		(*read_)>>delta_>>E_>>polymerization_strength;
-		if(E_.get_x()<min_E.get_x()){ 
+		(*read_)>>tmp_delta>>tmp_E>>tmp_polymerization_strength>>tmp_exponents;
+		if(tmp_E.get_x()<E_.get_x()){ 
 			idx = i;
-			min_E = E_;
-			min_delta = delta_;
-			min_polymerization_strength = polymerization_strength;
+			E_ = tmp_E;
+			delta_ = tmp_delta;
+			polymerization_strength = tmp_polymerization_strength;
+			exponents = tmp_exponents;
 		}
 	}
-	delta_ = min_delta;
 
 	jd_write_->add_to_header("\n");
 	save();
-	jd_write_->write("energy per site",min_E);
-	jd_write_->write("polymerization strength",min_polymerization_strength);
+	jd_write_->write("energy per site",E_);
+	jd_write_->write("polymerization strength",polymerization_strength);
+	jd_write_->write("critical exponents",exponents);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp+="set xlabel '$\\delta$' offset 0,1";
-	gp+="set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1";
+	gp+="set y2label '$\\dfrac{E}{n}$' rotate by 0";
 	gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$'";
 	if(idx==0){
 		gp+="f(x) = a+b*x**eta";
-		gp+="a="+tostring(min_E.get_x());
+		gp+="a="+tostring(E_.get_x());
 		gp+="b=1";
 		gp+="eta=1";
 		gp+="set fit quiet";
@@ -246,7 +260,7 @@ std::string ChainPolymerized::extract_level_6(){
 		gp+="     f(x) lc 7 lw 0.5 t sprintf('eta %3.4f',eta)";
 	} else {
 		gp+="f(x) = a+b*(x-c)*(x-c)";
-		gp+="a="+tostring(min_E.get_x());
+		gp+="a="+tostring(E_.get_x());
 		gp+="b=1";
 		gp+="c="+tostring(delta_);
 		gp+="set fit quiet";

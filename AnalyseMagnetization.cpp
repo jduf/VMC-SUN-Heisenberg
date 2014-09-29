@@ -111,7 +111,7 @@ std::string AnalyseMagnetization::extract_level_3(){
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp+="set xlabel '$M$' offset 0,1";
-	gp+="set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1";
+	gp+="set y2label '$\\dfrac{E}{n}$' rotate by 0";
 	gp+="plot '"+filename_+".dat' u 1:($4==510?$2:1/0):3 w e t 'Fermi',\\";
 	gp+="     '"+filename_+".dat' u 1:($4==511?$2:1/0):3 w e t 'Dirac',\\";
 	gp+="     '"+filename_+".dat' u 1:($4==520?$2:1/0):3 w e t 'VBC'";
