@@ -3,7 +3,6 @@
 
 #include <cmath> //allow abs(double) and abs(complex) 
 #include <cassert>
-#include <functional>
 #include <algorithm>
 #include "IOFiles.hpp"
 

@@ -19,16 +19,20 @@ int main(int argc, char* argv[]){
 			a=s.find(begin,b);
 			if(a != std::string::npos){
 				b=s.find(end,a)+end.size();
-
 				std::string nameline(s.substr(a,s.find('\n',a)-a));
 				std::string outname(nameline.substr(nameline.find('%')+1));
-
-				std::cout<<outname<<std::endl;
-
 				if(outname!=nameline){
 					PSTricks ps("./",outname);
 					ps.add(s.substr(a,b-a));
 					ps.save(false,true);
+				} else {
+					std::cout<<"ici"<<std::endl;
+					PSTricks ps("./","pstricks-tmp");
+					ps.add(s.substr(a,b-a));
+					ps.save(false,true);
+					Linux command;
+					command("mv pstricks-tmp.pdf " + filename.substr(0,filename.find(".")) +  ".pdf" );
+					command("rm pstricks-tmp*" );
 				};
 			}
 		}

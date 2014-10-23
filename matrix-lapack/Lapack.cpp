@@ -200,12 +200,12 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::compl
 	unsigned int N(mat_->row());
 	unsigned int ldvl(1);
 	unsigned int ldvr(1);
+	double wopt;
 	double* wr(new double[N]);
 	double* wi(new double[N]);
 	double* vr(NULL);
 	double* vl(NULL);
 	int lwork(-1);
-	double wopt;
 	int info(1);
 	char jobvr('N');
 	char jobvl('N');
@@ -285,7 +285,6 @@ void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >& EVal, Ma
 	int info(1);
 	char jobvr('N');
 	char jobvl('N');
-
 	if(REVec){ 
 		REVec->set(N,N); 
 		jobvr = 'V';

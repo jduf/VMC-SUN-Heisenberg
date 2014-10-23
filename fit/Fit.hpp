@@ -2,21 +2,24 @@
 #define DEF_FIT
 
 #include "Vector.hpp"
-#include "levmar.h"
+#include "cminpack.h"
 
 class Fit{
 	public:
-		Fit(Vector<double> const& x, Vector<double> const& y, double (*f)(double,double*), Vector<double>& p);
-
-		Vector<double> fx() const;
+		Fit(Vector<double> const& x, Vector<double> const& y, Vector<double> const& p, std::function<double (double, const double*)> f);
+		~Fit();
 
 	private:
-		static void func(double *p, double *y, int m, int n, void *adata);
-		double operator()(unsigned int i, double* p) const { return f_(x_(i),p); }
+		const double* x_;//!< pointer on a constant x
+		const double* y_;//!< pointer on a constant y
+		std::function<double (double, const double*)> f_; 
+		int m_;			//!< number of measures
+		int n_;			//!< number of parameters
+		int lwa_;		//!< bigger than m_*n_+5*n_+m_
+		int* iwa_;		//!< work array of length n_
+		double* wa_;	//!< work array of length lwa_
+		double* fvec_;	//!< y_ - f_(x_,p)
 
-		double (*f_)(double,double*);
-		Vector<double> x_;
-		Vector<double> p_;
-		int ret_;
+		static int eval(void *data, int m, int n, const double *p, double *fvec, int iflag);
 };
 #endif

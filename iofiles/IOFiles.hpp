@@ -26,7 +26,7 @@ class IOFiles{
 		/*!Destructor that closes the file*/
 		~IOFiles();
 
-		/*!Stream operator forall types 
+		/*!Stream operator for all types 
 		 * \warning doesn't work if Type=std::string */
 		IOFiles& operator>>(double& t){read(&t,1,sizeof(double)); return (*this);}
 		IOFiles& operator>>(std::complex<double>& t){read(&t,1,sizeof(std::complex<double>)); return (*this);}
@@ -46,7 +46,7 @@ class IOFiles{
 		/*Allow to extract personal classes or data*/
 		template<typename Type>
 			void read(Type* m, unsigned int const& N, size_t const& type_size);
-		/*!Read file and extract a Type value. Usefull for initialization*/
+		/*!Read file and extract a Type value. Useful for initialization*/
 		template<typename Type>
 			Type read();
 		/*Allow to write personal classes or data*/
@@ -65,7 +65,7 @@ class IOFiles{
 		/*!Returns the filename_ in which the class in writing*/
 		std::string get_filename() const { return filename_;};
 
-		/*!change the precion on the output text files*/
+		/*!change the precision on the output text files*/
 		void precision(unsigned int const& N);
 		/*!Add string to header*/
 		void add_to_header(std::string const& s);

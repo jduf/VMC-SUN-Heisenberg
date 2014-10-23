@@ -54,6 +54,6 @@ void PSTricks::save(bool silent, bool pdf){
 	else{ command("latex --shell-escape " + filename_ + ".tex");}
 	if(pdf){ command("dvipdf " + filename_ + ".dvi " + path_ + filename_ + ".pdf "); }
 	command("mv " + filename_ + "-1.png " + path_ + filename_ + ".png");
-	command("rm *.dvi *.aux *.log *.ps *.tex" );
+	command("rm *.dvi *.aux *.log *.ps" );
 }
 

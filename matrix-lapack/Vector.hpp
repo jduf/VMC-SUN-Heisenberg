@@ -131,7 +131,7 @@ Vector<Type>::Vector(unsigned int N, Type val):
 	size_(N),
 	vec_(size_?new Type[size_]:NULL)
 {
-	for(unsigned int i(0); i<size_; i++){vec_[i] = val;}
+	for(unsigned int i(0);i<size_;i++){ vec_[i] = val; }
 }
 
 template<typename Type>
@@ -472,7 +472,7 @@ inline bool are_equal(double x, double y, double abs_tol=1e-14, double rel_tol=1
 	return (diff<rel_tol*x) || (diff<abs_tol);
 }
 
-inline bool are_equal(std::complex<double> const& x, std::complex<double> const& y, double abs_tol=1e-15, double rel_tol=1e-15){ 
+inline bool are_equal(std::complex<double> const& x, std::complex<double> const& y, double abs_tol=1e-14, double rel_tol=1e-14){ 
 	if(!are_equal(std::abs(x),std::abs(y),abs_tol,rel_tol)){ return false; }
 	if(!are_equal(x.real(),y.real(),abs_tol,rel_tol)){ return false; }
 	if(!are_equal(x.imag(),y.imag(),abs_tol,rel_tol)){ return false; }

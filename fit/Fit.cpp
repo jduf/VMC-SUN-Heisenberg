@@ -1,27 +1,38 @@
 #include "Fit.hpp"
 
-Fit::Fit(Vector<double> const& x, Vector<double> const& y, double (*f)(double, double*), Vector<double>& p):
+Fit::Fit(Vector<double> const& x, Vector<double> const& y, Vector<double> const& p, std::function<double (double, const double*)> f):
+	x_(x.ptr()),
+	y_(y.ptr()),
 	f_(f),
-	x_(x),
-	p_(p),
-	ret_(0)
+	m_(x.size()),
+	n_(p.size()),
+	lwa_((m_+5)*n_+m_),
+	iwa_(new int[n_]),
+	wa_(new double[lwa_]),
+	fvec_(new double[m_])
 {
-	double info[10];
-	ret_ = dlevmar_dif(func,p_.ptr(),y.ptr(),p_.size(),y.size(),1e2,NULL,info,NULL,NULL,this);
-	std::cout<<ret_<<std::endl;
-	p = p_;
-}
-
-void Fit::func(double *p, double *y, int m, int n, void *adata){
-	Fit* self = static_cast<Fit*>(adata);
-	for(int i(0);i<n;i++){ y[i] = (*self)(i,p); }
-	std::cout<<"find something to do with m"<<m<<std::endl;
-}
-
-Vector<double> Fit::fx() const {
-	Vector<double> y(x_.size());
-	for(unsigned int i(0);i<y.size();i++){
-		y(i) = f_(x_(i),p_.ptr());
+	if(m_>n_){
+		double tol(sqrt(dpmpar(1)));
+		lmdif1(eval, this, m_, n_, p.ptr(), fvec_, tol, iwa_, wa_, lwa_);
+	} else {
+		std::cerr<<"Fit::Fit(Vector<double> const& x, Vector<double> const& y, Vector<double> const& p, std::function<double (double, const double*)> f) : the number of measures must be bigger than the number of parameters."<<std::endl;
 	}
-	return y;
+}
+
+Fit::~Fit(){
+	delete[] iwa_;
+	delete[] wa_;
+	delete[] fvec_;
+}
+
+int Fit::eval(void *data, int m, int n, const double *p, double *fvec, int iflag) {
+	(void)iflag;
+	(void)n;
+
+	std::function<double (double, const double*)> f(((Fit*)data)->f_);
+	const double* x(((Fit*)data)->x_);
+	const double* y(((Fit*)data)->y_);
+
+	for(int i(0);i<m;++i){ fvec[i] = y[i]- f(x[i],p); }
+	return 0;
 }

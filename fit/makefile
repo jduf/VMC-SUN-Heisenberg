@@ -1,6 +1,6 @@
 EXEC=test
 
-test_SRCS=test.cpp Fit.cpp IOFiles.cpp Header.cpp RST.cpp Gnuplot.cpp
+test_SRCS=test.cpp IOFiles.cpp RST.cpp Header.cpp Rand.cpp Gnuplot.cpp Fit.cpp
 
 #-----------------------------------------------------------------
 
@@ -23,7 +23,7 @@ all:$(EXEC)
 .SECONDEXPANSION:
 $(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
 	@echo Links $(notdir $^)
-	$(CXX) -o $@ $^ liblevmar.a $(LDFLAGS) $(NOASSERT)
+	$(CXX) -o $@ $^ libcminpack.a $(LDFLAGS) $(NOASSERT)
 
 $(BUILD)/%.o:%.cpp
 	@echo Creates $(notdir $@)
@@ -32,4 +32,4 @@ $(BUILD)/%.o:%.cpp
 -include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm -f $(BUILD)/* test fit* *.dat
+	rm -f $(BUILD)/* test plot* data.dat
