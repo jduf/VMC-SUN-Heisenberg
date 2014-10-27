@@ -74,18 +74,19 @@ int main(int argc, char* argv[]){
 					}
 				} while (!cs.is_over());
 			} break;
-		case 3:/*call CreateSystem::check*/
-			{ 
-				cs.init();
-				cs.check();
-			} break;
-		case 4:/*call CreateSystem::check*/
+		case 3:/*call CreateSystem::init and create*/
 			{ 
 				do{
 					cs.init();
 					cs.create();
-					cs.check();
+					//cs.check();
 				} while (!cs.is_over());
+			} break;
+		case 4:/*call CreateSystem::init and create and check*/
+			{ 
+				cs.init();
+				cs.create();
+				cs.check();
 			} break;
 		default:{std::cerr<<"check : unknown what"<<std::endl;}
 	}

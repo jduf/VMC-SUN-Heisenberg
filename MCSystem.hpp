@@ -56,7 +56,25 @@ MCSystem<Type>::MCSystem(System const& S):
 	s_(n_,m_),
 	n_rnd_(0,n_-1),
 	m_rnd_(0,m_-1)
-{}
+{
+	/*!Put the correct M_(c) particles of color c*/
+	unsigned int c_tmp(0);
+	Vector<unsigned int> M_tmp(M_);
+	for(unsigned int p(0); p<m_; p++){
+		for(unsigned int s(0); s<n_; s++){
+			s_(s,p) = c_tmp;
+			M_tmp(c_tmp) -= 1;
+			if(!M_tmp(c_tmp)){ c_tmp++; }
+		}
+	}
+
+	/*!Shuffle the particles*/
+	for(unsigned int i(0);i<N_*(n_*m_)*(n_*m_);i++){
+		swap();
+		s_(new_s_[0],new_p_[0]) = new_c_[1];
+		s_(new_s_[1],new_p_[1]) = new_c_[0];
+	}
+}
 /*}*/
 
 /*public method*/

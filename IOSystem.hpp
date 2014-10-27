@@ -5,14 +5,17 @@
 
 class IOSystem{
 	public:
-		IOSystem(std::string const& filename = "", std::string const& sim = "sim/");
+		IOSystem(std::string const& filename = "");
 		virtual ~IOSystem(){}
 
 		void set_IOSystem(IOSystem* t);
 		std::string analyse(unsigned int const& level);
 
-		/*!Returns the filename with the path and create the directory tree*/
-		std::string get_filename() const;
+		/*!Returns the filename (only usefull for mc via CreateSystem)*/
+		std::string const& get_filename() const { return filename_; };
+		/*!Returns the path (only usefull for mc via CreateSystem)*/
+		std::string const& get_path() const { return path_; }
+		/*!Set .jdbin output file and initialize its header*/
 		void init_output_file(IOFiles& output);
 
 	protected:

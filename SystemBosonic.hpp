@@ -38,27 +38,7 @@ SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S):
 	Bosonic<Type>(S),
 	MCSystem<Type>(S)
 {
-	std::cerr<<"SystemBosonic will need to check everything"<<std::endl;
-	Vector<unsigned int> available(this->n_);
-
-	std::cerr<<"wrong because at each step N_as is decreased"<<std::endl;
-	unsigned int N_as(this->n_);
-	RandUnsignedInt rnd(0,N_as-1);
-	unsigned int site(0);
-	for(unsigned int i(0); i < this->n_; i++){
-		available(i) = i;
-	}
-	for(unsigned int c(0); c<this->N_; c++){
-		for(unsigned int i(0); i < this->M_(c); i++){
-			site = rnd.get();
-			this->s_(available(site),0) = c;
-			this->s_(available(site),1) = c*this->M_(c)+i;
-			for(unsigned int j(site); j+1 < N_as; j++){
-				available(j) = available(j+1);
-			}
-			N_as--;
-		}
-	}
+	std::cerr<<"SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S) : check everything"<<std::endl;
 }
 /*}*/
 

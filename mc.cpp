@@ -28,7 +28,9 @@ int main(int argc, char* argv[]){
 
 template<typename Type>
 void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& tmax){
-	IOFiles file_results(cs.get_filename()+".jdbin",true);
+	Linux command;
+	command("mkdir -p " + cs.get_path());
+	IOFiles file_results(cs.get_path() + cs.get_filename()+".jdbin",true);
 	cs.init_output_file(file_results);
 	cs.save();
 

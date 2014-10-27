@@ -26,26 +26,70 @@ class CreateSystem{
 		virtual ~CreateSystem();
 
 		void init(IOFiles* read=NULL, IOSystem* ios=NULL);
+		bool is_over() const { return over_; }
 
+		/*{IOSystem calls*/
+		/*!Calls IOSystem::analyse(unsigned int const& level)*/
 		std::string analyse(unsigned int const& level) {
 			if(RGL_){return RGL_->analyse(level);}
 			if(CGL_){return CGL_->analyse(level);}
 			return "";
 		}
+		/*!Calls IOSystem::init_output_file(output)*/
 		void init_output_file(IOFiles& output) const {
 			if(RGL_){RGL_->init_output_file(output);}
 			if(CGL_){CGL_->init_output_file(output);}
 		}
-		void create();
+		/*!Returns the filename (only usefull for mc) */
+		std::string get_filename() const {
+			if(RGL_){return RGL_->get_filename();}
+			if(CGL_){return CGL_->get_filename();}
+			return "";
+		}
+		/*!Returns the path (only usefull for mc) */
+		std::string get_path() const {
+			if(RGL_){return RGL_->get_path();}
+			if(CGL_){return CGL_->get_path();}
+			return "";
+		}
+		/*}*/
+
+		/*{GenericSystem calls*/
+		/*!Calls GenericSystem::save() virtual method*/
 		void save() const {
 			if(RGL_){RGL_->save();}
 			if(CGL_){CGL_->save();}
 		}
+		/*!Calls GenericSystem::check() pure virtual method*/
 		void check() const {
 			if(RGL_){return RGL_->check();}
 			if(CGL_){return CGL_->check();}
 		}
-		bool is_over() const { return over_; }
+		/*!Calls GenericSystem::create() pure virtual method*/
+		void create();
+		/*}*/
+
+		/*{Other class calls*/
+		/*!Calls Fermionic::is_degenerate()*/
+		bool is_degenerate() const {
+			if(RGL_){return RGL_->is_degenerate();}
+			if(CGL_){return CGL_->is_degenerate();}
+			return true;
+		}
+		/*{!Calls System::get_status()
+		 *status_ = 10: GenericSystem<Type> is not defined
+		 * status_ = 3 : System is initialized (in System)
+		 * status_ = 2 : System is allowed (in System)
+		 * status_ = 1 : System*D is allowed (in System*D)
+		 * status_ = 0 : Found an initial state (in SystemFermionic)
+		 */
+		/*}*/
+		unsigned int get_status() const {
+			if(RGL_){return RGL_->get_status();}
+			if(CGL_){return CGL_->get_status();}
+			return 10;
+		}
+		/*}*/
 
 		/*!Returns a pointer on the GenericSystem created*/
 		System const* get_system() const { 
@@ -53,26 +97,12 @@ class CreateSystem{
 			if(CGL_){return CGL_;}
 			return NULL;
 		}
-		/*!Returns the filename with the path*/
-		std::string get_filename() const {
-			if(RGL_){return RGL_->get_filename();}
-			if(CGL_){return CGL_->get_filename();}
-			return "";
-		}
-		unsigned int get_status() const {
-			if(RGL_){return RGL_->get_status();}
-			if(CGL_){return CGL_->get_status();}
-			return 10;
-		}
-		bool is_degenerate() const {
-			if(RGL_){return RGL_->is_degenerate();}
-			if(CGL_){return CGL_->is_degenerate();}
-			return true;
-		}
+		/*!Returns false if ref_(1)==1 : real eigenvectors*/
 		bool use_complex() const {
 			if(ref_(1) == 1){ return false; }
 			else { return true; }
 		}
+		/*!Returns true if ref_(1)==0 : Jastrow wavefunction*/
 		bool is_bosonic() const {
 			if(ref_(1) == 0){ return true; }
 			else { return false; }
@@ -95,7 +125,7 @@ class CreateSystem{
 		bool over_;
 		unsigned int sel0_;
 		unsigned int sel1_;
-	
+
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
 

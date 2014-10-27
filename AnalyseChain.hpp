@@ -5,7 +5,7 @@
 
 class AnalyseChain : public Analyse{
 	public:
-		AnalyseChain(std::string const& sim);
+		AnalyseChain(std::string const& path);
 		~AnalyseChain(){}
 
 	protected:

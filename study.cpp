@@ -10,20 +10,16 @@ int main(int argc, char* argv[]){
 	if(!command.status()){
 		Parseur P(argc,argv);
 		unsigned int i(0);
-		std::string path("");
-		Analyse* analyse(NULL);
+		std::string path(P.search("path",i)?P.get<std::string>(i):"");
 
 		unsigned int what(P.get<unsigned int>("what"));
-		if(P.search("path",i)){path = P.get<std::string>(i);}
+		
 		if(!P.status() && what<4){
 			switch(what){
-				case 0: { analyse = new AnalyseEnergy("sim/"); }break;
-				case 1: { analyse = new AnalyseChain("sim/"); }break;
-				case 2: { analyse = new AnalyseMagnetization("sim/"); }break;
+				case 0: { AnalyseEnergy ana(path); }break;
+				case 1: { AnalyseChain ana(path); }break;
+				case 2: { AnalyseMagnetization ana(path); }break;
 			}
-			analyse->go(path);
-			delete analyse;
-			analyse = NULL;
 		} else {
 			std::cerr<<"study : unknown study"<<std::endl;
 			std::cerr<<"study : unknown option what, options are :"<<std::endl; 

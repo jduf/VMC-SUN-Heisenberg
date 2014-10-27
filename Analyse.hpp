@@ -6,9 +6,8 @@
 
 class Analyse: public IOSystem{
 	public:
-		Analyse(std::string const& sim);
+		Analyse(std::string const& path);
 		virtual ~Analyse(){}
-		void go(std::string search_in);
 
 	protected:
 		List<std::string> all_link_names_;
@@ -18,6 +17,7 @@ class Analyse: public IOSystem{
 		unsigned int level_;
 		unsigned int nof_;
 
+		void do_analyse();
 		virtual void open_files()=0;
 		virtual void close_files()=0;
 		std::string extract_level_7();
@@ -27,6 +27,8 @@ class Analyse: public IOSystem{
 		Analyse(Analyse const& a);
 		/*Forbids assignment*/
 		Analyse& operator=(Analyse const& a);
+
+		unsigned int study_;
 		
 		void recursive_search();
 		void search_jdbin();

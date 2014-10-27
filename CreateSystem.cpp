@@ -209,14 +209,23 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:{RGL_ = new SquareFermi(ref_,N_,m_,n_,M_,bc_);}break;
-									   //   case 1:{return SquareMu(N,n,m);}break;
+								case 0:
+									{
+										RGL_ = new SquareFermi<double>(ref_,N_,m_,n_,M_,bc_);
+										over_ = true;
+									}break;
+									//   case 1:{return SquareMu(N,n,m);}break;
 								default:{error();}break;
 							}
 						}break;
 					case 2:
 						{
 							switch(ref_(2)){
+								case 0:
+									{
+										CGL_ = new SquareFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);
+										over_ = true;
+									}break;
 								case 2:{CGL_ = new SquarePiFlux(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{error();}break;
 							}

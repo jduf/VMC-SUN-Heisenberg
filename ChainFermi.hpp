@@ -93,6 +93,7 @@ std::string ChainFermi<Type>::extract_level_7(){
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	/*!the +1 is the average over all runs */
+	double m(0);
 	for(unsigned int i(0);i<nruns+1;i++){ 
 		(*this->read_)>>this->E_>>this->corr_>>this->lr_corr_;
 		(*this->data_write_)<<this->E_<<" "<<(i<nruns)<<IOFiles::endl;
@@ -105,6 +106,7 @@ std::string ChainFermi<Type>::extract_level_7(){
 		if(i<nruns){
 			for(unsigned int j(0);j<this->lr_corr_.size();j++){
 				lrc_mean(j) += this->lr_corr_[j].get_x()/nruns;
+				m += this->lr_corr_[j].get_x();
 			}
 		} else {
 			for(unsigned int j(0);j<this->lr_corr_.size();j++){
@@ -112,6 +114,8 @@ std::string ChainFermi<Type>::extract_level_7(){
 			}
 		}
 	}
+	m/=(nruns*this->n_);
+	if(std::abs(m)>0.5){ std::cerr<<"!!! need to rerun this !!!"<<m<<" "<<this->filename_<<std::endl; }
 	/*}*/
 	/*!nearest neighbourg correlations*/
 	/*{*/
@@ -154,10 +158,6 @@ std::string ChainFermi<Type>::extract_level_7(){
 	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
 	gplr+="     f(x) lc 7 lw 0.5 t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
-	if(this->m_==1){
-		std::cerr<<this->N_<<" "<<this->n_<<" "<<exponents(1)<<" ";
-		gplr+="print p1"; 
-	}
 	gplr.save_file();
 	gplr.create_image(true);
 	this->rst_file_->link_figure(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.png","Long range correlation",this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.gp",1000);

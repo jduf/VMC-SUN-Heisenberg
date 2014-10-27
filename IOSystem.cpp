@@ -1,7 +1,7 @@
 #include "IOSystem.hpp"
 
-IOSystem::IOSystem(std::string const& filename, std::string const& sim):
-	sim_(sim),
+IOSystem::IOSystem(std::string const& filename):
+	sim_("sim/"),
 	info_("info/"),
 	analyse_("analyse/"),
 	path_(""),
@@ -23,12 +23,6 @@ void IOSystem::set_IOSystem(IOSystem* t){
 	read_ = t->read_;
 	jd_write_ = t->jd_write_;
 	data_write_ = t->data_write_;
-}
-
-std::string IOSystem::get_filename() const { 
-	Linux command;
-	command("/bin/mkdir -p "+path_);
-	return path_+filename_; 
 }
 
 void IOSystem::init_output_file(IOFiles& output){ 

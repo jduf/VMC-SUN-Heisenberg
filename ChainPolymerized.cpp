@@ -83,6 +83,7 @@ std::string ChainPolymerized::extract_level_7(){
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	/*!the +1 is the average over all runs */
+	double m(0);
 	for(unsigned int i(0);i<nruns+1;i++){ 
 		(*read_)>>E_>>corr_>>lr_corr_;
 		(*data_write_)<<delta_<<" "<<E_<<" "<<(i<nruns)<<IOFiles::endl;
@@ -91,6 +92,7 @@ std::string ChainPolymerized::extract_level_7(){
 		}
 		for(unsigned int j(0);j<lr_corr_.size();j++){
 			lr_corr_file<<j<<" "<<lr_corr_[j]<<" "<<(i<nruns)<<IOFiles::endl;
+				m += this->lr_corr_[j].get_x();
 		}
 		if(i<nruns){
 			for(unsigned int j(0);j<lr_corr_.size();j++){
@@ -110,7 +112,9 @@ std::string ChainPolymerized::extract_level_7(){
 			}
 		}
 	}
+	m/=(nruns*n_);
 	poly_e /= nruns*n_*m_/N_;
+	if(std::abs(m)>0.5){ std::cerr<<"!!! need to rerun this !!!"<<m<<" "<<filename_<<std::endl; }
 	poly_e.sort(std::less<double>());
 	/*}*/
 	/*!nearest neighbourg correlations*/
@@ -236,6 +240,7 @@ std::string ChainPolymerized::extract_level_6(){
 			exponents = tmp_exponents;
 		}
 	}
+	std::cerr<<"delta-opt "<<N_<<" "<<m_<<" "<<n_<<" "<<delta_<<std::endl;
 
 	jd_write_->add_to_header("\n");
 	save();

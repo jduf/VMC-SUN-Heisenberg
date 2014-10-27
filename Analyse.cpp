@@ -1,36 +1,50 @@
 #include "Analyse.hpp"
 
-Analyse::Analyse(std::string const& sim):
-	IOSystem("",sim),
+Analyse::Analyse(std::string const& path):
+	IOSystem(""),
 	level_(0)
-{}
-
-void Analyse::go(std::string argv){
+{
 	Linux command;
 	std::string root(command.pwd());
-	path_ = argv;
 	sim_ = root+sim_;
 	info_ = root+info_;
 	analyse_ = root+analyse_;
 
-	unsigned int study;
-	if(path_ == ""){ study=0; }
-	else{ 
-		if(path_ != "README"){ study = 1; }
-		else{ study=2; }
-	}
-	switch(study){
+	if(path == ""){ study_=0; }
+	if(path == "README"){ study_=1; }
+	if(path != "README" && path != ""){ study_=2; path_ = path; }
+	if(path.find(".jdbin")!=std::string::npos){ study_=3; }
+}
+
+void Analyse::do_analyse(){
+	switch(study_){
 		case 0: /*treat everything*/
 			{
-				rst_file_.append(RSTFile(root,"README"));
-				IOFiles r_readme("README",false);
+				rst_file_.append(RSTFile("./","README"));
+				IOFiles r("README",false);
 				std::string h;
-				r_readme>>h;
+				r>>h;
 				rst_file_.first().text(h);
 				recursive_search();
 				rst_file_.first().save(false);
 			}break; 
-		case 1: /*treat the directory given as argument*/
+		case 1: /*update only the README file*/
+			{
+				RSTFile rst("./","README");
+				IOFiles r("README",false);
+				std::string h;
+				r>>h;
+				rst.text(h);
+				Directory d;
+				d.search_file_ext(".jdbin",sim_+dir_,false,false);
+				d.sort();
+				d.print();
+				for(unsigned int j(0);j<d.size();j++){
+					rst.hyperlink(d.get_name(j),info_+d.get_name(j)+".html");
+				}
+				rst.save(false);
+			}break;
+		case 2: /*treat the directory given as argument*/
 			{
 				if(path_[path_.size()-1] != '/'){ path_ += '/'; }
 				std::vector<std::string> tmp(string_split(path_,'/'));
@@ -45,21 +59,9 @@ void Analyse::go(std::string argv){
 				rst_file_.append(RSTFile(info_+path_,dir_.substr(0,dir_.size()-1)));
 				recursive_search();
 			}break;
-		case 2: /*update only the README file*/
+		case 3:
 			{
-				RSTFile rst(root,"README");
-				IOFiles r("README",false);
-				std::string h;
-				r>>h;
-				rst.text(h);
-				Directory d;
-				d.search_file_ext(".jdbin",sim_+dir_,false,false);
-				d.print();
-				d.sort();
-				for(unsigned int j(0);j<d.size();j++){
-					rst.hyperlink(d.get_name(j),info_+d.get_name(j)+".html");
-				}
-				rst.save(false);
+				std::cerr<<"Analyse::do_analyse() : can't analyse a *.jdbin file"<<std::endl;
 			}break;
 	}
 }
@@ -68,9 +70,6 @@ void Analyse::recursive_search(){
 	Directory d;
 	d.list_dir(sim_+path_+dir_);
 	if(d.size()>0){ d.sort(); }
-	Linux command;
-	command("mkdir -p " + info_+path_+dir_);
-	command("mkdir -p " + analyse_+path_+dir_);
 	level_++;
 	for(unsigned int i(0);i<d.size();i++){
 		rst_file_.append(RSTFile(info_+path_+dir_,d.get_name(i)));
@@ -95,9 +94,13 @@ void Analyse::search_jdbin(){
 	d.search_file_ext(".jdbin",sim_+path_+dir_,false,false);
 	nof_ = d.size();
 	if(d.size()>0){ 
+		d.sort();
+
+		Linux command;
+		command("mkdir -p " + info_+path_+dir_);
+		command("mkdir -p " + analyse_+path_+dir_);
 		open_files();
 
-		d.sort();
 		std::cout<<"lev "<<level_<<" : "<<path_+dir_<<std::endl;
 		for(unsigned int i(0); i<d.size();i++){
 			for(unsigned int j(0);j<6+path_.size()+dir_.size();j++){ std::cout<<" "; }

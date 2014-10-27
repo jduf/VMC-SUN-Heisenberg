@@ -4,7 +4,8 @@
 #include "MCSystem.hpp"
 #include "Fermionic.hpp"
 
-/*!Class that contains all the necessary informations to sample the configuration of a fermionic system.*/
+/*!Class that contains all the necessary informations to sample the
+ * configuration of a fermionic system.*/
 template<typename Type>
 class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 	public:
@@ -48,7 +49,7 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 		Matrix<unsigned int> row_;//!< row of the matrix A that is modified
 		Matrix<Type> *Ainv_;	//!< inverse of A
 		Matrix<Type>* tmp_;		//!< temporary matrix used during the update 
-		Type w_[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0,0,w22)
+		Type w_[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0;0,w22)
 		unsigned int new_r_[2];	//!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
 		unsigned int new_ev_[2];//!< newly selected rows of the EVec matrix
 };
@@ -70,25 +71,8 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 		tmp_[c].set(this->M_(c),this->M_(c));
 	}
 
-	/*!Put the correct M_(c) particles of color c*/
-	unsigned int c_tmp(0);
-	Vector<unsigned int> M_tmp(this->M_);
-	for(unsigned int p(0); p<this->m_; p++){
-		for(unsigned int s(0); s<this->n_; s++){
-			this->s_(s,p) = c_tmp;
-			M_tmp(c_tmp) -= 1;
-			if(!M_tmp(c_tmp)){ c_tmp++; }
-		}
-	}
-
-	/*!Shuffle the particles*/
-	for(unsigned int i(0);i<this->N_*(this->n_*this->m_)*(this->n_*this->m_);i++){
-		MCSystem<Type>::swap();
-		this->s_(this->new_s_[0],this->new_p_[0]) = this->new_c_[1];
-		this->s_(this->new_s_[1],this->new_p_[1]) = this->new_c_[0];
-	}
-
 	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
+	unsigned int c_tmp(0);
 	Vector<unsigned int> row_tmp(this->N_,0);
 	for(unsigned int s(0); s < this->n_; s++){
 		for(unsigned int p(0); p < this->m_; p++){

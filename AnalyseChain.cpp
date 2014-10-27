@@ -1,17 +1,19 @@
 #include "AnalyseChain.hpp"
 
-AnalyseChain::AnalyseChain(std::string const& sim):
-	Analyse(sim)
+AnalyseChain::AnalyseChain(std::string const& path):
+	Analyse(path)
 {
-	std::cout<<"Will proceed to the analyse of a chain system. It"<<std::endl;
-	std::cout<<"will consist of an analyse of :"<<std::endl;
-	std::cout<<"+ first neighbour correlations"<<std::endl;
-	std::cout<<"+ long range correlations"<<std::endl;
-	std::cout<<"+ extraction of the energy"<<std::endl;
-	std::cout<<"The energies will be compared and the best"<<std::endl;
-	std::cout<<"simulation will be kept. There will the be a"<<std::endl;
-	std::cout<<"comparison of the energies and the polymerization"<<std::endl;
-	std::cout<<"strength in function of the system size."<<std::endl;
+	std::cout<<"Will proceed to the analyse SU(N) chains. It will consist "
+		"of an analyse of :"<<std::endl<<
+		"+ first neighbour correlations"<<std::endl<<
+		"+ long range correlations"<<std::endl<<
+		"+ extraction of the energy"<<std::endl<<
+		"The energies will be compared and the best simulation will be "
+		"kept. There will the be a"<<std::endl<<
+		"comparison of the energies and the polymerization strength in "
+		"function of the system size."<<std::endl;
+
+	do_analyse();
 }
 
 void AnalyseChain::open_files(){
@@ -66,6 +68,7 @@ std::string AnalyseChain::extract_level_6(){
 
 /*different wavefunction*/
 std::string AnalyseChain::extract_level_5(){
+	std::string link_name;
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
 
@@ -91,7 +94,6 @@ std::string AnalyseChain::extract_level_5(){
 		jd_write_->add_to_header("difference of energy between the wavefunction = " +tostring(diff_e));
 	}
 	delete read_;
-	read_ = NULL;
 
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
@@ -99,20 +101,15 @@ std::string AnalyseChain::extract_level_5(){
 	for(unsigned int i(0);i<nof_;i++){
 		CreateSystem cs(read_);
 		cs.init(read_,this);
-		(*read_)>>E>>polymerization_strength>>exponents;
-
-		if(i==idx){
-			jd_write_->add_to_header("\n");
-			cs.save(); 
-			jd_write_->write("energy per site",min_E);
-			jd_write_->write("polymerization strength",polymerization_strength);
-			jd_write_->write("critical exponents",exponents);
-		}
+		if(i==idx){ 
+			link_name = cs.analyse(level_); 
+			i=nof_;
+		} else { (*read_)>>E>>polymerization_strength>>exponents; }
 	}
 	delete read_;
 	read_ = NULL;
 
-	return filename_;
+	return link_name;
 }
 
 /*different boundary condition*/
@@ -214,7 +211,7 @@ std::string AnalyseChain::extract_level_2(){
 	gpexp+="unset xtics";
 	gpexp+="unset y2tics";
 	gpexp+="unset xlabel";
-	gpexp+="plot '"+filename_+".dat' u (1/$4):($3==1?$11:1/0) lc 2 t '$a_{\\pi}=2-2/N$'";
+	gpexp+="plot '"+filename_+".dat' u (1/$4):($3==1?$11:1/0) lc 2 t '$a_{k}=2-2/N$'";
 	gpexp+="unset multiplot";
 	gpexp.save_file();
 	gpexp.create_image(true);
