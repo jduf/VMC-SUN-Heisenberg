@@ -85,8 +85,6 @@ void KagomeVBC::create(){
 		}
 	}
 	compute_H();
-	compute_TxTy();
-	compute_band_structure();
 }
 /*}*/
 

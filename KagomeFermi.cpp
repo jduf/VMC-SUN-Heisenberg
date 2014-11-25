@@ -26,8 +26,6 @@ void KagomeFermi<std::complex<double> >::create(){
 	corr_.set(links_.row(),50,5,false);
 
 	compute_H();
-	compute_TxTy();
-	compute_band_structure();
 	select_eigenvectors();
 
 	if(!degenerate_){

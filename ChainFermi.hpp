@@ -36,6 +36,7 @@ class ChainFermi: public Chain<Type>{
 		void compute_H();
 		std::string extract_level_7();
 		std::string extract_level_6();
+		std::string extract_level_5();
 };
 
 template<typename Type>
@@ -93,7 +94,6 @@ std::string ChainFermi<Type>::extract_level_7(){
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	/*!the +1 is the average over all runs */
-	double m(0);
 	for(unsigned int i(0);i<nruns+1;i++){ 
 		(*this->read_)>>this->E_>>this->corr_>>this->lr_corr_;
 		(*this->data_write_)<<this->E_<<" "<<(i<nruns)<<IOFiles::endl;
@@ -106,7 +106,6 @@ std::string ChainFermi<Type>::extract_level_7(){
 		if(i<nruns){
 			for(unsigned int j(0);j<this->lr_corr_.size();j++){
 				lrc_mean(j) += this->lr_corr_[j].get_x()/nruns;
-				m += this->lr_corr_[j].get_x();
 			}
 		} else {
 			for(unsigned int j(0);j<this->lr_corr_.size();j++){
@@ -114,8 +113,6 @@ std::string ChainFermi<Type>::extract_level_7(){
 			}
 		}
 	}
-	m/=(nruns*this->n_);
-	if(std::abs(m)>0.5){ std::cerr<<"!!! need to rerun this !!!"<<m<<" "<<this->filename_<<std::endl; }
 	/*}*/
 	/*!nearest neighbourg correlations*/
 	/*{*/
@@ -218,16 +215,31 @@ template<typename Type>
 std::string ChainFermi<Type>::extract_level_6(){
 	double polymerization_strength;
 	Vector<double> exponents;
-
 	unsigned int nof(0);
 	(*this->read_)>>nof>>this->E_>>polymerization_strength>>exponents;
 
 	this->jd_write_->add_to_header("\n");
 	this->save();
 	this->jd_write_->write("energy per site",this->E_);
-	this->jd_write_->write("polymerization strength",0.0);
+	this->jd_write_->write("polymerization strength",polymerization_strength);
 	this->jd_write_->write("critical exponents",exponents);
 
+	return this->filename_;
+}
+
+template<typename Type>
+std::string ChainFermi<Type>::extract_level_5(){
+	double polymerization_strength;
+	Vector<double> exponents;
+	(*this->read_)>>this->E_>>polymerization_strength>>exponents;
+
+	this->jd_write_->add_to_header("\n");
+	this->save();
+	this->jd_write_->write("energy per site",this->E_);
+	this->jd_write_->write("polymerization strength",polymerization_strength);
+	this->jd_write_->write("critical exponents",exponents);
+
+	std::cerr<<"level5 "<<this->N_<<" "<<this->m_<<" "<<this->n_<<" "<<this->bc_<<" "<<0<<" "<<exponents<<std::endl;;
 	return this->filename_;
 }
 /*}*/

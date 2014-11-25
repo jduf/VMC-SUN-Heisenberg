@@ -2,7 +2,7 @@
 
 ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, double delta):
 	System(ref,N,m,n,M,bc),
-	Chain<double>(N_/m_,"chain-polymerized"),
+	Chain<double>(are_equal(delta,0)?1:N_/m_,"chain-polymerized"),
 	delta_(delta)
 {
 	if(status_==1){
@@ -24,7 +24,7 @@ void ChainPolymerized::compute_H(){
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
 	unsigned int a(n_/L_);
-	for(unsigned int i(0); i < n_; i += a){
+	for(unsigned int i(0); i<n_; i+=a){
 		for(unsigned int j(0); j<a-1; j++){
 			nb = get_neighbourg(i+j);
 			H_(i+j,nb(0,0)) = t+delta_;
@@ -46,6 +46,16 @@ void ChainPolymerized::create(){
 		for(unsigned int i(0);i<n_;i++){
 			for(unsigned int j(0);j<M_(c);j++){
 				EVec_[c](i,j) = H_(i,j);
+			}
+		}
+	}
+	if(degenerate_){
+		degenerate_ = false;
+		compute_H();
+		select_eigenvectors(M_(0));
+		for(unsigned int c(0);c<N_;c++){
+			for(unsigned int i(0);i<n_;i++){
+				EVec_[c](i,M_(c)-1) = real(evec_(i,M_(c)-1));
 			}
 		}
 	}
@@ -83,7 +93,6 @@ std::string ChainPolymerized::extract_level_7(){
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	/*!the +1 is the average over all runs */
-	double m(0);
 	for(unsigned int i(0);i<nruns+1;i++){ 
 		(*read_)>>E_>>corr_>>lr_corr_;
 		(*data_write_)<<delta_<<" "<<E_<<" "<<(i<nruns)<<IOFiles::endl;
@@ -92,29 +101,21 @@ std::string ChainPolymerized::extract_level_7(){
 		}
 		for(unsigned int j(0);j<lr_corr_.size();j++){
 			lr_corr_file<<j<<" "<<lr_corr_[j]<<" "<<(i<nruns)<<IOFiles::endl;
-				m += this->lr_corr_[j].get_x();
 		}
 		if(i<nruns){
 			for(unsigned int j(0);j<lr_corr_.size();j++){
 				lrc_mean(j) += lr_corr_[j].get_x()/nruns;
 			}
 			unsigned int k(0);
-			while(k<corr_.size()){
-				/*the condition k<corr_.size() is usefull with open boundary conditions*/
-				for(unsigned int j(0);j<N_/m_ && k<corr_.size() ;j++){
-					poly_e(j) += corr_[k].get_x();
-					k++;
-				}
-			}
+			do{ poly_e(k%(N_/m_)) += corr_[k].get_x(); }
+			while(++k<corr_.size());
 		} else {
 			for(unsigned int j(0);j<lr_corr_.size();j++){
 				if(lr_corr_[j].get_conv()){ lrc_mean(j) = lr_corr_[j].get_x(); } 
 			}
 		}
 	}
-	m/=(nruns*n_);
 	poly_e /= nruns*n_*m_/N_;
-	if(std::abs(m)>0.5){ std::cerr<<"!!! need to rerun this !!!"<<m<<" "<<filename_<<std::endl; }
 	poly_e.sort(std::less<double>());
 	/*}*/
 	/*!nearest neighbourg correlations*/
@@ -219,15 +220,14 @@ std::string ChainPolymerized::extract_level_7(){
 }
 
 std::string ChainPolymerized::extract_level_6(){
-	double polymerization_strength;
-	Vector<double> exponents;
-	Vector<double> tmp_exponents;
-	double tmp_polymerization_strength;
-	double tmp_delta;
 	Data<double> tmp_E;
 	E_.set_x(1e33);
+	Vector<double> exponents;
+	Vector<double> tmp_exponents;
+	double polymerization_strength;
+	double tmp_polymerization_strength;
+	double tmp_delta;
 	unsigned int idx(0);
-
 	unsigned int nof(0);
 	(*read_)>>nof;
 	for(unsigned int i(0);i<nof;i++){
@@ -240,7 +240,6 @@ std::string ChainPolymerized::extract_level_6(){
 			exponents = tmp_exponents;
 		}
 	}
-	std::cerr<<"delta-opt "<<N_<<" "<<m_<<" "<<n_<<" "<<delta_<<std::endl;
 
 	jd_write_->add_to_header("\n");
 	save();
@@ -253,6 +252,7 @@ std::string ChainPolymerized::extract_level_6(){
 	gp+="set y2label '$\\dfrac{E}{n}$' rotate by 0";
 	gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$'";
 	if(idx==0){
+		gp.xrange("0.0","");
 		gp+="f(x) = a+b*x**eta";
 		gp+="a="+tostring(E_.get_x());
 		gp+="b=1";
@@ -278,6 +278,21 @@ std::string ChainPolymerized::extract_level_6(){
 	gp.save_file();
 	gp.create_image(true);
 
+	return filename_;
+}
+
+std::string ChainPolymerized::extract_level_5(){
+	double polymerization_strength;
+	Vector<double> exponents;
+	(*read_)>>E_>>polymerization_strength>>exponents;
+
+	jd_write_->add_to_header("\n");
+	save();
+	jd_write_->write("energy per site",E_);
+	jd_write_->write("polymerization strength",polymerization_strength);
+	jd_write_->write("critical exponents",exponents);
+
+	std::cerr<<"level5 "<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<delta_<<" "<<exponents<<std::endl;;
 	return filename_;
 }
 /*}*/

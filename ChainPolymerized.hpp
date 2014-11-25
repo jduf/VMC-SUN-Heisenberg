@@ -18,5 +18,6 @@ class ChainPolymerized: public Chain<double> {
 		void compute_H();
 		std::string extract_level_7();
 		std::string extract_level_6();
+		std::string extract_level_5();
 };
 #endif
