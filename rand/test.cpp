@@ -1,4 +1,3 @@
-#include "RandNew.hpp"
 #include "Rand.hpp"
 #include "Vector.hpp"
 #include <omp.h>
@@ -6,59 +5,18 @@
 void check_basic();
 void check_openmp_mt();
 
-void check_basic_new();
-void check_openmp_mt_new();
-
-void compare();
-
 void check_minimal_number_mt();
 void check_shuffle();
 
 int main(){
-
-	//check_basic();
-	//check_openmp_mt();
-	//check_basic_new();
-	//check_openmp_mt_new();
+	check_basic();
+	check_openmp_mt();
 	
 	//check_minimal_number_mt();
 	//check_shuffle();
-	
-	compare();
 }
 
 void check_basic(){
-	RandUnsignedInt rndui(0,10);
-	for(unsigned int i(0);i<20;i++){
-		std::cout<<rndui.get()<<std::endl;
-	}
-}
-
-void check_openmp_mt(){
-	std::cout<<"mt declared inside openmp"<<std::endl;
-	Matrix<double> m(20,omp_get_max_threads());
-#pragma omp parallel for num_threads(m.col())
-	for(unsigned int i=0;i<m.col();i++){ 
-		unsigned int thread(omp_get_thread_num());
-		RandDouble rnd(0,1);
-		for(unsigned int j(0);j<m.row();j++){ 
-			m(j,thread)=rnd.get(); 
-		}
-	}
-	std::cout<<m<<std::endl<<std::endl;
-
-	std::cout<<omp_get_max_threads()<<" different mt declared inside openmp"<<std::endl;
-#pragma omp parallel for num_threads(m.col())
-	for(unsigned int i=0;i<m.col();i++){ 
-		unsigned int thread(omp_get_thread_num());
-		RandDouble rnd0(0,1);
-		RandDouble rnd1(0,1);
-		for(unsigned int j(0);j<m.row();j++){ m(j,thread)=rnd1.get()-rnd0.get(); }
-	}
-	std::cout<<m<<std::endl;
-}
-
-void check_basic_new(){
 	Rand<unsigned int> rndui(0,10);
 	for(unsigned int i(0);i<20;i++){
 		std::cout<<rndui.get()<<std::endl;
@@ -66,7 +24,7 @@ void check_basic_new(){
 	std::cout<<std::endl;
 }
 
-void check_openmp_mt_new(){
+void check_openmp_mt(){
 	std::cout<<"mt declared inside openmp"<<std::endl;
 	Matrix<double> m(20,omp_get_max_threads());
 #pragma omp parallel for num_threads(m.col())
@@ -124,22 +82,4 @@ void check_minimal_number_mt(){
 		if(tmp<min){ min = tmp; }
 		if(t.progress(1)){ std::cout<<i<<" "<<min<<std::endl; }
 	}
-}
-
-void compare(){
-	double a;
-	Time t;
-
-	Rand<double> r1(1,2);
-	for(unsigned int j(0);j<20;j++){ 
-		for(unsigned int i(0);i<1e9;i++){ a = r1.get(); }
-	}
-	std::cout<<t.elapsed()<<std::endl;
-
-	t.set();
-	RandDouble r2(1,2);
-	for(unsigned int j(0);j<20;j++){ 
-		for(unsigned int i(0);i<1e9;i++){ a = r2.get(); }
-	}
-	std::cout<<t.elapsed()<<std::endl;
 }

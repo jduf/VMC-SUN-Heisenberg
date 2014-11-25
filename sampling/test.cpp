@@ -27,7 +27,7 @@ void check_troyer(){
 	unsigned int n(0);
 	unsigned int r;
 	double tol(5e-4);
-	RandDouble rnd(0,N);
+	Rand<double> rnd(0,N);
 	do{
 		r = rnd.get();
 		if(r < n){n--;}
@@ -94,7 +94,7 @@ void check_flip_coin(){
 	std::cout<<"est vrai. Alors forcément xtot!=H.get_mean()."<<std::endl;
 	std::cout<<"+ si 1e-10<diff<1e-16, c'est une approximation numérique"<<std::endl<<std::endl;
 
-	RandDouble rnd(0.0,1.0);
+	Rand<double> rnd(0.0,1.0);
 	unsigned int N(10);
 	unsigned int iter(0);
 

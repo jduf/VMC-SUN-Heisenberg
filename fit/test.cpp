@@ -12,7 +12,7 @@ class Myclass{
 			Vector<double> y(m);
 			Vector<double> yfit(m);
 			Vector<double> x(m);
-			RandDouble rnd(0,5);
+			Rand<double> rnd(0,5);
 			for(unsigned int i(0);i<m;i++){
 				x(i) = i;
 				y(i) = 0.5*i*i+3*i+4+rnd.get();
