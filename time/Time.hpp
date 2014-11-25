@@ -32,8 +32,7 @@ class Time{
 		bool limit_reached(time_t const& limit) const 
 		{ return time(0)>limit+rawtime_; }
 		/*!Returns true if time limit (in second) has been reached*/
-		bool progress(time_t const& every_s_seconds)
-		{
+		bool progress(time_t const& every_s_seconds) {
 			if(time(0) > (every_s_seconds+lastcall_)){
 				lastcall_ = time(0); 
 				return true;
