@@ -3,26 +3,6 @@
 
 #include "Chain.hpp"
 
-/*{Description*/
-/*!1D chain with all hopping term having the same amplitude. The band structure
- * looks like this :
- *
- *     n_ even, bc_ = 1 |    bc_ = -1
- *                      | 
- *           +          |      + +
- *         +   +        |    +     +
- *       +       +      |  +         +
- *                 +    | 
- *     -----------------|---------------
- *     n_ odd, bc_ = 1  |    bc_ = -1
- *                      | 
- *           +          |      + +
- *         +   +        |    +     +
- *       +       +      |            +
- *     -----------------|---------------
- *  
- */
-/*}*/
 template<typename Type>
 class ChainFermi: public Chain<Type>{
 	public:

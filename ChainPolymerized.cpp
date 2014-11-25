@@ -7,12 +7,16 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 {
 	if(status_==1){
 		init_fermionic();
-
 		filename_ += "-delta" + tostring(delta_);
-		system_info_.text("+ Spin chain, with different real hopping term.");
-		system_info_.text("  For N colors and m particules per sites, every");
-		system_info_.text("  N/m, there is a weaker bound, namely t-delta");
-		system_info_.text("  instead of t+delta. (t=1,delta>0) :");
+		if(!are_equal(delta,0)){
+			system_info_.text("+ Spin chain, with different real hopping term.");
+			system_info_.text("  For N colors and m particules per sites, every");
+			system_info_.text("  N/m, there is a weaker bound, namely t-delta");
+			system_info_.text("  instead of t+delta. (t=1,delta>0) :");
+		} else {
+			system_info_.text("+ Spin chain with real and identical hopping");
+			system_info_.text("  term between each sites :");
+		}
 	}
 }
 

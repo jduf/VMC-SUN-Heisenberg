@@ -5,29 +5,44 @@
 
 /*{Description*/
 /*!The main goal of this class is the selection of eigenvectors that will give
- * a minimal energy. The secondary one, is the visualization of the band
- * structure.
+ * a minimal energy in agreement with periodic boundary condition. The
+ * secondary one, is the visualization of the band structure.
  *
- * For a ChainFermi and ChainPolymerized, the band structure is even and
- * each level is either non-degenerate or doubly degenerate. Therefore, for
- * a given energy level, there is no need to look for the eigenvector with
- * minimal impulsion as both of them will have the same absolute value.
- * !!!WRONG!!!
+ * 1D chain with all hopping term having the same amplitude. The band structure
+ * looks like this :
  *
- * When there is a degeneracy, the following happens : 
+ *     n_ even, bc_ = 1 |    bc_ = -1
+ *                      | 
+ *           +          |      + +
+ *         +   +        |    +     +
+ *       +       +      |  +         +
+ *                 + (1)|(3)
+ *     -----------------|---------------
+ *     n_ odd, bc_ = 1  |    bc_ = -1
+ *                      | 
+ *           +          |      + +
+ *         +   +        |    +     +
+ *       +       +   (2)|(4)         +
+ *     -----------------|---------------
  *
- * + select all eigenvectors corresponding to an energy below E_F
- * + select the same eigenvector (as the same impulsion) for all colors
+ * For the polymerized case, with N/m=spuc and spuc integer, unit cell contains
+ * spuc sites and the brioullin zone is accordingly reduced. spuc!=1 when
+ * di/tri/...-merization is created by ChainPolymerized with different hopping
+ * term every spuc sites (delta!=0). It those cases, the selection of
+ * eigenvector unequivocal and there is no need to worry further. But when
+ * delta==0, ChainFermi and ChainPolymerized are equivalent and suffers from
+ * the same problem, the selection of eigenvector is equivocal because at the
+ * "Fermi" level, the energies are degenerate. The only case when this can be
+ * avoided is when (spuc && n) are even and n/spuc is odd because the band
+ * structure (1) selects unequivocally the good eigenvectors. For all other
+ * cases, the following method should be applied : 
  *
- * It has been checked that this method works for 
- *
- * + SU(2) m=1
- * + SU(3) m=1
- * + SU(4) m=2 (works for n>=40)
- *
- * It has been observed that for those test, the energy found by this method is
- * the one found when the boundary condition are modified. The same could be
- * said about the structure factor altough it is less clear.
+ * + diagonalize H+3T
+ * + use the eigenvectors to compute e,kx
+ * + make a linear combination of the degenerate eigenvectors |E_F,+>,|E_F,->
+ * such that the new ones are |0>=|E_F,+>+|E_F,-> and |k>=|E_F,+>-|E_F,->
+ * + |0> should be real an |k> complex
+ * + select |0> to complete the selection of eigenvectors
  */
 /*}*/
 template<typename Type>
@@ -143,25 +158,6 @@ void System1D<Type>::compute_band_structure(){
 	Vector<std::complex<double> > eval;
 	Lapack<Type>(M,true,'G').eigensystem(eval,&evec_);
 
-	Vector<unsigned int> index;
-	e_.set(this->n_);
-	for(unsigned int i(0);i<this->n_;i++){ e_(i) = projection(H_,i).real(); }
-	e_.sort(std::less_equal<double>(),index);
-
-	Matrix<std::complex<double> > evec_tmp(evec_);
-	Vector<std::complex<double> > eval_tmp(eval);
-	for(unsigned int i(0);i<this->n_;i++){
-		for(unsigned int j(0);j<this->n_;j++){
-			std::swap(evec_(i,j),evec_tmp(i,index(j)));
-		}
-		std::swap(eval(i),eval_tmp(index(i)));
-	}
-
-	p_.set(this->n_);
-	for(unsigned int i(0);i<this->n_;i++){
-		p_(i) = log(projection(T_,i)).imag();
-	}
-
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(i+1);j<this->n_;j++){
 			if(are_equal(eval(i),eval(j),1e-10,1e-10)){
@@ -171,20 +167,28 @@ void System1D<Type>::compute_band_structure(){
 			}
 		}
 	}
-	if(this->degenerate_){ std::cerr<<"void System1D<Type>::compute_band_structure() : degenerate"<<std::endl; }
+	if(this->degenerate_){
+		std::cerr<<"void System1D<Type>::compute_band_structure() : degenerate"<<std::endl; 
+	} else {
+		Vector<unsigned int> index;
+		e_.set(this->n_);
+		for(unsigned int i(0);i<this->n_;i++){ e_(i) = projection(H_,i).real(); }
+		e_.sort(std::less_equal<double>(),index);
 
-	std::cout<<"val"<<std::endl;
-	std::cout<<eval.chop()<<std::endl;
-	std::cout<<"p"<<std::endl;
-	std::cout<<p_<<std::endl;
-	std::cout<<"e"<<std::endl;
-	std::cout<<e_<<std::endl;
-	////std::cout<<T_<<std::endl;
-	//std::cout<<H_<<std::endl;
-	//std::cout<<"vec"<<std::endl;
-	//std::cout<<evec_.chop()<<std::endl;
-	
+		Matrix<std::complex<double> > evec_tmp(evec_);
+		Vector<std::complex<double> > eval_tmp(eval);
+		for(unsigned int i(0);i<this->n_;i++){
+			for(unsigned int j(0);j<this->n_;j++){
+				std::swap(evec_(i,j),evec_tmp(i,index(j)));
+			}
+			std::swap(eval(i),eval_tmp(index(i)));
+		}
 
+		p_.set(this->n_);
+		for(unsigned int i(0);i<this->n_;i++){
+			p_(i) = log(projection(T_,i)).imag();
+		}
+	}
 }
 
 template<typename Type>
