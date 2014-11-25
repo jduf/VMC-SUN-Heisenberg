@@ -59,7 +59,7 @@ class MonteCarlo{
 		unsigned int const tmax_;//!< Time limit in second, by default 5min
 		MCSystem<Type>* S_;		//!< Pointer to a Fermionic or Bosonic System 
 		Time time_; 			//!< To stop the simulation after time_limit seconds
-		RandDouble rnd_;		//!< Pointer to a random number generator
+		Rand<double> rnd_;		//!< Pointer to a random number generator
 };
 
 /*constructors and destructor*/

@@ -35,8 +35,8 @@ class MCSystem: public virtual System{
 		unsigned int new_p_[2];//!< sites that are exchanged
 
 		Matrix<unsigned int> s_; //!< s(site,particle)=color
-		RandUnsignedInt n_rnd_;//!< generator of random numbers 
-		RandUnsignedInt m_rnd_;//!< generator of random numbers 
+		Rand<unsigned int> n_rnd_;//!< generator of random numbers 
+		Rand<unsigned int> m_rnd_;//!< generator of random numbers 
 
 	private:
 		/*!Forbid copy*/
