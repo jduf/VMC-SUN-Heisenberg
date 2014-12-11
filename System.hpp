@@ -23,7 +23,7 @@ class System{
 
 	protected:
 		System(System const& s);
-		System():ref_(0),N_(0),m_(0),n_(0),bc_(0){std::cout<<"System::System() : should not be called"<<std::endl;};
+		System():ref_(0),N_(0),m_(0),n_(0),bc_(0){std::cout<<"System::System() : should never be called"<<std::endl;}
 
 		/*variables that will be saved*/
 		Vector<unsigned int> const ref_;//!< type of system 

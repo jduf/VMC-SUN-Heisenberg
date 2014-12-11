@@ -68,9 +68,8 @@ void Chain<Type>::compute_critical_exponents(unsigned int& xi, unsigned int& xf,
 		}
 		auto func = [this](double x, const double* p){ 
 			return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-p[3])+pow(this->n_-x,-p[3]));
-			//return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-2)+pow(this->n_-x,-2));
 		};
-		Fit test(x,y,p,func);
+		Fit(x,y,p,func);
 		d = norm_squared(p(1)-2.0+2.0/this->N_);
 		if(d<bd){
 			bd = d;

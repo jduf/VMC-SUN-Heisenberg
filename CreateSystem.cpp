@@ -46,9 +46,7 @@ void CreateSystem::parse(Parseur& P){
 		ref_(2) = 1;
 		if(P.is_vector("delta")){ 
 			Vector<double> tmp(P.get<Vector<double> >("delta"));
-			for(unsigned int i(0);i<tmp.size();i++){
-				d_.append(tmp(i));
-			}
+			for(unsigned int i(0);i<tmp.size();i++){ d_.append(tmp(i)); }
 		}
 		else { d_.append(P.get<double>("delta")); }
 	}
@@ -128,6 +126,7 @@ void CreateSystem::parse(Parseur& P){
 			}
 		}
 		else { d_.append(P.get<double>("td")); }
+		std::cout<<d_<<std::endl;
 	}
 	if( wf == "honeycombsu4" ){
 		ref_(0) = 6;
@@ -318,7 +317,7 @@ void CreateSystem::error(){
 void CreateSystem::create(){
 	if(RGL_){
 		RGL_->create();
-		if(RGL_->is_degenerate()){
+		if(RGL_->is_degenerate() && type_ == 1){
 			delete RGL_;
 			RGL_=NULL;
 			ref_(1)=2;

@@ -11,6 +11,7 @@ Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& 
 		filename_ += "-td" + tostring(td_);
 		system_info_.text("Honeycomb0pp : 6 sites per unit cell, in the center hexagon there is a 0-flux,");
 		system_info_.text("if td<0, the two other hexagons contain a pi-flux, if td>0, their flux is 0");
+		system_info_.text("th is set to -1");
 	}
 }
 
@@ -18,33 +19,57 @@ Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& 
 void Honeycomb0pp::compute_H(){
 	double th(1.0);
 	H_.set(n_,n_,0);
-	Matrix<int> nb;
-	unsigned int s(0);
-	for(unsigned int i(0);i<Lx_;i++){
-		for(unsigned int j(0);j<Ly_;j++){
-			/*site 0*/
-			s = spuc_*(i+j*Lx_);
-			nb = get_neighbourg(s);
-			H_(s,nb(0,0)) = nb(0,1)*th;
-			H_(s,nb(1,0)) = nb(1,1)*td_;
-			H_(s,nb(2,0)) = nb(2,1)*th;
-
-			/*site 2*/
-			s+=2;
-			nb = get_neighbourg(s);
-			H_(s,nb(0,0)) = nb(0,1)*th;
-			H_(s,nb(1,0)) = nb(1,1)*td_;
-			H_(s,nb(2,0)) = nb(2,1)*th;
-			
-			/*site 2*/
-			s+=2;
-			nb = get_neighbourg(s);
-			H_(s,nb(0,0)) = nb(0,1)*th;
-			H_(s,nb(1,0)) = nb(1,1)*td_;
-			H_(s,nb(2,0)) = nb(2,1)*th;
+	if(N_==3 && m_==1 && n_==72){
+		std::cerr<<"void Honeycomb0pp::compute_H() : using exactly the bond"
+			"connection given by Miklos '72bondlist.dat'."<<std::endl<<
+			"                                 Third column : td=0,th=1."
+			"Fourth column bc. To recover the matrix "<<std::endl<<
+			"                                 '000_0pp_72mx_tmp.dat',"
+			"set th=-1 and td_=2."<<std::endl;
+		IOFiles bond_list("72bondlist.dat",false);
+		Matrix<unsigned int> bl(108,4);
+		Vector<int> bc(108);
+		bond_list>>bl;
+		for(unsigned int i(0);i<links_.row();i++){
+			links_(i,0) = bl(i,0)-1;
+			links_(i,1) = bl(i,1)-1;
 		}
+
+		for(unsigned int i(0);i<links_.row();i++){
+			H_(links_(i,0),links_(i,1)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
+			H_(links_(i,1),links_(i,0)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
+		}
+	} else {
+		Matrix<int> nb;
+		unsigned int s(0);
+		for(unsigned int i(0);i<Lx_;i++){
+			for(unsigned int j(0);j<Ly_;j++){
+				/*site 0*/
+				s = spuc_*(i+j*Lx_);
+				nb = get_neighbourg(s);
+				H_(s,nb(0,0)) = nb(0,1)*th;
+				H_(s,nb(1,0)) = nb(1,1)*td_;
+				H_(s,nb(2,0)) = nb(2,1)*th;
+
+				/*site 2*/
+				s+=2;
+				nb = get_neighbourg(s);
+				H_(s,nb(0,0)) = nb(0,1)*th;
+				H_(s,nb(1,0)) = nb(1,1)*td_;
+				H_(s,nb(2,0)) = nb(2,1)*th;
+
+				/*site 2*/
+				s+=2;
+				nb = get_neighbourg(s);
+				H_(s,nb(0,0)) = nb(0,1)*th;
+				H_(s,nb(1,0)) = nb(1,1)*td_;
+				H_(s,nb(2,0)) = nb(2,1)*th;
+			}
+		}
+		H_ += H_.transpose();
+
+
 	}
-	H_ += H_.transpose();
 }
 
 void Honeycomb0pp::create(){
@@ -95,11 +120,11 @@ void Honeycomb0pp::lattice(){
 	cell(3,0) = exy;
 	cell(3,1) = ey;
 	ps.polygon(cell,"linewidth=1pt,linecolor=red");
-	cell(1,0)*=Lx_;
+	cell(1,0)*= Lx_;
 	cell(2,0) = Lx_*ex + Ly_*exy;
-	cell(2,1)*=Ly_;
-	cell(3,0)*=Ly_;
-	cell(3,1)*=Ly_;
+	cell(2,1)*= Ly_;
+	cell(3,0)*= Ly_;
+	cell(3,1)*= Ly_;
 	ps.polygon(cell,"linewidth=1pt,linecolor=red,linestyle=dashed");
 
 	unsigned int s(0);
@@ -287,27 +312,26 @@ std::string Honeycomb0pp::extract_level_7(){
 }
 
 std::string Honeycomb0pp::extract_level_6(){
-	double min_td(td_);
-	Data<double> min_E;
-	min_E.set_x(0.0);
-
+	Data<double> tmp_E;
+	E_.set_x(1e33);
+	double tmp_td(0);
 	unsigned int nof(0);
 	(*read_)>>nof;
 	for(unsigned int i(0);i<nof;i++){
-		(*read_)>>td_>>E_;
-		if(E_.get_x()<min_E.get_x()){ 
-			min_E = E_;
-			min_td = td_;
+		(*read_)>>tmp_td>>tmp_E;
+		if(tmp_E.get_x()<E_.get_x()){ 
+			E_ = tmp_E;
+			td_ = tmp_td;
 		}
 	}
-	td_ = min_td;
 
+	jd_write_->add_to_header("\n");
 	save();
-	jd_write_->write("energy per site",min_E);
+	jd_write_->write("energy per site",E_);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
-	gp+="set xlabel '$\\dfrac{t_d}{t_h}$'";
-	gp+="set ylabel '$\\dfrac{E}{n}$' rotate by 0 offset 1";
+	gp+="set xlabel '$\\frac{t_d}{t_h}$' offset 17,1.4";
+	gp+="set y2label '$\\dfrac{E}{n}$'";
 	gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
 	gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean'";
 	gp.save_file();

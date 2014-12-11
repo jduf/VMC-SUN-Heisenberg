@@ -97,23 +97,23 @@ void System1D<Type>::select_eigenvectors(unsigned int const& m){
 		compute_T();
 		compute_band_structure();
 	}
-
-	double n1(0);
-	double n2(0);
-	std::complex<double> tmp1;
-	std::complex<double> tmp2;
-	for(unsigned int i(0);i<this->n_;i++){
-		tmp1 = evec_(i,m) + evec_(i,m-1);//k=k1+k2=0
-		tmp2 = evec_(i,m) - evec_(i,m-1);//k=k1-k2=2k1
-		evec_(i,m-1) = tmp1;
-		evec_(i,m) = tmp2;
-		n1 += norm_squared(tmp1);
-		n2 += norm_squared(tmp2);
-	}
-	for(unsigned int i(0);i<this->n_;i++){
-		evec_(i,m-1)/= sqrt(n1);
-		evec_(i,m)  /= sqrt(n2);
-	}
+//
+	//double n1(0);
+	//double n2(0);
+	//std::complex<double> tmp1;
+	//std::complex<double> tmp2;
+	//for(unsigned int i(0);i<this->n_;i++){
+		//tmp1 = evec_(i,m) + evec_(i,m-1);//k=k1+k2=0
+		//tmp2 = evec_(i,m) - evec_(i,m-1);//k=k1-k2=2k1
+		//evec_(i,m-1)= tmp1;
+		//evec_(i,m)  = tmp2;
+		//n1 += norm_squared(tmp1);
+		//n2 += norm_squared(tmp2);
+	//}
+	//for(unsigned int i(0);i<this->n_;i++){
+		//evec_(i,m-1)/= sqrt(n1);
+		//evec_(i,m)  /= sqrt(n2);
+	//}
 }
 
 template<typename Type>
@@ -161,6 +161,7 @@ void System1D<Type>::compute_band_structure(){
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(i+1);j<this->n_;j++){
 			if(are_equal(eval(i),eval(j),1e-10,1e-10)){
+				std::cout<<i<<" "<<j<<std::endl;
 				this->degenerate_ = true;
 				std::cout<<"H+T eigenvalue degenerate"<<std::endl;
 				i=j=this->n_;

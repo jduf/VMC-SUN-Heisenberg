@@ -135,7 +135,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gp+="     "+tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merization="+tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
 	gp+="     "+tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
 	gp.save_file();
-	gp.create_image(true);
+	//gp.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlation on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
 	/*}*/
 	/*!long range correlations*/
@@ -167,7 +167,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gplr+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
 	gplr+="     f(x) lc 7 lw 0.5 t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
 	gplr.save_file();
-	gplr.create_image(true);
+	//gplr.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
 	/*}*/
 	/*!structure factor*/
@@ -204,7 +204,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gpsf+="plot '"+filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";
 	gpsf+="     '"+filename_+"-structure-factor.dat' u 1:3 lt 1 lc 7 t 'imag'";
 	gpsf.save_file();
-	gpsf.create_image(true);
+	//gpsf.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-structure-factor.png","Structure factor",analyse_+path_+dir_+filename_+"-structure-factor.gp",1000);
 	/*}*/
 	/*!save some additionnal values */
@@ -231,19 +231,22 @@ std::string ChainPolymerized::extract_level_6(){
 	double polymerization_strength;
 	double tmp_polymerization_strength;
 	double tmp_delta;
-	unsigned int idx(0);
 	unsigned int nof(0);
 	(*read_)>>nof;
+
+	bool checked_zero(false);
 	for(unsigned int i(0);i<nof;i++){
 		(*read_)>>tmp_delta>>tmp_E>>tmp_polymerization_strength>>tmp_exponents;
 		if(tmp_E.get_x()<E_.get_x()){ 
-			idx = i;
 			E_ = tmp_E;
 			delta_ = tmp_delta;
 			polymerization_strength = tmp_polymerization_strength;
 			exponents = tmp_exponents;
 		}
+		if(are_equal(tmp_delta,0)){ checked_zero = true;}
 	}
+
+	if(!checked_zero){ std::cerr<<"need to run delta = 0 for "<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<std::endl; }
 
 	jd_write_->add_to_header("\n");
 	save();
@@ -252,33 +255,21 @@ std::string ChainPolymerized::extract_level_6(){
 	jd_write_->write("critical exponents",exponents);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
+	gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc=$"+tostring(bc_)+"$'";
 	gp+="set xlabel '$\\delta$' offset 0,1";
 	gp+="set y2label '$\\dfrac{E}{n}$' rotate by 0";
-	gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$'";
-	if(idx==0){
-		gp.xrange("0.0","");
-		gp+="f(x) = a+b*x**eta";
-		gp+="a="+tostring(E_.get_x());
-		gp+="b=1";
-		gp+="eta=1";
-		gp+="set fit quiet";
-		gp+="fit f(x) '"+filename_+".dat' u 1:($6==0?$2:1/0):3 zerror via a,b,eta";
-		gp+="plot '"+filename_+".dat' u 1:(($5==0 && $6==1)?$2:1/0):3 lc 5 w e t 'Not Converged',\\";
-		gp+="     '"+filename_+".dat' u 1:(($5==1 && $6==1)?$2:1/0):3 lc 6 w e t 'Converged',\\";
-		gp+="     '"+filename_+".dat' u 1:($6==0?$2:1/0):3 lc 7 w e t 'Mean',\\";
-		gp+="     f(x) lc 7 lw 0.5 t sprintf('eta %3.4f',eta)";
-	} else {
-		gp+="f(x) = a+b*(x-c)*(x-c)";
-		gp+="a="+tostring(E_.get_x());
-		gp+="b=1";
-		gp+="c="+tostring(delta_);
-		gp+="set fit quiet";
-		gp+="fit f(x) '"+filename_+".dat' u 1:($6==0?$2:1/0):3 zerror via a,b,c";
-		gp+="plot '"+filename_+".dat' u 1:(($5==0 && $6==1)?$2:1/0):3 lc 5 w e t 'Not Converged',\\";
-		gp+="     '"+filename_+".dat' u 1:(($5==1 && $6==1)?$2:1/0):3 lc 6 w e t 'Converged',\\";
-		gp+="     '"+filename_+".dat' u 1:($6==0?$2:1/0):3 lc 7 w e t 'Mean',\\";
-		gp+="     f(x) lc 7 lw 0.5 t sprintf('min %3.4f',c)";
-	}
+	gp.xrange("0.0","");
+	gp+="f(x) = "+std::string(are_equal(delta_,0)?"a+b*x**c":"a+b*(x-c)*(x-c)"); 
+	gp+="a="+tostring(E_.get_x());
+	gp+="b=1";
+	gp+="c=1";
+	gp+="set fit quiet";
+	gp+="fit f(x) '"+filename_+".dat' u 1:($6==0?$2:1/0):3 zerror via a,b,c";
+	gp+="plot '"+filename_+".dat' u 1:(($5==0 && $6==1)?$2:1/0):3 lc 5 w e t 'Not Converged',\\";
+	gp+="     '"+filename_+".dat' u 1:(($5==1 && $6==1)?$2:1/0):3 lc 6 w e t 'Converged',\\";
+	gp+="     '"+filename_+".dat' u 1:($6==0?$2:1/0):3 lc 7 w e t 'Mean',\\";
+	gp+="     f(x) lc 7 lw 0.5 "+std::string(are_equal(delta_,0)?"notitle":"t sprintf('min %3.4f',c)");
+
 	gp.save_file();
 	gp.create_image(true);
 
@@ -296,7 +287,7 @@ std::string ChainPolymerized::extract_level_5(){
 	jd_write_->write("polymerization strength",polymerization_strength);
 	jd_write_->write("critical exponents",exponents);
 
-	std::cerr<<"level5 "<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<delta_<<" "<<exponents<<std::endl;;
+	std::cerr<<"level5 "<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<delta_<<" "<<E_<<" "<<exponents<<std::endl;;
 	return filename_;
 }
 /*}*/

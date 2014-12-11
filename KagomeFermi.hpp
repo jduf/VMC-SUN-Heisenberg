@@ -2,7 +2,6 @@
 #define DEF_KAGOMEFERMI
 
 #include "Kagome.hpp"
-#include "BandStructure.hpp"
 
 template<typename Type>
 class KagomeFermi: public Kagome<Type>{
