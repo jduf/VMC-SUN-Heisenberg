@@ -12,7 +12,7 @@ int main(int argc, char* argv[]){
 			{
 				unsigned int tmax(10);
 				cs.init();
-				if(cs.get_status()==1){
+				if(cs.get_status()==2){
 					cs.create();
 					IOFiles w("check.jdbin",true);
 					cs.init_output_file(w);
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]){
 				unsigned int tmax(10);
 				do{
 					cs.init();
-					if(cs.get_status()==1){
+					if(cs.get_status()==2){
 						cs.create();
 						IOFiles w("check.jdbin",true);
 						cs.init_output_file(w);

@@ -71,11 +71,9 @@ MonteCarlo<Type>::MonteCarlo(MCSystem<Type>* S, unsigned int const& tmax):
 	rnd_(0.0,1.0)
 {
 	if(S_->get_status()==0){
-		double ratio(0.0);
 		for(unsigned int i(0);i<1e6;i++){
 			S_->swap();
-			ratio = norm_squared(S_->ratio());
-			if( ratio > rnd_.get() ){ S_->update(); }
+			if( norm_squared(S_->ratio()) > rnd_.get() ){ S_->update(); }
 		}
 		S_->measure_new_step();
 	}

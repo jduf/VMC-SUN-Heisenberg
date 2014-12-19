@@ -27,7 +27,7 @@ Triangle<Type>::Triangle(unsigned int const& Lx, unsigned int const& Ly, unsigne
 {
 	std::cerr<<"Triangle::Triangle(N,n,m,filename) : need to set the boundary condition"<<std::endl;
 	std::cerr<<"Triangle::Triangle(N,n,m,filename) : and need to check that they are correct"<<std::endl;
-	if(this->status_==1){ this->compute_links(); }
+	if(this->status_==2){ this->compute_links(); }
 }
 
 template<typename Type>

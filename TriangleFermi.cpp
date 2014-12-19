@@ -4,7 +4,7 @@ TriangleFermi::TriangleFermi(Vector<unsigned int> const& ref, unsigned int const
 	System(ref,N,m,n,M,bc),
 	Triangle<double>(1,1,1,"triangle-fermi")
 {
-	if(status_==1){
+	if(status_==2){
 		init_fermionic();
 
 		system_info_.text("Fermi : all colors experience the same Hamiltonian");
@@ -26,7 +26,7 @@ void TriangleFermi::compute_H(){
 
 void TriangleFermi::create(){
 	compute_H();
-	diagonalize_H(H_);
+	diagonalize(false);
 	for(unsigned int c(0);c<N_;c++){
 		for(unsigned int i(0);i<n_;i++){
 			for(unsigned int j(0);j<M_(c);j++){
@@ -85,7 +85,7 @@ void TriangleFermi::lattice(){
 		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
 	}
 
-	diagonalize_H(H_);
+	diagonalize(false);
 
 	double r(0.2);
 	Vector<double> ada(n_,0);

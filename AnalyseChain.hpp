@@ -6,9 +6,11 @@
 class AnalyseChain : public Analyse{
 	public:
 		AnalyseChain(std::string const& path);
-		~AnalyseChain(){}
+		~AnalyseChain();
 
 	protected:
+		IOFiles* outfile_;//!< file summarizing important datas
+
 		void open_files();
 		void close_files();
 

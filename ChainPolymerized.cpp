@@ -5,7 +5,7 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 	Chain<double>(are_equal(delta,0)?1:N_/m_,"chain-polymerized"),
 	delta_(delta)
 {
-	if(status_==1){
+	if(status_==2){
 		init_fermionic();
 		filename_ += "-delta" + tostring(delta_);
 		if(!are_equal(delta,0)){
@@ -45,7 +45,7 @@ void ChainPolymerized::create(){
 	lr_corr_.set(links_.row(),50,5,false);
 
 	compute_H();
-	diagonalize_H(H_);
+	diagonalize(true);
 	for(unsigned int c(0);c<N_;c++){
 		for(unsigned int i(0);i<n_;i++){
 			for(unsigned int j(0);j<M_(c);j++){
@@ -53,10 +53,28 @@ void ChainPolymerized::create(){
 			}
 		}
 	}
-	if(degenerate_){
-		degenerate_ = false;
+	if(status_==2){
+		/*!Use the eigenvector (k1+k2)/sqrt(2) which correspond to the
+		 * impulsion k1+k2=0.*/
 		compute_H();
-		select_eigenvectors(M_(0));
+		diagonalize(false);
+		double n1(0);
+		double n2(0);
+		std::complex<double> tmp1;
+		std::complex<double> tmp2;
+		unsigned int m(M_(0));
+		for(unsigned int i(0);i<n_;i++){
+			tmp1 = evec_(i,m) + evec_(i,m-1);//k=k1+k2=0
+			tmp2 = evec_(i,m) - evec_(i,m-1);//k=k1-k2=2k1
+			evec_(i,m-1)= tmp1;
+			evec_(i,m)  = tmp2;
+			n1 += norm_squared(tmp1);
+			n2 += norm_squared(tmp2);
+		}
+		for(unsigned int i(0);i<n_;i++){
+			evec_(i,m-1)/= sqrt(n1);
+			evec_(i,m)  /= sqrt(n2);
+		}
 		for(unsigned int c(0);c<N_;c++){
 			for(unsigned int i(0);i<n_;i++){
 				EVec_[c](i,M_(c)-1) = real(evec_(i,M_(c)-1));
@@ -135,7 +153,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gp+="     "+tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merization="+tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
 	gp+="     "+tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
 	gp.save_file();
-	//gp.create_image(true);
+	gp.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlation on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
 	/*}*/
 	/*!long range correlations*/
@@ -167,7 +185,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gplr+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
 	gplr+="     f(x) lc 7 lw 0.5 t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
 	gplr.save_file();
-	//gplr.create_image(true);
+	gplr.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
 	/*}*/
 	/*!structure factor*/
@@ -204,7 +222,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gpsf+="plot '"+filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";
 	gpsf+="     '"+filename_+"-structure-factor.dat' u 1:3 lt 1 lc 7 t 'imag'";
 	gpsf.save_file();
-	//gpsf.create_image(true);
+	gpsf.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-structure-factor.png","Structure factor",analyse_+path_+dir_+filename_+"-structure-factor.gp",1000);
 	/*}*/
 	/*!save some additionnal values */
@@ -273,21 +291,6 @@ std::string ChainPolymerized::extract_level_6(){
 	gp.save_file();
 	gp.create_image(true);
 
-	return filename_;
-}
-
-std::string ChainPolymerized::extract_level_5(){
-	double polymerization_strength;
-	Vector<double> exponents;
-	(*read_)>>E_>>polymerization_strength>>exponents;
-
-	jd_write_->add_to_header("\n");
-	save();
-	jd_write_->write("energy per site",E_);
-	jd_write_->write("polymerization strength",polymerization_strength);
-	jd_write_->write("critical exponents",exponents);
-
-	std::cerr<<"level5 "<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<delta_<<" "<<E_<<" "<<exponents<<std::endl;;
 	return filename_;
 }
 /*}*/

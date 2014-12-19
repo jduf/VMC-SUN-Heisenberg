@@ -4,45 +4,15 @@
 #include "GenericSystem.hpp"
 
 /*{Description*/
-/*!The main goal of this class is the selection of eigenvectors that will give
- * a minimal energy in agreement with periodic boundary condition. The
- * secondary one, is the visualization of the band structure.
+/*!This class allow the diagonalization of the trial hamiltonian and the
+ * visualization of the band structure.
  *
- * 1D chain with all hopping term having the same amplitude. The band structure
- * looks like this :
- *
- *     n_ even, bc_ = 1 |    bc_ = -1
- *                      | 
- *           +          |      + +
- *         +   +        |    +     +
- *       +       +      |  +         +
- *                 + (1)|(3)
- *     -----------------|---------------
- *     n_ odd, bc_ = 1  |    bc_ = -1
- *                      | 
- *           +          |      + +
- *         +   +        |    +     +
- *       +       +   (2)|(4)         +
- *     -----------------|---------------
- *
- * For the polymerized case, with N/m=spuc and spuc integer, unit cell contains
- * spuc sites and the brioullin zone is accordingly reduced. spuc!=1 when
- * di/tri/...-merization is created by ChainPolymerized with different hopping
- * term every spuc sites (delta!=0). It those cases, the selection of
- * eigenvector unequivocal and there is no need to worry further. But when
- * delta==0, ChainFermi and ChainPolymerized are equivalent and suffers from
- * the same problem, the selection of eigenvector is equivocal because at the
- * "Fermi" level, the energies are degenerate. The only case when this can be
- * avoided is when (spuc && n) are even and n/spuc is odd because the band
- * structure (1) selects unequivocally the good eigenvectors. For all other
- * cases, the following method should be applied : 
+ * The band structure is computed as follows :
  *
  * + diagonalize H+3T
  * + use the eigenvectors to compute e,kx
- * + make a linear combination of the degenerate eigenvectors |E_F,+>,|E_F,->
+ * + a linear combination of the degenerate eigenvectors |E_F,+>,|E_F,->
  * such that the new ones are |0>=|E_F,+>+|E_F,-> and |k>=|E_F,+>-|E_F,->
- * + |0> should be real an |k> complex
- * + select |0> to complete the selection of eigenvectors
  */
 /*}*/
 template<typename Type>
@@ -61,7 +31,9 @@ class System1D: public GenericSystem<Type>{
 		/*!Plot the band structure E(p)*/
 		void plot_band_structure();
 		/*!Create the selection of optimal eigenvectors*/
-		void select_eigenvectors(unsigned int const& m);
+		void select_eigenvectors();
+
+		void diagonalize(bool simple);
 
 	private:
 		Matrix<Type> T_;	//!< translation operator along x-axis
@@ -70,8 +42,10 @@ class System1D: public GenericSystem<Type>{
 
 		/*!Compute the translation operator*/
 		void compute_T();
-		/*!Compute the band structure E(p)*/
-		void compute_band_structure();
+		/*!Diagonalize H_*/
+		bool simple_diagonalization();
+		/*!Diagonalize H_+T_ => compute the band structure E(p)*/
+		bool full_diagonalization();
 		/*!Evaluate the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
 };
@@ -92,36 +66,14 @@ System1D<Type>::~System1D(){}
 
 /*{protected methods*/
 template<typename Type>
-void System1D<Type>::select_eigenvectors(unsigned int const& m){
-	if(!p_.size()){
-		compute_T();
-		compute_band_structure();
-	}
-//
-	//double n1(0);
-	//double n2(0);
-	//std::complex<double> tmp1;
-	//std::complex<double> tmp2;
-	//for(unsigned int i(0);i<this->n_;i++){
-		//tmp1 = evec_(i,m) + evec_(i,m-1);//k=k1+k2=0
-		//tmp2 = evec_(i,m) - evec_(i,m-1);//k=k1-k2=2k1
-		//evec_(i,m-1)= tmp1;
-		//evec_(i,m)  = tmp2;
-		//n1 += norm_squared(tmp1);
-		//n2 += norm_squared(tmp2);
-	//}
-	//for(unsigned int i(0);i<this->n_;i++){
-		//evec_(i,m-1)/= sqrt(n1);
-		//evec_(i,m)  /= sqrt(n2);
-	//}
+void System1D<Type>::diagonalize(bool simple){
+	if(simple){ if(simple_diagonalization()){ this->status_--; } }
+	else { if(full_diagonalization()){ this->status_--; } }
 }
 
 template<typename Type>
 void System1D<Type>::plot_band_structure(){
-	if(!p_.size()){
-		compute_T();
-		compute_band_structure();
-	}
+	full_diagonalization();
 
 	IOFiles spectrum("spectrum.dat",true);
 	for(unsigned int i(0);i<this->n_;i++){
@@ -152,7 +104,22 @@ void System1D<Type>::compute_T(){
 }
 
 template<typename Type>
-void System1D<Type>::compute_band_structure(){
+bool System1D<Type>::simple_diagonalization(){
+	Vector<double> eval;
+	Lapack<Type>(H_,false,(this->ref_(1)==1?'S':'H')).eigensystem(eval,true);
+	for(unsigned int c(0);c<this->N_;c++){
+		if(are_equal(eval(this->M_(c)),eval(this->M_(c)-1),1e-12)){
+			std::cerr<<"bool System1D<Type>::simple_diagonalization() :"
+				" degenerate at the Fermi level"<<std::endl;
+			return false;
+		}
+	}
+	return true;
+}
+
+template<typename Type>
+bool System1D<Type>::full_diagonalization(){
+	compute_T();
 	Matrix<Type> M(H_);
 	M += T_*Type(3.0);
 	Vector<std::complex<double> > eval;
@@ -161,35 +128,31 @@ void System1D<Type>::compute_band_structure(){
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(i+1);j<this->n_;j++){
 			if(are_equal(eval(i),eval(j),1e-10,1e-10)){
-				std::cout<<i<<" "<<j<<std::endl;
-				this->degenerate_ = true;
-				std::cout<<"H+T eigenvalue degenerate"<<std::endl;
-				i=j=this->n_;
+				std::cerr<<"bool System1D<Type>::full_diagonalization() :"
+					"eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
+				return false;
 			}
 		}
 	}
-	if(this->degenerate_){
-		std::cerr<<"void System1D<Type>::compute_band_structure() : degenerate"<<std::endl; 
-	} else {
-		Vector<unsigned int> index;
-		e_.set(this->n_);
-		for(unsigned int i(0);i<this->n_;i++){ e_(i) = projection(H_,i).real(); }
-		e_.sort(std::less_equal<double>(),index);
+	Vector<unsigned int> index;
+	e_.set(this->n_);
+	for(unsigned int i(0);i<this->n_;i++){ e_(i) = projection(H_,i).real(); }
+	e_.sort(std::less_equal<double>(),index);
 
-		Matrix<std::complex<double> > evec_tmp(evec_);
-		Vector<std::complex<double> > eval_tmp(eval);
-		for(unsigned int i(0);i<this->n_;i++){
-			for(unsigned int j(0);j<this->n_;j++){
-				std::swap(evec_(i,j),evec_tmp(i,index(j)));
-			}
-			std::swap(eval(i),eval_tmp(index(i)));
+	Matrix<std::complex<double> > evec_tmp(evec_);
+	Vector<std::complex<double> > eval_tmp(eval);
+	for(unsigned int i(0);i<this->n_;i++){
+		for(unsigned int j(0);j<this->n_;j++){
+			std::swap(evec_(i,j),evec_tmp(i,index(j)));
 		}
-
-		p_.set(this->n_);
-		for(unsigned int i(0);i<this->n_;i++){
-			p_(i) = log(projection(T_,i)).imag();
-		}
+		std::swap(eval(i),eval_tmp(index(i)));
 	}
+
+	p_.set(this->n_);
+	for(unsigned int i(0);i<this->n_;i++){
+		p_(i) = log(projection(T_,i)).imag();
+	}
+	return true;
 }
 
 template<typename Type>

@@ -25,7 +25,7 @@ template<typename Type>
 Square<Type>::Square(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
 	System2D<Type>(Lx,Ly,spuc,4,filename,0,0)
 {
-	if(this->status_==1){ this->compute_links(); }
+	if(this->status_==2){ this->compute_links(); }
 }
 
 template<typename Type>
@@ -58,6 +58,22 @@ Matrix<int> Square<Type>::get_neighbourg(unsigned int i) const {
 		nb(3,0) = this->n_-this->spuc_*this->Lx_+i;
 		nb(3,1) = this->bc_;
 	}
+
+	//{
+		//
+///*{ n = p^2(1+alpha^2) }*/
+		//unsigned int alpha(0);
+		//unsigned int p(0);
+		//for(unsigned int i(0); i<sqrt(this->n_);i++){
+			//if(sqrt(this->n_)% i){ 
+				//p = i;
+				//alpha = sqrt(this->n_)% i;
+				//i = this->n_;
+			//}
+		//}
+		//unsigned int sc();
+//
+	//}
 	return nb;
 }
 #endif

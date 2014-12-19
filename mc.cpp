@@ -14,7 +14,7 @@ int main(int argc, char* argv[]){
 	if(!P.status()){
 		do{
 			cs.init();
-			if(cs.get_status()==1){
+			if(cs.get_status()==2){
 				cs.create();
 				if(!cs.is_degenerate()){
 					if(cs.use_complex()){ run<std::complex<double> >(cs,nruns,tmax); } 
@@ -50,7 +50,6 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 	corr.set(cs.get_system()->get_corr().size());
 	lr_corr.set(cs.get_system()->get_lr_corr().size());
 
-
 #pragma omp parallel for 
 	for(unsigned int i=0;i<nruns;i++){
 		MCSystem<Type>* S(NULL);
@@ -68,8 +67,6 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 			file_results.write("energy per site",S->get_energy());
 			file_results.write("correlation on links",S->get_corr());
 			file_results.write("long range correlation",S->get_lr_corr());
-			std::cout<<S->get_energy()<<std::endl;
-			std::cout<<S->get_corr()<<std::endl;
 		}
 		delete S;
 	}

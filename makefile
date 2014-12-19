@@ -25,7 +25,6 @@ all:$(EXEC)
 	cp check ../sim
 	cp study ..
 
-
 .SECONDEXPANSION:
 $(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
 	@echo Links $(notdir $^)

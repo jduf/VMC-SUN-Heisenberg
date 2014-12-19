@@ -4,7 +4,7 @@ KagomeVBC::KagomeVBC(Vector<unsigned int> const& ref, unsigned int const& N, uns
 	System(ref,N,m,n,M,bc),
 	Kagome<std::complex<double> >(1,1,9,"kagome-vbc")
 {
-	if(status_==1){
+	if(status_==2){
 		init_fermionic();
 
 		system_info_.text("KagomeVBC : 9 sites per unit cell, pi-flux through 1/3 of the hexagon");
@@ -73,8 +73,8 @@ void KagomeVBC::create(){
 	corr_.set(links_.row(),50,5,false);
 
 	compute_H();
-	diagonalize_H(H_);
-	if(!degenerate_){
+	diagonalize(false);
+	if(status_==2){
 		for(unsigned int c(0);c<N_;c++){
 			EVec_[c].set(n_,M_(c));
 			for(unsigned int i(0);i<n_;i++){

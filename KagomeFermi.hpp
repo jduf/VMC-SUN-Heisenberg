@@ -26,7 +26,7 @@ KagomeFermi<Type>::KagomeFermi(Vector<unsigned int> const& ref, unsigned int con
 	System(ref,N,m,n,M,bc),
 	Kagome<Type>(1,1,3,"kagome-fermi",sel0,sel1)
 {
-	if(this->status_==1){
+	if(this->status_==2){
 		this->init_fermionic();
 
 		this->system_info_.text("KagomeFermi : All hopping term are identical, no flux, 3 sites per unit cell");

@@ -4,7 +4,7 @@ SquarePiFlux::SquarePiFlux(Vector<unsigned int> const& ref, unsigned int const& 
 	System(ref,N,m,n,M,bc),
 	Square<std::complex<double> >(1,1,N,"square-csl")
 {
-	if(status_==1){
+	if(status_==2){
 		init_fermionic();
 
 		system_info_.text("Chiral spin liquid, with 2pi/N flux per plaquette");
@@ -41,7 +41,7 @@ void SquarePiFlux::create(){
 	corr_.set(links_.row(),50,5,false);
 
 	compute_H();
-	diagonalize_H(H_);
+	diagonalize(false);
 	for(unsigned int c(0);c<N_;c++){
 		EVec_[c].set(n_,M_(c));
 		for(unsigned int i(0);i<n_;i++){

@@ -4,6 +4,39 @@
 #include "System1D.hpp"
 #include "Fit.hpp"
 
+/*{Description*/
+/*!1D chain with all hopping term having the same amplitude. The band structure
+ * looks like this :
+ *
+ *     n_ even, bc_ = 1 |    bc_ = -1
+ *                      | 
+ *           +          |      + +
+ *         +   +        |    +     +
+ *       +       +      |  +         +
+ *                 + (1)|(3)
+ *     -----------------|---------------
+ *     n_ odd, bc_ = 1  |    bc_ = -1
+ *                      | 
+ *           +          |      + +
+ *         +   +        |    +     +
+ *       +       +   (2)|(4)         +
+ *     -----------------|---------------
+ *
+ * For the polymerized case, with N/m=spuc and spuc integer, unit cell contains
+ * spuc sites and the brioullin zone is accordingly reduced. spuc!=1 when
+ * di/tri/...-merization is created by ChainPolymerized with different hopping
+ * term every spuc sites (delta!=0). It those cases, the selection of
+ * eigenvector is unequivocal and there is no need to worry further. But when
+ * delta==0, ChainFermi and ChainPolymerized are equivalent and may suffers
+ * from the same problem, the selection of eigenvector may be equivocal because
+ * at the Fermi level, the energies are degenerate :
+ *
+ * + N/m is odd, always degenerate but no discontinuity when delta->0 if the
+ * |0> is selected
+ * + N/m is even, everything works properly when nm/N is odd but if it is even,
+ * then E(|0>) > E(delta->0) > E(|E_F,+>)
+ */
+/*}*/
 template<typename Type>
 class Chain: public System1D<Type>{
 	public:
@@ -28,7 +61,7 @@ template<typename Type>
 Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,2,filename)
 {
-	if(this->status_==1){ this->compute_links(); }
+	if(this->status_==2){ this->compute_links(); }
 }
 
 template<typename Type>

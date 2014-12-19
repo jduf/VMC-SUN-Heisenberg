@@ -9,7 +9,7 @@ System::System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned 
 	n_(n),
 	M_(M),
 	bc_(bc),
-	status_(3)
+	status_(4)
 {
 	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<"System::System(N,n,m,M,bc,ref) : Bad initialization"<<std::endl; } 
 	else{status_--;}

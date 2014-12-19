@@ -6,9 +6,9 @@ void KagomeFermi<double>::create(){
 	corr_.set(links_.row(),50,5,false);
 
 	compute_H();
-	diagonalize_H(H_);
+	diagonalize(false);
 
-	if(!degenerate_){
+	if(status_==2){
 		for(unsigned int c(0);c<N_;c++){
 			EVec_[c].set(n_,M_(c));
 			for(unsigned int i(0);i<n_;i++){
@@ -28,7 +28,7 @@ void KagomeFermi<std::complex<double> >::create(){
 	compute_H();
 	select_eigenvectors();
 
-	if(!degenerate_){
+	if(status_==2){
 		for(unsigned int c(0);c<N_;c++){
 			EVec_[c].set(n_,M_(c));
 			for(unsigned int i(0);i<n_;i++){

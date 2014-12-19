@@ -5,7 +5,7 @@ Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& 
 	Honeycomb<double>(4,3,6,"honeycomb0pp"),
 	td_(td)
 {
-	if(status_==1){
+	if(status_==2){
 		init_fermionic();
 
 		filename_ += "-td" + tostring(td_);
@@ -77,7 +77,7 @@ void Honeycomb0pp::create(){
 	corr_.set(links_.row(),50,5,false);
 
 	compute_H();
-	diagonalize_H(H_);
+	diagonalize(false);
 	for(unsigned int c(0);c<N_;c++){
 		for(unsigned int i(0);i<n_;i++){
 			for(unsigned int j(0);j<M_(c);j++){

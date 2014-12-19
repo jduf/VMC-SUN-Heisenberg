@@ -6,15 +6,16 @@ void SquareFermi<double>::create(){
 	corr_.set(links_.row(),50,5,false);
 
 	compute_H();
-	diagonalize_H(H_);
-	for(unsigned int c(0);c<N_;c++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = H_(i,j);
+	diagonalize(true);
+	if(status_==1){
+		for(unsigned int c(0);c<N_;c++){
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = H_(i,j);
+				}
 			}
 		}
 	}
-	//degenerate_=false;
 }
 
 template<>
@@ -24,8 +25,9 @@ void SquareFermi<std::complex<double> >::create(){
 	corr_.set(links_.row(),50,5,false);
 
 	compute_H();
+	diagonalize(false);
 	select_eigenvectors();
-	if(!degenerate_){
+	if(status_==1){
 		for(unsigned int c(0);c<N_;c++){
 			for(unsigned int i(0);i<n_;i++){
 				for(unsigned int j(0);j<M_(c);j++){
@@ -35,32 +37,31 @@ void SquareFermi<std::complex<double> >::create(){
 		}
 	}
 	H_.set();
-	degenerate_=true;
 }
 
-	//if(degenerate_){
-		//Matrix<double> tmp(H_);
-		//compute_H();
-		//H_(1,0) -= 0.0001;
-		//H_(0,1) -= 0.0001;
-		//Vector<double> eval0;
-		//Lapack<double>(H_,false,'S').eigensystem(eval0,true);
-		//unsigned int c(0);
-		//unsigned int a(this->M_(c)-1);
-		//unsigned int b(a);
-		//do{b++;} while (b+1<this->n_ && are_equal(eval0(b),eval0(b-1)));
-		//if(b!=this->M_(c)){ while(a>0 && are_equal(eval0(a-1),eval0(a))){a--;} }
-		//for(unsigned int c(0);c<N_;c++){
-			//for(unsigned int i(0);i<n_;i++){
-				//for(unsigned int j(a);j<M_(c);j++){
-					//EVec_[c](i,j) = H_(i,j);
-				//}
-			//}
-		//}
-		//std::cout<<H_.chop()<<std::endl;
-		//std::cout<<std::endl;
-		//std::cout<<tmp.chop()<<std::endl;
-		//std::cout<<std::endl;
-		//std::cout<<(H_-tmp).chop()<<std::endl;
-		//degenerate_ = false;
-	//}
+//if(degenerate_){
+//Matrix<double> tmp(H_);
+//compute_H();
+//H_(1,0) -= 0.0001;
+//H_(0,1) -= 0.0001;
+//Vector<double> eval0;
+//Lapack<double>(H_,false,'S').eigensystem(eval0,true);
+//unsigned int c(0);
+//unsigned int a(this->M_(c)-1);
+//unsigned int b(a);
+//do{b++;} while (b+1<this->n_ && are_equal(eval0(b),eval0(b-1)));
+//if(b!=this->M_(c)){ while(a>0 && are_equal(eval0(a-1),eval0(a))){a--;} }
+//for(unsigned int c(0);c<N_;c++){
+//for(unsigned int i(0);i<n_;i++){
+//for(unsigned int j(a);j<M_(c);j++){
+//EVec_[c](i,j) = H_(i,j);
+//}
+//}
+//}
+//std::cout<<H_.chop()<<std::endl;
+//std::cout<<std::endl;
+//std::cout<<tmp.chop()<<std::endl;
+//std::cout<<std::endl;
+//std::cout<<(H_-tmp).chop()<<std::endl;
+//degenerate_ = false;
+//}

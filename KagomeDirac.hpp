@@ -26,7 +26,7 @@ KagomeDirac<Type>::KagomeDirac(Vector<unsigned int> const& ref, unsigned int con
 	System(ref,N,m,n,M,bc),
 	Kagome<Type>(2,3,6,"kagome-dirac")
 {
-	if(this->status_==1){
+	if(this->status_==2){
 		this->init_fermionic();
 
 		this->system_info_.text("KagomeDirac : 3 sites per unit cell, pi-flux per hexagon,");

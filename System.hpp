@@ -3,7 +3,15 @@
 
 #include "Sampling.hpp"
 
-/*!Class that contains the information on the state*/
+/*!{Class that contains the information on the state*/
+/*
+ * status_ = 4 : System is initialized (in System)
+ * status_ = 3 : System is allowed (in System)
+ * status_ = 2 : Degenerated wavefunction
+ * status_ = 1 : System*D is allowed (in System*D)
+ * status_ = 0 : Found an initial state (in SystemFermionic)
+ */
+/*}*/
 class System{
 	public:
 		System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);

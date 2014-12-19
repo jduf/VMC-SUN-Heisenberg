@@ -12,16 +12,18 @@ class System2D: public GenericSystem<Type>{
 		virtual ~System2D()=0;
 
 	protected:
-		Matrix<Type> H_;			//!< matrix used to get the band structure
-		unsigned int const Lx_;		//!< number of unit cell along the x-axis
-		unsigned int const Ly_;		//!< number of unit cell along the y-axis
-		Vector<unsigned int>* select_;
+		Matrix<Type> H_;		//!< matrix used to get the band structure
+		unsigned int const Lx_;	//!< number of unit cell along the x-axis
+		unsigned int const Ly_;	//!< number of unit cell along the y-axis
 		Matrix<std::complex<double> > evec_;//!< eigenvectors of H+Tx+Ty
+		Vector<unsigned int>* select_;
 
 		/*!Plot the band structure E(px,py)*/
 		void plot_band_structure();
 		/*!Create the selection of optimal eigenvectors*/
 		void select_eigenvectors();
+
+		void diagonalize(bool simple);
 
 	private:
 		Matrix<Type> Tx_;	//!< translation operator along x-axis
@@ -32,8 +34,10 @@ class System2D: public GenericSystem<Type>{
 
 		/*!Compute the translation operators*/
 		void compute_TxTy();
-		/*!Compute the band structure E(px,py)*/
-		void compute_band_structure();
+		/*!Diagonalize H_*/
+		bool simple_diagonalization();
+		/*!Diagonalize H_+T_ => compute the band structure E(p)*/
+		bool full_diagonalization();
 		/*!Evaluate the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
 
@@ -68,11 +72,14 @@ System2D<Type>::~System2D(){
 
 /*{protected methods*/
 template<typename Type>
+void System2D<Type>::diagonalize(bool simple){
+	if(simple){ if(simple_diagonalization()){ this->status_--; } }
+	else { if(full_diagonalization()){ this->status_--; } }
+}
+
+template<typename Type>
 void System2D<Type>::plot_band_structure(){
-	if(!px_.size()){
-		compute_TxTy();
-		compute_band_structure();
-	}
+	full_diagonalization();
 
 	IOFiles spectrum("spectrum.dat",true);
 	for(unsigned int i(0);i<this->n_;i++){
@@ -134,10 +141,6 @@ void System2D<Type>::select_eigenvectors(){
 
 */
 	/*}*/
-	if(!px_.size()){
-		compute_TxTy();
-		compute_band_structure();
-	}
 	unsigned int c(0);
 	unsigned int a(this->M_(c)-1);
 	unsigned int b(this->M_(c)-1);
@@ -215,12 +218,37 @@ void System2D<Type>::compute_TxTy(){
 }
 
 template<typename Type>
-void System2D<Type>::compute_band_structure(){
+bool System2D<Type>::simple_diagonalization(){
+	Vector<double> eval;
+	Lapack<Type>(H_,false,(this->ref_(1)==1?'S':'H')).eigensystem(eval,true);
+	for(unsigned int c(0);c<this->N_;c++){
+		if(are_equal(eval(this->M_(c)),eval(this->M_(c)-1),1e-12)){
+			std::cerr<<"bool System2D<Type>::simple_diagonalization() :"
+				" degenerate at the Fermi level"<<std::endl;
+			return false;
+		}
+	}
+	return true;
+}
+
+template<typename Type>
+bool System2D<Type>::full_diagonalization(){
+	compute_TxTy();
 	Matrix<Type> M(H_);
 	M += Tx_*Type(3.0);
 	M += Ty_*Type(7.0);
 	Vector<std::complex<double> > eval;
 	Lapack<Type>(M,true,'G').eigensystem(eval,&evec_);
+
+	for(unsigned int i(0);i<this->n_;i++){
+		for(unsigned int j(i+1);j<this->n_;j++){
+			if(are_equal(eval(i),eval(j),1e-10,1e-10)){
+				std::cerr<<"bool System2D<Type>::full_diagonalization() :"
+					"eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
+				return false;
+			}
+		}
+	}
 	Vector<unsigned int> index;
 	e_.set(this->n_);
 	for(unsigned int i(0);i<this->n_;i++){ e_(i) = projection(H_,i).real(); }
@@ -241,18 +269,7 @@ void System2D<Type>::compute_band_structure(){
 		px_(i) = log(projection(Tx_,i)).imag();
 		py_(i) = log(projection(Ty_,i)).imag();
 	}
-
-	unsigned int nbr_deg(0);
-	for(unsigned int i(0);i<this->n_;i++){
-		for(unsigned int j(i+1);j<this->n_;j++){
-			if(are_equal(eval(i),eval(j),1e-14,1e-12)){
-				//std::cerr<<px_(i)<<" "<<px_(j)<<" "<<py_(i)<<" "<<py_(j)<<" "<<e_(i)<<" "<<e_(j)<<" "<<eval(i)<<" "<<eval(j)<<std::endl;
-				nbr_deg++;
-				j=this->n_;
-			}
-		}
-	}
-	std::cerr<<"eval degenerate "<<nbr_deg<<" times"<<std::endl;
+	return true;
 }
 
 template<typename Type>

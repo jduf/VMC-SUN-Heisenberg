@@ -25,7 +25,7 @@ template<typename Type>
 Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename, unsigned int const& sel0, unsigned int const& sel1):
 	System2D<Type>(Lx,Ly,spuc,4,filename,sel0,sel1)
 {
-	if(this->status_==1){ this->compute_links(); }
+	if(this->status_==2){ this->compute_links(); }
 }
 
 template<typename Type>

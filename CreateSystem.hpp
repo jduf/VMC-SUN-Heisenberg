@@ -72,18 +72,11 @@ class CreateSystem{
 		/*{Other class calls*/
 		/*!Calls Fermionic::is_degenerate()*/
 		bool is_degenerate() const {
-			if(RGL_){return RGL_->is_degenerate();}
-			if(CGL_){return CGL_->is_degenerate();}
+			if(RGL_){return RGL_->get_status()>1;}
+			if(CGL_){return CGL_->get_status()>1;}
 			return true;
 		}
-		/*{!Calls System::get_status()
-		 *status_ = 10: GenericSystem<Type> is not defined
-		 * status_ = 3 : System is initialized (in System)
-		 * status_ = 2 : System is allowed (in System)
-		 * status_ = 1 : System*D is allowed (in System*D)
-		 * status_ = 0 : Found an initial state (in SystemFermionic)
-		 */
-		/*}*/
+		/*!Calls System::get_status() : see System.hpp*/
 		unsigned int get_status() const {
 			if(RGL_){return RGL_->get_status();}
 			if(CGL_){return CGL_->get_status();}

@@ -23,7 +23,7 @@ SquareFermi<Type>::SquareFermi(Vector<unsigned int> const& ref, unsigned int con
 	System(ref,N,m,n,M,bc),
 	Square<Type>(1,1,1,"square-fermi")
 {
-	if(this->status_==1){
+	if(this->status_==2){
 		this->init_fermionic();
 
 		this->system_info_.text("Fermi : all colors experience the same Hamiltonian");
@@ -100,7 +100,7 @@ void SquareFermi<Type>::check(){
 	//std::cout<<a<<" "<<b<<std::endl;
 	this->compute_H();
 	this->plot_band_structure();
-	this->degenerate_ = true;
+	this->status_++;
 }
 /*}*/
 #endif
