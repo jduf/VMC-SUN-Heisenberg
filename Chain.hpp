@@ -85,32 +85,47 @@ Matrix<int> Chain<Type>::get_neighbourg(unsigned int i) const {
 
 template<typename Type>
 void Chain<Type>::compute_critical_exponents(unsigned int& xi, unsigned int& xf, Vector<double>& exponents, Vector<double> const& lrc){
-	double d(10);
-	double bd(10);
 	Vector<double> x;
 	Vector<double> y;
-	Vector<double> p(4,2);
-	p(1) -= 2.0/this->N_;
-
-	for(unsigned int s(1);s<lrc.size()/3;s++){
-		x.set(lrc.size()-2*s+1);
-		y.set(lrc.size()-2*s+1);
-		for(unsigned int i(0);i<x.size();i++){
-			x(i) = i+s;
-			y(i) = lrc(i+s);
-		}
-		auto func = [this](double x, const double* p){ 
-			return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-p[3])+pow(this->n_-x,-p[3]));
-		};
-		Fit(x,y,p,func);
-		d = norm_squared(p(1)-2.0+2.0/this->N_);
-		if(d<bd){
-			bd = d;
-			xi = s;
-			xf = this->n_-s; 
-			exponents = p;
-		}
+	//Vector<double> p(3,2);
+	//p(1) -= 2.0/this->N_;
+	//double d(10);
+	//double bd(10);
+	//auto func = [this](double x, const double* p){ 
+		//return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-p[3])+pow(this->n_-x,-p[3]));
+	//};
+	auto func = [this](double x, const double* p){ 
+		return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-2.0)+pow(this->n_-x,-2.0));
+	};
+	//for(unsigned int s(1);s<lrc.size()/3;s++){
+		//x.set(lrc.size()-2*s+1);
+		//y.set(lrc.size()-2*s+1);
+		//for(unsigned int i(0);i<x.size();i++){
+			//x(i) = i+s;
+			//y(i) = lrc(i+s);
+		//}
+		//Fit(x,y,p,func);
+		//d = norm_squared(p(1)-2.0+2.0/this->N_);
+		//if(d<bd){
+			//bd = d;
+			//xi = s;
+			//xf = this->n_-s; 
+			//exponents = p;
+		//}
+	//}
+	//if(xi != this->N_/this->m_){ std::cerr<<"fit : ["<<xi<<":"<<xf<<"] "<<this->N_<<" "<<this->m_<<" "<<this->n_<<std::endl; }
+	unsigned int s(this->N_/this->m_);
+	x.set(lrc.size()-2*s+1);
+	y.set(lrc.size()-2*s+1);
+	for(unsigned int i(0);i<x.size();i++){
+		x(i) = i+s;
+		y(i) = lrc(i+s);
 	}
+	exponents.set(3,2);
+	exponents(1) -= 2.0/this->N_;
+	Fit(x,y,exponents,func);
+	xi = s;
+	xf = this->n_-s; 
 }
 
 template<typename Type>

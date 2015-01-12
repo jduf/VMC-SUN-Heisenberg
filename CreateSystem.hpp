@@ -114,6 +114,7 @@ class CreateSystem{
 		Vector<unsigned int> M_;
 		int const bc_;
 		List<double> d_;
+		List<Vector<double> > vd_;
 		unsigned int type_;
 		bool over_;
 		unsigned int sel0_;

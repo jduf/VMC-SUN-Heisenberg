@@ -44,11 +44,26 @@ void CreateSystem::parse(Parseur& P){
 		ref_(0) = 2;
 		ref_(1) = 1;
 		ref_(2) = 1;
-		if(P.is_vector("delta")){ 
-			Vector<double> tmp(P.get<Vector<double> >("delta"));
-			for(unsigned int i(0);i<tmp.size();i++){ d_.append(tmp(i)); }
+		Vector<double> ti(N_/m_,1);
+		if(N_ == 8 && m_ == 2){
+			unsigned int c(0);
+			if(P.is_vector("t2")){ c+=1; }
+			if(P.is_vector("t4")){ c+=2; }
+			switch(c){
+				case 0:{
+						   ti(2) = P.get<double>("t2");
+						   ti(4) = P.get<double>("t4");
+						   vd_.append(ti);
+					   }break;
+				default:{std::cerr<<"void CreateSystem::parse(Parseur& P) : unknown tij"<<std::endl; }
+			}
 		}
-		else { d_.append(P.get<double>("delta")); }
+		else { 
+			for(unsigned int j(0);j<ti.size()-1;j++){
+				ti(j) = 1+P.get<double>("delta");
+			}
+			ti(ti.size()-1) = 1-P.get<double>("delta");
+			vd_.append(ti); }
 	}
 
 	if( wf == "trianglefermi" ){
@@ -156,10 +171,12 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 									}break;
 								case 1:
 									{
-										if(read){ d_.append(read->read<double>()); }
-										RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,d_.last());
-										d_.pop();
-										if(!d_.size()){ over_ = true; }
+										if(read){ RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,read->read<Vector<double> >()); } 
+										else { 
+											RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,vd_.last()); 
+											vd_.pop();
+											if(!vd_.size()){ over_ = true; }
+										}
 									}break;
 								default: {error();}break;
 							}
