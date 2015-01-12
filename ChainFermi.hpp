@@ -204,7 +204,7 @@ std::string ChainFermi<Type>::extract_level_6(){
 	unsigned int nof(0);
 	(*this->read_)>>nof>>this->E_>>polymerization_strength>>exponents;
 
-	this->jd_write_->add_to_header("\n");
+	this->jd_write_->add_header()->nl();
 	this->save();
 	this->jd_write_->write("energy per site",this->E_);
 	this->jd_write_->write("polymerization strength",polymerization_strength);

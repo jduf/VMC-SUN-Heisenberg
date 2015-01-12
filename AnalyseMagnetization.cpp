@@ -10,7 +10,7 @@ void AnalyseMagnetization::open_files(){
 	}
 	if(level_ == 4){
 		jd_write_->write("number of jdfiles",nof_);
-		jd_write_->add_to_header("\n");
+		jd_write_->add_header()->nl();
 	}
 	if(level_ == 6 || level_==4 || level_== 3){
 		data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
@@ -39,7 +39,7 @@ std::string AnalyseMagnetization::extract_level_6(){
 	CreateSystem cs(read_);
 	cs.init(read_,this);
 	if(!all_link_names_.size()){ jd_write_->write("number of jdfiles",nof_); }
-	jd_write_->add_to_header("\n");
+	jd_write_->add_header()->nl();
 	std::string link_name(cs.analyse(level_));
 
 	delete read_;
@@ -72,7 +72,7 @@ std::string AnalyseMagnetization::extract_level_5(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
 	jd_write_->write("number of jdfiles",nof_);
-	jd_write_->add_to_header("\n");
+	jd_write_->add_header()->nl();
 	for(unsigned int i(0);i<nof_;i++){
 		CreateSystem cs(read_);
 		cs.init(read_,this);
@@ -97,7 +97,7 @@ std::string AnalyseMagnetization::extract_level_4(){
 	cs.init(read_,this);
 	cs.save();
 	std::string link_name(cs.analyse(level_));
-	jd_write_->add_to_header("\n");
+	jd_write_->add_header()->nl();
 
 	delete read_;
 	read_ = NULL;

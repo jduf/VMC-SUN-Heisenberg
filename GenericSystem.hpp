@@ -117,7 +117,7 @@ void GenericSystem<Type>::compute_links(){
 
 template<typename Type>
 void GenericSystem<Type>::save() const {
-	jd_write_->add_to_header(system_info_.get());
+	jd_write_->add_header()->add(system_info_.get());
 	jd_write_->write("ref (type of wavefunction)",this->ref_);
 	jd_write_->write("N (N of SU(N))",this->N_);
 	jd_write_->write("m (# of particles per site)",this->m_);

@@ -57,7 +57,7 @@ void AnalyseChain::close_files(){
 	}
 }
 
-/*calls cs.analyse(level) to plot E(delta)*/
+/*calls cs.analyse(level) to plot E(ti)*/
 std::string AnalyseChain::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
@@ -83,19 +83,20 @@ std::string AnalyseChain::extract_level_5(){
 	unsigned int n;
 	int bc;
 
-	jd_write_->add_to_header("\n");
+	jd_write_->add_header()->nl();
 	switch(nof_){
 		case 1:
 			{ 
 				double polymerization_strength;
 				Vector<double> exponents;
 				Data<double> E;
-				double delta(0);
+				Vector<double> ti;
 				(*read_)>>ref>>N>>m>>n>>M>>bc;
-				if(ref(2) == 1){ (*read_)>>delta; }
+				if(ref(2) == 1){ (*read_)>>ti; }
+				else{ ti.set(N/m,1); }
 				(*read_)>>E>>polymerization_strength>>exponents;
 				if(ref(2)==1){
-					ChainPolymerized chain(ref,N,m,n,M,bc,delta);
+					ChainPolymerized chain(ref,N,m,n,M,bc,ti);
 					chain.set_IOSystem(this);
 					chain.save();
 				} else {
@@ -116,7 +117,7 @@ std::string AnalyseChain::extract_level_5(){
 					}
 				}
 				if(outfile_){
-					(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<delta<<" ";
+					(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<ti<<" ";
 					(*outfile_)<<E<<" "<<exponents<<" "<<polymerization_strength<<IOFiles::endl;
 				}
 				jd_write_->write("energy per site",E);
@@ -129,17 +130,19 @@ std::string AnalyseChain::extract_level_5(){
 				double polymerization_strength[2];
 				Vector<double> exponents[2];
 				Data<double> E[2];
-				double delta(0);
+				Vector<double> ti;
 				for(unsigned int i(0);i<nof_;i++){
 					(*read_)>>ref>>N>>m>>n>>M>>bc;
-					if(ref(2) == 1){ (*read_)>>delta; }
+					if(ref(2) == 1){ (*read_)>>ti; }
+					else{ ti.set(N/m,1); }
 					(*read_)>>E[ref(2)]>>polymerization_strength[ref(2)]>>exponents[ref(2)];
 				}
 
-				if(!are_equal(delta,0)){
+				std::cerr<<"find condition when poly==fermi"<<std::endl;
+				if(!are_equal(ti(N/m-1),1)){
 					ref(1) = 1;
 					ref(2) = 1;
-					ChainPolymerized chain(ref,N,m,n,M,bc,delta);
+					ChainPolymerized chain(ref,N,m,n,M,bc,ti);
 					chain.set_IOSystem(this);
 					chain.save();
 				} else {
@@ -162,9 +165,10 @@ std::string AnalyseChain::extract_level_5(){
 				}
 
 				/*As we know that SU(9) m=3 is gapless, it will save the correct critical exponent*/
-				unsigned int eta_idx(((N==9&&m==3) || are_equal(delta,0))?0:1);
+				std::cerr<<"find condition when poly==fermi"<<std::endl;
+				unsigned int eta_idx(((N==9&&m==3) || are_equal(ti(N/m-1),1))?0:1);
 				if(outfile_){
-					(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<delta<<" ";
+					(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<ti<<" ";
 					(*outfile_)<<E[1]<<" "<<exponents[eta_idx]<<" "<<polymerization_strength[ref(2)]<<IOFiles::endl;
 				}
 				jd_write_->write("energy per site",E[1]);
@@ -193,7 +197,7 @@ std::string AnalyseChain::extract_level_4(){
 		cs.init(read_,this);
 		(*read_)>>E>>polymerization_strength>>exponents;
 
-		jd_write_->add_to_header("\n");
+		jd_write_->add_header()->nl();
 		cs.save(); 
 		jd_write_->write("energy per site",E);
 		jd_write_->write("polymerization strength",polymerization_strength);
@@ -216,7 +220,7 @@ std::string AnalyseChain::extract_level_3(){
 		cs.init(read_,this);
 		std::string link_name(cs.analyse(level_));
 
-		jd_write_->add_to_header("\n");
+		jd_write_->add_header()->nl();
 		cs.save();
 	}
 

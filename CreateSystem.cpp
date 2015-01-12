@@ -51,14 +51,29 @@ void CreateSystem::parse(Parseur& P){
 			if(P.is_vector("t4")){ c+=2; }
 			switch(c){
 				case 0:{
-						   ti(2) = P.get<double>("t2");
-						   ti(4) = P.get<double>("t4");
+						   ti(1) = P.get<double>("t2");
+						   ti(3) = P.get<double>("t4");
 						   vd_.append(ti);
+					   }break;
+				case 1:{
+						   Vector<double> tmp(P.get<Vector<double> >("t2"));
+						   ti(3) = P.get<double>("t4");
+						   for(unsigned int i(0);i<tmp.size();i++){
+							   ti(1) = tmp(i);
+							   vd_.append(ti);
+						   }
+					   }break;
+				case 2:{
+						   Vector<double> tmp(P.get<Vector<double> >("t4"));
+						   ti(1) = P.get<double>("t2");
+						   for(unsigned int i(0);i<tmp.size();i++){
+							   ti(3) = tmp(i);
+							   vd_.append(ti);
+						   }
 					   }break;
 				default:{std::cerr<<"void CreateSystem::parse(Parseur& P) : unknown tij"<<std::endl; }
 			}
-		}
-		else { 
+		} else { 
 			for(unsigned int j(0);j<ti.size()-1;j++){
 				ti(j) = 1+P.get<double>("delta");
 			}

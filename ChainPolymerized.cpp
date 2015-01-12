@@ -26,7 +26,7 @@ void ChainPolymerized::compute_H(){
 	for(unsigned int i(0); i<n_; i+=a){
 		for(unsigned int j(0); j<a; j++){
 			nb = get_neighbourg(i+j);
-			H_(i+j,nb(0,0)) = ti_(j);
+			H_(i+j,nb(0,0)) = nb(0,1)*ti_(j);
 		}
 	}
 	H_ += H_.transpose();
@@ -96,8 +96,8 @@ std::string ChainPolymerized::extract_level_7(){
 	for(unsigned int j(0);j<ti_.size()-1;j++){
 		tij_string += tostring(ti_(j))+",";
 	}
-	tij_string += tostring(ti_(ti_.size()-1))+")$";
-	std::string title("$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+"$t_{ij}="+tij_string);
+	tij_string += tostring(ti_(ti_.size()-1))+")";
+	std::string title("$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $t_{ij}="+tij_string+"$");
 
 	/*!extract jdbin*/
 	/*{*/
@@ -247,7 +247,7 @@ std::string ChainPolymerized::extract_level_6(){
 	Vector<double> tmp_exponents;
 	double polymerization_strength;
 	double tmp_polymerization_strength;
-	double tmp_ti;
+	Vector<double> tmp_ti;
 	unsigned int nof(0);
 	(*read_)>>nof;
 
@@ -261,7 +261,7 @@ std::string ChainPolymerized::extract_level_6(){
 		}
 	}
 
-	jd_write_->add_to_header("\n");
+	jd_write_->add_header()->nl();
 	save();
 	jd_write_->write("energy per site",E_);
 	jd_write_->write("polymerization strength",polymerization_strength);
@@ -287,9 +287,9 @@ std::string ChainPolymerized::extract_level_6(){
 		gp+="set xlabel '$t_2$'";
 		gp+="set ylabel '$t_4$'";
 		gp+="set zlabel '$\\dfrac{E}{n}$' rotate by 0";
-		gp+="plot '"+filename_+".dat' u 1:(($5==0 && $6==1)?$2:1/0):3 lc 5 w e t 'Not Converged',\\";
-		gp+="     '"+filename_+".dat' u 1:(($5==1 && $6==1)?$2:1/0):3 lc 6 w e t 'Converged',\\";
-		gp+="     '"+filename_+".dat' u 1:($6==0?$2:1/0):3 lc 7 w e t 'Mean'";
+		gp+="splot '"+filename_+".dat' u 2:4:(($8==0 && $9==1)?$5:1/0):6 lc 5 w e t 'Not Converged',\\";
+		gp+="      '"+filename_+".dat' u 2:4:(($8==1 && $9==1)?$5:1/0):6 lc 6 w e t 'Converged',\\";
+		gp+="      '"+filename_+".dat' u 2:4:($9==0?$5:1/0):6 lc 7 w e t 'Mean'";
 	}
 
 	gp.save_file();

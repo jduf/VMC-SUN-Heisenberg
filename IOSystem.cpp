@@ -31,7 +31,7 @@ void IOSystem::init_output_file(IOFiles& output){
 		jd_write_ = &output; 
 		RST rst;
 		rst.title("Input","-");
-		jd_write_->add_to_header(rst.get());
+		jd_write_->add_header()->add(rst.get());
 	}
 }
 

@@ -325,7 +325,7 @@ std::string Honeycomb0pp::extract_level_6(){
 		}
 	}
 
-	jd_write_->add_to_header("\n");
+	jd_write_->add_header()->nl();
 	save();
 	jd_write_->write("energy per site",E_);
 

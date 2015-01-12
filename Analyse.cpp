@@ -130,9 +130,9 @@ std::string Analyse::extract_level_7(){
 	/*Only one call of cs.save() is needed*/
 	if(!all_link_names_.size()){ 
 		cs.save();
-		jd_write_->add_to_header("\n");
+		jd_write_->add_header()->nl();
 		jd_write_->write("number of jdfiles",nof_);
-		jd_write_->add_to_header("\n");
+		jd_write_->add_header()->title("System's parameters","-");
 	}
 	std::string link_name(cs.analyse(level_));
 
