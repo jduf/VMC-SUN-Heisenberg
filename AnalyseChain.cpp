@@ -232,59 +232,83 @@ std::string AnalyseChain::extract_level_3(){
 
 /*different system size*/
 std::string AnalyseChain::extract_level_2(){
+	IOFiles read(sim_+path_+dir_+filename_+".jdbin",false);
+	Vector<unsigned int> ref(read.read<Vector<unsigned int> >());
+	unsigned int N(read.read<unsigned int>());
+	unsigned int m(read.read<unsigned int>());
+	
 	Gnuplot gpenergy(analyse_+path_+dir_,filename_+"-energy");
-	gpenergy+="set xlabel '$n^{-1}$'";
-	gpenergy+="set y2label '$\\dfrac{E}{n}$' rotate by 0";
+	gpenergy.label("x","$n^{-1}$");
+	gpenergy.label("y2","$\\dfrac{E}{n}$","rotate by 0");
+	gpenergy.range("x","0","");
 	gpenergy+="set key bottom";
-	gpenergy.xrange(0,"");
-	gpenergy+="f(x)=a*x**b+E0";
-	gpenergy+="a=-1.0";
-	gpenergy+="b=2.0";
-	gpenergy+="E0=-1.0";
-	gpenergy+="set fit quiet";
-	gpenergy+="fit f(x) '"+filename_+".dat' u (1/$4):($3==1?$5:1/0):6 zerror via a,b,E0";
-	gpenergy+="plot '"+filename_+".dat' u (1/$4):($3==1?$5:1/0):6 w e t 'P',\\";
-	gpenergy+="     '"+filename_+".dat' u (1/$4):($3==0?$5:1/0):6 w e t 'O',\\";
-	gpenergy+="     f(x) t sprintf('$E=%f$',E0)";
+	if((N/m)%2 == 0){
+		if(N/m!=2){
+			gpenergy+="f(x)=a1*x**b1+E1";
+			gpenergy+="a1=1.0";
+			gpenergy+="b1=2.0";
+			gpenergy+="E1=1.0";
+			gpenergy+="g(x)=a2*x**b2+E2";
+			gpenergy+="a2=-1.0";
+			gpenergy+="b2=2.0";
+			gpenergy+="E2=1.0";
+			gpenergy+="set fit quiet";
+			gpenergy+="fit f(x) '"+filename_+".dat' u (1/$4):(($3==1 && floor($4*$2/$1)%2==0)?$5:1/0):6 zerror via a1,b1,E1";
+			gpenergy+="fit g(x) '"+filename_+".dat' u (1/$4):(($3==1 && floor($4*$2/$1)%2==1)?$5:1/0):6 zerror via a2,b2,E2";
+			gpenergy+="plot '"+filename_+".dat' u (1/$4):($3==1?$5:1/0):6 w e t 'P',\\";
+			gpenergy+="     '"+filename_+".dat' u (1/$4):($3==0?$5:1/0):6 w e t 'O',\\";
+			gpenergy+="     f(x) lc 3 t sprintf('$E=%f$',E1),\\";
+			gpenergy+="     g(x) lc 3 t sprintf('$E=%f$',E2)";
+		} else {
+			gpenergy+="plot '"+filename_+".dat' u (1/$4):($3==1?$5:1/0):6 w e t 'P',\\";
+			gpenergy+="     '"+filename_+".dat' u (1/$4):($3==0?$5:1/0):6 w e t 'O'";
+		}
+	} else {
+		gpenergy+="f(x)=a*x**b+E";
+		gpenergy+="a=1.0";
+		gpenergy+="b=2.0";
+		gpenergy+="E=1.0";
+		gpenergy+="set fit quiet";
+		gpenergy+="fit f(x) '"+filename_+".dat' u (1/$4):($3==1?$5:1/0):6 zerror via a,b,E";
+		gpenergy+="plot '"+filename_+".dat' u (1/$4):($3==1?$5:1/0):6 w e t 'P',\\";
+		gpenergy+="     '"+filename_+".dat' u (1/$4):($3==0?$5:1/0):6 w e t 'O',\\";
+		gpenergy+="     f(x) lc 3 t sprintf('$E=%f$',E)";
+	}
 	gpenergy.save_file();
 	gpenergy.create_image(true);
 
+	Gnuplot gpexp(analyse_+path_+dir_,filename_+"-exponents");
+	gpexp+="set multiplot";
+	gpexp.margin("0.15","0.85","0.95","0.55");
+	gpexp+="unset xtics";
+	gpexp.range("x","0","0.037");
+	gpexp.range("y","1.3","1.82");
+	gpexp+="plot '"+filename_+".dat' u (1/$4):($3==1?$11:1/0) lc 1 t '$\\nu$',\\";
+	gpexp+="     "+tostring(2.0-2.0/N)+" lc 1 notitle";
+	gpexp+="";
+	gpexp.margin("0.15","0.85","0.55","0.15");
+	gpexp+="set xtics nomirror";
+	gpexp.label("x","$n^{-1}$");
+	gpexp+="unset ytics";
+	gpexp.range("y");
+	gpexp.range("y2","1.5","2.5");
+	gpexp+="set y2tics mirror";
+	gpexp+="plot '"+filename_+".dat' u (1/$4):($3==1?$13:1/0) axes x1y2 lc 2 t '$\\nu$',\\";
+	gpexp+="     2.0 axes x1y2 lc 2 notitle";
+	gpexp+="unset multiplot";
+	gpexp.save_file();
+	gpexp.create_image(true);
+
 	Gnuplot gppolym(analyse_+path_+dir_,filename_+"-polymerization");
-	gppolym+="set xlabel '$n^{-1}$'";
-	gppolym+="set y2label 'd-merization strength'";
+	gppolym.label("x","$n^{-1}$");
+	gppolym.label("y2","d-merization strength");
+	gppolym.range("x",0,"");
+	gppolym.range("y",0,"");
 	gppolym+="set key bottom";
-	gppolym.xrange(0,"");
-	gppolym.yrange(0,"");
 	gppolym+="plot '"+filename_+".dat' u (1/$4):($3==1?$9:1/0) t 'P',\\";
 	gppolym+="     '"+filename_+".dat' u (1/$4):($3==0?$9:1/0) t 'O'";
 	gppolym.save_file();
 	gppolym.create_image(true);
-
-	Gnuplot gpexp(analyse_+path_+dir_,filename_+"-exponents");
-	gpexp+="set lmargin at screen 0.15";
-	gpexp+="set rmargin at screen 0.85";
-	gpexp+="";
-	gpexp+="set multiplot";
-	gpexp+="set tmargin at screen 0.55";
-	gpexp+="set bmargin at screen 0.15";
-	gpexp+="set xrange [0:] writeback";
-	gpexp+="set xlabel '$n^{-1}$'";
-	gpexp+="set xtics nomirror";
-	gpexp+="set y2tics";
-	gpexp+="unset ytics";
-	gpexp+="plot '"+filename_+".dat' u (1/$4):($3==1?$13:1/0) lc 1 t '$a_0=2$'";
-	gpexp+="";
-	gpexp+="set tmargin at screen 0.95";
-	gpexp+="set bmargin at screen 0.55";
-	gpexp+="set xrange restore";
-	gpexp+="set ytics";
-	gpexp+="unset xtics";
-	gpexp+="unset y2tics";
-	gpexp+="unset xlabel";
-	gpexp+="plot '"+filename_+".dat' u (1/$4):($3==1?$11:1/0) lc 2 t '$a_{k}=2-2/N$'";
-	gpexp+="unset multiplot";
-	gpexp.save_file();
-	gpexp.create_image(true);
 
 	return filename_;
 }

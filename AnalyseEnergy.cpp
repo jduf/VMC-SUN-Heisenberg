@@ -56,7 +56,7 @@ std::string AnalyseEnergy::extract_level_3(){
 std::string AnalyseEnergy::extract_level_2(){
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp+="set xlabel '$n^{-1}$'";
-	gp.xrange(0,"");
+	gp.range("x","0","");
 	gp+="set key bottom";
 	gp+="f(x)=a*x+b";
 	gp+="a=1.0";

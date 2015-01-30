@@ -103,8 +103,8 @@ std::string ChainFermi<Type>::extract_level_7(){
 	/*!nearest neighbourg correlations*/
 	/*{*/
 	Gnuplot gp(this->analyse_+this->path_+this->dir_,this->filename_+"-corr");
-	gp+="set xlabel 'site' offset 0,0.5";
-	gp+="set y2label '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$'";
+	gp.label("x","site","offset 0,0.5");
+	gp.label("y2","$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$");
 	gp+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
 	gp+="plot '"+this->filename_+"-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gp+="     '"+this->filename_+"-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
@@ -121,9 +121,9 @@ std::string ChainFermi<Type>::extract_level_7(){
 	this->compute_critical_exponents(xi,xf,exponents,lrc_mean);
 
 	Gnuplot gplr(this->analyse_+this->path_+this->dir_,this->filename_+"-long-range-corr");
-	gplr.xrange(this->N_/this->m_,this->n_-this->N_/this->m_);
-	gplr+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
-	gplr+="set y2label '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$' offset 1";
+	gplr.range("x",this->N_/this->m_,this->n_-this->N_/this->m_);
+	gplr.label("x","$\\|i-j\\|$","offset 0,0.5");
+	gplr.label("y2","$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$","offset 1");
 	gplr+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
 	gplr+="set key center bottom";
 	gplr+="set sample 1000";
@@ -168,14 +168,14 @@ std::string ChainFermi<Type>::extract_level_7(){
 	Gnuplot gpsf(this->analyse_+this->path_+this->dir_,this->filename_+"-structure-factor");
 	gpsf+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
 	gpsf+="set key bottom";
-	gpsf.xrange("0","2*pi");
+	gpsf.range("x","0","2*pi");
 	switch(this->N_/this->m_){
 		case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0, '$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
 		case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
 		default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
 	}
-	gpsf+="set xlabel '$k$' offset 0,0.5";
-	gpsf+="set y2label '$<S(k)>$'";
+	gpsf.label("x","$k$","offset 0,0.5");
+	gpsf.label("y2","$<S(k)>$");
 	gpsf+="plot '"+this->filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";
 	gpsf+="     '"+this->filename_+"-structure-factor.dat' u 1:3 lt 1 lc 7 t 'imag'";
 	gpsf.save_file();

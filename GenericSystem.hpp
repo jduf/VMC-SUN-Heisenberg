@@ -5,7 +5,6 @@
 #include "Bosonic.hpp"
 #include "Fermionic.hpp"
 #include "IOSystem.hpp"
-#include "Combination.hpp"
 
 /*!Abstract class that can produce any kind of system*/
 template<typename Type>

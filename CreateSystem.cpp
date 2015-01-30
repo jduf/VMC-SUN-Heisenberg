@@ -74,11 +74,17 @@ void CreateSystem::parse(Parseur& P){
 				default:{std::cerr<<"void CreateSystem::parse(Parseur& P) : unknown tij"<<std::endl; }
 			}
 		} else { 
-			for(unsigned int j(0);j<ti.size()-1;j++){
-				ti(j) = 1+P.get<double>("delta");
+			if(P.is_vector("delta")){ 
+			   Vector<double> tmp(P.get<Vector<double> >("delta"));
+			   for(unsigned int i(0);i<tmp.size();i++){
+				   ti(N_/m_-1) = 1-tmp(i);
+				   vd_.append(ti);
+			   }
+			} else {
+				ti(N_/m_-1) = 1-P.get<double>("delta");
+				vd_.append(ti); 
 			}
-			ti(ti.size()-1) = 1-P.get<double>("delta");
-			vd_.append(ti); }
+		}
 	}
 
 	if( wf == "trianglefermi" ){

@@ -52,9 +52,10 @@ class Chain: public System1D<Type>{
 	protected:
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int i) const;
+		/*!Given N and m, save the best simulation in a text file for any n*/
+		std::string extract_level_3();
 		/*!Find the best range to compute the critcal exponents*/
 		void compute_critical_exponents(unsigned int& xi, unsigned int& xf, Vector<double>& exponents, Vector<double> const& lrc);
-		std::string extract_level_3();
 };
 
 template<typename Type>

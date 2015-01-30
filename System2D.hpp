@@ -87,9 +87,9 @@ void System2D<Type>::plot_band_structure(){
 	}
 
 	Gnuplot gp("./","spectrum");
-	gp.xrange("-pi","pi");
-	gp.yrange("-pi","pi");
-	gp.zrange("-5","5");
+	gp.range("x","-pi","pi");
+	gp.range("y","-pi","pi");
+	gp.range("z","-5","5");
 	gp+="splot 'spectrum.dat' u 1:2:3";
 	gp.save_file();
 }

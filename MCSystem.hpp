@@ -156,7 +156,7 @@ void MCSystem<Type>::complete_analysis(double const& tol){
 	corr_.complete_analysis(tol); 
 	lr_corr_.complete_analysis(tol); 
 	for(unsigned int i(0);i<lr_corr_.size();i++){
-		/*to shift the long range correlation on the x-axis*/
+		/*C(r)=sum_alpha( <a^d_0alpha.a_0alpha.a^d_ralpha.a_ralpha > )-m^2/N*/
 		lr_corr_[i].substract(1.0*m_*m_/N_);
 	}
 }

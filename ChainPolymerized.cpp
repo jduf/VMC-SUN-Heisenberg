@@ -12,6 +12,9 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 			filename_ += ((ti_(j)>0)?"+":"")+tostring(ti_(j));
 		}
 		system_info_.text("+ Spin chain, with different real hopping term.");
+		system_info_.text("  For N colors and m particules per sites, every");
+		system_info_.text("  N/m, there is a weaker bound, namely 1-delta");
+		system_info_.text("  instead of t. (t=1) :");
 		std::cerr<<"find condition when poly==fermi"<<std::endl;
 	}
 }
@@ -142,8 +145,8 @@ std::string ChainPolymerized::extract_level_7(){
 	/*!nearest neighbourg correlations*/
 	/*{*/
 	Gnuplot gp(analyse_+path_+dir_,filename_+"-corr");
-	gp+="set xlabel 'site' offset 0,0.5";
-	gp+="set y2label '$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$'";
+	gp.label("x","site","offset 0,0.5");
+	gp.label("y2","$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$");
 	gp+="set key center";
 	gp+="set title '"+title+"'";
 	gp+="plot '"+filename_+"-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
@@ -163,9 +166,9 @@ std::string ChainPolymerized::extract_level_7(){
 	compute_critical_exponents(xi,xf,exponents,lrc_mean);
 
 	Gnuplot gplr(analyse_+path_+dir_,filename_+"-long-range-corr");
-	gplr.xrange(N_/m_,n_-N_/m_);
-	gplr+="set xlabel '$\\|i-j\\|$' offset 0,0.5";
-	gplr+="set y2label '$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$' offset 1";
+	gplr.range("x",N_/m_,n_-N_/m_);
+	gplr.label("x","$\\|i-j\\|$","offset 0,0.5");
+	gplr.label("y2","$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$","offset 1");
 	gplr+="set title '"+title+"'";
 	gplr+="set key center bottom";
 	gplr+="set sample 1000";
@@ -210,14 +213,14 @@ std::string ChainPolymerized::extract_level_7(){
 	Gnuplot gpsf(analyse_+path_+dir_,filename_+"-structure-factor");
 	gpsf+="set title '"+title+"'";
 	gpsf+="set key bottom";
-	gpsf.xrange("0","2*pi");
+	gpsf.range("x","0","2*pi");
 	switch(N_/m_){
 		case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0, '$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
 		case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
 		default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
 	}
-	gpsf+="set xlabel '$k$' offset 0,0.5";
-	gpsf+="set y2label '$<S(k)>$'";
+	gpsf.label("x","$k$","offset 0,0.5");
+	gpsf.label("y2","$<S(k)>$");
 	gpsf+="plot '"+filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";
 	gpsf+="     '"+filename_+"-structure-factor.dat' u 1:3 lt 1 lc 7 t 'imag'";
 	gpsf.save_file();
@@ -270,26 +273,27 @@ std::string ChainPolymerized::extract_level_6(){
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc=$"+tostring(bc_)+"$'";
 	if(N_/m_!=4){
-		gp+="set xlabel '$t_"+tostring(N_/m_)+"$' offset 0,1";
-		gp+="set y2label '$\\dfrac{E}{n}$' rotate by 0";
-		gp.xrange("0.0","");
+		gp.label("x","$t_"+tostring(N_/m_)+"$"," offset 0,1");
+		gp.label("y2","$\\dfrac{E}{n}$","rotate by 0");
+		gp.range("x","0.0","");
 		gp+="f(x) = "+std::string(are_equal(ti_(N_/m_-1),0)?"a+b*x**c":"a+b*(x-c)*(x-c)"); 
 		gp+="a="+tostring(E_.get_x());
 		gp+="b=1";
 		gp+="c=1";
 		gp+="set fit quiet";
-		gp+="fit f(x) '"+filename_+".dat' u 1:($6==0?$2:1/0):3 zerror via a,b,c";
-		gp+="plot '"+filename_+".dat' u 1:(($5==0 && $6==1)?$2:1/0):3 lc 5 w e t 'Not Converged',\\";
-		gp+="     '"+filename_+".dat' u 1:(($5==1 && $6==1)?$2:1/0):3 lc 6 w e t 'Converged',\\";
-		gp+="     '"+filename_+".dat' u 1:($6==0?$2:1/0):3 lc 7 w e t 'Mean',\\";
+		gp+="fit f(x) '"+filename_+".dat' u "+tostring(N_/m_)+":($" +tostring(N_/m_+5)+"==0?$"                              +tostring(N_/m_+1)+":1/0):"+tostring(N_/m_+2)+" zerror via a,b,c";
+		gp+="plot '"+filename_+".dat' u "    +tostring(N_/m_)+":(($"+tostring(N_/m_+4)+"==0 && $"+tostring(N_/m_+5)+"==1)?$"+tostring(N_/m_+1)+":1/0):"+tostring(N_/m_+2)+" lc 5 w e t 'Not Converged',\\";
+		gp+="     '"+filename_+".dat' u "    +tostring(N_/m_)+":(($"+tostring(N_/m_+4)+"==1 && $"+tostring(N_/m_+5)+"==1)?$"+tostring(N_/m_+1)+":1/0):"+tostring(N_/m_+2)+" lc 6 w e t 'Converged',\\";
+		gp+="     '"+filename_+".dat' u "    +tostring(N_/m_)+":($" +tostring(N_/m_+5)+"==0?$"                              +tostring(N_/m_+1)+":1/0):"+tostring(N_/m_+2)+" lc 7 w e t 'Mean',\\";
 		gp+="     f(x) lc 7 lw 0.5 "+std::string(are_equal(ti_(N_/m_-1),0)?"notitle":"t sprintf('min %3.4f',c)");
 	} else {
-		gp+="set xlabel '$t_2$'";
-		gp+="set ylabel '$t_4$'";
-		gp+="set zlabel '$\\dfrac{E}{n}$' rotate by 0";
-		gp+="splot '"+filename_+".dat' u 2:4:(($8==0 && $9==1)?$5:1/0):6 lc 5 w e t 'Not Converged',\\";
-		gp+="      '"+filename_+".dat' u 2:4:(($8==1 && $9==1)?$5:1/0):6 lc 6 w e t 'Converged',\\";
-		gp+="      '"+filename_+".dat' u 2:4:($9==0?$5:1/0):6 lc 7 w e t 'Mean'";
+		gp.label("x","$t_2$");
+		gp.label("y","$t_4$");
+		gp.label("z","$\\dfrac{E}{n}$","rotate by 0");
+		gp+="set xyplane 0";
+		gp+="splot '"+filename_+".dat' u 2:4:(($8==0 && $9==1)?$5:1/0) lc 5 t 'Not Converged',\\";
+		gp+="      '"+filename_+".dat' u 2:4:(($8==1 && $9==1)?$5:1/0) lc 6 t 'Converged',\\";
+		gp+="      '"+filename_+".dat' u 2:4:($9==0?$5:1/0) lc 7 t 'Mean'";
 	}
 
 	gp.save_file();
