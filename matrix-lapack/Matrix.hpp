@@ -189,8 +189,9 @@ std::ostream& operator<<(std::ostream& flux, Matrix<Type> const& m){
 template<typename Type>
 std::istream& operator>>(std::istream& flux, Matrix<Type> const& m){
 	unsigned int row(m.row());
+	unsigned int col(m.col());
 	for(unsigned int i(0);i<row;i++){
-		for(unsigned int j(0);j<m.col();j++){ 
+		for(unsigned int j(0);j<col;j++){ 
 			flux>>m.ptr()[i+j*row]; 
 		}
 	}

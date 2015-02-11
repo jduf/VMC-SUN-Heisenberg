@@ -116,10 +116,6 @@ void IOFiles::precision(unsigned int const& N){
 	else{ file_.precision(N); }
 }
 
-void IOFiles::add_to_header(std::string const& s){
-	if(header_){ header_->add(s); }
-}
-
 std::string IOFiles::get_header() const { 
 	if(header_ && open_){
 		return header_->get();

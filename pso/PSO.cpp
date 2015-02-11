@@ -43,7 +43,8 @@ void PSO::PSO_init(){
 			}
 		}
 		pb_[i] = px_[i];
-		pfb_[i] = run(px_[i]);
+		pfb_[i] = evaluate(px_[i]);
+		std::cout<<px_[i]<<std::endl;
 	}
 	for(unsigned int i(1);i<Nbees_;i++){
 		if(pfb_[i] < pfb_[bbee_] ){
@@ -84,7 +85,7 @@ void PSO::move(unsigned int i){
 }
 
 void PSO::evaluate(unsigned int i){
-	double fx(run(px_[i]));
+	double fx(evaluate(px_[i]));
 	if( fx < pfb_[i]){
 		pfb_[i] = fx; 
 		pb_[i] = px_[i]; 
@@ -95,20 +96,21 @@ void PSO::launch(unsigned int i){
 #pragma omp critical
 	{
 		move(i);
-		if(forget_>maxiter_/Nbees_){
-			std::cerr<<"PSO :: will forget "<< pb_[bbee_]<<std::endl;
-			std::cerr<<"("<<forget_<<") with value  "<< pfb_[bbee_]<<std::endl;
-			pb_[bbee_] = px_[bbee_];
-			pfb_[bbee_] = 123456789.0;
-			for(unsigned int j(0);j<Nbees_;j++){
-				if(pfb_[j] < pfb_[bbee_] && j != bbee_){
-					bbee_ = j;
-				}
-			}
-			forget_ = 0;
-		}
+		//if(forget_>maxiter_/Nbees_){
+			//std::cerr<<"PSO :: will forget "<< pb_[bbee_]<<std::endl;
+			//std::cerr<<"("<<forget_<<") with value  "<< pfb_[bbee_]<<std::endl;
+			//pb_[bbee_] = px_[bbee_];
+			//pfb_[bbee_] = 123456789.0;
+			//for(unsigned int j(0);j<Nbees_;j++){
+				//if(pfb_[j] < pfb_[bbee_] && j != bbee_){
+					//bbee_ = j;
+				//}
+			//}
+			//forget_ = 0;
+		//}
 		forget_++;
 	}
+	set_to_grid(i);
 	evaluate(i);
 	if(pfb_[i] < pfb_[bbee_] ){
 		bbee_ = i;

@@ -292,8 +292,8 @@ void Binning<Type>::complete_analysis(double const& tol, Type& x, Type& dx, bool
 	x = m_bin_(0);
 	if(l_>0 && log_){
 		Gnuplot gp("./",log_->get_filename());
-		gp.xrange(0,"");
-		gp.yrange(0,"");
+		gp.range("x","0","");
+		gp.range("y","0","");
 		gp+="set xlabel '$\\ell$'";
 		gp+="set ylabel '$\\Delta_{\\ell}$' rotate by 0 offset 2";
 		gp+="set key left bottom";

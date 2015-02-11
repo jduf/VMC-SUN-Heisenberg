@@ -13,7 +13,7 @@ class RST{
 		/*!Destructor*/
 		virtual ~RST(){}
 
-		void title(std::string t,std::string symb);
+		void title(std::string t, std::string symb);
 		void text(std::string t);
 		void textit(std::string t);
 		void textbf(std::string t);

@@ -65,12 +65,12 @@ class IOFiles{
 		/*!Returns the filename_ in which the class in writing*/
 		std::string get_filename() const { return filename_;};
 
-		/*!change the precision on the output text files*/
+		/*!Change the precision on the output text files*/
 		void precision(unsigned int const& N);
-		/*!Add string to header*/
-		void add_to_header(std::string const& s);
 		/*!Returns the header contained in the file*/
 		std::string get_header() const;
+		/*!Returns the header contained in the file*/
+		Header* add_header() const { return header_; };
 
 		static std::string const endl; //!<Gives a way to end lines
 

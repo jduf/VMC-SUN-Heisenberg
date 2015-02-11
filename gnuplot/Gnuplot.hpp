@@ -11,26 +11,24 @@ class Gnuplot {
 		/*!Destructor*/
 		~Gnuplot(){}
 
-		void operator=(std::string const& s){ plot_ = s + "\n"; }
-		void operator+=(std::string const& s){ plot_ += s + "\n"; }
+		void title(std::string const& title);
+
+		void range(std::string const& axis, std::string const& a, std::string const& b);
+		void range(std::string const& axis, double const& a, double const& b);
+		void range(std::string const& axis, double const& a, std::string const& b);
+		void range(std::string const& axis, std::string const& a, double const& b);
+		void range(std::string const& axis);
+
+		void margin(std::string const& l, std::string const& r, std::string const& t, std::string const& b);
+
+		void label(std::string const& axis, std::string const& l, std::string const& options="");
+		void label(std::string const& axis);
+
+		void operator=(std::string const& s);
+		void operator+=(std::string const& s);
 
 		void save_file();
 		void create_image(bool silent);
-
-		void xrange(std::string const& a, std::string const& b){plot_+="set xrange ["+a+":"+b+"]\n";}
-		void xrange(double const& a, std::string const& b){xrange(tostring(a),b);}
-		void xrange(std::string const& a, double const& b){xrange(a,tostring(b));}
-		void xrange(double const& a, double const& b){xrange(tostring(a),tostring(b));}
-
-		void yrange(std::string const& a, std::string const& b){plot_+="set yrange ["+a+":"+b+"]\n";}
-		void yrange(double const& a, double const& b){yrange(tostring(a),tostring(b));}
-		void yrange(double const& a, std::string const& b){yrange(tostring(a),b);}
-		void yrange(std::string const& a, double const& b){yrange(a,tostring(b));}
-
-		void zrange(std::string const& a, std::string const& b){plot_+="set zrange ["+a+":"+b+"]\n";}
-		void zrange(double const& a, double const& b){zrange(tostring(a),tostring(b));}
-		void zrange(double const& a, std::string const& b){zrange(tostring(a),b);}
-		void zrange(std::string const& a, double const& b){zrange(a,tostring(b));}
 
 	private:
 		/*!Forbids copy*/

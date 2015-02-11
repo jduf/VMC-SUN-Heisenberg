@@ -94,6 +94,8 @@ class Vector{
 		Type max() const;
 		/*!Returns the minimal value of vec_*/
 		Type min() const;
+		/*!Returns the norm of the vector (sqrt(xx+yy+zz+...))*/
+		double norm() const;
 
 		/*!Returns the size of the Vector*/
 		unsigned int size() const {return size_;}
@@ -111,6 +113,69 @@ class Vector{
 		/*!Copy-And-Swap Idiom*/
 		void swap_to_assign(Vector<Type>& v1,Vector<Type>& v2);
 };
+
+/*{General method that could be used anywhere*/
+/*double real(T)*/
+/*{*/
+inline double real(double const& x){ return x; }
+
+inline double real(std::complex<double> const& x){ return std::real(x); }
+/*}*/
+
+/*double imag(T)*/
+/*{*/
+inline double imag(double const& x){ return x; }
+
+inline double imag(std::complex<double> const& x){ return std::imag(x); }
+/*}*/
+
+/*double norm_squared(T)*/
+/*{*/
+inline double norm_squared(double x){ return x*x; }
+
+inline double norm_squared(std::complex<double> x){ return std::norm(x); }
+/*}*/
+
+/*double chop(T)*/
+/*{*/
+inline double chop(double const& x, double precision = 1e-10){ return (std::abs(x)<precision?0.0:x); }
+
+inline std::complex<double> chop(std::complex<double> x, double precision = 1e-10){
+	if(std::abs(x.imag()) < precision ){x.imag(0.0);}
+	if(std::abs(x.real()) < precision ){x.real(0.0);}
+	return x; 
+}
+/*}*/
+
+/*bool are_equal(T,T)*/
+/*{*/
+inline bool are_equal(double x, double y, double abs_tol=1e-14, double rel_tol=1e-14){ 
+	double diff(std::abs(x-y));
+	x = std::abs(x);
+	y = std::abs(y);
+	x = (x>y)?x:y;
+	return (diff<rel_tol*x) || (diff<abs_tol);
+}
+
+inline bool are_equal(std::complex<double> const& x, std::complex<double> const& y, double abs_tol=1e-14, double rel_tol=1e-14){ 
+	if(!are_equal(std::abs(x),std::abs(y),abs_tol,rel_tol)){ return false; }
+	if(!are_equal(x.real(),y.real(),abs_tol,rel_tol)){ return false; }
+	if(!are_equal(x.imag(),y.imag(),abs_tol,rel_tol)){ return false; }
+	return true;
+}
+
+template<typename Type>
+bool are_equal(Vector<Type> const& x, Vector<Type> const& y, double abs_tol=1e-14, double rel_tol=1e-14){
+	if(x.size() != y.size()){ return false; }
+	else {
+		for(unsigned int i(0);i<x.size();i++){
+			if(!are_equal(x(i),y(i),abs_tol,rel_tol)){ return false ; }
+		}
+		return true;
+	}
+}
+/*}*/
+/*}*/
 
 /*constructors and destructor*/
 /*{*/
@@ -291,7 +356,7 @@ Vector<Type>& Vector<Type>::operator-=(Type const& d){
 }
 /*}*/
 
-/*methods that modify the class*/
+/*methods that returns something*/
 /*{*/
 template<>
 inline Vector<double> Vector<double>::chop(double precision) const {
@@ -311,7 +376,10 @@ inline Vector<std::complex<double> > Vector<std::complex<double> >::chop(double 
 	}
 	return tmp;
 }
+/*}*/
 
+/*methods that modify the class*/
+/*{*/
 template<typename Type>
 void Vector<Type>::set(){
 	if(vec_){ delete[] vec_; }
@@ -387,6 +455,13 @@ Type Vector<Type>::sum() const {
 	for(unsigned int i(0);i<size_;i++){ s += vec_[i];}
 	return s;
 }
+
+template<typename Type>
+double Vector<Type>::norm() const {
+	double norm(0);
+	for(unsigned int i(0);i<size_;i++){ norm += norm_squared(vec_[i]);}
+	return sqrt(norm);
+}
 /*}*/
 
 /*sort*/
@@ -427,56 +502,6 @@ Vector<Type> Vector<Type>::order(Vector<unsigned int> const& index) const{
 	Vector<Type> out(size_);
 	for(unsigned int i(0);i<size_;i++){ out(i) = vec_[index(i)]; }
 	return out;
-}
-/*}*/
-
-/*double real(T)*/
-/*{*/
-inline double real(double const& x){ return x; }
-
-inline double real(std::complex<double> const& x){ return std::real(x); }
-/*}*/
-
-/*double imag(T)*/
-/*{*/
-inline double imag(double const& x){ return x; }
-
-inline double imag(std::complex<double> const& x){ return std::imag(x); }
-/*}*/
-
-/*double norm_squared(T)*/
-/*{*/
-inline double norm_squared(double x){ return x*x; }
-
-inline double norm_squared(std::complex<double> x){ return std::norm(x); }
-/*}*/
-
-/*double chop(T)*/
-/*{*/
-inline double chop(double const& x, double precision = 1e-10){ return (std::abs(x)<precision?0.0:x); }
-
-inline std::complex<double> chop(std::complex<double> x, double precision = 1e-10){
-	if(std::abs(x.imag()) < precision ){x.imag(0.0);}
-	if(std::abs(x.real()) < precision ){x.real(0.0);}
-	return x; 
-}
-/*}*/
-
-/*bool are_equal(T,T)*/
-/*{*/
-inline bool are_equal(double x, double y, double abs_tol=1e-14, double rel_tol=1e-14){ 
-	double diff(std::abs(x-y));
-	x = std::abs(x);
-	y = std::abs(y);
-	x = (x>y)?x:y;
-	return (diff<rel_tol*x) || (diff<abs_tol);
-}
-
-inline bool are_equal(std::complex<double> const& x, std::complex<double> const& y, double abs_tol=1e-14, double rel_tol=1e-14){ 
-	if(!are_equal(std::abs(x),std::abs(y),abs_tol,rel_tol)){ return false; }
-	if(!are_equal(x.real(),y.real(),abs_tol,rel_tol)){ return false; }
-	if(!are_equal(x.imag(),y.imag(),abs_tol,rel_tol)){ return false; }
-	return true;
 }
 /*}*/
 #endif
