@@ -2,32 +2,35 @@
 
 ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<double> ti):
 	System(ref,N,m,n,M,bc),
-	Chain<double>(N_/m_,"chain-polymerized"),
+	Chain<double>((are_equal(ti,Vector<double>(N_/m_,1.0))?1:N_/m_),"chain-polymerized"),
 	ti_(ti)
 {
 	if(status_==2){
 		init_fermionic();
-		filename_ += "-tij";
+		filename_ += "-ti";
 		for(unsigned int j(0);j<ti_.size();j++){
 			filename_ += ((ti_(j)>0)?"+":"")+tostring(ti_(j));
 		}
-		system_info_.text("+ Spin chain, with different real hopping term.");
-		system_info_.text("  For N colors and m particules per sites, every");
-		system_info_.text("  N/m, there is a weaker bound, namely 1-delta");
-		system_info_.text("  instead of t. (t=1) :");
-		std::cerr<<"find condition when poly==fermi"<<std::endl;
+		if(spuc_ != 1){
+			system_info_.text("+ Spin chain, with different real hopping terms.");
+			if(spuc_ != 4){
+				std::string tmp("");
+				for(unsigned int i(0);i<spuc_-1;i++){ tmp += "=\\bullet"; }
+				system_info_.text("+  :math:`t_i : "+tmp+"-`");
+			}
+			else{system_info_.text("+  :math:`t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-`");}
+		} else {
+			system_info_.text("+ Spin chain with real and uniform hopping terms");
+		}
 	}
 }
 
 /*{method needed for running*/
 void ChainPolymerized::compute_H(){
-	/*!If t<0, delta<0 otherwise no polymerization occurs
-	 * If t>0, delta>0 otherwise no polymerization occurs */
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
-	unsigned int a(n_/L_);
-	for(unsigned int i(0); i<n_; i+=a){
-		for(unsigned int j(0); j<a; j++){
+	for(unsigned int i(0);i<n_;i+=spuc_){
+		for(unsigned int j(0);j<spuc_;j++){
 			nb = get_neighbourg(i+j);
 			H_(i+j,nb(0,0)) = nb(0,1)*ti_(j);
 		}
@@ -81,7 +84,8 @@ void ChainPolymerized::create(){
 
 void ChainPolymerized::save() const {
 	GenericSystem<double>::save();
-	jd_write_->write("ti",ti_);
+	if(spuc_==4){jd_write_->write("ti ("+tostring(ti_(1))+","+tostring(ti_(3))+")",ti_);}
+	else{jd_write_->write("ti ("+tostring(ti_(spuc_-1))+")",ti_);}
 }
 /*}*/
 
@@ -95,12 +99,12 @@ void ChainPolymerized::check(){
 /*{method needed for analysing*/
 std::string ChainPolymerized::extract_level_7(){
 	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
-	std::string tij_string("(");
+	std::string ti_string("(");
 	for(unsigned int j(0);j<ti_.size()-1;j++){
-		tij_string += tostring(ti_(j))+",";
+		ti_string += tostring(ti_(j))+",";
 	}
-	tij_string += tostring(ti_(ti_.size()-1))+")";
-	std::string title("$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $t_{ij}="+tij_string+"$");
+	ti_string += tostring(ti_(ti_.size()-1))+")";
+	std::string title("$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $t_{ij}="+ti_string+"$");
 
 	/*!extract jdbin*/
 	/*{*/
@@ -113,7 +117,7 @@ std::string ChainPolymerized::extract_level_7(){
 	unsigned int tmax;
 
 	(*read_)>>nruns>>tmax;
-	(*data_write_)<<"% tij E dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
+	(*data_write_)<<"% ti E dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	/*!the +1 is the average over all runs */
@@ -145,31 +149,31 @@ std::string ChainPolymerized::extract_level_7(){
 	/*!nearest neighbourg correlations*/
 	/*{*/
 	Gnuplot gp(analyse_+path_+dir_,filename_+"-corr");
+	gp+="set key center";
 	gp.label("x","site","offset 0,0.5");
 	gp.label("y2","$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$");
-	gp+="set key center";
-	gp+="set title '"+title+"'";
+	gp.title(title);
 	gp+="plot '"+filename_+"-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gp+="     '"+filename_+"-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gp+="     '"+filename_+"-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
 	gp+="     "+tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merization="+tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
 	gp+="     "+tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
 	gp.save_file();
-	//	gp.create_image(true);
+	//gp.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlation on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
 	/*}*/
 	/*!long range correlations*/
 	/*{*/
-	unsigned int xi(1);
-	unsigned int xf(n_);
-	Vector<double> exponents(4);
-	compute_critical_exponents(xi,xf,exponents,lrc_mean);
+	unsigned int xi;
+	unsigned int xf;
+	Vector<double> exponents;
+	bool fit(compute_critical_exponents(lrc_mean,xi,xf,exponents));
 
 	Gnuplot gplr(analyse_+path_+dir_,filename_+"-long-range-corr");
 	gplr.range("x",N_/m_,n_-N_/m_);
 	gplr.label("x","$\\|i-j\\|$","offset 0,0.5");
 	gplr.label("y2","$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$","offset 1");
-	gplr+="set title '"+title+"'";
+	gp.title(title);
 	gplr+="set key center bottom";
 	gplr+="set sample 1000";
 	gplr+="m="+tostring(m_)+".0";
@@ -185,9 +189,9 @@ std::string ChainPolymerized::extract_level_7(){
 	gplr+="plot '"+filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gplr+="     '"+filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gplr+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
-	gplr+="     f(x) lc 7 lw 0.5 t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
+	gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
 	gplr.save_file();
-	//	gplr.create_image(true);
+	//gplr.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
 	/*}*/
 	/*!structure factor*/
@@ -211,7 +215,7 @@ std::string ChainPolymerized::extract_level_7(){
 	}
 
 	Gnuplot gpsf(analyse_+path_+dir_,filename_+"-structure-factor");
-	gpsf+="set title '"+title+"'";
+	gp.title(title);
 	gpsf+="set key bottom";
 	gpsf.range("x","0","2*pi");
 	switch(N_/m_){
@@ -224,12 +228,13 @@ std::string ChainPolymerized::extract_level_7(){
 	gpsf+="plot '"+filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";
 	gpsf+="     '"+filename_+"-structure-factor.dat' u 1:3 lt 1 lc 7 t 'imag'";
 	gpsf.save_file();
-	//	gpsf.create_image(true);
+	//gpsf.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-structure-factor.png","Structure factor",analyse_+path_+dir_+filename_+"-structure-factor.gp",1000);
 	/*}*/
 	/*!save some additionnal values */
 	/*{*/
-	jd_write_->write("tij",ti_);
+	if(spuc_==4){jd_write_->write("ti ("+tostring(ti_(1))+","+tostring(ti_(3))+")",ti_);}
+	else{jd_write_->write("ti ("+tostring(ti_(spuc_-1))+")",ti_);}
 	jd_write_->write("energy per site",E_);
 	jd_write_->write("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
 	jd_write_->write("critical exponents",exponents);
@@ -240,7 +245,7 @@ std::string ChainPolymerized::extract_level_7(){
 	delete rst_file_;
 	rst_file_ = NULL;
 
-	return tostring(tij_string);
+	return ti_string;
 }
 
 std::string ChainPolymerized::extract_level_6(){
@@ -271,7 +276,7 @@ std::string ChainPolymerized::extract_level_6(){
 	jd_write_->write("critical exponents",exponents);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
-	gp+="set title '$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc=$"+tostring(bc_)+"$'";
+	gp.title("$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc=$"+tostring(bc_)+"$");
 	if(N_/m_!=4){
 		gp.label("x","$t_"+tostring(N_/m_)+"$"," offset 0,1");
 		gp.label("y2","$\\dfrac{E}{n}$","rotate by 0");

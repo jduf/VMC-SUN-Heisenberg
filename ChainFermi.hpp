@@ -65,6 +65,7 @@ void ChainFermi<Type>::check(){
 template<typename Type>
 std::string ChainFermi<Type>::extract_level_7(){
 	this->rst_file_ = new RSTFile(this->info_+this->path_+this->dir_,this->filename_);
+	std::string title("$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_));
 
 	/*!extract jdbin*/
 	/*{*/
@@ -105,7 +106,7 @@ std::string ChainFermi<Type>::extract_level_7(){
 	Gnuplot gp(this->analyse_+this->path_+this->dir_,this->filename_+"-corr");
 	gp.label("x","site","offset 0,0.5");
 	gp.label("y2","$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$");
-	gp+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
+	gp.title(title);
 	gp+="plot '"+this->filename_+"-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gp+="     '"+this->filename_+"-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gp+="     '"+this->filename_+"-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean'";
@@ -115,16 +116,16 @@ std::string ChainFermi<Type>::extract_level_7(){
 	/*}*/
 	/*!long range correlations*/
 	/*{*/
-	unsigned int xi(1);
-	unsigned int xf(this->n_);
-	Vector<double> exponents(4);
-	this->compute_critical_exponents(xi,xf,exponents,lrc_mean);
+	unsigned int xi;
+	unsigned int xf;
+	Vector<double> exponents;
+	bool fit(this->compute_critical_exponents(lrc_mean,xi,xf,exponents));
 
 	Gnuplot gplr(this->analyse_+this->path_+this->dir_,this->filename_+"-long-range-corr");
 	gplr.range("x",this->N_/this->m_,this->n_-this->N_/this->m_);
 	gplr.label("x","$\\|i-j\\|$","offset 0,0.5");
 	gplr.label("y2","$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$","offset 1");
-	gplr+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
+	gp.title(title);
 	gplr+="set key center bottom";
 	gplr+="set sample 1000";
 	gplr+="m="+tostring(this->m_)+".0";
@@ -140,9 +141,9 @@ std::string ChainFermi<Type>::extract_level_7(){
 	gplr+="plot '"+this->filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
-	gplr+="     f(x) lc 7 lw 0.5 t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
+	gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
 	gplr.save_file();
-//	gplr.create_image(true);
+	//gplr.create_image(true);
 	this->rst_file_->link_figure(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.png","Long range correlation",this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.gp",1000);
 	/*}*/
 	/*!structure factor*/
@@ -166,7 +167,7 @@ std::string ChainFermi<Type>::extract_level_7(){
 	}
 
 	Gnuplot gpsf(this->analyse_+this->path_+this->dir_,this->filename_+"-structure-factor");
-	gpsf+="set title '$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_)+"'";
+	gp.title(title);
 	gpsf+="set key bottom";
 	gpsf.range("x","0","2*pi");
 	switch(this->N_/this->m_){

@@ -138,8 +138,7 @@ std::string AnalyseChain::extract_level_5(){
 					(*read_)>>E[ref(2)]>>polymerization_strength[ref(2)]>>exponents[ref(2)];
 				}
 
-				std::cerr<<"find condition when poly==fermi"<<std::endl;
-				if(!are_equal(ti(N/m-1),1)){
+				if(!are_equal(ti,Vector<double>(N/m,1.0))){
 					ref(1) = 1;
 					ref(2) = 1;
 					ChainPolymerized chain(ref,N,m,n,M,bc,ti);
@@ -165,8 +164,7 @@ std::string AnalyseChain::extract_level_5(){
 				}
 
 				/*As we know that SU(9) m=3 is gapless, it will save the correct critical exponent*/
-				std::cerr<<"find condition when poly==fermi"<<std::endl;
-				unsigned int eta_idx(((N==9&&m==3) || are_equal(ti(N/m-1),1))?0:1);
+				unsigned int eta_idx(( (N==9&&m==3) || ref(2)==0)?0:1);
 				if(outfile_){
 					(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<ti<<" ";
 					(*outfile_)<<E[1]<<" "<<exponents[eta_idx]<<" "<<polymerization_strength[ref(2)]<<IOFiles::endl;

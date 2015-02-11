@@ -99,7 +99,7 @@ void System1D<Type>::compute_T(){
 			T_(tmp+k,tmp+k+this->spuc_) = t; 
 		}
 	}
-	tmp = this->spuc_*(L_-1);
+	tmp = this->n_-this->spuc_;
 	for(unsigned int k(0);k<this->spuc_;k++){ T_(tmp+k,k) = this->bc_*t; }
 }
 

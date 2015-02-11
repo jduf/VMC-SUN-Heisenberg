@@ -45,7 +45,7 @@ void CreateSystem::parse(Parseur& P){
 		ref_(1) = 1;
 		ref_(2) = 1;
 		Vector<double> ti(N_/m_,1);
-		if(N_ == 8 && m_ == 2){
+		if(N_/m_ == 4){
 			unsigned int c(0);
 			if(P.is_vector("t2")){ c+=1; }
 			if(P.is_vector("t4")){ c+=2; }

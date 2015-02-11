@@ -55,7 +55,14 @@ class Chain: public System1D<Type>{
 		/*!Given N and m, save the best simulation in a text file for any n*/
 		std::string extract_level_3();
 		/*!Find the best range to compute the critcal exponents*/
-		void compute_critical_exponents(unsigned int& xi, unsigned int& xf, Vector<double>& exponents, Vector<double> const& lrc);
+		bool compute_critical_exponents(Vector<double> const& lrc, unsigned int& xi, unsigned int& xf, Vector<double>& p);
+
+	private:
+		/*{Description*/
+		/*!Do the fit of lrc over the range [xi,xf] then modify the parameters
+		 * and check the quality of the fit*/
+		/*}*/
+		void do_fit(Vector<double> const& lrc, unsigned int const& xi, unsigned int const& xf, Vector<double>& p, double& R_squared, double& d_squared);
 };
 
 template<typename Type>
@@ -85,51 +92,6 @@ Matrix<int> Chain<Type>::get_neighbourg(unsigned int i) const {
 }
 
 template<typename Type>
-void Chain<Type>::compute_critical_exponents(unsigned int& xi, unsigned int& xf, Vector<double>& exponents, Vector<double> const& lrc){
-	Vector<double> x;
-	Vector<double> y;
-	//Vector<double> p(3,2);
-	//p(1) -= 2.0/this->N_;
-	//double d(10);
-	//double bd(10);
-	//auto func = [this](double x, const double* p){ 
-		//return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-p[3])+pow(this->n_-x,-p[3]));
-	//};
-	auto func = [this](double x, const double* p){ 
-		return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-2.0)+pow(this->n_-x,-2.0));
-	};
-	//for(unsigned int s(1);s<lrc.size()/3;s++){
-		//x.set(lrc.size()-2*s+1);
-		//y.set(lrc.size()-2*s+1);
-		//for(unsigned int i(0);i<x.size();i++){
-			//x(i) = i+s;
-			//y(i) = lrc(i+s);
-		//}
-		//Fit(x,y,p,func);
-		//d = norm_squared(p(1)-2.0+2.0/this->N_);
-		//if(d<bd){
-			//bd = d;
-			//xi = s;
-			//xf = this->n_-s; 
-			//exponents = p;
-		//}
-	//}
-	//if(xi != this->N_/this->m_){ std::cerr<<"fit : ["<<xi<<":"<<xf<<"] "<<this->N_<<" "<<this->m_<<" "<<this->n_<<std::endl; }
-	unsigned int s(this->N_/this->m_);
-	x.set(lrc.size()-2*s+1);
-	y.set(lrc.size()-2*s+1);
-	for(unsigned int i(0);i<x.size();i++){
-		x(i) = i+s;
-		y(i) = lrc(i+s);
-	}
-	exponents.set(3,2);
-	exponents(1) -= 2.0/this->N_;
-	Fit(x,y,exponents,func);
-	xi = s;
-	xf = this->n_-s; 
-}
-
-template<typename Type>
 std::string Chain<Type>::extract_level_3(){
 	double polymerization_strength;
 	Vector<double> exponents;
@@ -137,5 +99,101 @@ std::string Chain<Type>::extract_level_3(){
 	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<" "<<exponents<<IOFiles::endl;
 
 	return this->filename_;
+}
+
+template<typename Type>
+bool Chain<Type>::compute_critical_exponents(Vector<double> const& lrc, unsigned int& xi, unsigned int& xf, Vector<double>& p){
+	unsigned int dx(this->N_/this->m_);
+	if(this->bc_ == 1 && this->n_>4*dx){
+		double R_squared;
+		double d_squared;
+		if(this->N_ % 2){
+			xi = (this->N_-this->m_)/2;//strange behaviour but needed for su9m3. maybe try something else
+			xf = this->n_-xi-1;
+			do_fit(lrc, xi, xf, p, R_squared, d_squared);
+
+			/*!if the quality of the fit is bad, the next valid starting point is
+			 * selected. this may not reduce the intrinsec quality of the fit, but
+			 * it will reduce the error (rss)
+			 * r_squared = 1-rss/tss*(x.size()-1)/(x.size()-exponents.size());
+			 * rss /= (x.size()-exponents.size());
+			 * it is actually needed only for su(5) m=1
+			 */
+			if(R_squared<0.9995){
+				xi += dx;           //for 5 should start at (N/m-1)/2-1+N/m
+				xf = this->n_-xi-1;//for 5 should stop at n-si-2
+				do_fit(lrc, xi, xf, p, R_squared, d_squared);
+			}
+			return true;
+		} else {
+			xi = dx;
+			xf = this->n_-dx-1;
+			do{
+				do_fit(lrc, xi, xf, p, R_squared, d_squared);
+
+				if(R_squared > 0.999 && d_squared/this->m_ < 1.6e-8){ return true; } 
+				/*!normally all the fits have a R_square higher than 0.999. But
+				 * if it is not the case, I just need a fit that is not too bad
+				 * and I don't care about d*/
+				if(R_squared < 0.999 && R_squared > 0.995 && d_squared < 1e-7){ return true; } 
+				xf -= dx;
+				xi += dx; 
+			} while (xf-xi>2*dx);
+			xi = dx;
+			xf = lrc.size()-dx;
+			do_fit(lrc, xi, xf, p, R_squared, d_squared);
+
+			std::cerr<<"void Chain<Type>::compute_critical_exponents(unsigned int& xi,"<<std::endl;
+			std::cerr<<"unsigned int& xf, Vector<double>& exponents, Vector<double> lrc) :"<<std::endl;
+			std::cerr<< "    No fit found for : SU("<<this->N_<<") m="<<this->m_<<" n="<<this->n_;
+			std::cerr<< " (fitting range assumed)"<<std::endl;
+			return false;
+		}
+	} else {
+		xi = 1;
+		xf = lrc.size()-2;
+		p.set(4,0);
+		return false;
+	}
+}
+
+template<typename Type>
+void Chain<Type>::do_fit(Vector<double> const& lrc, unsigned int const& xi, unsigned int const& xf, Vector<double>& p, double& R_squared, double& d_squared){
+	double rss(0.0);
+	double tss(0.0);
+	double ym;
+	p.set(4,2);
+	p(1) -= 2.0/this->N_;
+	Vector<double> x(xf-xi);
+	Vector<double> y(xf-xi);
+	for(unsigned int i(0);i<x.size();i++){
+		x(i) = i+xi;
+		y(i) = lrc(i+xi);
+	}
+	ym = y.mean();
+
+	if(p.size()==3){
+		auto func = [this](double x, const double* p){ 
+			return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-2.0)+pow(this->n_-x,-2.0));
+		};
+		Fit(x,y,p,func); 
+		for(unsigned int i(0);i<x.size();i++){
+			rss += norm_squared(y(i)-func(x(i),p.ptr()));
+			tss += norm_squared(ym-y(i));
+		}
+	}
+	if(p.size()==4){
+		auto func = [this](double x, const double* p){ 
+			return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-p[3])+pow(this->n_-x,-p[3]));
+		};
+		Fit(x,y,p,func); 
+		for(unsigned int i(0);i<x.size();i++){
+			rss += norm_squared(y(i)-func(x(i),p.ptr()));
+			tss += norm_squared(ym-y(i));
+		}
+	}
+
+	R_squared = 1-rss/tss*(x.size()-1)/(x.size()-p.size());
+	d_squared = rss/(x.size()-p.size());
 }
 #endif
