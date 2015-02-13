@@ -355,7 +355,7 @@ void CreateSystem::error(){
 void CreateSystem::create(){
 	if(RGL_){
 		RGL_->create();
-		if(is_degenerate() && type_ == 1){
+		if(get_status()!=1 && type_ == 1){
 			delete RGL_;
 			RGL_=NULL;
 			ref_(1)=2;
@@ -364,7 +364,7 @@ void CreateSystem::create(){
 		}
 	} else {
 		if(CGL_){ CGL_->create(); }
-		if(CGL_ && is_degenerate()){
+		if(CGL_ && get_status()!=1){
 			std::cerr<<"void CreateSystem::create() : behaviour undefined"<<std::endl;
 		}
 	}

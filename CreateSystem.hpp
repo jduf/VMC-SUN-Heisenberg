@@ -70,12 +70,6 @@ class CreateSystem{
 		/*}*/
 
 		/*{Other class calls*/
-		/*!Calls Fermionic::is_degenerate()*/
-		bool is_degenerate() const {
-			if(RGL_){return RGL_->get_status()>1;}
-			if(CGL_){return CGL_->get_status()>1;}
-			return true;
-		}
 		/*!Calls System::get_status() : see System.hpp*/
 		unsigned int get_status() const {
 			if(RGL_){return RGL_->get_status();}
