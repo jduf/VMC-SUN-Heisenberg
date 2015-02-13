@@ -1,13 +1,12 @@
 #ifndef DEF_MATRIX
 #define DEF_MATRIX
 
-#include <cmath> //allow abs(double) and abs(complex) 
+template<typename Type>
+class Vector;
+
 #include <cassert>
 #include <algorithm>
 #include "IOFiles.hpp"
-
-template<typename Type>
-class Vector;
 
 /*{*/
 /*!Class that implement a static array as a Matrix
@@ -30,11 +29,11 @@ class Matrix{
 		~Matrix();
 
 		/*!Accesses the (i,j)th entry of the matrix*/
-		Type const& operator()(unsigned int const& i, unsigned int const& j)
-			const { assert(i<row_ && j<col_); return mat_[i+j*row_]; };
+		Type const& operator()(unsigned int const& i, unsigned int const& j) const 
+		{ assert(i<row_ && j<col_); return mat_[i+j*row_]; };
 		/*!Sets the (i,j)th entry of the matrix*/
-		Type& operator()(unsigned int const& i, unsigned int const& j) {
-			assert(i<row_ && j<col_); return mat_[i+j*row_]; };
+		Type& operator()(unsigned int const& i, unsigned int const& j)
+		{ assert(i<row_ && j<col_); return mat_[i+j*row_]; };
 
 		/*!Assignment (using Copy-And-Swap Idiom)*/
 		Matrix<Type>& operator=(Matrix<Type> mat); 
@@ -55,7 +54,6 @@ class Matrix{
 		Matrix<Type>& operator*=(Type const& d);
 		/*!Calls operator*=(Type const& d)*/
 		Matrix<Type> operator*(Type const& d) const;
-
 		/*!Devides a matrix by a scalar*/
 		Matrix<Type>& operator/=(Type const& d);
 		/*!Substracts a matrix by a scalar*/
@@ -72,6 +70,7 @@ class Matrix{
 		void set(unsigned int N_row, unsigned int N_col);
 		/*!Set a N_row x N_col matrix to val */
 		void set(unsigned int N_row, unsigned int N_col, Type val);
+
 		/*!Sets the entries to zero if they are close to 0*/
 		Matrix<Type> chop(double precision = 1e-10) const;
 
@@ -99,9 +98,7 @@ class Matrix{
 		/*!Returns the maximal value of mat_*/
 		Type max() const;
 
-#ifdef DEF_IOFILES
 		void header_rst(std::string const& s, RST& rst) const;
-#endif
 
 	private:
 		unsigned int row_; //!< number of rows
@@ -109,11 +106,6 @@ class Matrix{
 		unsigned int size_; //!< size of the array
 		Type* mat_; //!< pointer to a static array
 
-		/*{Description*/
-		/*!Set mat_=NULL and all sizes to 0
-		 * \warning the use of this method may leed to a segmentation fault*/
-		/*}*/
-		void set_null_pointer();
 		/*!Copy-And-Swap Idiom*/
 		void swap_to_assign(Matrix<Type>& m1,Matrix<Type>& m2);
 };
@@ -198,7 +190,6 @@ std::istream& operator>>(std::istream& flux, Matrix<Type> const& m){
 	return flux;
 }
 
-#ifdef DEF_IOFILES
 template<typename Type>
 void Matrix<Type>::header_rst(std::string const& s, RST& rst) const {
 	rst.def(s,"Matrix("+tostring(row_)+","+tostring(col_)+")"); 
@@ -228,7 +219,6 @@ IOFiles& operator>>(IOFiles& r, Matrix<Type>& m){
 	}
 	return r;
 }
-#endif 
 /*}*/
 
 /*arithmetic operators*/
@@ -407,14 +397,6 @@ template<typename Type>
 void Matrix<Type>::set(unsigned int row, unsigned int col, Type val){
 	this->set(row,col);
 	this->set(val);
-}
-
-template<typename Type>
-void  Matrix<Type>::set_null_pointer(){
-	row_ =0;
-	col_ = 0;
-	size_ = 0;
-	mat_=NULL;
 }
 /*}*/
 

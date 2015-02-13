@@ -1,8 +1,7 @@
 #ifndef DEF_RST
 #define DEF_RST
 
-#include <string>
-#include <iostream>
+#include "Miscellaneous.hpp"
 
 class RST{
 	public:
@@ -37,12 +36,4 @@ class RST{
 };
 
 std::ostream& operator<<(std::ostream& flux, RST const& rst);
-
-#include <sstream> //-> tostring(T const& t)
-template<typename Type>
-std::string tostring(Type const& t){
-	std::ostringstream s;
-	s<<t;
-	return s.str();
-}
 #endif

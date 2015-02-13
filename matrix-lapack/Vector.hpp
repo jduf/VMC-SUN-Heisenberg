@@ -25,10 +25,10 @@ class Vector{
 
 		/*!Accesses the (i,j)th entry of the Vector*/
 		Type const& operator()(unsigned int const& i) const 
-		{assert(i<size_); return vec_[i];}
+		{ assert(i<size_); return vec_[i]; }
 		/*!Sets the (i,j)th entry of the Vector*/
 		Type& operator()(unsigned int const& i) 
-		{assert(i<size_); return vec_[i];}
+		{ assert(i<size_); return vec_[i]; }
 
 		/*!Assignment (using Copy-And-Swap Idiom)*/
 		Vector<Type>& operator=(Vector<Type> vec); 
@@ -102,9 +102,7 @@ class Vector{
 		/*!Returns the pointer to the Vector*/
 		Type* ptr() const {return vec_;}
 
-#ifdef DEF_IOFILES
 		void header_rst(std::string const& s, RST& rst) const;
-#endif
 
 	private:
 		unsigned int size_; //!< number of rows
@@ -113,69 +111,6 @@ class Vector{
 		/*!Copy-And-Swap Idiom*/
 		void swap_to_assign(Vector<Type>& v1,Vector<Type>& v2);
 };
-
-/*{General method that could be used anywhere*/
-/*double real(T)*/
-/*{*/
-inline double real(double const& x){ return x; }
-
-inline double real(std::complex<double> const& x){ return std::real(x); }
-/*}*/
-
-/*double imag(T)*/
-/*{*/
-inline double imag(double const& x){ return x; }
-
-inline double imag(std::complex<double> const& x){ return std::imag(x); }
-/*}*/
-
-/*double norm_squared(T)*/
-/*{*/
-inline double norm_squared(double x){ return x*x; }
-
-inline double norm_squared(std::complex<double> x){ return std::norm(x); }
-/*}*/
-
-/*double chop(T)*/
-/*{*/
-inline double chop(double const& x, double precision = 1e-10){ return (std::abs(x)<precision?0.0:x); }
-
-inline std::complex<double> chop(std::complex<double> x, double precision = 1e-10){
-	if(std::abs(x.imag()) < precision ){x.imag(0.0);}
-	if(std::abs(x.real()) < precision ){x.real(0.0);}
-	return x; 
-}
-/*}*/
-
-/*bool are_equal(T,T)*/
-/*{*/
-inline bool are_equal(double x, double y, double abs_tol=1e-14, double rel_tol=1e-14){ 
-	double diff(std::abs(x-y));
-	x = std::abs(x);
-	y = std::abs(y);
-	x = (x>y)?x:y;
-	return (diff<rel_tol*x) || (diff<abs_tol);
-}
-
-inline bool are_equal(std::complex<double> const& x, std::complex<double> const& y, double abs_tol=1e-14, double rel_tol=1e-14){ 
-	if(!are_equal(std::abs(x),std::abs(y),abs_tol,rel_tol)){ return false; }
-	if(!are_equal(x.real(),y.real(),abs_tol,rel_tol)){ return false; }
-	if(!are_equal(x.imag(),y.imag(),abs_tol,rel_tol)){ return false; }
-	return true;
-}
-
-template<typename Type>
-bool are_equal(Vector<Type> const& x, Vector<Type> const& y, double abs_tol=1e-14, double rel_tol=1e-14){
-	if(x.size() != y.size()){ return false; }
-	else {
-		for(unsigned int i(0);i<x.size();i++){
-			if(!are_equal(x(i),y(i),abs_tol,rel_tol)){ return false ; }
-		}
-		return true;
-	}
-}
-/*}*/
-/*}*/
 
 /*constructors and destructor*/
 /*{*/
@@ -237,7 +172,6 @@ std::istream& operator>>(std::istream& flux, Vector<Type> const& v){
 	return flux;
 }
 
-#ifdef DEF_IOFILES
 template<typename Type>
 void Vector<Type>::header_rst(std::string const& s, RST& rst) const {
 	rst.def(s,"Vector("+tostring(size_)+")"); 
@@ -266,10 +200,9 @@ IOFiles& operator>>(IOFiles& r, Vector<Type>& v){
 	}
 	return r;
 }
-#endif 
 /*}*/
 
-/*operators*/
+/*arithmetic operators*/
 /*{*/
 template<typename Type>
 Vector<Type>& Vector<Type>::operator=(Vector<Type> vec){
@@ -356,28 +289,6 @@ Vector<Type>& Vector<Type>::operator-=(Type const& d){
 }
 /*}*/
 
-/*methods that returns something*/
-/*{*/
-template<>
-inline Vector<double> Vector<double>::chop(double precision) const {
-	Vector<double > tmp(*this);
-	for(unsigned int i(0);i<size_;i++){
-		if(std::abs(tmp.vec_[i]) < precision ){tmp.vec_[i]=0.0;}
-	}
-	return tmp;
-}
-
-template<>
-inline Vector<std::complex<double> > Vector<std::complex<double> >::chop(double precision) const{
-	Vector<std::complex<double> > tmp(*this);
-	for(unsigned int i(0);i<size_;i++){
-		if(std::abs(tmp.vec_[i].real()) < precision ){tmp.vec_[i].real(0.0);}
-		if(std::abs(tmp.vec_[i].imag()) < precision ){tmp.vec_[i].imag(0.0);}
-	}
-	return tmp;
-}
-/*}*/
-
 /*methods that modify the class*/
 /*{*/
 template<typename Type>
@@ -405,14 +316,36 @@ void Vector<Type>::set(unsigned int N, Type const& val){
 }
 /*}*/
 
+/*methods that returns something*/
+/*{*/
+template<>
+inline Vector<double> Vector<double>::chop(double precision) const {
+	Vector<double > tmp(*this);
+	for(unsigned int i(0);i<size_;i++){
+		if(std::abs(tmp.vec_[i]) < precision ){tmp.vec_[i]=0.0;}
+	}
+	return tmp;
+}
+
+template<>
+inline Vector<std::complex<double> > Vector<std::complex<double> >::chop(double precision) const{
+	Vector<std::complex<double> > tmp(*this);
+	for(unsigned int i(0);i<size_;i++){
+		if(std::abs(tmp.vec_[i].real()) < precision ){tmp.vec_[i].real(0.0);}
+		if(std::abs(tmp.vec_[i].imag()) < precision ){tmp.vec_[i].imag(0.0);}
+	}
+	return tmp;
+}
+
 template<typename Type>
 Vector<Type> Vector<Type>::range(unsigned int min, unsigned int max) const {
 	Vector<Type> out(max-min);
 	for(unsigned int i(0);i<max-min;i++){
-		out(i) = vec_[min+i];
+		out[i] = vec_[min+i];
 	}
 	return out;
 }
+/*}*/
 
 /*statistique*/
 /*{*/
@@ -476,9 +409,9 @@ template<typename Type>
 template<typename Function>
 void Vector<Type>::sort(Function cmp, Vector<unsigned int>& index){
 	index.set(size_);
-	for(unsigned int i(0);i<size_;i++) { index(i) = i; }
+	for(unsigned int i(0);i<size_;i++){ index(i) = i; }
 	while(!is_sorted(cmp)) {
-		for(unsigned int i(0);i<size_-1;i++) {
+		for(unsigned int i(0);i<size_-1;i++){
 			if(!cmp(vec_[i],vec_[i+1])){
 				std::swap(vec_[i],vec_[i+1]);
 				std::swap(index(i),index(i+1));

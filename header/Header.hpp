@@ -3,7 +3,6 @@
 
 #include "Time.hpp"
 #include "RST.hpp"
-#include <complex>
 
 class Header:public RST{
 	public:
