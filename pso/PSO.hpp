@@ -2,8 +2,8 @@
 #define DEF_PSO
 
 #include"Rand.hpp"
-#include"IOFiles.hpp"
 #include"Vector.hpp"
+#include"omp.h"
 
 class PSO {
 	public:
@@ -12,7 +12,7 @@ class PSO {
 
 		void PSO_init();
 		void PSO_set_limit(unsigned int param, double min, double max);
-		void PSO_run(bool synchro=true);
+		void PSO_run();
 		void PSO_print();
 		void PSO_save(std::string filename);
 		void PSO_load(std::string filename);

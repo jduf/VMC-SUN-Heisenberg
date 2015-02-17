@@ -7,8 +7,8 @@ PSO::PSO(unsigned int Nparticles, unsigned int Nfreedom, double cg, double cp, u
 	bparticle_(0),
 	Nfreedom_(Nfreedom),
 	maxiter_(maxiter),
-	min_(Nfreedom,-1.5),
-	max_(Nfreedom,1.5),
+	min_(Nfreedom,-2.5),
+	max_(Nfreedom,2.5),
 	pbx_(new Vector<double>[Nparticles]),
 	pv_(new Vector<double>[Nparticles]),
 	px_(new Vector<double>[Nparticles]),
@@ -35,15 +35,16 @@ PSO::PSO(unsigned int Nparticles, unsigned int Nfreedom, double cg, double cp, u
 void PSO::PSO_init(){
 #pragma omp parallel for schedule(dynamic,1)
 	for(unsigned int i=0;i<Nparticles_;i++){
-#pragma omp critical
-		{
-			for(unsigned int j(0);j<Nfreedom_;j++){
-				px_[i](j) = rnd_.get()*(max_(j)-min_(j))+min_(j);
-				pv_[i](j) = rnd_.get()*(max_(j)-min_(j))+min_(j);
-			}
+		for(unsigned int j(0);j<Nfreedom_;j++){
+			px_[i](j) = rnd_.get()*(max_(j)-min_(j))+min_(j);
+			pv_[i](j) = rnd_.get()*(max_(j)-min_(j))+min_(j);
 		}
+#pragma omp critical
+		std::cout<<px_[i]<<std::endl;
+		move_on_grid(i);
 		pbx_[i] = px_[i];
 		pfbx_[i] = f(px_[i]);
+#pragma omp critical
 		std::cout<<px_[i]<<std::endl;
 	}
 	for(unsigned int i(1);i<Nparticles_;i++){
@@ -121,32 +122,24 @@ void PSO::next_step(unsigned int i){
 	}
 }
 
-void PSO::PSO_run(bool synchro){
-	std::cout<<"PSO::will start the run"<<std::endl;	
-	if(synchro){
+void PSO::PSO_run(){
+	if(int(Nparticles_)<=omp_get_max_threads()){
+		std::cout<<"PSO::run all particles in parallel"<<std::endl;
 		for(unsigned int iter(0); iter<maxiter_; iter++){
 #pragma omp parallel for
-			for(unsigned int i=0;i<Nparticles_;i++){
-				next_step(i);
-			}
+			for(unsigned int i=0;i<Nparticles_;i++){ next_step(i); }
 		}
 	} else {
-		//std::cerr<<"Nparticles must be bigger than omp_get_num_threads"<<std::endl;
-		unsigned int i(0);
-		unsigned int ip(0);
-#pragma omp parallel for schedule(dynamic,1) firstprivate(ip)
-		for(unsigned int iter=0; iter<maxiter_; iter++){
-#pragma omp critical
-			{
-				i++;
-				ip = (i-1) % Nparticles_;
-				if(!free_[ip]){ iter--; }
-			}
-			if(free_[ip]){
-				free_[ip]=false;
-				next_step(ip);
-				free_[ip]=true;
-			}
+		std::cout<<"PSO::run only "+tostring(omp_get_max_threads())+" particles in parallel"<<std::endl;
+		unsigned int p(0);
+#pragma omp parallel for schedule(dynamic,1) firstprivate(p)
+		for(unsigned int i=0; i<maxiter_*Nparticles_; i++){
+			p = (p+1) % Nparticles_;
+			if(free_[p]){
+				free_[p]=false;
+				next_step(p);
+				free_[p]=true;
+			} else { i--; }
 		}
 	}
 }
@@ -158,6 +151,7 @@ void PSO::PSO_print(){
 	for(unsigned int i(0);i<Nparticles_;i++){
 		std::cout<<px_[i]<<pv_[i]<<pbx_[i]<<pfbx_[i]<<std::endl;
 	}
+	std::cout<<"best at "<<pbx_[bparticle_]<<" with "<<pfbx_[bparticle_]<<std::endl;
 }
 
 void PSO::PSO_save(std::string filename){
