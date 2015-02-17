@@ -34,8 +34,8 @@ class Binning{
 		/*!Forbids assigment*/
 		Binning& operator=(Binning d);
 
-		unsigned int const B_;	//!< minimum number of biggest bins needed to compute variance
-		unsigned int const b_;	//!< l_+b_ rank of the biggest bin (b !> 30)
+		unsigned int const B_;//!< minimum number of biggest bins needed to compute variance
+		unsigned int const b_;//!< l_+b_ rank of the biggest bin (b !> 30)
 		unsigned int l_;	//!< rank of the "smallest" bin 
 		unsigned int DPL_;	//!< 2^l_ maximum number of element in each bin of rank l_
 		unsigned int dpl_;	//!< current number of element in each bin of rank l_
@@ -51,7 +51,7 @@ class Binning{
 		IOFiles* log_;//!< log of dx_ when recompute_dx_usefull_
 
 		/*!Recursive method that add samples in the different bins*/
-		void add_bin(unsigned int l, double a, double b);
+		void add_bin(unsigned int l, Type const& a, Type const& b);
 };
 
 template<typename Type>
@@ -155,7 +155,7 @@ template<typename Type>
 Binning<Type>::Binning(unsigned int const& B, unsigned int const& b):
 	B_(B),
 	b_(b),
-	bin_(new Vector<double>[b]),
+	bin_(new Vector<Type>[b]),
 	log_(NULL)
 {set();}
 
@@ -169,7 +169,7 @@ Binning<Type>::Binning(Binning const& b):
 	logl_(b.logl_),
 	Ml_(b.Ml_),
 	m_bin_(b.m_bin_),
-	bin_(b_?new Vector<double>[b_]:NULL),
+	bin_(b_?new Vector<Type>[b_]:NULL),
 	recompute_dx_usefull_(b.recompute_dx_usefull_),
 	addlog_(b.addlog_),
 	log_(b.log_?new IOFiles(log_->get_filename()+"bis",true):NULL)
@@ -309,7 +309,7 @@ void Binning<Type>::complete_analysis(double const& tol, Type& x, Type& dx, bool
 /*private methods*/
 /*{*/
 template<typename Type>
-void Binning<Type>::add_bin(unsigned int l, double a, double b){
+void Binning<Type>::add_bin(unsigned int l, Type const& a, Type const& b){
 	bin_[l](Ml_(l)) = (a+b)/2.0;
 	m_bin_(l) = (m_bin_(l)*Ml_(l)+bin_[l](Ml_(l)))/(Ml_(l)+1);
 	Ml_(l)++;

@@ -6,11 +6,13 @@
 void check_troyer();
 void check_flip_coin();
 void read_output_files();
+void merge_two_sim();
 
 int main(){
 	//check_troyer();
-	check_flip_coin();
-	read_output_files();
+	//check_flip_coin();
+	//read_output_files();
+	merge_two_sim();
 }
 
 void check_troyer(){
@@ -43,9 +45,9 @@ void check_troyer(){
 	H_right.set(N+1,B,b,true);
 	iter=0;
 	//for( unsigned int i(0);i<N+1;i++){
-		//H_right[i].get_binning()->plot("log"+tostring(i));
+	//H_right[i].get_binning()->plot("log"+tostring(i));
 	//}
-	
+
 	do{
 		r = rnd.get();
 		if(r < n){n--;}
@@ -174,4 +176,40 @@ void read_output_files(){
 	IOFiles troyer("coin.jdbin",false);
 	if(troyer.is_open()){
 	}
+}
+
+void merge_two_sim(){
+	Rand<int> rnd(0,10);
+	unsigned int iter(0);
+
+	unsigned int B(5);
+	unsigned int b(2);
+
+	double tol(5e-5);
+	double conv(0.0);
+
+	Data<int> H1;
+	H1.set(B,b,conv);
+	Data<int> H2;
+	H2.set(B,b,conv);
+	do{ 
+		iter++;
+		H1.set_x(rnd.get());
+		H1.add_sample(); 
+		H2.set_x(rnd.get());
+		H2.add_sample(); 
+		if(iter>1e2){ H1.compute_convergence(tol); }
+		if(iter>1e2){ H2.compute_convergence(tol); }
+		std::cout<<"###############"<<std::endl;
+		for(unsigned int i(0);i<b;i++){ 
+			std::cout<<H1.get_binning()->bin_[i]<<std::endl;
+		}
+	} while (iter<52);
+
+	H1.complete_analysis(tol);
+	H2.complete_analysis(tol);
+
+	std::cout<<iter<<std::endl;
+	std::cout<<H1<<std::endl;
+	std::cout<<H2<<std::endl;
 }

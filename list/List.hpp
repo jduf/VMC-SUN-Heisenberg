@@ -3,46 +3,45 @@
 
 #include <iostream>
 #include <cassert>
-#include <algorithm>
-#include <utility>
+#include <functional>
 
 template<typename Type>
 class List{
 	public:
 		List();
-		List(Type const& t);
+		List(Type* t);
 		List(List<Type> const& l);
 		~List(){ clear(); }
+		void clear();
 
 		Type const& operator[](unsigned int idx) const;
 		Type& operator[](unsigned int idx);
 		Type& first(){ return *t_; }
 		Type const& first() const { return *t_; }
-		Type& last() { return *(previous_->t_); }
-		Type const& last() const { return *(previous_->t_); }
+		Type& last() { return (*prev_->t_); }
+		Type const& last() const { return (*prev_->t_); }
 
 		unsigned int size() const { return N_;}
 
-		void add_start(Type const& t);
-		void add_end(Type const& t);
-		void add(Type const& t, unsigned int const& idx);
-		template<typename Function>
-			void add_sort(Type const& t, Function cmp);
+		void add_start(Type* t);
+		void add_end(Type* t);
+		void add(Type* t, unsigned int const& idx);
+		void add_sort(Type* t,  std::function<bool (Type*,Type*)> cmp);
+		void add_or_fuse_sort(Type* t, std::function<unsigned int (Type*,Type*)> cmp, std::function<void (Type*,Type*)> fuse);
 
 		void pop_start();
 		void pop_end();
 		void pop(unsigned int const& idx);
 		void pop_range(unsigned int const& a, unsigned int const& b);
 
-		void clear();
-		void swap(unsigned int const& a, unsigned int const& b);
-
 		List<Type> sublist(unsigned int const& a, unsigned int const& b) const;
+		void swap(unsigned int const& a, unsigned int const& b);
 		void print(std::ostream& flux) const;
+		void check() const;
 
 	protected:
 		Type* t_;
-		List<Type>* previous_;
+		List<Type>* prev_;
 		List<Type>* next_;
 		unsigned int N_;
 };
@@ -55,36 +54,47 @@ std::ostream& operator<<(std::ostream& flux, List<Type> const& l);
 template<typename Type>
 List<Type>::List():
 	t_(NULL),
-	previous_(NULL),
+	prev_(NULL),
 	next_(NULL),
 	N_(0)
 {}
 
 template<typename Type>
-List<Type>::List(Type const& t):
-	t_(new Type(t)),
-	previous_(NULL),
+List<Type>::List(Type* t):
+	t_(t),
+	prev_(NULL),
 	next_(NULL),
 	N_(1)
-{
-
-}
+{}
 
 
 template<typename Type>
 List<Type>::List(List<Type> const& l):
 	t_(l.t_),
-	previous_(NULL),
+	prev_(NULL),
 	next_(NULL),
 	N_(1)
 { 
 	if(l.N_>1){
 		List<Type> const* tmp(l.next_);
 		while(tmp){
-			add_end(*tmp->t_);
+			add_end(tmp->t_);
 			tmp = tmp->next_;
 		}
 	}
+}
+
+template<typename Type>
+void List<Type>::clear(){
+	if(next_){ 
+		delete next_;
+		next_ = NULL;
+	}
+	if(t_){
+		delete t_;
+		t_ = NULL;
+	}
+	N_ = 0;
 }
 /*}*/
 
@@ -113,81 +123,172 @@ Type& List<Type>::operator[](unsigned int idx) {
 }
 /*}*/
 
-/*methods that modify the class*/
+/*add an element to the list*/
 /*{*/
 template<typename Type>
-void List<Type>::add_start(Type const& t){
+void List<Type>::add_start(Type* t){
 	switch(N_){
 		case 0:
-			{ t_ = new Type(t); }break;
+			{ t_ = t; }break;
 		case 1:
 			{ 
-				next_ = new List<Type>(t);
-				next_->previous_ = this;
-				previous_ = next_;
+				next_ = new List<Type>(t_);
+				next_->prev_ = this;
+				prev_ = next_;
+				t_ = t;
 			}break;
 		default:
 			{
-				List<Type>* tmp(next_);
-				next_ = new List<Type>(*t_);
-				tmp->previous_ = next_;
-				next_->next_ = tmp;
-				/*not cool delete+new*/
-				delete t_;
-				t_ = new Type(t);
+				next_->prev_ = new List<Type>(t_);
+				next_->prev_->next_ = next_;
+				next_= next_->prev_;
+				next_->prev_ = this;
+				t_ = t;
 			}
 	}
 	N_++;
 }
 
 template<typename Type>
-void List<Type>::add_end(Type const& t){
+void List<Type>::add_end(Type* t){
 	switch(N_){
 		case 0:
-			{ t_ = new Type(t); }break;
+			{ t_ = t; }break;
 		case 1:
-			{ 
+			{
 				next_ = new List<Type>(t);
-				next_->previous_ = this;
-				previous_ = next_;
+				next_->prev_ = this;
+				prev_ = next_;
 			}break;
 		default:
 			{
-				List<Type>* old_last(previous_);
-				previous_ = new List<Type>(t);
-				previous_->previous_ = old_last;
-				old_last->next_ = previous_;
+				prev_->next_ = new List<Type>(t);
+				prev_->next_->prev_ = prev_;
+				prev_ = prev_->next_;
 			}
 	}
 	N_++;
 }
 
 template<typename Type>
-void List<Type>::add(Type const& t, unsigned int const& idx){
+void List<Type>::add(Type* t, unsigned int const& idx){
+	assert(idx<=N_);
 	if(idx == 0){ add_start(t); }
 	else{
 		if( idx == N_ ){ add_end(t); }
 		else {
 			List<Type>* tmp(this);
 			for(unsigned int i(0);i<idx-1;i++){ tmp = tmp->next_; }
-			List<Type>* old_idx(tmp->next_);
-			tmp->next_ = new List<Type>(t);
-			tmp->next_->next_ = old_idx;
-			old_idx->previous_ = tmp->next_;
+			tmp->next_->prev_ = new List<Type>(t);
+			tmp->next_->prev_->next_ = tmp->next_;
+			tmp->next_ = tmp->next_->prev_;
+			tmp->next_->prev_ = tmp;
+			N_++;
 		}
 	}
 }
 
 template<typename Type>
-template<typename Function>
-void List<Type>::add_sort(Type const& t, Function cmp){
-	List<Type> const* tmp(this);
-	unsigned int i(0);
-	while( tmp && cmp(*tmp->t_,t)){ 
-		tmp = tmp->next_; 
-		i++;
+void List<Type>::add_sort(Type* t, std::function<bool (Type*,Type*)> cmp){
+	switch(N_){
+		case 0:
+			{
+				t_ = t;
+				N_++;
+			}break;
+		case 1:
+			{
+				if( cmp(t_,t) ){ add_end(t); } 
+				else { add_start(t); }
+			}break;
+		default:
+			{
+				if(cmp(prev_->t_,t)){ add_end(t); }
+				else {
+					List<Type> const* tmp(this);
+					unsigned int i(0);
+					while( cmp(tmp->t_,t) ){ /*removed the condition tmp->next_*/
+						tmp = tmp->next_; 
+						i++;
+					}
+					add(t,i);
+				}
+			}
 	}
-	add(t,i);
+}
+
+template<typename Type>
+void List<Type>::add_or_fuse_sort(Type* t, std::function<unsigned int (Type*,Type*)> cmp, std::function<void (Type*,Type*)> fuse){
+	switch(N_){
+		case 0:
+			{
+				t_ = t;
+				N_++;
+			}break;
+		case 1:
+			{
+				switch(cmp(t_,t)){
+					case 0: { add_start(t); } break;
+					case 1: { add_end(t); } break;
+					case 2: { fuse(t_,t); } break;
+				}
+			}break;
+		default:
+			{
+				switch(cmp(prev_->t_,t)){
+					case 0:
+						{
+							List<Type> const* tmp(this);
+							unsigned int i(0);
+							unsigned int c(cmp(tmp->t_,t));
+							while(c==1){
+								tmp = tmp->next_; 
+								c = cmp(tmp->t_,t);
+								i++;
+							}
+							if(c==0){ add(t,i); }
+							else{ fuse(tmp->t_,t); }
+						}break;
+					case 1:
+						{ add_end(t); }break;
+					case 2:
+						{ fuse(prev_->t_,t); }break;
+				}
+			}
+	}
+}
+/*}*/
+
+/*remove an element from the list*/
+/*{*/
+template<typename Type>
+void List<Type>::pop_start(){
+	switch(N_){
+		case 0:
+			{}break;
+		case 1:
+			{clear();}break;
+		case 2:
+			{
+				delete t_;
+				t_ = next_->t_; 
+				next_->t_ =  NULL;
+				delete next_;
+				next_ = NULL;
+				N_--;
+			}break;
+		default:
+			{
+				delete t_;
+				t_ = next_->t_; 
+				next_->t_ =  NULL;
+				next_ = next_->next_;
+				next_->prev_->next_ = NULL;
+				delete next_->prev_;
+				next_->prev_ = this;
+				N_--;
+			}break;
+	}
 }
 
 template<typename Type>
@@ -204,34 +305,17 @@ void List<Type>::pop_end(){
 			}break;
 		default:
 			{
-				List<Type>* tmp(previous_);
-				previous_ = previous_->previous_;
-				previous_->next_ = NULL;
+				List<Type>* tmp(prev_);
+				prev_ = prev_->prev_;
+				prev_->next_ = NULL;
 				delete tmp;
 				N_--;
-			}
-	}
-}
-
-template<typename Type>
-void List<Type>::pop_start(){
-	if(N_!=1){ 
-		List<Type>* tmp(next_);
-		t_ = tmp->t_; 
-		next_ = tmp->next_;
-		if(N_!=2){ tmp->next_->previous_ = this; }
-		tmp->next_ = NULL;
-		tmp->t_ =  NULL;
-		delete tmp;
-		N_--;
-	} else {
-		clear();
+			}break;
 	}
 }
 
 template<typename Type>
 void List<Type>::pop(unsigned int const& idx){
-
 	if(idx == 0){ pop_start(); }
 	else {
 		if(idx == N_-1) { pop_end(); }
@@ -239,11 +323,11 @@ void List<Type>::pop(unsigned int const& idx){
 			List<Type>* tmp(this);
 			for(unsigned int i(0);i<idx;i++){ tmp = tmp->next_; }
 			List<Type>* next(tmp->next_);
-			List<Type>* previous(tmp->previous_);
+			List<Type>* previous(tmp->prev_);
 			tmp->next_ = NULL;
 			delete tmp;
 			previous->next_ = next;
-			next->previous_ = previous;
+			next->prev_ = previous;
 			N_--;
 		} 
 	}
@@ -269,20 +353,10 @@ void List<Type>::pop_range(unsigned int const& a, unsigned int const& b){
 		}
 	}
 }
+/*}*/
 
-template<typename Type>
-void List<Type>::clear(){
-	if(next_){ 
-		delete next_;
-		next_ = NULL;
-	}
-	if(t_){
-		delete t_;
-		t_ = NULL;
-	}
-	N_ = 0;
-}
-
+/*methods that modifies the list*/
+/*{*/
 template<typename Type>
 void List<Type>::swap(unsigned int const& a, unsigned int const& b){
 	if(a>b){ swap(b,a); }
@@ -304,10 +378,10 @@ template<typename Type>
 List<Type> List<Type>::sublist(unsigned int const& a, unsigned int const& b) const {
 	List<Type> const* tmp(this);
 	for(unsigned int i(0);i<a;i++){ tmp = tmp->next_; }
-	List<Type> l(*(tmp->t_));
+	List<Type> l(new Type(*tmp->t_));
 	for(unsigned int i(0);i<b-a;i++){
 		tmp = tmp->next_; 
-		l.add_end(*(tmp->t_));
+		l.add_end(new Type(*tmp->t_));
 	}
 	return l;
 }
@@ -318,6 +392,18 @@ void List<Type>::print(std::ostream& flux) const {
 	while(tmp && t_){
 		flux<<(*tmp->t_)<<" "; 
 		tmp = tmp->next_;
+	}
+	flux<<"("<<N_<<")";
+}
+
+template<typename Type>
+void List<Type>::check() const {
+	List<Type> const* f(this);
+	List<Type> const* b(this);
+	while(f && t_){
+		std::cout<<(*f->t_)<<" "<<(*b->t_)<<std::endl; 
+		f = f->next_;
+		b = b->prev_;
 	}
 }
 /*}*/
