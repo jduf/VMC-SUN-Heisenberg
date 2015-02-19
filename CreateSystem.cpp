@@ -53,14 +53,14 @@ void CreateSystem::parse(Parseur& P){
 				case 0:{
 						   ti(1) = P.get<double>("t2");
 						   ti(3) = P.get<double>("t4");
-						   vd_.append(ti);
+						   vd_.add_end(&ti);
 					   }break;
 				case 1:{
 						   Vector<double> tmp(P.get<Vector<double> >("t2"));
 						   ti(3) = P.get<double>("t4");
 						   for(unsigned int i(0);i<tmp.size();i++){
 							   ti(1) = tmp(i);
-							   vd_.append(ti);
+							   vd_.add_end(&ti);
 						   }
 					   }break;
 				case 2:{
@@ -68,7 +68,7 @@ void CreateSystem::parse(Parseur& P){
 						   ti(1) = P.get<double>("t2");
 						   for(unsigned int i(0);i<tmp.size();i++){
 							   ti(3) = tmp(i);
-							   vd_.append(ti);
+							   vd_.add_end(&ti);
 						   }
 					   }break;
 				default:{std::cerr<<"void CreateSystem::parse(Parseur& P) : unknown tij"<<std::endl; }
@@ -78,11 +78,11 @@ void CreateSystem::parse(Parseur& P){
 			   Vector<double> tmp(P.get<Vector<double> >("delta"));
 			   for(unsigned int i(0);i<tmp.size();i++){
 				   ti(N_/m_-1) = 1-tmp(i);
-				   vd_.append(ti);
+				   vd_.add_end(&ti);
 			   }
 			} else {
 				ti(N_/m_-1) = 1-P.get<double>("delta");
-				vd_.append(ti); 
+				vd_.add_end(&ti); 
 			}
 		}
 	}
@@ -158,10 +158,10 @@ void CreateSystem::parse(Parseur& P){
 		if(P.is_vector("td")){ 
 			Vector<double> tmp(P.get<Vector<double> >("td"));
 			for(unsigned int i(0);i<tmp.size();i++){
-				d_.append(tmp(i));
+				d_.add_end(&tmp(i));
 			}
 		}
-		else { d_.append(P.get<double>("td")); }
+		else { d_.add_end(new double(P.get<double>("td"))); }
 		std::cout<<d_<<std::endl;
 	}
 	if( wf == "honeycombsu4" ){
@@ -195,7 +195,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 										if(read){ RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,read->read<Vector<double> >()); } 
 										else { 
 											RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,vd_.last()); 
-											vd_.pop();
+											vd_.pop_end();
 											if(!vd_.size()){ over_ = true; }
 										}
 									}break;
@@ -301,9 +301,9 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 							switch(ref_(2)){
 								case 0:
 									{
-										if(read){ d_.append(read->read<double>()); }
+										if(read){ d_.add_end( new double(read->read<double>()) ); }
 										RGL_ = new Honeycomb0pp(ref_,N_,m_,n_,M_,bc_,d_.last());
-										d_.pop();
+										d_.pop_end();
 										if(!d_.size()){ over_ = true; }
 									}break;
 									//case 1:{return HoneycombSU4(N,n,m);}break;

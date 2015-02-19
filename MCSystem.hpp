@@ -153,8 +153,11 @@ void MCSystem<Type>::add_sample(){
 template<typename Type>
 void MCSystem<Type>::complete_analysis(double const& tol){ 
 	E_.complete_analysis(tol); 
+	E_.delete_binning();
 	corr_.complete_analysis(tol); 
+	corr_.delete_binning();
 	lr_corr_.complete_analysis(tol); 
+	lr_corr_.delete_binning();
 	for(unsigned int i(0);i<lr_corr_.size();i++){
 		/*C(r)=sum_alpha( <a^d_0alpha.a_0alpha.a^d_ralpha.a_ralpha > )-m^2/N*/
 		lr_corr_[i].substract(1.0*m_*m_/N_);

@@ -20,7 +20,7 @@ void Analyse::do_analyse(){
 	switch(study_){
 		case 0: /*treat everything*/
 			{
-				rst_file_.append(RSTFile("./","README"));
+				rst_file_.add_end(new RSTFile("./","README"));
 				IOFiles r("README",false);
 				std::string h;
 				r>>h;
@@ -56,7 +56,7 @@ void Analyse::do_analyse(){
 				}
 				dir_ = tmp[tmp.size()-1]+'/';
 
-				rst_file_.append(RSTFile(info_+path_,dir_.substr(0,dir_.size()-1)));
+				rst_file_.add_end(new RSTFile(info_+path_,dir_.substr(0,dir_.size()-1)));
 				recursive_search();
 			}break;
 		case 3:
@@ -72,7 +72,7 @@ void Analyse::recursive_search(){
 	if(d.size()>0){ d.sort(); }
 	level_++;
 	for(unsigned int i(0);i<d.size();i++){
-		rst_file_.append(RSTFile(info_+path_+dir_,d.get_name(i)));
+		rst_file_.add_end(new RSTFile(info_+path_+dir_,d.get_name(i)));
 
 		std::string tmp_path(path_);
 		std::string tmp_dir(dir_);
@@ -83,7 +83,7 @@ void Analyse::recursive_search(){
 
 		path_ = tmp_path;
 		dir_ = tmp_dir;
-		rst_file_.pop();
+		rst_file_.pop_end();
 	}
 	search_jdbin();
 	level_--;
@@ -107,8 +107,8 @@ void Analyse::search_jdbin(){
 			std::cout<<"|->"<<d.get_name(i)<<std::endl;
 
 			filename_ = d.get_name(i);
-			all_link_names_.append(analyse(level_));
-			all_link_files_.append(info_+path_+dir_+filename_+".html");
+			all_link_names_.add_end(new std::string(analyse(level_)));
+			all_link_files_.add_end(new std::string(info_+path_+dir_+filename_+".html"));
 		}
 
 		for(unsigned int i(0);i<all_link_names_.size();i++){

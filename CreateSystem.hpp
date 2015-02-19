@@ -96,6 +96,8 @@ class CreateSystem{
 		}
 
 	private:
+		/*!Forbids default*/
+		CreateSystem();
 		/*!Forbids copy*/
 		CreateSystem(CreateSystem const& cs);
 		/*!Forbids assignment*/
