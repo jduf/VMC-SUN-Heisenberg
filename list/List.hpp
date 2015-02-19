@@ -37,7 +37,6 @@ class List{
 		List<Type> sublist(unsigned int const& a, unsigned int const& b) const;
 		void swap(unsigned int const& a, unsigned int const& b);
 		void print(std::ostream& flux) const;
-		void check() const;
 
 	protected:
 		Type* t_;
@@ -47,14 +46,17 @@ class List{
 };
 
 template<typename Type>
-std::ostream& operator<<(std::ostream& flux, List<Type> const& l);
+std::ostream& operator<<(std::ostream& flux, List<Type> const& l){
+	l.print(flux);
+	return flux;
+}
 
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
 List<Type>::List():
 	t_(NULL),
-	prev_(NULL),
+	prev_(this),
 	next_(NULL),
 	N_(0)
 {}
@@ -62,7 +64,7 @@ List<Type>::List():
 template<typename Type>
 List<Type>::List(Type* t):
 	t_(t),
-	prev_(NULL),
+	prev_(this),
 	next_(NULL),
 	N_(1)
 {}
@@ -71,8 +73,8 @@ List<Type>::List(Type* t):
 template<typename Type>
 List<Type>::List(List<Type> const& l):
 	t_(l.t_),
-	prev_(NULL),
-	next_(NULL),
+	prev_(l.prev_),
+	next_(l.next_),
 	N_(1)
 { 
 	if(l.N_>1){
@@ -100,12 +102,6 @@ void List<Type>::clear(){
 
 /*operators*/
 /*{*/
-template<typename Type>
-std::ostream& operator<<(std::ostream& flux, List<Type> const& l){
-	l.print(flux);
-	return flux;
-}
-
 template<typename Type>
 Type const& List<Type>::operator[](unsigned int idx) const{
 	assert(idx<N_);
@@ -394,17 +390,6 @@ void List<Type>::print(std::ostream& flux) const {
 		tmp = tmp->next_;
 	}
 	flux<<"("<<N_<<")";
-}
-
-template<typename Type>
-void List<Type>::check() const {
-	List<Type> const* f(this);
-	List<Type> const* b(this);
-	while(f && t_){
-		std::cout<<(*f->t_)<<" "<<(*b->t_)<<std::endl; 
-		f = f->next_;
-		b = b->prev_;
-	}
 }
 /*}*/
 #endif

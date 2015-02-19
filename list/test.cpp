@@ -100,47 +100,22 @@ int main(){
 //
 		//a.check();
 	//}
-	//{
-		//List<int> a;
-		//Rand<int> rnd(0,100);
-		//for(unsigned int i(0);i<30;i++){ a.add_sort(new int(rnd.get()),[](int* a, int* b){ return *a<*b;} ); }
-		//std::cout<<a<<std::endl;
-	//}
-	//{
-		//auto func = [](Vector<int>* a, Vector<int>* b) { 
-			//unsigned int i(0);
-			//while(i<a->size()){
-				//if((*a)(i) > (*b)(i)){ return false; }
-				//if((*a)(i) < (*b)(i)){ return true; }
-				//if((*a)(i) ==(*b)(i)){ i++; }
-			//}
-			//return false;
-		//};
-		//Rand<int> rnd(0,10);
-		//List<Vector<int> > a;
-		//Vector<int> tmp(2);
-		//for(unsigned int i(0);i<10;i++){
-			//tmp(0) = rnd.get();
-			//tmp(1) = rnd.get();
-			//a.add_sort(new Vector<int>(tmp), func);
-			//std::cout<<a<<std::endl;
-		//}
-	//}
 	{
-		auto cmp_for_fuse = [](Vector<int>* a, Vector<int>* b) { 
+		List<int> a;
+		Rand<int> rnd(0,100);
+		for(unsigned int i(0);i<30;i++){ a.add_sort(new int(rnd.get()),[](int* a, int* b){ return *a<*b;} ); }
+		std::cout<<a<<std::endl;
+		std::cout<<a.last()<<std::endl;
+	}
+	{
+		auto func = [](Vector<int>* a, Vector<int>* b) { 
 			unsigned int i(0);
 			while(i<a->size()){
-				if((*a)(i) > (*b)(i)){ return 0; }
-				if((*a)(i) < (*b)(i)){ return 1; }
-				if((*a)(i)== (*b)(i)){ i++; }
+				if((*a)(i) > (*b)(i)){ return false; }
+				if((*a)(i) < (*b)(i)){ return true; }
+				if((*a)(i) ==(*b)(i)){ i++; }
 			}
-			std::cout<<"ca"<<std::endl;
-			return 2;
-		};
-		auto fuse = [](Vector<int>* a, Vector<int>* b) { 
-			std::cout<<"should fuse"<<std::endl;
-			std::cout<<*a<<std::endl;
-			std::cout<<*b<<std::endl;
+			return false;
 		};
 		Rand<int> rnd(0,10);
 		List<Vector<int> > a;
@@ -148,9 +123,35 @@ int main(){
 		for(unsigned int i(0);i<10;i++){
 			tmp(0) = rnd.get();
 			tmp(1) = rnd.get();
-			a.add_or_fuse_sort(new Vector<int>(tmp), cmp_for_fuse, fuse);
+			a.add_sort(new Vector<int>(tmp), func);
 			std::cout<<a<<std::endl;
 		}
 	}
+	//{
+		//auto cmp_for_fuse = [](Vector<int>* a, Vector<int>* b) { 
+			//unsigned int i(0);
+			//while(i<a->size()){
+				//if((*a)(i) > (*b)(i)){ return 0; }
+				//if((*a)(i) < (*b)(i)){ return 1; }
+				//if((*a)(i)== (*b)(i)){ i++; }
+			//}
+			//std::cout<<"ca"<<std::endl;
+			//return 2;
+		//};
+		//auto fuse = [](Vector<int>* a, Vector<int>* b) { 
+			//std::cout<<"should fuse"<<std::endl;
+			//std::cout<<*a<<std::endl;
+			//std::cout<<*b<<std::endl;
+		//};
+		//Rand<int> rnd(0,10);
+		//List<Vector<int> > a;
+		//Vector<int> tmp(2);
+		//for(unsigned int i(0);i<10;i++){
+			//tmp(0) = rnd.get();
+			//tmp(1) = rnd.get();
+			//a.add_or_fuse_sort(new Vector<int>(tmp), cmp_for_fuse, fuse);
+			//std::cout<<a<<std::endl;
+		//}
+	//}
 	std::cout<<A::N_<<std::endl;
 }

@@ -300,7 +300,7 @@ void Vector<Type>::set(){
 
 template<typename Type>
 void Vector<Type>::set(unsigned int N){
-	if(size_ != N){ 
+	if(size_ != N){
 		if(vec_){ delete[] vec_; }
 		vec_ = new Type[N];
 		size_ = N;

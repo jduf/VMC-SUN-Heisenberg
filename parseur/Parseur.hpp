@@ -13,7 +13,7 @@ class Parseur{
 		 */
 		/*}*/
 		Parseur(unsigned int argc, char* argv[]);
-		/*!Destructor that warns when an argument has not been set */
+		/*!Destructor that warns when an argument has not been set*/
 		~Parseur();
 
 		/*!Sets input to the val_[i] such that var_[i]==pattern*/

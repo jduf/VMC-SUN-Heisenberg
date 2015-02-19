@@ -34,9 +34,8 @@ bool Parseur::search(std::string const& pattern, unsigned int& i){
 	if(!locked_){
 		i=0;
 		while(i<var_.size()){
-			if(var_[i]==pattern){
-				return true;
-			} else { i++; }
+			if(var_[i]==pattern){ return true; } 
+			else { i++; }
 		}
 		return false;
 	} else {
@@ -48,9 +47,7 @@ bool Parseur::search(std::string const& pattern, unsigned int& i){
 std::vector<std::string> &string_split(const std::string &s, char delim, std::vector<std::string> &elems) {
 	std::stringstream ss(s);
 	std::string item;
-	while (std::getline(ss, item, delim)) {
-		elems.push_back(item);
-	}
+	while (std::getline(ss, item, delim)) { elems.push_back(item); }
 	return elems;
 }
 
