@@ -118,7 +118,7 @@ template<typename Type>
 Type Container::get(std::string name) const {
 	for(unsigned int i(0);i<data_.size();i++){
 		if(data_[i]->get_name()==name){
-			return dynamic_cast< GenericData<Type> *>(data_[i])->get_val();
+			return reinterpret_cast< GenericData<Type> *>(data_[i])->get_val();
 		}
 	}
 	std::cerr<<"Container : get(string name) : no data with name "<<name<<std::endl;
@@ -135,7 +135,7 @@ void Container::get(std::string name, Type& t) const {
 		}
 	}while(++i<data_.size());
 	if(i==data_.size()){
-		std::cerr<<"Container : -"<<name<<" wasn't found thus its value is unchanged : "<< t <<std::endl; 
+		std::cerr<<"Container : '"<<name<<"' wasn't found thus the value is unchanged : "<< t <<std::endl; 
 	}
 }
 /*}*/

@@ -4,9 +4,12 @@
 #include "Gnuplot.hpp"
 #include "Vector.hpp"
 
-template<typename Type>
-class Binning;
-
+/*{Description*/
+/*!The use of this class with int or unsigned int is problemeatic because
+ * during the binning procedure, an operation (a+b)/2 will have rounding
+ * issues
+ */
+/*}*/
 template<typename Type>
 class Binning{
 	public:
@@ -19,7 +22,10 @@ class Binning{
 		/*!Set the class*/
 		void set();
 		/*!Set a filename for the plot*/
-		void plot(std::string const& filename){ log_ = new IOFiles(filename,true);}
+		void plot(std::string const& filename){ 
+			std::cerr<<"the merge method might not be working with plot"<<std::endl;
+			log_ = new IOFiles(filename,true);
+		}
 
 		/*!Add sample to the bins*/
 		void add_sample(Type const& x);
@@ -29,6 +35,8 @@ class Binning{
 		void complete_analysis(double const& tol, Type& x, Type& dx, bool& conv);
 		/*!Compute the mean value*/
 		Type const& get_x() const { return m_bin_(0); }
+		/*!Merge this with b*/
+		void merge(Binning const& b);
 
 	private:
 		/*!Forbids assigment*/
@@ -52,6 +60,7 @@ class Binning{
 
 		/*!Recursive method that add samples in the different bins*/
 		void add_bin(unsigned int l, Type const& a, Type const& b);
+		void do_merge(Vector<Type> const& bin, unsigned int const& dpl, unsigned int const& DPL, unsigned int const& Ml);
 };
 
 template<typename Type>
@@ -68,12 +77,14 @@ class Data{
 		void set();
 		Data<Type>& operator=(Data<Type> d);
 
-		void add_sample(Data<Type> const& cs);
+		void add_sample(Data<Type> const& d);
 		void add_sample();
+		void merge(Data const& d);
 
 		void compute_convergence(double const& tol);
 		void complete_analysis(double const& tol);
 		void complete_analysis();
+		void delete_binning();
 
 		Type const& get_x() const {
 			if(binning_){ return binning_->get_x(); }
@@ -124,17 +135,19 @@ class DataSet{
 		void set(unsigned int const& N);
 		void set(unsigned int const& N, unsigned int const& B, unsigned int const& b, bool const& conv);
 
-		void add_sample(DataSet<Type> const& ss);
+		void add_sample(DataSet<Type> const& ds);
 		void add_sample();
+		void merge(DataSet<Type> const& ds);
 
 		void compute_convergence(double const& tol);
 		void complete_analysis(double const& tol);
 		void complete_analysis();
+		void delete_binning();
 
 		void header_rst(std::string const& s, RST& rst) const;
 
 		unsigned int size() const { return size_;}
-		
+
 		Data<Type> const& operator[](unsigned int const& i) const 
 		{assert(i<size_); return ds_[i];} 
 		Data<Type>& operator[](unsigned int const& i) 
@@ -226,15 +239,33 @@ void Binning<Type>::add_sample(Type const& x){
 			for(unsigned int i(0);i<B_;i++){
 				add_bin(b_-1,bin_[b_-2](2*i+1),bin_[b_-2](2*i));
 			}
-			for(unsigned int i(B_);i<2*B_;i++){
-				bin_[b_-1](i) = 0;
-			}
+			for(unsigned int i(B_);i<2*B_;i++){ bin_[b_-1](i) = 0; }
 			l_++;
 			DPL_*=2;
 			addlog_ = true;
 		}
+	} else { bin_[0](Ml_(0)) += x; }
+}
+
+template<typename Type>
+void Binning<Type>::merge(Binning const& other){
+	if(B_ == other.B_ && b_ == other.b_ ){
+		if(l_>= other.l_){
+			do_merge(other.bin_[0],other.dpl_,other.DPL_,other.Ml_(0));
+		} else {
+			Vector<Type> tmp_bin(bin_[0]);
+			unsigned int tmp_Ml(Ml_(0));
+			unsigned int tmp_dpl(dpl_);
+			unsigned int tmp_DPL(DPL_);
+			for(unsigned int i(0);i<b_;i++){ bin_[i] = other.bin_[i]; }
+			Ml_ = other.Ml_;
+			DPL_ = other.DPL_;
+			l_ = other.l_;
+			recompute_dx_usefull_ = other.recompute_dx_usefull_;
+			do_merge(tmp_bin,tmp_dpl,tmp_DPL,tmp_Ml);
+		}
 	} else {
-		bin_[0](Ml_(0)) += x; 
+		std::cerr<<"void Binning<Type>::merge(Binning const& b) : B_ != b.B_ || b_ != b.b_ "<<std::endl;
 	}
 }
 
@@ -317,6 +348,47 @@ void Binning<Type>::add_bin(unsigned int l, Type const& a, Type const& b){
 	if(Ml_(l)%2==0 && l<b_-1){
 		add_bin(l+1,bin_[l](Ml_(l)-1),bin_[l](Ml_(l)-2));
 	}
+}
+
+/*{Description*/
+/*
+std::cout<<"the value in the last bin is "<<old_last_bin<<std::endl;
+std::cout<<"the value in the other last bin is "<<b.bin_[0](b.Ml_(0))<<std::endl;
+std::cout<<"the current dpl_ is "<<old_dpl<<std::endl;
+std::cout<<"the other dpl_ is "<<b.dpl_<<std::endl;
+std::cout<<"the current DPL_ is "<<DPL_<<std::endl;
+std::cout<<"the other DPL_ is "<<b.DPL_<<std::endl;
+std::cout<<"sould be an integer "<<1.0*DPL_/(1.0*b.DPL_)<<std::endl;
+std::cout<<"last bin to write in "<<Ml_(0)<<std::endl;
+std::cout<<"last bin to write in for the other "<<b.Ml_(0)<<std::endl;
+*/
+/*}*/
+/*{Description*/
+/*
+Type old_last_bin(bin_[0](Ml_(0)));
+unsigned int old_dpl(dpl_);
+bin_[0](Ml_(0)) = 0;
+dpl_ = 0;
+for(unsigned int i(0);i<b.Ml_(0);i++){
+	dpl_ += b.DPL_-1;
+	add_sample(b.DPL_*b.bin_[0](i));
+}
+Type tmp((b.bin_[0](b.Ml_(0))+old_last_bin)/(b.dpl_+old_dpl));
+for(unsigned int i(0);i<b.dpl_+old_dpl;i++){ add_sample(tmp); }
+*/
+/*}*/
+template<typename Type>
+void Binning<Type>::do_merge(Vector<Type> const& bin, unsigned int const& dpl, unsigned int const& DPL, unsigned int const& Ml){
+	Type old_last_bin(bin_[0](Ml_(0)));
+	unsigned int old_dpl(dpl_);
+	bin_[0](Ml_(0)) = 0;
+	dpl_ = 0;
+	for(unsigned int i(0);i<Ml;i++){
+		dpl_ += DPL-1;
+		add_sample(DPL*bin(i));
+	}
+	Type tmp((bin(Ml)+old_last_bin)/(dpl+old_dpl));
+	for(unsigned int i(0);i<dpl+old_dpl;i++){ add_sample(tmp); }
 }
 /*}*/
 /*}*/
@@ -440,11 +512,11 @@ Data<Type>& Data<Type>::operator=(Data<Type> d){
 /*public methods that modify the class*/
 /*{*/
 template<typename Type>
-void Data<Type>::add_sample(Data<Type> const& cs){
-	if(cs.conv_){
-		x_ += cs.x_;
-		dx_+= cs.dx_;
-		N_ += cs.N_;
+void Data<Type>::add_sample(Data<Type> const& d){
+	if(d.conv_){
+		x_ += d.x_;
+		dx_+= d.dx_;
+		N_ += d.N_;
 		conv_ = true;
 	}
 }
@@ -452,26 +524,39 @@ void Data<Type>::add_sample(Data<Type> const& cs){
 template<typename Type>
 void Data<Type>::add_sample(){
 	if(binning_){ binning_->add_sample(x_); }
+	else { std::cerr<<"void Data<Type>::add_sample() : no binning"<<std::endl; }
+}
+
+template<typename Type>
+void Data<Type>::merge(Data const& d){
+	if(binning_ && d.binning_){ binning_->merge(*d.binning_); }
+	else { std::cerr<<"void Data<Type>::merge(Data const& d) : no binning"<<std::endl; }
 }
 
 template<typename Type>
 void Data<Type>::compute_convergence(double const& tol) {
 	if(binning_){ binning_->compute_convergence(tol,dx_,conv_);}
+	else { std::cerr<<"void Data<Type>::compute_convergence(double const& tol) : no binning"<<std::endl; }
 }
 
 template<typename Type>
 void Data<Type>::complete_analysis(double const& tol){
-	if(binning_){
-		binning_->complete_analysis(tol,x_,dx_,conv_); 
-		delete binning_;
-		binning_ = NULL;
-	}
+	if(binning_){ binning_->complete_analysis(tol,x_,dx_,conv_); }
+	else { std::cerr<<"void Data<Type>::complete_analysis(double const& tol) : no Binning"<<std::endl; }
 }
 
 template<typename Type>
 void Data<Type>::complete_analysis(){
 	x_ = x_/N_;
 	dx_ = dx_/(N_*sqrt(N_));
+}
+
+template<typename Type>
+void Data<Type>::delete_binning(){
+	if(binning_){
+		delete binning_;
+		binning_ = NULL;
+	}
 }
 /*}*/
 /*}*/
@@ -578,6 +663,11 @@ void DataSet<Type>::add_sample(){
 }
 
 template<typename Type>
+void DataSet<Type>::merge(DataSet<Type> const& ds){
+	for(unsigned int i(0);i<size_;i++){ ds_[i].merge(ds[i]); }
+}
+
+template<typename Type>
 void DataSet<Type>::compute_convergence(double const& tol){
 	for(unsigned int i(0);i<size_;i++){ ds_[i].compute_convergence(tol); }
 }
@@ -590,6 +680,11 @@ void DataSet<Type>::complete_analysis(double const& tol){
 template<typename Type>
 void DataSet<Type>::complete_analysis(){
 	for(unsigned int i(0);i<size_;i++){ ds_[i].complete_analysis(); }
+}
+
+template<typename Type>
+void DataSet<Type>::delete_binning(){
+	for(unsigned int i(0);i<size_;i++){ ds_[i].delete_binning(); }
 }
 /*}*/
 /*}*/

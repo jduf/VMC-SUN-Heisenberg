@@ -179,7 +179,7 @@ void read_output_files(){
 }
 
 void merge_two_sim(){
-	Rand<int> rnd(0,10);
+	Rand<double> rnd(0,1);
 	unsigned int iter(0);
 
 	unsigned int B(5);
@@ -188,28 +188,32 @@ void merge_two_sim(){
 	double tol(5e-5);
 	double conv(0.0);
 
-	Data<int> H1;
+	Data<double> H1;
 	H1.set(B,b,conv);
-	Data<int> H2;
+	Data<double> H2;
 	H2.set(B,b,conv);
 	do{ 
 		iter++;
 		H1.set_x(rnd.get());
 		H1.add_sample(); 
+		if(iter>1e2){ H1.compute_convergence(tol); }
+	} while (iter<33);
+	iter = 0;
+	do{ 
+		iter++;
 		H2.set_x(rnd.get());
 		H2.add_sample(); 
-		if(iter>1e2){ H1.compute_convergence(tol); }
 		if(iter>1e2){ H2.compute_convergence(tol); }
-		std::cout<<"###############"<<std::endl;
-		for(unsigned int i(0);i<b;i++){ 
-			std::cout<<H1.get_binning()->bin_[i]<<std::endl;
-		}
-	} while (iter<52);
+	} while (iter<127);
 
 	H1.complete_analysis(tol);
 	H2.complete_analysis(tol);
 
-	std::cout<<iter<<std::endl;
 	std::cout<<H1<<std::endl;
+	std::cout<<H2<<std::endl;
+
+	H2.merge(H1);
+	H2.complete_analysis(tol);
+
 	std::cout<<H2<<std::endl;
 }

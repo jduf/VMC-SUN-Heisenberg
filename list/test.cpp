@@ -34,6 +34,7 @@ std::ostream& operator<<(std::ostream& flux, A const& a){
 }
 
 int main(){
+	IOFiles a("bla",true);
 	//{
 		//List<A> a;
 		//for(unsigned int i(0);i<10;i++){ a.add_end(new A(i)); }

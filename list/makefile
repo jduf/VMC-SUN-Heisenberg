@@ -1,6 +1,6 @@
 EXEC=test
 
-test_SRCS=test.cpp
+test_SRCS=test.cpp RST.cpp IOFiles.cpp Header.cpp
 
 #-----------------------------------------------------------------
 
