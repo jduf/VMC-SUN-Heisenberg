@@ -18,10 +18,12 @@
 
 #include "Parseur.hpp"
 #include "List.hpp"
+#include "Container.hpp"
 
 class CreateSystem{
 	public:
 		CreateSystem(Parseur& P);
+		CreateSystem(Container const& C);
 		CreateSystem(IOFiles* r);
 		virtual ~CreateSystem();
 

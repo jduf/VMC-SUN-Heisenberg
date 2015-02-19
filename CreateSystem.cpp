@@ -15,6 +15,32 @@ CreateSystem::CreateSystem(Parseur& P):
 	parse(P);
 }
 
+CreateSystem::CreateSystem(Container const& C):
+	ref_(3,0),
+	N_(C.get<unsigned int>("N")),
+	m_(C.get<unsigned int>("m")),
+	n_(C.get<unsigned int>("n")),
+	M_(N_,(m_*n_ )/N_),
+	bc_(C.get<int>("bc")),
+	type_(C.get<unsigned int>("type")),
+	over_(false),
+	RGL_(NULL),
+	CGL_(NULL)
+{
+	std::string wf(C.get<std::string>("wf"));
+	if( wf == "chainpolymerized" ){
+		ref_(0) = 2;
+		ref_(1) = 1;
+		ref_(2) = 1;
+		//Vector<double> ti(N_/m_,1);
+		//ti(N_/m_-1) = 1-C.get<double>("delta");
+		//vd_.add_end(&ti); 
+		vd_.add_end(new Vector<double>(N_/m_,1));
+		vd_.last()(N_/m_-1) = 1-C.get<double>("delta");
+		std::cout<<vd_<<std::endl;
+	} else { std::cerr<<"CreateSystem :: lajakdj"<<std::endl; }
+}
+
 CreateSystem::CreateSystem(IOFiles* r):
 	ref_(r->read<Vector<unsigned int> >()),
 	N_(r->read<unsigned int>()),
@@ -75,11 +101,11 @@ void CreateSystem::parse(Parseur& P){
 			}
 		} else { 
 			if(P.is_vector("delta")){ 
-			   Vector<double> tmp(P.get<Vector<double> >("delta"));
-			   for(unsigned int i(0);i<tmp.size();i++){
-				   ti(N_/m_-1) = 1-tmp(i);
-				   vd_.add_end(&ti);
-			   }
+				Vector<double> tmp(P.get<Vector<double> >("delta"));
+				for(unsigned int i(0);i<tmp.size();i++){
+					ti(N_/m_-1) = 1-tmp(i);
+					vd_.add_end(&ti);
+				}
 			} else {
 				ti(N_/m_-1) = 1-P.get<double>("delta");
 				vd_.add_end(&ti); 
@@ -162,7 +188,6 @@ void CreateSystem::parse(Parseur& P){
 			}
 		}
 		else { d_.add_end(new double(P.get<double>("td"))); }
-		std::cout<<d_<<std::endl;
 	}
 	if( wf == "honeycombsu4" ){
 		ref_(0) = 6;
@@ -172,10 +197,6 @@ void CreateSystem::parse(Parseur& P){
 }
 
 void CreateSystem::init(IOFiles* read, IOSystem* ios){
-	//M_(1)++;
-	//M_(0)--;
-	//M_(1) = 8;
-	//M_(0) = 40;
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 	switch(ref_(0)){

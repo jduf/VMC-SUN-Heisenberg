@@ -36,6 +36,8 @@ class MonteCarlo{
 
 		/*!Run the Monte-Carlo algorithm*/
 		void run();
+		void complete_analysis(double tol){ S_->complete_analysis(tol); }
+		void delete_binning(){ S_->delete_binning();}
 
 	private:
 		/*!Forbids copy*/
@@ -88,7 +90,6 @@ void MonteCarlo<Type>::run(){
 		do{next_step();}
 		while(keepon());
 	}
-	S_->complete_analysis(1e-5);
 }
 /*}*/
 

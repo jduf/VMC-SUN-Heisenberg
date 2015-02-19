@@ -28,6 +28,7 @@ class System{
 		unsigned int const& get_status(){return status_;}
 
 		void set();
+		void delete_binning();
 
 	protected:
 		System(System const& s);

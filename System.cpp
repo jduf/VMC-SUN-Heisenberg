@@ -35,3 +35,9 @@ void System::set(){
 	corr_.set(); 
 	lr_corr_.set(); 
 }
+
+void System::delete_binning(){ 
+	E_.delete_binning();
+	corr_.delete_binning();
+	lr_corr_.delete_binning();
+}
