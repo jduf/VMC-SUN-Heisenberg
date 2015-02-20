@@ -37,7 +37,6 @@ CreateSystem::CreateSystem(Container const& C):
 		//vd_.add_end(&ti); 
 		vd_.add_end(new Vector<double>(N_/m_,1));
 		vd_.last()(N_/m_-1) = 1-C.get<double>("delta");
-		std::cout<<vd_<<std::endl;
 	} else { std::cerr<<"CreateSystem :: lajakdj"<<std::endl; }
 }
 

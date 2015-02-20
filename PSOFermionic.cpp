@@ -4,17 +4,18 @@ PSOFermionic::PSOFermionic(Parseur& P):
 	PSO(P.get<unsigned int>("Nparticles"),P.get<unsigned int>("Nfreedom"),P.get<double>("cg"),P.get<double>("cp"),P.get<double>("maxiter")),
 	tmax_(P.get<unsigned int>("tmax"))
 {
-	parameters_.set("N",P.get<unsigned int>("N"));
-	parameters_.set("m",P.get<unsigned int>("m"));
-	parameters_.set("n",P.get<unsigned int>("n"));
-	parameters_.set("bc",P.get<int>("bc"));
-	parameters_.set("type",P.get<unsigned int>("type"));
-	parameters_.set("wf",P.get<std::string>("wf"));
+	system_.set("N",P.get<unsigned int>("N"));
+	system_.set("m",P.get<unsigned int>("m"));
+	system_.set("n",P.get<unsigned int>("n"));
+	system_.set("bc",P.get<int>("bc"));
+	system_.set("type",P.get<unsigned int>("type"));
+	system_.set("wf",P.get<std::string>("wf"));
 }
 
 double PSOFermionic::f(Vector<double> const& x){
-	parameters_.set("delta",x(0));
-	CreateSystem cs(parameters_);
+	Container system_param(system_);
+	system_param.set("delta",x(0));
+	CreateSystem cs(system_param);
 	cs.init();
 	if(cs.get_status()==2){
 		cs.create();
@@ -36,4 +37,10 @@ unsigned int MCSim::cmp_for_fuse(MCSim* list, MCSim* new_elem) {
 
 void MCSim::fuse(MCSim* list, MCSim* new_elem) { 
 	list->E_.merge(new_elem->E_);
+	list->N_++;
+}
+
+std::ostream& operator<<(std::ostream& flux, MCSim const& mcsim){
+	mcsim.print(flux);
+	return flux;
 }

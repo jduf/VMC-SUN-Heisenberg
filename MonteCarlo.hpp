@@ -112,7 +112,7 @@ bool MonteCarlo<Type>::keepon(){
 		if(!omp_get_thread_num()){
 			S_->get_energy().compute_convergence(1e-5);
 			std::cerr<<"E="<<S_->get_energy().get_x()<<" ("<<S_->get_energy().get_dx()<<") after "<<100.0*time_.elapsed()/tmax_<<"%"<<std::endl;
-			S_->set();
+			//S_->set();
 		}
 	}
 	if(std::abs(S_->get_energy().get_x())>1e2){ 
