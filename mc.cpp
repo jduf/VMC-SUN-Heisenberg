@@ -10,7 +10,7 @@ int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	unsigned int nruns(P.get<unsigned int>("nruns"));
 	unsigned int tmax(P.get<unsigned int>("tmax"));
-	CreateSystem cs(P);
+	CreateSystem cs(&P);
 	if(!P.status()){
 		do{
 			cs.init();
@@ -61,6 +61,7 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 			(*dynamic_cast<const Fermionic<Type>*>(cs.get_system())); }
 
 		MonteCarlo<Type> sim(S,tmax);
+		sim.thermalize(1e6);
 		sim.run();
 		sim.complete_analysis(1e5);
 		sim.delete_binning();

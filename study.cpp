@@ -12,7 +12,7 @@ int main(int argc, char* argv[]){
 	if(!command.status()){
 		Parseur P(argc,argv);
 		unsigned int i(0);
-		std::string path(P.search("path",i)?P.get<std::string>(i):"");
+		std::string path(P.find("path",i)?P.get<std::string>(i):"");
 
 		unsigned int what(P.get<unsigned int>("what"));
 		

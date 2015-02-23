@@ -1,21 +1,21 @@
 #include "PSOFermionic.hpp"
 
-PSOFermionic::PSOFermionic(Parseur& P):
-	PSO(P.get<unsigned int>("Nparticles"),P.get<unsigned int>("Nfreedom"),P.get<double>("cg"),P.get<double>("cp"),P.get<double>("maxiter")),
-	tmax_(P.get<unsigned int>("tmax"))
+PSOFermionic::PSOFermionic(Parseur* P):
+	PSO(P->get<unsigned int>("Nparticles"),P->get<unsigned int>("Nfreedom"),P->get<double>("cg"),P->get<double>("cp"),P->get<double>("maxiter")),
+	tmax_(P->get<unsigned int>("tmax"))
 {
-	system_.set("N",P.get<unsigned int>("N"));
-	system_.set("m",P.get<unsigned int>("m"));
-	system_.set("n",P.get<unsigned int>("n"));
-	system_.set("bc",P.get<int>("bc"));
-	system_.set("type",P.get<unsigned int>("type"));
-	system_.set("wf",P.get<std::string>("wf"));
+	system_.set("N",P->get<unsigned int>("N"));
+	system_.set("m",P->get<unsigned int>("m"));
+	system_.set("n",P->get<unsigned int>("n"));
+	system_.set("bc",P->get<int>("bc"));
+	system_.set("type",P->get<unsigned int>("type"));
+	system_.set("wf",P->get<std::string>("wf"));
 }
 
 double PSOFermionic::f(Vector<double> const& x){
 	Container system_param(system_);
 	system_param.set("delta",x(0));
-	CreateSystem cs(system_param);
+	CreateSystem cs(&system_param);
 	cs.init();
 	if(cs.get_status()==2){
 		cs.create();

@@ -1,43 +1,18 @@
 #include "CreateSystem.hpp"
 
-CreateSystem::CreateSystem(Parseur& P):
+CreateSystem::CreateSystem(Container* C):
 	ref_(3,0),
-	N_(P.get<unsigned int>("N")),
-	m_(P.get<unsigned int>("m")),
-	n_(P.get<unsigned int>("n")),
+	N_(C->get<unsigned int>("N")),
+	m_(C->get<unsigned int>("m")),
+	n_(C->get<unsigned int>("n")),
 	M_(N_,(m_*n_ )/N_),
-	bc_(P.get<int>("bc")),
-	type_(P.get<unsigned int>("type")),
+	bc_(C->get<int>("bc")),
+	type_(C->get<unsigned int>("type")),
 	over_(false),
 	RGL_(NULL),
 	CGL_(NULL)
 {
-	parse(P);
-}
-
-CreateSystem::CreateSystem(Container const& C):
-	ref_(3,0),
-	N_(C.get<unsigned int>("N")),
-	m_(C.get<unsigned int>("m")),
-	n_(C.get<unsigned int>("n")),
-	M_(N_,(m_*n_ )/N_),
-	bc_(C.get<int>("bc")),
-	type_(C.get<unsigned int>("type")),
-	over_(false),
-	RGL_(NULL),
-	CGL_(NULL)
-{
-	std::string wf(C.get<std::string>("wf"));
-	if( wf == "chainpolymerized" ){
-		ref_(0) = 2;
-		ref_(1) = 1;
-		ref_(2) = 1;
-		//Vector<double> ti(N_/m_,1);
-		//ti(N_/m_-1) = 1-C.get<double>("delta");
-		//vd_.add_end(&ti); 
-		vd_.add_end(new Vector<double>(N_/m_,1));
-		vd_.last()(N_/m_-1) = 1-C.get<double>("delta");
-	} else { std::cerr<<"CreateSystem :: lajakdj"<<std::endl; }
+	parse(C);
 }
 
 CreateSystem::CreateSystem(IOFiles* r):
@@ -58,8 +33,8 @@ CreateSystem::~CreateSystem(){
 	if(CGL_){delete CGL_;}
 }
 
-void CreateSystem::parse(Parseur& P){
-	std::string wf(P.get<std::string>("wf"));
+void CreateSystem::parse(Container* C){
+	std::string wf(C->get<std::string>("wf"));
 	if( wf == "chainfermi" ){
 		ref_(0) = 2;
 		ref_(1) = 1;
@@ -71,45 +46,12 @@ void CreateSystem::parse(Parseur& P){
 		ref_(2) = 1;
 		Vector<double> ti(N_/m_,1);
 		if(N_/m_ == 4){
-			unsigned int c(0);
-			if(P.is_vector("t2")){ c+=1; }
-			if(P.is_vector("t4")){ c+=2; }
-			switch(c){
-				case 0:{
-						   ti(1) = P.get<double>("t2");
-						   ti(3) = P.get<double>("t4");
-						   vd_.add_end(&ti);
-					   }break;
-				case 1:{
-						   Vector<double> tmp(P.get<Vector<double> >("t2"));
-						   ti(3) = P.get<double>("t4");
-						   for(unsigned int i(0);i<tmp.size();i++){
-							   ti(1) = tmp(i);
-							   vd_.add_end(&ti);
-						   }
-					   }break;
-				case 2:{
-						   Vector<double> tmp(P.get<Vector<double> >("t4"));
-						   ti(1) = P.get<double>("t2");
-						   for(unsigned int i(0);i<tmp.size();i++){
-							   ti(3) = tmp(i);
-							   vd_.add_end(&ti);
-						   }
-					   }break;
-				default:{std::cerr<<"void CreateSystem::parse(Parseur& P) : unknown tij"<<std::endl; }
-			}
+			ti(1) = C->get<double>("t2");
+			ti(3) = C->get<double>("t4");
 		} else { 
-			if(P.is_vector("delta")){ 
-				Vector<double> tmp(P.get<Vector<double> >("delta"));
-				for(unsigned int i(0);i<tmp.size();i++){
-					ti(N_/m_-1) = 1-tmp(i);
-					vd_.add_end(&ti);
-				}
-			} else {
-				ti(N_/m_-1) = 1-P.get<double>("delta");
-				vd_.add_end(&ti); 
-			}
+			ti(N_/m_-1) = 1-C->get<double>("delta");
 		}
+		vd_.add_end(new Vector<double>(ti)); 
 	}
 
 	if( wf == "trianglefermi" ){
@@ -162,8 +104,6 @@ void CreateSystem::parse(Parseur& P){
 		ref_(0) = 5;
 		ref_(1) = 1;
 		ref_(2) = 0;
-		sel0_ = 0;
-		sel1_ = 0;
 	}
 	if( wf == "kagomedirac" ){
 		ref_(0) = 5;
@@ -180,13 +120,13 @@ void CreateSystem::parse(Parseur& P){
 		ref_(0) = 6;
 		ref_(1) = 1;
 		ref_(2) = 0;
-		if(P.is_vector("td")){ 
-			Vector<double> tmp(P.get<Vector<double> >("td"));
-			for(unsigned int i(0);i<tmp.size();i++){
-				d_.add_end(&tmp(i));
-			}
-		}
-		else { d_.add_end(new double(P.get<double>("td"))); }
+		//if(C->is_vector("td")){ 
+			//Vector<double> tmp(C->get<Vector<double> >("td"));
+			//for(unsigned int i(0);i<tmp.size();i++){
+				//d_.add_end(&tmp(i));
+			//}
+		//}
+		//else { d_.add_end(new double(C->get<double>("td"))); }
 	}
 	if( wf == "honeycombsu4" ){
 		ref_(0) = 6;
@@ -296,7 +236,10 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:{RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);}break;
+								case 0:{
+										   std::cerr<<"KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
+										//   RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
+									   }break;
 								case 1:{RGL_ = new KagomeDirac<double>(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{error();}break;
 							}
@@ -304,7 +247,10 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					case 2:
 						{
 							switch(ref_(2)){
-								case 0:{CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);}break;
+								case 0:{
+										   std::cerr<<"KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
+										//   CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
+									   }break;
 								case 1:{CGL_ = new KagomeDirac<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);}break;
 								case 2:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{error();}break;
@@ -336,20 +282,6 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 		default:{error();}break;
 	}
 	switch(type_){
-		case 2:
-			{
-				if(CGL_){
-					sel0_++;
-					over_ = false;
-					if(sel0_==9){ 
-						sel1_++;
-						sel0_ = 0;
-						if(sel1_==639){ over_ = true; }
-						//sel0_ = sel1_;
-						//if(sel1_==9){ over_ = true; }
-					}
-				}
-			}break;
 		case 3:
 			{
 				if(M_(0)){ 

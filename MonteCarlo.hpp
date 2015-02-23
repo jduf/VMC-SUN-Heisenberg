@@ -34,6 +34,8 @@ class MonteCarlo{
 		/*!Simple destructor*/
 		~MonteCarlo(){}
 
+		/*!Thermalize the Monte-Carlo algorithm*/
+		void thermalize(unsigned int const& N);
 		/*!Run the Monte-Carlo algorithm*/
 		void run();
 		void complete_analysis(double tol){ S_->complete_analysis(tol); }
@@ -71,19 +73,22 @@ MonteCarlo<Type>::MonteCarlo(MCSystem<Type>* S, unsigned int const& tmax):
 	tmax_(tmax),
 	S_(S),
 	rnd_(0.0,1.0)
-{
+{}
+/*}*/
+
+/*public methods*/
+/*{*/
+template<typename Type>
+void MonteCarlo<Type>::thermalize(unsigned int const& N){
 	if(S_->get_status()==0){
-		for(unsigned int i(0);i<1e6;i++){
+		for(unsigned int i(0);i<N;i++){
 			S_->swap();
 			if( norm_squared(S_->ratio()) > rnd_.get() ){ S_->update(); }
 		}
 		S_->measure_new_step();
 	}
 }
-/*}*/
 
-/*public methods*/
-/*{*/
 template<typename Type>
 void MonteCarlo<Type>::run(){
 	if(S_->get_status()==0){

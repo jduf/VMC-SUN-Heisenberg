@@ -7,7 +7,7 @@ int main(int argc, char* argv[]){
 	
 	unsigned int Nfreedom(1);
 
-	PSOFermionic s(P);
+	PSOFermionic s(&P);
 
 	for(unsigned int i(0);i<Nfreedom;i++){
 		s.PSO_set_limit(i,-0.3,0.5);

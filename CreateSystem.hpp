@@ -18,12 +18,10 @@
 
 #include "Parseur.hpp"
 #include "List.hpp"
-#include "Container.hpp"
 
 class CreateSystem{
 	public:
-		CreateSystem(Parseur& P);
-		CreateSystem(Container const& C);
+		CreateSystem(Container* C);
 		CreateSystem(IOFiles* r);
 		virtual ~CreateSystem();
 
@@ -115,13 +113,11 @@ class CreateSystem{
 		List<Vector<double> > vd_;
 		unsigned int type_;
 		bool over_;
-		unsigned int sel0_;
-		unsigned int sel1_;
 
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
 
-		void parse(Parseur& P);
+		void parse(Container* C);
 		void error();
 };
 #endif

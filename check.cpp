@@ -5,7 +5,7 @@
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	CreateSystem cs(P);
+	CreateSystem cs(&P);
 	unsigned int what(P.get<unsigned int>("what"));
 	switch(what){
 		case 1:/*run a normal MonteCarlo*/
@@ -54,6 +54,7 @@ int main(int argc, char* argv[]){
 							MCSystem<std::complex<double> >* S(NULL);
 							S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system())); 
 							MonteCarlo<std::complex<double> > sim(S,tmax);
+							sim.thermalize(1e6);
 							sim.run();
 							w.write("energy per site",S->get_energy());
 							w.write("correlation on links",S->get_corr());
@@ -64,6 +65,7 @@ int main(int argc, char* argv[]){
 							MCSystem<double>* S(NULL); 
 							S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())); 
 							MonteCarlo<double> sim(S,tmax);
+							sim.thermalize(1e6);
 							sim.run();
 							w.write("energy per site",S->get_energy());
 							w.write("correlation on links",S->get_corr());

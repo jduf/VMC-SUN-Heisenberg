@@ -47,7 +47,7 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 		bool are_invertible();
 
 		Matrix<unsigned int> row_;//!< row of the matrix A that is modified
-		Matrix<Type> *Ainv_;	//!< inverse of A
+		Matrix<Type>* Ainv_;	//!< inverse of A
 		Matrix<Type>* tmp_;		//!< temporary matrix used during the update 
 		Type w_[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0;0,w22)
 		unsigned int new_r_[2];	//!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)

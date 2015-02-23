@@ -28,7 +28,7 @@ std::ostream& operator<<(std::ostream& flux, MCSim const& mcsim);
 
 class PSOFermionic : public PSO{
 	public:
-		PSOFermionic(Parseur& P);
+		PSOFermionic(Parseur* P);
 		virtual ~PSOFermionic(){}
 
 		void print(){ std::cout<<all_results_<<std::endl; }
@@ -58,11 +58,14 @@ template<typename Type>
 double PSOFermionic::monte_carlo(CreateSystem& cs, Vector<double> const& x){
 	MCSystem<Type>* S(NULL);
 	if(cs.is_bosonic())
-	{ S = new SystemBosonic<Type>(*dynamic_cast<const Bosonic<Type>*>(cs.get_system())); } 
+	{ S = new SystemBosonic<Type>
+		(*dynamic_cast<const Bosonic<Type>*>(cs.get_system())); } 
 	else 
-	{ S = new SystemFermionic<Type>(*dynamic_cast<const Fermionic<Type>*>(cs.get_system())); }
+	{ S = new SystemFermionic<Type>
+		(*dynamic_cast<const Fermionic<Type>*>(cs.get_system())); }
 
 	MonteCarlo<Type> sim(S,tmax_);
+	sim.thermalize(1e6);
 	sim.run();
 	sim.complete_analysis(1e-5);
 	MCSim* run_results(new MCSim(x,S->get_energy()));
