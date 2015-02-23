@@ -39,13 +39,9 @@ void PSO::PSO_init(){
 			px_[i](j) = rnd_.get()*(max_(j)-min_(j))+min_(j);
 			pv_[i](j) = rnd_.get()*(max_(j)-min_(j))+min_(j);
 		}
-#pragma omp critical
-		std::cout<<px_[i]<<std::endl;
 		move_on_grid(i);
 		pbx_[i] = px_[i];
 		pfbx_[i] = f(px_[i]);
-#pragma omp critical
-		std::cout<<px_[i]<<std::endl;
 	}
 	for(unsigned int i(1);i<Nparticles_;i++){
 		if(pfbx_[i] < pfbx_[bparticle_] ){
@@ -111,7 +107,7 @@ void PSO::evaluate(unsigned int i){
 }
 
 void PSO::next_step(unsigned int i){
-#pragma omp critical
+#pragma omp critical(PSO_move_particle)
 	{
 		move(i);
 	}

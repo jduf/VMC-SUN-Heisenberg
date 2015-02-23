@@ -29,9 +29,9 @@ private:
 		Vector<double>* px_;	//!< position
 		bool* free_;            //!< true if particle_[i] isn't running
 		double* pfbx_;			//!< value at the best position
-		double cg_;
-		double cp_;
-		double chi_;
+		double cg_;	//! group influence
+		double cp_; //! personal influence
+		double chi_;//! constriction factor
 		Rand<double> rnd_;
 
 		void next_step(unsigned int i);

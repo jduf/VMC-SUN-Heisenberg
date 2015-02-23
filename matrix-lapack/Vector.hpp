@@ -16,6 +16,8 @@ class Vector{
 		Vector();
 		/*!Initializes a static array of Type of size N*/
 		Vector(unsigned int N);
+		/*!Initializes with {min,min+dx,...,max-dx,max}*/
+		Vector(Type const& min, Type const& max, Type const& dx);
 		/*!Initializes a static array of Type of size N to a value val*/
 		Vector(unsigned int N, Type val);
 		/*!Deep copy*/
@@ -125,6 +127,16 @@ Vector<Type>::Vector(unsigned int N):
 	size_(N),
 	vec_(size_?new Type[size_]:NULL)
 {} 
+
+/*!Initializes with {min,min+dx,...,max-dx,max}*/
+template<typename Type>
+Vector<Type>::Vector(Type const& min, Type const& max, Type const& dx):
+	size_(0),
+	vec_(NULL)
+{
+	set((max-min)/dx+1);
+	for(unsigned int i(0);i<size_;i++){ vec_[i] = min+i*dx; }
+}
 
 template<typename Type>
 Vector<Type>::Vector(unsigned int N, Type val):

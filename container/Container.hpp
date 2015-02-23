@@ -10,7 +10,7 @@
 class Variable{
 	public:
 		/*!Constructor*/
-		Variable(std::string name):name_(name){}
+		Variable(std::string const& name):name_(name){}
 		/*!Destructor, must be virtual*/
 		virtual ~Variable(){};
 
@@ -31,7 +31,7 @@ template<typename Type>
 class GenericVariable : public Variable {
 	public:
 		/*!Constructor*/
-		GenericVariable(std::string name, Type t):Variable(name),t_(t){}
+		GenericVariable(std::string const& name, Type t):Variable(name),t_(t){}
 		/*!Destructor*/
 		~GenericVariable(){};
 
@@ -67,14 +67,14 @@ class Container{
 
 		/*!Add one GenericVariable<Type> of value t and named name*/
 		template<typename Type>
-			void set(std::string name, Type const& t);
+			void set(std::string const& name, Type const& t);
 
 		/*!Returns the value GenericVariable<Type>::t_ named name*/
 		template<typename Type>
-			Type get(std::string name);
+			Type get(std::string const& name);
 		/*!Set the GenericVariable<Type> named name to t=GenericVariable<Type>::t_ */
 		template<typename Type>
-			void get(std::string name, Type& t);
+			void get(std::string const& name, Type& t);
 		/*!Sets t to data_[i].get_val()*/
 		template<typename Type>
 			void get(unsigned int i, Type& t);
@@ -104,12 +104,12 @@ class Container{
 };
 
 template<typename Type>
-void Container::set(std::string name, Type const& t){
+void Container::set(std::string const& name, Type const& t){
 	data_.push_back(new GenericVariable<Type>(name,t));
 }
 
 template<typename Type>
-Type Container::get(std::string name){
+Type Container::get(std::string const& name){
 	unsigned int i(0);
 	if(find(name,i)){ return do_cast<Type>(i); }
 	else {
@@ -119,7 +119,7 @@ Type Container::get(std::string name){
 }
 
 template<typename Type>
-void Container::get(std::string name, Type& t){
+void Container::get(std::string const& name, Type& t){
 	unsigned int i(0);
 	if(find(name,i)){ t = do_cast<Type>(i); }
 	else {
@@ -148,13 +148,13 @@ Type Container::get(unsigned int i){
 /*{FileParser*/
 class FileParser{
 	public:
-		FileParser(std::string filename):r(filename,false){};
+		FileParser(std::string const& filename):r(filename,false){};
 
 		template<typename Type>
 			void extract(Type& t){ r>>t;}
 
 		template<typename Type>
-			void transfer_to_container(std::string name, Container& c){
+			void transfer_to_container(std::string const& name, Container& c){
 				Type t;
 				r>>t;
 				c.set(name,t);
