@@ -15,9 +15,9 @@ int main(int argc, char* argv[]){
 	std::string keyword("");
 	std::string scp("");
 	unsigned int i(0);
-	if(P.find("e",i)){ ext = P.get<std::string>(i); }
-	if(P.find("k",i)){ keyword = P.get<std::string>(i); }
-	if(P.find("scp",i)){ scp = P.get<std::string>(i); }
+	if(P.find("e",i,false)){ ext = P.get<std::string>(i); }
+	if(P.find("k",i,false)){ keyword = P.get<std::string>(i); }
+	if(P.find("scp",i,false)){ scp = P.get<std::string>(i); }
 
 	if(!P.status()){
 		Linux command;

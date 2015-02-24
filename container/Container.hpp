@@ -2,7 +2,8 @@
 #define DEF_CONTAINER
 
 #include <vector>
-#include "IOFiles.hpp"
+#include <iostream>
+#include <string>
 
 /*{Variable*/
 /*!Base class that will never be instantiate. It provides a way to create
@@ -145,23 +146,23 @@ Type Container::get(unsigned int i){
 }
 /*}*/
 
-/*{FileParser*/
-class FileParser{
-	public:
-		FileParser(std::string const& filename):r(filename,false){};
-
-		template<typename Type>
-			void extract(Type& t){ r>>t;}
-
-		template<typename Type>
-			void transfer_to_container(std::string const& name, Container& c){
-				Type t;
-				r>>t;
-				c.set(name,t);
-			}
-
-	private:
-		IOFiles r;
-};
-/*}*/
+///*{FileParser*/
+//class FileParser{
+	//public:
+		//FileParser(std::string const& filename):r(filename,false){};
+//
+		//template<typename Type>
+			//void extract(Type& t){ r>>t;}
+//
+		//template<typename Type>
+			//void transfer_to_container(std::string const& name, Container& c){
+				//Type t;
+				//r>>t;
+				//c.set(name,t);
+			//}
+//
+	//private:
+		//IOFiles r;
+//};
+///*}*/
 #endif

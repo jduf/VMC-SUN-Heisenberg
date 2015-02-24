@@ -322,9 +322,7 @@ void Vector<Type>::set(unsigned int N){
 template<typename Type>
 void Vector<Type>::set(unsigned int N, Type const& val){
 	set(N);
-	for(unsigned int i(0); i<size_; i++){
-		vec_[i] = val;
-	}
+	for(unsigned int i(0); i<size_; i++){ vec_[i] = val; }
 }
 /*}*/
 

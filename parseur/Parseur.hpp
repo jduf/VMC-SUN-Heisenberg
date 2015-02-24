@@ -17,7 +17,7 @@ class Parseur: public Container {
 		~Parseur();
 
 		/*!Returns true if there is a var_[i]==patern and sets i*/
-		bool find(std::string const& pattern, unsigned int& i);
+		bool find(std::string const& pattern, unsigned int& i, bool iffail=true);
 		/*!Returns true if val_[i] for var_[i]==patern is a vector*/
 		bool is_vector(std::string const& pattern);
 		/*!Returns locked_*/

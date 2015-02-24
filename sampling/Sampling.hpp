@@ -182,7 +182,7 @@ Binning<Type>::Binning(Binning const& b):
 	logl_(b.logl_),
 	Ml_(b.Ml_),
 	m_bin_(b.m_bin_),
-	bin_(b_?new Vector<Type>[b_]:NULL),
+	bin_(b.bin_?new Vector<Type>[b_]:NULL),
 	recompute_dx_usefull_(b.recompute_dx_usefull_),
 	addlog_(b.addlog_),
 	log_(b.log_?new IOFiles(log_->get_filename()+"bis",true):NULL)
