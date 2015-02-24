@@ -7,8 +7,6 @@ CreateSystem::CreateSystem(Container* C):
 	n_(C->get<unsigned int>("n")),
 	M_(N_,(m_*n_ )/N_),
 	bc_(C->get<int>("bc")),
-	type_(C->get<unsigned int>("type")),
-	over_(false),
 	RGL_(NULL),
 	CGL_(NULL)
 {
@@ -22,8 +20,6 @@ CreateSystem::CreateSystem(IOFiles* r):
 	n_(r->read<unsigned int>()),
 	M_(r->read<Vector<unsigned int> >()),
 	bc_(r->read<int>()),
-	type_(0),
-	over_(false),
 	RGL_(NULL),
 	CGL_(NULL)
 {}
@@ -44,14 +40,14 @@ void CreateSystem::parse(Container* C){
 		ref_(0) = 2;
 		ref_(1) = 1;
 		ref_(2) = 1;
-		Vector<double> ti(N_/m_,1);
+		Vector<double> t(N_/m_,1);
 		if(N_/m_ == 4){
-			ti(1) = C->get<double>("t2");
-			ti(3) = C->get<double>("t4");
+			t(1) = C->get<double>("t2");
+			t(3) = C->get<double>("t4");
 		} else { 
-			ti(N_/m_-1) = 1-C->get<double>("delta");
+			t(N_/m_-1) = 1-C->get<double>("delta");
 		}
-		vd_.add_end(new Vector<double>(ti)); 
+		C_.set("t",t);
 	}
 
 	if( wf == "trianglefermi" ){
@@ -83,6 +79,13 @@ void CreateSystem::parse(Container* C){
 		ref_(0) = 4;
 		ref_(1) = 1;
 		ref_(2) = 1;
+	}
+	if( wf == "squarefree" ){
+		ref_(0) = 4;
+		ref_(1) = 1;
+		ref_(2) = 2;
+		C_.set("t",C->get<Vector<double> >("t"));
+		C_.set("mu",C->get<Vector<double> >("mu"));
 	}
 	if( wf == "squarecsl" ){
 		ref_(0) = 4;
@@ -120,13 +123,7 @@ void CreateSystem::parse(Container* C){
 		ref_(0) = 6;
 		ref_(1) = 1;
 		ref_(2) = 0;
-		//if(C->is_vector("td")){ 
-			//Vector<double> tmp(C->get<Vector<double> >("td"));
-			//for(unsigned int i(0);i<tmp.size();i++){
-				//d_.add_end(&tmp(i));
-			//}
-		//}
-		//else { d_.add_end(new double(C->get<double>("td"))); }
+		C_.set("td",C->get<double>("td"));
 	}
 	if( wf == "honeycombsu4" ){
 		ref_(0) = 6;
@@ -146,18 +143,11 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 						{
 							switch(ref_(2)){
 								case 0:
-									{
-										RGL_ = new ChainFermi<double>(ref_,N_,m_,n_,M_,bc_);
-										over_ = true;
-									}break;
+									{ RGL_ = new ChainFermi<double>(ref_,N_,m_,n_,M_,bc_); }break;
 								case 1:
 									{
 										if(read){ RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,read->read<Vector<double> >()); } 
-										else { 
-											RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,vd_.last()); 
-											vd_.pop_end();
-											if(!vd_.size()){ over_ = true; }
-										}
+										else { RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t")); }
 									}break;
 								default: {error();}break;
 							}
@@ -166,10 +156,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 						{
 							switch(ref_(2)){
 								case 0:
-									{
-										CGL_ = new ChainFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);
-										over_ = true;
-									}break;
+									{ CGL_ = new ChainFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_); }break;
 								default: {error();}break;
 							}
 						}break;
@@ -207,10 +194,9 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 						{
 							switch(ref_(2)){
 								case 0:
-									{
-										RGL_ = new SquareFermi<double>(ref_,N_,m_,n_,M_,bc_);
-										over_ = true;
-									}break;
+									{ RGL_ = new SquareFermi<double>(ref_,N_,m_,n_,M_,bc_); }break;
+								case 2:
+									{ RGL_ = new SquareFree<double>(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t"),C_.get<Vector<double> >("mu")); }break;
 									//   case 1:{return SquareMu(N,n,m);}break;
 								default:{error();}break;
 							}
@@ -219,10 +205,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 						{
 							switch(ref_(2)){
 								case 0:
-									{
-										CGL_ = new SquareFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);
-										over_ = true;
-									}break;
+									{ CGL_ = new SquareFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_); }break;
 								case 2:{CGL_ = new SquarePiFlux(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{error();}break;
 							}
@@ -238,7 +221,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 							switch(ref_(2)){
 								case 0:{
 										   std::cerr<<"KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
-										//   RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
+										   //   RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
 									   }break;
 								case 1:{RGL_ = new KagomeDirac<double>(ref_,N_,m_,n_,M_,bc_);}break;
 								default:{error();}break;
@@ -249,7 +232,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 							switch(ref_(2)){
 								case 0:{
 										   std::cerr<<"KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
-										//   CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
+										   //   CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
 									   }break;
 								case 1:{CGL_ = new KagomeDirac<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);}break;
 								case 2:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
@@ -267,10 +250,8 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 							switch(ref_(2)){
 								case 0:
 									{
-										if(read){ d_.add_end( new double(read->read<double>()) ); }
-										RGL_ = new Honeycomb0pp(ref_,N_,m_,n_,M_,bc_,d_.last());
-										d_.pop_end();
-										if(!d_.size()){ over_ = true; }
+										if(read){ RGL_ = new Honeycomb0pp(ref_,N_,m_,n_,M_,bc_,read->read<double>()) ; }
+										else { RGL_ = new Honeycomb0pp(ref_,N_,m_,n_,M_,bc_,C_.get<double>("td")); }
 									}break;
 									//case 1:{return HoneycombSU4(N,n,m);}break;
 								default:{error();}break;
@@ -281,18 +262,6 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 			}break;
 		default:{error();}break;
 	}
-	switch(type_){
-		case 3:
-			{
-				if(M_(0)){ 
-					M_(0) -= 1;
-					M_(1) += 1;
-					over_ = false;
-				} else {
-					over_ = true;
-				}
-			}break;
-	}
 	if(ios){
 		if(RGL_){ RGL_->set_IOSystem(ios); }
 		if(CGL_){ CGL_->set_IOSystem(ios); }
@@ -301,13 +270,12 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 
 void CreateSystem::error(){
 	std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;
-	over_ = true;
-}  
+} 
 
 void CreateSystem::create(){
 	if(RGL_){
 		RGL_->create();
-		if(get_status()!=1 && type_ == 1){
+		if(get_status()!=1){
 			delete RGL_;
 			RGL_=NULL;
 			ref_(1)=2;

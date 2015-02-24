@@ -12,16 +12,14 @@ int main(int argc, char* argv[]){
 	unsigned int tmax(P.get<unsigned int>("tmax"));
 	CreateSystem cs(&P);
 	if(!P.status()){
-		do{
-			cs.init();
-			if(cs.get_status()==2){
-				cs.create();
-				if(cs.get_status()==1){
-					if(cs.use_complex()){ run<std::complex<double> >(cs,nruns,tmax); } 
-					else { run<double>(cs,nruns,tmax); }
-				}
+		cs.init();
+		if(cs.get_status()==2){
+			cs.create();
+			if(cs.get_status()==1){
+				if(cs.use_complex()){ run<std::complex<double> >(cs,nruns,tmax); } 
+				else { run<double>(cs,nruns,tmax); }
 			}
-		} while(!cs.is_over());
+		}
 	}
 	return cs.get_status();
 }

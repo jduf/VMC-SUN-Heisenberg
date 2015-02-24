@@ -67,8 +67,6 @@ void Honeycomb0pp::compute_H(){
 			}
 		}
 		H_ += H_.transpose();
-
-
 	}
 }
 
@@ -77,7 +75,7 @@ void Honeycomb0pp::create(){
 	corr_.set(links_.row(),50,5,false);
 
 	compute_H();
-	diagonalize(false);
+	diagonalize(true);
 	for(unsigned int c(0);c<N_;c++){
 		for(unsigned int i(0);i<n_;i++){
 			for(unsigned int j(0);j<M_(c);j++){

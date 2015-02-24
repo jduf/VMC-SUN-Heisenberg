@@ -55,13 +55,13 @@ System2D<Type>::System2D(unsigned int const& Lx, unsigned int const& Ly, unsigne
 {
 	sel_[0]= sel0;
 	sel_[1]= sel1;
-	if(this->n_==this->spuc_*Lx_*Ly_){
+	//if(this->n_==this->spuc_*Lx_*Ly_){
 		this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 		this->status_--;
-	} else {
-		std::cerr<<"System2D<Type> : the cluster is impossible, n must be a"<<std::endl; 
-		std::cerr<<"               : multiple of "<<Lx*Ly*spuc<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc<<")"<<std::endl; 
-	}
+	//} else {
+		//std::cerr<<"System2D<Type> : the cluster is impossible, n must be a"<<std::endl; 
+		//std::cerr<<"               : multiple of "<<Lx*Ly*spuc<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc<<")"<<std::endl; 
+	//}
 }
 
 template<typename Type>

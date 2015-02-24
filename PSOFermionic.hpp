@@ -4,7 +4,7 @@
 #include "MonteCarlo.hpp"
 #include "CreateSystem.hpp"
 #include "PSO.hpp"
-#include "Gnuplot.hpp"
+#include "List.hpp"
 
 class MCSim{
 	public:

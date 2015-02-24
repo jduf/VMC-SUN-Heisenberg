@@ -9,6 +9,7 @@
 #include "SquareFermi.hpp"
 #include "SquarePiFlux.hpp"
 #include "SquareJastrow.hpp"
+#include "SquareFree.hpp"
 
 #include "KagomeFermi.hpp"
 #include "KagomeDirac.hpp"
@@ -17,7 +18,6 @@
 #include "Honeycomb0pp.hpp"
 
 #include "Parseur.hpp"
-#include "List.hpp"
 
 class CreateSystem{
 	public:
@@ -26,7 +26,6 @@ class CreateSystem{
 		virtual ~CreateSystem();
 
 		void init(IOFiles* read=NULL, IOSystem* ios=NULL);
-		bool is_over() const { return over_; }
 
 		/*{IOSystem calls*/
 		/*!Calls IOSystem::analyse(unsigned int const& level)*/
@@ -109,13 +108,12 @@ class CreateSystem{
 		unsigned int const n_;
 		Vector<unsigned int> M_;
 		int const bc_;
-		List<double> d_;
-		List<Vector<double> > vd_;
 		unsigned int type_;
-		bool over_;
+		Container C_;
 
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
+
 
 		void parse(Container* C);
 		void error();

@@ -96,9 +96,7 @@ void GenericSystem<Type>::compute_links(){
 	Matrix<int> nb;
 	for(unsigned int i(0);i<this->n_;i+=incr){
 		nb = get_neighbourg(i);
-		for(unsigned int j(0);j<z_link;j++){
-			if(nb(j,1)!=0){ k++; }
-		}
+		for(unsigned int j(0);j<z_link;j++){ if(nb(j,1)!=0){ k++; } }
 	}
 	this->links_.set(k,2);
 	k=0;

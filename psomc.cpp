@@ -5,13 +5,12 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	
-	unsigned int Nfreedom(1);
+	unsigned int Nfreedom(P.get<unsigned int>("Nfreedom"));
 
 	PSOFermionic s(&P);
 
 	for(unsigned int i(0);i<Nfreedom;i++){
-		s.PSO_set_limit(i,-0.3,0.5);
-		std::cout<<"limit"<<std::endl;
+		s.PSO_set_limit(i,-2,2);
 	}
 	s.PSO_init();
 	s.PSO_run();
