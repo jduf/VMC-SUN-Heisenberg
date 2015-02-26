@@ -60,10 +60,8 @@ bool Parseur::find(std::string const& pattern, unsigned int& i, bool iffail){
 		i=0;
 		if(Container::find(pattern,i)){
 			used_[i] = true;
-			std::cout<<pattern<<std::endl;
 			return true;
 		} else {
-			std::cout<<"not"<<pattern<<std::endl;
 			locked_ = iffail;
 			return false;
 		}

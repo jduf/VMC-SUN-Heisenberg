@@ -412,7 +412,7 @@ Data<Type>::Data(Data<Type> const& d):
 	dx_(d.dx_),
 	N_(d.N_),
 	conv_(d.conv_),
-	binning_(d.binning_?new Binning<Type>(*(d.binning_)):NULL)
+	binning_(d.binning_?new Binning<Type>(*d.binning_):NULL)
 {}
 
 template<typename Type>

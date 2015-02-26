@@ -45,6 +45,18 @@ void check_openmp_mt(){
 		Rand<double> rnd1(0,1);
 		for(unsigned int j(0);j<m.row();j++){ m(j,thread)=rnd1.get()-rnd0.get(); }
 	}
+	std::cout<<m<<std::endl<<std::endl;
+
+	std::cout<<"one mt declared outside openmp (note the same value if #pragma critical is removed)"<<std::endl;
+	Rand<double> rnd_out(0,1);
+#pragma omp parallel for num_threads(m.col())
+	for(unsigned int i=0;i<m.col();i++){ 
+		unsigned int thread(omp_get_thread_num());
+#pragma omp critical
+		{
+			for(unsigned int j(0);j<m.row();j++){ m(j,thread)=rnd_out.get(); }
+		}
+	}
 	std::cout<<m<<std::endl;
 }
 

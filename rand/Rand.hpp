@@ -3,6 +3,12 @@
 
 #include <random>
 
+/*{Description*/
+/*!Random number generator that uses <random> of c++11. 
+ * \warning if declared outside an parallel region but used by different
+ * threads, to same random number may be used by different thread (openmp)
+ */
+/*}*/
 template<typename Type>
 class Rand{
 	public:

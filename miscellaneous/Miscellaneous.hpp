@@ -61,18 +61,7 @@ inline bool are_equal(std::complex<double> const& x, std::complex<double> const&
 	if(!are_equal(x.imag(),y.imag(),abs_tol,rel_tol)){ return false; }
 	return true;
 }
-
-#ifdef DEF_VECTOR
-template<typename Type>
-bool are_equal(Vector<Type> const& x, Vector<Type> const& y, double abs_tol=1e-14, double rel_tol=1e-14){
-	if(x.size() != y.size()){ return false; }
-	else {
-		for(unsigned int i(0);i<x.size();i++){
-			if(!are_equal(x(i),y(i),abs_tol,rel_tol)){ return false ; }
-		}
-		return true;
-	}
-}
-#endif
 /*}*/
 #endif
+
+

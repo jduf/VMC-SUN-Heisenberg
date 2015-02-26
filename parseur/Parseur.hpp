@@ -21,7 +21,7 @@ class Parseur: public Container {
 		/*!Returns true if val_[i] for var_[i]==patern is a vector*/
 		bool is_vector(std::string const& pattern);
 		/*!Returns locked_*/
-		bool status() const {return locked_; }
+		bool status() const { return locked_; }
 
 	private:
 		/*!Forbids default*/

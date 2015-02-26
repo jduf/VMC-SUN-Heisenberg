@@ -86,7 +86,8 @@ class Container{
 		/*!Returns the number of GenericVariable stored*/
 		unsigned int size() const { return data_.size(); }
 
-		virtual bool find(std::string const& pattern, unsigned int& i) {
+		virtual bool find(std::string const& pattern, unsigned int& i, bool iffail=true){
+			(void)(iffail);
 			while(i<data_.size()){
 				if(data_[i]->get_name()==pattern){ return true; } 
 				else { i++; }

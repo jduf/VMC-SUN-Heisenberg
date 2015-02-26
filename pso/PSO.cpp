@@ -33,16 +33,20 @@ PSO::PSO(unsigned int Nparticles, unsigned int Nfreedom, double cg, double cp, u
 }
 
 void PSO::PSO_init(){
-#pragma omp parallel for schedule(dynamic,1)
-	for(unsigned int i=0;i<Nparticles_;i++){
+	/*can't use rnd_ inside a parallel region*/
+	for(unsigned int i(0);i<Nparticles_;i++){
 		for(unsigned int j(0);j<Nfreedom_;j++){
 			px_[i](j) = rnd_.get()*(max_(j)-min_(j))+min_(j);
 			pv_[i](j) = rnd_.get()*(max_(j)-min_(j))+min_(j);
 		}
+	}
+#pragma omp parallel for schedule(dynamic,1)
+	for(unsigned int i=0;i<Nparticles_;i++){
 		move_on_grid(i);
 		pbx_[i] = px_[i];
 		pfbx_[i] = f(px_[i]);
 	}
+	/*as bparticle_=0, start at i=1*/
 	for(unsigned int i(1);i<Nparticles_;i++){
 		if(pfbx_[i] < pfbx_[bparticle_] ){
 			bparticle_ = i;
@@ -67,17 +71,17 @@ PSO::~PSO(){
 /*core of the class*/
 /*{*/
 void PSO::move(unsigned int i){
-	for(unsigned int j(0);j<Nfreedom_;j++){
-		pv_[i](j) = chi_*(pv_[i](j) + cp_*rnd_.get()*(pbx_[i](j)-px_[i](j)) + cg_*rnd_.get()*(pbx_[bparticle_](j)-px_[i](j)));
-		//if(v_[i] > (max_[i]-min_[i])/2.0){v_[i] = (max_[i]-min_[i])/4.0;}
-		//if(v_[i] < (min_[i]-max_[i])/2.0){v_[i] = (min_[i]-max_[i])/4.0;}
-		if( px_[i](j)+pv_[i](j) > max_(j)){ 
-			pv_[i](j) = log(1.0+rnd_.get()*(exp(max_(j)-px_[i](j))-1.0));
+	/*can't use rnd_ at the same time*/
+#pragma omp critical(PSO_move_particle)
+	{
+		for(unsigned int j(0);j<Nfreedom_;j++){
+			pv_[i](j) = chi_*(pv_[i](j) + cp_*rnd_.get()*(pbx_[i](j)-px_[i](j)) + cg_*rnd_.get()*(pbx_[bparticle_](j)-px_[i](j)));
+			//if(v_[i] > (max_[i]-min_[i])/2.0){v_[i] = (max_[i]-min_[i])/4.0;}
+			//if(v_[i] < (min_[i]-max_[i])/2.0){v_[i] = (min_[i]-max_[i])/4.0;}
+			if( px_[i](j)+pv_[i](j) > max_(j)){ pv_[i](j) = log(1.0+rnd_.get()*(exp(max_(j)-px_[i](j))-1.0)); }
+			if( px_[i](j)+pv_[i](j) < min_(j)){ pv_[i](j) =-log(1.0+rnd_.get()*(exp(px_[i](j)-min_(j))-1.0)); }
+			px_[i](j) += pv_[i](j); 
 		}
-		if( px_[i](j)+pv_[i](j) < min_(j)){ 
-			pv_[i](j) =-log(1.0+rnd_.get()*(exp(px_[i](j)-min_(j))-1.0));
-		}
-		px_[i](j) += pv_[i](j); 
 	}
 }
 
@@ -90,32 +94,50 @@ void PSO::move_on_grid(unsigned int i){
 		if(std::abs(px_[i](j)-min_(j))<dx/2){ n=2; }
 		if(std::abs(px_[i](j)-max_(j))<dx/2){ n=3; }
 		switch(n){
-			case 0:{ px_[i](j) = std::round(std::abs(px_[i](j)/dx))*dx; }break;
+			case 0:{ px_[i](j) = std::round(px_[i](j)/dx)*dx; }break;
 			case 1:{ px_[i](j) = 0; }break;
 			case 2:{ px_[i](j) = min_(j); }break;
 			case 3:{ px_[i](j) = max_(j); }break;
 		}
 	}
+#pragma omp critical
+	{
+		std::cout<<i<<":"<<n<<"->"<<px_[i]<<std::endl;
+	}
 }
 
 void PSO::evaluate(unsigned int i){
 	double fx(f(px_[i]));
-	if( fx < pfbx_[i]){
+	for(unsigned int i(0);i<Nparticles_;i++){
+		if( are_equal(pbx_[i],px_[i]) ){ pfbx_[i] = fx; }
+	}
+
+	if( fx < pfbx_[i] ){
 		pfbx_[i] = fx; 
 		pbx_[i] = px_[i]; 
+	}
+	for(unsigned int j(0);j<Nparticles_;j++){
+		if( are_equal(pbx_[j],px_[i]) ){
+#pragma omp critical
+			{
+				std::cout<<"updated same position for i="<<i<<" j="<<j<<std::endl;
+			}
+			pfbx_[j] = fx; 
+		}
+	}
+	if( pfbx_[i] < pfbx_[bparticle_] ){
+#pragma omp critical
+			{
+				std::cout<<"best particle is now"<<i<<std::endl;
+			}
+		bparticle_ = i;
 	}
 }
 
 void PSO::next_step(unsigned int i){
-#pragma omp critical(PSO_move_particle)
-	{
-		move(i);
-	}
+	move(i);
 	move_on_grid(i);
 	evaluate(i);
-	if(pfbx_[i] < pfbx_[bparticle_] ){
-		bparticle_ = i;
-	}
 }
 
 void PSO::PSO_run(){
