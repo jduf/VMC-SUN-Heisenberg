@@ -12,7 +12,7 @@ class Kagome: public System2D<Type>{
 		 * GenericSystem<Type>(4,filename), to construct a system with 4 links
 		 * per sites */
 		/*}*/
-		Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename, unsigned int const& sel0=0, unsigned int const& sel1=0);
+		Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename);
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Kagome()=0;
 
@@ -22,8 +22,8 @@ class Kagome: public System2D<Type>{
 };
 
 template<typename Type>
-Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename, unsigned int const& sel0, unsigned int const& sel1):
-	System2D<Type>(Lx,Ly,spuc,4,filename,sel0,sel1)
+Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
+	System2D<Type>(Lx,Ly,spuc,4,filename)
 {
 	if(this->status_==2){ this->compute_links(); }
 }

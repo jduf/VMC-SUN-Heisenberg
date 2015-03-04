@@ -7,7 +7,7 @@ template<typename Type>
 class System2D: public GenericSystem<Type>{
 	public:
 		/*!Constructor*/
-		System2D(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, unsigned int const& z, std::string const& filename, unsigned int const& sel0, unsigned int const& sel1);
+		System2D(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, unsigned int const& z, std::string const& filename);
 		/*!Destructor*/
 		virtual ~System2D()=0;
 
@@ -47,21 +47,19 @@ class System2D: public GenericSystem<Type>{
 	
 /*{constructors*/
 template<typename Type>
-System2D<Type>::System2D(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, unsigned int const& z, std::string const& filename, unsigned int const& sel0, unsigned int const& sel1):
+System2D<Type>::System2D(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename),
 	Lx_(sqrt(Lx*this->n_/(Ly*spuc))),
 	Ly_(sqrt(Ly*this->n_/(Lx*spuc))),
 	select_(new Vector<unsigned int>[this->N_])
 {
-	sel_[0]= sel0;
-	sel_[1]= sel1;
-	//if(this->n_==this->spuc_*Lx_*Ly_){
+	if(this->n_==this->spuc_*Lx_*Ly_){
 		this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
 		this->status_--;
-	//} else {
-		//std::cerr<<"System2D<Type> : the cluster is impossible, n must be a"<<std::endl; 
-		//std::cerr<<"               : multiple of "<<Lx*Ly*spuc<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc<<")"<<std::endl; 
-	//}
+	} else {
+		std::cerr<<"System2D<Type> : the cluster is impossible, n must be a"<<std::endl; 
+		std::cerr<<"               : multiple of "<<Lx*Ly*spuc<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc<<")"<<std::endl; 
+	}
 }
 
 template<typename Type>

@@ -23,7 +23,7 @@ class Honeycomb: public System2D<Type>{
 
 template<typename Type>
 Honeycomb<Type>::Honeycomb(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(Lx,Ly,spuc,3,filename,0,0)
+	System2D<Type>(Lx,Ly,spuc,3,filename)
 {
 	if(this->status_==2){ this->compute_links(); }
 }

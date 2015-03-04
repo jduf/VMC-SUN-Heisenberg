@@ -23,7 +23,7 @@ class Triangle: public System2D<Type>{
 
 template<typename Type>
 Triangle<Type>::Triangle(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(Lx,Ly,spuc,6,filename,0,0)
+	System2D<Type>(Lx,Ly,spuc,6,filename)
 {
 	std::cerr<<"Triangle::Triangle(N,n,m,filename) : need to set the boundary condition"<<std::endl;
 	std::cerr<<"Triangle::Triangle(N,n,m,filename) : and need to check that they are correct"<<std::endl;

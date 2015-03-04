@@ -2,6 +2,7 @@
 #define DEF_SQUAREFERMI
 
 #include "Square.hpp"
+#include "Rand.hpp"
 
 template<typename Type>
 class SquareFermi: public Square<Type>{
@@ -16,7 +17,6 @@ class SquareFermi: public Square<Type>{
 		void compute_H();
 		void lattice();
 };
-
 
 template<typename Type>
 SquareFermi<Type>::SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
@@ -50,57 +50,107 @@ void SquareFermi<Type>::compute_H(){
 template<typename Type>
 void SquareFermi<Type>::lattice(){
 	Matrix<int> nb;
-	double x0;
-	double x1;
-	double y0;
-	double y1;
-	double ll(1.0);
-	double ex(ll);
-	double ey(ll);
-	std::string color;
-
+	std::string color("black");
+	Vector<double> xy0_s(2,0);
+	Vector<double> xy1_s(2,0);
+	Vector<double> xy0_ab(2,0);
+	Vector<double> xy1_ab(2,0);
 	PSTricks ps("./","lattice");
-	ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+this->filename_);
-	unsigned int s;
-	for(unsigned int i(0);i<this->Lx_;i++) {
-		for(unsigned int j(0);j<this->Ly_;j++) {
-			s = this->spuc_*(i+j*this->Lx_);
-			x0 = i*ex;
-			y0 = j*ey;
-			nb = this->get_neighbourg(s);
-			ps.put(x0-0.2,y0+0.2,tostring(s));
-			x1 = x0+ll;
-			y1 = y0;
-			if(this->H_(s,nb(0,0))>0){ color = "green"; }
-			else { color = "blue"; }
-			/*x-link*/ ps.line("-",x0,y0,x1,y1, "linewidth=1pt,linecolor="+color);
-			x1 = x0;
-			y1 = y0+ll;
-			if(this->H_(s,nb(1,0))>0){ color = "green"; }
-			else { color = "blue"; }
-			/*y-link*/ ps.line("-",x0,y0,x1,y1, "linewidth=1pt,linecolor="+color);
-			x0 += ll;
+	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+this->filename_);
+	for(unsigned int i(0);i<this->n_;i++) {
+		xy0_s(0) = i;
+		xy0_s(1) = i/this->xloop_;
+		xy0_ab = this->get_ab_pos(xy0_s);
+		this->set_in_zone(xy0_ab);
+		xy0_ab = (this->ab_basis_*xy0_ab).chop();
+		ps.put(xy0_ab(0)-0.20,xy0_ab(1)+0.15,tostring(i));
+		nb = this->get_neighbourg(i);
+
+		if(nb(0,1)<0){
+			color = "red";
+			xy1_ab = xy0_ab;
+			xy1_ab(0) += 1.0;
+			ps.put(xy1_ab(0)-0.20,xy1_ab(1)+0.15,tostring(nb(0,0)));
+		} else {
+			color = "black";
+			xy1_s(0) = nb(0,0);
+			xy1_s(1) = nb(0,0)/this->xloop_;
+			xy1_ab = this->get_ab_pos(xy1_s);
+			this->set_in_zone(xy1_ab);
+			xy1_ab = (this->ab_basis_*xy1_ab).chop();
 		}
+		/*x-link*/ ps.line("-",xy0_ab(0),xy0_ab(1),xy1_ab(0),xy1_ab(1), "linewidth=1pt,linecolor="+color);
+
+		if(nb(1,1)<0){
+			color = "red";
+			xy1_ab = xy0_ab;
+			xy1_ab(1) += 1.0;
+			ps.put(xy1_ab(0)-0.20,xy1_ab(1)+0.15,tostring(nb(1,0)));
+		} else {
+			color = "black";
+			xy1_s(0) = nb(1,0);
+			xy1_s(1) = nb(1,0)/this->xloop_;
+			xy1_ab = this->get_ab_pos(xy1_s);
+			this->set_in_zone(xy1_ab);
+			xy1_ab = (this->ab_basis_*xy1_ab).chop();
+		}
+		/*y-link*/ ps.line("-",xy0_ab(0),xy0_ab(1),xy1_ab(0),xy1_ab(1), "linewidth=1pt,linecolor="+color);
 	}
 
-	ps.frame(-0.5,-0.5,this->Lx_*ex-0.5,this->Ly_*ey-0.5,"linecolor=red");
-	ps.frame(-0.5,-0.5,ex-0.5,ey-0.5,"linecolor=red,linestyle=dashed");
+	Matrix<double> polygon(4,2);
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=this->ab_basis_(0,0);
+	polygon(1,1)=this->ab_basis_(0,1);
+	polygon(2,0)=this->ab_basis_(0,0)+this->ab_basis_(1,0);
+	polygon(2,1)=this->ab_basis_(0,1)+this->ab_basis_(1,1);
+	polygon(3,0)=this->ab_basis_(1,0);
+	polygon(3,1)=this->ab_basis_(1,1);
+
+	ps.polygon(polygon,"linecolor=green");
 	ps.add("\\end{pspicture}");
 	ps.save(true,true);
 }
 
 template<typename Type>
 void SquareFermi<Type>::check(){
-	//unsigned int c(0);
-	//unsigned int a(this->M_(c)-1);
-	//unsigned int b(this->M_(c)-1);
-	//Vector<double> eval;
-	//do{b++;} while (b+1<this->n_ && are_equal(eval(b),eval(b-1)));
-	//if(b!=this->M_(c)){ while(a>0 && are_equal(eval(a-1),eval(a))){a--;} }
-	//std::cout<<a<<" "<<b<<std::endl;
-	this->compute_H();
-	this->plot_band_structure();
-	this->status_++;
+	Matrix<int> nb;
+	//Vector<int> dir(4,0);
+	//Rand<unsigned int> rnd(0,3);
+	//unsigned int d;
+	//unsigned int p(0);
+	//unsigned int iter(1000);
+	//for(unsigned int i(0);i<iter;i++){
+	//d=rnd.get();
+	//nb=this->get_neighbourg(p);
+	//p = nb(d,0);
+	//dir(d)++;
+	//}
+	//std::cout<<p<<std::endl;
+	//std::cout<<dir<<std::endl;
+	//d=0;
+	//p=0;
+	//unsigned int i(0);
+	//while(i<iter){
+	//if(dir(d) != 0){
+	//dir(d)--;
+	//i++;
+	//nb=this->get_neighbourg(p);
+	//p = nb(d,0);
+	//} else { d++; }
+	//}
+	//std::cout<<p<<std::endl;
+	//
+	//std::cout<<"######################"<<std::endl;
+	//for(unsigned int i(0);i<this->n_;i++){
+		//nb = this->get_neighbourg(i);
+		//std::cout<<"i="<<i<<std::endl;
+		//std::cout<<nb<<std::endl;
+	//}
+	//std::cout<<"######################"<<std::endl;
+	//std::cout<<this->get_neighbourg(1)<<std::endl;
+
+	lattice();
 }
 /*}*/
 #endif

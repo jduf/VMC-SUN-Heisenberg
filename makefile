@@ -1,4 +1,7 @@
-EXEC=mc check study psomc
+#EXEC+=mc
+EXEC+=check
+#EXEC+=study
+#EXEC+=psomc
 
 mc_SRCS=    mc.cpp    System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp TriangleFermi.cpp SquareFermi.cpp SquarePiFlux.cpp SquareJastrow.cpp KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp
 check_SRCS= check.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp TriangleFermi.cpp SquareFermi.cpp SquarePiFlux.cpp SquareJastrow.cpp KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp

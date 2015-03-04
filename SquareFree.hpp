@@ -22,7 +22,7 @@ class SquareFree: public Square<Type>{
 template<typename Type>
 SquareFree<Type>::SquareFree(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, Vector<double> const& t, Vector<double> const& mu):
 	System(ref,N,m,n,M,bc),
-	Square<Type>(1,1,1,"square-fermi"),
+	Square<Type>(2,2,1,"square-fermi"),
 	t_(t),
 	mu_(mu)
 {
@@ -38,88 +38,6 @@ SquareFree<Type>::SquareFree(Vector<unsigned int> const& ref, unsigned int const
 /*{method needed for running*/
 template<typename Type>
 void SquareFree<Type>::create(){
-	this->links_.set(40,2);
-	this->links_(0,0) = 0;
-	this->links_(0,1) = 12;
-	this->links_(1,0) = 0;
-	this->links_(1,1) = 1;
-	this->links_(2,0) = 1;
-	this->links_(2,1) = 4;
-	this->links_(3,0) = 1;
-	this->links_(3,1) = 2;
-	this->links_(4,0) = 2;
-	this->links_(4,1) = 3;
-	this->links_(5,0) = 2;
-	this->links_(5,1) = 14;
-	this->links_(6,0) = 3;
-	this->links_(6,1) = 6;
-	this->links_(7,0) = 3;
-	this->links_(7,1) = 15;
-	this->links_(8,0) = 4;
-	this->links_(8,1) = 5;
-	this->links_(9,0) = 4;
-	this->links_(9,1) = 3;
-	this->links_(10,0) = 5;
-	this->links_(10,1) = 17;
-	this->links_(11,0) = 5;
-	this->links_(11,1) = 6;
-	this->links_(12,0) = 6;
-	this->links_(12,1) = 9;
-	this->links_(13,0) = 6;
-	this->links_(13,1) = 7;
-	this->links_(14,0) = 7;
-	this->links_(14,1) = 8;
-	this->links_(15,0) = 7;
-	this->links_(15,1) = 19;
-	this->links_(16,0) = 8;
-	this->links_(16,1) = 1; 
-	this->links_(17,0) = 8;
-	this->links_(17,1) = 10; 
-	this->links_(18,0) = 9;
-	this->links_(18,1) = 0; 
-	this->links_(19,0) = 9;
-	this->links_(19,1) = 8; 
-	this->links_(20,0) = 10;
-	this->links_(20,1) = 2; 
-	this->links_(21,0) = 10;
-	this->links_(21,1) = 11; 
-	this->links_(22,0) = 11;
-	this->links_(22,1) = 14; 
-	this->links_(23,0) = 11;
-	this->links_(23,1) = 12; 
-	this->links_(24,0) = 12;
-	this->links_(24,1) = 13; 
-	this->links_(25,0) = 12;
-	this->links_(25,1) = 4; 
-	this->links_(26,0) = 13;
-	this->links_(26,1) = 16; 
-	this->links_(27,0) = 13;
-	this->links_(27,1) = 5; 
-	this->links_(28,0) = 14;
-	this->links_(28,1) = 15; 
-	this->links_(29,0) = 14;
-	this->links_(29,1) = 13; 
-	this->links_(30,0) = 15;
-	this->links_(30,1) = 7; 
-	this->links_(31,0) = 15;
-	this->links_(31,1) = 16; 
-	this->links_(32,0) = 16;
-	this->links_(32,1) = 19; 
-	this->links_(33,0) = 16;
-	this->links_(33,1) = 17; 
-	this->links_(34,0) = 17;
-	this->links_(34,1) = 18; 
-	this->links_(35,0) = 17;
-	this->links_(35,1) = 9 ; 
-	this->links_(36,0) = 18;
-	this->links_(36,1) = 11; 
-	this->links_(37,0) = 18;
-	this->links_(37,1) = 0; 
-	this->links_(38,0) = 19;
-	this->links_(38,1) = 10; 
-	this->links_(39,0) = 19;
-	this->links_(39,1) = 18; 
-
 	this->E_.set(50,5,false);
 	this->corr_.set(this->links_.row(),50,5,false);
 

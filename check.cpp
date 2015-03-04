@@ -43,7 +43,7 @@ int main(int argc, char* argv[]){
 		case 2:/*call CreateSystem::init create and check*/
 			{ 
 				cs.init();
-				cs.create();
+				//cs.create();
 				cs.check();
 			} break;
 		default:{std::cerr<<"check : unknown what"<<std::endl;}
