@@ -80,12 +80,20 @@ void CreateSystem::parse(Container* C){
 		ref_(1) = 1;
 		ref_(2) = 1;
 	}
-	if( wf == "squarefree" ){
+	if( wf == "squarefreereal" ){
 		ref_(0) = 4;
 		ref_(1) = 1;
 		ref_(2) = 2;
 		C_.set("t",C->get<Vector<double> >("t"));
 		C_.set("mu",C->get<Vector<double> >("mu"));
+	}
+	if( wf == "squarefreecomplex" ){
+		ref_(0) = 4;
+		ref_(1) = 2;
+		ref_(2) = 2;
+		C_.set("t",C->get<Vector<double> >("t"));
+		C_.set("mu",C->get<Vector<double> >("mu"));
+		C_.set("phi",C->get<Vector<double> >("phi"));
 	}
 	if( wf == "squarecsl" ){
 		ref_(0) = 4;
@@ -163,103 +171,106 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					default:{error();}break;
 				}
 			}break;
-		case 3:
-			{
-				switch(ref_(1)){
-					//case 0:{return TriangleJastrow(N,n,m);}break;
-					case 1:
-						{
-							switch(ref_(2)){
-								case 0:{RGL_ = new TriangleFermi(ref_,N_,m_,n_,M_,bc_);}break;
-									   //   case 1:{return TriangleMu(N,n,m);}break;
-								default:{error();}break;
-							}
-						}break;
-						//case 2:
-						//   {
-						//   switch(ref_(2)){
-						//   case 4:{return TrianglePhi(N,n,m);}break;
-						//   default:{error();}break;
-						//   }
-						//   }break;
-						//default:{error();}break;
-				}
-			}break;
+		//case 3:
+			//{
+				//switch(ref_(1)){
+					////case 0:{return TriangleJastrow(N,n,m);}break;
+					//case 1:
+						//{
+							//switch(ref_(2)){
+								//case 0:{RGL_ = new TriangleFermi(ref_,N_,m_,n_,M_,bc_);}break;
+									//   //   case 1:{return TriangleMu(N,n,m);}break;
+								//default:{error();}break;
+							//}
+						//}break;
+						////case 2:
+						////   {
+						////   switch(ref_(2)){
+						////   case 4:{return TrianglePhi(N,n,m);}break;
+						////   default:{error();}break;
+						////   }
+						////   }break;
+						////default:{error();}break;
+				//}
+			//}break;
 		case 4:
 			{
 				switch(ref_(1)){
 					case 0:
-						{RGL_ = new SquareJastrow(ref_,N_,m_,n_,M_,bc_);}break;
+						//{RGL_ = new SquareJastrow(ref_,N_,m_,n_,M_,bc_);}break;
 					case 1:
 						{
 							switch(ref_(2)){
 								case 0:
 									{ RGL_ = new SquareFermi<double>(ref_,N_,m_,n_,M_,bc_); }break;
-								case 2:
-									{ RGL_ = new SquareFree<double>(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t"),C_.get<Vector<double> >("mu")); }break;
+								//case 2:
+									//{ RGL_ = new SquareFreeReal(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t"),C_.get<Vector<double> >("mu")); }break;
 									//   case 1:{return SquareMu(N,n,m);}break;
 								default:{error();}break;
 							}
 						}break;
-					case 2:
-						{
-							switch(ref_(2)){
-								case 0:
-									{ CGL_ = new SquareFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_); }break;
-								case 2:{CGL_ = new SquarePiFlux(ref_,N_,m_,n_,M_,bc_);}break;
-								default:{error();}break;
-							}
-						}break;
+					//case 2:
+						//{
+							//switch(ref_(2)){
+								//case 0:
+									//{ CGL_ = new SquareFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_); }break;
+								//case 1:
+									//{CGL_ = new SquarePiFlux(ref_,N_,m_,n_,M_,bc_);}break;
+								//case 2:
+									//{ CGL_ = new SquareFreeComplex(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t"),C_.get<Vector<double> >("mu"),C_.get<Vector<double> >("phi")); }break;
+								//default:{error();}break;
+							//}
+						//}break;
 					default:{error();}break;
 				}
 			}break;
-		case 5:
-			{
-				switch(ref_(1)){
-					case 1:
-						{
-							switch(ref_(2)){
-								case 0:{
-										   std::cerr<<"KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
-										   //   RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
-									   }break;
-								case 1:{RGL_ = new KagomeDirac<double>(ref_,N_,m_,n_,M_,bc_);}break;
-								default:{error();}break;
-							}
-						} break;
-					case 2:
-						{
-							switch(ref_(2)){
-								case 0:{
-										   std::cerr<<"KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
-										   //   CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
-									   }break;
-								case 1:{CGL_ = new KagomeDirac<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);}break;
-								case 2:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
-								default:{error();}break;
-							}
-						}break;
-					default:{error();}break;
-				}
-			}break;
-		case 6:
-			{
-				switch(ref_(1)){
-					case 1:
-						{
-							switch(ref_(2)){
-								case 0:
-									{
-										if(read){ RGL_ = new Honeycomb0pp(ref_,N_,m_,n_,M_,bc_,read->read<double>()) ; }
-										else { RGL_ = new Honeycomb0pp(ref_,N_,m_,n_,M_,bc_,C_.get<double>("td")); }
-									}break;
-									//case 1:{return HoneycombSU4(N,n,m);}break;
-								default:{error();}break;
-							}
-						}break;
-					default:{error();}break;
-				}
-			}break;
+		//case 5:
+			//{
+				//switch(ref_(1)){
+					//case 1:
+						//{
+							//switch(ref_(2)){
+								//case 0:{
+										//   std::cerr<<"KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
+										//   //   RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
+									//   }break;
+								//case 1:{RGL_ = new KagomeDirac<double>(ref_,N_,m_,n_,M_,bc_);}break;
+								//default:{error();}break;
+							//}
+						//} break;
+					//case 2:
+						//{
+							//switch(ref_(2)){
+								//case 0:{
+										//   std::cerr<<"KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
+										//   //   CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
+									//   }break;
+								//case 1:{CGL_ = new KagomeDirac<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);}break;
+								//case 2:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
+								//default:{error();}break;
+							//}
+						//}break;
+					//default:{error();}break;
+				//}
+			//}break;
+		//case 6:
+			//{
+				//switch(ref_(1)){
+					//case 1:
+						//{
+							//switch(ref_(2)){
+								//case 0:
+									//{
+										//if(read){ RGL_ = new Honeycomb0pp(ref_,N_,m_,n_,M_,bc_,read->read<double>()) ; }
+										//else { RGL_ = new Honeycomb0pp(ref_,N_,m_,n_,M_,bc_,C_.get<double>("td")); }
+									//}break;
+									////case 1:{return HoneycombSU4(N,n,m);}break;
+								//default:{error();}break;
+							//}
+						//}break;
+					//default:{error();}break;
+				//}
+			//}break;
 		default:{error();}break;
 	}
 	if(ios){

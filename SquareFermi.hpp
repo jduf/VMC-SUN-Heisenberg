@@ -16,12 +16,21 @@ class SquareFermi: public Square<Type>{
 	protected:
 		void compute_H();
 		void lattice();
+
+		static Matrix<double> set_ab(){
+			Matrix<double> tmp(2,2);
+			tmp(0,0) = 1;
+			tmp(1,0) = 0;
+			tmp(0,1) = 0;
+			tmp(1,1) = 1;
+			return tmp;
+		}
 };
 
 template<typename Type>
 SquareFermi<Type>::SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
 	System(ref,N,m,n,M,bc),
-	Square<Type>(1,1,1,"square-fermi")
+	Square<Type>(SquareFermi<Type>::set_ab(),1,"square-fermi")
 {
 	if(this->status_==2){
 		this->init_fermionic();
@@ -60,9 +69,9 @@ void SquareFermi<Type>::lattice(){
 	for(unsigned int i(0);i<this->n_;i++) {
 		xy0_s(0) = i;
 		xy0_s(1) = i/this->xloop_;
-		xy0_ab = this->get_ab_pos(xy0_s);
-		this->set_in_zone(xy0_ab);
-		xy0_ab = (this->ab_basis_*xy0_ab).chop();
+		xy0_ab = this->get_LxLy_pos(xy0_s);
+		this->set_in_LxLy(xy0_ab);
+		xy0_ab = (this->LxLy_*xy0_ab).chop();
 		ps.put(xy0_ab(0)-0.20,xy0_ab(1)+0.15,tostring(i));
 		nb = this->get_neighbourg(i);
 
@@ -75,9 +84,9 @@ void SquareFermi<Type>::lattice(){
 			color = "black";
 			xy1_s(0) = nb(0,0);
 			xy1_s(1) = nb(0,0)/this->xloop_;
-			xy1_ab = this->get_ab_pos(xy1_s);
-			this->set_in_zone(xy1_ab);
-			xy1_ab = (this->ab_basis_*xy1_ab).chop();
+			xy1_ab = this->get_LxLy_pos(xy1_s);
+			this->set_in_LxLy(xy1_ab);
+			xy1_ab = (this->LxLy_*xy1_ab).chop();
 		}
 		/*x-link*/ ps.line("-",xy0_ab(0),xy0_ab(1),xy1_ab(0),xy1_ab(1), "linewidth=1pt,linecolor="+color);
 
@@ -90,9 +99,9 @@ void SquareFermi<Type>::lattice(){
 			color = "black";
 			xy1_s(0) = nb(1,0);
 			xy1_s(1) = nb(1,0)/this->xloop_;
-			xy1_ab = this->get_ab_pos(xy1_s);
-			this->set_in_zone(xy1_ab);
-			xy1_ab = (this->ab_basis_*xy1_ab).chop();
+			xy1_ab = this->get_LxLy_pos(xy1_s);
+			this->set_in_LxLy(xy1_ab);
+			xy1_ab = (this->LxLy_*xy1_ab).chop();
 		}
 		/*y-link*/ ps.line("-",xy0_ab(0),xy0_ab(1),xy1_ab(0),xy1_ab(1), "linewidth=1pt,linecolor="+color);
 	}
@@ -100,12 +109,12 @@ void SquareFermi<Type>::lattice(){
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=0;
 	polygon(0,1)=0;
-	polygon(1,0)=this->ab_basis_(0,0);
-	polygon(1,1)=this->ab_basis_(0,1);
-	polygon(2,0)=this->ab_basis_(0,0)+this->ab_basis_(1,0);
-	polygon(2,1)=this->ab_basis_(0,1)+this->ab_basis_(1,1);
-	polygon(3,0)=this->ab_basis_(1,0);
-	polygon(3,1)=this->ab_basis_(1,1);
+	polygon(1,0)=this->LxLy_(0,0);
+	polygon(1,1)=this->LxLy_(0,1);
+	polygon(2,0)=this->LxLy_(0,0)+this->LxLy_(1,0);
+	polygon(2,1)=this->LxLy_(0,1)+this->LxLy_(1,1);
+	polygon(3,0)=this->LxLy_(1,0);
+	polygon(3,1)=this->LxLy_(1,1);
 
 	ps.polygon(polygon,"linecolor=green");
 	ps.add("\\end{pspicture}");
@@ -141,14 +150,14 @@ void SquareFermi<Type>::check(){
 	//}
 	//std::cout<<p<<std::endl;
 	//
-	//std::cout<<"######################"<<std::endl;
-	//for(unsigned int i(0);i<this->n_;i++){
-		//nb = this->get_neighbourg(i);
-		//std::cout<<"i="<<i<<std::endl;
-		//std::cout<<nb<<std::endl;
-	//}
-	//std::cout<<"######################"<<std::endl;
-	//std::cout<<this->get_neighbourg(1)<<std::endl;
+	std::cout<<"######################"<<std::endl;
+	for(unsigned int i(0);i<this->n_;i++){
+	nb = this->get_neighbourg(i);
+	std::cout<<"i="<<i<<std::endl;
+	std::cout<<nb<<std::endl;
+	}
+	std::cout<<"######################"<<std::endl;
+	std::cout<<this->get_neighbourg(1)<<std::endl;
 
 	lattice();
 }

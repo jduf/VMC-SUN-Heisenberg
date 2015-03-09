@@ -4,18 +4,19 @@
 #include "ChainFermi.hpp"
 #include "ChainPolymerized.hpp"
 
-#include "TriangleFermi.hpp"
+//#include "TriangleFermi.hpp"
 
 #include "SquareFermi.hpp"
-#include "SquarePiFlux.hpp"
-#include "SquareJastrow.hpp"
-#include "SquareFree.hpp"
+//#include "SquarePiFlux.hpp"
+//#include "SquareJastrow.hpp"
+//#include "SquareFreeReal.hpp"
+//#include "SquareFreeComplex.hpp"
 
-#include "KagomeFermi.hpp"
-#include "KagomeDirac.hpp"
-#include "KagomeVBC.hpp"
+//#include "KagomeFermi.hpp"
+//#include "KagomeDirac.hpp"
+//#include "KagomeVBC.hpp"
 
-#include "Honeycomb0pp.hpp"
+//#include "Honeycomb0pp.hpp"
 
 #include "Parseur.hpp"
 
