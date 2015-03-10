@@ -2,7 +2,7 @@
 
 Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, double td):
 	System(ref,N,m,n,M,bc),
-	Honeycomb<double>(4,3,6,"honeycomb0pp"),
+	Honeycomb<double>(Honeycomb0pp::set_ab(),6,"honeycomb0pp"),
 	td_(td)
 {
 	if(status_==2){
@@ -40,33 +40,33 @@ void Honeycomb0pp::compute_H(){
 			H_(links_(i,1),links_(i,0)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
 		}
 	} else {
-		Matrix<int> nb;
-		unsigned int s(0);
-		for(unsigned int i(0);i<Lx_;i++){
-			for(unsigned int j(0);j<Ly_;j++){
-				/*site 0*/
-				s = spuc_*(i+j*Lx_);
-				nb = get_neighbourg(s);
-				H_(s,nb(0,0)) = nb(0,1)*th;
-				H_(s,nb(1,0)) = nb(1,1)*td_;
-				H_(s,nb(2,0)) = nb(2,1)*th;
-
-				/*site 2*/
-				s+=2;
-				nb = get_neighbourg(s);
-				H_(s,nb(0,0)) = nb(0,1)*th;
-				H_(s,nb(1,0)) = nb(1,1)*td_;
-				H_(s,nb(2,0)) = nb(2,1)*th;
-
-				/*site 2*/
-				s+=2;
-				nb = get_neighbourg(s);
-				H_(s,nb(0,0)) = nb(0,1)*th;
-				H_(s,nb(1,0)) = nb(1,1)*td_;
-				H_(s,nb(2,0)) = nb(2,1)*th;
-			}
-		}
-		H_ += H_.transpose();
+		//Matrix<int> nb;
+		//unsigned int s(0);
+		//for(unsigned int i(0);i<Lx_;i++){
+			//for(unsigned int j(0);j<Ly_;j++){
+				///*site 0*/
+				//s = spuc_*(i+j*Lx_);
+				//nb = get_neighbourg(s);
+				//H_(s,nb(0,0)) = nb(0,1)*th;
+				//H_(s,nb(1,0)) = nb(1,1)*td_;
+				//H_(s,nb(2,0)) = nb(2,1)*th;
+//
+				///*site 2*/
+				//s+=2;
+				//nb = get_neighbourg(s);
+				//H_(s,nb(0,0)) = nb(0,1)*th;
+				//H_(s,nb(1,0)) = nb(1,1)*td_;
+				//H_(s,nb(2,0)) = nb(2,1)*th;
+//
+				///*site 2*/
+				//s+=2;
+				//nb = get_neighbourg(s);
+				//H_(s,nb(0,0)) = nb(0,1)*th;
+				//H_(s,nb(1,0)) = nb(1,1)*td_;
+				//H_(s,nb(2,0)) = nb(2,1)*th;
+			//}
+		//}
+		//H_ += H_.transpose();
 	}
 }
 
@@ -93,150 +93,150 @@ void Honeycomb0pp::save() const{
 
 /*{method needed for checking*/
 void Honeycomb0pp::lattice(){
-	Matrix<int> nb;
-	double angle_p(2.0*M_PI/6.0);
-	double angle_n(-2.0*M_PI/6.0);
-	double x0;
-	double x1;
-	double y0;
-	double y1;
-	double ll(1.0);
-	double ex(2.0*ll*(1+cos(angle_p)));
-	double exy(3.0*ll*cos(angle_p));
-	double ey(3.0*ll*sin(angle_p));
-	std::string color("black");
-
-	PSTricks ps("./","lattice");
-	ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+filename_);
-	Matrix<double> cell(4,2);
-	cell(0,0) = 0.0;
-	cell(0,1) = 0.0;
-	cell(1,0) = ex;
-	cell(1,1) = 0.0;
-	cell(2,0) = ex + exy;
-	cell(2,1) = ey;
-	cell(3,0) = exy;
-	cell(3,1) = ey;
-	ps.polygon(cell,"linewidth=1pt,linecolor=red");
-	cell(1,0)*= Lx_;
-	cell(2,0) = Lx_*ex + Ly_*exy;
-	cell(2,1)*= Ly_;
-	cell(3,0)*= Ly_;
-	cell(3,1)*= Ly_;
-	ps.polygon(cell,"linewidth=1pt,linecolor=red,linestyle=dashed");
-
-	unsigned int s(0);
-	unsigned int lw(0);
-	for(unsigned int i(0);i<Lx_;i++){
-		for(unsigned int j(0);j<Ly_;j++){
-			/*site 0*/
-			s = spuc_*(i+j*Lx_);
-			nb = get_neighbourg(s);
-			x0 = 0.5*ll+1.5*ll*cos(angle_p)+i*ex+j*exy;
-			y0 = 1.5*ll*sin(angle_p)+j*ey; 
-			ps.put(x0+0.2,y0,tostring(s));
-			x1 = x0+ll*cos(angle_p);
-			y1 = y0+ll*sin(angle_p);
-			if(H_(s,nb(0,0))>0){ color = "green"; }
-			else { color = "blue"; }
-			lw=std::abs(H_(s,nb(0,0)));
-			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			x1 = x0-ll;
-			y1 = y0;
-			if(H_(s,nb(1,0))>0){ color = "green"; }
-			else { color = "blue"; }
-			lw=std::abs(H_(s,nb(1,0)));
-			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			x1 = x0+ll*cos(angle_n);
-			y1 = y0+ll*sin(angle_n);
-			if(H_(s,nb(2,0))>0){ color = "green"; }
-			else { color = "blue"; }
-			lw=std::abs(H_(s,nb(2,0)));
-			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-
-			/*site 1*/
-			s++;
-			x0 = x0 + ll*cos(angle_p);
-			y0 = y0 + ll*sin(angle_p);
-			ps.put(x0+0.2,y0-0.2,tostring(s));
-
-			/*site 2*/
-			s++;
-			nb = get_neighbourg(s);
-			x0 = x0 + ll;
-			ps.put(x0-0.2,y0-0.2,tostring(s));
-			x1 = x0+ll*cos(angle_n);
-			y1 = y0+ll*sin(angle_n);
-			if(H_(s,nb(0,0))>0){ color = "green"; }
-			else { color = "blue"; }
-			lw=std::abs(H_(s,nb(0,0)));
-			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			x1 = x0+ll*cos(angle_p);
-			y1 = y0+ll*sin(angle_p);
-			if(H_(s,nb(1,0))>0){ color = "green"; }
-			else { color = "blue"; }
-			lw=std::abs(H_(s,nb(1,0)));
-			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			x1 = x0-ll;
-			y1 = y0;
-			if(H_(s,nb(2,0))>0){ color = "green"; }
-			else { color = "blue"; }
-			lw=std::abs(H_(s,nb(2,0)));
-			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-
-			/*site 3*/
-			s++;
-			x0 = x0 + ll*cos(angle_n);
-			y0 = y0 + ll*sin(angle_n);
-			ps.put(x0-0.2,y0,tostring(s));
-
-			/*site 4*/
-			s++;
-			nb = get_neighbourg(s);
-			x0 = x0 - ll*cos(angle_p) ;
-			y0 = y0 - ll*sin(angle_p);
-			ps.put(x0-0.2,y0+0.2,tostring(s));
-			x1 = x0-ll;
-			y1 = y0;
-			if(H_(s,nb(0,0))>0){ color = "green"; }
-			else { color = "blue"; }
-			lw=std::abs(H_(s,nb(0,0)));
-			/*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			x1 = x0+ll*cos(angle_n);
-			y1 = y0+ll*sin(angle_n);
-			if(H_(s,nb(1,0))>0){ color = "green"; }
-			else { color = "blue"; }
-			lw=std::abs(H_(s,nb(1,0)));
-			/*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			x1 = x0+ll*cos(angle_p);
-			y1 = y0+ll*sin(angle_p);
-			if(H_(s,nb(2,0))>0){ color = "green"; }
-			else { color = "blue"; }
-			lw=std::abs(H_(s,nb(2,0)));
-			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-
-			/*site 5*/
-			s++;
-			x0 = x0 - ll;
-			ps.put(x0+0.2,y0+0.2,tostring(s));
-		}
-	}
-	ps.add("\\end{pspicture}");
-	ps.save(true,true);
+	//Matrix<int> nb;
+	//double angle_p(2.0*M_PI/6.0);
+	//double angle_n(-2.0*M_PI/6.0);
+	//double x0;
+	//double x1;
+	//double y0;
+	//double y1;
+	//double ll(1.0);
+	//double ex(2.0*ll*(1+cos(angle_p)));
+	//double exy(3.0*ll*cos(angle_p));
+	//double ey(3.0*ll*sin(angle_p));
+	//std::string color("black");
+//
+	//PSTricks ps("./","lattice");
+	//ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+filename_);
+	//Matrix<double> cell(4,2);
+	//cell(0,0) = 0.0;
+	//cell(0,1) = 0.0;
+	//cell(1,0) = ex;
+	//cell(1,1) = 0.0;
+	//cell(2,0) = ex + exy;
+	//cell(2,1) = ey;
+	//cell(3,0) = exy;
+	//cell(3,1) = ey;
+	//ps.polygon(cell,"linewidth=1pt,linecolor=red");
+	//cell(1,0)*= Lx_;
+	//cell(2,0) = Lx_*ex + Ly_*exy;
+	//cell(2,1)*= Ly_;
+	//cell(3,0)*= Ly_;
+	//cell(3,1)*= Ly_;
+	//ps.polygon(cell,"linewidth=1pt,linecolor=red,linestyle=dashed");
+//
+	//unsigned int s(0);
+	//unsigned int lw(0);
+	//for(unsigned int i(0);i<Lx_;i++){
+		//for(unsigned int j(0);j<Ly_;j++){
+			///*site 0*/
+			//s = spuc_*(i+j*Lx_);
+			//nb = get_neighbourg(s);
+			//x0 = 0.5*ll+1.5*ll*cos(angle_p)+i*ex+j*exy;
+			//y0 = 1.5*ll*sin(angle_p)+j*ey; 
+			//ps.put(x0+0.2,y0,tostring(s));
+			//x1 = x0+ll*cos(angle_p);
+			//y1 = y0+ll*sin(angle_p);
+			//if(H_(s,nb(0,0))>0){ color = "green"; }
+			//else { color = "blue"; }
+			//lw=std::abs(H_(s,nb(0,0)));
+			///*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
+			//x1 = x0-ll;
+			//y1 = y0;
+			//if(H_(s,nb(1,0))>0){ color = "green"; }
+			//else { color = "blue"; }
+			//lw=std::abs(H_(s,nb(1,0)));
+			///*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
+			//x1 = x0+ll*cos(angle_n);
+			//y1 = y0+ll*sin(angle_n);
+			//if(H_(s,nb(2,0))>0){ color = "green"; }
+			//else { color = "blue"; }
+			//lw=std::abs(H_(s,nb(2,0)));
+			///*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
+//
+			///*site 1*/
+			//s++;
+			//x0 = x0 + ll*cos(angle_p);
+			//y0 = y0 + ll*sin(angle_p);
+			//ps.put(x0+0.2,y0-0.2,tostring(s));
+//
+			///*site 2*/
+			//s++;
+			//nb = get_neighbourg(s);
+			//x0 = x0 + ll;
+			//ps.put(x0-0.2,y0-0.2,tostring(s));
+			//x1 = x0+ll*cos(angle_n);
+			//y1 = y0+ll*sin(angle_n);
+			//if(H_(s,nb(0,0))>0){ color = "green"; }
+			//else { color = "blue"; }
+			//lw=std::abs(H_(s,nb(0,0)));
+			///*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
+			//x1 = x0+ll*cos(angle_p);
+			//y1 = y0+ll*sin(angle_p);
+			//if(H_(s,nb(1,0))>0){ color = "green"; }
+			//else { color = "blue"; }
+			//lw=std::abs(H_(s,nb(1,0)));
+			///*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
+			//x1 = x0-ll;
+			//y1 = y0;
+			//if(H_(s,nb(2,0))>0){ color = "green"; }
+			//else { color = "blue"; }
+			//lw=std::abs(H_(s,nb(2,0)));
+			///*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
+//
+			///*site 3*/
+			//s++;
+			//x0 = x0 + ll*cos(angle_n);
+			//y0 = y0 + ll*sin(angle_n);
+			//ps.put(x0-0.2,y0,tostring(s));
+//
+			///*site 4*/
+			//s++;
+			//nb = get_neighbourg(s);
+			//x0 = x0 - ll*cos(angle_p) ;
+			//y0 = y0 - ll*sin(angle_p);
+			//ps.put(x0-0.2,y0+0.2,tostring(s));
+			//x1 = x0-ll;
+			//y1 = y0;
+			//if(H_(s,nb(0,0))>0){ color = "green"; }
+			//else { color = "blue"; }
+			//lw=std::abs(H_(s,nb(0,0)));
+			///*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
+			//x1 = x0+ll*cos(angle_n);
+			//y1 = y0+ll*sin(angle_n);
+			//if(H_(s,nb(1,0))>0){ color = "green"; }
+			//else { color = "blue"; }
+			//lw=std::abs(H_(s,nb(1,0)));
+			///*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
+			//x1 = x0+ll*cos(angle_p);
+			//y1 = y0+ll*sin(angle_p);
+			//if(H_(s,nb(2,0))>0){ color = "green"; }
+			//else { color = "blue"; }
+			//lw=std::abs(H_(s,nb(2,0)));
+			///*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
+//
+			///*site 5*/
+			//s++;
+			//x0 = x0 - ll;
+			//ps.put(x0+0.2,y0+0.2,tostring(s));
+		//}
+	//}
+	//ps.add("\\end{pspicture}");
+	//ps.save(true,true);
 }
 
 void Honeycomb0pp::check(){
-	///*{debug 1*/
-	//Matrix<int> nb;
-	//for(unsigned int i(0);i<n_;i++){
-	//nb = get_neighbourg(i);
-	//std::cout<<i<<" ";
-	//for(unsigned int j(0);j<z_;j++){
-	//std::cout<<nb(j,0)<<" ";
-	//}
-	//std::cout<<std::endl;
-	//}
-	///*}*/
+	/*{debug 1*/
+	Matrix<int> nb;
+	for(unsigned int i(0);i<n_;i++){
+		nb = get_neighbourg(i);
+		std::cout<<i<<" ";
+		for(unsigned int j(0);j<z_;j++){
+			std::cout<<nb(j,0)<<" ";
+		}
+		std::cout<<std::endl;
+	}
+	/*}*/
 	///*{debug 2*/
 	//double t(1.0);
 	//Matrix<int> nb;
@@ -277,8 +277,8 @@ void Honeycomb0pp::check(){
 	//}
 	///*}*/
 
-	compute_H();
-	lattice();
+	//compute_H();
+	//lattice();
 }
 /*}*/
 

@@ -16,7 +16,7 @@
 //#include "KagomeDirac.hpp"
 //#include "KagomeVBC.hpp"
 
-//#include "Honeycomb0pp.hpp"
+#include "Honeycomb0pp.hpp"
 
 #include "Parseur.hpp"
 

@@ -19,6 +19,15 @@ class Honeycomb0pp: public Honeycomb<double>{
 		void lattice();
 		std::string extract_level_7();
 		std::string extract_level_6();
+
+		static Matrix<double> set_ab(){
+			Matrix<double> tmp(2,2);
+			tmp(0,0) = 1;
+			tmp(1,0) = 1;
+			tmp(0,1) = 2;
+			tmp(1,1) = -1;
+			return tmp;
+		}
 };
 #endif
 

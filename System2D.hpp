@@ -329,18 +329,19 @@ void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<in
 
 	nn_LxLy(0) = i;
 	nn_LxLy(1) = i/xloop_;
-
 	nn_LxLy = get_LxLy_pos(nn_LxLy);
 	set_in_LxLy(nn_LxLy);
+
 	nn_LxLy(0) += dir_nn_LxLy_(dir,0);
 	nn_LxLy(1) += dir_nn_LxLy_(dir,1);
 	if(set_in_LxLy(nn_LxLy)){ nb(dir,1) = this->bc_; }
+
 	do{
 		tn_s(0) = j;
 		tn_LxLy=get_LxLy_pos(tn_s);
 		set_in_LxLy(tn_LxLy);
-		if((j+1)%xloop_==0){ tn_s(1)+=1; }
 		j++;
+		if(j%xloop_==0){ tn_s(1)+=1; }
 	} while ( !are_equal(tn_LxLy,nn_LxLy) && j<this->n_+2 );
 	nb(dir,0) = j-1;
 }
