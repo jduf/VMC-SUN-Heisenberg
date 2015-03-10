@@ -171,18 +171,18 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					default:{error();}break;
 				}
 			}break;
-		//case 3:
-			//{
-				//switch(ref_(1)){
+		case 3:
+			{
+				switch(ref_(1)){
 					////case 0:{return TriangleJastrow(N,n,m);}break;
-					//case 1:
-						//{
-							//switch(ref_(2)){
-								//case 0:{RGL_ = new TriangleFermi(ref_,N_,m_,n_,M_,bc_);}break;
+					case 1:
+						{
+							switch(ref_(2)){
+								case 0:{RGL_ = new TriangleFermi(ref_,N_,m_,n_,M_,bc_);}break;
 									//   //   case 1:{return TriangleMu(N,n,m);}break;
-								//default:{error();}break;
-							//}
-						//}break;
+								default:{error();}break;
+							}
+						}break;
 						////case 2:
 						////   {
 						////   switch(ref_(2)){
@@ -191,8 +191,8 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 						////   }
 						////   }break;
 						////default:{error();}break;
-				//}
-			//}break;
+				}
+			}break;
 		case 4:
 			{
 				switch(ref_(1)){

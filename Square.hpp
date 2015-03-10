@@ -43,6 +43,34 @@ Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::st
 	this->status_=2;
 	if(this->status_==2){ 
 
+		Vector<double> dir(2);
+		dir(0) = 1.0;
+		dir(1) = 0.0;
+		dir = this->get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(0,0) = dir(0);
+		this->dir_nn_LxLy_(0,1) = dir(1);
+
+		dir(0) = 0.0;
+		dir(1) = 1.0;
+		dir = this->get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(1,0) = dir(0);
+		this->dir_nn_LxLy_(1,1) = dir(1);
+
+		dir(0) = -1.0;
+		dir(1) = 0.0;
+		dir = this->get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(2,0) = dir(0);
+		this->dir_nn_LxLy_(2,1) = dir(1);
+
+		dir(0) = 0.0;
+		dir(1) = -1.0;
+		dir = this->get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(3,0) = dir(0);
+		this->dir_nn_LxLy_(3,1) = dir(1);
+		std::cout<<"arg"<<std::endl;
+
+		std::cout<<this->dir_nn_LxLy_<<std::endl;
+
 
 		this->compute_links(); 
 	}

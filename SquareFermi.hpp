@@ -62,48 +62,48 @@ void SquareFermi<Type>::lattice(){
 	std::string color("black");
 	Vector<double> xy0_s(2,0);
 	Vector<double> xy1_s(2,0);
-	Vector<double> xy0_ab(2,0);
-	Vector<double> xy1_ab(2,0);
+	Vector<double> xy0_LxLy(2,0);
+	Vector<double> xy1_LxLy(2,0);
 	PSTricks ps("./","lattice");
 	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+this->filename_);
 	for(unsigned int i(0);i<this->n_;i++) {
 		xy0_s(0) = i;
 		xy0_s(1) = i/this->xloop_;
-		xy0_ab = this->get_LxLy_pos(xy0_s);
-		this->set_in_LxLy(xy0_ab);
-		xy0_ab = (this->LxLy_*xy0_ab).chop();
-		ps.put(xy0_ab(0)-0.20,xy0_ab(1)+0.15,tostring(i));
+		xy0_LxLy = this->get_LxLy_pos(xy0_s);
+		this->set_in_LxLy(xy0_LxLy);
+		xy0_LxLy = (this->LxLy_*xy0_LxLy).chop();
+		ps.put(xy0_LxLy(0)-0.20,xy0_LxLy(1)+0.15,tostring(i));
 		nb = this->get_neighbourg(i);
 
 		if(nb(0,1)<0){
 			color = "red";
-			xy1_ab = xy0_ab;
-			xy1_ab(0) += 1.0;
-			ps.put(xy1_ab(0)-0.20,xy1_ab(1)+0.15,tostring(nb(0,0)));
+			xy1_LxLy = xy0_LxLy;
+			xy1_LxLy(0) += 1.0;
+			ps.put(xy1_LxLy(0)-0.20,xy1_LxLy(1)+0.15,tostring(nb(0,0)));
 		} else {
 			color = "black";
 			xy1_s(0) = nb(0,0);
 			xy1_s(1) = nb(0,0)/this->xloop_;
-			xy1_ab = this->get_LxLy_pos(xy1_s);
-			this->set_in_LxLy(xy1_ab);
-			xy1_ab = (this->LxLy_*xy1_ab).chop();
+			xy1_LxLy = this->get_LxLy_pos(xy1_s);
+			this->set_in_LxLy(xy1_LxLy);
+			xy1_LxLy = (this->LxLy_*xy1_LxLy).chop();
 		}
-		/*x-link*/ ps.line("-",xy0_ab(0),xy0_ab(1),xy1_ab(0),xy1_ab(1), "linewidth=1pt,linecolor="+color);
+		/*x-link*/ ps.line("-",xy0_LxLy(0),xy0_LxLy(1),xy1_LxLy(0),xy1_LxLy(1), "linewidth=1pt,linecolor="+color);
 
 		if(nb(1,1)<0){
 			color = "red";
-			xy1_ab = xy0_ab;
-			xy1_ab(1) += 1.0;
-			ps.put(xy1_ab(0)-0.20,xy1_ab(1)+0.15,tostring(nb(1,0)));
+			xy1_LxLy = xy0_LxLy;
+			xy1_LxLy(1) += 1.0;
+			ps.put(xy1_LxLy(0)-0.20,xy1_LxLy(1)+0.15,tostring(nb(1,0)));
 		} else {
 			color = "black";
 			xy1_s(0) = nb(1,0);
 			xy1_s(1) = nb(1,0)/this->xloop_;
-			xy1_ab = this->get_LxLy_pos(xy1_s);
-			this->set_in_LxLy(xy1_ab);
-			xy1_ab = (this->LxLy_*xy1_ab).chop();
+			xy1_LxLy = this->get_LxLy_pos(xy1_s);
+			this->set_in_LxLy(xy1_LxLy);
+			xy1_LxLy = (this->LxLy_*xy1_LxLy).chop();
 		}
-		/*y-link*/ ps.line("-",xy0_ab(0),xy0_ab(1),xy1_ab(0),xy1_ab(1), "linewidth=1pt,linecolor="+color);
+		/*y-link*/ ps.line("-",xy0_LxLy(0),xy0_LxLy(1),xy1_LxLy(0),xy1_LxLy(1), "linewidth=1pt,linecolor="+color);
 	}
 
 	Matrix<double> polygon(4,2);

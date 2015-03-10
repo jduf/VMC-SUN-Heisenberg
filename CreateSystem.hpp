@@ -4,7 +4,7 @@
 #include "ChainFermi.hpp"
 #include "ChainPolymerized.hpp"
 
-//#include "TriangleFermi.hpp"
+#include "TriangleFermi.hpp"
 
 #include "SquareFermi.hpp"
 //#include "SquarePiFlux.hpp"

@@ -2,7 +2,7 @@
 
 TriangleFermi::TriangleFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
 	System(ref,N,m,n,M,bc),
-	Triangle<double>(1,1,1,"triangle-fermi")
+	Triangle<double>(TriangleFermi::set_ab(),1,"triangle-fermi")
 {
 	if(status_==2){
 		init_fermionic();
@@ -39,82 +39,97 @@ void TriangleFermi::create(){
 
 /*{method needed for checking*/
 void TriangleFermi::lattice(){
-	PSTricks ps("./",filename_+"-lattice");
-	ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
-	double e1(0.5);
-	double e2(sqrt(3.0)/2.0);
-	//double e1(0);/*will have exactly the same topology except for the link (0,N)*/
-	//double e2(1);
 	Matrix<int> nb;
-	double x0, y0, x1, y1;
-	std::string color;
-	for(unsigned int i(0);i<n_;i++){
-		nb = get_neighbourg(i);
-		x0=i%Lx_;
-		y0=i/Ly_;
+	std::string color("black");
+	Vector<double> xy0_s(2,0);
+	Vector<double> xy1_s(2,0);
+	Vector<double> xy0_LxLy(2,0);
+	Vector<double> xy1_LxLy(2,0);
+	PSTricks ps("./","lattice");
+	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+this->filename_);
+	for(unsigned int i(0);i<this->n_;i++) {
+		xy0_s(0) = i;
+		xy0_s(1) = i/this->xloop_;
+		xy0_LxLy = this->get_LxLy_pos(xy0_s);
+		this->set_in_LxLy(xy0_LxLy);
+		xy0_LxLy = (this->LxLy_*xy0_LxLy).chop();
+		ps.put(xy0_LxLy(0)-0.20,xy0_LxLy(1)+0.15,tostring(i));
+		nb = this->get_neighbourg(i);
 
-		color = "black";
-		y1 = nb(0,0)/Ly_;
-		if((i+1) % Lx_ ){ x1 = nb(0,0)%Lx_; }
-		else {
-			x1 = x0 + 1;
-			color = "blue";
+		if(nb(0,1)<0){
+			color = "red";
+			xy1_LxLy = xy0_LxLy;
+			xy1_LxLy(0) += 1.0;
+			ps.put(xy1_LxLy(0)-0.20,xy1_LxLy(1)+0.15,tostring(nb(0,0)));
+		} else {
+			color = "black";
+			xy1_s(0) = nb(0,0);
+			xy1_s(1) = nb(0,0)/this->xloop_;
+			xy1_LxLy = this->get_LxLy_pos(xy1_s);
+			this->set_in_LxLy(xy1_LxLy);
+			xy1_LxLy = (this->LxLy_*xy1_LxLy).chop();
 		}
-		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
+		/*x-link*/ ps.line("-",xy0_LxLy(0),xy0_LxLy(1),xy1_LxLy(0),xy1_LxLy(1), "linewidth=1pt,linecolor="+color);
 
-		color = "black";
-		if((i+1) % Lx_ ){ x1 = nb(1,0)%Lx_; }
-		else {
-			x1 = x0 + 1;
-			color = "blue";
+		if(nb(1,1)<0){
+			color = "red";
+			xy1_LxLy = xy0_LxLy;
+			xy1_LxLy(1) += 1.0;
+			ps.put(xy1_LxLy(0)-0.20,xy1_LxLy(1)+0.15,tostring(nb(1,0)));
+		} else {
+			color = "black";
+			xy1_s(0) = nb(1,0);
+			xy1_s(1) = nb(1,0)/this->xloop_;
+			xy1_LxLy = this->get_LxLy_pos(xy1_s);
+			this->set_in_LxLy(xy1_LxLy);
+			xy1_LxLy = (this->LxLy_*xy1_LxLy).chop();
 		}
-		if( i+Lx_<this->n_){ y1 = nb(1,0)/Ly_; }
-		else {
-			y1 = y0 + 1;
-			color = "blue";
-		}
-		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
+		/*y-link*/ ps.line("-",xy0_LxLy(0),xy0_LxLy(1),xy1_LxLy(0),xy1_LxLy(1), "linewidth=1pt,linecolor="+color);
 
-		color = "black";
-		x1=nb(2,0)%Lx_;
-		if( i+Lx_<this->n_){ y1 = nb(2,0)/Ly_; }
-		else {
-			y1 = y0 + 1;
-			color = "blue";
+		if(nb(2,1)<0){
+			color = "red";
+			xy1_LxLy = xy0_LxLy;
+			xy1_LxLy(0) -= 1.0;
+			xy1_LxLy(1) += 1.0;
+			xy1_LxLy = xy1_LxLy.chop();
+			ps.put(xy1_LxLy(0)-0.20,xy1_LxLy(1)+0.15,tostring(nb(2,0)));
+		} else {
+			color = "black";
+			xy1_s(0) = nb(2,0);
+			xy1_s(1) = nb(2,0)/this->xloop_;
+			xy1_LxLy = this->get_LxLy_pos(xy1_s);
+			this->set_in_LxLy(xy1_LxLy);
+			xy1_LxLy = (this->LxLy_*xy1_LxLy).chop();
 		}
-		ps.line("-", x0-y0*e1,y0*e2,x1-y1*e1,y1*e2, "linewidth=1pt,linecolor="+color);
+		/*xy-link*/ ps.line("-",xy0_LxLy(0),xy0_LxLy(1),xy1_LxLy(0),xy1_LxLy(1), "linewidth=1pt,linecolor="+color);
 	}
 
-	diagonalize(false);
+	Matrix<double> polygon(4,2);
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=this->LxLy_(0,0);
+	polygon(1,1)=this->LxLy_(0,1);
+	polygon(2,0)=this->LxLy_(0,0)+this->LxLy_(1,0);
+	polygon(2,1)=this->LxLy_(0,1)+this->LxLy_(1,1);
+	polygon(3,0)=this->LxLy_(1,0);
+	polygon(3,1)=this->LxLy_(1,1);
 
-	double r(0.2);
-	Vector<double> ada(n_,0);
-	//double max(occupation_number(ada));
-	Vector<double> tmp(2);
-	for(unsigned int i(0);i<n_;i++){
-		x0 = i%Lx_;
-		y0 = i/Ly_;
-		ps.add("\\rput("+tostring(x0-y0*e1)+","+tostring(y0*e2)+"){%");
-		ps.pie(tmp,r,"chartColor=color,userColor={blue,white}");
-		ps.add("}");
-		ps.put(x0-y0*e1, y0*e2+r*1.2, "\\color{"+color+"}{\\tiny{"+tostring(i)+"}}");
-	}
-
-	Matrix<double> xy(4,2);
-	xy(0,0) = -0.5*e1;
-	xy(0,1) = -0.5;
-	xy(1,0) = Ly_*(-e1)-0.5*e1;
-	xy(1,1) = Ly_*e2-0.5;
-	xy(2,0) = Lx_-0.5*e1 - Ly_*e1;
-	xy(2,1) = Ly_*e2-0.5;;
-	xy(3,0) = Lx_-0.5*e1;
-	xy(3,1) = -0.5;
-
-	ps.polygon(xy,"linecolor=red");
+	ps.polygon(polygon,"linecolor=green");
 	ps.add("\\end{pspicture}");
+	ps.save(true,true);
 }
 
 void TriangleFermi::check(){
+	Matrix<int> nb;
+	std::cout<<"######################"<<std::endl;
+	for(unsigned int i(0);i<this->n_;i++){
+		nb = this->get_neighbourg(i);
+		std::cout<<"i="<<i<<std::endl;
+		std::cout<<nb<<std::endl;
+	}
+	std::cout<<"######################"<<std::endl;
+		nb = this->get_neighbourg(3);
+		std::cout<<nb<<std::endl;
 	lattice();
 }
 /*}*/
