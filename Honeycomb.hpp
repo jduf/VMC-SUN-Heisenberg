@@ -17,161 +17,235 @@ class Honeycomb: public System2D<Type>{
 		virtual ~Honeycomb()=0;
 
 	protected:
-		static Matrix<double> set_LxLy(unsigned int const& n){
-			Matrix<double> tmp;
-			if(n==72){
-				tmp.set(2,2);
-				tmp(0,0) = 6;
-				tmp(1,0) = 0;
-				tmp(0,1) = 0;
-				tmp(1,1) = 6;
-			}
-			return tmp;
-		}
+		Vector<double> get_LxLy_pos(unsigned int const& i) const;
+
+	private:
+		Matrix<double> dir_nn_;
+
+		Matrix<double> set_LxLy(unsigned int const& n) const;
+		Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const;
+		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const; 
 };
 
+/*{constructor*/
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(Honeycomb<Type>::set_LxLy(this->n_),ab,spuc,3,filename)
+	System2D<Type>(Honeycomb<Type>::set_LxLy(this->n_),ab,spuc,3,filename),
+	dir_nn_(this->z_,2)
 {
-	double h(1./3.);
-	Vector<double> dir(2);
-	dir(0) = h;
-	dir(1) = h;
-	dir = this->get_LxLy_pos(dir);
-	this->dir_nn_LxLy_(0,0) = dir(0);
-	this->dir_nn_LxLy_(0,1) = dir(1);
+	if(this->status_==2){ 
+		this->xloop_ *= 2;
+		/*the directions are given for the sublattice with odd site number*/
+		double h(1./3.);
+		Vector<double> dir(2);
+		dir(0) = h;
+		dir(1) = h;
+		dir_nn_(0,0) = dir(0);
+		dir_nn_(0,1) = dir(1);
+		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(0,0) = dir(0);
+		this->dir_nn_LxLy_(0,1) = dir(1);
 
-	dir(0) = -h;
-	dir(1) = 1-h;
-	dir = this->get_LxLy_pos(dir);
-	this->dir_nn_LxLy_(1,0) = dir(0);
-	this->dir_nn_LxLy_(1,1) = dir(1);
+		dir(0) = h-1.0;
+		dir(1) = h;
+		dir_nn_(1,0) = dir(0);
+		dir_nn_(1,1) = dir(1);
+		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(1,0) = dir(0);
+		this->dir_nn_LxLy_(1,1) = dir(1);
 
-	dir(0) = 1-h;
-	dir(1) = -h;
-	dir = this->get_LxLy_pos(dir);
-	this->dir_nn_LxLy_(2,0) = dir(0);
-	this->dir_nn_LxLy_(2,1) = dir(1);
+		dir(0) = h;
+		dir(1) = h-1.0;
+		dir_nn_(2,0) = dir(0);
+		dir_nn_(2,1) = dir(1);
+		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(2,0) = dir(0);
+		this->dir_nn_LxLy_(2,1) = dir(1);
 
-	std::cout<<"arg"<<std::endl;
 
-	std::cout<<this->dir_nn_LxLy_<<std::endl;
 
-	if(this->status_==2){ this->compute_links(); }
+		this->compute_links(); 
+	}
 }
 
 template<typename Type>
 Honeycomb<Type>::~Honeycomb(){}
+/*}*/
+
+/*{protected methods*/
+template<typename Type>
+Vector<double> Honeycomb<Type>::get_LxLy_pos(unsigned int const& i) const {
+	Vector<double> tmp(2);
+	unsigned int j(i/this->xloop_);
+	tmp(0) = j*(dir_nn_(0,0)-dir_nn_(2,0));
+	tmp(1) = j*(dir_nn_(0,1)-dir_nn_(2,1));
+	//std::cout<<tmp<<":";
+	j = i-j*this->xloop_;
+	tmp(0) += j/2*(dir_nn_(0,0)-dir_nn_(1,0));
+	tmp(1) += j/2*(dir_nn_(0,1)-dir_nn_(1,1));
+	//std::cout<<tmp<<":";
+	if(j%2==1){
+		tmp(0) += dir_nn_(0,0);
+		tmp(1) += dir_nn_(0,1);
+	}
+	//std::cout<<tmp<<":"<<std::endl;;
+	return System2D<Type>::get_LxLy_pos(tmp);
+}
+/*}*/
+
+/*{private methods*/
+template<typename Type>
+Matrix<double> Honeycomb<Type>::set_LxLy(unsigned int const& n) const {
+	Matrix<double> tmp;
+	if(n==72){
+		tmp.set(2,2);
+		tmp(0,0) = 6;
+		tmp(1,0) = 0;
+		tmp(0,1) = 0;
+		tmp(1,1) = 6;
+	}
+	return tmp;
+}
+
+template<typename Type>
+Vector<double> Honeycomb<Type>::vector_towrards(unsigned int const& i, unsigned int const& dir) const {
+	Vector<double> tmp(2);
+	if(i%2==0){
+		tmp(0) = this->dir_nn_LxLy_(dir,0);
+		tmp(1) = this->dir_nn_LxLy_(dir,1);
+	} else {
+		tmp(0) = -this->dir_nn_LxLy_((dir+1)%3,0);
+		tmp(1) = -this->dir_nn_LxLy_((dir+1)%3,1);
+	}
+	return tmp;
+}
+
+template<typename Type>
+void Honeycomb<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& j) const {
+	if(j%2==0){
+		tn(0) -= this->dir_nn_LxLy_(1,0);
+		tn(1) -= this->dir_nn_LxLy_(1,1);
+	} else {
+		tn(0) += this->dir_nn_LxLy_(0,0);
+		tn(1) += this->dir_nn_LxLy_(0,1);
+	}
+	if(j%this->xloop_==0){
+		tn(0) += this->dir_nn_LxLy_(0,0);
+		tn(1) += this->dir_nn_LxLy_(0,1);
+		tn(0) -= this->dir_nn_LxLy_(2,0);
+		tn(1) -= this->dir_nn_LxLy_(2,1);
+	}
+}
+/*}*/
 
 //template<typename Type>
 //Matrix<int> Honeycomb<Type>::get_neighbourg(unsigned int i) const {
-	//Matrix<int> nb(this->z_,2,1);
-	//switch(this->spuc_){
-		//case 6:
-			//{
-				//switch(i%6){
-					//case 0:
-						//{
-							///*+x+y neighbour*/
-							//nb(0,0) = i+1;
-							///*-x neighbour*/
-							//if(i%(this->spuc_*this->Lx_)){ nb(1,0) = i-3; }
-							//else {
-								//nb(1,0) = i-3+this->spuc_*this->Lx_;
-								//nb(1,1) = this->bc_;
-							//}
-							///*+x-y neighbour*/
-							//nb(2,0) = i+5;
-						//}break;
-					//case 1:
-						//{
-							///*+x neighbour*/
-							//nb(0,0) = i+1;
-							///*-x+y neighbour*/
-							//if(i<this->n_-this->spuc_*this->Lx_){ 
-								//if((i-1)%(this->spuc_*this->Lx_)){ nb(1,0) = i-3+this->spuc_*this->Lx_ ; }
-								//else {
-									//nb(1,0) = i-3+2*this->spuc_*this->Lx_;
-									//nb(1,1) = this->bc_;
-								//}
-							//} else {
-								//if(i-1!=this->n_-this->spuc_*this->Lx_){
-									//nb(1,0) = i-3-this->spuc_*this->Lx_*(this->Ly_-1);
-									//nb(1,1) = this->bc_;
-								//} else {
-									//nb(1,0) = -2+this->spuc_*this->Lx_;
-									//nb(1,1) = this->bc_*this->bc_;
-								//}
-							//}
-							///*-x-y neighbour*/
-							//nb(2,0) = i-1;
-						//}break;
-					//case 2:
-						//{
-							///*+x-y neighbour*/
-							//nb(0,0) = i+1;
-							///*+x+y neighbour*/
-							//if(i<this->n_-this->spuc_*this->Lx_){ nb(1,0) = i+3+this->spuc_*this->Lx_; }
-							//else {
-								//nb(1,0) = i+3-this->spuc_*this->Lx_*(this->Ly_-1);
-								//nb(1,1) = this->bc_;
-							//}
-							///*-x neighbour*/
-							//nb(2,0) = i-1;
-						//}break;
-					//case 3:
-						//{
-							///*-x-y neighbour*/
-							//nb(0,0) = i+1;
-							///*+x neighbour*/
-							//if((i+3)%(this->spuc_*this->Lx_)){ nb(1,0) = i+3; }
-							//else {
-								//nb(1,0) = i+3-this->spuc_*this->Lx_;
-								//nb(1,1) = this->bc_;
-							//}
-							///*-x+y neighbour*/
-							//nb(2,0) = i-1;
-						//}break;
-					//case 4:
-						//{
-							///*-x neighbour*/
-							//nb(0,0) = i+1;
-							///*+x-y neighbour*/
-							//if(i>this->spuc_*this->Lx_){ 
-								//if((i+2)%(this->spuc_*this->Lx_)){ nb(1,0) = i+3-this->spuc_*this->Lx_; }
-								//else {
-									//nb(1,0) = i+3-2*this->spuc_*this->Lx_;
-									//nb(1,1) = this->bc_;
-								//}
-							//} else {
-								//if(i+2!=this->spuc_*this->Lx_){
-									//nb(1,0) = i+3+this->spuc_*this->Lx_*(this->Ly_-1);
-									//nb(1,1) = this->bc_;
-								//} else {
-									//nb(1,0) = this->n_+1-this->spuc_*this->Lx_;
-									//nb(1,1) = this->bc_*this->bc_;
-								//}
-							//}
-							///*+x+y neighbour*/
-							//nb(2,0) = i-1;
-						//}break;
-					//case 5:
-						//{
-							///*-x+y neighbour*/
-							//nb(0,0) = i-5;
-							///*-x-y neighbour*/
-							//if(i>this->spuc_*this->Lx_){ nb(1,0) = i-3-this->spuc_*this->Lx_; }
-							//else {
-								//nb(1,0) = i-3+this->spuc_*this->Lx_*(this->Ly_-1);
-								//nb(1,1) = this->bc_;
-							//}
-							///*+x neighbour*/
-							//nb(2,0) = i-1;
-						//}break;
-				//}
-			//}break;
-	//}
-	//return nb;
+//Matrix<int> nb(this->z_,2,1);
+//switch(this->spuc_){
+//case 6:
+//{
+//switch(i%6){
+//case 0:
+//{
+///*+x+y neighbour*/
+//nb(0,0) = i+1;
+///*-x neighbour*/
+//if(i%(this->spuc_*this->Lx_)){ nb(1,0) = i-3; }
+//else {
+//nb(1,0) = i-3+this->spuc_*this->Lx_;
+//nb(1,1) = this->bc_;
+//}
+///*+x-y neighbour*/
+//nb(2,0) = i+5;
+//}break;
+//case 1:
+//{
+///*+x neighbour*/
+//nb(0,0) = i+1;
+///*-x+y neighbour*/
+//if(i<this->n_-this->spuc_*this->Lx_){ 
+//if((i-1)%(this->spuc_*this->Lx_)){ nb(1,0) = i-3+this->spuc_*this->Lx_ ; }
+//else {
+//nb(1,0) = i-3+2*this->spuc_*this->Lx_;
+//nb(1,1) = this->bc_;
+//}
+//} else {
+//if(i-1!=this->n_-this->spuc_*this->Lx_){
+//nb(1,0) = i-3-this->spuc_*this->Lx_*(this->Ly_-1);
+//nb(1,1) = this->bc_;
+//} else {
+//nb(1,0) = -2+this->spuc_*this->Lx_;
+//nb(1,1) = this->bc_*this->bc_;
+//}
+//}
+///*-x-y neighbour*/
+//nb(2,0) = i-1;
+//}break;
+//case 2:
+//{
+///*+x-y neighbour*/
+//nb(0,0) = i+1;
+///*+x+y neighbour*/
+//if(i<this->n_-this->spuc_*this->Lx_){ nb(1,0) = i+3+this->spuc_*this->Lx_; }
+//else {
+//nb(1,0) = i+3-this->spuc_*this->Lx_*(this->Ly_-1);
+//nb(1,1) = this->bc_;
+//}
+///*-x neighbour*/
+//nb(2,0) = i-1;
+//}break;
+//case 3:
+//{
+///*-x-y neighbour*/
+//nb(0,0) = i+1;
+///*+x neighbour*/
+//if((i+3)%(this->spuc_*this->Lx_)){ nb(1,0) = i+3; }
+//else {
+//nb(1,0) = i+3-this->spuc_*this->Lx_;
+//nb(1,1) = this->bc_;
+//}
+///*-x+y neighbour*/
+//nb(2,0) = i-1;
+//}break;
+//case 4:
+//{
+///*-x neighbour*/
+//nb(0,0) = i+1;
+///*+x-y neighbour*/
+//if(i>this->spuc_*this->Lx_){ 
+//if((i+2)%(this->spuc_*this->Lx_)){ nb(1,0) = i+3-this->spuc_*this->Lx_; }
+//else {
+//nb(1,0) = i+3-2*this->spuc_*this->Lx_;
+//nb(1,1) = this->bc_;
+//}
+//} else {
+//if(i+2!=this->spuc_*this->Lx_){
+//nb(1,0) = i+3+this->spuc_*this->Lx_*(this->Ly_-1);
+//nb(1,1) = this->bc_;
+//} else {
+//nb(1,0) = this->n_+1-this->spuc_*this->Lx_;
+//nb(1,1) = this->bc_*this->bc_;
+//}
+//}
+///*+x+y neighbour*/
+//nb(2,0) = i-1;
+//}break;
+//case 5:
+//{
+///*-x+y neighbour*/
+//nb(0,0) = i-5;
+///*-x-y neighbour*/
+//if(i>this->spuc_*this->Lx_){ nb(1,0) = i-3-this->spuc_*this->Lx_; }
+//else {
+//nb(1,0) = i-3+this->spuc_*this->Lx_*(this->Ly_-1);
+//nb(1,1) = this->bc_;
+//}
+///*+x neighbour*/
+//nb(2,0) = i-1;
+//}break;
+//}
+//}break;
+//}
+//return nb;
 //}
 #endif

@@ -9,7 +9,7 @@ class System2D: public GenericSystem<Type>{
 		/*!Constructor*/
 		System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename);
 		/*!Destructor*/
-		virtual ~System2D()=0;
+		virtual ~System2D(){};
 
 	protected:
 		Matrix<Type> H_;		//!< matrix used to get the band structure
@@ -17,6 +17,8 @@ class System2D: public GenericSystem<Type>{
 		Matrix<double> LxLy_;	//!< basis of the whole lattice in unit of nearest neighbours
 		Matrix<double> dir_nn_LxLy_; //!<direction of the nearest neighbour in the LxLy basis
 		Matrix<std::complex<double> > evec_;//!< eigenvectors of H+Tx+Ty
+
+		unsigned int xloop_;
 
 		/*!Plot the band structure E(px,py)*/
 		void plot_band_structure();
@@ -26,13 +28,12 @@ class System2D: public GenericSystem<Type>{
 		void diagonalize(bool simple);
 
 		/*!Returns the position of the site i in the basis (Lx,Ly)*/
+		virtual Vector<double> get_LxLy_pos(unsigned int const& i) const = 0;
 		Vector<double> get_LxLy_pos(Vector<double> const& x) const;
 		/*!Reset x so that it belongs to the square (Lx,Ly)*/
 		bool set_in_LxLy(Vector<double>& x) const;
 		/*!Returns the neighbours of site i*/
-		Matrix<int> get_neighbourg(unsigned int i) const;
-
-		unsigned int xloop_;
+		Matrix<int> get_neighbourg(unsigned int const& i) const;
 
 	private:
 		Matrix<Type> Tx_;	//!< translation operator along x-axis
@@ -40,6 +41,7 @@ class System2D: public GenericSystem<Type>{
 		Vector<double> px_;	//!< eigenvalue of Tx
 		Vector<double> py_;	//!< eigenvalue of Ty
 		Vector<double> e_;	//!< eigenvalue of H_
+		Matrix<double> inv_LxLy_;
 
 		/*!Compute the translation operators*/
 		void compute_TxTy();
@@ -50,20 +52,10 @@ class System2D: public GenericSystem<Type>{
 		/*!Evaluate the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
 
-		Matrix<double> inv_LxLy_;
-
 		/*!Set the neighbour of site i in direction dir in nb*/
 		void find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const;
-
-		static Matrix<double> set_inv_LxLy(Matrix<double> const& LxLy) {
-			Matrix<double> tmp(2,2);
-			tmp(0,0) = LxLy(1,1);
-			tmp(1,0) = -LxLy(1,0);
-			tmp(0,1) = -LxLy(0,1);
-			tmp(1,1) = LxLy(0,0);
-			tmp/=(LxLy(0,0)*LxLy(1,1)-LxLy(1,0)*LxLy(0,1));
-			return tmp;
-		}
+		virtual Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const = 0;
+		virtual void try_neighbourg(Vector<double>& tn, unsigned int const& i) const = 0;
 };
 
 /*{constructors*/
@@ -73,33 +65,34 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 	ab_(ab),
 	LxLy_(LxLy),
 	dir_nn_LxLy_(this->z_,2),
-	inv_LxLy_(set_inv_LxLy(LxLy_))
+	inv_LxLy_(2,2)
 {
-	std::cout<<"bien"<<std::endl;
-	//if(this->n_==this->spuc_*Lx_*Ly_){
-	//this->filename_ += "-" + tostring(Lx_) + "x" + tostring(Ly_);
-	this->status_--;
-	//} else {
-	std::cerr<<"System2D<Type> : the cluster is impossible, n must be a"<<std::endl; 
-	//std::cerr<<"               : multiple of "<<Lx*Ly*spuc<<" ("<<Lx<<"x"<<Ly<<"x"<<spuc<<")"<<std::endl; 
-	//}
-	std::cout<<LxLy_<<std::endl;
-	std::cout<<inv_LxLy_<<std::endl;
-	std::cout<<LxLy_*inv_LxLy_<<std::endl;
+	if(LxLy_.size()){
+		this->status_--;
 
-	Vector<double> x(2);
-	unsigned int j(0);
-	do{
-		x(1) = 0;
-		x(0) = ++j;
-		x = get_LxLy_pos(x);
-	} while( !are_equal(x(0),0) || !are_equal(x(1),0)  );
-	xloop_ = j;
-	std::cout<<"xloop"<<xloop_<<std::endl;
+		inv_LxLy_(0,0) = LxLy_(1,1);
+		inv_LxLy_(1,0) =-LxLy_(1,0);
+		inv_LxLy_(0,1) =-LxLy_(0,1);
+		inv_LxLy_(1,1) = LxLy_(0,0);
+		inv_LxLy_/=(LxLy_(0,0)*LxLy_(1,1)-LxLy_(1,0)*LxLy_(0,1));
+
+		Vector<double> x(2);
+		unsigned int j(0);
+		do{
+			x(0) = ++j;
+			x(1) = 0;
+			x = get_LxLy_pos(x);
+		} while( !are_equal(x(0),0) || !are_equal(x(1),0)  );
+		xloop_ = j;
+
+		std::cout<<LxLy_<<std::endl;
+		std::cout<<inv_LxLy_<<std::endl;
+		std::cout<<LxLy_*inv_LxLy_<<std::endl;
+		std::cout<<"xloop"<<xloop_<<std::endl;
+	} else {
+		std::cerr<<"System2D<Type> : the cluster is impossible"<<std::endl; 
+	}
 }
-
-template<typename Type>
-System2D<Type>::~System2D(){}
 /*}*/
 
 /*{protected methods*/
@@ -214,6 +207,16 @@ void System2D<Type>::select_eigenvectors(){
 	//std::cout<<(evec_*evec_.trans_conj()).chop().diag()<<std::endl;
 	std::cout<<"this selection method is not enough general !"<<std::endl;
 }
+
+template<typename Type>
+Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
+	Matrix<int> nb(this->z_,2,1);
+	for(unsigned int dir(0);dir<this->z_;dir++){
+		this->find_neighbourg(i,dir,nb);
+	}
+	return nb;
+}
+
 /*}*/
 
 /*{private methods*/
@@ -317,33 +320,23 @@ std::complex<double> System2D<Type>::projection(Matrix<Type> const& O, unsigned 
 	}
 	return out;
 }
-/*}*/
 
-/*{private methods*/
 template<typename Type>
 void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const{
-	Vector<double> nn_LxLy(2,0);/*nearest neighbour in the (Lx,Ly) basis*/
-	Vector<double> tn_LxLy(2,0);/*trial neighbour in the (Lx,Ly) basis*/
-	Vector<double> tn_s(2,0); /*trial neighbour in the lattice basis*/
+	Vector<double> tn(2,0);				/* trial neighbour of the site i in the (Lx,Ly) basis*/
+	Vector<double> nn(get_LxLy_pos(i));/*nearest neighbour of the site i in the (Lx,Ly) basis*/
+	set_in_LxLy(nn);
+
+	nn+= vector_towrards(i,dir);
+	if(set_in_LxLy(nn)){ nb(dir,1) = this->bc_; }
+
 	unsigned int j(0);
-
-	nn_LxLy(0) = i;
-	nn_LxLy(1) = i/xloop_;
-	nn_LxLy = get_LxLy_pos(nn_LxLy);
-	set_in_LxLy(nn_LxLy);
-
-	nn_LxLy(0) += dir_nn_LxLy_(dir,0);
-	nn_LxLy(1) += dir_nn_LxLy_(dir,1);
-	if(set_in_LxLy(nn_LxLy)){ nb(dir,1) = this->bc_; }
-
-	do{
-		tn_s(0) = j;
-		tn_LxLy=get_LxLy_pos(tn_s);
-		set_in_LxLy(tn_LxLy);
+	while( !are_equal(tn,nn) && j<this->n_+2 ){
 		j++;
-		if(j%xloop_==0){ tn_s(1)+=1; }
-	} while ( !are_equal(tn_LxLy,nn_LxLy) && j<this->n_+2 );
-	nb(dir,0) = j-1;
+		try_neighbourg(tn,j);
+		set_in_LxLy(tn);
+	}
+	nb(dir,0) = j;
 }
 
 template<typename Type>
@@ -352,34 +345,25 @@ Vector<double> System2D<Type>::get_LxLy_pos(Vector<double> const& x) const {
 	double ip;
 	tmp(0) = std::modf(tmp(0),&ip);
 	tmp(1) = std::modf(tmp(1),&ip);
-	if( are_equal(tmp(0),1) ) { tmp(0) = 0; }
-	if( are_equal(tmp(1),1) ) { tmp(1) = 0; }
+	if( are_equal(tmp(0),1) ){ tmp(0) = 0; }
+	if( are_equal(tmp(1),1) ){ tmp(1) = 0; }
 	return tmp;
 }
 
 template<typename Type>
 bool System2D<Type>::set_in_LxLy(Vector<double>& x) const {
-	bool in_zone(false);
+	bool out_of_zone(false);
 	double ip;
 	x(0) = std::modf(x(0),&ip);
-	if( x(0)<0 ){ x(0) += 1.0; in_zone = !in_zone; }
-	if( are_equal(x(0),1) ) { x(0) = 0; in_zone = !in_zone; }
-	if( ip>0 ) { in_zone = !in_zone;}
+	if( x(0)<0 ){ x(0) += 1.0; out_of_zone = !out_of_zone; }
+	if( are_equal(x(0),1) ){ x(0) = 0; out_of_zone = !out_of_zone; }
+	if( ip>0 ){ out_of_zone = !out_of_zone; }
 
 	x(1) = std::modf(x(1),&ip);
-	if( x(1)<0 ){ x(1) += 1.0;  in_zone = !in_zone; }
-	if( are_equal(x(1),1) ) { x(1) = 0; in_zone = !in_zone; }
-	if( ip>0 ) { in_zone = !in_zone ;}
-	return in_zone;
+	if( x(1)<0 ){ x(1) += 1.0; out_of_zone = !out_of_zone; }
+	if( are_equal(x(1),1) ){ x(1) = 0; out_of_zone = !out_of_zone; }
+	if( ip>0 ){ out_of_zone = !out_of_zone ; }
+	return out_of_zone;
 }
 /*}*/
-
-template<typename Type>
-Matrix<int> System2D<Type>::get_neighbourg(unsigned int i) const {
-	Matrix<int> nb(this->z_,2,1);
-	for(unsigned int dir(0);dir<this->z_;dir++){
-		this->find_neighbourg(i,dir,nb);
-	}
-	return nb;
-}
 #endif

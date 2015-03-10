@@ -236,6 +236,9 @@ void Honeycomb0pp::check(){
 		}
 		std::cout<<std::endl;
 	}
+	std::cout<<"<<<<<<<<<<<<<<"<<std::endl;
+	nb = get_neighbourg(2);
+	std::cout<<nb<<std::endl;
 	/*}*/
 	///*{debug 2*/
 	//double t(1.0);

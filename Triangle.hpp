@@ -17,70 +17,109 @@ class Triangle: public System2D<Type>{
 		virtual ~Triangle()=0;
 
 	protected:
-		static Matrix<double> set_LxLy(unsigned int const& n){
-			Matrix<double> tmp;
-			if(n==27){
-				tmp.set(2,2);
-				tmp(0,0) = 6;
-				tmp(1,0) = -3;
-				tmp(0,1) = 3;
-				tmp(1,1) = 3;
-			}
-			return tmp;
-		}
+		Vector<double> get_LxLy_pos(unsigned int const& i) const;
+
+	private:
+		Matrix<double> set_LxLy(unsigned int const& n) const;
+		Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const;
+		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
 };
 
+/*{constructor*/
 template<typename Type>
 Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
 	System2D<Type>(Triangle<Type>::set_LxLy(this->n_),ab,spuc,6,filename)
 {
-	std::cerr<<"Triangle::Triangle(N,n,m,filename) : need to set the boundary condition"<<std::endl;
-	std::cerr<<"Triangle::Triangle(N,n,m,filename) : and need to check that they are correct"<<std::endl;
-	if(this->status_==2){ this->compute_links(); }
+	if(this->status_==2){ 
+		Vector<double> dir(2);
+		dir(0) = 1.0;
+		dir(1) = 0.0;
+		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(0,0) = dir(0);
+		this->dir_nn_LxLy_(0,1) = dir(1);
 
-	Vector<double> dir(2);
-	dir(0) = 1.0;
-	dir(1) = 0.0;
-	dir = this->get_LxLy_pos(dir);
-	this->dir_nn_LxLy_(0,0) = dir(0);
-	this->dir_nn_LxLy_(0,1) = dir(1);
+		dir(0) = 0.0;
+		dir(1) = 1.0;
+		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(1,0) = dir(0);
+		this->dir_nn_LxLy_(1,1) = dir(1);
 
-	dir(0) = 0.0;
-	dir(1) = 1.0;
-	dir = this->get_LxLy_pos(dir);
-	this->dir_nn_LxLy_(1,0) = dir(0);
-	this->dir_nn_LxLy_(1,1) = dir(1);
+		dir(0) = -1.0;
+		dir(1) = 1.0;
+		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(2,0) = dir(0);
+		this->dir_nn_LxLy_(2,1) = dir(1);
 
-	dir(0) = -1.0;
-	dir(1) = 1.0;
-	dir = this->get_LxLy_pos(dir);
-	this->dir_nn_LxLy_(2,0) = dir(0);
-	this->dir_nn_LxLy_(2,1) = dir(1);
+		dir(0) = -1.0;
+		dir(1) = 0.0;
+		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(3,0) = dir(0);
+		this->dir_nn_LxLy_(3,1) = dir(1);
 
-	dir(0) = -1.0;
-	dir(1) = 0.0;
-	dir = this->get_LxLy_pos(dir);
-	this->dir_nn_LxLy_(3,0) = dir(0);
-	this->dir_nn_LxLy_(3,1) = dir(1);
+		dir(0) = 0.0;
+		dir(1) = -1.0;
+		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(4,0) = dir(0);
+		this->dir_nn_LxLy_(4,1) = dir(1);
 
-	dir(0) = 0.0;
-	dir(1) = -1.0;
-	dir = this->get_LxLy_pos(dir);
-	this->dir_nn_LxLy_(4,0) = dir(0);
-	this->dir_nn_LxLy_(4,1) = dir(1);
+		dir(0) = 1.0;
+		dir(1) = -1.0;
+		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->dir_nn_LxLy_(5,0) = dir(0);
+		this->dir_nn_LxLy_(5,1) = dir(1);
 
-	dir(0) = 1.0;
-	dir(1) = -1.0;
-	dir = this->get_LxLy_pos(dir);
-	this->dir_nn_LxLy_(5,0) = dir(0);
-	this->dir_nn_LxLy_(5,1) = dir(1);
 
-	std::cout<<"arg"<<std::endl;
 
-	std::cout<<this->dir_nn_LxLy_<<std::endl;
-
+		this->compute_links(); 
+	}
 }
 
 template<typename Type>
 Triangle<Type>::~Triangle(){}
+/*}*/
+
+/*{protected methods*/
+template<typename Type>
+Vector<double> Triangle<Type>::get_LxLy_pos(unsigned int const& i) const {
+	Vector<double> tmp(2);
+	tmp(0) = i;
+	tmp(1) = i/this->xloop_;
+	return System2D<Type>::get_LxLy_pos(tmp);
+}
+/*}*/
+
+/*{private methods*/
+template<typename Type>
+Matrix<double> Triangle<Type>::set_LxLy(unsigned int const& n) const {
+	Matrix<double> tmp;
+	if(n==27){
+		tmp.set(2,2);
+		tmp(0,0) = 6;
+		tmp(1,0) = -3;
+		tmp(0,1) = 3;
+		tmp(1,1) = 3;
+	}
+	return tmp;
+}
+
+template<typename Type>
+Vector<double> Triangle<Type>::vector_towrards(unsigned int const& i, unsigned int const& dir) const {
+	(void)(i);
+	Vector<double> tmp(2);
+	tmp(0) = this->dir_nn_LxLy_(dir,0);
+	tmp(1) = this->dir_nn_LxLy_(dir,1);
+	return tmp;
+}
+
+template<typename Type>
+void Triangle<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& j) const {
+	if(j%this->xloop_==0){
+		tn(0) += this->dir_nn_LxLy_(1,0);
+		tn(1) += this->dir_nn_LxLy_(1,1);
+	}
+	tn(0) += this->dir_nn_LxLy_(0,0);
+	tn(1) += this->dir_nn_LxLy_(0,1);
+}
+/*}*/
 #endif
+

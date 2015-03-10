@@ -20,7 +20,7 @@ class Honeycomb0pp: public Honeycomb<double>{
 		std::string extract_level_7();
 		std::string extract_level_6();
 
-		static Matrix<double> set_ab(){
+		Matrix<double> set_ab(){
 			Matrix<double> tmp(2,2);
 			tmp(0,0) = 1;
 			tmp(1,0) = 1;

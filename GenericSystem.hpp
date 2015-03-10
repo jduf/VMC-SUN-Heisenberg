@@ -45,7 +45,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		 * by GenericSystem<Type>::compute_links()
 		 */
 		/*}*/
-		virtual Matrix<int> get_neighbourg(unsigned int i) const = 0;
+		virtual Matrix<int> get_neighbourg(unsigned int const& i) const = 0;
 		/*!Computes the array of links between neighbouring sites*/
 		void compute_links();
 };

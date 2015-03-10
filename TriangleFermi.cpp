@@ -41,16 +41,12 @@ void TriangleFermi::create(){
 void TriangleFermi::lattice(){
 	Matrix<int> nb;
 	std::string color("black");
-	Vector<double> xy0_s(2,0);
-	Vector<double> xy1_s(2,0);
 	Vector<double> xy0_LxLy(2,0);
 	Vector<double> xy1_LxLy(2,0);
 	PSTricks ps("./","lattice");
 	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+this->filename_);
 	for(unsigned int i(0);i<this->n_;i++) {
-		xy0_s(0) = i;
-		xy0_s(1) = i/this->xloop_;
-		xy0_LxLy = this->get_LxLy_pos(xy0_s);
+		xy0_LxLy = this->get_LxLy_pos(i);
 		this->set_in_LxLy(xy0_LxLy);
 		xy0_LxLy = (this->LxLy_*xy0_LxLy).chop();
 		ps.put(xy0_LxLy(0)-0.20,xy0_LxLy(1)+0.15,tostring(i));
@@ -63,9 +59,7 @@ void TriangleFermi::lattice(){
 			ps.put(xy1_LxLy(0)-0.20,xy1_LxLy(1)+0.15,tostring(nb(0,0)));
 		} else {
 			color = "black";
-			xy1_s(0) = nb(0,0);
-			xy1_s(1) = nb(0,0)/this->xloop_;
-			xy1_LxLy = this->get_LxLy_pos(xy1_s);
+			xy1_LxLy = this->get_LxLy_pos(nb(0,0));
 			this->set_in_LxLy(xy1_LxLy);
 			xy1_LxLy = (this->LxLy_*xy1_LxLy).chop();
 		}
@@ -78,9 +72,7 @@ void TriangleFermi::lattice(){
 			ps.put(xy1_LxLy(0)-0.20,xy1_LxLy(1)+0.15,tostring(nb(1,0)));
 		} else {
 			color = "black";
-			xy1_s(0) = nb(1,0);
-			xy1_s(1) = nb(1,0)/this->xloop_;
-			xy1_LxLy = this->get_LxLy_pos(xy1_s);
+			xy1_LxLy = this->get_LxLy_pos(nb(1,0));
 			this->set_in_LxLy(xy1_LxLy);
 			xy1_LxLy = (this->LxLy_*xy1_LxLy).chop();
 		}
@@ -95,9 +87,7 @@ void TriangleFermi::lattice(){
 			ps.put(xy1_LxLy(0)-0.20,xy1_LxLy(1)+0.15,tostring(nb(2,0)));
 		} else {
 			color = "black";
-			xy1_s(0) = nb(2,0);
-			xy1_s(1) = nb(2,0)/this->xloop_;
-			xy1_LxLy = this->get_LxLy_pos(xy1_s);
+			xy1_LxLy = this->get_LxLy_pos(nb(2,0));
 			this->set_in_LxLy(xy1_LxLy);
 			xy1_LxLy = (this->LxLy_*xy1_LxLy).chop();
 		}

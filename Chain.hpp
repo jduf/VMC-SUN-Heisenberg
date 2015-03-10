@@ -51,7 +51,7 @@ class Chain: public System1D<Type>{
 
 	protected:
 		/*!Returns the neighbours of site i*/
-		Matrix<int> get_neighbourg(unsigned int i) const;
+		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Given N and m, save the best simulation in a text file for any n*/
 		std::string extract_level_3();
 		/*!Find the best range to compute the critcal exponents*/
@@ -76,7 +76,7 @@ template<typename Type>
 Chain<Type>::~Chain(){}
 
 template<typename Type>
-Matrix<int> Chain<Type>::get_neighbourg(unsigned int i) const {
+Matrix<int> Chain<Type>::get_neighbourg(unsigned int const& i) const {
 	Matrix<int> nb(this->z_,2,1);
 	if( i != this->n_-1){ nb(0,0) = i+1;}
 	else {
