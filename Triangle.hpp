@@ -17,7 +17,9 @@ class Triangle: public System2D<Type>{
 		virtual ~Triangle()=0;
 
 	protected:
-		Vector<double> get_LxLy_pos(unsigned int const& i) const;
+		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
+
+		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0;};
 
 	private:
 		Matrix<double> set_LxLy(unsigned int const& n) const;
@@ -34,43 +36,42 @@ Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std
 		Vector<double> dir(2);
 		dir(0) = 1.0;
 		dir(1) = 0.0;
-		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->set_pos_LxLy(dir);
 		this->dir_nn_LxLy_(0,0) = dir(0);
 		this->dir_nn_LxLy_(0,1) = dir(1);
 
 		dir(0) = 0.0;
 		dir(1) = 1.0;
-		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->set_pos_LxLy(dir);
 		this->dir_nn_LxLy_(1,0) = dir(0);
 		this->dir_nn_LxLy_(1,1) = dir(1);
 
 		dir(0) = -1.0;
 		dir(1) = 1.0;
-		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->set_pos_LxLy(dir);
 		this->dir_nn_LxLy_(2,0) = dir(0);
 		this->dir_nn_LxLy_(2,1) = dir(1);
 
 		dir(0) = -1.0;
 		dir(1) = 0.0;
-		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->set_pos_LxLy(dir);
 		this->dir_nn_LxLy_(3,0) = dir(0);
 		this->dir_nn_LxLy_(3,1) = dir(1);
 
 		dir(0) = 0.0;
 		dir(1) = -1.0;
-		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->set_pos_LxLy(dir);
 		this->dir_nn_LxLy_(4,0) = dir(0);
 		this->dir_nn_LxLy_(4,1) = dir(1);
 
 		dir(0) = 1.0;
 		dir(1) = -1.0;
-		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->set_pos_LxLy(dir);
 		this->dir_nn_LxLy_(5,0) = dir(0);
 		this->dir_nn_LxLy_(5,1) = dir(1);
 
-
-
-		this->compute_links(); 
+		//this->compute_links(); 
+		std::cout<<"ok"<<std::endl;
 	}
 }
 
@@ -80,11 +81,11 @@ Triangle<Type>::~Triangle(){}
 
 /*{protected methods*/
 template<typename Type>
-Vector<double> Triangle<Type>::get_LxLy_pos(unsigned int const& i) const {
+Vector<double> Triangle<Type>::get_pos_in_lattice(unsigned int const& i) const {
 	Vector<double> tmp(2);
 	tmp(0) = i;
 	tmp(1) = i/this->xloop_;
-	return System2D<Type>::get_LxLy_pos(tmp);
+	return tmp;
 }
 /*}*/
 

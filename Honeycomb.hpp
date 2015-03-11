@@ -3,6 +3,19 @@
 
 #include "System2D.hpp"
 
+/*{Description*/
+/*!the allowed clusters are that n=2L^2, L integer.
+ * as the minimal unit cell contains two sites, the lattice basis vectors are
+ * given by the ones that are jumping from one horizontal pair to the
+ * neighbouring ones. in the orthogonal basis where the bound lenght is one,
+ * this lattice basis is given by ((1/3,1/3),(-1/2,1/2))
+ *
+ * the cluster basis vectors (Lx,Ly) are colinear with the lattice ones, so one
+ * can express the cluster basis as ((L,0),(0,L))
+ *
+ * the unit cell basis has to be expressed with the lattice basis vectors
+ */
+/*}*/
 template<typename Type>
 class Honeycomb: public System2D<Type>{
 	public:
@@ -17,7 +30,7 @@ class Honeycomb: public System2D<Type>{
 		virtual ~Honeycomb()=0;
 
 	protected:
-		Vector<double> get_LxLy_pos(unsigned int const& i) const;
+		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
 	private:
 		Matrix<double> dir_nn_;
@@ -42,7 +55,7 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 		dir(1) = h;
 		dir_nn_(0,0) = dir(0);
 		dir_nn_(0,1) = dir(1);
-		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->set_pos_LxLy(dir);
 		this->dir_nn_LxLy_(0,0) = dir(0);
 		this->dir_nn_LxLy_(0,1) = dir(1);
 
@@ -50,7 +63,7 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 		dir(1) = h;
 		dir_nn_(1,0) = dir(0);
 		dir_nn_(1,1) = dir(1);
-		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->set_pos_LxLy(dir);
 		this->dir_nn_LxLy_(1,0) = dir(0);
 		this->dir_nn_LxLy_(1,1) = dir(1);
 
@@ -58,11 +71,9 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 		dir(1) = h-1.0;
 		dir_nn_(2,0) = dir(0);
 		dir_nn_(2,1) = dir(1);
-		dir = System2D<Type>::get_LxLy_pos(dir);
+		this->set_pos_LxLy(dir);
 		this->dir_nn_LxLy_(2,0) = dir(0);
 		this->dir_nn_LxLy_(2,1) = dir(1);
-
-
 
 		this->compute_links(); 
 	}
@@ -74,22 +85,19 @@ Honeycomb<Type>::~Honeycomb(){}
 
 /*{protected methods*/
 template<typename Type>
-Vector<double> Honeycomb<Type>::get_LxLy_pos(unsigned int const& i) const {
+Vector<double> Honeycomb<Type>::get_pos_in_lattice(unsigned int const& i) const {
 	Vector<double> tmp(2);
 	unsigned int j(i/this->xloop_);
 	tmp(0) = j*(dir_nn_(0,0)-dir_nn_(2,0));
 	tmp(1) = j*(dir_nn_(0,1)-dir_nn_(2,1));
-	//std::cout<<tmp<<":";
 	j = i-j*this->xloop_;
 	tmp(0) += j/2*(dir_nn_(0,0)-dir_nn_(1,0));
 	tmp(1) += j/2*(dir_nn_(0,1)-dir_nn_(1,1));
-	//std::cout<<tmp<<":";
 	if(j%2==1){
 		tmp(0) += dir_nn_(0,0);
 		tmp(1) += dir_nn_(0,1);
 	}
-	//std::cout<<tmp<<":"<<std::endl;;
-	return System2D<Type>::get_LxLy_pos(tmp);
+	return tmp;
 }
 /*}*/
 
@@ -97,12 +105,13 @@ Vector<double> Honeycomb<Type>::get_LxLy_pos(unsigned int const& i) const {
 template<typename Type>
 Matrix<double> Honeycomb<Type>::set_LxLy(unsigned int const& n) const {
 	Matrix<double> tmp;
-	if(n==72){
+	double L(sqrt(n/2));
+	if(are_equal(L,floor(L))){
 		tmp.set(2,2);
-		tmp(0,0) = 6;
-		tmp(1,0) = 0;
-		tmp(0,1) = 0;
-		tmp(1,1) = 6;
+		tmp(0,0) = L;
+		tmp(1,0) = 0.0;
+		tmp(0,1) = 0.0;
+		tmp(1,1) = L;
 	}
 	return tmp;
 }

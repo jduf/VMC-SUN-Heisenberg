@@ -27,13 +27,18 @@ class System2D: public GenericSystem<Type>{
 
 		void diagonalize(bool simple);
 
-		/*!Returns the position of the site i in the basis (Lx,Ly)*/
-		virtual Vector<double> get_LxLy_pos(unsigned int const& i) const = 0;
-		Vector<double> get_LxLy_pos(Vector<double> const& x) const;
-		/*!Reset x so that it belongs to the square (Lx,Ly)*/
-		bool set_in_LxLy(Vector<double>& x) const;
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
+		/*!Returns the position of the site i in the lattice basis*/
+		virtual Vector<double> get_pos_in_lattice(unsigned int const& i) const = 0;
+		virtual unsigned int match_pos_in_ab(Vector<double> const& x) const = 0;
+
+		void set_pos_LxLy(Vector<double>& x) const;
+		void set_pos_ab(Vector<double>& x) const;
+		/*!Reset x so that it belongs to the square (Lx,Ly)*/
+		bool set_in_basis(Vector<double>& x) const;
+		/*!Returns the index of the site i in the unit cell basis (a,b)*/
+		unsigned int get_site_in_ab(unsigned int const& i) const;
 
 	private:
 		Matrix<Type> Tx_;	//!< translation operator along x-axis
@@ -42,6 +47,7 @@ class System2D: public GenericSystem<Type>{
 		Vector<double> py_;	//!< eigenvalue of Ty
 		Vector<double> e_;	//!< eigenvalue of H_
 		Matrix<double> inv_LxLy_;
+		Matrix<double> inv_ab_;
 
 		/*!Compute the translation operators*/
 		void compute_TxTy();
@@ -56,6 +62,7 @@ class System2D: public GenericSystem<Type>{
 		void find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const;
 		virtual Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const = 0;
 		virtual void try_neighbourg(Vector<double>& tn, unsigned int const& i) const = 0;
+		void set_pos(Vector<double>& x) const;
 };
 
 /*{constructors*/
@@ -65,7 +72,8 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 	ab_(ab),
 	LxLy_(LxLy),
 	dir_nn_LxLy_(this->z_,2),
-	inv_LxLy_(2,2)
+	inv_LxLy_(2,2),
+	inv_ab_(2,2)
 {
 	if(LxLy_.size()){
 		this->status_--;
@@ -76,19 +84,31 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 		inv_LxLy_(1,1) = LxLy_(0,0);
 		inv_LxLy_/=(LxLy_(0,0)*LxLy_(1,1)-LxLy_(1,0)*LxLy_(0,1));
 
+		inv_ab_(0,0) = ab_(1,1);
+		inv_ab_(1,0) =-ab_(1,0);
+		inv_ab_(0,1) =-ab_(0,1);
+		inv_ab_(1,1) = ab_(0,0);
+		inv_ab_/=(ab_(0,0)*ab_(1,1)-ab_(1,0)*ab_(0,1));
+
 		Vector<double> x(2);
 		unsigned int j(0);
 		do{
 			x(0) = ++j;
 			x(1) = 0;
-			x = get_LxLy_pos(x);
+			set_pos_LxLy(x);
 		} while( !are_equal(x(0),0) || !are_equal(x(1),0)  );
 		xloop_ = j;
 
+		std::cout<<"xloop"<<xloop_<<std::endl;
+		std::cout<<"LxLy"<<std::endl;
 		std::cout<<LxLy_<<std::endl;
 		std::cout<<inv_LxLy_<<std::endl;
 		std::cout<<LxLy_*inv_LxLy_<<std::endl;
-		std::cout<<"xloop"<<xloop_<<std::endl;
+		std::cout<<"ab"<<std::endl;
+		std::cout<<ab_<<std::endl;
+		std::cout<<inv_ab_<<std::endl;
+		std::cout<<ab_*inv_ab_<<std::endl;
+		std::cout<<"####end####"<<std::endl;
 	} else {
 		std::cerr<<"System2D<Type> : the cluster is impossible"<<std::endl; 
 	}
@@ -217,6 +237,25 @@ Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 	return nb;
 }
 
+template<typename Type>
+unsigned int System2D<Type>::get_site_in_ab(unsigned int const& i) const {
+	Vector<double> x(get_pos_in_lattice(i));
+	set_pos_ab(x);
+	set_in_basis(x);
+	return match_pos_in_ab(x);
+}
+
+template<typename Type>
+void System2D<Type>::set_pos_LxLy(Vector<double>& x) const {
+	x=inv_LxLy_*x;
+	set_pos(x);
+}
+
+template<typename Type>
+void System2D<Type>::set_pos_ab(Vector<double>& x) const {
+	x=inv_ab_*x;
+	set_pos(x);
+}
 /*}*/
 
 /*{private methods*/
@@ -324,34 +363,33 @@ std::complex<double> System2D<Type>::projection(Matrix<Type> const& O, unsigned 
 template<typename Type>
 void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const{
 	Vector<double> tn(2,0);				/* trial neighbour of the site i in the (Lx,Ly) basis*/
-	Vector<double> nn(get_LxLy_pos(i));/*nearest neighbour of the site i in the (Lx,Ly) basis*/
-	set_in_LxLy(nn);
+	Vector<double> nn(get_pos_in_lattice(i));/*nearest neighbour of the site i in the (Lx,Ly) basis*/
+	set_pos_LxLy(nn);
+	set_in_basis(nn);
 
 	nn+= vector_towrards(i,dir);
-	if(set_in_LxLy(nn)){ nb(dir,1) = this->bc_; }
+	if(set_in_basis(nn)){ nb(dir,1) = this->bc_; }
 
 	unsigned int j(0);
 	while( !are_equal(tn,nn) && j<this->n_+2 ){
 		j++;
 		try_neighbourg(tn,j);
-		set_in_LxLy(tn);
+		set_in_basis(tn);
 	}
 	nb(dir,0) = j;
 }
 
 template<typename Type>
-Vector<double> System2D<Type>::get_LxLy_pos(Vector<double> const& x) const {
-	Vector<double> tmp(inv_LxLy_*x);
+void System2D<Type>::set_pos(Vector<double>& x) const {
 	double ip;
-	tmp(0) = std::modf(tmp(0),&ip);
-	tmp(1) = std::modf(tmp(1),&ip);
-	if( are_equal(tmp(0),1) ){ tmp(0) = 0; }
-	if( are_equal(tmp(1),1) ){ tmp(1) = 0; }
-	return tmp;
+	x(0) = std::modf(x(0),&ip);
+	x(1) = std::modf(x(1),&ip);
+	if( are_equal(x(0),1) ){ x(0) = 0; }
+	if( are_equal(x(1),1) ){ x(1) = 0; }
 }
 
 template<typename Type>
-bool System2D<Type>::set_in_LxLy(Vector<double>& x) const {
+bool System2D<Type>::set_in_basis(Vector<double>& x) const {
 	bool out_of_zone(false);
 	double ip;
 	x(0) = std::modf(x(0),&ip);

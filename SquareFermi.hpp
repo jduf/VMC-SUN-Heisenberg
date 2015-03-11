@@ -60,42 +60,45 @@ template<typename Type>
 void SquareFermi<Type>::lattice(){
 	Matrix<int> nb;
 	std::string color("black");
-	Vector<double> xy0_LxLy(2,0);
-	Vector<double> xy1_LxLy(2,0);
+	Vector<double> xy0(2,0);
+	Vector<double> xy1(2,0);
 	PSTricks ps("./","lattice");
 	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+this->filename_);
 	for(unsigned int i(0);i<this->n_;i++) {
-		xy0_LxLy = this->get_LxLy_pos(i);
-		this->set_in_LxLy(xy0_LxLy);
-		xy0_LxLy = (this->LxLy_*xy0_LxLy).chop();
-		ps.put(xy0_LxLy(0)-0.20,xy0_LxLy(1)+0.15,tostring(i));
+		xy0 = this->get_pos_in_lattice(i);
+		this->set_pos_LxLy(xy0);
+		this->set_in_basis(xy0);
+		xy0 = (this->LxLy_*xy0).chop();
+		ps.put(xy0(0)-0.20,xy0(1)+0.15,tostring(i));
 		nb = this->get_neighbourg(i);
 
 		if(nb(0,1)<0){
 			color = "red";
-			xy1_LxLy = xy0_LxLy;
-			xy1_LxLy(0) += 1.0;
-			ps.put(xy1_LxLy(0)-0.20,xy1_LxLy(1)+0.15,tostring(nb(0,0)));
+			xy1 = xy0;
+			xy1(0) += 1.0;
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(0,0)));
 		} else {
 			color = "black";
-			xy1_LxLy = this->get_LxLy_pos(nb(0,0));
-			this->set_in_LxLy(xy1_LxLy);
-			xy1_LxLy = (this->LxLy_*xy1_LxLy).chop();
+			xy1 = this->get_pos_in_lattice(nb(0,0));
+			this->set_pos_LxLy(xy1);
+			this->set_in_basis(xy1);
+			xy1 = (this->LxLy_*xy1).chop();
 		}
-		/*x-link*/ ps.line("-",xy0_LxLy(0),xy0_LxLy(1),xy1_LxLy(0),xy1_LxLy(1), "linewidth=1pt,linecolor="+color);
+		/*x-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color);
 
 		if(nb(1,1)<0){
 			color = "red";
-			xy1_LxLy = xy0_LxLy;
-			xy1_LxLy(1) += 1.0;
-			ps.put(xy1_LxLy(0)-0.20,xy1_LxLy(1)+0.15,tostring(nb(1,0)));
+			xy1 = xy0;
+			xy1(1) += 1.0;
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(1,0)));
 		} else {
 			color = "black";
-			xy1_LxLy = this->get_LxLy_pos(nb(1,0));
-			this->set_in_LxLy(xy1_LxLy);
-			xy1_LxLy = (this->LxLy_*xy1_LxLy).chop();
+			xy1 = this->get_pos_in_lattice(nb(1,0));
+			this->set_pos_LxLy(xy1);
+			this->set_in_basis(xy1);
+			xy1 = (this->LxLy_*xy1).chop();
 		}
-		/*y-link*/ ps.line("-",xy0_LxLy(0),xy0_LxLy(1),xy1_LxLy(0),xy1_LxLy(1), "linewidth=1pt,linecolor="+color);
+		/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color);
 	}
 
 	Matrix<double> polygon(4,2);

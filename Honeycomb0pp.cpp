@@ -2,7 +2,7 @@
 
 Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, double td):
 	System(ref,N,m,n,M,bc),
-	Honeycomb<double>(Honeycomb0pp::set_ab(),6,"honeycomb0pp"),
+	Honeycomb<double>(set_ab(),6,"honeycomb0pp"),
 	td_(td)
 {
 	if(status_==2){
@@ -20,51 +20,83 @@ void Honeycomb0pp::compute_H(){
 	double th(1.0);
 	H_.set(n_,n_,0);
 	if(N_==3 && m_==1 && n_==72){
-		std::cerr<<"void Honeycomb0pp::compute_H() : using exactly the bond"
-			"connection given by Miklos '72bondlist.dat'."<<std::endl<<
-			"                                 Third column : td=0,th=1."
-			"Fourth column bc. To recover the matrix "<<std::endl<<
-			"                                 '000_0pp_72mx_tmp.dat',"
-			"set th=-1 and td_=2."<<std::endl;
-		IOFiles bond_list("72bondlist.dat",false);
-		Matrix<unsigned int> bl(108,4);
-		Vector<int> bc(108);
-		bond_list>>bl;
-		for(unsigned int i(0);i<links_.row();i++){
-			links_(i,0) = bl(i,0)-1;
-			links_(i,1) = bl(i,1)-1;
-		}
+		/*{Description*/
+		/*!
+		  std::cerr<<"void Honeycomb0pp::compute_H() : using exactly the bond"
+		  "connection given by Miklos '72bondlist.dat'."<<std::endl<<
+		  "                                 Third column : td=0,th=1."
+		  "Fourth column bc. To recover the matrix "<<std::endl<<
+		  "                                 '000_0pp_72mx_tmp.dat',"
+		  "set th=-1 and td_=2."<<std::endl;
+		  IOFiles bond_list("72bondlist.dat",false);
+		  Matrix<unsigned int> bl(108,4);
+		  Vector<int> bc(108);
+		  bond_list>>bl;
+		  for(unsigned int i(0);i<links_.row();i++){
+		  links_(i,0) = bl(i,0)-1;
+		  links_(i,1) = bl(i,1)-1;
+		  }
 
-		for(unsigned int i(0);i<links_.row();i++){
-			H_(links_(i,0),links_(i,1)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
-			H_(links_(i,1),links_(i,0)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
+		  for(unsigned int i(0);i<links_.row();i++){
+		  H_(links_(i,0),links_(i,1)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
+		  H_(links_(i,1),links_(i,0)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
+		  }
+		  */
+		/*}*/
+		Matrix<int> nb;
+		unsigned int s(0);
+		for(unsigned int i(0);i<n_;i+=2){
+			s = get_site_in_ab(i);
+			nb = get_neighbourg(i);
+			switch(s){ 
+				case 0:
+					{
+						H_(i,nb(0,0))= nb(0,1)*th;
+						H_(i,nb(1,0))= nb(1,1)*th;
+						H_(i,nb(2,0))= nb(2,1)*td_;
+					}break;
+				case 2:
+					{
+						H_(i,nb(0,0))= nb(0,1)*td_;
+						H_(i,nb(1,0))= nb(1,1)*th;
+						H_(i,nb(2,0))= nb(2,1)*th;
+					}break;
+				case 4:
+					{
+						H_(i,nb(0,0))= nb(0,1)*th;
+						H_(i,nb(1,0))= nb(1,1)*td_;
+						H_(i,nb(2,0))= nb(2,1)*th;
+					}break;
+				default:{std::cerr<<"bug"<<std::endl;}break;
+			}
 		}
+		H_ += H_.transpose();
 	} else {
 		//Matrix<int> nb;
 		//unsigned int s(0);
 		//for(unsigned int i(0);i<Lx_;i++){
-			//for(unsigned int j(0);j<Ly_;j++){
-				///*site 0*/
-				//s = spuc_*(i+j*Lx_);
-				//nb = get_neighbourg(s);
-				//H_(s,nb(0,0)) = nb(0,1)*th;
-				//H_(s,nb(1,0)) = nb(1,1)*td_;
-				//H_(s,nb(2,0)) = nb(2,1)*th;
-//
-				///*site 2*/
-				//s+=2;
-				//nb = get_neighbourg(s);
-				//H_(s,nb(0,0)) = nb(0,1)*th;
-				//H_(s,nb(1,0)) = nb(1,1)*td_;
-				//H_(s,nb(2,0)) = nb(2,1)*th;
-//
-				///*site 2*/
-				//s+=2;
-				//nb = get_neighbourg(s);
-				//H_(s,nb(0,0)) = nb(0,1)*th;
-				//H_(s,nb(1,0)) = nb(1,1)*td_;
-				//H_(s,nb(2,0)) = nb(2,1)*th;
-			//}
+		//for(unsigned int j(0);j<Ly_;j++){
+		///*site 0*/
+		//s = spuc_*(i+j*Lx_);
+		//nb = get_neighbourg(s);
+		//H_(s,nb(0,0)) = nb(0,1)*th;
+		//H_(s,nb(1,0)) = nb(1,1)*td_;
+		//H_(s,nb(2,0)) = nb(2,1)*th;
+		//
+		///*site 2*/
+		//s+=2;
+		//nb = get_neighbourg(s);
+		//H_(s,nb(0,0)) = nb(0,1)*th;
+		//H_(s,nb(1,0)) = nb(1,1)*td_;
+		//H_(s,nb(2,0)) = nb(2,1)*th;
+		//
+		///*site 2*/
+		//s+=2;
+		//nb = get_neighbourg(s);
+		//H_(s,nb(0,0)) = nb(0,1)*th;
+		//H_(s,nb(1,0)) = nb(1,1)*td_;
+		//H_(s,nb(2,0)) = nb(2,1)*th;
+		//}
 		//}
 		//H_ += H_.transpose();
 	}
@@ -89,157 +121,200 @@ void Honeycomb0pp::save() const{
 	GenericSystem<double>::save();
 	jd_write_->write("td/th (ratio of the hopping parameters)",td_);
 }
+
+unsigned int Honeycomb0pp::match_pos_in_ab(Vector<double> const& x) const{
+	Vector<double> match(2,0);
+	if(are_equal(x,match)){ return 0; }
+	match(0) = 1.0/3.0;
+	match(1) = 0;
+	if(are_equal(x,match)){ return 1; }
+	match(0) = 1.0/3.0;
+	match(1) = 1.0/3.0;
+	if(are_equal(x,match)){ return 2; }
+	match(0) = 2.0/3.0;
+	match(1) = 1.0/3.0;
+	if(are_equal(x,match)){ return 3; }
+	match(0) = 2.0/3.0;
+	match(1) = 2.0/3.0;
+	if(are_equal(x,match)){ return 4; }
+	match(0) = 0;
+	match(1) = 2.0/3.0;
+	if(are_equal(x,match)){ return 5; }
+	return 7;
+}
+
+Matrix<double> Honeycomb0pp::set_ab(){
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 1.0;
+	tmp(1,0) = 1.0;
+	tmp(0,1) = -1.0;
+	tmp(1,1) = 2.0;
+	return tmp;
+}
 /*}*/
 
 /*{method needed for checking*/
 void Honeycomb0pp::lattice(){
-	//Matrix<int> nb;
-	//double angle_p(2.0*M_PI/6.0);
-	//double angle_n(-2.0*M_PI/6.0);
-	//double x0;
-	//double x1;
-	//double y0;
-	//double y1;
-	//double ll(1.0);
-	//double ex(2.0*ll*(1+cos(angle_p)));
-	//double exy(3.0*ll*cos(angle_p));
-	//double ey(3.0*ll*sin(angle_p));
-	//std::string color("black");
-//
-	//PSTricks ps("./","lattice");
-	//ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+filename_);
-	//Matrix<double> cell(4,2);
-	//cell(0,0) = 0.0;
-	//cell(0,1) = 0.0;
-	//cell(1,0) = ex;
-	//cell(1,1) = 0.0;
-	//cell(2,0) = ex + exy;
-	//cell(2,1) = ey;
-	//cell(3,0) = exy;
-	//cell(3,1) = ey;
-	//ps.polygon(cell,"linewidth=1pt,linecolor=red");
-	//cell(1,0)*= Lx_;
-	//cell(2,0) = Lx_*ex + Ly_*exy;
-	//cell(2,1)*= Ly_;
-	//cell(3,0)*= Ly_;
-	//cell(3,1)*= Ly_;
-	//ps.polygon(cell,"linewidth=1pt,linecolor=red,linestyle=dashed");
-//
-	//unsigned int s(0);
-	//unsigned int lw(0);
-	//for(unsigned int i(0);i<Lx_;i++){
-		//for(unsigned int j(0);j<Ly_;j++){
-			///*site 0*/
-			//s = spuc_*(i+j*Lx_);
-			//nb = get_neighbourg(s);
-			//x0 = 0.5*ll+1.5*ll*cos(angle_p)+i*ex+j*exy;
-			//y0 = 1.5*ll*sin(angle_p)+j*ey; 
-			//ps.put(x0+0.2,y0,tostring(s));
-			//x1 = x0+ll*cos(angle_p);
-			//y1 = y0+ll*sin(angle_p);
-			//if(H_(s,nb(0,0))>0){ color = "green"; }
-			//else { color = "blue"; }
-			//lw=std::abs(H_(s,nb(0,0)));
-			///*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			//x1 = x0-ll;
-			//y1 = y0;
-			//if(H_(s,nb(1,0))>0){ color = "green"; }
-			//else { color = "blue"; }
-			//lw=std::abs(H_(s,nb(1,0)));
-			///*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(angle_n);
-			//y1 = y0+ll*sin(angle_n);
-			//if(H_(s,nb(2,0))>0){ color = "green"; }
-			//else { color = "blue"; }
-			//lw=std::abs(H_(s,nb(2,0)));
-			///*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-//
-			///*site 1*/
-			//s++;
-			//x0 = x0 + ll*cos(angle_p);
-			//y0 = y0 + ll*sin(angle_p);
-			//ps.put(x0+0.2,y0-0.2,tostring(s));
-//
-			///*site 2*/
-			//s++;
-			//nb = get_neighbourg(s);
-			//x0 = x0 + ll;
-			//ps.put(x0-0.2,y0-0.2,tostring(s));
-			//x1 = x0+ll*cos(angle_n);
-			//y1 = y0+ll*sin(angle_n);
-			//if(H_(s,nb(0,0))>0){ color = "green"; }
-			//else { color = "blue"; }
-			//lw=std::abs(H_(s,nb(0,0)));
-			///*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(angle_p);
-			//y1 = y0+ll*sin(angle_p);
-			//if(H_(s,nb(1,0))>0){ color = "green"; }
-			//else { color = "blue"; }
-			//lw=std::abs(H_(s,nb(1,0)));
-			///*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			//x1 = x0-ll;
-			//y1 = y0;
-			//if(H_(s,nb(2,0))>0){ color = "green"; }
-			//else { color = "blue"; }
-			//lw=std::abs(H_(s,nb(2,0)));
-			///*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-//
-			///*site 3*/
-			//s++;
-			//x0 = x0 + ll*cos(angle_n);
-			//y0 = y0 + ll*sin(angle_n);
-			//ps.put(x0-0.2,y0,tostring(s));
-//
-			///*site 4*/
-			//s++;
-			//nb = get_neighbourg(s);
-			//x0 = x0 - ll*cos(angle_p) ;
-			//y0 = y0 - ll*sin(angle_p);
-			//ps.put(x0-0.2,y0+0.2,tostring(s));
-			//x1 = x0-ll;
-			//y1 = y0;
-			//if(H_(s,nb(0,0))>0){ color = "green"; }
-			//else { color = "blue"; }
-			//lw=std::abs(H_(s,nb(0,0)));
-			///*0-3*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(angle_n);
-			//y1 = y0+ll*sin(angle_n);
-			//if(H_(s,nb(1,0))>0){ color = "green"; }
-			//else { color = "blue"; }
-			//lw=std::abs(H_(s,nb(1,0)));
-			///*0-5*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-			//x1 = x0+ll*cos(angle_p);
-			//y1 = y0+ll*sin(angle_p);
-			//if(H_(s,nb(2,0))>0){ color = "green"; }
-			//else { color = "blue"; }
-			//lw=std::abs(H_(s,nb(2,0)));
-			///*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth="+tostring(lw)+"pt,linecolor="+color);
-//
-			///*site 5*/
-			//s++;
-			//x0 = x0 - ll;
-			//ps.put(x0+0.2,y0+0.2,tostring(s));
-		//}
-	//}
-	//ps.add("\\end{pspicture}");
-	//ps.save(true,true);
+	Matrix<double> e(2,2);
+	e(0,0) = 1.0/3.0;
+	e(1,0) = 1.0/3.0;
+	e(0,1) = -1.0/2.0;
+	e(1,1) = 1.0/2.0;
+	Matrix<double> inv_e(2,2);
+	inv_e(0,0) = e(1,1);
+	inv_e(1,0) =-e(1,0);
+	inv_e(0,1) =-e(0,1);
+	inv_e(1,1) = e(0,0);
+	inv_e/=(e(0,0)*e(1,1)-e(1,0)*e(0,1));
+
+	Matrix<int> nb;
+	std::string color("black");
+	std::string linestyle("solid");
+	Vector<double> xy0(2,0);
+	Vector<double> xy1(2,0);
+	PSTricks ps("./","lattice");
+	ps.add("\\begin{pspicture}(-4,-10)(20,10)%"+this->filename_);
+	for(unsigned int i(0);i<this->n_;i+=2) {
+		xy0 = this->get_pos_in_lattice(i);
+		this->set_pos_LxLy(xy0);
+		this->set_in_basis(xy0);
+		xy0 = (this->LxLy_*xy0).chop();
+		xy0 = inv_e*xy0;
+		nb = this->get_neighbourg(i);
+
+		if(nb(0,1)<0){
+			color = "red";
+			xy1 = xy0;
+			xy1(0) += 0.5;
+			xy1(1) -= 1.0;
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(0,0)));
+		} else {
+			color = "black";
+			xy1 = this->get_pos_in_lattice(nb(0,0));
+			this->set_pos_LxLy(xy1);
+			this->set_in_basis(xy1);
+			xy1 = (this->LxLy_*xy1).chop();
+			xy1 = inv_e*xy1;
+		}
+		if(H_(i,nb(0,0))>0){
+			linestyle = "solid";
+		} else {
+			linestyle = "dashed";
+		}
+		/*x-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
+
+		if(nb(1,1)<0){
+			color = "red";
+			xy1 = xy0;
+			xy1(0) -= 0.5;
+			xy1(1) += 1.0;
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(1,0)));
+		} else {
+			color = "black";
+			xy1 = this->get_pos_in_lattice(nb(1,0));
+			this->set_pos_LxLy(xy1);
+			this->set_in_basis(xy1);
+			xy1 = (this->LxLy_*xy1).chop();
+			xy1 = inv_e*xy1;
+		}
+		if(H_(i,nb(1,0))>0){
+			linestyle = "solid";
+		} else {
+			linestyle = "dashed";
+		}
+		/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
+
+		if(nb(2,1)<0){
+			color = "red";
+			xy1 = xy0;
+			xy1(0) -= 1.0/2.0;
+			xy1(1) -= 1.0;
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(2,0)));
+		} else {
+			color = "black";
+			xy1 = this->get_pos_in_lattice(nb(2,0));
+			this->set_pos_LxLy(xy1);
+			this->set_in_basis(xy1);
+			xy1 = (this->LxLy_*xy1).chop();
+			xy1 = inv_e*xy1;
+		}
+		if(H_(i,nb(2,0))>0){
+			linestyle = "solid";
+		} else {
+			linestyle = "dashed";
+		}
+		/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
+	}
+
+	for(unsigned int i(0);i<this->n_;i++) {
+		xy0 = this->get_pos_in_lattice(i);
+		this->set_pos_LxLy(xy0);
+		this->set_in_basis(xy0);
+		xy0 = (this->LxLy_*xy0).chop();
+		xy0 = inv_e*xy0;
+		ps.put(xy0(0)-0.20,xy0(1)+0.15,tostring(i));
+	}
+
+	Vector<double> Lx(2);
+	Lx(0) = this->LxLy_(0,0);
+	Lx(1) = this->LxLy_(1,0);
+	Lx = inv_e*Lx;
+	Vector<double> Ly(2);
+	Ly(0) = this->LxLy_(0,1);
+	Ly(1) = this->LxLy_(1,1);
+	Ly = inv_e*Ly;
+
+	Matrix<double> polygon(4,2);
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=Lx(0);
+	polygon(1,1)=Lx(1);
+	polygon(2,0)=Lx(0)+Ly(0);
+	polygon(2,1)=Lx(1)+Ly(1);
+	polygon(3,0)=Ly(0);
+	polygon(3,1)=Ly(1);
+	for(unsigned int i(0);i<polygon.row();i++){ polygon(i,0) -= 1; }
+	ps.polygon(polygon,"linecolor=green");
+
+	Vector<double> a(2);
+	a(0) = this->ab_(0,0);
+	a(1) = this->ab_(1,0);
+	a = inv_e*a;
+	Vector<double> b(2);
+	b(0) = this->ab_(0,1);
+	b(1) = this->ab_(1,1);
+	b = inv_e*b;
+
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=a(0);
+	polygon(1,1)=a(1);
+	polygon(2,0)=a(0)+b(0);
+	polygon(2,1)=a(1)+b(1);
+	polygon(3,0)=b(0);
+	polygon(3,1)=b(1);
+	for(unsigned int i(0);i<polygon.row();i++){ polygon(i,0) -= 1; }
+	ps.polygon(polygon,"linecolor=blue");
+
+	ps.add("\\end{pspicture}");
+	ps.save(true,true);
 }
 
 void Honeycomb0pp::check(){
-	/*{debug 1*/
-	Matrix<int> nb;
-	for(unsigned int i(0);i<n_;i++){
-		nb = get_neighbourg(i);
-		std::cout<<i<<" ";
-		for(unsigned int j(0);j<z_;j++){
-			std::cout<<nb(j,0)<<" ";
-		}
-		std::cout<<std::endl;
-	}
-	std::cout<<"<<<<<<<<<<<<<<"<<std::endl;
-	nb = get_neighbourg(2);
-	std::cout<<nb<<std::endl;
-	/*}*/
+	///*{debug 1*/
+	//Matrix<int> nb;
+	//for(unsigned int i(0);i<n_;i++){
+	//nb = get_neighbourg(i);
+	//std::cout<<i<<" ";
+	//for(unsigned int j(0);j<z_;j++){
+	//std::cout<<nb(j,0)<<" ";
+	//}
+	//std::cout<<std::endl;
+	//}
+	//std::cout<<"<<<<<<<<<<<<<<"<<std::endl;
+	//nb = get_neighbourg(2);
+	//std::cout<<nb<<std::endl;
+	///*}*/
 	///*{debug 2*/
 	//double t(1.0);
 	//Matrix<int> nb;
@@ -280,8 +355,14 @@ void Honeycomb0pp::check(){
 	//}
 	///*}*/
 
-	//compute_H();
-	//lattice();
+	std::cout<<"<<<<<<<<<<<<<<"<<std::endl;
+	std::cout<<0<<" "<<get_site_in_ab(0)<<std::endl;
+	std::cout<<1<<" "<<get_site_in_ab(1)<<std::endl;
+	std::cout<<12<<" "<<get_site_in_ab(12)<<std::endl;
+	std::cout<<9<<" "<<get_site_in_ab(9)<<std::endl;
+	std::cout<<3<<" "<<get_site_in_ab(3)<<std::endl;
+	compute_H();
+	lattice();
 }
 /*}*/
 
