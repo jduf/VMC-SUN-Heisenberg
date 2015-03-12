@@ -6,9 +6,23 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	CreateSystem cs(&P);
-	unsigned int what(P.get<unsigned int>("what"));
-	switch(what){
-		case 1:/*run a normal MonteCarlo*/
+	switch(P.get<unsigned int>("what")){
+		case 1:/*call CreateSystem::init and check*/
+			{ 
+				cs.init();
+				if(cs.get_status()==2){
+					cs.check();
+				}
+			} break;
+		case 2:/*call CreateSystem::init create and check*/
+			{ 
+				cs.init();
+				if(cs.get_status()==2){
+					cs.create();
+					cs.check();
+				}
+			} break;
+		case 3:/*call CreateSystem::init create and check, then run MonteCarlo*/
 			{
 				unsigned int tmax(10);
 				cs.init();
@@ -39,12 +53,6 @@ int main(int argc, char* argv[]){
 						delete S;
 					}
 				}
-			} break;
-		case 2:/*call CreateSystem::init create and check*/
-			{ 
-				cs.init();
-				//cs.create();
-				cs.check();
 			} break;
 		default:{std::cerr<<"check : unknown what"<<std::endl;}
 	}

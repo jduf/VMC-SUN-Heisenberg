@@ -12,7 +12,7 @@ int main(int argc, char* argv[]){
 	if(!command.status()){
 		Parseur P(argc,argv);
 		unsigned int i(0);
-		std::string path(P.find("path",i)?P.get<std::string>(i):"");
+		std::string path(P.find("path",i,false)?P.get<std::string>(i):"");
 
 		unsigned int what(P.get<unsigned int>("what"));
 		
@@ -24,12 +24,11 @@ int main(int argc, char* argv[]){
 				case 3: { AnalyseMagnetization ana(path); }break;
 			}
 		} else {
-			std::cerr<<"study : unknown study"<<std::endl;
-			std::cerr<<"study : unknown option what, options are :"<<std::endl; 
-			std::cerr<<"         - Energy :        0"<<std::endl;
-			std::cerr<<"         - Chain :         1"<<std::endl;
-			std::cerr<<"         - Honeycomb     : 2"<<std::endl;
-			std::cerr<<"         - Magnetization : 3"<<std::endl;
+			std::cerr<<"study : unknown option 'what', options are :"<<std::endl;
+			std::cerr<<"      - Energy        : 0"<<std::endl;
+			std::cerr<<"      - Chain         : 1"<<std::endl;
+			std::cerr<<"      - Honeycomb     : 2"<<std::endl;
+			std::cerr<<"      - Magnetization : 3"<<std::endl;
 		}
 	} else {
 		std::cerr<<"study : must be run in a directory that contains 'sim' and 'src'"<<std::endl; 

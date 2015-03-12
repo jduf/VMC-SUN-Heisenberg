@@ -2,32 +2,36 @@
 
 SquarePiFlux::SquarePiFlux(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc):
 	System(ref,N,m,n,M,bc),
-	Square<std::complex<double> >(1,1,N,"square-csl")
+	Square<std::complex<double> >(set_ab(),(N/m==2?2:0),"square-csl")
 {
 	if(status_==2){
 		init_fermionic();
 
-		system_info_.text("Chiral spin liquid, with 2pi/N flux per plaquette");
-		std::cout<<"check everything"<<std::endl;
+		system_info_.text("Chiral spin liquid : pi-flux per plaquette");
 	}
 }
 
 /*{method needed for running*/
 void SquarePiFlux::compute_H(){
-	double t(1.0);
-	double phi(2.0*M_PI/spuc_);
+	double phi(M_PI/4.0);
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
 	unsigned int s(0);
-	for(unsigned int i(0);i<Ly_;i++){
-		for(unsigned int j(0);j<Lx_;j++){
-			s = spuc_*(i + j*Lx_);
-			for(unsigned int k(0);k<spuc_;k++){
-				nb = get_neighbourg(s);
-				H_(s,nb(0,0)) = nb(0,1)*t;
-				H_(s,nb(1,0)) = std::polar(nb(1,1)*t,k*phi);;
-				s++;
-			}
+	for(unsigned int i(0);i<n_;i++){
+		s = get_site_in_ab(i);
+		nb = get_neighbourg(i);
+		switch(s){ 
+			case 0:
+				{
+					H_(i,nb(0,0)) = std::polar(double(nb(0,1)),phi);
+					H_(i,nb(1,0)) = std::polar(double(nb(1,1)),-phi);
+				}break;
+			case 1:
+				{
+					H_(i,nb(0,0)) = std::polar(double(nb(0,1)),-phi);
+					H_(i,nb(1,0)) = std::polar(double(nb(1,1)),phi);
+				}break;
+			default:{std::cerr<<"bug "<<std::endl;}break;
 		}
 	}
 	std::cerr<<"SquarePiFlux : compute_EVec : new use of polar, check that it is correct"<<std::endl;
@@ -41,7 +45,7 @@ void SquarePiFlux::create(){
 	corr_.set(links_.row(),50,5,false);
 
 	compute_H();
-	diagonalize(false);
+	diagonalize(true);
 	for(unsigned int c(0);c<N_;c++){
 		EVec_[c].set(n_,M_(c));
 		for(unsigned int i(0);i<n_;i++){
@@ -51,62 +55,121 @@ void SquarePiFlux::create(){
 		}
 	}
 }
+
+unsigned int SquarePiFlux::match_pos_in_ab(Vector<double> const& x) const{
+	Vector<double> match(2,0);
+	if(are_equal(x,match)){ return 0; }
+	match(0) = 0.5;
+	match(1) = 0;
+	if(are_equal(x,match)){ return 1; }
+	return 2;
+}
+
+Matrix<double> SquarePiFlux::set_ab(){
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 2;
+	tmp(1,0) = 0;
+	tmp(0,1) = 1;
+	tmp(1,1) = 1;
+	return tmp;
+}
 /*}*/
 
 /*{method needed for checking*/
 void SquarePiFlux::lattice(){
+	compute_H();
 	Matrix<int> nb;
-	double x0;
-	double x1;
-	double y0;
-	double y1;
-	double ll(1.0);
-	double ex(spuc_*ll);
-	double ey(ll);
-	std::string color;
-
+	std::string color("black");
+	std::string linestyle("solid");
+	std::string arrow("-");
+	Vector<double> xy0(2,0);
+	Vector<double> xy1(2,0);
 	PSTricks ps("./","lattice");
-	ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+filename_);
-	unsigned int s;
-	for(unsigned int i(0);i<Lx_;i++) {
-		for(unsigned int j(0);j<Ly_;j++) {
-			s = spuc_*(i+j*Lx_);
-			x0 = i*ex;
-			y0 = j*ey;
-			for(unsigned int k(0);k<spuc_;k++){
-				nb = get_neighbourg(s);
-				ps.put(x0-0.2,y0+0.2,tostring(s));
-				x1 = x0+ll;
-				y1 = y0;
-				if(real(H_(s,nb(0,0)))>0){ color = "green"; }
-				else { color = "blue"; }
-				/*x-link*/ ps.line("-",x0,y0,x1,y1, "linewidth=1pt,linecolor="+color);
-				x1 = x0;
-				y1 = y0+ll;
-				if(real(H_(s,nb(1,0)))>0){ color = "green"; }
-				else { color = "blue"; }
-				/*y-link*/ ps.line("-",x0,y0,x1,y1, "linewidth=1pt,linecolor="+color);
-				x0 += ll;
-				s++;
+	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+filename_);
+	for(unsigned int i(0);i<n_;i++) {
+		xy0 = get_pos_in_lattice(i);
+		set_pos_LxLy(xy0);
+		set_in_basis(xy0);
+		xy0 = (LxLy_*xy0).chop();
+		ps.put(xy0(0)-0.20,xy0(1)+0.15,tostring(i));
+		nb = get_neighbourg(i);
+
+		if(nb(0,1)<0){
+			color = "red";
+			xy1 = xy0;
+			xy1(0) += 1.0;
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(0,0)));
+		} else {
+			color = "black";
+			if(i+1==xloop_){
+				xy1 = xy0;
+				xy1(0) += 1.0;
+			} else {
+				xy1 = get_pos_in_lattice(nb(0,0));
+				set_pos_LxLy(xy1);
+				set_in_basis(xy1);
+				xy1 = (LxLy_*xy1).chop();
 			}
 		}
+		if(H_(i,nb(0,0)).imag()>0){ arrow = "->"; }
+		else { arrow = "<-"; }
+		/*x-link*/ ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
+
+		if(nb(1,1)<0){
+			color = "red";
+			xy1 = xy0;
+			xy1(1) += 1.0;
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(1,0)));
+		} else {
+			color = "black";
+			xy1 = get_pos_in_lattice(nb(1,0));
+			set_pos_LxLy(xy1);
+			set_in_basis(xy1);
+			xy1 = (LxLy_*xy1).chop();
+		}
+		if(H_(i,nb(1,0)).imag()>0){ arrow = "->"; }
+		else { arrow = "<-"; }
+		/*y-link*/ ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
 	}
 
-	ps.frame(-0.5,-0.5,Lx_*ex-0.5,Ly_*ey-0.5,"linecolor=red");
-	ps.frame(-0.5,-0.5,ex-0.5,ey-0.5,"linecolor=red,linestyle=dashed");
+	Matrix<double> polygon(4,2);
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=LxLy_(0,0);
+	polygon(1,1)=LxLy_(1,0);
+	polygon(2,0)=LxLy_(0,0)+LxLy_(0,1);
+	polygon(2,1)=LxLy_(1,0)+LxLy_(1,1);
+	polygon(3,0)=LxLy_(0,1);
+	polygon(3,1)=LxLy_(1,1);
+	for(unsigned int i(0);i<polygon.row();i++){ polygon(i,0) -= 0.5; }
+	ps.polygon(polygon,"linecolor=green");
+
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=ab_(0,0);
+	polygon(1,1)=ab_(1,0);
+	polygon(2,0)=ab_(0,0)+ab_(0,1);
+	polygon(2,1)=ab_(1,0)+ab_(1,1);
+	polygon(3,0)=ab_(0,1);
+	polygon(3,1)=ab_(1,1);
+	for(unsigned int i(0);i<polygon.row();i++){ 
+		polygon(i,0) -= 0.2;
+		polygon(i,1) -= 0.1;
+	}
+	ps.polygon(polygon,"linecolor=blue");
+
 	ps.add("\\end{pspicture}");
-	ps.save(true,true);
+	ps.save(true,true,true);
 }
 
 void SquarePiFlux::check(){
-	Matrix<int> nb;
-	for(unsigned int s(0);s<n_;s++){
-		nb = get_neighbourg(s);
-		for(unsigned int i(0);i<z_;i++){
-			std::cout<<s<<" "<<nb(i,0)<<" "<<nb(i,1)<<std::endl;
-		}
-	}
-	compute_H();
+	//Matrix<int> nb;
+	//for(unsigned int s(0);s<n_;s++){
+	//nb = get_neighbourg(s);
+	//for(unsigned int i(0);i<z_;i++){
+	//std::cout<<s<<" "<<nb(i,0)<<" "<<nb(i,1)<<std::endl;
+	//}
+	//}
 	lattice();
 }
 /*}*/
@@ -119,7 +182,6 @@ std::string SquarePiFlux::extract_level_7(){
 	unsigned int tmax;
 
 	(*read_)>>nruns>>tmax;
-	data_write_->precision(10);
 	(*data_write_)<<"% E dE 0|1"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){ 
@@ -138,7 +200,7 @@ std::string SquarePiFlux::extract_level_7(){
 
 std::string SquarePiFlux::extract_level_3(){
 	(*read_)>>E_;
-	(*data_write_)<<n_<<" "<<E_<<IOFiles::endl;
+	(*data_write_)<<n_<<" "<<E_<<" "<<bc_<<IOFiles::endl;
 
 	return filename_;
 }

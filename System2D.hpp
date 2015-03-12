@@ -76,8 +76,6 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 	inv_ab_(2,2)
 {
 	if(LxLy_.size()){
-		this->status_--;
-
 		inv_LxLy_(0,0) = LxLy_(1,1);
 		inv_LxLy_(1,0) =-LxLy_(1,0);
 		inv_LxLy_(0,1) =-LxLy_(0,1);
@@ -99,18 +97,23 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 		} while( !are_equal(x(0),0) || !are_equal(x(1),0)  );
 		xloop_ = j;
 
-		std::cout<<"xloop"<<xloop_<<std::endl;
-		std::cout<<"LxLy"<<std::endl;
-		std::cout<<LxLy_<<std::endl;
-		std::cout<<inv_LxLy_<<std::endl;
-		std::cout<<LxLy_*inv_LxLy_<<std::endl;
-		std::cout<<"ab"<<std::endl;
-		std::cout<<ab_<<std::endl;
-		std::cout<<inv_ab_<<std::endl;
-		std::cout<<ab_*inv_ab_<<std::endl;
-		std::cout<<"####end####"<<std::endl;
+		Vector<double> Lx(2);
+		Lx(0) = LxLy_(0,0);
+		Lx(1) = LxLy_(1,0);
+		set_pos_ab(Lx);
+		Vector<double> Ly(2);
+		Ly(0) = LxLy_(0,1);
+		Ly(1) = LxLy_(1,1);
+		set_pos_ab(Ly);
+		Vector<double> zero(2,0);
+
+		if( are_equal(Lx,zero) &&  are_equal(Ly,zero) ){
+			if(this->spuc_ != 0){ this->status_--; }
+			else { std::cerr<<"System2D<Type> : the unit cell contains 0 site"<<std::endl; }
+		}
+		else { std::cerr<<"System2D<Type> : the unit cell doesn't fit into the cluster"<<std::endl; }
 	} else {
-		std::cerr<<"System2D<Type> : the cluster is impossible"<<std::endl; 
+		std::cerr<<"System2D<Type> : the number of site doesn't fit into the cluster"<<std::endl; 
 	}
 }
 /*}*/

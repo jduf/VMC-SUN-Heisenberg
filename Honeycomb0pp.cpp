@@ -155,6 +155,7 @@ Matrix<double> Honeycomb0pp::set_ab(){
 
 /*{method needed for checking*/
 void Honeycomb0pp::lattice(){
+	compute_H();
 	Matrix<double> e(2,2);
 	e(0,0) = 1.0/3.0;
 	e(1,0) = 1.0/3.0;
@@ -173,14 +174,13 @@ void Honeycomb0pp::lattice(){
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps("./","lattice");
-	ps.add("\\begin{pspicture}(-4,-10)(20,10)%"+this->filename_);
-	for(unsigned int i(0);i<this->n_;i+=2) {
-		xy0 = this->get_pos_in_lattice(i);
-		this->set_pos_LxLy(xy0);
-		this->set_in_basis(xy0);
-		xy0 = (this->LxLy_*xy0).chop();
-		xy0 = inv_e*xy0;
-		nb = this->get_neighbourg(i);
+	ps.add("\\begin{pspicture}(-4,-10)(20,10)%"+filename_);
+	for(unsigned int i(0);i<n_;i+=2) {
+		xy0 = get_pos_in_lattice(i);
+		set_pos_LxLy(xy0);
+		set_in_basis(xy0);
+		xy0 = (inv_e*LxLy_*xy0).chop();
+		nb = get_neighbourg(i);
 
 		if(nb(0,1)<0){
 			color = "red";
@@ -190,17 +190,14 @@ void Honeycomb0pp::lattice(){
 			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(0,0)));
 		} else {
 			color = "black";
-			xy1 = this->get_pos_in_lattice(nb(0,0));
-			this->set_pos_LxLy(xy1);
-			this->set_in_basis(xy1);
-			xy1 = (this->LxLy_*xy1).chop();
-			xy1 = inv_e*xy1;
+			xy1 = get_pos_in_lattice(nb(0,0));
+			set_pos_LxLy(xy1);
+			set_in_basis(xy1);
+			xy1 = inv_e*LxLy_*xy1;
 		}
-		if(H_(i,nb(0,0))>0){
-			linestyle = "solid";
-		} else {
-			linestyle = "dashed";
-		}
+		xy1 = xy1.chop();
+		if(H_(i,nb(0,0))>0){ linestyle = "solid"; }
+		else { linestyle = "dashed"; }
 		/*x-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
 
 		if(nb(1,1)<0){
@@ -211,57 +208,51 @@ void Honeycomb0pp::lattice(){
 			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(1,0)));
 		} else {
 			color = "black";
-			xy1 = this->get_pos_in_lattice(nb(1,0));
-			this->set_pos_LxLy(xy1);
-			this->set_in_basis(xy1);
-			xy1 = (this->LxLy_*xy1).chop();
-			xy1 = inv_e*xy1;
+			xy1 = get_pos_in_lattice(nb(1,0));
+			set_pos_LxLy(xy1);
+			set_in_basis(xy1);
+			xy1 = inv_e*LxLy_*xy1;
 		}
-		if(H_(i,nb(1,0))>0){
-			linestyle = "solid";
-		} else {
-			linestyle = "dashed";
-		}
+		xy1 = xy1.chop();
+		if(H_(i,nb(1,0))>0){ linestyle = "solid"; }
+		else { linestyle = "dashed"; }
 		/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
 
 		if(nb(2,1)<0){
 			color = "red";
 			xy1 = xy0;
-			xy1(0) -= 1.0/2.0;
+			xy1(0) -= 0.5;
 			xy1(1) -= 1.0;
 			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(2,0)));
 		} else {
 			color = "black";
-			xy1 = this->get_pos_in_lattice(nb(2,0));
-			this->set_pos_LxLy(xy1);
-			this->set_in_basis(xy1);
-			xy1 = (this->LxLy_*xy1).chop();
-			xy1 = inv_e*xy1;
+			xy1 = get_pos_in_lattice(nb(2,0));
+			set_pos_LxLy(xy1);
+			set_in_basis(xy1);
+			xy1 = inv_e*LxLy_*xy1;
 		}
-		if(H_(i,nb(2,0))>0){
-			linestyle = "solid";
-		} else {
-			linestyle = "dashed";
-		}
+		xy1 = xy1.chop();
+		if(H_(i,nb(2,0))>0){ linestyle = "solid"; }
+		else { linestyle = "dashed"; }
 		/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
 	}
 
-	for(unsigned int i(0);i<this->n_;i++) {
-		xy0 = this->get_pos_in_lattice(i);
-		this->set_pos_LxLy(xy0);
-		this->set_in_basis(xy0);
-		xy0 = (this->LxLy_*xy0).chop();
+	for(unsigned int i(0);i<n_;i++) {
+		xy0 = get_pos_in_lattice(i);
+		set_pos_LxLy(xy0);
+		set_in_basis(xy0);
+		xy0 = (LxLy_*xy0).chop();
 		xy0 = inv_e*xy0;
 		ps.put(xy0(0)-0.20,xy0(1)+0.15,tostring(i));
 	}
 
 	Vector<double> Lx(2);
-	Lx(0) = this->LxLy_(0,0);
-	Lx(1) = this->LxLy_(1,0);
+	Lx(0) = LxLy_(0,0);
+	Lx(1) = LxLy_(1,0);
 	Lx = inv_e*Lx;
 	Vector<double> Ly(2);
-	Ly(0) = this->LxLy_(0,1);
-	Ly(1) = this->LxLy_(1,1);
+	Ly(0) = LxLy_(0,1);
+	Ly(1) = LxLy_(1,1);
 	Ly = inv_e*Ly;
 
 	Matrix<double> polygon(4,2);
@@ -277,12 +268,12 @@ void Honeycomb0pp::lattice(){
 	ps.polygon(polygon,"linecolor=green");
 
 	Vector<double> a(2);
-	a(0) = this->ab_(0,0);
-	a(1) = this->ab_(1,0);
+	a(0) = ab_(0,0);
+	a(1) = ab_(1,0);
 	a = inv_e*a;
 	Vector<double> b(2);
-	b(0) = this->ab_(0,1);
-	b(1) = this->ab_(1,1);
+	b(0) = ab_(0,1);
+	b(1) = ab_(1,1);
 	b = inv_e*b;
 
 	polygon(0,0)=0;
@@ -297,7 +288,7 @@ void Honeycomb0pp::lattice(){
 	ps.polygon(polygon,"linecolor=blue");
 
 	ps.add("\\end{pspicture}");
-	ps.save(true,true);
+	ps.save(true,true,true);
 }
 
 void Honeycomb0pp::check(){
@@ -361,7 +352,6 @@ void Honeycomb0pp::check(){
 	std::cout<<12<<" "<<get_site_in_ab(12)<<std::endl;
 	std::cout<<9<<" "<<get_site_in_ab(9)<<std::endl;
 	std::cout<<3<<" "<<get_site_in_ab(3)<<std::endl;
-	compute_H();
 	lattice();
 }
 /*}*/

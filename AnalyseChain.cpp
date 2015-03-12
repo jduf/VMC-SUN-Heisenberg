@@ -25,7 +25,7 @@ void AnalyseChain::open_files(){
 	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); 
 		if(level_==6){ jd_write_->write("number of different wavefunction",nof_); } 
 		if(level_==5){ jd_write_->write("number of different boundary condition",nof_); }
-		if(level_==3 || level_==7){ 
+		if(level_==3 || level_==7){
 			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); 
 			data_write_->precision(10);
 		}
@@ -36,16 +36,18 @@ void AnalyseChain::open_files(){
 void AnalyseChain::close_files(){
 	if(jd_write_){ 
 		switch(level_){
-			case 7:{ 
-					   if(nof_>1){/*if there is only one E data, there is no need to make a plot*/
-						   rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); 
-					   }
-				   } break;
-			case 3:{ 
-					   rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp",1000); 
-					   rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp",1000); 
-					   rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp",1000); 
-				   } break;
+			case 7:
+				{
+					if(nof_>1){/*if there is only one E data, there is no need to make a plot*/
+						rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); 
+					}
+				} break;
+			case 3:
+				{
+					rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp",1000); 
+					rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp",1000); 
+					rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp",1000); 
+				} break;
 		}
 		rst_file_.last().text(jd_write_->get_header());
 		delete jd_write_;
@@ -184,12 +186,11 @@ std::string AnalyseChain::extract_level_4(){
 	(*read_)>>nof_;
 	/*!must save now nof_ because it doesn't refer to the number of file in the
 	 * next directory but in the next-next directory*/
-	jd_write_->write("number of different filling",nof_); 
+	jd_write_->write("number of different boundary condition",nof_); 
 
 	double polymerization_strength;
 	Vector<double> exponents;
 	Data<double> E;
-
 	for(unsigned int i(0);i<nof_;i++){
 		CreateSystem cs(read_);
 		cs.init(read_,this);
@@ -234,7 +235,7 @@ std::string AnalyseChain::extract_level_2(){
 	Vector<unsigned int> ref(read.read<Vector<unsigned int> >());
 	unsigned int N(read.read<unsigned int>());
 	unsigned int m(read.read<unsigned int>());
-	
+
 	Gnuplot gpenergy(analyse_+path_+dir_,filename_+"-energy");
 	gpenergy.label("x","$n^{-1}$");
 	gpenergy.label("y2","$\\dfrac{E}{n}$","rotate by 0");

@@ -2,7 +2,6 @@
 #define DEF_SQUAREFERMI
 
 #include "Square.hpp"
-#include "Rand.hpp"
 
 template<typename Type>
 class SquareFermi: public Square<Type>{
@@ -17,20 +16,14 @@ class SquareFermi: public Square<Type>{
 		void compute_H();
 		void lattice();
 
-		static Matrix<double> set_ab(){
-			Matrix<double> tmp(2,2);
-			tmp(0,0) = 1;
-			tmp(1,0) = 0;
-			tmp(0,1) = 0;
-			tmp(1,1) = 1;
-			return tmp;
-		}
+		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0;};
+		Matrix<double> set_ab();
 };
 
 template<typename Type>
 SquareFermi<Type>::SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
 	System(ref,N,m,n,M,bc),
-	Square<Type>(SquareFermi<Type>::set_ab(),1,"square-fermi")
+	Square<Type>(set_ab(),1,"square-fermi")
 {
 	if(this->status_==2){
 		this->init_fermionic();
@@ -52,6 +45,16 @@ void SquareFermi<Type>::compute_H(){
 		}
 	}
 	this->H_ += this->H_.transpose();
+}
+
+template<typename Type>
+Matrix<double> SquareFermi<Type>::set_ab(){
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 1;
+	tmp(1,0) = 0;
+	tmp(0,1) = 0;
+	tmp(1,1) = 1;
+	return tmp;
 }
 /*}*/
 
@@ -110,10 +113,20 @@ void SquareFermi<Type>::lattice(){
 	polygon(2,1)=this->LxLy_(0,1)+this->LxLy_(1,1);
 	polygon(3,0)=this->LxLy_(1,0);
 	polygon(3,1)=this->LxLy_(1,1);
-
 	ps.polygon(polygon,"linecolor=green");
+
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=0;
+	polygon(1,1)=1;
+	polygon(2,0)=1;
+	polygon(2,1)=1;
+	polygon(3,0)=1;
+	polygon(3,1)=0;
+	ps.polygon(polygon,"linecolor=blue");
+
 	ps.add("\\end{pspicture}");
-	ps.save(true,true);
+	ps.save(true,true,true);
 }
 
 template<typename Type>

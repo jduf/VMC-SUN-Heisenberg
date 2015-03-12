@@ -7,7 +7,7 @@
 #include "TriangleFermi.hpp"
 
 #include "SquareFermi.hpp"
-//#include "SquarePiFlux.hpp"
+#include "SquarePiFlux.hpp"
 //#include "SquareJastrow.hpp"
 //#include "SquareFreeReal.hpp"
 //#include "SquareFreeComplex.hpp"

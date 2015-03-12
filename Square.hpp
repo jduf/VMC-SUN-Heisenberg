@@ -18,7 +18,6 @@ class Square: public System2D<Type>{
 
 	protected:
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
-		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0;};
 
 	private:
 		Matrix<double> set_LxLy(unsigned int const& n) const;
@@ -29,7 +28,7 @@ class Square: public System2D<Type>{
 /*{constructor*/
 template<typename Type>
 Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(Square<Type>::set_LxLy(this->n_),ab,spuc,4,filename)
+	System2D<Type>(set_LxLy(this->n_),ab,spuc,4,filename)
 {
 	if(this->status_==2){ 
 		Vector<double> dir(2);

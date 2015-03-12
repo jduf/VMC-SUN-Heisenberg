@@ -5,6 +5,7 @@
 #include "Bosonic.hpp"
 #include "Fermionic.hpp"
 #include "IOSystem.hpp"
+#include "Rand.hpp"
 
 /*!Abstract class that can produce any kind of system*/
 template<typename Type>
@@ -48,6 +49,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual Matrix<int> get_neighbourg(unsigned int const& i) const = 0;
 		/*!Computes the array of links between neighbouring sites*/
 		void compute_links();
+		void check_lattice();
 };
 
 template<typename Type>
@@ -121,5 +123,43 @@ void GenericSystem<Type>::save() const {
 	jd_write_->write("n (# of site)",this->n_);
 	jd_write_->write("M (# of particles of each color, "+tostring(this->M_(0))+")",this->M_);
 	jd_write_->write("bc (boundary condition)",this->bc_);
+}
+
+template<typename Type>
+void GenericSystem<Type>::check_lattice() {
+	Matrix<int> nb;
+	Vector<int> dir;
+	Rand<unsigned int> rnd(0,z_-1);
+	unsigned int j;
+	unsigned int d;
+	unsigned int p0,p1;
+	std::cout<<"check"<<std::endl;
+	for(unsigned int iter(10);iter<1e4;iter*=5){
+		dir.set(z_,0);
+		d=0;
+		p0=0;
+		for(unsigned int i(0);i<iter;i++){
+			d=rnd.get();
+			nb=get_neighbourg(p0);
+			p0 = nb(d,0);
+			dir(d)++;
+		}
+		d=0;
+		p1=0;
+		j=0;
+		std::cout<<dir<<std::endl;
+		while(j<iter){
+			if(dir(d) != 0){
+				dir(d)--;
+				j++;
+				nb=get_neighbourg(p1);
+				p1 = nb(d,0);
+			} else { d++; }
+		}
+		if(p0 != p1){ 
+			this->status_++; 
+			std::cerr<<"void GenericSystem<Type>::check_lattice() const : no consistent enumeration"<<std::endl;
+		}
+	}
 }
 #endif
