@@ -42,7 +42,7 @@ void PSTricks::pie(Vector<double> const& x, double r, std::string options){
 	s_ += "}{}{"+tostring(r)+"}\n";
 }
 
-void PSTricks::save(bool silent, bool pdf){
+void PSTricks::save(bool silent, bool pdf, bool crop){
 	{/*to make sure that the file w is closed after the brackets*/
 		IOFiles w(path_+filename_ + ".tex",true);
 		s_ += "\\end{document}\n";
@@ -50,9 +50,11 @@ void PSTricks::save(bool silent, bool pdf){
 	}
 
 	Linux command;
-	if(silent){ command("latex --shell-escape " + filename_ + ".tex > /dev/null 2> /dev/null");}
-	else{ command("latex --shell-escape " + filename_ + ".tex");}
-	if(pdf){ command("dvipdf " + filename_ + ".dvi " + path_ + filename_ + ".pdf "); }
+	command("latex --shell-escape " + filename_ + ".tex" + (silent?" > /dev/null 2> /dev/null":""));
+	if(pdf){
+		command("dvipdf " + filename_ + ".dvi " + path_ + filename_ + ".pdf "); 
+		if(crop){ command("pdfcrop " + path_ + filename_ + ".pdf " + path_ + filename_ + ".pdf > /dev/null"); }
+	}
 	command("mv " + filename_ + "-1.png " + path_ + filename_ + ".png");
 	command("rm *.dvi *.aux *.log *.ps" );
 }

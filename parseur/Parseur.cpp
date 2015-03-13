@@ -44,7 +44,7 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 		}
 	}
 	if(locked_){
-		std::cerr<<"Parseur::Parseur(unsigned int argc, char* argv[]) : wrong argument, should be '-[iuds]:name'"<<std::endl; 
+		std::cerr<<"Parseur::Parseur(unsigned int argc, char* argv[]) : wrong argument, should be '-[iuds]:name' or '-[uids]{name}'"<<std::endl; 
 	}
 }
 

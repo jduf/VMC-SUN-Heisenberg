@@ -16,7 +16,7 @@ class PSTricks {
 		void pie(Vector<double> const& x, double r, std::string options="");
 		void polygon(Matrix<double> const& x, std::string options="");
 
-		void save(bool silent, bool pdf);
+		void save(bool silent, bool pdf, bool crop);
 
 	private:
 		std::string path_;

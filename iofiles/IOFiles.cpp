@@ -79,7 +79,7 @@ void IOFiles::read_string(std::string& t){
 	if(open_ && !write_){
 		if (binary_){
 			unsigned int N(0);
-			file_.write((char*)(&N),sizeof(unsigned int));
+			file_.read((char*)(&N),sizeof(unsigned int));
 			char* tmp(new char[N+1]);
 			file_.read(tmp,N);
 			tmp[N] = '\0';

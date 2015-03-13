@@ -49,8 +49,7 @@ void Gnuplot::create_image(bool silent){
 	//command("cd " + path_ + "; ~/gnuplot*/src/gnuplot -e \"set terminal epslatex color size 12.5cm,7.73 standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'/tmp/" + tmp + ".tex\'\" " + path_ + filename_ + ".gp");
 	command("cd " + path_ + "; gnuplot -e \"set terminal epslatex color size 12.5cm,7.73 standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'/tmp/" + tmp + ".tex\'\" " + path_ + filename_ + ".gp");
 	if(!command.status()){
-		if(silent){ command("cd /tmp/; pdflatex -shell-escape " + tmp + ".tex > /dev/null 2> /dev/null");}
-		else{ command("cd /tmp/; pdflatex -shell-escape " + tmp + ".tex");}
+		command("cd /tmp/; pdflatex -shell-escape " + tmp + ".tex" + (silent?"> /dev/null 2> /dev/null":""));
 		command("cd /tmp/; convert -density 500 -resize 20% " + tmp + ".pdf " + path_ + filename_ + ".png");
 		command("mv /tmp/" + tmp + ".pdf " + path_ + filename_ + ".pdf");
 		command("rm /tmp/" + tmp + "*");

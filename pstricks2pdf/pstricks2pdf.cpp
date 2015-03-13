@@ -24,12 +24,11 @@ int main(int argc, char* argv[]){
 				if(outname!=nameline){
 					PSTricks ps("./",outname);
 					ps.add(s.substr(a,b-a));
-					ps.save(false,true);
+					ps.save(false,true,true);
 				} else {
-					std::cout<<"ici"<<std::endl;
 					PSTricks ps("./","pstricks-tmp");
 					ps.add(s.substr(a,b-a));
-					ps.save(false,true);
+					ps.save(false,true,true);
 					Linux command;
 					command("mv pstricks-tmp.pdf " + filename.substr(0,filename.find(".")) +  ".pdf" );
 					command("rm pstricks-tmp*" );

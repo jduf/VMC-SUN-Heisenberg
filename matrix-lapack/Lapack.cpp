@@ -1,24 +1,30 @@
 #include "Lapack.hpp"
 
 /*private methods that depend on the type, used to call lapack*/
-/*compute lu factorization : dgetrf zgetrf*/
+/*compute lu factorization() : dgetrf zgetrf*/
 /*{*/
 template<>
 void Lapack<double>::getrf(Vector<int>& ipiv){
 	int info(1);
 	dgetrf_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), ipiv.ptr(), info);
-	if(info){std::cerr<<"Lapack : getrf<double> : info="<<info<<std::endl;}
+	if(info<0){
+		std::cerr<<"Lapack::getrf<double>(Vector<int>& ipiv)() : info="<<info<<std::endl;
+		ipiv.set();
+	}
 }
 
 template<>
 void Lapack<std::complex<double> >::getrf(Vector<int>& ipiv){
 	int info(1);
 	zgetrf_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), ipiv.ptr(), info);
-	if(info){std::cerr<<"Lapack : getrf<complex> : info="<<info<<std::endl;}
+	if(info<0){
+		std::cerr<<"Lapack::getrf<complex>() : info="<<info<<std::endl;
+		ipiv.set();
+	}
 }
 /*}*/
 
-/*compute qr factorization : dgeqp3 dorgqr ?? ??*/
+/*compute qr factorization() : dgeqp3 dorgqr ?? ??*/
 /*{*/
 template<>
 void Lapack<double>::geqp3(double* tau, int* jpvt){
@@ -27,7 +33,7 @@ void Lapack<double>::geqp3(double* tau, int* jpvt){
 	double* work(new double[lwork]);
 	
 	dgeqp3_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), jpvt, tau, work, lwork, info);
-	if(info){std::cerr<<"Lapack : getrf<double> : info="<<info<<std::endl;}
+	if(info){std::cerr<<"Lapack::getrf<double>() : info="<<info<<std::endl;}
 	delete[] work;
 }
 
@@ -35,35 +41,35 @@ template<>
 void Lapack<double>::gqr(unsigned int k, double* tau){
 	int info(1);
 	//if(mat_->row()>=mat_->col()){ 
-		int const lwork(mat_->col());
-		double* work(new double[lwork]);
-		unsigned int row(mat_->row());
-		unsigned int col(mat_->col());
-		if(col>row){ col=row; }
-		dorgqr_(row, col, k, mat_->ptr(), row, tau, work, lwork, info); 
-		delete[] work;
-		if(info){std::cerr<<"Lapack : gqr<complex> : info="<<info<<std::endl;}
+	int const lwork(mat_->col());
+	double* work(new double[lwork]);
+	unsigned int row(mat_->row());
+	unsigned int col(mat_->col());
+	if(col>row){ col=row; }
+	dorgqr_(row, col, k, mat_->ptr(), row, tau, work, lwork, info); 
+	delete[] work;
+	if(info){std::cerr<<"Lapack::gqr<complex>() : info="<<info<<std::endl;}
 }
 
 template<>
 void Lapack<std::complex<double> >::geqp3(double* tau, int* jpvt){
 	//int info(1);
 	//zgetrf_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), jptv, info);
-	//if(info){std::cerr<<"Lapack : getrf<complex> : info="<<info<<std::endl; }
-	std::cerr<<"Lapack : geqp3 : not implemented for Matrix<complex>"<<tau<<" "<<jpvt<<std::endl;
+	//if(info){std::cerr<<"Lapack::getrf<complex>() : info="<<info<<std::endl; }
+	std::cerr<<"Lapack::geqp3() : not implemented for Matrix<complex>"<<tau<<" "<<jpvt<<std::endl;
 }
 
 template<>
 void Lapack<std::complex<double> >::gqr(unsigned int k, double* tau){
 	//int info(1);
 	//zgetrf_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), jptv, info);
-	//if(info){std::cerr<<"Lapack : getrf<complex> : info="<<info<<std::endl; }
-	std::cerr<<"Lapack : gqr : not implemented for Matrix<complex>"<<k<<" "<<tau<<std::endl;
+	//if(info){std::cerr<<"Lapack::getrf<complex>() : info="<<info<<std::endl; }
+	std::cerr<<"Lapack::gqr() : not implemented for Matrix<complex>"<<k<<" "<<tau<<std::endl;
 }
 /*}*/
 /*}*/
 
-/*compute inverse of a matrix after using a lu decomposition : dgetri zgetri*/
+/*compute inverse of a matrix after using a lu decomposition() : dgetri zgetri*/
 /*{*/
 template<>
 void Lapack<double>::getri(Vector<int>& ipiv){
@@ -72,7 +78,7 @@ void Lapack<double>::getri(Vector<int>& ipiv){
 	double* work(new double[lwork]);
 	int info(1);
 	dgetri_(N, mat_->ptr(), N, ipiv.ptr(), work, lwork, info);
-	if(info){std::cerr<<"Lapack : getri<double> : info="<<info<<std::endl;}
+	if(info){std::cerr<<"Lapack::getri<double>() : info="<<info<<std::endl;}
 	delete[] work;
 }
 
@@ -84,12 +90,12 @@ void Lapack<std::complex<double> >::getri(Vector<int>& ipiv){
 	int info(1);
 	zgetri_(N, mat_->ptr(), N, ipiv.ptr(), work, lwork, info);
 
-	if(info){std::cerr<<"Lapack : getri<complex> : info="<<info<<std::endl;}
+	if(info){std::cerr<<"Lapack::getri<complex>() : info="<<info<<std::endl;}
 	delete[] work;
 }
 /*}*/
 
-/*compute the condition number : dgecon zgecon*/
+/*compute the condition number() : dgecon zgecon*/
 /*{*/
 template<>
 double Lapack<double>::gecon(double anorm){
@@ -102,7 +108,7 @@ double Lapack<double>::gecon(double anorm){
 	delete[] work;
 	delete[] iwork;
 	if(info){
-		std::cerr<<"Lapack : gecon<double> : info="<<info<<std::endl;
+		std::cerr<<"Lapack::gecon<double>() : info="<<info<<std::endl;
 		return 0;
 	} else {
 		return rcond;
@@ -120,7 +126,7 @@ double Lapack<std::complex<double> >::gecon(double anorm){
 	delete[] work;
 	delete[] rwork;
 	if(info){
-		std::cerr<<"Lapack : gecon<double> : info="<<info<<std::endl;
+		std::cerr<<"Lapack::gecon<double>() : info="<<info<<std::endl;
 		return 0;
 	} else {
 		return rcond;
@@ -128,7 +134,7 @@ double Lapack<std::complex<double> >::gecon(double anorm){
 }
 /*}*/
 
-/*compute the norm : dlange zlange*/
+/*compute the norm() : dlange zlange*/
 /*{*/
 template<>
 double Lapack<double>::lange(){
@@ -147,7 +153,7 @@ double Lapack<std::complex<double> >::lange(){
 }
 /*}*/
 
-/*compute the eigensystem : syev heev geev*/
+/*compute the eigensystem() : syev heev geev*/
 /*{*/
 template<>
 void Lapack<double>::syev(Vector<double>& EVal, char job){
@@ -162,13 +168,13 @@ void Lapack<double>::syev(Vector<double>& EVal, char job){
 	double* work(new double[lwork]);
 	dsyev_(job, 'U', N, mat_->ptr(), N, EVal.ptr(), work, lwork, info);
 
-	if(info){ std::cerr<<"Lapack : syev : info="<<info<<std::endl; }
+	if(info){ std::cerr<<"Lapack::syev() : info="<<info<<std::endl; }
 	delete[] work;
 }
 
 template<>
 void Lapack<std::complex<double> >::syev(Vector<double>& EVal, char job){
-	std::cerr<<"Lapack<double> : syev : complex symmetric not implemented"<<EVal<<" "<<job<<std::endl;
+	std::cerr<<"Lapack<double>() : syev() : complex symmetric not implemented"<<EVal<<" "<<job<<std::endl;
 }
 
 template<>
@@ -187,12 +193,12 @@ void Lapack<std::complex<double> >::heev(Vector<double>& EVal, char job){
 
 	delete[] work;
 	delete[] rwork;
-	if(info){ std::cerr<<"Lapack : heev : info="<<info<<std::endl; }
+	if(info){ std::cerr<<"Lapack::heev() : info="<<info<<std::endl; }
 }
 
 template<>
 void Lapack<double>::heev(Vector<double>& EVal, char job){
-	std::cerr<<"Lapack<double>::heev() : heev : real Hermitian is not implemented"<<EVal<<" "<<job<<std::endl;
+	std::cerr<<"Lapack<double>::heev()() : heev() : real Hermitian is not implemented"<<EVal<<" "<<job<<std::endl;
 }
 
 template<>
@@ -250,7 +256,7 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::compl
 		delete[] vr;
 	}
 	if(LEVec){
-		std::cerr<<"void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec) : might be a proble because LU*RU != 1 but LU*A*RU = diag"<<std::endl; 
+		std::cerr<<"void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec)() : might be a proble because LU*RU != 1 but LU*A*RU = diag"<<std::endl; 
 		LEVec->set(N,N);
 		for(unsigned int j(0);j<N;j++){
 			if(j==N-1 || !(wi[j]*wi[j+1]<0 && are_equal(wr[j],wr[j+1]))){
@@ -269,7 +275,7 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::compl
 	delete[] wr;
 	delete[] wi;
 	delete[] work;
-	if(info){ std::cerr<<"Lapack : geev<double> : info="<<info<<std::endl; }
+	if(info){ std::cerr<<"Lapack::geev<double>() : info="<<info<<std::endl; }
 }
 
 template<>
@@ -306,6 +312,6 @@ void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >& EVal, Ma
 
 	delete[] work;
 
-	if(info){ std::cerr<<"Lapack : geev<complex> : info="<<info<<std::endl; }
+	if(info){ std::cerr<<"Lapack::geev<complex>() : info="<<info<<std::endl; }
 }
 /*}*/

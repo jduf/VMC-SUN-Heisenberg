@@ -48,7 +48,7 @@ void RST::item(std::string t){
 }
 
 void RST::def(std::string t, std::string def){
-	if(def.size()>25){std::cerr<<"RST : def(t,def) : def.size>25"<<std::endl;}
+	//if(def.size()>25){std::cerr<<"RST : def(t,def) : def.size>25"<<std::endl;}
 	rst_ += ":" + t + ":" + " " + def + RST_nl_;
 }
 

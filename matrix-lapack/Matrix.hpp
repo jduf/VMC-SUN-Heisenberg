@@ -58,6 +58,8 @@ class Matrix{
 		Matrix<Type>& operator/=(Type const& d);
 		/*!Substracts a matrix by a scalar*/
 		Matrix<Type>& operator-=(Type const& d);
+		/*!Add a matrix by a scalar*/
+		Matrix<Type>& operator+=(Type const& d);
 
 		/*!Multiplies a matrix by a vector (m1 *= v2 : m1 = m1*v2)*/
 		Vector<Type> operator*(Vector<Type> const& vec) const;
@@ -319,6 +321,12 @@ Matrix<Type> Matrix<Type>::operator*(Type const& d) const{
 template<typename Type>
 Matrix<Type>& Matrix<Type>::operator-=(Type const& d){
 	for(unsigned int i(0);i<size_;i++){ mat_[i] -= d; }
+	return (*this);
+}
+
+template<typename Type>
+Matrix<Type>& Matrix<Type>::operator+=(Type const& d){
+	for(unsigned int i(0);i<size_;i++){ mat_[i] += d; }
 	return (*this);
 }
 
