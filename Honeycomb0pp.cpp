@@ -11,7 +11,7 @@ Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& 
 		filename_ += "-td" + tostring(td_);
 		system_info_.text("Honeycomb0pp : 6 sites per unit cell, in the center hexagon there is a 0-flux,");
 		system_info_.text("if td<0, the two other hexagons contain a pi-flux, if td>0, their flux is 0");
-		system_info_.text("th is set to -1");
+		system_info_.text("th is set to 1");
 	}
 }
 
@@ -19,87 +19,57 @@ Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& 
 void Honeycomb0pp::compute_H(){
 	double th(1.0);
 	H_.set(n_,n_,0);
-	if(N_==3 && m_==1 && n_==72){
-		/*{Description*/
-		/*!
-		  std::cerr<<"void Honeycomb0pp::compute_H() : using exactly the bond"
-		  "connection given by Miklos '72bondlist.dat'."<<std::endl<<
-		  "                                 Third column : td=0,th=1."
-		  "Fourth column bc. To recover the matrix "<<std::endl<<
-		  "                                 '000_0pp_72mx_tmp.dat',"
-		  "set th=-1 and td_=2."<<std::endl;
-		  IOFiles bond_list("72bondlist.dat",false);
-		  Matrix<unsigned int> bl(108,4);
-		  Vector<int> bc(108);
-		  bond_list>>bl;
-		  for(unsigned int i(0);i<links_.row();i++){
-		  links_(i,0) = bl(i,0)-1;
-		  links_(i,1) = bl(i,1)-1;
-		  }
-
-		  for(unsigned int i(0);i<links_.row();i++){
-		  H_(links_(i,0),links_(i,1)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
-		  H_(links_(i,1),links_(i,0)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
-		  }
-		  */
-		/*}*/
-		Matrix<int> nb;
-		unsigned int s(0);
-		for(unsigned int i(0);i<n_;i+=2){
-			s = get_site_in_ab(i);
-			nb = get_neighbourg(i);
-			switch(s){ 
-				case 0:
-					{
-						H_(i,nb(0,0))= nb(0,1)*th;
-						H_(i,nb(1,0))= nb(1,1)*th;
-						H_(i,nb(2,0))= nb(2,1)*td_;
-					}break;
-				case 2:
-					{
-						H_(i,nb(0,0))= nb(0,1)*td_;
-						H_(i,nb(1,0))= nb(1,1)*th;
-						H_(i,nb(2,0))= nb(2,1)*th;
-					}break;
-				case 4:
-					{
-						H_(i,nb(0,0))= nb(0,1)*th;
-						H_(i,nb(1,0))= nb(1,1)*td_;
-						H_(i,nb(2,0))= nb(2,1)*th;
-					}break;
-				default:{std::cerr<<"bug"<<std::endl;}break;
-			}
+	///*{Description*/
+	//if(N_==3 && m_==1 && n_==72){
+		//std::cerr<<"void Honeycomb0pp::compute_H() : using exactly the bond"
+			//"connection given by Miklos '72bondlist.dat'."<<std::endl<<
+			//"                                 Third column : td=0,th=1."
+			//"Fourth column bc. To recover the matrix "<<std::endl<<
+			//"                                 '000_0pp_72mx_tmp.dat',"
+			//"set th=-1 and td_=2."<<std::endl;
+		//IOFiles bond_list("72bondlist.dat",false);
+		//Matrix<unsigned int> bl(108,4);
+		//Vector<int> bc(108);
+		//bond_list>>bl;
+		//for(unsigned int i(0);i<links_.row();i++){
+			//links_(i,0) = bl(i,0)-1;
+			//links_(i,1) = bl(i,1)-1;
+		//}
+//
+		//for(unsigned int i(0);i<links_.row();i++){
+			//H_(links_(i,0),links_(i,1)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
+			//H_(links_(i,1),links_(i,0)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
+		//}
+	//}
+	///*}*/
+	Matrix<int> nb;
+	unsigned int s(0);
+	for(unsigned int i(0);i<n_;i+=2){
+		s = get_site_in_ab(i);
+		nb = get_neighbourg(i);
+		switch(s){ 
+			case 0:
+				{
+					H_(i,nb(0,0))= nb(0,1)*th;
+					H_(i,nb(1,0))= nb(1,1)*th;
+					H_(i,nb(2,0))= nb(2,1)*td_;
+				}break;
+			case 2:
+				{
+					H_(i,nb(0,0))= nb(0,1)*td_;
+					H_(i,nb(1,0))= nb(1,1)*th;
+					H_(i,nb(2,0))= nb(2,1)*th;
+				}break;
+			case 4:
+				{
+					H_(i,nb(0,0))= nb(0,1)*th;
+					H_(i,nb(1,0))= nb(1,1)*td_;
+					H_(i,nb(2,0))= nb(2,1)*th;
+				}break;
+			default:{ std::cerr<<"void Honeycomb0pp::compute_H() : undefined site in unit cell"<<std::endl; }break;
 		}
-		H_ += H_.transpose();
-	} else {
-		//Matrix<int> nb;
-		//unsigned int s(0);
-		//for(unsigned int i(0);i<Lx_;i++){
-		//for(unsigned int j(0);j<Ly_;j++){
-		///*site 0*/
-		//s = spuc_*(i+j*Lx_);
-		//nb = get_neighbourg(s);
-		//H_(s,nb(0,0)) = nb(0,1)*th;
-		//H_(s,nb(1,0)) = nb(1,1)*td_;
-		//H_(s,nb(2,0)) = nb(2,1)*th;
-		//
-		///*site 2*/
-		//s+=2;
-		//nb = get_neighbourg(s);
-		//H_(s,nb(0,0)) = nb(0,1)*th;
-		//H_(s,nb(1,0)) = nb(1,1)*td_;
-		//H_(s,nb(2,0)) = nb(2,1)*th;
-		//
-		///*site 2*/
-		//s+=2;
-		//nb = get_neighbourg(s);
-		//H_(s,nb(0,0)) = nb(0,1)*th;
-		//H_(s,nb(1,0)) = nb(1,1)*td_;
-		//H_(s,nb(2,0)) = nb(2,1)*th;
-		//}
-		//}
-		//H_ += H_.transpose();
 	}
+	H_ += H_.transpose();
 }
 
 void Honeycomb0pp::create(){
@@ -364,7 +334,6 @@ std::string Honeycomb0pp::extract_level_7(){
 	unsigned int tmax;
 
 	(*read_)>>nruns>>tmax;
-	data_write_->precision(10);
 	(*data_write_)<<"% td E dE 0|1"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){ 
