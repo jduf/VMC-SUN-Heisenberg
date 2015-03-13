@@ -38,7 +38,8 @@ class PSOFermionic : public PSO{
 				data<<all_results_[i].get_param()<<" "<<all_results_[i].get_energy()<<IOFiles::endl;
 			}
 			Gnuplot gp("./","test");
-			gp+="plot 'data.dat' u 1:2:3 w e";
+			gp+="plot 'data.dat' u 3:1,\\";
+			gp+="     'data.dat' u 3:2";
 			gp.save_file();
 			gp.create_image(true);
 		}
@@ -65,17 +66,23 @@ double PSOFermionic::monte_carlo(CreateSystem& cs, Vector<double> const& x){
 		(*dynamic_cast<const Fermionic<Type>*>(cs.get_system())); }
 
 	MonteCarlo<Type> sim(S,tmax_);
-	sim.thermalize(1e6);
-	sim.run();
-	sim.complete_analysis(1e-5);
-	MCSim* run_results(new MCSim(x,S->get_energy()));
+	if(S->get_status() == 0){
+		sim.thermalize(1e6);
+		sim.run();
+		sim.complete_analysis(1e-5);
+		MCSim* run_results(new MCSim(x,S->get_energy()));
 
 #pragma omp critical(add_new_result_to_list)
-	{
-		all_results_.add_or_fuse_sort(run_results, MCSim::cmp_for_fuse, MCSim::fuse);
-	}
-	delete S;
+		{
+			all_results_.add_or_fuse_sort(run_results, MCSim::cmp_for_fuse, MCSim::fuse);
+		}
 
-	return run_results->get_energy().get_x();
+		delete S;
+		return run_results->get_energy().get_x();
+	} else {
+		std::cerr<<"double PSOFermionic::monte_carlo(CreateSystem& cs, Vector<double> const& x) : no value for x="<<x<<std::endl;
+		delete S;
+		return 0.0;
+	}
 }
 #endif

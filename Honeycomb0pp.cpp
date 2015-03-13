@@ -19,29 +19,6 @@ Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& 
 void Honeycomb0pp::compute_H(){
 	double th(1.0);
 	H_.set(n_,n_,0);
-	///*{Description*/
-	//if(N_==3 && m_==1 && n_==72){
-		//std::cerr<<"void Honeycomb0pp::compute_H() : using exactly the bond"
-			//"connection given by Miklos '72bondlist.dat'."<<std::endl<<
-			//"                                 Third column : td=0,th=1."
-			//"Fourth column bc. To recover the matrix "<<std::endl<<
-			//"                                 '000_0pp_72mx_tmp.dat',"
-			//"set th=-1 and td_=2."<<std::endl;
-		//IOFiles bond_list("72bondlist.dat",false);
-		//Matrix<unsigned int> bl(108,4);
-		//Vector<int> bc(108);
-		//bond_list>>bl;
-		//for(unsigned int i(0);i<links_.row();i++){
-			//links_(i,0) = bl(i,0)-1;
-			//links_(i,1) = bl(i,1)-1;
-		//}
-//
-		//for(unsigned int i(0);i<links_.row();i++){
-			//H_(links_(i,0),links_(i,1)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
-			//H_(links_(i,1),links_(i,0)) = ((bl(i,3)==0)?1.0:bc_)*((bl(i,2)==0)?th:td_);
-		//}
-	//}
-	///*}*/
 	Matrix<int> nb;
 	unsigned int s(0);
 	for(unsigned int i(0);i<n_;i+=2){

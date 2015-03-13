@@ -5,26 +5,28 @@
 #include "SystemFermionic.hpp"
 #include <omp.h>
 
-/*{! Class MonteCarlo
+/*{!Class MonteCarlo
  *
  * Implement the Monte-Carlo algorithm. This alorithm lets a System evolve
  * according to a Markov process. To work properly, MCSystem has to contain at
  * least these methods : 
  *
- * - Type System::ratio() : compute the probability to accept the next configuration
+ * - Type System::ratio() : compute the probability to accept the next
+ *   configuration
  * - void System::update() : update the old cufiguration to the new one
- * - void System::measure() : measure an observable according to the current configuration 
+ * - void System::measure() : measure an observable according to the current
+ *   configuration 
  *
  * The MonteCarlo class contains a pointer to MCSystem. The MCSystem is in
  * reality either a SystemFermionic or a SystemBosonic. 
  *
- * Each time that a class is instanciated, a random number generator is created
- * according to the seeds another random nunber generator provides. The same
- * thread number is then transmitted to create the System.
- *
  * Once the System is created, it is thermalized.
  *
- * The MonteCarlo::run() method lunches the Monte-Carlo simulation.
+ * - void MonteCarlo::run() : lunch the Monte-Carlo simulation.
+ * - void MonteCarlo::complete_analysis(double tol) : make sure that the
+ *   computed quantities are fully computed
+ * - void delete_binning() : get rid of the Binning instance if they are not
+ *   needed later
  }*/
 template <typename Type>
 class MonteCarlo{
@@ -39,7 +41,7 @@ class MonteCarlo{
 		/*!Run the Monte-Carlo algorithm*/
 		void run();
 		void complete_analysis(double tol){ S_->complete_analysis(tol); }
-		void delete_binning(){ S_->delete_binning();}
+		void delete_binning(){ S_->delete_binning(); }
 
 	private:
 		/*!Forbids copy*/

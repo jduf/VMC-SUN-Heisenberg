@@ -19,7 +19,13 @@ double PSOFermionic::f(Vector<double> const& x){
 	//for(unsigned int i(0);i<mu.size();i++){ mu(i) = x(i+t.size()-1); }
 	//system_param.set("t",t);
 	//system_param.set("mu",mu);
-	system_param.set("td",x(0));
+	//system_param.set("td",x(0));
+	Vector<double> mu(1,0);
+	system_param.set("mu",mu);
+	Vector<double> phi(1,M_PI/4.0);
+	system_param.set("phi",phi);
+	system_param.set("t",x);
+
 	CreateSystem cs(&system_param);
 	cs.init();
 	if(cs.get_status()==2){

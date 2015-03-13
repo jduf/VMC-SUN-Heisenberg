@@ -1,12 +1,12 @@
 EXEC+=mc
 EXEC+=check
 EXEC+=study
-#EXEC+=psomc
+EXEC+=psomc
 
-mc_SRCS=    mc.cpp    System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquareFermi.cpp SquarePiFlux.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp
-check_SRCS= check.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquareFermi.cpp SquarePiFlux.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp
-study_SRCS= study.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquareFermi.cpp SquarePiFlux.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp Directory.cpp Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseMagnetization.cpp AnalyseHoneycomb.cpp
-psomc_SRCS= psomc.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquareFermi.cpp SquarePiFlux.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp PSO.cpp PSOFermionic.cpp
+mc_SRCS=    mc.cpp    System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquareFermi.cpp SquarePiFlux.cpp SquareFreeComplex.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp
+check_SRCS= check.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquareFermi.cpp SquarePiFlux.cpp SquareFreeComplex.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp
+study_SRCS= study.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquareFermi.cpp SquarePiFlux.cpp SquareFreeComplex.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp Directory.cpp Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseMagnetization.cpp AnalyseHoneycomb.cpp
+psomc_SRCS= psomc.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp SquareFermi.cpp SquarePiFlux.cpp SquareFreeComplex.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp PSO.cpp PSOFermionic.cpp
 
 #-----------------------------------------------------------------
 

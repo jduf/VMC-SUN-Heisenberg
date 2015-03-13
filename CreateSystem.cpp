@@ -83,14 +83,14 @@ void CreateSystem::parse(Container* C){
 	if( wf == "squarefreereal" ){
 		ref_(0) = 4;
 		ref_(1) = 1;
-		ref_(2) = 2;
+		ref_(2) = 3;
 		C_.set("t",C->get<Vector<double> >("t"));
 		C_.set("mu",C->get<Vector<double> >("mu"));
 	}
 	if( wf == "squarefreecomplex" ){
 		ref_(0) = 4;
 		ref_(1) = 2;
-		ref_(2) = 2;
+		ref_(2) = 3;
 		C_.set("t",C->get<Vector<double> >("t"));
 		C_.set("mu",C->get<Vector<double> >("mu"));
 		C_.set("phi",C->get<Vector<double> >("phi"));
@@ -203,7 +203,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 							switch(ref_(2)){
 								case 0:
 									{ RGL_ = new SquareFermi<double>(ref_,N_,m_,n_,M_,bc_); }break;
-								//case 2:
+								//case 3:
 									//{ RGL_ = new SquareFreeReal(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t"),C_.get<Vector<double> >("mu")); }break;
 									//   case 1:{return SquareMu(N,n,m);}break;
 								default:{error();}break;
@@ -216,8 +216,8 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 									//{ CGL_ = new SquareFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_); }break;
 								case 2:
 									{ CGL_ = new SquarePiFlux(ref_,N_,m_,n_,M_,bc_); }break;
-								//case 2:
-									//{ CGL_ = new SquareFreeComplex(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t"),C_.get<Vector<double> >("mu"),C_.get<Vector<double> >("phi")); }break;
+								case 3:
+									{ CGL_ = new SquareFreeComplex(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t"),C_.get<Vector<double> >("mu"),C_.get<Vector<double> >("phi")); }break;
 								default:{error();}break;
 							}
 						}break;

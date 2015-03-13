@@ -10,7 +10,7 @@
 #include "SquarePiFlux.hpp"
 //#include "SquareJastrow.hpp"
 //#include "SquareFreeReal.hpp"
-//#include "SquareFreeComplex.hpp"
+#include "SquareFreeComplex.hpp"
 
 //#include "KagomeFermi.hpp"
 //#include "KagomeDirac.hpp"

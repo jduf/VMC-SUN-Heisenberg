@@ -37,7 +37,7 @@ class Honeycomb: public System2D<Type>{
 
 		Matrix<double> set_LxLy(unsigned int const& n) const;
 		Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const;
-		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const; 
+		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
 };
 
 /*{constructor*/
@@ -46,7 +46,7 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 	System2D<Type>(Honeycomb<Type>::set_LxLy(this->n_),ab,spuc,3,filename),
 	dir_nn_(this->z_,2)
 {
-	if(this->status_==2){ 
+	if(this->status_==2){
 		this->xloop_ *= 2;
 		/*the directions are given for the sublattice with odd site number*/
 		double h(1./3.);
@@ -75,7 +75,7 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 		this->dir_nn_LxLy_(2,0) = dir(0);
 		this->dir_nn_LxLy_(2,1) = dir(1);
 
-		this->compute_links(); 
+		this->compute_links();
 	}
 }
 
@@ -172,7 +172,7 @@ void Honeycomb<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& j) 
 ///*+x neighbour*/
 //nb(0,0) = i+1;
 ///*-x+y neighbour*/
-//if(i<this->n_-this->spuc_*this->Lx_){ 
+//if(i<this->n_-this->spuc_*this->Lx_){
 //if((i-1)%(this->spuc_*this->Lx_)){ nb(1,0) = i-3+this->spuc_*this->Lx_ ; }
 //else {
 //nb(1,0) = i-3+2*this->spuc_*this->Lx_;
@@ -221,7 +221,7 @@ void Honeycomb<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& j) 
 ///*-x neighbour*/
 //nb(0,0) = i+1;
 ///*+x-y neighbour*/
-//if(i>this->spuc_*this->Lx_){ 
+//if(i>this->spuc_*this->Lx_){
 //if((i+2)%(this->spuc_*this->Lx_)){ nb(1,0) = i+3-this->spuc_*this->Lx_; }
 //else {
 //nb(1,0) = i+3-2*this->spuc_*this->Lx_;

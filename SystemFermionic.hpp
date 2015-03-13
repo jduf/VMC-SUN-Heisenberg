@@ -85,14 +85,20 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 		}
 	}
 
+	Type det_Ainv(1.0);
+	for(unsigned int c(0);c<2;c++){ 
+		Lapack<Type> detAinv(Ainv_[this->new_c_[c]],true,'G');
+		det_Ainv *= detAinv.det();
+	}
+	det_Ainv = chop(det_Ainv);
 	/*!Make sure that the matrices Ainv_ are invertible by going to a state of
 	 * heigh weight*/
 	unsigned int l(0);
-	unsigned int TRY_MAX(1e6);
+	unsigned int TRY_MAX(1e5);
 	Matrix<Type>* A;
 	A = new Matrix<Type>[this->N_];
 	for(unsigned int c(0); c<this->N_; c++){ A[c] = Ainv_[c]; }
-	while( !are_invertible() && l++<TRY_MAX){
+	while( !are_invertible() && ++l<TRY_MAX ){
 		swap();
 		for(unsigned int j(0);j<this->M_(this->new_c_[0]);j++){
 			A[this->new_c_[0]](new_r_[0],j) = this->EVec_[this->new_c_[0]](this->new_s_[1],j);
@@ -103,13 +109,14 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 		/*!Compute the ratio of the determinant of the two states. This is the
 		 * brute force method but as for now the inverse matrix is unknown, it
 		 * is the only solution*/
-		double d(1.0);
+		Type det_A(1.0);
 		for(unsigned int c(0);c<2;c++){ 
-			Lapack<Type> detAinv(Ainv_[this->new_c_[c]],true,'G');
 			Lapack<Type> detA(A[this->new_c_[c]],true,'G');
-			d *= norm_squared(detA.det()/detAinv.det());
+			det_A *= detA.det();
 		}
-		if(d>1){
+		det_A = chop(det_A);
+		if( norm_squared(det_A/det_Ainv)>1 ){
+			det_Ainv = det_A;
 			/*update the new state*/
 			for(unsigned int j(0);j<this->M_(this->new_c_[0]);j++){
 				Ainv_[this->new_c_[0]](new_r_[0],j) = this->EVec_[this->new_c_[0]](this->new_s_[1],j);
@@ -133,13 +140,13 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	}
 
 	/*!Proceed to the inversion if possible*/
-	if(l!=TRY_MAX){
+	if(l<TRY_MAX){
 		this->status_--; 
 		for(unsigned int c(0); c<this->N_; c++){
 			Lapack<Type> inv(Ainv_[c],false,'G');
 			inv.inv();
 		}
-	} else { std::cerr<<"No initial state found after "<<TRY_MAX<<"trials"<<std::endl; }
+	} else { std::cerr<<"No initial state found after "<<TRY_MAX<<" trials"<<std::endl; }
 
 	delete[] A;
 }

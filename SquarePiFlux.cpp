@@ -31,7 +31,7 @@ void SquarePiFlux::compute_H(){
 					H_(i,nb(0,0)) = std::polar(double(nb(0,1)),-phi);
 					H_(i,nb(1,0)) = std::polar(double(nb(1,1)),phi);
 				}break;
-			default:{std::cerr<<"bug "<<std::endl;}break;
+			default:{ std::cerr<<"void SquarePiFlux::compute_H() : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
 	std::cerr<<"SquarePiFlux : compute_EVec : new use of polar, check that it is correct"<<std::endl;
