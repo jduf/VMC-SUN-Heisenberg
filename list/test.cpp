@@ -34,85 +34,88 @@ std::ostream& operator<<(std::ostream& flux, A const& a){
 }
 
 int main(){
-	//{
-		//List<A> a;
-		//for(unsigned int i(0);i<10;i++){ a.add_end(new A(i)); }
-		//std::cout<<a<<std::endl;
-		//std::cout<<A::N_<<std::endl;
-		//std::cout<<"size of the list "<<a.size()<<std::endl;
-		//std::cout<<"will remove 4th entry with pop(4)"<<std::endl;
-		//a.pop(4);
-		//std::cout<<a<<std::endl;
-		//std::cout<<"will remove last entry with pop(idx)"<<std::endl;
-		//a.pop(a.size()-1);
-		//std::cout<<a<<std::endl;
-		//std::cout<<"will remove last entry with pop_end"<<std::endl;
-		//a.pop_end();
-		//std::cout<<a<<std::endl;
-		//std::cout<<"will remove 1st entry with pop(0)"<<std::endl;
-		//a.pop(0);
-		//std::cout<<a<<std::endl;
-		//std::cout<<"will swap entry 2 end 5"<<std::endl;
-		//a.swap(2,5);
-		//std::cout<<a<<std::endl;
-		//std::cout<<"will add 3 in at the 3rd position"<<std::endl;
-		//a.add(new A(3),3);
-		//std::cout<<a<<std::endl;
-		//std::cout<<"will add 3 in at the first ordered position"<<std::endl;
-		//auto func = [](A const* a, A const* b){ return a->a_<b->a_;};
-		//a.add_sort(new A(3),func);
-		//std::cout<<a<<std::endl;
-		//std::cout<<"will add 10 in at the first ordered position"<<std::endl;
-		//a.add_sort(new A(10),func);
-		//std::cout<<a<<std::endl;
-		//std::cout<<"will add 0 in at the first ordered position"<<std::endl;
-		//a.add_sort(new A(0),func);
-		//std::cout<<a<<std::endl;
-		//std::cout<<"will add -1 in at the first ordered position"<<std::endl;
-		//a.add_sort(new A(-1),func);
-		//std::cout<<a<<std::endl;
-		//std::cout<<"will add 9 in at the first ordered position"<<std::endl;
-		//a.add_sort(new A(9),func);
-		//std::cout<<a<<std::endl;
-		//std::cout<<"will add 0 in at the first ordered position"<<std::endl;
-		//a.add_sort(new A(0),func);
-		//std::cout<<a<<std::endl;
-//
-		//std::cout<<"new list copied from the first one between enty [3,7)"<<std::endl;
-		//List<A> b(a.sublist(3,7));/*understand why it doesn't call a copy constructor*/
-		//std::cout<<b<<std::endl;
-		//std::cout<<"will remove the 2nd entry with pop(1)"<<std::endl;
-		//b.pop(1);
-		//std::cout<<b<<std::endl;
-		//std::cout<<"will remove the 1st entry with pop(0)"<<std::endl;
-		//b.pop(0);
-		//std::cout<<b<<std::endl;
-		//std::cout<<"will add 8 at the 1st entry with add_start()"<<std::endl;
-		//b.add_start(new A(8));
-		//std::cout<<b<<std::endl;
-		//std::cout<<"will remove last entry with pop(idx)"<<std::endl;
-		//b.pop(b.size()-1);
-		//std::cout<<b<<std::endl;
-		//std::cout<<"will remove last entry with pop(idx)"<<std::endl;
-		//b.pop(b.size()-1);
-		//std::cout<<b<<std::endl;
-		//std::cout<<"will remove last entry with pop(idx)"<<std::endl;
-		//b.pop(b.size()-1);
-		//std::cout<<b<<std::endl;
-		//std::cout<<"will remove last entry with pop(idx)"<<std::endl;
-		//b.pop(b.size()-1);
-		//std::cout<<b<<std::endl;
-		//std::cout<<"will add at the last entry with add_end()"<<std::endl;
-		//b.add_end(new A(9));
-		//std::cout<<b<<std::endl;
-	//}
 	{
+		std::cout<<"#### general tests ####"<<std::endl;
+		List<A> a;
+		for(unsigned int i(0);i<10;i++){ a.add_end(new A(i)); }
+		std::cout<<a<<std::endl;
+		std::cout<<A::N_<<std::endl;
+		std::cout<<"size of the list "<<a.size()<<std::endl;
+		std::cout<<"will remove 4th entry with pop(4)"<<std::endl;
+		a.pop(4);
+		std::cout<<a<<std::endl;
+		std::cout<<"will remove last entry with pop(idx)"<<std::endl;
+		a.pop(a.size()-1);
+		std::cout<<a<<std::endl;
+		std::cout<<"will remove last entry with pop_end"<<std::endl;
+		a.pop_end();
+		std::cout<<a<<std::endl;
+		std::cout<<"will remove 1st entry with pop(0)"<<std::endl;
+		a.pop(0);
+		std::cout<<a<<std::endl;
+		std::cout<<"will swap entry 2 end 5"<<std::endl;
+		a.swap(2,5);
+		std::cout<<a<<std::endl;
+		std::cout<<"will add 3 in at the 3rd position"<<std::endl;
+		a.add(new A(3),3);
+		std::cout<<a<<std::endl;
+		std::cout<<"will add 3 in at the first ordered position"<<std::endl;
+		auto func = [](A const* a, A const* b){ return a->a_<b->a_;};
+		a.add_sort(new A(3),func);
+		std::cout<<a<<std::endl;
+		std::cout<<"will add 10 in at the first ordered position"<<std::endl;
+		a.add_sort(new A(10),func);
+		std::cout<<a<<std::endl;
+		std::cout<<"will add 0 in at the first ordered position"<<std::endl;
+		a.add_sort(new A(0),func);
+		std::cout<<a<<std::endl;
+		std::cout<<"will add -1 in at the first ordered position"<<std::endl;
+		a.add_sort(new A(-1),func);
+		std::cout<<a<<std::endl;
+		std::cout<<"will add 9 in at the first ordered position"<<std::endl;
+		a.add_sort(new A(9),func);
+		std::cout<<a<<std::endl;
+		std::cout<<"will add 0 in at the first ordered position"<<std::endl;
+		a.add_sort(new A(0),func);
+		std::cout<<a<<std::endl;
+
+		std::cout<<"new list copied from the first one between enty [3,7)"<<std::endl;
+		List<A> b(a.sublist(3,7));/*understand why it doesn't call a copy constructor*/
+		std::cout<<b<<std::endl;
+		std::cout<<"will remove the 2nd entry with pop(1)"<<std::endl;
+		b.pop(1);
+		std::cout<<b<<std::endl;
+		std::cout<<"will remove the 1st entry with pop(0)"<<std::endl;
+		b.pop(0);
+		std::cout<<b<<std::endl;
+		std::cout<<"will add 8 at the 1st entry with add_start()"<<std::endl;
+		b.add_start(new A(8));
+		std::cout<<b<<std::endl;
+		std::cout<<"will remove last entry with pop(idx)"<<std::endl;
+		b.pop(b.size()-1);
+		std::cout<<b<<std::endl;
+		std::cout<<"will remove last entry with pop(idx)"<<std::endl;
+		b.pop(b.size()-1);
+		std::cout<<b<<std::endl;
+		std::cout<<"will remove last entry with pop(idx)"<<std::endl;
+		b.pop(b.size()-1);
+		std::cout<<b<<std::endl;
+		std::cout<<"will remove last entry with pop(idx)"<<std::endl;
+		b.pop(b.size()-1);
+		std::cout<<b<<std::endl;
+		std::cout<<"will add at the last entry with add_end()"<<std::endl;
+		b.add_end(new A(9));
+		std::cout<<b<<std::endl;
+	}
+	{
+		std::cout<<"#### test add_sort with int ####"<<std::endl;
 		List<int> a;
 		Rand<int> rnd(0,100);
 		for(unsigned int i(0);i<30;i++){ a.add_sort(new int(rnd.get()),[](int* a, int* b){ return *a<*b;} ); }
 		std::cout<<a<<std::endl;
 	}
 	{
+		std::cout<<"#### test add_sort with vector ####"<<std::endl;
 		auto func = [](Vector<int>* a, Vector<int>* b) { 
 			unsigned int i(0);
 			while(i<a->size()){
@@ -162,10 +165,9 @@ int main(){
 		std::cout<<"#### get_next ####"<<std::endl;
 		List<A> a;
 		for(unsigned int i(0);i<10;i++){ a.add_end(new A(i)); }
-		ListIterate<A> ia(a);
 		do{
-			std::cout<<ia.get()<<std::endl;
-		} while ( ia.next() );
+			std::cout<<a.get()<<std::endl;
+		} while ( a.move_forward() );
 
 	}
 	std::cout<<"#(constructor calls)-#(destructor calls)="<<A::N_<<std::endl;
