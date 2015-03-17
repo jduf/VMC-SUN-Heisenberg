@@ -28,8 +28,8 @@ void read_bin(){
 
 	std::cout<<M<<std::endl;
 	std::cout<<c<<std::endl;
-	std::cout<<v<<std::endl;
 	std::cout<<slt<<std::endl;
+	std::cout<<v<<std::endl;
 
 }
 

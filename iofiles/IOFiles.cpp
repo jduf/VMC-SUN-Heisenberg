@@ -59,12 +59,11 @@ void IOFiles::read_header(){
 	unsigned int N(0);
 	file_.seekg(-sizeof(unsigned int),std::ios::end);
 	file_.read((char*)(&N),sizeof(unsigned int));
-	char* h(new char[N+1]);
 	file_.seekg(-sizeof(char)*N-sizeof(unsigned int),std::ios::end);
-	file_.read(h,N);
-	h[N] = '\0';
+	std::string h;
+	h.resize(N);
+	file_.read(&h[0],N);
 	header_->set(h);
-	delete[] h;
 	file_.seekg(0,std::ios::beg);
 }
 
@@ -80,11 +79,8 @@ void IOFiles::read_string(std::string& t){
 		if (binary_){
 			unsigned int N(0);
 			file_.read((char*)(&N),sizeof(unsigned int));
-			char* tmp(new char[N+1]);
-			file_.read(tmp,N);
-			tmp[N] = '\0';
-			t = tmp;
-			delete[] tmp;
+			t.resize(N);
+			file_.read(&t[0],N);
 		} else {
 			std::string tmp("");
 			while(file_.good()){ 
