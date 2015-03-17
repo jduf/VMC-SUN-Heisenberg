@@ -87,7 +87,7 @@ void PSO::move(unsigned int i){
 
 void PSO::move_on_grid(unsigned int i){
 	unsigned int n;
-	double dx(0.05);
+	double dx(0.01);
 	for(unsigned int j(0);j<Nfreedom_;j++){
 		n=0;
 		if(std::abs(px_[i](j))<dx/2){ n=1; }

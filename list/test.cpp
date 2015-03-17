@@ -34,7 +34,6 @@ std::ostream& operator<<(std::ostream& flux, A const& a){
 }
 
 int main(){
-	IOFiles a("bla",true);
 	//{
 		//List<A> a;
 		//for(unsigned int i(0);i<10;i++){ a.add_end(new A(i)); }
@@ -46,19 +45,14 @@ int main(){
 		//std::cout<<a<<std::endl;
 		//std::cout<<"will remove last entry with pop(idx)"<<std::endl;
 		//a.pop(a.size()-1);
+		//std::cout<<a<<std::endl;
 		//std::cout<<"will remove last entry with pop_end"<<std::endl;
 		//a.pop_end();
 		//std::cout<<a<<std::endl;
 		//std::cout<<"will remove 1st entry with pop(0)"<<std::endl;
 		//a.pop(0);
 		//std::cout<<a<<std::endl;
-		//std::cout<<"new list with 1 entry set to 3"<<std::endl;
-		//List<A> b(new A(3));
-		//std::cout<<b<<std::endl;
-		//std::cout<<"will remove 1st entr with pop_start()"<<std::endl;
-		//b.pop_start();
-		//std::cout<<b<<std::endl;
-		//std::cout<<"will swap the 2nd and 5th entry"<<std::endl;
+		//std::cout<<"will swap entry 2 end 5"<<std::endl;
 		//a.swap(2,5);
 		//std::cout<<a<<std::endl;
 		//std::cout<<"will add 3 in at the 3rd position"<<std::endl;
@@ -71,41 +65,52 @@ int main(){
 		//std::cout<<"will add 10 in at the first ordered position"<<std::endl;
 		//a.add_sort(new A(10),func);
 		//std::cout<<a<<std::endl;
+		//std::cout<<"will add 0 in at the first ordered position"<<std::endl;
+		//a.add_sort(new A(0),func);
+		//std::cout<<a<<std::endl;
+		//std::cout<<"will add -1 in at the first ordered position"<<std::endl;
+		//a.add_sort(new A(-1),func);
+		//std::cout<<a<<std::endl;
 		//std::cout<<"will add 9 in at the first ordered position"<<std::endl;
 		//a.add_sort(new A(9),func);
 		//std::cout<<a<<std::endl;
 		//std::cout<<"will add 0 in at the first ordered position"<<std::endl;
 		//a.add_sort(new A(0),func);
 		//std::cout<<a<<std::endl;
-		//
-		//std::cout<<"will add 0 in at the 0th position"<<std::endl;
-		//a.add(new A(-1),0);
-		//std::cout<<a<<std::endl;
 //
-		//std::cout<<"new list copied from the first one between enty 3 and 5"<<std::endl;
-		//List<A> c(a.sublist(3,5));/*understand why it doesn't call a copy constructor*/
-		//std::cout<<c<<std::endl;
+		//std::cout<<"new list copied from the first one between enty [3,7)"<<std::endl;
+		//List<A> b(a.sublist(3,7));/*understand why it doesn't call a copy constructor*/
+		//std::cout<<b<<std::endl;
 		//std::cout<<"will remove the 2nd entry with pop(1)"<<std::endl;
-		//c.pop(1);
-		//std::cout<<c<<std::endl;
+		//b.pop(1);
+		//std::cout<<b<<std::endl;
 		//std::cout<<"will remove the 1st entry with pop(0)"<<std::endl;
-		//c.pop(0);
-		//std::cout<<c<<std::endl;
-		//std::cout<<"will add at the 1st entry with add_start()"<<std::endl;
-		//c.add_start(new A(8));
-		//std::cout<<c<<std::endl;
-		//std::cout<<"will add at the 1st entry with add_start()"<<std::endl;
-		//c.add_start(new A(9));
-		//std::cout<<c<<std::endl;
-//
-		//a.check();
+		//b.pop(0);
+		//std::cout<<b<<std::endl;
+		//std::cout<<"will add 8 at the 1st entry with add_start()"<<std::endl;
+		//b.add_start(new A(8));
+		//std::cout<<b<<std::endl;
+		//std::cout<<"will remove last entry with pop(idx)"<<std::endl;
+		//b.pop(b.size()-1);
+		//std::cout<<b<<std::endl;
+		//std::cout<<"will remove last entry with pop(idx)"<<std::endl;
+		//b.pop(b.size()-1);
+		//std::cout<<b<<std::endl;
+		//std::cout<<"will remove last entry with pop(idx)"<<std::endl;
+		//b.pop(b.size()-1);
+		//std::cout<<b<<std::endl;
+		//std::cout<<"will remove last entry with pop(idx)"<<std::endl;
+		//b.pop(b.size()-1);
+		//std::cout<<b<<std::endl;
+		//std::cout<<"will add at the last entry with add_end()"<<std::endl;
+		//b.add_end(new A(9));
+		//std::cout<<b<<std::endl;
 	//}
 	{
 		List<int> a;
 		Rand<int> rnd(0,100);
 		for(unsigned int i(0);i<30;i++){ a.add_sort(new int(rnd.get()),[](int* a, int* b){ return *a<*b;} ); }
 		std::cout<<a<<std::endl;
-		std::cout<<a.last()<<std::endl;
 	}
 	{
 		auto func = [](Vector<int>* a, Vector<int>* b) { 
@@ -127,31 +132,41 @@ int main(){
 			std::cout<<a<<std::endl;
 		}
 	}
-	//{
-		//auto cmp_for_fuse = [](Vector<int>* a, Vector<int>* b) { 
-			//unsigned int i(0);
-			//while(i<a->size()){
-				//if((*a)(i) > (*b)(i)){ return 0; }
-				//if((*a)(i) < (*b)(i)){ return 1; }
-				//if((*a)(i)== (*b)(i)){ i++; }
-			//}
-			//std::cout<<"ca"<<std::endl;
-			//return 2;
-		//};
-		//auto fuse = [](Vector<int>* a, Vector<int>* b) { 
-			//std::cout<<"should fuse"<<std::endl;
-			//std::cout<<*a<<std::endl;
-			//std::cout<<*b<<std::endl;
-		//};
-		//Rand<int> rnd(0,10);
-		//List<Vector<int> > a;
-		//Vector<int> tmp(2);
-		//for(unsigned int i(0);i<10;i++){
-			//tmp(0) = rnd.get();
-			//tmp(1) = rnd.get();
-			//a.add_or_fuse_sort(new Vector<int>(tmp), cmp_for_fuse, fuse);
-			//std::cout<<a<<std::endl;
-		//}
-	//}
-	std::cout<<A::N_<<std::endl;
+	{
+		std::cout<<"#### test add_or_fuse_sort ####"<<std::endl;
+		auto cmp_for_fuse = [](Vector<int>* a, Vector<int>* b) { 
+			unsigned int i(0);
+			while(i<a->size()){
+				if((*a)(i) > (*b)(i)){ return 0; }
+				if((*a)(i) < (*b)(i)){ return 1; }
+				if((*a)(i)== (*b)(i)){ i++; }
+			}
+			return 2;
+		};
+		auto fuse = [](Vector<int>* a, Vector<int>* b) { 
+			std::cout<<"should fuse"<<std::endl;
+			(void)(a);
+			(void)(b);
+		};
+		Rand<int> rnd(0,10);
+		List<Vector<int> > a;
+		Vector<int> tmp(2);
+		for(unsigned int i(0);i<10;i++){
+			tmp(0) = rnd.get();
+			tmp(1) = rnd.get();
+			a.add_or_fuse_sort(new Vector<int>(tmp), cmp_for_fuse, fuse);
+			std::cout<<a<<std::endl;
+		}
+	}
+	{
+		std::cout<<"#### get_next ####"<<std::endl;
+		List<A> a;
+		for(unsigned int i(0);i<10;i++){ a.add_end(new A(i)); }
+		ListIterate<A> ia(a);
+		do{
+			std::cout<<ia.get()<<std::endl;
+		} while ( ia.next() );
+
+	}
+	std::cout<<"#(constructor calls)-#(destructor calls)="<<A::N_<<std::endl;
 }
