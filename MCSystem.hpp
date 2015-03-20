@@ -26,7 +26,7 @@ class MCSystem: public virtual System{
 		void measure_new_step();
 		/*!Add the sample to the statistic*/
 		void add_sample();
-		///*!Calls complete_analysis of the sampled datas*/
+		/*!Calls complete_analysis of the sampled datas*/
 		void complete_analysis(double const& tol);
 		
 	protected:
@@ -34,7 +34,7 @@ class MCSystem: public virtual System{
 		unsigned int new_s_[2];//!< sites that are exchanged
 		unsigned int new_p_[2];//!< sites that are exchanged
 
-		Matrix<unsigned int> s_; //!< s(site,particle)=color
+		Matrix<unsigned int> s_;  //!< s(site,particle)=color
 		Rand<unsigned int> n_rnd_;//!< generator of random numbers 
 		Rand<unsigned int> m_rnd_;//!< generator of random numbers 
 

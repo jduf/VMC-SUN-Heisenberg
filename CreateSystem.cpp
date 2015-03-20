@@ -91,6 +91,13 @@ void CreateSystem::parse(Container* C){
 		ref_(0) = 4;
 		ref_(1) = 2;
 		ref_(2) = 3;
+		//Vector<double> t(2);
+		//t(0) = C->get<double>("t0");
+		//t(1) = C->get<double>("t1");
+		//C_.set("t",t);
+		//C_.set("mu",Vector<double>(1,0));
+		//C_.set("phi",Vector<double>(1,M_PI/4.0));
+
 		C_.set("t",C->get<Vector<double> >("t"));
 		C_.set("mu",C->get<Vector<double> >("mu"));
 		C_.set("phi",C->get<Vector<double> >("phi"));
@@ -108,7 +115,14 @@ void CreateSystem::parse(Container* C){
 	if( wf == "squarejastrow" ){
 		ref_(0) = 4;
 		ref_(1) = 0;
-		ref_(2) = 4;
+
+		Vector<double> tmp(C->get<Vector<double> >("nu"));
+		Matrix<double> nu(4,2);
+		for(unsigned int i(0);i<4;i++){
+			nu(i,0) = tmp(0);
+			nu(i,1) = tmp(1);
+		}
+		C_.set("nu",nu);
 	}
 
 	if( wf == "kagomefermi" ){
@@ -174,12 +188,12 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 		case 3:
 			{
 				switch(ref_(1)){
-					////case 0:{return TriangleJastrow(N,n,m);}break;
+					//case 0:{return TriangleJastrow(N,n,m);}break;
 					case 1:
 						{
 							switch(ref_(2)){
 								case 0:{RGL_ = new TriangleFermi(ref_,N_,m_,n_,M_,bc_);}break;
-									//   //   case 1:{return TriangleMu(N,n,m);}break;
+									   //   //   case 1:{return TriangleMu(N,n,m);}break;
 								default:{error();}break;
 							}
 						}break;
@@ -197,13 +211,13 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 			{
 				switch(ref_(1)){
 					case 0:
-						//{RGL_ = new SquareJastrow(ref_,N_,m_,n_,M_,bc_);}break;
+						{RGL_ = new SquareJastrow(ref_,N_,m_,n_,M_,bc_,C_.get<Matrix<double> >("nu"));}break;
 					case 1:
 						{
 							switch(ref_(2)){
 								case 0:
 									{ RGL_ = new SquareFermi<double>(ref_,N_,m_,n_,M_,bc_); }break;
-								//case 3:
+									//case 3:
 									//{ RGL_ = new SquareFreeReal(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t"),C_.get<Vector<double> >("mu")); }break;
 									//   case 1:{return SquareMu(N,n,m);}break;
 								default:{error();}break;
@@ -213,7 +227,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 						{
 							switch(ref_(2)){
 								//case 0:
-									//{ CGL_ = new SquareFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_); }break;
+								//{ CGL_ = new SquareFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_); }break;
 								case 2:
 									{ CGL_ = new SquarePiFlux(ref_,N_,m_,n_,M_,bc_); }break;
 								case 3:
@@ -224,34 +238,34 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					default:{error();}break;
 				}
 			}break;
-		//case 5:
+			//case 5:
 			//{
-				//switch(ref_(1)){
-					//case 1:
-						//{
-							//switch(ref_(2)){
-								//case 0:{
-										//   std::cerr<<"KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
-										//   //   RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
-									//   }break;
-								//case 1:{RGL_ = new KagomeDirac<double>(ref_,N_,m_,n_,M_,bc_);}break;
-								//default:{error();}break;
-							//}
-						//} break;
-					//case 2:
-						//{
-							//switch(ref_(2)){
-								//case 0:{
-										//   std::cerr<<"KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
-										//   //   CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
-									//   }break;
-								//case 1:{CGL_ = new KagomeDirac<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);}break;
-								//case 2:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
-								//default:{error();}break;
-							//}
-						//}break;
-					//default:{error();}break;
-				//}
+			//switch(ref_(1)){
+			//case 1:
+			//{
+			//switch(ref_(2)){
+			//case 0:{
+			//   std::cerr<<"KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
+			//   //   RGL_ = new KagomeFermi<double>(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
+			//   }break;
+			//case 1:{RGL_ = new KagomeDirac<double>(ref_,N_,m_,n_,M_,bc_);}break;
+			//default:{error();}break;
+			//}
+			//} break;
+			//case 2:
+			//{
+			//switch(ref_(2)){
+			//case 0:{
+			//   std::cerr<<"KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
+			//   //   CGL_ = new KagomeFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_,sel0_,sel1_);
+			//   }break;
+			//case 1:{CGL_ = new KagomeDirac<std::complex<double> >(ref_,N_,m_,n_,M_,bc_);}break;
+			//case 2:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
+			//default:{error();}break;
+			//}
+			//}break;
+			//default:{error();}break;
+			//}
 			//}break;
 		case 6:
 			{

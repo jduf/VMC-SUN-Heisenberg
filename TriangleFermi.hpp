@@ -15,7 +15,7 @@ class TriangleFermi: public Triangle<double>{
 		void compute_H();
 		void lattice();
 
-		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0;};
+		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 		Matrix<double> set_ab();
 };
 #endif

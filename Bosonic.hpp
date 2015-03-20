@@ -22,12 +22,12 @@ class Bosonic : public virtual System{
 		Bosonic(){}
 
 		Vector<unsigned int> sl_;
-		Matrix<unsigned int> nn_; //!< nn_(i,j):jth neighbour of the ith site
-		Matrix<unsigned int> cc_;
-		Matrix<double> nu_;
-		Matrix<Type> omega_; //!< \warning maybe not a complex<double> but a double. before it was Type
+		Matrix<unsigned int> nn_;//!< nn_(i,j):jth neighbour of the ith site
+		Matrix<unsigned int> cc_;//!< connect a combination of two color to one nu_
+		Matrix<double> nu_;      //!< nu_(i,j): i link and j factor
+		Matrix<Type> omega_;     //!< \warning maybe not a complex<double> but a double. before it was Type
 
-		void init_bosonic(unsigned int const& z);
+		void init_bosonic(unsigned int const& z, Matrix<double> const& nu);
 };
 
 /*constructors and destructor*/
@@ -43,7 +43,8 @@ Bosonic<Type>::Bosonic(Bosonic<Type> const& b):
 {}
 
 template<typename Type>
-void Bosonic<Type>::init_bosonic(unsigned int const& z){
+void Bosonic<Type>::init_bosonic(unsigned int const& z, Matrix<double> const& nu){
+	nu_ = nu;
 	nn_.set(n_,z);
 	cc_.set(N_,N_);
 	sl_.set(n_);

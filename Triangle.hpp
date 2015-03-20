@@ -19,8 +19,6 @@ class Triangle: public System2D<Type>{
 	protected:
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
-		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0;};
-
 	private:
 		Matrix<double> set_LxLy(unsigned int const& n) const;
 		Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const;

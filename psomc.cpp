@@ -10,7 +10,7 @@ int main(int argc, char* argv[]){
 	PSOFermionic s(&P);
 
 	for(unsigned int i(0);i<Nfreedom;i++){
-		s.PSO_set_limit(i,-4,4);
+		s.PSO_set_limit(i,0.9,1.1);
 	}
 	s.PSO_init();
 	s.PSO_run();

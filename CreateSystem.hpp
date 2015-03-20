@@ -8,7 +8,7 @@
 
 #include "SquareFermi.hpp"
 #include "SquarePiFlux.hpp"
-//#include "SquareJastrow.hpp"
+#include "SquareJastrow.hpp"
 //#include "SquareFreeReal.hpp"
 #include "SquareFreeComplex.hpp"
 
@@ -84,10 +84,10 @@ class CreateSystem{
 			if(CGL_){return CGL_;}
 			return NULL;
 		}
-		/*!Returns false if ref_(1)==1 : real eigenvectors*/
+		/*!Returns true if ref_(1)==2 : complex eigenvectors*/
 		bool use_complex() const {
-			if(ref_(1) == 1){ return false; }
-			else { return true; }
+			if(ref_(1) == 2){ return true; }
+			else { return false; }
 		}
 		/*!Returns true if ref_(1)==0 : Jastrow wavefunction*/
 		bool is_bosonic() const {
@@ -114,7 +114,6 @@ class CreateSystem{
 
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
-
 
 		void parse(Container* C);
 		void error();

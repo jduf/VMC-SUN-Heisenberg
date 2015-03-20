@@ -20,11 +20,14 @@ double PSOFermionic::f(Vector<double> const& x){
 	//system_param.set("t",t);
 	//system_param.set("mu",mu);
 	//system_param.set("td",x(0));
+	
 	Vector<double> mu(1,0);
 	system_param.set("mu",mu);
 	Vector<double> phi(1,M_PI/4.0);
 	system_param.set("phi",phi);
 	system_param.set("t",x);
+	
+	//system_param.set("nu",x);
 
 	CreateSystem cs(&system_param);
 	cs.init();
@@ -38,7 +41,7 @@ double PSOFermionic::f(Vector<double> const& x){
 	return 0;
 }
 
-unsigned int MCSim::cmp_for_fuse(MCSim* list, MCSim* new_elem) { 
+unsigned int MCSim::cmp_for_fuse(MCSim* list, MCSim* new_elem) {
 	for(unsigned int i(0);i<list->param_.size();i++){
 		if(list->param_(i) > new_elem->param_(i)){ return 0; }
 		if(list->param_(i) < new_elem->param_(i)){ return 1; }

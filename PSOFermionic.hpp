@@ -34,12 +34,11 @@ class PSOFermionic : public PSO{
 		void print(){ std::cout<<all_results_<<std::endl; }
 		void plot(){
 			IOFiles data("data.dat",true);
-			for(unsigned int i(0);i<all_results_.size();i++){
-				data<<all_results_[i].get_param()<<" "<<all_results_[i].get_energy()<<IOFiles::endl;
-			}
+			do{
+				data<<all_results_.get().get_param()<<" "<<all_results_.get().get_energy()<<IOFiles::endl;
+			} while ( all_results_.move_forward() );
 			Gnuplot gp("./","test");
-			gp+="plot 'data.dat' u 3:1,\\";
-			gp+="     'data.dat' u 3:2";
+			gp+="splot 'data.dat' u 1:2:3";
 			gp.save_file();
 			gp.create_image(true);
 		}

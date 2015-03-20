@@ -41,9 +41,8 @@ template<typename Type>
 class Chain: public System1D<Type>{
 	public:
 		/*{Description*/
-		/*!Constructor of a system with spuc sites per unit cell. Calls the
-		 * GenericSystem<Type>(2,filename), to construct a system with 2 links
-		 * per sites */
+		/*!Calls System1D<Type>(spuc,2,filename) to construct a system with
+		 * spuc site per unit cell and 2 links per sites */
 		/*}*/
 		Chain(unsigned int const& spuc, std::string const& filename);
 		/*!Pure virtual destructor (abstract class)*/

@@ -111,13 +111,12 @@ void Analyse::search_jdbin(){
 			all_link_files_.add_end(new std::string(info_+path_+dir_+filename_+".html"));
 		}
 
-		for(unsigned int i(0);i<all_link_names_.size();i++){
-			rst_file_.last().hyperlink(all_link_names_[i],all_link_files_[i]);
-		}
+		do{ rst_file_.last().hyperlink(all_link_names_.get(),all_link_files_.get()); }
+		while ( all_link_names_.move_forward() && all_link_files_.move_forward() );
 
 		close_files();
-		all_link_names_.clear();
-		all_link_files_.clear();
+		all_link_names_.set();
+		all_link_files_.set();
 		rst_file_.last().save(false);
 	}
 }

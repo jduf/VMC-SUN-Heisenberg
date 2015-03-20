@@ -39,6 +39,8 @@ SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S):
 	MCSystem<Type>(S)
 {
 	std::cerr<<"SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S) : check everything"<<std::endl;
+	std::cerr<<"works only for m=1"<<std::endl;
+	this->status_--;
 }
 /*}*/
 

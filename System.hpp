@@ -27,7 +27,9 @@ class System{
 		/*!Returns the status of the system*/
 		unsigned int const& get_status(){return status_;}
 
+		/*!Set the observables to default (0) values and initilize binning*/
 		void set();
+		/*!Delete the binning for all observables*/
 		void delete_binning();
 
 	protected:

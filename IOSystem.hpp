@@ -43,6 +43,6 @@ class IOSystem{
 		/*!Forbids copy*/
 		IOSystem(IOSystem const& ios);
 		/*!Forbids assigment*/
-		IOSystem& operator=(IOSystem a);
+		IOSystem& operator=(IOSystem const& ios);
 };
 #endif
