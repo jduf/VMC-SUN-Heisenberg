@@ -3,6 +3,7 @@
 
 #include "Vector.hpp"
 #include "cminpack.h"
+#include <functional>//for std::function
 
 class Fit{
 	public:

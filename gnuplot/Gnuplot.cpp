@@ -38,21 +38,26 @@ void Gnuplot::save_file(){
 }
 
 void Gnuplot::create_image(bool silent){
-	std::string tmp(filename_);
-	size_t pos(tmp.find("."));
+	std::string texfile(filename_);
+	size_t pos(texfile.find("."));
 	while (pos != std::string::npos) {
-		tmp.replace(pos,1,"");
-		pos = tmp.find(".");
+		texfile.replace(pos,1,"");
+		pos = texfile.find(".");
 	}
 
 	Linux command;
 	//command("cd " + path_ + "; ~/gnuplot*/src/gnuplot -e \"set terminal epslatex color size 12.5cm,7.73 standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'/tmp/" + tmp + ".tex\'\" " + path_ + filename_ + ".gp");
-	command("cd " + path_ + "; gnuplot -e \"set terminal epslatex color size 12.5cm,7.73 standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'/tmp/" + tmp + ".tex\'\" " + path_ + filename_ + ".gp");
+	//command("cd " + path_ + "; gnuplot -e \"set terminal epslatex color size 12.5cm,7.73 standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'/tmp/" + tmp + ".tex\'\" " + path_ + filename_ + ".gp");
+	command(Linux::gp2latex("/tmp/"+texfile,path_,filename_));
 	if(!command.status()){
-		command("cd /tmp/; pdflatex -shell-escape " + tmp + ".tex" + (silent?"> /dev/null 2> /dev/null":""));
-		command("cd /tmp/; convert -density 500 -resize 20% " + tmp + ".pdf " + path_ + filename_ + ".png");
-		command("mv /tmp/" + tmp + ".pdf " + path_ + filename_ + ".pdf");
-		command("rm /tmp/" + tmp + "*");
+		//command("cd /tmp/; pdflatex -shell-escape " + tmp + ".tex" + (silent?"> /dev/null 2> /dev/null":""));
+		//command("cd /tmp/; convert -density 500 -resize 20% " + tmp + ".pdf " + path_ + filename_ + ".png");
+		//command("mv /tmp/" + tmp + ".pdf " + path_ + filename_ + ".pdf");
+		//command("rm /tmp/" + tmp + "*");
+		command(Linux::pdflatex("/tmp/",texfile),silent);
+		command(Linux::pdf2png("/tmp/" + texfile, path_ + filename_));
+		command("mv /tmp/" + texfile + ".pdf " + path_ + filename_ + ".pdf");
+		command("rm /tmp/" + texfile + "*");
 	} else {
 		std::cerr<<"Gnuplot::create_image : can't create a plot"<<std::endl;
 	}
