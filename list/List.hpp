@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <functional>
+#include <memory>
 
 /*{Description*/
 /*! The list is constructed according this scheme
@@ -36,16 +37,17 @@ class List{
 
 		Type& get() { return (*move_->t_); }
 		Type const& get() const { return (*move_->t_); }
+		std::shared_ptr<Type> const& get_ptr() const { return move_->t_; }
 		Type& first(){ return *next_->t_; }
 		Type const& first() const { return *next_->t_; }
 		Type& last() { return (*next_->move_->t_); }
 		Type const& last() const { return (*next_->move_->t_); }
 
-		void add_start(Type* t);
-		void add_end(Type* t);
-		void add(Type* t, unsigned int const& idx);
-		void add_sort(Type* t,  std::function<bool (Type*,Type*)> cmp);
-		void add_or_fuse_sort(Type* t, std::function<unsigned int (Type*,Type*)> cmp, std::function<void (Type*,Type*)> fuse);
+		void add_start(std::shared_ptr<Type> t);
+		void add_end(std::shared_ptr<Type> t);
+		void add(std::shared_ptr<Type> t, unsigned int const& idx);
+		void add_sort(std::shared_ptr<Type> t,  std::function<bool (Type const&, Type const&)> cmp);
+		void add_or_fuse_sort(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp, std::function<void (Type&, Type&)> fuse);
 
 		void pop_start();
 		void pop_end();
@@ -59,9 +61,9 @@ class List{
 		void print(std::ostream& flux) const;
 
 	protected:
-		List(Type* t);
+		List(std::shared_ptr<Type> t);
 
-		Type* t_;
+		std::shared_ptr<Type> t_;
 		List<Type>* move_;
 		List<Type>* next_;
 };
@@ -82,7 +84,7 @@ List<Type>::List():
 {}
 
 template<typename Type>
-List<Type>::List(Type* t):
+List<Type>::List(std::shared_ptr<Type> t):
 	t_(t),
 	move_(NULL),
 	next_(NULL)
@@ -108,19 +110,16 @@ void List<Type>::set(){
 		delete next_;
 		next_ = NULL;
 	}
-	if(t_){
-		delete t_;
-		t_ = NULL;
-	}
 }
 /*}*/
 
 /*add an element to the list*/
 /*{*/
 template<typename Type>
-void List<Type>::add_start(Type* t){
+void List<Type>::add_start(std::shared_ptr<Type> t){
 	if(next_){
 		List<Type>* tmp(new List<Type>(t));
+		if(move_ == next_){ move_ = tmp; }
 		tmp->move_ = next_->move_;
 		tmp->next_ = next_;
 		next_->move_ = tmp;
@@ -133,7 +132,7 @@ void List<Type>::add_start(Type* t){
 }
 
 template<typename Type>
-void List<Type>::add_end(Type* t){
+void List<Type>::add_end(std::shared_ptr<Type> t){
 	if(next_){
 		next_->move_->next_ = new List<Type>(t);
 		next_->move_->next_->move_ = next_->move_;
@@ -146,7 +145,7 @@ void List<Type>::add_end(Type* t){
 }
 
 template<typename Type>
-void List<Type>::add(Type* t, unsigned int const& idx){
+void List<Type>::add(std::shared_ptr<Type> t, unsigned int const& idx){
 	if(idx == 0){ add_start(t); }
 	else{
 		List<Type>* tmp(next_);
@@ -167,21 +166,21 @@ void List<Type>::add(Type* t, unsigned int const& idx){
 }
 
 template<typename Type>
-void List<Type>::add_sort(Type* t, std::function<bool (Type*,Type*)> cmp){
+void List<Type>::add_sort(std::shared_ptr<Type> t, std::function<bool (Type const&, Type const&)> cmp){
 	if(next_){
 		if(next_->next_){
-			if(cmp(next_->move_->t_,t)){ add_end(t); }
+			if(cmp(*next_->move_->t_,*t)){ add_end(t); }
 			else {
 				List<Type> const* tmp(next_);
 				unsigned int i(0);
-				while( cmp(tmp->t_,t) ){ /*removed the condition tmp->next_*/
+				while( cmp(*tmp->t_,*t) ){ /*removed the condition tmp->next_*/
 					tmp = tmp->next_; 
 					i++;
 				}
 				add(t,i);
 			}
 		} else {
-			if( cmp(next_->t_,t) ){ add_end(t); } 
+			if( cmp(*next_->t_,*t) ){ add_end(t); } 
 			else { add_start(t); }
 		}
 	} else {
@@ -190,33 +189,33 @@ void List<Type>::add_sort(Type* t, std::function<bool (Type*,Type*)> cmp){
 }
 
 template<typename Type>
-void List<Type>::add_or_fuse_sort(Type* t, std::function<unsigned int (Type*,Type*)> cmp, std::function<void (Type*,Type*)> fuse){
+void List<Type>::add_or_fuse_sort(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp, std::function<void (Type&, Type&)> fuse){
 	if(next_){
 		if(next_->next_){
-			switch(cmp(next_->move_->t_,t)){
+			switch(cmp(*next_->move_->t_,*t)){
 				case 0:
 					{
 						List<Type> const* tmp(next_);
 						unsigned int i(0);
-						unsigned int c(cmp(tmp->t_,t));
+						unsigned int c(cmp(*tmp->t_,*t));
 						while(c==1){
 							tmp = tmp->next_; 
-							c = cmp(tmp->t_,t);
+							c = cmp(*tmp->t_,*t);
 							i++;
 						}
 						if(c==0){ add(t,i); }
-						else{ fuse(tmp->t_,t); }
+						else{ fuse(*tmp->t_,*t); }
 					}break;
 				case 1:
 					{ add_end(t); }break;
 				case 2:
-					{ fuse(move_->t_,t); }break;
+					{ fuse(*move_->t_,*t); }break;
 			}
 		} else {
-			switch(cmp(next_->t_,t)){
+			switch(cmp(*next_->t_,*t)){
 				case 0: { add_start(t); } break;
 				case 1: { add_end(t); } break;
-				case 2: { fuse(next_->t_,t); } break;
+				case 2: { fuse(*next_->t_,*t); } break;
 			}
 		}
 	} else {
@@ -231,6 +230,7 @@ template<typename Type>
 void List<Type>::pop_start(){
 	if(next_){
 		if(next_->next_){
+			if(move_ == next_){ move_ = next_->next_; }
 			List<Type>* tmp(next_->next_);
 			tmp->move_ = next_->move_;
 			next_->next_ = NULL;
@@ -312,7 +312,7 @@ void List<Type>::swap(unsigned int const& a, unsigned int const& b){
 		for(unsigned int i(0);i<a;i++){ list_a = list_a->next_; }
 		List<Type>* list_b(list_a);
 		for(unsigned int i(0);i<b-a;i++){ list_b = list_b->next_; }
-		Type* tmp(list_a->t_);
+		std::shared_ptr<Type> tmp(list_a->t_);
 		list_a->t_ = list_b->t_; 
 		list_b->t_ = tmp; 
 	}
@@ -335,10 +335,10 @@ template<typename Type>
 List<Type> List<Type>::sublist(unsigned int const& a, unsigned int const& b) const {
 	List<Type> const* tmp(this);
 	for(unsigned int i(0);i<a;i++){ tmp = tmp->next_; }
-	List<Type> l(new Type(*tmp->t_));
+	List<Type> l(std::make_shared<Type>(*tmp->t_));
 	for(unsigned int i(0);i<b-a;i++){
 		tmp = tmp->next_; 
-		l.add_end(new Type(*tmp->t_));
+		l.add_end(std::make_shared<Type>(*tmp->t_));
 	}
 	return l;
 }
@@ -357,7 +357,7 @@ unsigned int List<Type>::size() const{
 template<typename Type>
 void List<Type>::print(std::ostream& flux) const {
 	List<Type> const* tmp(next_);
-	while(tmp && tmp->t_){
+	while(tmp){
 		flux<<(*tmp->t_)<<" "; 
 		tmp = tmp->next_;
 	}

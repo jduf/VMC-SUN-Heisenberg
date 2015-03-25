@@ -51,15 +51,9 @@ void PSTricks::save(bool silent, bool pdf, bool crop){
 	}
 
 	Linux command;
-	//command("latex --shell-escape " + filename_ + ".tex" + (silent?" > /dev/null 2> /dev/null":""));
 	command(Linux::latex(filename_),silent);
-	if(pdf){
-		//command("dvipdf " + filename_ + ".dvi " + path_ + filename_ + ".pdf ");
-		command(Linux::dvipdf(path_,filename_),silent);
-		if(crop){
-			//command("pdfcrop " + path_ + filename_ + ".pdf " + path_ + filename_ + ".pdf > /dev/null"); 
-			command(Linux::pdfcrop(path_,filename_),silent);
-		}
+	if(pdf){ command(Linux::dvipdf(path_,filename_),silent);
+		if(crop){ command(Linux::pdfcrop(path_,filename_),silent); }
 	}
 	command("mv " + filename_ + "-1.png " + path_ + filename_ + ".png",silent);
 	command("rm *.dvi *.aux *.log *.ps" ,silent);
