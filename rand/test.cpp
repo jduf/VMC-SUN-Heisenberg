@@ -8,12 +8,25 @@ void check_openmp_mt();
 void check_minimal_number_mt();
 void check_shuffle();
 
+void check_array();
+
+class TMP{
+	public:
+		TMP():rnd_(0.0,1.0){}
+		double get() { return rnd_.get(); }
+
+	private:
+		Rand<double> rnd_;
+};
+
 int main(){
-	check_basic();
-	check_openmp_mt();
+	//check_basic();
+	//check_openmp_mt();
 	
 	//check_minimal_number_mt();
 	//check_shuffle();
+	
+	check_array();
 }
 
 void check_basic(){
@@ -94,4 +107,14 @@ void check_minimal_number_mt(){
 		if(tmp<min){ min = tmp; }
 		if(t.progress(1)){ std::cout<<i<<" "<<min<<std::endl; }
 	}
+}
+
+void check_array(){
+	unsigned int N(10);
+	TMP* tmp(new TMP[N]);
+	TMP* test(tmp);
+	for(unsigned int i(0);i<N;i++){
+		std::cout<<tmp[i].get()<<" "<<test[i].get()<<std::endl;
+	}
+	delete[] tmp;
 }

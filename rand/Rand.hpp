@@ -17,7 +17,7 @@ class Rand{
 		/*!Destructor*/
 		~Rand(){}
 		/*!Gives the next random unsigned int strictly smaller than max*/
-		Type get() const { return dist_(mt_); }
+		Type get() { return dist_(mt_); }
 
 	private:
 		/*!Forbids default*/

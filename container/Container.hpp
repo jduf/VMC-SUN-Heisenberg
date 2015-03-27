@@ -100,8 +100,8 @@ class Container{
 
 		template<typename Type>
 			Type const& do_cast(unsigned int const& i) const {
-				return reinterpret_cast< GenericVariable<Type> *>(data_[i])->get_val();
-				//dynamic_cast< GenericVariable<Type> *>(data_[i])->get_val();
+				return static_cast< GenericVariable<Type> *>(data_[i])->get_val();
+				//return dynamic_cast< GenericVariable<Type> *>(data_[i])->get_val();
 			}
 };
 
@@ -138,7 +138,6 @@ void Container::get(unsigned int i, Type &t){
 template<typename Type>
 Type Container::get(unsigned int i){
 	if(i<data_.size()){
-		//return reinterpret_cast< GenericVariable<Type> *>(data_[i])->get_val();
 		return do_cast<Type>(i);
 	} else {
 		std::cerr<<"Container : "<<i<<"<"<< data_.size()<<"?" <<std::endl; 
