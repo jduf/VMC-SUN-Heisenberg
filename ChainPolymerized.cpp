@@ -12,15 +12,15 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 			filename_ += ((ti_(j)>0)?"+":"")+tostring(ti_(j));
 		}
 		if(spuc_ != 1){
-			system_info_.text("+ Spin chain, with different real hopping terms.");
+			system_info_.item("Spin chain, with different real hopping terms.");
 			if(spuc_ != 4){
 				std::string tmp("");
 				for(unsigned int i(0);i<spuc_-1;i++){ tmp += "=\\bullet"; }
-				system_info_.text("+  :math:`t_i : "+tmp+"-`");
+				system_info_.item(":math:`t_i : "+tmp+"-`");
 			}
-			else{system_info_.text("+  :math:`t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-`");}
+			else{system_info_.item(":math:`t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-`");}
 		} else {
-			system_info_.text("+ Spin chain with real and uniform hopping terms");
+			system_info_.item("+ Spin chain with real and uniform hopping terms");
 		}
 	}
 }

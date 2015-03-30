@@ -1,15 +1,15 @@
 #ifndef DEF_CHAINFERMI
 #define DEF_CHAINFERMI
 
-/*{Creates a chain with uniform hopping parameter*/
-/*!
+#include "Chain.hpp"
+
+/*{Description*/
+/*!Creates a chain with uniform hopping parameter
  * To properly solve the degeneracy problem, this wavefunction selects the
  * eigenvector |E_F,-> or |E_F,->. This seems to have exactly the same effect
  * as choosing anti-periodic boundary conditions
  */
 /*}*/
-#include "Chain.hpp"
-
 template<typename Type>
 class ChainFermi: public Chain<Type>{
 	public:
@@ -33,8 +33,7 @@ ChainFermi<Type>::ChainFermi(Vector<unsigned int> const& ref, unsigned int const
 	if(this->status_==2){
 		this->init_fermionic();
 
-		this->system_info_.text("+ Spin chain with real and identical hopping");
-		this->system_info_.text("  term between each sites :");
+		this->system_info_.item("+ Spin chain with real and identical hopping term between each sites");
 	}
 }
 

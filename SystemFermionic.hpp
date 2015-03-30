@@ -85,19 +85,18 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 		}
 	}
 
-	Type det_Ainv(1.0);
-	for(unsigned int c(0);c<2;c++){ 
-		Lapack<Type> detAinv(Ainv_[this->new_c_[c]],true,'G');
-		det_Ainv *= detAinv.det();
-	}
-	det_Ainv = chop(det_Ainv);
 	/*!Make sure that the matrices Ainv_ are invertible by going to a state of
 	 * heigh weight*/
 	unsigned int l(0);
 	unsigned int TRY_MAX(1e5);
 	Matrix<Type>* A;
 	A = new Matrix<Type>[this->N_];
-	for(unsigned int c(0); c<this->N_; c++){ A[c] = Ainv_[c]; }
+	Vector<Type> det_A(this->N_,1.0);
+	Vector<Type> det_Ainv(this->N_,1.0);
+	for(unsigned int c(0); c<this->N_; c++){
+		A[c] = Ainv_[c];
+		det_Ainv(c) = Lapack<Type>(Ainv_[c],true,'G').det();
+	}
 	while( !are_invertible() && ++l<TRY_MAX ){
 		swap();
 		for(unsigned int j(0);j<this->M_(this->new_c_[0]);j++){
@@ -109,13 +108,12 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 		/*!Compute the ratio of the determinant of the two states. This is the
 		 * brute force method but as for now the inverse matrix is unknown, it
 		 * is the only solution*/
-		Type det_A(1.0);
+		Type d(1.0);
 		for(unsigned int c(0);c<2;c++){ 
-			Lapack<Type> detA(A[this->new_c_[c]],true,'G');
-			det_A *= detA.det();
+			det_A(this->new_c_[c]) = Lapack<Type>(A[this->new_c_[c]],true,'G').det();
+			d *= det_A(this->new_c_[c])/det_Ainv(this->new_c_[c]);
 		}
-		det_A = chop(det_A);
-		if( norm_squared(det_A/det_Ainv)>1 ){
+		if( norm_squared(d)>1 ){
 			det_Ainv = det_A;
 			/*update the new state*/
 			for(unsigned int j(0);j<this->M_(this->new_c_[0]);j++){

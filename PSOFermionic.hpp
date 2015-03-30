@@ -6,12 +6,13 @@
 #include "PSO.hpp"
 #include "List.hpp"
 
-class MCSim{
+class MCSim {
 	public:
 		MCSim(Vector<double> const& param, Data<double> const& E): param_(param), E_(E), N_(1) {}
 
-		static unsigned int cmp_for_fuse(MCSim* list, MCSim* new_elem);
-		static void fuse(MCSim* list, MCSim* new_elem);
+		static unsigned int cmp_for_fuse(MCSim const& list_elem, MCSim const& new_elem);
+		static void fuse(MCSim& list_elem, MCSim& new_elem);
+
 		Vector<double> const& get_param(){ return param_; }
 		Data<double> const& get_energy(){ return E_; }
 		unsigned int const& get_N(){ return N_; }
@@ -24,30 +25,33 @@ class MCSim{
 		unsigned int N_;
 };
 
-std::ostream& operator<<(std::ostream& flux, MCSim const& mcsim);
+class MCParticle: public Particle{
+	public:
+		MCParticle(){}
+		~MCParticle(){}
 
-class PSOFermionic : public PSO{
+		void move(Vector<double> const& bx_all);
+		void update_particle_history(std::shared_ptr<MCSim>& new_elem){
+			history_.add_or_fuse_sort(new_elem,MCSim::cmp_for_fuse,MCParticle::fuse);
+		}
+
+	private:
+		List<MCSim> history_;
+		static void fuse(MCSim& list_elem, MCSim& new_elem);
+};
+
+class PSOFermionic: public Swarm<MCParticle>{
 	public:
 		PSOFermionic(Parseur* P);
 		virtual ~PSOFermionic(){}
 
-		void print(){ std::cout<<all_results_<<std::endl; }
-		void plot(){
-			IOFiles data("data.dat",true);
-			do{
-				data<<all_results_.get().get_param()<<" "<<all_results_.get().get_energy()<<IOFiles::endl;
-			} while ( all_results_.move_forward() );
-			Gnuplot gp("./","test");
-			gp+="splot 'data.dat' u 1:2:3";
-			gp.save_file();
-			gp.create_image(true);
-		}
+		void plot();
 
 	private:
-		virtual double f(Vector<double> const& x);
+		bool is_better_x(unsigned int const& p);
 		void create();
 		template<typename Type>
-			double monte_carlo(CreateSystem& cs, Vector<double> const& x);
+			bool monte_carlo(CreateSystem& cs, unsigned int const& p);
 
 		unsigned int tmax_;
 		Container system_;
@@ -55,33 +59,48 @@ class PSOFermionic : public PSO{
 };
 
 template<typename Type>
-double PSOFermionic::monte_carlo(CreateSystem& cs, Vector<double> const& x){
-	MCSystem<Type>* S(NULL);
-	if(cs.is_bosonic())
-	{ S = new SystemBosonic<Type>
-		(*dynamic_cast<const Bosonic<Type>*>(cs.get_system())); } 
-	else 
-	{ S = new SystemFermionic<Type>
-		(*dynamic_cast<const Fermionic<Type>*>(cs.get_system())); }
+bool PSOFermionic::monte_carlo(CreateSystem& cs, unsigned int const& p){
+	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
 
-	MonteCarlo<Type> sim(S,tmax_);
-	if(S->get_status() == 0){
-		sim.thermalize(1e6);
-		sim.run();
-		sim.complete_analysis(1e-5);
-		MCSim* run_results(new MCSim(x,S->get_energy()));
+	MCSystem<Type>* S;
+	std::shared_ptr<MCSim> rr;
+	double local_e(0.0);
+	bool local_improvement(false);
+	do {
+		if(cs.is_bosonic())
+			S = new SystemBosonic<Type>
+				(*dynamic_cast<const Bosonic<Type>*>(cs.get_system()));
+		else 
+			S = new SystemFermionic<Type>
+				(*dynamic_cast<const Fermionic<Type>*>(cs.get_system()));
+
+		MonteCarlo<Type> sim(S,tmax_);
+		if(S->get_status() == 0){
+			sim.thermalize(1e6);
+			sim.run();
+			sim.complete_analysis(1e-5);
+			rr = std::make_shared<MCSim>(P->get_x(),S->get_energy());
+			local_e = rr->get_energy().get_x();
 
 #pragma omp critical(add_new_result_to_list)
-		{
-			all_results_.add_or_fuse_sort(run_results, MCSim::cmp_for_fuse, MCSim::fuse);
+			{
+				all_results_.add_or_fuse_sort(rr, MCSim::cmp_for_fuse, MCSim::fuse);
+			}
+			P->update_particle_history(rr);
+			local_improvement = rr->get_energy().get_x()<local_e;
+		} else {
+			std::cerr<<"double PSOFermionic::monte_carlo(CreateSystem& cs, Vector<double> const& x) : no value for x="<<p_[p]->get_x()<<std::endl;
 		}
-
 		delete S;
-		return run_results->get_energy().get_x();
+	} while (local_improvement);
+	P->update_particle_history(rr);
+	if(local_e < P->get_fbx()){ 
+		P->set_best(P->get_x(),P->get_fbx());
+		return true;
 	} else {
-		std::cerr<<"double PSOFermionic::monte_carlo(CreateSystem& cs, Vector<double> const& x) : no value for x="<<x<<std::endl;
-		delete S;
-		return 0.0;
+		return false;
 	}
 }
+
+std::ostream& operator<<(std::ostream& flux, MCSim const& mcsim);
 #endif

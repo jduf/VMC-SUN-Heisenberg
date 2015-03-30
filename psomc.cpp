@@ -10,11 +10,10 @@ int main(int argc, char* argv[]){
 	PSOFermionic s(&P);
 
 	for(unsigned int i(0);i<Nfreedom;i++){
-		s.PSO_set_limit(i,0.9,1.1);
+		Optimization::set_limit(i,0.9,1.1);
 	}
-	s.PSO_init();
-	s.PSO_run();
-	s.PSO_print();
+	s.init(100);
+	s.run();
 	s.print();
 	s.plot();
 }
