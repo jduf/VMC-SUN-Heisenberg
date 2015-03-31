@@ -14,6 +14,6 @@ int main(int argc, char* argv[]){
 	}
 	s.init(100);
 	s.run();
-	s.print();
+	std::cout<<s<<std::endl;
 	s.plot();
 }

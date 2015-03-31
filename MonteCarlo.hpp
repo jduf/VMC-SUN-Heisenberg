@@ -93,6 +93,7 @@ void MonteCarlo<Type>::thermalize(unsigned int const& N){
 
 template<typename Type>
 void MonteCarlo<Type>::run(){
+	time_.set();
 	if(S_->get_status()==0){
 		do{next_step();}
 		while(keepon());
