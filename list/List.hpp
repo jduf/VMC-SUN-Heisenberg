@@ -47,15 +47,19 @@ class List{
 		void add_end(std::shared_ptr<Type> t);
 		void add(std::shared_ptr<Type> t, unsigned int const& idx);
 		void add_sort(std::shared_ptr<Type> t,  std::function<bool (Type const&, Type const&)> cmp);
-		void add_or_fuse_sort(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp, std::function<void (Type&, Type&)> fuse);
+		void add_after_move(std::shared_ptr<Type> t);
 
 		void pop_start();
 		void pop_end();
 		void pop(unsigned int const& idx);
 		void pop_range(unsigned int const& a, unsigned int const& b);
 
+
+		bool find(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp);
+		void fuse_with_move(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> fuse);
+
 		unsigned int size() const;
-		bool move_forward();
+		bool move_forward() const;
 		void swap(unsigned int const& a, unsigned int const& b);
 		List<Type> sublist(unsigned int const& a, unsigned int const& b) const;
 		void print(std::ostream& flux) const;
@@ -64,7 +68,7 @@ class List{
 		List(std::shared_ptr<Type> t);
 
 		std::shared_ptr<Type> t_;
-		List<Type>* move_;
+		mutable List<Type>* move_;
 		List<Type>* next_;
 };
 
@@ -189,38 +193,19 @@ void List<Type>::add_sort(std::shared_ptr<Type> t, std::function<bool (Type cons
 }
 
 template<typename Type>
-void List<Type>::add_or_fuse_sort(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp, std::function<void (Type&, Type&)> fuse){
-	if(next_){
-		if(next_->next_){
-			switch(cmp(*next_->move_->t_,*t)){
-				case 0:
-					{
-						List<Type> const* tmp(next_);
-						unsigned int i(0);
-						unsigned int c(cmp(*tmp->t_,*t));
-						while(c==1){
-							tmp = tmp->next_; 
-							c = cmp(*tmp->t_,*t);
-							i++;
-						}
-						if(c==0){ add(t,i); }
-						else{ fuse(*tmp->t_,*t); }
-					}break;
-				case 1:
-					{ add_end(t); }break;
-				case 2:
-					{ fuse(*move_->t_,*t); }break;
-			}
+void List<Type>::add_after_move(std::shared_ptr<Type> t){
+	if(move_==this){ add_start(t); }
+	else {
+		if(move_->next_){
+			move_->next_->move_ = new List<Type>(t);
+			move_->next_->move_->next_ = move_->next_;
+			move_->next_= move_->next_->move_;
+			move_->next_->move_ = move_;
 		} else {
-			switch(cmp(*next_->t_,*t)){
-				case 0: { add_start(t); } break;
-				case 1: { add_end(t); } break;
-				case 2: { fuse(*next_->t_,*t); } break;
-			}
+			add_end(t);
 		}
-	} else {
-		add_end(t);
 	}
+	move_ = next_;
 }
 /*}*/
 
@@ -317,12 +302,69 @@ void List<Type>::swap(unsigned int const& a, unsigned int const& b){
 		list_b->t_ = tmp; 
 	}
 }
+
+template<typename Type>
+void List<Type>::fuse_with_move(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> fuse){
+	fuse(*move_->t_,*t);
+}
 /*}*/
 
 /*methods that return something*/
 /*{*/
 template<typename Type>
-bool List<Type>::move_forward() { 
+bool List<Type>::find(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp){
+	if(next_){
+		if(next_->next_){
+			if(cmp(*next_->move_->t_,*t)==2){
+				std::cout<<"A"<<*t<<std::endl;
+				move_ = next_->move_;
+				return true;
+			} else {
+				move_=next_;
+				unsigned int c(cmp(*move_->t_,*t));
+				while(c==1){
+					move_ = move_->next_;
+					c = cmp(*move_->t_,*t);
+				}
+				if(c==0){
+					std::cout<<"B"<<*t<<std::endl;
+					return false; 
+				}
+				else{
+					std::cout<<"C"<<*t<<std::endl;
+					return true; 
+				}
+			}
+		} else {
+			switch(cmp(*next_->t_,*t)){
+				case 0:
+					{ 
+						std::cout<<"D"<<*t<<std::endl;
+						move_ = this;
+						return false;
+					} break;
+				case 1: 
+					{ 
+						std::cout<<"E"<<*t<<std::endl;
+						move_ = next_;
+						return false;
+					} break;
+				default: 
+					{ 
+						std::cout<<"F"<<*t<<std::endl;
+						return true;
+					} break;
+			}
+		}
+	} else {
+		std::cout<<"G"<<*t<<std::endl;
+		move_ = this;
+		return false;
+	}
+}
+
+template<typename Type>
+bool List<Type>::move_forward() const { 
 	move_ = move_->next_; 
 	if(move_){ return true; }
 	else { 

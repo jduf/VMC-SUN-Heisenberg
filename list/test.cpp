@@ -184,10 +184,14 @@ int main(){
 		Rand<int> rnd(0,10);
 		List<Vector<int> > a;
 		Vector<int> tmp(2);
+		std::shared_ptr<Vector<int> > tmp_shared;
 		for(unsigned int i(0);i<10;i++){
 			tmp(0) = rnd.get();
 			tmp(1) = rnd.get();
-			a.add_or_fuse_sort(std::make_shared<Vector<int> >(tmp), cmp_for_fuse, fuse);
+			tmp_shared = std::make_shared<Vector<int> >(tmp);
+			if( a.find(tmp_shared, cmp_for_fuse) ){ a.fuse_with_move(tmp_shared,fuse); }
+			else { a.add_after_move(tmp_shared); }
+
 			std::cout<<a<<std::endl;
 		}
 	}

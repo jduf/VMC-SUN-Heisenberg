@@ -97,12 +97,6 @@ class Container{
 
 	protected:
 		std::vector<Variable*> data_;
-
-		template<typename Type>
-			Type const& do_cast(unsigned int const& i) const {
-				return static_cast< GenericVariable<Type> *>(data_[i])->get_val();
-				//return dynamic_cast< GenericVariable<Type> *>(data_[i])->get_val();
-			}
 };
 
 template<typename Type>
@@ -113,7 +107,7 @@ void Container::set(std::string const& name, Type const& t){
 template<typename Type>
 Type Container::get(std::string const& name){
 	unsigned int i(0);
-	if(find(name,i)){ return do_cast<Type>(i); }
+	if(find(name,i)){ return static_cast< GenericVariable<Type> *>(data_[i])->get_val(); }
 	else {
 		std::cerr<<"Container : get(string name) : no data with name "<<name<<std::endl;
 		return Type();
@@ -123,7 +117,7 @@ Type Container::get(std::string const& name){
 template<typename Type>
 void Container::get(std::string const& name, Type& t){
 	unsigned int i(0);
-	if(find(name,i)){ t = do_cast<Type>(i); }
+	if(find(name,i)){ t = static_cast< GenericVariable<Type> *>(data_[i])->get_val(); }
 	else {
 		std::cerr<<"Container : get(string name) : no data with name '"<<name<<"' thus the value is unchanged : "<< t <<std::endl; 
 	}
@@ -131,14 +125,14 @@ void Container::get(std::string const& name, Type& t){
 
 template<typename Type>
 void Container::get(unsigned int i, Type &t){
-	if(i<data_.size()){ t = do_cast<Type>(i); }
+	if(i<data_.size()){ t = static_cast< GenericVariable<Type> *>(data_[i])->get_val(); }
 	else { std::cerr<<"Container : "<<i<<"<"<< data_.size()<<"?" <<std::endl; }
 }
 
 template<typename Type>
 Type Container::get(unsigned int i){
 	if(i<data_.size()){
-		return do_cast<Type>(i);
+		return static_cast< GenericVariable<Type> *>(data_[i])->get_val();
 	} else {
 		std::cerr<<"Container : "<<i<<"<"<< data_.size()<<"?" <<std::endl; 
 		return Type();

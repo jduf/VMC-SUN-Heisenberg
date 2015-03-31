@@ -54,6 +54,15 @@ void Particle::init(double fx){
 	move(x_);
 	bx_ = x_;
 }
+
+void Particle::print(std::ostream& flux) const {
+	flux<<"x="<<x_<<" fbx="<<fbx_;
+}
+
+std::ostream& operator<<(std::ostream& flux, Particle const& p){
+	p.print(flux);
+	return flux;
+}
 /*}*/
 /*}*/
 

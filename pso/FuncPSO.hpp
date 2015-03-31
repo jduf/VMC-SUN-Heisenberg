@@ -101,7 +101,7 @@ bool FuncPSO::is_better_x(unsigned int const& p){
 		m_.add_sort(result,func);
 	}
 
-	if( fx<p_[p]->get_f() ){ 
+	if( fx<p_[p]->get_fbx() ){ 
 		p_[p]->set_best(p_[p]->get_x(),fx);
 		return true;
 	} else {
