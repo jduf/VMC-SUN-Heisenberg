@@ -1,109 +1,40 @@
-#include "ChainPolymerized.hpp"
+#include "ChainPolymerizedJJp.hpp"
 
-ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<double> const& t):
+ChainPolymerizedJJp::ChainPolymerizedJJp(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<double> const& t, Vector<double> const& JJp):
 	System(ref,N,m,n,M,bc),
-	Chain<double>((are_equal(t,Vector<double>(N_/m_,1.0))?1:N_/m_),"chain-polymerized"),
-	t_(t)
+	ChainPolymerized(ref,N,m,n,M,bc,t),
+	JJp_(JJp)
 {
 	if(status_==2){
-		init_fermionic();
-		filename_ += "-t";
-		for(unsigned int j(0);j<t_.size();j++){
-			filename_ += ((t_(j)>0)?"+":"")+tostring(t_(j));
+		filename_ += "-J";
+		for(unsigned int j(0);j<JJp_.size();j++){
+			filename_ += ((JJp_(j)>0)?"+":"")+tostring(JJp_(j));
 		}
-		if(spuc_ != 1){
-			system_info_.text("Trial wavefunction with different real hopping ");
-			system_info_.text("terms for a "+RST::math("\\mathrm{SU}(N)")+" chain :"+RST::nl_);
-			if(spuc_ != 4){
-				std::string tmp("");
-				for(unsigned int i(0);i<spuc_-1;i++){ tmp += "=\\bullet"; }
-				system_info_.text(" "+RST::math("t_i : "+tmp+"-"));
-			}
-			else{system_info_.text(" "+RST::math("t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-"));}
-			system_info_.text(RST::nl_);
-
-		} else {
-			system_info_.text("Trial wavefunction with uniform real hopping ");
-			system_info_.text("terms for a "+RST::math("\\mathrm{SU}(N)")+" chain :"+RST::nl_);
+		for(unsigned int i(0);i<J_.size();i++){
+			if(i%2){ J_(i) = JJp(0); }
+			else { J_(i) = JJp_(1); }
 		}
+		system_info_.text("The Hamiltonian is of the form : ");
+		system_info_.math_centered("H=JS_iS_{i+1} + J'S_{i+1}S_{i+2}");
+		system_info_.text("with " + RST::math("J<0") + " and " +RST::math("J'<0"));
 	}
 }
 
 /*{method needed for running*/
-void ChainPolymerized::compute_H(){
-	H_.set(n_,n_,0);
-	Matrix<int> nb;
-	for(unsigned int i(0);i<n_;i+=spuc_){
-		for(unsigned int j(0);j<spuc_;j++){
-			nb = get_neighbourg(i+j);
-			H_(i+j,nb(0,0)) = nb(0,1)*t_(j);
-		}
-	}
-	H_ += H_.transpose();
-}
-
-void ChainPolymerized::create(){
-	E_.set(50,5,false);
-	corr_.set(links_.row(),50,5,false);
-	lr_corr_.set(links_.row(),50,5,false);
-
-	compute_H();
-	diagonalize(true);
-	for(unsigned int c(0);c<N_;c++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = H_(i,j);
-			}
-		}
-	}
-	if(status_==2){
-		/*!Use the eigenvector (k1+k2)/sqrt(2) which correspond to the
-		 * impulsion k1+k2=0.*/
-		compute_H();
-		diagonalize(false);
-		double n1(0);
-		double n2(0);
-		std::complex<double> tmp1;
-		std::complex<double> tmp2;
-		unsigned int m(M_(0));
-		for(unsigned int i(0);i<n_;i++){
-			tmp1 = evec_(i,m) + evec_(i,m-1);//k=k1+k2=0
-			tmp2 = evec_(i,m) - evec_(i,m-1);//k=k1-k2=2k1
-			evec_(i,m-1)= tmp1;
-			evec_(i,m)  = tmp2;
-			n1 += norm_squared(tmp1);
-			n2 += norm_squared(tmp2);
-		}
-		for(unsigned int i(0);i<n_;i++){
-			evec_(i,m-1)/= sqrt(n1);
-			evec_(i,m)  /= sqrt(n2);
-		}
-		for(unsigned int c(0);c<N_;c++){
-			for(unsigned int i(0);i<n_;i++){
-				EVec_[c](i,M_(c)-1) = real(evec_(i,M_(c)-1));
-			}
-		}
-	}
-}
-
-void ChainPolymerized::save() const {
-	GenericSystem<double>::save();
-	if(spuc_==4){jd_write_->write("t ("+tostring(t_(1))+","+tostring(t_(3))+")",t_);}
-	else{jd_write_->write("t ("+tostring(t_(spuc_-1))+")",t_);}
-}
-/*}*/
-
-/*{method needed for checking*/
-void ChainPolymerized::check(){
-	compute_H();
-	plot_band_structure();
+void ChainPolymerizedJJp::save() const {
+	ChainPolymerized::save();
+	jd_write_->write("JJp ("+tostring(JJp_(0))+","+tostring(JJp_(1))+")",JJp_);
 }
 /*}*/
 
 /*{method needed for analysing*/
-std::string ChainPolymerized::extract_level_7(){
+std::string ChainPolymerizedJJp::extract_level_7(){
 	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
 	std::string t_string("(");
+	for(unsigned int i(0);i<JJp_.size()-1;i++){
+		t_string += tostring(JJp_(i))+",";
+	}
+	t_string += tostring(JJp_(JJp_.size()-1))+"|";
 	for(unsigned int i(0);i<t_.size()-1;i++){
 		t_string += tostring(t_(i))+",";
 	}
@@ -223,7 +154,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gpsf+="set key bottom";
 	gpsf.range("x","0","2*pi");
 	switch(N_/m_){
-		case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0, '$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
+		case 3: { gpsf+="set xitcs ('0' 0,'$2\\pi/3$' 2.0*pi/3.0, '$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
 		case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
 		default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
 	}
@@ -239,6 +170,7 @@ std::string ChainPolymerized::extract_level_7(){
 	/*{*/
 	if(spuc_==4){jd_write_->write("t ("+tostring(t_(1))+","+tostring(t_(3))+")",t_);}
 	else{jd_write_->write("t ("+tostring(t_(spuc_-1))+")",t_);}
+	jd_write_->write("JJp ("+tostring(JJp_(0))+","+tostring(JJp_(1))+")",JJp_);
 	jd_write_->write("energy per site",E_);
 	jd_write_->write("polymerizaton strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
 	jd_write_->write("critical exponents",exponents);
@@ -252,7 +184,7 @@ std::string ChainPolymerized::extract_level_7(){
 	return t_string;
 }
 
-std::string ChainPolymerized::extract_level_6(){
+std::string ChainPolymerizedJJp::extract_level_6(){
 	Data<double> tmp_E;
 	E_.set_x(1e33);
 	Vector<double> exponents;
@@ -260,14 +192,16 @@ std::string ChainPolymerized::extract_level_6(){
 	double polymerizaton_strength;
 	double tmp_polymerizaton_strength;
 	Vector<double> tmp_t;
+	Vector<double> tmp_JJp;
 	unsigned int nof(0);
 	(*read_)>>nof;
 
 	for(unsigned int i(0);i<nof;i++){
-		(*read_)>>tmp_t>>tmp_E>>tmp_polymerizaton_strength>>tmp_exponents;
+		(*read_)>>tmp_t>>tmp_JJp>>tmp_E>>tmp_polymerizaton_strength>>tmp_exponents;
 		if(tmp_E.get_x()<E_.get_x()){ 
 			E_ = tmp_E;
 			t_ = tmp_t;
+			JJp_ = tmp_JJp;
 			polymerizaton_strength = tmp_polymerizaton_strength;
 			exponents = tmp_exponents;
 		}

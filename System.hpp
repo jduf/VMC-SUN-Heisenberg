@@ -27,8 +27,11 @@ class System{
 		/*!Returns the status of the system*/
 		unsigned int const& get_status(){return status_;}
 
+		/*!Sets J*/
+		void set_J(Vector<double> const& J);
 		/*!Set the observables to default (0) values and initilize binning*/
 		void set();
+
 		/*!Delete the binning for all observables*/
 		void delete_binning();
 
@@ -50,6 +53,7 @@ class System{
 		DataSet<double> lr_corr_;		//!< long range correlation 
 
 		Matrix<unsigned int> links_;	//!< bonds <i,j> exchanged by H
+		Vector<double> J_;
 
 	private:
 		/*!Forbids assignment*/

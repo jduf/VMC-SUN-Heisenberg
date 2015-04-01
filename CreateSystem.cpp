@@ -49,6 +49,23 @@ void CreateSystem::parse(Container* C){
 		}
 		C_.set("t",t);
 	}
+	if( wf == "chainpolymerizedjjp" ){
+		ref_(0) = 2;
+		ref_(1) = 1;
+		ref_(2) = 2;
+		Vector<double> t(N_/m_,1);
+		if(N_/m_ == 4){
+			t(1) = C->get<double>("t2");
+			t(3) = C->get<double>("t4");
+		} else { 
+			t(N_/m_-1) = 1-C->get<double>("delta");
+		}
+		C_.set("t",t);
+		Vector<double> J(2);
+		J(0) = -1.0;
+		J(1) = C->get<double>("Jp");
+		C_.set("J",J);
+	}
 
 	if( wf == "trianglefermi" ){
 		ref_(0) = 3;
@@ -170,6 +187,11 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 									{
 										if(read){ RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,read->read<Vector<double> >()); } 
 										else { RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t")); }
+									}break;
+								case 2:
+									{
+										if(read){ RGL_ = new ChainPolymerizedJJp(ref_,N_,m_,n_,M_,bc_,read->read<Vector<double> >(),read->read<Vector<double> >()); } 
+										else { RGL_ = new ChainPolymerizedJJp(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t"),C_.get<Vector<double> >("J")); }
 									}break;
 								default: {error();}break;
 							}

@@ -112,6 +112,7 @@ void GenericSystem<Type>::compute_links(){
 			}
 		}
 	}
+	this->J_.set(k,1.0);
 }
 
 template<typename Type>

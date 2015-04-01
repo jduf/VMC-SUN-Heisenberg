@@ -23,8 +23,14 @@ AnalyseChain::~AnalyseChain(){
 
 void AnalyseChain::open_files(){
 	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); 
-		if(level_==6){ jd_write_->write("number of different wavefunction",nof_); } 
-		if(level_==5){ jd_write_->write("number of different boundary condition",nof_); }
+		if(level_==6){ 
+			jd_write_->write("number of different wavefunction",nof_); 
+			jd_write_->add_header()->np();
+		} 
+		if(level_==5){ 
+			jd_write_->write("number of different boundary condition",nof_); 
+			jd_write_->add_header()->np();
+		}
 		if(level_==3 || level_==7){
 			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); 
 			data_write_->precision(10);
@@ -85,7 +91,6 @@ std::string AnalyseChain::extract_level_5(){
 	unsigned int n;
 	int bc;
 
-	jd_write_->add_header()->nl();
 	switch(nof_){
 		case 1:
 			{ 
@@ -93,30 +98,53 @@ std::string AnalyseChain::extract_level_5(){
 				Vector<double> exponents;
 				Data<double> E;
 				Vector<double> ti;
+				Vector<double> JJp;
 				(*read_)>>ref>>N>>m>>n>>M>>bc;
-				if(ref(2) == 1){ (*read_)>>ti; }
-				else{ ti.set(N/m,1); }
+				switch(ref(2)){
+					case 0:
+						{ ti.set(N/m,1); }break;
+					case 1:
+						{
+							(*read_)>>ti;
+							JJp.set(N/m,1);
+						}break;
+					case 2:
+						{ (*read_)>>ti>>JJp; }break;
+					default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
+				}
 				(*read_)>>E>>polymerization_strength>>exponents;
-				if(ref(2)==1){
-					ChainPolymerized chain(ref,N,m,n,M,bc,ti);
-					chain.set_IOSystem(this);
-					chain.save();
-				} else {
-					switch(ref(1)){
-						case 1:
-							{
-								ChainFermi<double> chain(ref,N,m,n,M,bc);
-								chain.set_IOSystem(this);
-								chain.save();
-							}break;
-						case 2:
-							{
-								ChainFermi<std::complex<double> > chain(ref,N,m,n,M,bc);
-								chain.set_IOSystem(this);
-								chain.save();
-							}break;
-						default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
-					}
+				switch(ref(2)){
+					case 0:
+						{
+							switch(ref(1)){
+								case 1:
+									{
+										ChainFermi<double> chain(ref,N,m,n,M,bc);
+										chain.set_IOSystem(this);
+										chain.save();
+									}break;
+								case 2:
+									{
+										ChainFermi<std::complex<double> > chain(ref,N,m,n,M,bc);
+										chain.set_IOSystem(this);
+										chain.save();
+									}break;
+								default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
+							}
+						}break;
+					case 1:
+						{
+							ChainPolymerized chain(ref,N,m,n,M,bc,ti);
+							chain.set_IOSystem(this);
+							chain.save();
+						}break;
+					case 2:
+						{
+							ChainPolymerizedJJp chain(ref,N,m,n,M,bc,ti,JJp);
+							chain.set_IOSystem(this);
+							chain.save();
+						}break;
+					default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
 				}
 				if(outfile_){
 					(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<ti<<" ";

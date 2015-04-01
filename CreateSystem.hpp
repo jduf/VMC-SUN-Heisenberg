@@ -3,6 +3,7 @@
 
 #include "ChainFermi.hpp"
 #include "ChainPolymerized.hpp"
+#include "ChainPolymerizedJJp.hpp"
 
 #include "TriangleFermi.hpp"
 

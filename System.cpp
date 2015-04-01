@@ -26,7 +26,8 @@ System::System(System const& s):
 	E_(s.E_),
 	corr_(s.corr_),
 	lr_corr_(s.lr_corr_),
-	links_(s.links_)
+	links_(s.links_),
+	J_(s.J_)
 {}
 /*}*/
 
@@ -34,6 +35,14 @@ void System::set(){
 	E_.set(); 
 	corr_.set(); 
 	lr_corr_.set(); 
+}
+
+void System::set_J(Vector<double> const& J) { 
+	if(J_.size()%J.size()){ std::cerr<<"bla"<<std::endl; }
+	else {
+		for(unsigned int i(0);i<J_.size();i++){ J_(i) = J(i%J.size()); }
+	}
+	std::cout<<J_<<std::endl;
 }
 
 void System::delete_binning(){ 
