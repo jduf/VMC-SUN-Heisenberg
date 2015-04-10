@@ -1,85 +1,86 @@
 #include "RST.hpp"
 
+/*{static element*/
+std::string const RST::nl_ = "\n";
+std::string const RST::np_ = "\n\n";
+std::string const RST::item_ = "+ ";
+
+std::string RST::math(std::string const& t){ return ":math:`" + t + "`"; }
+std::string RST::textit(std::string const& t){ return "*" + t + "*"; }
+std::string RST::textbf(std::string const& t){ return "**" + t + "**"; }
+/*}*/
+
 RST::RST():
-	RST_nl_("\n"),
-	RST_np_("\n\n"),
-	RST_item_("+ "),
 	rst_("")
 {}
 
-RST::RST(std::string rst):
-	RST_nl_("\n"),
-	RST_np_("\n\n"),
-	RST_item_("+ "),
+RST::RST(std::string const& rst):
 	rst_(rst)
 {}
 
-void RST::title(std::string t,std::string symb){
-	rst_ += RST_np_ + t + RST_nl_;
+void RST::title(std::string const& t,std::string const& symb){
+	rst_ += RST::np_ + t + RST::nl_;
 	for(unsigned int i(0);i<t.size();i++){ rst_ +=  symb; }
-	rst_ += RST_np_;
+	rst_ += RST::np_;
 }
 
-void RST::text(std::string t){
-	rst_ += t + RST_nl_;
+void RST::text(std::string const& t){
+	rst_ += t + RST::nl_;
 }
 
-void RST::lineblock(std::string t){
+void RST::math_centered(std::string const& t){
+	rst_ += RST::nl_;
+	rst_ += ".. math::" + RST::nl_;
+	rst_ += " " + t + RST::np_;
+}
+
+void RST::item(std::string const& t){
+	rst_ += RST::item_ + t + RST::nl_;
+}
+
+void RST::lineblock(std::string const& t){
 	size_t pos0(0);
 	size_t pos1(t.find("\n",pos0));
-	while(t.find("\n",pos1+1)  != std::string::npos){
-		rst_ += "| " +  t.substr(pos0,pos1-pos0) + RST_nl_;
+	while(t.find("\n",pos1+1) != std::string::npos){
+		rst_ += "| " +  t.substr(pos0,pos1-pos0) + RST::nl_;
 		pos0 = pos1+1;
 		pos1 = t.find("\n",pos0);
 	}
-	rst_ += RST_nl_;
+	rst_ += RST::nl_;
 }
 
-void RST::textit(std::string t){
-	rst_ += "*" + t + "*" + RST_nl_;
-}
-
-void RST::textbf(std::string t){
-	rst_ += "**" + t + "**" + RST_nl_;
-}
-
-void RST::item(std::string t){
-	rst_ += RST_item_ + t + RST_nl_;
-}
-
-void RST::def(std::string t, std::string def){
+void RST::def(std::string const& t, std::string const& def){
 	//if(def.size()>25){std::cerr<<"RST : def(t,def) : def.size>25"<<std::endl;}
-	rst_ += ":" + t + ":" + " " + def + RST_nl_;
+	rst_ += ":" + t + ":" + " " + def + RST::nl_;
+}
+
+void RST::hyperlink(std::string const& display, std::string const& link){
+	rst_ += "`" + display + " <" + link + ">`_ " + RST::nl_;
+}
+
+void RST::figure(std::string const& image, std::string const& legend, unsigned int width){
+	rst_ += RST::nl_;
+	rst_ += ".. figure:: " + image + RST::nl_;
+	rst_ += "   :width: " + my::tostring(width)  + RST::nl_;
+	rst_ += "   :align: center" + RST::np_;
+	rst_ += "   " + legend + RST::np_;
+}
+
+void RST::link_figure(std::string const& image, std::string const& legend, std::string const& link, unsigned int width){
+	rst_ += RST::nl_;
+	rst_ += ".. figure:: " + image + RST::nl_;
+	rst_ += "   :width: " + my::tostring(width)  + RST::nl_;
+	rst_ += "   :align: center" + RST::nl_;
+	rst_ += "   :target: " + link + RST::np_;
+	rst_ += "   " + legend + RST::np_;
 }
 
 void RST::np(){
-	rst_ += RST_np_;
+	rst_ += RST::np_; 
 }
 
 void RST::nl(){
-	rst_ += RST_nl_;
-}
-
-void RST::hyperlink(std::string display, std::string link){
-	rst_ += "`" + display + " <" + link + ">`_ " + RST_nl_;
-	//links.push_back(".. _" + t + ": " + l);
-}
-
-void RST::figure(std::string image, std::string legend, unsigned int width){
-	rst_ += RST_nl_;
-	rst_ += ".. figure:: " + image + RST_nl_;
-	rst_ += "   :width: " + tostring(width)  + RST_nl_;
-	rst_ += "   :align: center" + RST_np_;
-	rst_ += "   " + legend + RST_np_;
-}
-
-void RST::link_figure(std::string image, std::string legend, std::string link, unsigned int width){
-	rst_ += RST_nl_;
-	rst_ += ".. figure:: " + image + RST_nl_;
-	rst_ += "   :width: " + tostring(width)  + RST_nl_;
-	rst_ += "   :align: center" + RST_nl_;
-	rst_ += "   :target: " + link + RST_np_;
-	rst_ += "   " + legend + RST_np_;
+	rst_ += RST::nl_; 
 }
 
 std::ostream& operator<<(std::ostream& flux, RST const& rst){

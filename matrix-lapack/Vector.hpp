@@ -6,8 +6,7 @@
 /*{Description*/
 /*!Class that implement a static array as a Vector
  *
- * - can be saved with Write.hpp 
- * - can be loaded with Read.hpp */
+ * - can be saved and loaded with IOFiles.hpp */
 /*}*/
 template<typename Type>
 class Vector{
@@ -20,6 +19,8 @@ class Vector{
 		Vector(Type const& min, Type const& max, Type const& dx);
 		/*!Initializes a static array of Type of size N to a value val*/
 		Vector(unsigned int N, Type val);
+		/*!Initialize with a std::vector*/
+		Vector(std::vector<Type> const& vec);
 		/*!Deep copy*/
 		Vector(Vector<Type> const& vec);
 		/*!Delete the static array*/
@@ -147,6 +148,14 @@ Vector<Type>::Vector(unsigned int N, Type val):
 }
 
 template<typename Type>
+Vector<Type>::Vector(std::vector<Type> const& vec):
+	size_(vec.size()),
+	vec_(size_?new Type[size_]:NULL)
+{
+	std::copy(vec.begin(),vec.end(),vec_);
+}
+
+template<typename Type>
 Vector<Type>::Vector(Vector<Type> const& vec):
 	size_(vec.size_),
 	vec_(size_?new Type[size_]:NULL)
@@ -186,7 +195,7 @@ std::istream& operator>>(std::istream& flux, Vector<Type> const& v){
 
 template<typename Type>
 void Vector<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,"Vector("+tostring(size_)+")"); 
+	rst.def(s,"Vector("+my::tostring(size_)+")"); 
 }
 
 template<typename Type>
@@ -449,15 +458,17 @@ Vector<Type> Vector<Type>::order(Vector<unsigned int> const& index) const{
 /*}*/
 
 #ifdef DEF_MISCELLANEOUS
-template<typename Type>
-bool are_equal(Vector<Type> const& x, Vector<Type> const& y, double abs_tol=1e-14, double rel_tol=1e-14){
-	if(x.size() != y.size()){ return false; }
-	else {
-		for(unsigned int i(0);i<x.size();i++){
-			if(!are_equal(x(i),y(i),abs_tol,rel_tol)){ return false ; }
+namespace my {
+	template<typename Type>
+		bool are_equal(Vector<Type> const& x, Vector<Type> const& y, double abs_tol=1e-14, double rel_tol=1e-14){
+			if(x.size() != y.size()){ return false; }
+			else {
+				for(unsigned int i(0);i<x.size();i++){
+					if(!are_equal(x(i),y(i),abs_tol,rel_tol)){ return false ; }
+				}
+				return true;
+			}
 		}
-		return true;
-	}
 }
 #endif
 #endif

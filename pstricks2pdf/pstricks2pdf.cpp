@@ -1,3 +1,5 @@
+/*! @file pstrick2pdf.cpp*/
+
 #include "Parseur.hpp"
 #include "PSTricks.hpp"
 

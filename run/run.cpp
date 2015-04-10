@@ -29,14 +29,14 @@ int main(int argc,char* argv[]){
 
 		Time t;
 		std::string fname("");
-		fname = save_in + tostring(t.year()) 
-			+ "-" + tostring(t.month()) 
-			+ "-" + tostring(t.day())
-			+ "_" + tostring(t.hour()) + tostring(t.min());
+		fname = save_in + my::tostring(t.year()) 
+			+ "-" + my::tostring(t.month()) 
+			+ "-" + my::tostring(t.day())
+			+ "_" + my::tostring(t.hour()) + my::tostring(t.min());
 #pragma omp parallel for num_threads(max_proc) 
 		for(unsigned int i=0;i<D.size();i++) {
 			std::cout<<command<<D.get_name(i)<<D.get_ext(i)<<std::endl;
-			L(command + D.get_name(i) + D.get_ext(i) + "> " + D.get_name(i) + "_" + fname + "_" + tostring(i)+".log 2> " + D.get_name(i) + "_" + fname + "_" + tostring(i)+".err.log");
+			L(command + D.get_name(i) + D.get_ext(i) + "> " + D.get_name(i) + "_" + fname + "_" + my::tostring(i)+".log 2> " + D.get_name(i) + "_" + fname + "_" + my::tostring(i)+".err.log");
 		}
 
 		RSTFile rst("./","SIM");

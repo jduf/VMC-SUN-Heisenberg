@@ -112,6 +112,6 @@ bool FuncPSO::is_better_x(unsigned int const& p){
 void FuncPSO::result(){
 	std::cout<<m_<<std::endl;
 	std::cout<<"best for each particle"<<std::endl;
-	print();
+	print(std::cout);
 }
 #endif

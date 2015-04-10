@@ -11,8 +11,7 @@ class Vector;
 /*{*/
 /*!Class that implement a static array as a Matrix
  *
- * - can be saved with Write.hpp 
- * - can be loaded with Read.hpp */
+ * - can be saved and loaded with IOFiles.hpp */
 /*}*/
 template<typename Type>
 class Matrix{
@@ -194,7 +193,7 @@ std::istream& operator>>(std::istream& flux, Matrix<Type> const& m){
 
 template<typename Type>
 void Matrix<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,"Matrix("+tostring(row_)+","+tostring(col_)+")"); 
+	rst.def(s,"Matrix("+my::tostring(row_)+RST::math("\times")+my::tostring(col_)+")"); 
 }
 
 template<typename Type>

@@ -3,12 +3,12 @@
 std::string Header::when(){
 	Time t;
 	std::string s("Created on");
-	s += " " + tostring(t.day());
-	s += "." + tostring(t.month());
-	s += "." + tostring(t.year());
-	s += " at " + tostring(t.hour());
-	s += ":" + tostring(t.min());
-	s += ":" + tostring(t.sec());
+	s += " " + my::tostring(t.day());
+	s += "." + my::tostring(t.month());
+	s += "." + my::tostring(t.year());
+	s += " at " + my::tostring(t.hour());
+	s += ":" + my::tostring(t.min());
+	s += ":" + my::tostring(t.sec());
 	return s;
 }
 
@@ -23,7 +23,7 @@ void Header::add(std::string const& s){
 }
 
 void Header::add(std::string const& s, double const& d){
-	def(s + " = " + tostring(d), "double");
+	def(s + " = " + my::tostring(d), "double");
 }
 
 void Header::add(std::string const& s, bool const& d){
@@ -36,15 +36,15 @@ void Header::add(std::string const& s, std::string const& d){
 }
 
 void Header::add(std::string const& s, unsigned int const& d){
-	def(s + " = " + tostring(d), "unsigned int");
+	def(s + " = " + my::tostring(d), "unsigned int");
 }
 
 void Header::add(std::string const& s, int const& d){
-	def(s + " = " + tostring(d), "int");
+	def(s + " = " + my::tostring(d), "int");
 }
 
 void Header::add(std::string const& s, std::complex<double> const& d){
-	def(s + " = " + tostring(d), "complex");
+	def(s + " = " + my::tostring(d), "complex");
 }
 
 std::ostream& operator<<(std::ostream& flux, Header const& h){

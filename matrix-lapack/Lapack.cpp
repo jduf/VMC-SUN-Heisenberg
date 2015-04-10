@@ -241,7 +241,7 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::compl
 	if(REVec){
 		REVec->set(N,N);
 		for(unsigned int j(0);j<N;j++){
-			if(j==N-1 || !(wi[j]*wi[j+1]<0 && are_equal(wr[j],wr[j+1]))){
+			if(j==N-1 || !(wi[j]*wi[j+1]<0 && my::are_equal(wr[j],wr[j+1]))){
 				//std::cout<<j<<" real    "<<wr[j]<<" "<<wi[j]<<std::endl;
 				for(unsigned int i(0);i<N;i++){ (*REVec)(i,j) = vr[i+j*N]; }
 			} else {
@@ -259,7 +259,7 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::compl
 		std::cerr<<"void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec)() : might be a proble because LU*RU != 1 but LU*A*RU = diag"<<std::endl; 
 		LEVec->set(N,N);
 		for(unsigned int j(0);j<N;j++){
-			if(j==N-1 || !(wi[j]*wi[j+1]<0 && are_equal(wr[j],wr[j+1]))){
+			if(j==N-1 || !(wi[j]*wi[j+1]<0 && my::are_equal(wr[j],wr[j+1]))){
 				for(unsigned int i(0);i<N;i++){ (*LEVec)(j,i) = vl[i+j*N]; }
 			} else {
 				for(unsigned int i(0);i<N;i++){

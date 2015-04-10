@@ -1,9 +1,7 @@
 #ifndef DEF_CONTAINER
 #define DEF_CONTAINER
 
-#include <vector>
-#include <iostream>
-#include <string>
+#include "Miscellaneous.hpp"
 
 /*{Variable*/
 /*!Base class that will never be instantiate. It provides a way to create

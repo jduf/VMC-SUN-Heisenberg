@@ -277,7 +277,7 @@ void Binning<Type>::compute_convergence(double const& tol, Type& dx, bool& conv)
 		Vector<Type> var_bin(b_,0.0);
 		for(unsigned int l(0);l<b_;l++){
 			for(unsigned int j(0);j<Ml_(l);j++){
-				var_bin(l) += norm_squared(bin_[l](j)-m_bin_(l));
+				var_bin(l) += my::norm_squared(bin_[l](j)-m_bin_(l));
 			}
 			var_bin(l) = sqrt(var_bin(l) / (Ml_(l)*(Ml_(l)-1)));
 		}
@@ -328,7 +328,7 @@ void Binning<Type>::complete_analysis(double const& tol, Type& x, Type& dx, bool
 		gp+="set xlabel '$\\ell$'";
 		gp+="set ylabel '$\\Delta_{\\ell}$' rotate by 0 offset 2";
 		gp+="set key left bottom";
-		gp+="plot for [IDX=0:"+tostring(logl_-1)+"] '"+log_->get_filename()+"' i IDX t columnheader(1), "+tostring(dx);
+		gp+="plot for [IDX=0:"+my::tostring(logl_-1)+"] '"+log_->get_filename()+"' i IDX t columnheader(1), "+my::tostring(dx);
 		if(log_){delete log_;}
 		log_=NULL;
 		gp.save_file();
@@ -477,8 +477,8 @@ std::istream& operator>>(std::istream& flux, Data<Type>& d){
 
 template<typename Type>
 void Data<Type>::header_rst(std::string const& s, RST& rst) const {
-	if(conv_){ rst.def(s,tostring(get_x())+" ("+tostring(get_dx())+")"); }
-	else{ rst.def(s,"nc:"+tostring(get_x())+" ("+tostring(get_dx())+")"); }
+	if(conv_){ rst.def(s,my::tostring(get_x())+" ("+my::tostring(get_dx())+")"); }
+	else{ rst.def(s,"nc:"+my::tostring(get_x())+" ("+my::tostring(get_dx())+")"); }
 }
 
 template<typename Type>
@@ -621,7 +621,7 @@ std::istream& operator>>(std::istream& flux, DataSet<Type> const& ds){
 
 template<typename Type>
 void DataSet<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,tostring(size_));
+	rst.def(s,my::tostring(size_));
 }
 
 template<typename Type>

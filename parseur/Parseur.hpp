@@ -2,7 +2,6 @@
 #define DEF_PARSEUR
 
 #include "Container.hpp"
-#include "Vector.hpp"
 
 class Parseur: public Container {
 	public:
@@ -39,10 +38,6 @@ class Parseur: public Container {
 		std::vector<unsigned int> is_vec;
 		bool locked_;
 };
-
-std::vector<std::string> &string_split(const std::string &s, char delim, std::vector<std::string> &elems);
-
-std::vector<std::string> string_split(const std::string &s, char delim);
 
 template<typename Type>
 Type Parseur::string2type(std::string const& s){

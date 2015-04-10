@@ -8,31 +8,35 @@ class RST{
 		/*!Constructor*/
 		RST();
 		/*!Constructor that sets rst_=rst*/
-		RST(std::string rst);
+		RST(std::string const& rst);
 		/*!Destructor*/
 		virtual ~RST(){}
 
-		void title(std::string t, std::string symb);
-		void text(std::string t);
-		void textit(std::string t);
-		void textbf(std::string t);
-		void item(std::string t);
-		void lineblock(std::string t);
-		void def(std::string t, std::string def);
-		void hyperlink(std::string display, std::string link);
-		void figure(std::string image, std::string legend, unsigned int width=1000);
-		void link_figure(std::string image, std::string legend, std::string link, unsigned int width=1000);
+		void title(std::string const& t, std::string const& symb);
+		void text(std::string const& t);
+		void math_centered(std::string const& t);
+		void item(std::string const& t);
+		void lineblock(std::string const& t);
+		void def(std::string const& t, std::string const& def);
+		void hyperlink(std::string const& display, std::string const& link);
+		void figure(std::string const& image, std::string const& legend, unsigned int width=1000);
+		void link_figure(std::string const& image, std::string const& legend, std::string const& link, unsigned int width=1000);
 		void np();
 		void nl();
+
+		static std::string textit(std::string const& t);
+		static std::string textbf(std::string const& t);
+		static std::string math(std::string const& t);
 
 		std::string const& get() const { return rst_;};
 		void set(std::string const& s="") { rst_ = s; };
 
+		static std::string const nl_;	//!< string for a new line
+		static std::string const np_;	//!< string for a new paragraph
+		static std::string const item_;	//!< string for a new item
+
 	protected:
-		std::string RST_nl_;	//!< string for a new line
-		std::string RST_np_;	//!< string for a new paragraph
-		std::string RST_item_;	//!< string for a new item
-		std::string rst_;		//!< text of the .rst file
+		std::string rst_;//!< text of the .rst file
 };
 
 std::ostream& operator<<(std::ostream& flux, RST const& rst);

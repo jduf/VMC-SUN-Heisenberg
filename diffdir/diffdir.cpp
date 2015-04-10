@@ -11,13 +11,10 @@ int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	std::string directory_name_1(P.get<std::string>("0"));
 	std::string directory_name_2(P.get<std::string>("1"));
-	std::string ext("");
-	std::string keyword("");
-	std::string scp("");
 	unsigned int i(0);
-	if(P.find("e",i,false)){ ext = P.get<std::string>(i); }
-	if(P.find("k",i,false)){ keyword = P.get<std::string>(i); }
-	if(P.find("scp",i,false)){ scp = P.get<std::string>(i); }
+	std::string ext(P.find("e",i,false)?P.get<std::string>(i):"");
+	std::string keyword(P.find("k",i,false)?P.get<std::string>(i):"");
+	std::string scp(P.find("scp",i,false)?P.get<std::string>(i):"");
 
 	if(!P.status()){
 		Linux command;

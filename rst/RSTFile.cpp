@@ -7,7 +7,7 @@ RSTFile::RSTFile(std::string const& path, std::string const& filename):
 
 void RSTFile::save(bool pdf){
 	IOFiles w(path_ + filename_ + ".rst",true);
-	rst_ += RST_np_;
+	rst_ += RST::np_;
 	w<<rst_;
 	Linux command;
 	command(Linux::rst2html(path_,filename_));

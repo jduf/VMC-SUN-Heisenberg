@@ -14,9 +14,9 @@ Gnuplot::Gnuplot(std::string const& path, std::string const& filename):
 void Gnuplot::title(std::string const& title){plot_+="set title '"+title+"'\n";}
 
 void Gnuplot::range(std::string const& axis, std::string const& a, std::string const& b){plot_+="set "+axis+"range ["+a+":"+b+"]\n";}
-void Gnuplot::range(std::string const& axis, double const& a, double const& b){range(axis,tostring(a),tostring(b));}
-void Gnuplot::range(std::string const& axis, double const& a, std::string const& b){range(axis,tostring(a),b);}
-void Gnuplot::range(std::string const& axis, std::string const& a, double const& b){range(axis,a,tostring(b));}
+void Gnuplot::range(std::string const& axis, double const& a, double const& b){range(axis,my::tostring(a),my::tostring(b));}
+void Gnuplot::range(std::string const& axis, double const& a, std::string const& b){range(axis,my::tostring(a),b);}
+void Gnuplot::range(std::string const& axis, std::string const& a, double const& b){range(axis,a,my::tostring(b));}
 void Gnuplot::range(std::string const& axis){plot_ += "unset "+axis+"range\n"; }
 
 void Gnuplot::margin(std::string const& l, std::string const& r, std::string const& t, std::string const& b){

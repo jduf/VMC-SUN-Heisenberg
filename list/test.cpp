@@ -84,22 +84,16 @@ int main(){
 		a.add_sort(std::make_shared<A>(0),func);
 		std::cout<<a<<std::endl;
 		std::cout<<"will print using get_next must be identical to the previous line"<<std::endl;
-		do{
-			std::cout<<a.get()<<" ";
-		} while ( a.move_forward());
+		do{ std::cout<<a.get()<<" "; } while (a.go_to_next());
 		std::cout<<std::endl;
 		std::cout<<"will copy the whole first list without actually copying the value."<<std::endl;
 		List<A> c;
-		do{
-			c.add_end(a.get_ptr());
-		} while ( a.move_forward());
-		do{
-			std::cout<<c.get()<<" ";
-		} while ( c.move_forward());
+		do{ c.add_end(a.get_ptr()); } while (a.go_to_next());
+		do{ std::cout<<c.get()<<" "; } while (c.go_to_next());
 		std::cout<<std::endl;
 
 		std::cout<<"multiply the first entry bigger than 2 by pi"<<std::endl;
-		while( c.get().a_ < 2.0 && c.move_forward());
+		while( c.get().a_ < 2.0 && c.go_to_next());
 		c.get() *= M_PI;
 		std::cout<<c<<std::endl;
 		std::cout<<"the other list should also be affected"<<std::endl;
@@ -152,6 +146,7 @@ int main(){
 				if(a(i) > b(i)){ return false; }
 				if(a(i) < b(i)){ return true; }
 				if(a(i) ==b(i)){ i++; }
+				if( my::are_equal(a(i),b(i)) ){ i++; }
 			}
 			return false;
 		};
@@ -172,7 +167,7 @@ int main(){
 			while(i<a.size()){
 				if(a(i) > b(i)){ return 0; }
 				if(a(i) < b(i)){ return 1; }
-				if(a(i)== b(i)){ i++; }
+				if( my::are_equal(a(i),b(i)) ){ i++; }
 			}
 			return 2;
 		};
@@ -189,8 +184,8 @@ int main(){
 			tmp(0) = rnd.get();
 			tmp(1) = rnd.get();
 			tmp_shared = std::make_shared<Vector<int> >(tmp);
-			if( a.find(tmp_shared, cmp_for_fuse) ){ a.fuse_with_move(tmp_shared,fuse); }
-			else { a.add_after_move(tmp_shared); }
+			if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.fuse_with_move(tmp_shared,fuse); }
+			else { a.add_after_free(tmp_shared); }
 
 			std::cout<<a<<std::endl;
 		}

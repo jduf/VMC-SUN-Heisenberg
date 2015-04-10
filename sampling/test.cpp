@@ -76,7 +76,7 @@ void check_troyer(){
 	Gnuplot gp("./","plot");
 	gp.range("x",10,40);
 	gp.range("y",0,0.12);
-	gp+="N = "+tostring(N);
+	gp+="N = "+my::tostring(N);
 	gp+="fac(x) = (int(x)==0) ? 1.0 : int(x) * fac(int(x)-1.0)";
 	gp+="P(x) = fac(N)/(2**N*fac(x)*fac(N-x))";
 	gp+="set sample 31";
