@@ -53,7 +53,7 @@ void MCParticle::move(Vector<double> const& bx_all){
 }
 
 void MCParticle::update_particle_history(std::shared_ptr<MCSim>& new_elem){
-	if(history_.find(new_elem,MCSim::cmp_for_fuse)){ history_.add_after_move(new_elem); }
+	if(history_.find_sorted(new_elem,MCSim::cmp_for_fuse)){ history_.add_after_free(new_elem); }
 }
 
 void MCParticle::print(std::ostream& flux) const {
@@ -61,7 +61,7 @@ void MCParticle::print(std::ostream& flux) const {
 	flux<<std::endl<<"particle history"<<std::endl;
 	do{
 		flux<<history_.get_ptr()<<" "<<history_.get().get_param()<<" "<<history_.get().get_energy()<<" "<<history_.get().get_N()<<IOFiles::endl;
-	} while ( history_.move_forward() );
+	} while ( history_.go_to_next() );
 }
 /*}*/
 
@@ -93,9 +93,8 @@ bool PSOFermionic::is_better_x(unsigned int const& p){
 	//for(unsigned int i(0);i<mu.size();i++){ mu(i) = x(i+t.size()-1); }
 	//system_param.set("t",t);
 	//system_param.set("mu",mu);
-	//system_param.set("td",x(0));
-	//
-	system_param.set("delta",p_[p]->get_x()(0));
+	system_param.set("td",p_[p]->get_x()(0));
+//
 
 	//Vector<double> mu(1,0);
 	//system_param.set("mu",mu);
@@ -121,7 +120,7 @@ void PSOFermionic::plot(){
 	IOFiles data("data.dat",true);
 	do{
 		data<<all_results_.get().get_param()<<" "<<all_results_.get().get_energy()<<" "<<all_results_.get().get_N()<<IOFiles::endl;
-	} while ( all_results_.move_forward() );
+	} while ( all_results_.go_to_next() );
 	Gnuplot gp("./","test");
 	gp+="plot 'data.dat' u 1:2:3 w e";
 	gp.save_file();
@@ -133,7 +132,7 @@ void PSOFermionic::print(std::ostream& flux) const {
 	std::cout<<"Print whole history"<<std::endl;
 	do{
 		flux<<all_results_.get_ptr()<<" "<<all_results_.get().get_param()<<" "<<all_results_.get().get_energy()<<" "<<all_results_.get().get_N()<<IOFiles::endl;
-	} while ( all_results_.move_forward() );
+	} while ( all_results_.go_to_next() );
 }
 
 std::ostream& operator<<(std::ostream& flux, PSOFermionic const& pso){
@@ -141,4 +140,3 @@ std::ostream& operator<<(std::ostream& flux, PSOFermionic const& pso){
 	return flux;
 }
 /*}*/
-

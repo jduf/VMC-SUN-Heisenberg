@@ -64,7 +64,7 @@ void ChainFermi<Type>::check(){
 template<typename Type>
 std::string ChainFermi<Type>::extract_level_7(){
 	this->rst_file_ = new RSTFile(this->info_+this->path_+this->dir_,this->filename_);
-	std::string title("$N="+tostring(this->N_)+"$ $m="+tostring(this->m_)+"$ $n="+tostring(this->n_)+"$ bc="+tostring(this->bc_));
+	std::string title("$N="+my::tostring(this->N_)+"$ $m="+my::tostring(this->m_)+"$ $n="+my::tostring(this->n_)+"$ bc="+my::tostring(this->bc_));
 
 	/*!extract jdbin*/
 	/*{*/
@@ -127,16 +127,16 @@ std::string ChainFermi<Type>::extract_level_7(){
 	gp.title(title);
 	gplr+="set key center bottom";
 	gplr+="set sample 1000";
-	gplr+="m="+tostring(this->m_)+".0";
-	gplr+="N="+tostring(this->N_)+".0";
-	gplr+="n="+tostring(this->n_)+".0";
+	gplr+="m="+my::tostring(this->m_)+".0";
+	gplr+="N="+my::tostring(this->N_)+".0";
+	gplr+="n="+my::tostring(this->n_)+".0";
 	gplr+="p0 = 1.0";
 	gplr+="p1 = 2.0-2.0/N";
 	gplr+="p2 = -1.0";
 	gplr+="p3 = 2.0";
 	gplr+="f(x) = p0*cos(2.0*pi*x*m/N)*(x**(-p1)+(n-x)**(-p1))+p2*(x**(-p3)+(n-x)**(-p3))";
 	gplr+="set fit quiet";
-	gplr+="fit [" + tostring(xi) + ":" + tostring(xf) + "] f(x) '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via p0,p1,p2,p3"; 
+	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via p0,p1,p2,p3"; 
 	gplr+="plot '"+this->filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";

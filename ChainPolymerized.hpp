@@ -18,10 +18,9 @@ class ChainPolymerized: public Chain<double> {
 		void save() const;
 		void check();
 		
-	protected:
+	private:
 		Vector<double> t_;//!< polymerization parameter 
 
-	private:
 		void compute_H();
 		std::string extract_level_7();
 		std::string extract_level_6();

@@ -85,7 +85,7 @@ void MonteCarlo<Type>::thermalize(unsigned int const& N){
 	if(S_->get_status()==0){
 		for(unsigned int i(0);i<N;i++){
 			S_->swap();
-			if( norm_squared(S_->ratio()) > rnd_.get() ){ S_->update(); }
+			if( my::norm_squared(S_->ratio()) > rnd_.get() ){ S_->update(); }
 		}
 		S_->measure_new_step();
 	}
@@ -106,7 +106,7 @@ void MonteCarlo<Type>::run(){
 template<typename Type>
 void MonteCarlo<Type>::next_step(){
 	S_->swap();
-	if( norm_squared(S_->ratio()) > rnd_.get() ){
+	if( my::norm_squared(S_->ratio()) > rnd_.get() ){
 		S_->update();
 		S_->measure_new_step();
 	}

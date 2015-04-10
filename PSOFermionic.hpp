@@ -87,8 +87,8 @@ bool PSOFermionic::monte_carlo(CreateSystem& cs, unsigned int const& p){
 			{
 				std::cout<<"x "<<P->get_x()<<std::endl;
 				std::cout<<"e "<<rr->get_energy()<<std::endl;
-				if(all_results_.find(rr,MCSim::cmp_for_fuse)){ all_results_.fuse_with_move(rr, MCSim::fuse); }
-				else { all_results_.add_after_move(rr); }
+				if(all_results_.find_sorted(rr,MCSim::cmp_for_fuse)){ all_results_.fuse_with_move(rr, MCSim::fuse); }
+				else { all_results_.add_after_free(rr); }
 				std::cout<<"e "<<rr->get_energy()<<std::endl;
 			}
 			P->update_particle_history(rr);

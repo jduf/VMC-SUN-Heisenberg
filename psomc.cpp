@@ -10,7 +10,7 @@ int main(int argc, char* argv[]){
 	PSOFermionic s(&P);
 
 	for(unsigned int i(0);i<Nfreedom;i++){
-		Optimization::set_limit(i,0.9,1.1);
+		Optimization::set_limit(i,-2.0,2);
 	}
 	s.init(100);
 	s.run();

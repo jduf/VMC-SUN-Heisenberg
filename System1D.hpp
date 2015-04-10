@@ -108,7 +108,7 @@ bool System1D<Type>::simple_diagonalization(){
 	Vector<double> eval;
 	Lapack<Type>(H_,false,(this->ref_(1)==1?'S':'H')).eigensystem(eval,true);
 	for(unsigned int c(0);c<this->N_;c++){
-		if(are_equal(eval(this->M_(c)),eval(this->M_(c)-1),1e-12)){
+		if(my::are_equal(eval(this->M_(c)),eval(this->M_(c)-1),1e-12)){
 			std::cerr<<"bool System1D<Type>::simple_diagonalization() : "
 				"degenerate at the Fermi level"<<std::endl;
 			return false;
@@ -127,7 +127,7 @@ bool System1D<Type>::full_diagonalization(){
 
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(i+1);j<this->n_;j++){
-			if(are_equal(eval(i),eval(j),1e-10,1e-10)){
+			if(my::are_equal(eval(i),eval(j),1e-10,1e-10)){
 				std::cerr<<"bool System1D<Type>::full_diagonalization() : "
 					"eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
 				return false;

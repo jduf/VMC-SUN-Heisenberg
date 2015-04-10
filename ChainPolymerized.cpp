@@ -2,14 +2,14 @@
 
 ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<double> const& t):
 	System(ref,N,m,n,M,bc),
-	Chain<double>((are_equal(t,Vector<double>(N_/m_,1.0))?1:N_/m_),"chain-polymerized"),
+	Chain<double>((my::are_equal(t,Vector<double>(N_/m_,1.0))?1:N_/m_),"chain-polymerized"),
 	t_(t)
 {
 	if(status_==2){
 		init_fermionic();
 		filename_ += "-t";
 		for(unsigned int j(0);j<t_.size();j++){
-			filename_ += ((t_(j)>0)?"+":"")+tostring(t_(j));
+			filename_ += ((t_(j)>0)?"+":"")+my::tostring(t_(j));
 		}
 		if(spuc_ != 1){
 			system_info_.text("Trial wavefunction with different real hopping ");
@@ -20,11 +20,11 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 				system_info_.text(" "+RST::math("t_i : "+tmp+"-"));
 			}
 			else{system_info_.text(" "+RST::math("t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-"));}
-			system_info_.text(RST::nl_);
+			system_info_.nl();
 
 		} else {
 			system_info_.text("Trial wavefunction with uniform real hopping ");
-			system_info_.text("terms for a "+RST::math("\\mathrm{SU}(N)")+" chain :"+RST::nl_);
+			system_info_.text("terms for a "+RST::math("\\mathrm{SU}(N)")+" chain :");
 		}
 	}
 }
@@ -71,8 +71,8 @@ void ChainPolymerized::create(){
 			tmp2 = evec_(i,m) - evec_(i,m-1);//k=k1-k2=2k1
 			evec_(i,m-1)= tmp1;
 			evec_(i,m)  = tmp2;
-			n1 += norm_squared(tmp1);
-			n2 += norm_squared(tmp2);
+			n1 += my::norm_squared(tmp1);
+			n2 += my::norm_squared(tmp2);
 		}
 		for(unsigned int i(0);i<n_;i++){
 			evec_(i,m-1)/= sqrt(n1);
@@ -88,14 +88,20 @@ void ChainPolymerized::create(){
 
 void ChainPolymerized::save() const {
 	GenericSystem<double>::save();
-	if(spuc_==4){jd_write_->write("t ("+tostring(t_(1))+","+tostring(t_(3))+")",t_);}
-	else{jd_write_->write("t ("+tostring(t_(spuc_-1))+")",t_);}
+	std::string t_string("");
+	for(unsigned int i(0);i<t_.size()-1;i++){
+		t_string += my::tostring(t_(i))+",";
+	}
+	t_string += my::tostring(t_(t_.size()-1));
+	jd_write_->write("t ("+t_string+")",t_);
 }
 /*}*/
 
 /*{method needed for checking*/
 void ChainPolymerized::check(){
 	compute_H();
+	std::cout<<J_<<std::endl;
+	std::cout<<H_<<std::endl;
 	plot_band_structure();
 }
 /*}*/
@@ -105,10 +111,10 @@ std::string ChainPolymerized::extract_level_7(){
 	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
 	std::string t_string("(");
 	for(unsigned int i(0);i<t_.size()-1;i++){
-		t_string += tostring(t_(i))+",";
+		t_string += my::tostring(t_(i))+",";
 	}
-	t_string += tostring(t_(t_.size()-1))+")";
-	std::string title("$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc="+tostring(bc_)+" $t_{ij}="+t_string+"$");
+	t_string += my::tostring(t_(t_.size()-1))+")";
+	std::string title("$N="+my::tostring(N_)+"$ $m="+my::tostring(m_)+"$ $n="+my::tostring(n_)+"$ bc="+my::tostring(bc_)+" $t_{ij}="+t_string+"$");
 
 	/*!extract jdbin*/
 	/*{*/
@@ -160,8 +166,8 @@ std::string ChainPolymerized::extract_level_7(){
 	gp+="plot '"+filename_+"-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gp+="     '"+filename_+"-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gp+="     '"+filename_+"-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
-	gp+="     "+tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merizaton="+tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
-	gp+="     "+tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
+	gp+="     "+my::tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merizaton="+my::tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
+	gp+="     "+my::tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
 	gp.save_file();
 	//gp.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlaton on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
@@ -180,16 +186,16 @@ std::string ChainPolymerized::extract_level_7(){
 	gp.title(title);
 	gplr+="set key center bottom";
 	gplr+="set sample 1000";
-	gplr+="m="+tostring(m_)+".0";
-	gplr+="N="+tostring(N_)+".0";
-	gplr+="n="+tostring(n_)+".0";
+	gplr+="m="+my::tostring(m_)+".0";
+	gplr+="N="+my::tostring(N_)+".0";
+	gplr+="n="+my::tostring(n_)+".0";
 	gplr+="p0 = 1.0";
 	gplr+="p1 = 2.0-2.0/N";
 	gplr+="p2 = -1.0";
 	gplr+="p3 = 2.0";
 	gplr+="f(x) = p0*cos(2.0*pi*x*m/N)*(x**(-p1)+(n-x)**(-p1))+p2*(x**(-p3)+(n-x)**(-p3))";
 	gplr+="set fit quiet";
-	gplr+="fit [" + tostring(xi) + ":" + tostring(xf) + "] f(x) '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via p0,p1,p2,p3"; 
+	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via p0,p1,p2,p3"; 
 	gplr+="plot '"+filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gplr+="     '"+filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gplr+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
@@ -237,8 +243,8 @@ std::string ChainPolymerized::extract_level_7(){
 	/*}*/
 	/*!save some additonnal values */
 	/*{*/
-	if(spuc_==4){jd_write_->write("t ("+tostring(t_(1))+","+tostring(t_(3))+")",t_);}
-	else{jd_write_->write("t ("+tostring(t_(spuc_-1))+")",t_);}
+	if(spuc_==4){jd_write_->write("t ("+my::tostring(t_(1))+","+my::tostring(t_(3))+")",t_);}
+	else{jd_write_->write("t ("+my::tostring(t_(spuc_-1))+")",t_);}
 	jd_write_->write("energy per site",E_);
 	jd_write_->write("polymerizaton strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
 	jd_write_->write("critical exponents",exponents);
@@ -279,21 +285,21 @@ std::string ChainPolymerized::extract_level_6(){
 	jd_write_->write("critical exponents",exponents);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
-	gp.title("$N="+tostring(N_)+"$ $m="+tostring(m_)+"$ $n="+tostring(n_)+"$ bc=$"+tostring(bc_)+"$");
+	gp.title("$N="+my::tostring(N_)+"$ $m="+my::tostring(m_)+"$ $n="+my::tostring(n_)+"$ bc=$"+my::tostring(bc_)+"$");
 	if(N_/m_!=4){
-		gp.label("x","$t_"+tostring(N_/m_)+"$"," offset 0,1");
+		gp.label("x","$t_"+my::tostring(N_/m_)+"$"," offset 0,1");
 		gp.label("y2","$\\dfrac{E}{n}$","rotate by 0");
 		gp.range("x","0.0","");
-		gp+="f(x) = "+std::string(are_equal(t_(N_/m_-1),0)?"a+b*x**c":"a+b*(x-c)*(x-c)"); 
-		gp+="a="+tostring(E_.get_x());
+		gp+="f(x) = "+std::string(my::are_equal(t_(N_/m_-1),0)?"a+b*x**c":"a+b*(x-c)*(x-c)"); 
+		gp+="a="+my::tostring(E_.get_x());
 		gp+="b=1";
 		gp+="c=1";
 		gp+="set fit quiet";
-		gp+="fit f(x) '"+filename_+".dat' u "+tostring(N_/m_)+":($" +tostring(N_/m_+5)+"==0?$"                              +tostring(N_/m_+1)+":1/0):"+tostring(N_/m_+2)+" zerror via a,b,c";
-		gp+="plot '"+filename_+".dat' u "    +tostring(N_/m_)+":(($"+tostring(N_/m_+4)+"==0 && $"+tostring(N_/m_+5)+"==1)?$"+tostring(N_/m_+1)+":1/0):"+tostring(N_/m_+2)+" lc 5 w e t 'Not Converged',\\";
-		gp+="     '"+filename_+".dat' u "    +tostring(N_/m_)+":(($"+tostring(N_/m_+4)+"==1 && $"+tostring(N_/m_+5)+"==1)?$"+tostring(N_/m_+1)+":1/0):"+tostring(N_/m_+2)+" lc 6 w e t 'Converged',\\";
-		gp+="     '"+filename_+".dat' u "    +tostring(N_/m_)+":($" +tostring(N_/m_+5)+"==0?$"                              +tostring(N_/m_+1)+":1/0):"+tostring(N_/m_+2)+" lc 7 w e t 'Mean',\\";
-		gp+="     f(x) lc 7 lw 0.5 "+std::string(are_equal(t_(N_/m_-1),0)?"notitle":"t sprintf('min %3.4f',c)");
+		gp+="fit f(x) '"+filename_+".dat' u "+my::tostring(N_/m_)+":($" +my::tostring(N_/m_+5)+"==0?$"                              +my::tostring(N_/m_+1)+":1/0):"+my::tostring(N_/m_+2)+" zerror via a,b,c";
+		gp+="plot '"+filename_+".dat' u "    +my::tostring(N_/m_)+":(($"+my::tostring(N_/m_+4)+"==0 && $"+my::tostring(N_/m_+5)+"==1)?$"+my::tostring(N_/m_+1)+":1/0):"+my::tostring(N_/m_+2)+" lc 5 w e t 'Not Converged',\\";
+		gp+="     '"+filename_+".dat' u "    +my::tostring(N_/m_)+":(($"+my::tostring(N_/m_+4)+"==1 && $"+my::tostring(N_/m_+5)+"==1)?$"+my::tostring(N_/m_+1)+":1/0):"+my::tostring(N_/m_+2)+" lc 6 w e t 'Converged',\\";
+		gp+="     '"+filename_+".dat' u "    +my::tostring(N_/m_)+":($" +my::tostring(N_/m_+5)+"==0?$"                              +my::tostring(N_/m_+1)+":1/0):"+my::tostring(N_/m_+2)+" lc 7 w e t 'Mean',\\";
+		gp+="     f(x) lc 7 lw 0.5 "+std::string(my::are_equal(t_(N_/m_-1),0)?"notitle":"t sprintf('min %3.4f',c)");
 	} else {
 		gp.label("x","$t_2$");
 		gp.label("y","$t_4$");

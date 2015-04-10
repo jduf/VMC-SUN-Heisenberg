@@ -94,7 +94,7 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 			x(0) = ++j;
 			x(1) = 0;
 			set_pos_LxLy(x);
-		} while( !are_equal(x(0),0) || !are_equal(x(1),0)  );
+		} while( !my::are_equal(x(0),0) || !my::are_equal(x(1),0)  );
 		xloop_ = j;
 
 		Vector<double> Lx(2);
@@ -107,7 +107,7 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 		set_pos_ab(Ly);
 		Vector<double> zero(2,0);
 
-		if( are_equal(Lx,zero) &&  are_equal(Ly,zero) ){
+		if( my::are_equal(Lx,zero) &&  my::are_equal(Ly,zero) ){
 			if(this->spuc_ != 0){ this->status_--; }
 			else { std::cerr<<"System2D<Type> : the unit cell contains 0 site"<<std::endl; }
 		}
@@ -131,7 +131,7 @@ void System2D<Type>::plot_band_structure(){
 
 	IOFiles spectrum("spectrum.dat",true);
 	for(unsigned int i(0);i<this->n_;i++){
-		spectrum<<(are_equal(std::abs(px_(i)),M_PI,1e-12)?-M_PI:px_(i))<<" "<<(are_equal(std::abs(py_(i)),M_PI,1e-12)?-M_PI:py_(i))<<" "<<e_(i)<<IOFiles::endl;
+		spectrum<<(my::are_equal(std::abs(px_(i)),M_PI,1e-12)?-M_PI:px_(i))<<" "<<(my::are_equal(std::abs(py_(i)),M_PI,1e-12)?-M_PI:py_(i))<<" "<<e_(i)<<IOFiles::endl;
 	}
 
 	Gnuplot gp("./","spectrum");
@@ -192,17 +192,17 @@ void System2D<Type>::select_eigenvectors(){
 	unsigned int c(0);
 	unsigned int a(this->M_(c)-1);
 	unsigned int b(this->M_(c)-1);
-	do{b++;} while (b+1<this->n_ && are_equal(e_(b),e_(b-1)));
-	if(b!=this->M_(c)){ while(a>0 && are_equal(e_(a-1),e_(a))){a--;} }
+	do{b++;} while (b+1<this->n_ && my::are_equal(e_(b),e_(b-1)));
+	if(b!=this->M_(c)){ while(a>0 && my::are_equal(e_(a-1),e_(a))){a--;} }
 	std::cout<<a<<" "<<b<<std::endl;
 	std::cout<<e_<<std::endl;
 	for(unsigned int i(a-1);i<b+1;i++){
-		std::cout<<i<<" "<<chop(e_(i))<<" "<<px_(i)<<" "<<py_(i)<<std::endl;
+		std::cout<<i<<" "<<my::chop(e_(i))<<" "<<px_(i)<<" "<<py_(i)<<std::endl;
 	}
 	Matrix<unsigned int> pair(b-a,2,0);
 	for(unsigned int i(a);i<b;i++){
 		for(unsigned int j(a);j<b;j++){
-			if(are_equal(e_(i),e_(j)) && are_equal(px_(i),-px_(j)) && are_equal(py_(i),-py_(j))){
+			if(my::are_equal(e_(i),e_(j)) && my::are_equal(px_(i),-px_(j)) && my::are_equal(py_(i),-py_(j))){
 				pair(i-a,0) = i;
 				pair(i-a,1) = j;
 			}
@@ -219,8 +219,8 @@ void System2D<Type>::select_eigenvectors(){
 			tmp2 = evec_(i,pair(j,0)) - evec_(i,pair(j,1));
 			evec_(i,pair(j,0)) = tmp1;
 			evec_(i,pair(j,1)) = tmp2;
-			n1 += norm_squared(tmp1);
-			n2 += norm_squared(tmp2);
+			n1 += my::norm_squared(tmp1);
+			n2 += my::norm_squared(tmp2);
 		}
 		for(unsigned int i(0);i<this->n_;i++){
 			evec_(i,pair(j,0)) /= sqrt(n1);
@@ -299,7 +299,7 @@ bool System2D<Type>::simple_diagonalization(){
 	Vector<double> eval;
 	Lapack<Type>(H_,false,(this->ref_(1)==1?'S':'H')).eigensystem(eval,true);
 	for(unsigned int c(0);c<this->N_;c++){
-		if(are_equal(eval(this->M_(c)),eval(this->M_(c)-1),1e-12)){
+		if(my::are_equal(eval(this->M_(c)),eval(this->M_(c)-1),1e-12)){
 			std::cerr<<"bool System2D<Type>::simple_diagonalization() :"
 				" degenerate at the Fermi level"<<std::endl;
 			return false;
@@ -319,7 +319,7 @@ bool System2D<Type>::full_diagonalization(){
 
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(i+1);j<this->n_;j++){
-			if(are_equal(eval(i),eval(j),1e-10,1e-10)){
+			if(my::are_equal(eval(i),eval(j),1e-10,1e-10)){
 				std::cerr<<"bool System2D<Type>::full_diagonalization() :"
 					"eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
 				return false;
@@ -374,7 +374,7 @@ void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<in
 	if(set_in_basis(nn)){ nb(dir,1) = this->bc_; }
 
 	unsigned int j(0);
-	while( !are_equal(tn,nn) && j<this->n_+2 ){
+	while( !my::are_equal(tn,nn) && j<this->n_+2 ){
 		j++;
 		try_neighbourg(tn,j);
 		set_in_basis(tn);
@@ -387,8 +387,8 @@ void System2D<Type>::set_pos(Vector<double>& x) const {
 	double ip;
 	x(0) = std::modf(x(0),&ip);
 	x(1) = std::modf(x(1),&ip);
-	if( are_equal(x(0),1) ){ x(0) = 0; }
-	if( are_equal(x(1),1) ){ x(1) = 0; }
+	if( my::are_equal(x(0),1) ){ x(0) = 0; }
+	if( my::are_equal(x(1),1) ){ x(1) = 0; }
 }
 
 template<typename Type>
@@ -397,12 +397,12 @@ bool System2D<Type>::set_in_basis(Vector<double>& x) const {
 	double ip;
 	x(0) = std::modf(x(0),&ip);
 	if( x(0)<0 ){ x(0) += 1.0; out_of_zone = !out_of_zone; }
-	if( are_equal(x(0),1) ){ x(0) = 0; out_of_zone = !out_of_zone; }
+	if( my::are_equal(x(0),1) ){ x(0) = 0; out_of_zone = !out_of_zone; }
 	if( ip>0 ){ out_of_zone = !out_of_zone; }
 
 	x(1) = std::modf(x(1),&ip);
 	if( x(1)<0 ){ x(1) += 1.0; out_of_zone = !out_of_zone; }
-	if( are_equal(x(1),1) ){ x(1) = 0; out_of_zone = !out_of_zone; }
+	if( my::are_equal(x(1),1) ){ x(1) = 0; out_of_zone = !out_of_zone; }
 	if( ip>0 ){ out_of_zone = !out_of_zone ; }
 	return out_of_zone;
 }

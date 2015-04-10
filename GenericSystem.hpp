@@ -58,17 +58,17 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 	spuc_(spuc),
 	z_(z)
 { 
-	filename_ += "-N" + tostring(this->N_);
-	path_ += "N" + tostring(this->N_);
-	filename_ += "-m" + tostring(this->m_);
-	path_ += "/m" + tostring(this->m_);
-	filename_ += "-n" + tostring(this->n_);
-	path_ += "/n" + tostring(this->n_);
+	filename_ += "-N" + my::tostring(this->N_);
+	path_ += "N" + my::tostring(this->N_);
+	filename_ += "-m" + my::tostring(this->m_);
+	path_ += "/m" + my::tostring(this->m_);
+	filename_ += "-n" + my::tostring(this->n_);
+	path_ += "/n" + my::tostring(this->n_);
 	filename_ += "-M";
 	path_ += "/M";
 	for(unsigned int i(0);i<this->M_.size();i++){
-		filename_  += "-" + tostring(this->M_(i));
-		path_ +=  "-"+tostring(this->M_(i));
+		filename_  += "-" + my::tostring(this->M_(i));
+		path_ +=  "-"+my::tostring(this->M_(i));
 	}
 	switch(this->bc_){
 		case -1:{filename_ += "-A"; path_ += "/A/"; }break;
@@ -76,7 +76,7 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 		case 1: {filename_ += "-P"; path_ += "/P/"; }break;
 		default:{std::cerr<<"GenericSystem : Unknown boundary condition"<<std::endl;}
 	}
-	path_ += tostring(this->ref_(0))+tostring(this->ref_(1))+tostring(this->ref_(2))+"/";
+	path_ += my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2))+"/";
 }
 
 template<typename Type>
@@ -122,7 +122,7 @@ void GenericSystem<Type>::save() const {
 	jd_write_->write("N (N of SU(N))",this->N_);
 	jd_write_->write("m (# of particles per site)",this->m_);
 	jd_write_->write("n (# of site)",this->n_);
-	jd_write_->write("M (# of particles of each color, "+tostring(this->M_(0))+")",this->M_);
+	jd_write_->write("M (# of particles of each color, "+my::tostring(this->M_(0))+")",this->M_);
 	jd_write_->write("bc (boundary condition)",this->bc_);
 }
 

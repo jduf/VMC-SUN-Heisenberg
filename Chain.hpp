@@ -179,8 +179,8 @@ void Chain<Type>::do_fit(Vector<double> const& lrc, unsigned int const& xi, unsi
 		};
 		Fit(x,y,p,func); 
 		for(unsigned int i(0);i<x.size();i++){
-			rss += norm_squared(y(i)-func(x(i),p.ptr()));
-			tss += norm_squared(ym-y(i));
+			rss += my::norm_squared(y(i)-func(x(i),p.ptr()));
+			tss += my::norm_squared(ym-y(i));
 		}
 	}
 	if(p.size()==4){
@@ -189,8 +189,8 @@ void Chain<Type>::do_fit(Vector<double> const& lrc, unsigned int const& xi, unsi
 		};
 		Fit(x,y,p,func); 
 		for(unsigned int i(0);i<x.size();i++){
-			rss += norm_squared(y(i)-func(x(i),p.ptr()));
-			tss += norm_squared(ym-y(i));
+			rss += my::norm_squared(y(i)-func(x(i),p.ptr()));
+			tss += my::norm_squared(ym-y(i));
 		}
 	}
 

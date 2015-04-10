@@ -8,7 +8,7 @@ Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& 
 	if(status_==2){
 		init_fermionic();
 
-		filename_ += "-td" + tostring(td_);
+		filename_ += "-td" + my::tostring(td_);
 		system_info_.text("Honeycomb0pp : 6 sites per unit cell, in the center hexagon there is a 0-flux,");
 		system_info_.text("if td<0, the two other hexagons contain a pi-flux, if td>0, their flux is 0");
 		system_info_.text("th is set to 1");
@@ -71,22 +71,22 @@ void Honeycomb0pp::save() const{
 
 unsigned int Honeycomb0pp::match_pos_in_ab(Vector<double> const& x) const{
 	Vector<double> match(2,0);
-	if(are_equal(x,match)){ return 0; }
+	if(my::are_equal(x,match)){ return 0; }
 	match(0) = 1.0/3.0;
 	match(1) = 0;
-	if(are_equal(x,match)){ return 1; }
+	if(my::are_equal(x,match)){ return 1; }
 	match(0) = 1.0/3.0;
 	match(1) = 1.0/3.0;
-	if(are_equal(x,match)){ return 2; }
+	if(my::are_equal(x,match)){ return 2; }
 	match(0) = 2.0/3.0;
 	match(1) = 1.0/3.0;
-	if(are_equal(x,match)){ return 3; }
+	if(my::are_equal(x,match)){ return 3; }
 	match(0) = 2.0/3.0;
 	match(1) = 2.0/3.0;
-	if(are_equal(x,match)){ return 4; }
+	if(my::are_equal(x,match)){ return 4; }
 	match(0) = 0;
 	match(1) = 2.0/3.0;
-	if(are_equal(x,match)){ return 5; }
+	if(my::are_equal(x,match)){ return 5; }
 	return 7;
 }
 
@@ -134,7 +134,7 @@ void Honeycomb0pp::lattice(){
 			xy1 = xy0;
 			xy1(0) += 0.5;
 			xy1(1) -= 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(0,0)));
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
 		} else {
 			color = "black";
 			xy1 = get_pos_in_lattice(nb(0,0));
@@ -152,7 +152,7 @@ void Honeycomb0pp::lattice(){
 			xy1 = xy0;
 			xy1(0) -= 0.5;
 			xy1(1) += 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(1,0)));
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
 		} else {
 			color = "black";
 			xy1 = get_pos_in_lattice(nb(1,0));
@@ -170,7 +170,7 @@ void Honeycomb0pp::lattice(){
 			xy1 = xy0;
 			xy1(0) -= 0.5;
 			xy1(1) -= 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(2,0)));
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(2,0)));
 		} else {
 			color = "black";
 			xy1 = get_pos_in_lattice(nb(2,0));
@@ -190,7 +190,7 @@ void Honeycomb0pp::lattice(){
 		set_in_basis(xy0);
 		xy0 = (LxLy_*xy0).chop();
 		xy0 = inv_e*xy0;
-		ps.put(xy0(0)-0.20,xy0(1)+0.15,tostring(i));
+		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
 	}
 
 	Vector<double> Lx(2);
@@ -326,7 +326,7 @@ std::string Honeycomb0pp::extract_level_7(){
 	delete rst_file_;
 	rst_file_ = NULL;
 
-	return tostring(td_);
+	return my::tostring(td_);
 }
 
 std::string Honeycomb0pp::extract_level_6(){

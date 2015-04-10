@@ -85,10 +85,10 @@ void SquareJastrow::save() const {
 
 unsigned int SquareJastrow::match_pos_in_ab(Vector<double> const& x) const { 
 	Vector<double> match(2,0);
-	if(are_equal(x,match)){ return 0; }
+	if(my::are_equal(x,match)){ return 0; }
 	match(0) = 0.5;
 	match(1) = 0;
-	if(are_equal(x,match)){ return 1; }
+	if(my::are_equal(x,match)){ return 1; }
 	return 0;
 }
 

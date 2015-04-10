@@ -45,26 +45,27 @@ void CreateSystem::parse(Container* C){
 			t(1) = C->get<double>("t2");
 			t(3) = C->get<double>("t4");
 		} else { 
-			t(N_/m_-1) = 1-C->get<double>("delta");
+			t(N_/m_-1) = C->get<double>("t2");
 		}
 		C_.set("t",t);
 	}
 	if( wf == "chainpolymerizedjjp" ){
-		ref_(0) = 2;
-		ref_(1) = 1;
-		ref_(2) = 2;
-		Vector<double> t(N_/m_,1);
-		if(N_/m_ == 4){
-			t(1) = C->get<double>("t2");
-			t(3) = C->get<double>("t4");
+		if(N_/m_ == 2){
+			ref_(0) = 2;
+			ref_(1) = 1;
+			ref_(2) = 2;
+			Vector<double> t(N_/m_,0);
+			t(0) = C->get<double>("t");
+			t(1) = C->get<double>("tp");
+			Vector<double> J(2);
+			J(0) = C->get<double>("J");
+			J(1) = C->get<double>("Jp");
+
+			C_.set("t",t);
+			C_.set("J",J);
 		} else { 
-			t(N_/m_-1) = 1-C->get<double>("delta");
+			std::cerr<<"chainpolymerizedjjp N/m!=2"<<std::endl;
 		}
-		C_.set("t",t);
-		Vector<double> J(2);
-		J(0) = -1.0;
-		J(1) = C->get<double>("Jp");
-		C_.set("J",J);
 	}
 
 	if( wf == "trianglefermi" ){

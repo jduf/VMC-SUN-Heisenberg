@@ -113,13 +113,13 @@ void MCSystem<Type>::measure_new_step(){
 	double r;
 	for(unsigned int i(0);i<links_.row();i++){
 		corr_[i].set_x(0.0);
-		for(unsigned int p0(0); p0<m_; p0++){
-			for(unsigned int p1(0); p1<m_; p1++){
+		for(unsigned int p0(0);p0<m_;p0++){
+			for(unsigned int p1(0);p1<m_;p1++){
 				swap(links_(i,0),links_(i,1),p0,p1);
 				/*!if the new state is forbidden, r=0 and therefore there is no
 				 * need to complete the else condition*/
 				if(!is_new_state_forbidden()){ 
-					r = real(ratio());
+					r = my::real(ratio());
 					corr_[i].add(r);
 					E_.add(r*J_(i));
 				}
@@ -167,8 +167,8 @@ void MCSystem<Type>::complete_analysis(double const& tol){
 template<typename Type>
 bool MCSystem<Type>::is_new_state_forbidden(){
 	for(unsigned int i(0); i<m_; i++){
-		if(s_(new_s_[0],i) == new_c_[1] && i != new_p_[0]){ return true; }
-		if(s_(new_s_[1],i) == new_c_[0] && i != new_p_[1]){ return true; }
+		if(i != new_p_[0] && s_(new_s_[0],i) == new_c_[1]){ return true; }
+		if(i != new_p_[1] && s_(new_s_[1],i) == new_c_[0]){ return true; }
 	}
 	return false;
 }

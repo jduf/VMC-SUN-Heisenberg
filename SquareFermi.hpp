@@ -72,14 +72,14 @@ void SquareFermi<Type>::lattice(){
 		this->set_pos_LxLy(xy0);
 		this->set_in_basis(xy0);
 		xy0 = (this->LxLy_*xy0).chop();
-		ps.put(xy0(0)-0.20,xy0(1)+0.15,tostring(i));
+		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
 		nb = this->get_neighbourg(i);
 
 		if(nb(0,1)<0){
 			color = "red";
 			xy1 = xy0;
 			xy1(0) += 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(0,0)));
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
 		} else {
 			color = "black";
 			xy1 = this->get_pos_in_lattice(nb(0,0));
@@ -93,7 +93,7 @@ void SquareFermi<Type>::lattice(){
 			color = "red";
 			xy1 = xy0;
 			xy1(1) += 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(1,0)));
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
 		} else {
 			color = "black";
 			xy1 = this->get_pos_in_lattice(nb(1,0));
