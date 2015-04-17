@@ -47,7 +47,7 @@ void Analyse::do_analyse(){
 		case 2: /*treat the directory given as argument*/
 			{
 				if(path_[path_.size()-1] != '/'){ path_ += '/'; }
-				std::vector<std::string> tmp(string_split(path_,'/'));
+				std::vector<std::string> tmp(my::string_split(path_,'/'));
 				path_ = "";
 				level_+=1;
 				for(unsigned int i(1);i<tmp.size()-1;i++){ 
@@ -112,7 +112,7 @@ void Analyse::search_jdbin(){
 		}
 
 		do{ rst_file_.last().hyperlink(all_link_names_.get(),all_link_files_.get()); }
-		while ( all_link_names_.move_forward() && all_link_files_.move_forward() );
+		while ( all_link_names_.go_to_next() && all_link_files_.go_to_next() );
 
 		close_files();
 		all_link_names_.set();

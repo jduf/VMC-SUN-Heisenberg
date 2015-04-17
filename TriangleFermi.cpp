@@ -78,14 +78,14 @@ void TriangleFermi::lattice(){
 		set_in_basis(xy0);
 		xy0 = (inv_e*LxLy_*xy0).chop();
 		nb = get_neighbourg(i);
-		ps.put(xy0(0)-0.20,xy0(1)+0.15,tostring(i));
+		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
 
 		if(nb(0,1)<0){
 			color = "red";
 			xy1 = xy0;
 			xy1(0) += 1.5;
 			xy1(1) -= 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(0,0)));
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
 		} else {
 			color = "black";
 			if(i+1 == xloop_){
@@ -107,7 +107,7 @@ void TriangleFermi::lattice(){
 			xy1 = xy0;
 			xy1(0) += 1.5;
 			xy1(1) += 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(1,0)));
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
 		} else {
 			color = "black";
 			xy1 = get_pos_in_lattice(nb(1,0));
@@ -123,7 +123,7 @@ void TriangleFermi::lattice(){
 			xy1 = xy0;
 			xy1(0) += 0.0;
 			xy1(1) += 2.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(2,0)));
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(2,0)));
 		} else {
 			color = "black";
 			xy1 = get_pos_in_lattice(nb(2,0));

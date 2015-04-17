@@ -125,14 +125,14 @@ void KagomeDirac<Type>::lattice(){
 			nb = this->get_neighbourg(s);
 			x0 = 0.2+i*ex+j*exy;
 			y0 = 0.1+j*ey; 
-			ps.put(x0-0.2,y0+0.2,tostring(s));
+			ps.put(x0-0.2,y0+0.2,my::tostring(s));
 			x1 = x0+ll;
 			y1 = y0;
-			if(real(this->H_(s,nb(0,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(0,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0-ll;
-			if(real(this->H_(s,nb(2,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(2,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -142,15 +142,15 @@ void KagomeDirac<Type>::lattice(){
 			x0 = x0+ll;
 			double x3(x0+ll);
 			double y3(y0);
-			ps.put(x0+0.2,y0+0.2,tostring(s));
+			ps.put(x0+0.2,y0+0.2,my::tostring(s));
 			x1 = x0+ll*cos(4.0*M_PI/6.0);
 			y1 = y0+ll*sin(4.0*M_PI/6.0);
-			if(real(this->H_(s,nb(1,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(1,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*1-2*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(10.0*M_PI/6.0);
 			y1 = y0+ll*sin(10.0*M_PI/6.0);
-			if(real(this->H_(s,nb(3,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(3,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*1-2*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -159,15 +159,15 @@ void KagomeDirac<Type>::lattice(){
 			nb = this->get_neighbourg(s);
 			x0 = x0+ll*cos(4.0*M_PI/6.0);
 			y0 = y0+ll*sin(4.0*M_PI/6.0);
-			ps.put(x0+0.2,y0,tostring(s));
+			ps.put(x0+0.2,y0,my::tostring(s));
 			x1 = x0+ll*cos(2.0*M_PI/6.0);
 			y1 = y0+ll*sin(2.0*M_PI/6.0);
-			if(real(this->H_(s,nb(0,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(0,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(8.0*M_PI/6.0);
 			y1 = y0+ll*sin(8.0*M_PI/6.0);
-			if(real(this->H_(s,nb(2,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(2,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -176,13 +176,13 @@ void KagomeDirac<Type>::lattice(){
 			nb = this->get_neighbourg(s);
 			x0 = x3;
 			y0 = y3;
-			ps.put(x0-0.2,y0+0.2,tostring(s));
+			ps.put(x0-0.2,y0+0.2,my::tostring(s));
 			x1 = x0+ll;
-			if(real(this->H_(s,nb(0,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(0,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0-ll;
-			if(real(this->H_(s,nb(2,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(2,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -190,15 +190,15 @@ void KagomeDirac<Type>::lattice(){
 			s++;
 			nb = this->get_neighbourg(s);
 			x0 = x0+ll;
-			ps.put(x0+0.2,y0+0.2,tostring(s));
+			ps.put(x0+0.2,y0+0.2,my::tostring(s));
 			x1 = x0+ll*cos(4.0*M_PI/6.0);
 			y1 = y0+ll*sin(4.0*M_PI/6.0);
-			if(real(this->H_(s,nb(1,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(1,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(10.0*M_PI/6.0);
 			y1 = y0+ll*sin(10.0*M_PI/6.0);
-			if(real(this->H_(s,nb(3,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(3,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 
@@ -207,15 +207,15 @@ void KagomeDirac<Type>::lattice(){
 			nb = this->get_neighbourg(s);
 			x0 = x0+ll*cos(4.0*M_PI/6.0);
 			y0 = y0+ll*sin(4.0*M_PI/6.0);
-			ps.put(x0+0.2,y0,tostring(s));
+			ps.put(x0+0.2,y0,my::tostring(s));
 			x1 = x0+ll*cos(2.0*M_PI/6.0);
 			y1 = y0+ll*sin(2.0*M_PI/6.0);
-			if(real(this->H_(s,nb(0,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(0,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			x1 = x0+ll*cos(8.0*M_PI/6.0);
 			y1 = y0+ll*sin(8.0*M_PI/6.0);
-			if(real(this->H_(s,nb(2,0)))>0){ color = "green"; }
+			if(my::real(this->H_(s,nb(2,0)))>0){ color = "green"; }
 			else { color = "blue"; }
 			/*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 		}

@@ -11,7 +11,7 @@
 /*}*/
 class ChainPolymerized: public Chain<double> {
 	public:
-		ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<double> tij);
+		ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<double> const& t);
 		~ChainPolymerized(){}
 
 		void create();
@@ -19,7 +19,7 @@ class ChainPolymerized: public Chain<double> {
 		void check();
 		
 	private:
-		Vector<double> ti_;//!< polymerization parameter 
+		Vector<double> t_;//!< polymerization parameter 
 
 		void compute_H();
 		std::string extract_level_7();

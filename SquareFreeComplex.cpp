@@ -71,10 +71,10 @@ void SquareFreeComplex::create(){
 
 unsigned int SquareFreeComplex::match_pos_in_ab(Vector<double> const& x) const{
 	Vector<double> match(2,0);
-	if(are_equal(x,match)){ return 0; }
+	if(my::are_equal(x,match)){ return 0; }
 	match(0) = 0.5;
 	match(1) = 0;
-	if(are_equal(x,match)){ return 1; }
+	if(my::are_equal(x,match)){ return 1; }
 	return 2;
 }
 
@@ -105,14 +105,14 @@ void SquareFreeComplex::lattice(){
 		set_pos_LxLy(xy0);
 		set_in_basis(xy0);
 		xy0 = (LxLy_*xy0).chop();
-		ps.put(xy0(0)-0.20,xy0(1)+0.15,tostring(i));
+		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
 		nb = get_neighbourg(i);
 
 		if(nb(0,1)<0){
 			color = "red";
 			xy1 = xy0;
 			xy1(0) += 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(0,0)));
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
 		} else {
 			color = "black";
 			if(i+1==xloop_){
@@ -127,14 +127,14 @@ void SquareFreeComplex::lattice(){
 		}
 		if(arg(H_(i,nb(0,0)))>0){ arrow = "->"; }
 		else { arrow = "<-"; }
-		linewidth = tostring(std::abs(H_(i,nb(0,0))))+"pt";
+		linewidth = my::tostring(std::abs(H_(i,nb(0,0))))+"pt";
 		/*x-link*/ ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 
 		if(nb(1,1)<0){
 			color = "red";
 			xy1 = xy0;
 			xy1(1) += 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,tostring(nb(1,0)));
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
 		} else {
 			color = "black";
 			xy1 = get_pos_in_lattice(nb(1,0));
@@ -144,7 +144,7 @@ void SquareFreeComplex::lattice(){
 		}
 		if(arg(H_(i,nb(1,0)))>0){ arrow = "->"; }
 		else { arrow = "<-"; }
-		linewidth = tostring(std::abs(H_(i,nb(1,0))))+"pt";
+		linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"pt";
 		/*y-link*/ ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 	}
 

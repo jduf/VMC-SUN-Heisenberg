@@ -1,7 +1,8 @@
 #include "AnalyseChain.hpp"
 
 AnalyseChain::AnalyseChain(std::string const& path):
-	Analyse(path)
+	Analyse(path),
+	outfile_(NULL)
 {
 	std::cout<<"Will proceed to the analyse SU(N) chains. It will consist "
 		"of an analyse of :"<<std::endl<<
@@ -23,8 +24,14 @@ AnalyseChain::~AnalyseChain(){
 
 void AnalyseChain::open_files(){
 	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); 
-		if(level_==6){ jd_write_->write("number of different wavefunction",nof_); } 
-		if(level_==5){ jd_write_->write("number of different boundary condition",nof_); }
+		if(level_==6){ 
+			jd_write_->write("number of different wavefunction",nof_); 
+			jd_write_->add_header()->np();
+		} 
+		if(level_==5){ 
+			jd_write_->write("number of different boundary condition",nof_); 
+			jd_write_->add_header()->np();
+		}
 		if(level_==3 || level_==7){
 			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); 
 			data_write_->precision(10);
@@ -140,7 +147,7 @@ std::string AnalyseChain::extract_level_5(){
 					(*read_)>>E[ref(2)]>>polymerization_strength[ref(2)]>>exponents[ref(2)];
 				}
 
-				if(!are_equal(ti,Vector<double>(N/m,1.0))){
+				if(!my::are_equal(ti,Vector<double>(N/m,1.0))){
 					ref(1) = 1;
 					ref(2) = 1;
 					ChainPolymerized chain(ref,N,m,n,M,bc,ti);
@@ -283,7 +290,7 @@ std::string AnalyseChain::extract_level_2(){
 	gpexp.range("x","0","0.037");
 	gpexp.range("y","1.3","1.82");
 	gpexp+="plot '"+filename_+".dat' u (1/$4):($3==1?$11:1/0) lc 1 t '$\\nu$',\\";
-	gpexp+="     "+tostring(2.0-2.0/N)+" lc 1 notitle";
+	gpexp+="     "+my::tostring(2.0-2.0/N)+" lc 1 notitle";
 	gpexp+="";
 	gpexp.margin("0.15","0.85","0.55","0.15");
 	gpexp+="set xtics nomirror";

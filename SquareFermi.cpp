@@ -49,8 +49,8 @@ void SquareFermi<std::complex<double> >::create(){
 //unsigned int c(0);
 //unsigned int a(this->M_(c)-1);
 //unsigned int b(a);
-//do{b++;} while (b+1<this->n_ && are_equal(eval0(b),eval0(b-1)));
-//if(b!=this->M_(c)){ while(a>0 && are_equal(eval0(a-1),eval0(a))){a--;} }
+//do{b++;} while (b+1<this->n_ && my::are_equal(eval0(b),eval0(b-1)));
+//if(b!=this->M_(c)){ while(a>0 && my::are_equal(eval0(a-1),eval0(a))){a--;} }
 //for(unsigned int c(0);c<N_;c++){
 //for(unsigned int i(0);i<n_;i++){
 //for(unsigned int j(a);j<M_(c);j++){

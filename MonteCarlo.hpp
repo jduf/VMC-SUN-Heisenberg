@@ -85,7 +85,7 @@ void MonteCarlo<Type>::thermalize(unsigned int const& N){
 	if(S_->get_status()==0){
 		for(unsigned int i(0);i<N;i++){
 			S_->swap();
-			if( norm_squared(S_->ratio()) > rnd_.get() ){ S_->update(); }
+			if( my::norm_squared(S_->ratio()) > rnd_.get() ){ S_->update(); }
 		}
 		S_->measure_new_step();
 	}
@@ -106,7 +106,7 @@ void MonteCarlo<Type>::run(){
 template<typename Type>
 void MonteCarlo<Type>::next_step(){
 	S_->swap();
-	if( norm_squared(S_->ratio()) > rnd_.get() ){
+	if( my::norm_squared(S_->ratio()) > rnd_.get() ){
 		S_->update();
 		S_->measure_new_step();
 	}
@@ -116,13 +116,13 @@ void MonteCarlo<Type>::next_step(){
 template<typename Type>
 bool MonteCarlo<Type>::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
-	if(time_.progress(tmax_/21)){
-		if(!omp_get_thread_num()){
-			S_->get_energy().compute_convergence(1e-5);
-			std::cerr<<"E="<<S_->get_energy().get_x()<<" ("<<S_->get_energy().get_dx()<<") after "<<100.0*time_.elapsed()/tmax_<<"%"<<std::endl;
-			//S_->set();
-		}
-	}
+	//if(time_.progress(tmax_/21)){
+		//if(!omp_get_thread_num()){
+			//S_->get_energy().compute_convergence(1e-5);
+			//std::cerr<<"E="<<S_->get_energy().get_x()<<" ("<<S_->get_energy().get_dx()<<") after "<<100.0*time_.elapsed()/tmax_<<"%"<<std::endl;
+			////S_->set();
+		//}
+	//}
 	if(std::abs(S_->get_energy().get_x())>1e2){ 
 		std::cerr<<"Simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
 		S_->set();

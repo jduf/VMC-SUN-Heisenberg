@@ -130,7 +130,7 @@ void KagomeVBC::lattice(){
 			/*0.05 is there so there is no problem with latex and it shows
 			 * better which sites are in the unit cell*/
 			y0 = 0.05 + ll/2.0 + j*ey; 
-			ps.put(x0+0.2,y0+0.2,tostring(s));
+			ps.put(x0+0.2,y0+0.2,my::tostring(s));
 			x1 = x0+ll*cos(3.0*M_PI/6.0);
 			y1 = y0+ll*sin(3.0*M_PI/6.0);
 			if(imag(H_(s,nb(0,0)))>0){ color = "green";}
@@ -148,7 +148,7 @@ void KagomeVBC::lattice(){
 			nb = get_neighbourg(s);
 			x0 = x0+ll*cos(3.0*M_PI/6.0);
 			y0 = y0+ll*sin(3.0*M_PI/6.0);
-			ps.put(x0+0.2,y0-0.2,tostring(s));
+			ps.put(x0+0.2,y0-0.2,my::tostring(s));
 			x1 = x0+ll*cos(1.0*M_PI/6.0);
 			y1 = y0+ll*sin(1.0*M_PI/6.0);
 			if(imag(H_(s,nb(0,0)))>0){ color = "green";}
@@ -167,7 +167,7 @@ void KagomeVBC::lattice(){
 			nb = get_neighbourg(s);
 			x0 = x0+ll*cos(1.0*M_PI/6.0);
 			y0 = y0+ll*sin(1.0*M_PI/6.0);
-			ps.put(x0,y0-0.2,tostring(s));
+			ps.put(x0,y0-0.2,my::tostring(s));
 			x1 = x0+ll*cos(-1.0*M_PI/6.0);
 			y1 = y0+ll*sin(-1.0*M_PI/6.0);
 			if(imag(H_(s,nb(0,0)))>0){ color = "green";}
@@ -186,7 +186,7 @@ void KagomeVBC::lattice(){
 			nb = get_neighbourg(s);
 			x0 = x0+ll*cos(-1.0*M_PI/6.0);
 			y0 = y0+ll*sin(-1.0*M_PI/6.0);
-			ps.put(x0-0.2,y0-0.2,tostring(s));
+			ps.put(x0-0.2,y0-0.2,my::tostring(s));
 			x1 = x0+ll*cos(9.0*M_PI/6.0);
 			y1 = y0+ll*sin(9.0*M_PI/6.0);
 			if(imag(H_(s,nb(0,0)))>0){ color = "green";}
@@ -205,7 +205,7 @@ void KagomeVBC::lattice(){
 			nb = get_neighbourg(s);
 			x0 = x0+ll*cos(-3.0*M_PI/6.0);
 			y0 = y0+ll*sin(-3.0*M_PI/6.0);
-			ps.put(x0-0.2,y0+0.2,tostring(s));
+			ps.put(x0-0.2,y0+0.2,my::tostring(s));
 			x1 = x0+ll*cos(7.0*M_PI/6.0);
 			y1 = y0+ll*sin(7.0*M_PI/6.0);
 			if(imag(H_(s,nb(0,0)))>0){ color = "green";}
@@ -222,7 +222,7 @@ void KagomeVBC::lattice(){
 			nb = get_neighbourg(s);
 			x0 = x0-ll*cos(1.0*M_PI/6.0);
 			y0 = y0-ll*sin(1.0*M_PI/6.0);
-			ps.put(x0,y0+0.2,tostring(s));
+			ps.put(x0,y0+0.2,my::tostring(s));
 			x1 = x0+ll*cos(5.0*M_PI/6.0);
 			y1 = y0+ll*sin(5.0*M_PI/6.0);
 			if(imag(H_(s,nb(0,0)))>0){ color = "green";}
@@ -239,7 +239,7 @@ void KagomeVBC::lattice(){
 			nb = get_neighbourg(s);
 			x0 = x6;
 			y0 = y6;
-			ps.put(x0+0.2,y0-0.2,tostring(s));
+			ps.put(x0+0.2,y0-0.2,my::tostring(s));
 			x1 = x0+ll*cos(1.0*M_PI/6.0);
 			y1 = y0+ll*sin(1.0*M_PI/6.0);
 			if(imag(H_(s,nb(0,0)))>0){ color = "green";}
@@ -256,7 +256,7 @@ void KagomeVBC::lattice(){
 			nb = get_neighbourg(s);
 			x0 = x7+ex;
 			y0 = y7;
-			ps.put(x0-0.2,y0-0.2,tostring(s));
+			ps.put(x0-0.2,y0-0.2,my::tostring(s));
 			x1 = x0+ll*cos(3.0*M_PI/6.0);
 			y1 = y0+ll*sin(3.0*M_PI/6.0);
 			if(imag(H_(s,nb(0,0)))>0){ color = "green";}
@@ -273,7 +273,7 @@ void KagomeVBC::lattice(){
 			nb = get_neighbourg(s);
 			x0 = x8+ex;
 			y0 = y8;
-			ps.put(x0,y0+0.2,tostring(s));
+			ps.put(x0,y0+0.2,my::tostring(s));
 			x1 = x0+ll*cos(11.0*M_PI/6.0);
 			y1 = y0+ll*sin(11.0*M_PI/6.0);
 			if(imag(H_(s,nb(0,0)))>0){ color = "green";}
@@ -312,7 +312,7 @@ void KagomeVBC::check(){
 	//}
 	//for(unsigned int i(0);i<n_;i++){
 	//for(unsigned int j(0);j<n_;j++){
-	//if(std::abs(Ttest(i,j)-norm_squared(H_(i,j)))>0.2){
+	//if(std::abs(Ttest(i,j)-my::norm_squared(H_(i,j)))>0.2){
 	//std::cout<<i<<" "<<j<<std::endl;
 	//}
 	//}
@@ -322,7 +322,7 @@ void KagomeVBC::check(){
 	//unsigned int k(0);
 	//for(unsigned int i(0);i<n_;i++){
 	//for(unsigned int j(0);j<n_;j++){
-	//if(norm_squared(H_(i,j))!=0){
+	//if(my::norm_squared(H_(i,j))!=0){
 	//k++;
 	//std::cout<<i<<" "<<j<<" "<<H_(i,j)<<std::endl;
 	//}

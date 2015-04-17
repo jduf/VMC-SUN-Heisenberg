@@ -11,8 +11,8 @@ unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem) {
 
 void MCSim::fuse(MCSim& list_elem, MCSim& new_elem) { 
 	list_elem.E_.merge(new_elem.E_);
-	list_elem.N_++;
-	//new_elem.E_ = list_elem.E_;
+	/*i don't know yet what is the best*/
+	new_elem.E_ = list_elem.E_;
 	new_elem = list_elem;
 }
 
@@ -47,21 +47,22 @@ void MCParticle::move(Vector<double> const& bx_all){
 #pragma omp critical(update_pos_iter)
 	{
 		x_(0) = MCParticle::pos(MCParticle::pos_iter);
-		std::cout<<"pos_iter="<<MCParticle::pos_iter<<" x_="<<x_(0)<<std::endl;
+		//std::cout<<"pos_iter="<<MCParticle::pos_iter<<" x_="<<x_(0)<<std::endl;
 		MCParticle::pos_iter++; 
 	}
 }
 
 void MCParticle::update_particle_history(std::shared_ptr<MCSim>& new_elem){
-	if(history_.find(new_elem,MCSim::cmp_for_fuse)){ history_.add_after_move(new_elem); }
+	if(!history_.find_sorted(new_elem,MCSim::cmp_for_fuse)){ history_.add_after_free(new_elem); }
 }
 
 void MCParticle::print(std::ostream& flux) const {
 	Particle::print(flux);
-	flux<<std::endl<<"particle history"<<std::endl;
-	do{
-		flux<<history_.get_ptr()<<" "<<history_.get().get_param()<<" "<<history_.get().get_energy()<<" "<<history_.get().get_N()<<IOFiles::endl;
-	} while ( history_.move_forward() );
+	flux<<std::endl<<"particle history "<<std::endl;
+	history_.set_free();
+	while( history_.go_to_next() ){
+		flux<<history_.get_ptr()<<" "<<history_.get()<<IOFiles::endl;
+	}
 }
 /*}*/
 
@@ -95,7 +96,7 @@ bool PSOFermionic::is_better_x(unsigned int const& p){
 	//system_param.set("mu",mu);
 	//system_param.set("td",x(0));
 	//
-	system_param.set("delta",p_[p]->get_x()(0));
+	system_param.set("t2",p_[p]->get_x()(0));
 
 	//Vector<double> mu(1,0);
 	//system_param.set("mu",mu);
@@ -119,9 +120,9 @@ bool PSOFermionic::is_better_x(unsigned int const& p){
 
 void PSOFermionic::plot(){
 	IOFiles data("data.dat",true);
-	do{
-		data<<all_results_.get().get_param()<<" "<<all_results_.get().get_energy()<<" "<<all_results_.get().get_N()<<IOFiles::endl;
-	} while ( all_results_.move_forward() );
+	while(all_results_.go_to_next()){
+		data<<all_results_.get().get_param()<<all_results_.get().get_energy()<<IOFiles::endl;
+	}
 	Gnuplot gp("./","test");
 	gp+="plot 'data.dat' u 1:2:3 w e";
 	gp.save_file();
@@ -131,9 +132,9 @@ void PSOFermionic::plot(){
 void PSOFermionic::print(std::ostream& flux) const {
 	Swarm::print(flux);
 	std::cout<<"Print whole history"<<std::endl;
-	do{
-		flux<<all_results_.get_ptr()<<" "<<all_results_.get().get_param()<<" "<<all_results_.get().get_energy()<<" "<<all_results_.get().get_N()<<IOFiles::endl;
-	} while ( all_results_.move_forward() );
+	while ( all_results_.go_to_next() ){
+		flux<<all_results_.get_ptr()<<" "<<all_results_.get()<<IOFiles::endl;
+	}
 }
 
 std::ostream& operator<<(std::ostream& flux, PSOFermionic const& pso){
@@ -141,4 +142,3 @@ std::ostream& operator<<(std::ostream& flux, PSOFermionic const& pso){
 	return flux;
 }
 /*}*/
-

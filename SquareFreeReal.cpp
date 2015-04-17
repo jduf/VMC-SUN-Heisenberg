@@ -67,7 +67,7 @@ void SquareFreeReal::lattice(){
 			x0 = i*ex;
 			y0 = j*ey;
 			nb = get_neighbourg(s);
-			ps.put(x0-0.2,y0+0.2,tostring(s));
+			ps.put(x0-0.2,y0+0.2,my::tostring(s));
 			x1 = x0+ll;
 			y1 = y0;
 			if(H_(s,nb(0,0))>0){ color = "green"; }
@@ -93,8 +93,8 @@ void SquareFreeReal::check(){
 	//unsigned int a(M_(c)-1);
 	//unsigned int b(M_(c)-1);
 	//Vector<double> eval;
-	//do{b++;} while (b+1<n_ && are_equal(eval(b),eval(b-1)));
-	//if(b!=M_(c)){ while(a>0 && are_equal(eval(a-1),eval(a))){a--;} }
+	//do{b++;} while (b+1<n_ && my::are_equal(eval(b),eval(b-1)));
+	//if(b!=M_(c)){ while(a>0 && my::are_equal(eval(a-1),eval(a))){a--;} }
 	//std::cout<<a<<" "<<b<<std::endl;
 	std::cout<<t_<<std::endl;
 	std::cout<<mu_<<std::endl;

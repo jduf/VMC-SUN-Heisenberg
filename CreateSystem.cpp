@@ -45,7 +45,7 @@ void CreateSystem::parse(Container* C){
 			t(1) = C->get<double>("t2");
 			t(3) = C->get<double>("t4");
 		} else { 
-			t(N_/m_-1) = 1-C->get<double>("delta");
+			t(N_/m_-1) = C->get<double>("t2");
 		}
 		C_.set("t",t);
 	}

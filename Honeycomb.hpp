@@ -106,7 +106,7 @@ template<typename Type>
 Matrix<double> Honeycomb<Type>::set_LxLy(unsigned int const& n) const {
 	Matrix<double> tmp;
 	double L(sqrt(n/2));
-	if(are_equal(L,floor(L))){
+	if(my::are_equal(L,floor(L))){
 		tmp.set(2,2);
 		tmp(0,0) = L;
 		tmp(1,0) = 0.0;

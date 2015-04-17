@@ -29,6 +29,7 @@ class System{
 
 		/*!Set the observables to default (0) values and initilize binning*/
 		void set();
+
 		/*!Delete the binning for all observables*/
 		void delete_binning();
 

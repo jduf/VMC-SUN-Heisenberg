@@ -38,6 +38,8 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 		void print();
 
 	private:
+		/*!Forbids default*/
+		SystemFermionic();
 		/*!Forbids copy*/
 		SystemFermionic(SystemFermionic const& S);
 		/*!Forbids assignment*/
@@ -113,7 +115,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 			det_A(this->new_c_[c]) = Lapack<Type>(A[this->new_c_[c]],true,'G').det();
 			d *= det_A(this->new_c_[c])/det_Ainv(this->new_c_[c]);
 		}
-		if( norm_squared(d)>1 ){
+		if( my::norm_squared(d)>1 ){
 			det_Ainv = det_A;
 			/*update the new state*/
 			for(unsigned int j(0);j<this->M_(this->new_c_[0]);j++){
@@ -207,6 +209,9 @@ void SystemFermionic<Type>::update(){
 template<typename Type> 
 Type SystemFermionic<Type>::ratio(){
 	if(this->new_c_[0] == this->new_c_[1]){
+		/*!there is no minus sign because if the same color is inverted, the
+		 * matrices will be identical up to the invertion of two columns, this
+		 * minus sign is then cancelled by the reordering of the operators */
 		return 1.0;
 	} else {
 		unsigned int c_tmp;
@@ -217,7 +222,7 @@ Type SystemFermionic<Type>::ratio(){
 				w_[c] += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,new_r_[c]);
 			}
 		}
-		/*!the minus is correct, it comes from <C|H|C'> because when H is
+		/*!the minus sign is correct, it comes from <C|H|C'> because when H is
 		 * applied on |C>, the operators are not in the correct color order, so
 		 * they need to be exchanged*/
 		return -w_[0]*w_[1];

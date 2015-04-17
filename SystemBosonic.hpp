@@ -24,6 +24,8 @@ class SystemBosonic : public Bosonic<Type>, public MCSystem<Type>{
 		Type ratio();
 
 	private:
+		/*!Forbids default*/
+		SystemBosonic();
 		/*!Forbids copy*/
 		SystemBosonic(SystemBosonic const& S);
 		/*!Forbids assignment*/
