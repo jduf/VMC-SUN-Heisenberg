@@ -10,10 +10,34 @@ unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem) {
 }
 
 void MCSim::fuse(MCSim& list_elem, MCSim& new_elem) { 
-	list_elem.E_.merge(new_elem.E_);
-	/*i don't know yet what is the best*/
-	new_elem.E_ = list_elem.E_;
-	new_elem = list_elem;
+	list_elem.get_S().get()->get_energy().merge(new_elem.get_S().get()->get_energy());
+}
+
+void MCSim::create_S(Container* C){
+	CreateSystem cs(C);
+	cs.init();
+	if(cs.get_status()==2){
+		cs.create();
+		if(cs.get_status()==1){
+			if( cs.use_complex()){
+				if(cs.is_bosonic()){
+					S_.reset(new SystemBosonic<std::complex<double> >(*dynamic_cast<const Bosonic<std::complex<double> >*>(cs.get_system())));
+				} else {
+					S_.reset(new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system())));
+				}
+			} else {
+				if(cs.is_bosonic()){
+					S_.reset(new SystemBosonic<double>(*dynamic_cast<const Bosonic<double>*>(cs.get_system())));
+				} else {
+					S_.reset(new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())));
+				}
+			}
+		}
+	}
+}
+
+void MCSim::copy_S(std::unique_ptr<MCSystem> const& S){
+	S_ = S->clone();
 }
 
 std::ostream& operator<<(std::ostream& flux, MCSim const& mcsim){
@@ -31,18 +55,18 @@ void MCParticle::move(Vector<double> const& bx_all){
 	//unsigned int n;
 	//double dx(0.01);
 	//for(unsigned int j(0);j<Nfreedom_;j++){
-		//n=0;
-		//if(std::abs(x_(j))<dx/2){ n=1; }
-		//if(std::abs(x_(j)-min_(j))<dx/2){ n=2; }
-		//if(std::abs(x_(j)-max_(j))<dx/2){ n=3; }
-		//switch(n){
-			//case 0:{ x_(j) = std::round(x_(j)/dx)*dx; }break;
-			//case 1:{ x_(j) = 0; }break;
-			//case 2:{ x_(j) = min_(j); }break;
-			//case 3:{ x_(j) = max_(j); }break;
-		//}
+	//n=0;
+	//if(std::abs(x_(j))<dx/2){ n=1; }
+	//if(std::abs(x_(j)-min_(j))<dx/2){ n=2; }
+	//if(std::abs(x_(j)-max_(j))<dx/2){ n=3; }
+	//switch(n){
+	//case 0:{ x_(j) = std::round(x_(j)/dx)*dx; }break;
+	//case 1:{ x_(j) = 0; }break;
+	//case 2:{ x_(j) = min_(j); }break;
+	//case 3:{ x_(j) = max_(j); }break;
 	//}
-	
+	//}
+
 	(void)(bx_all);
 #pragma omp critical(update_pos_iter)
 	{
@@ -52,7 +76,7 @@ void MCParticle::move(Vector<double> const& bx_all){
 	}
 }
 
-void MCParticle::update_particle_history(std::shared_ptr<MCSim>& new_elem){
+void MCParticle::update_particle_history(std::shared_ptr<MCSim> const& new_elem){
 	if(!history_.find_sorted(new_elem,MCSim::cmp_for_fuse)){ history_.add_after_free(new_elem); }
 }
 
@@ -87,42 +111,38 @@ PSOFermionic::PSOFermionic(Parseur* P):
 }
 
 bool PSOFermionic::is_better_x(unsigned int const& p){
-	Container system_param(system_);
-	//Vector<double> t(10,1);
-	//for(unsigned int i(0);i<t.size()-1;i++){ t(i) = x(i); }
-	//Vector<double> mu(5,0);
-	//for(unsigned int i(0);i<mu.size();i++){ mu(i) = x(i+t.size()-1); }
-	//system_param.set("t",t);
-	//system_param.set("mu",mu);
-	//system_param.set("td",x(0));
-	//
-	system_param.set("t2",p_[p]->get_x()(0));
-
-	//Vector<double> mu(1,0);
-	//system_param.set("mu",mu);
-	//Vector<double> phi(1,M_PI/4.0);
-	//system_param.set("phi",phi);
-	//system_param.set("t",p_[p]->get_x());
-
-	//system_param.set("nu",x);
-
-	CreateSystem cs(&system_param);
-	cs.init();
-	if(cs.get_status()==2){
-		cs.create();
-		if(cs.get_status()==1){
-			if( cs.use_complex()){ return monte_carlo<std::complex<double> >(cs,p); } 
-			else { return monte_carlo<double>(cs,p); }
-		}
+	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(p_[p]->get_x()));
+	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
+	if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){
+		std::cout<<"rerun"<<std::endl;
+		sim->copy_S(all_results_.get().get_S());
+		MonteCarlo mc(sim->get_S().get(),tmax_);
+		mc.thermalize(10);
+		mc.run();
+		mc.complete_analysis(1e-5);
+		all_results_.fuse_with_free(sim, MCSim::fuse);
+		P->update_particle_history(all_results_.get_ptr());
+	} else {
+		std::cout<<"new run"<<std::endl;
+		Container system_param(system_);
+		system_param.set("t2",p_[p]->get_x()(0));
+		sim->create_S(&system_param);
+		MonteCarlo mc(sim->get_S().get(),tmax_);
+		mc.thermalize(1e6);
+		mc.run();
+		mc.complete_analysis(1e-5);
+		all_results_.add_after_free(sim);
+		P->update_particle_history(sim);
 	}
+
 	return false;
 }
 
 void PSOFermionic::plot(){
 	IOFiles data("data.dat",true);
-	while(all_results_.go_to_next()){
-		data<<all_results_.get().get_param()<<all_results_.get().get_energy()<<IOFiles::endl;
-	}
+	//while(all_results_.go_to_next()){
+	//data<<all_results_.get().get_param()<<all_results_.get().get_energy()<<IOFiles::endl;
+	//}
 	Gnuplot gp("./","test");
 	gp+="plot 'data.dat' u 1:2:3 w e";
 	gp.save_file();

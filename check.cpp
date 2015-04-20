@@ -29,21 +29,16 @@ int main(int argc, char* argv[]){
 				cs.init();
 				if(cs.get_status()==2){
 					cs.create();
+					MCSystem* S(NULL);
 					if(cs.use_complex()){
-						MCSystem<std::complex<double> >* S(NULL);
 						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system())); 
-						MonteCarlo<std::complex<double> > sim(S,tmax);
-						sim.run();
-						std::cout<<S->get_energy()<<std::endl;
-						delete S;
 					} else {
-						MCSystem<double>* S(NULL); 
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())); 
-						MonteCarlo<double> sim(S,tmax);
-						sim.run();
-						std::cout<<S->get_energy()<<std::endl;
-						delete S;
 					}
+					MonteCarlo sim(S,tmax);
+					sim.run();
+					std::cout<<S->get_energy()<<std::endl;
+					delete S;
 				}
 			} break;
 		default:

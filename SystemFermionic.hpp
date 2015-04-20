@@ -7,7 +7,7 @@
 /*!Class that contains all the necessary informations to sample the
  * configuration of a fermionic system.*/
 template<typename Type>
-class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
+class SystemFermionic : public Fermionic<Type>, public MCSystem{
 	public:
 		/*!Constructor that creates an initial state*/
 		SystemFermionic(Fermionic<Type> const& S);
@@ -27,7 +27,7 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 		 * - when two different colors are exchanged, computes the ratio using
 		 *   the determinant lemma
 		}*/
-		Type ratio();
+		double ratio(bool const& squared);
 		/*{Description*/
 		/*!Calls System::update() and then
 		 * - updates row_
@@ -37,13 +37,17 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem<Type>{
 		/*!Prints some info related to the system*/
 		void print();
 
+		std::unique_ptr<MCSystem> clone() const {
+			return std::unique_ptr<SystemFermionic<Type> >(new SystemFermionic<Type>(*this));
+		}
+
 	private:
+		/*!Autorize copy only via clone()*/
+		SystemFermionic(SystemFermionic<Type> const& S);
 		/*!Forbids default*/
 		SystemFermionic();
-		/*!Forbids copy*/
-		SystemFermionic(SystemFermionic const& S);
 		/*!Forbids assignment*/
-		SystemFermionic& operator=(SystemFermionic const& S);
+		SystemFermionic& operator=(SystemFermionic<Type> const& S);
 
 		/*!returns true is Ainv_ matrices are invertibles*/
 		bool are_invertible();
@@ -62,24 +66,24 @@ template<typename Type>
 SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	System(S),
 	Fermionic<Type>(S),
-	MCSystem<Type>(S),
-	row_(this->n_,this->m_),
-	Ainv_(new Matrix<Type>[this->N_]),
-	tmp_(new Matrix<Type>[this->N_])
+	MCSystem(S),
+	row_(n_,m_),
+	Ainv_(new Matrix<Type>[N_]),
+	tmp_(new Matrix<Type>[N_])
 { 
 	/*!Initialized class variables*/
-	for(unsigned int c(0); c<this->N_; c++){ 
-		Ainv_[c].set(this->M_(c),this->M_(c)); 
-		tmp_[c].set(this->M_(c),this->M_(c));
+	for(unsigned int c(0); c<N_; c++){ 
+		Ainv_[c].set(M_(c),M_(c)); 
+		tmp_[c].set(M_(c),M_(c));
 	}
 
 	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
 	unsigned int c_tmp(0);
-	Vector<unsigned int> row_tmp(this->N_,0);
-	for(unsigned int s(0); s < this->n_; s++){
-		for(unsigned int p(0); p < this->m_; p++){
-			c_tmp = this->s_(s,p);
-			for(unsigned int j(0); j < this->M_(c_tmp); j++){
+	Vector<unsigned int> row_tmp(N_,0);
+	for(unsigned int s(0); s < n_; s++){
+		for(unsigned int p(0); p < m_; p++){
+			c_tmp = s_(s,p);
+			for(unsigned int j(0); j < M_(c_tmp); j++){
 				Ainv_[c_tmp](row_tmp(c_tmp),j) = this->EVec_[c_tmp](s,j);
 			}
 			row_(s,p) = row_tmp(c_tmp);
@@ -92,63 +96,78 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	unsigned int l(0);
 	unsigned int TRY_MAX(1e5);
 	Matrix<Type>* A;
-	A = new Matrix<Type>[this->N_];
-	Vector<Type> det_A(this->N_,1.0);
-	Vector<Type> det_Ainv(this->N_,1.0);
-	for(unsigned int c(0); c<this->N_; c++){
+	A = new Matrix<Type>[N_];
+	Vector<Type> det_A(N_,1.0);
+	Vector<Type> det_Ainv(N_,1.0);
+	for(unsigned int c(0); c<N_; c++){
 		A[c] = Ainv_[c];
 		det_Ainv(c) = Lapack<Type>(Ainv_[c],true,'G').det();
 	}
 	while( !are_invertible() && ++l<TRY_MAX ){
 		swap();
-		for(unsigned int j(0);j<this->M_(this->new_c_[0]);j++){
-			A[this->new_c_[0]](new_r_[0],j) = this->EVec_[this->new_c_[0]](this->new_s_[1],j);
+		for(unsigned int j(0);j<M_(new_c_[0]);j++){
+			A[new_c_[0]](new_r_[0],j) = this->EVec_[new_c_[0]](new_s_[1],j);
 		}
-		for(unsigned int j(0);j<this->M_(this->new_c_[1]);j++){
-			A[this->new_c_[1]](new_r_[1],j) = this->EVec_[this->new_c_[1]](this->new_s_[0],j);
+		for(unsigned int j(0);j<M_(new_c_[1]);j++){
+			A[new_c_[1]](new_r_[1],j) = this->EVec_[new_c_[1]](new_s_[0],j);
 		}
 		/*!Compute the ratio of the determinant of the two states. This is the
 		 * brute force method but as for now the inverse matrix is unknown, it
 		 * is the only solution*/
 		Type d(1.0);
 		for(unsigned int c(0);c<2;c++){ 
-			det_A(this->new_c_[c]) = Lapack<Type>(A[this->new_c_[c]],true,'G').det();
-			d *= det_A(this->new_c_[c])/det_Ainv(this->new_c_[c]);
+			det_A(new_c_[c]) = Lapack<Type>(A[new_c_[c]],true,'G').det();
+			d *= det_A(new_c_[c])/det_Ainv(new_c_[c]);
 		}
 		if( my::norm_squared(d)>1 ){
 			det_Ainv = det_A;
 			/*update the new state*/
-			for(unsigned int j(0);j<this->M_(this->new_c_[0]);j++){
-				Ainv_[this->new_c_[0]](new_r_[0],j) = this->EVec_[this->new_c_[0]](this->new_s_[1],j);
+			for(unsigned int j(0);j<M_(new_c_[0]);j++){
+				Ainv_[new_c_[0]](new_r_[0],j) = this->EVec_[new_c_[0]](new_s_[1],j);
 			}
-			for(unsigned int j(0);j<this->M_(this->new_c_[1]);j++){
-				Ainv_[this->new_c_[1]](new_r_[1],j) = this->EVec_[this->new_c_[1]](this->new_s_[0],j);
+			for(unsigned int j(0);j<M_(new_c_[1]);j++){
+				Ainv_[new_c_[1]](new_r_[1],j) = this->EVec_[new_c_[1]](new_s_[0],j);
 			}
-			this->s_(this->new_s_[0],this->new_p_[0]) = this->new_c_[1];
-			this->s_(this->new_s_[1],this->new_p_[1]) = this->new_c_[0];
-			row_(this->new_s_[0],this->new_p_[0]) = new_r_[1];
-			row_(this->new_s_[1],this->new_p_[1]) = new_r_[0];
+			s_(new_s_[0],new_p_[0]) = new_c_[1];
+			s_(new_s_[1],new_p_[1]) = new_c_[0];
+			row_(new_s_[0],new_p_[0]) = new_r_[1];
+			row_(new_s_[1],new_p_[1]) = new_r_[0];
 		} else {
 			/*restore the s_ and row_ to match Ainv_ state*/
-			for(unsigned int j(0);j<this->M_(this->new_c_[0]);j++){
-				A[this->new_c_[0]](new_r_[0],j) = this->EVec_[this->new_c_[0]](this->new_s_[0],j);
+			for(unsigned int j(0);j<M_(new_c_[0]);j++){
+				A[new_c_[0]](new_r_[0],j) = this->EVec_[new_c_[0]](new_s_[0],j);
 			}
-			for(unsigned int j(0);j<this->M_(this->new_c_[1]);j++){
-				A[this->new_c_[1]](new_r_[1],j) = this->EVec_[this->new_c_[1]](this->new_s_[1],j);
+			for(unsigned int j(0);j<M_(new_c_[1]);j++){
+				A[new_c_[1]](new_r_[1],j) = this->EVec_[new_c_[1]](new_s_[1],j);
 			}
 		}
 	}
 
 	/*!Proceed to the inversion if possible*/
 	if(l<TRY_MAX){
-		this->status_--; 
-		for(unsigned int c(0); c<this->N_; c++){
+		status_--; 
+		for(unsigned int c(0); c<N_; c++){
 			Lapack<Type> inv(Ainv_[c],false,'G');
 			inv.inv();
 		}
 	} else { std::cerr<<"No initial state found after "<<TRY_MAX<<" trials"<<std::endl; }
 
 	delete[] A;
+}
+
+template<typename Type>
+SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
+	System(S),
+	Fermionic<Type>(S),
+	MCSystem(S),
+	row_(S.row_),
+	Ainv_(new Matrix<Type>[N_]),
+	tmp_(new Matrix<Type>[N_])
+{
+	for(unsigned int c(0); c<N_; c++){ 
+		Ainv_[c] = S.Ainv_[c]; 
+		tmp_[c].set(M_(c),M_(c));
+	}
 }
 
 template<typename Type>
@@ -162,40 +181,40 @@ SystemFermionic<Type>::~SystemFermionic(){
 /*{*/
 template<typename Type>
 void SystemFermionic<Type>::swap(){
-	MCSystem<Type>::swap();
-	new_r_[0] = row_(this->new_s_[0],this->new_p_[0]); 
-	new_r_[1] = row_(this->new_s_[1],this->new_p_[1]); 
-	new_ev_[0] = this->new_s_[1];
-	new_ev_[1] = this->new_s_[0];
+	MCSystem::swap();
+	new_r_[0] = row_(new_s_[0],new_p_[0]); 
+	new_r_[1] = row_(new_s_[1],new_p_[1]); 
+	new_ev_[0] = new_s_[1];
+	new_ev_[1] = new_s_[0];
 }
 
 template<typename Type>
 void SystemFermionic<Type>::swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
-	MCSystem<Type>::swap(s0,s1,p0,p1);
-	new_r_[0] = row_(this->new_s_[0],this->new_p_[0]); 
-	new_r_[1] = row_(this->new_s_[1],this->new_p_[1]); 
-	new_ev_[0] = this->new_s_[1];
-	new_ev_[1] = this->new_s_[0];
+	MCSystem::swap(s0,s1,p0,p1);
+	new_r_[0] = row_(new_s_[0],new_p_[0]); 
+	new_r_[1] = row_(new_s_[1],new_p_[1]); 
+	new_ev_[0] = new_s_[1];
+	new_ev_[1] = new_s_[0];
 }
 
 template<typename Type>
 void SystemFermionic<Type>::update(){
-	MCSystem<Type>::update();
-	row_(this->new_s_[0],this->new_p_[0]) = new_r_[1];
-	row_(this->new_s_[1],this->new_p_[1]) = new_r_[0];
+	MCSystem::update();
+	row_(new_s_[0],new_p_[0]) = new_r_[1];
+	row_(new_s_[1],new_p_[1]) = new_r_[0];
 
 	Type t_tmp;
 	unsigned int c_tmp;
 	for(unsigned int c(0);c<2;c++){
-		c_tmp = this->new_c_[c];
-		for(unsigned int j(0);j<this->M_(c_tmp);j++){
+		c_tmp = new_c_[c];
+		for(unsigned int j(0);j<M_(c_tmp);j++){
 			if(new_r_[c] == j){ t_tmp = -1.0; }
 			else { t_tmp = 0.0; }
-			for(unsigned int k(0);k<this->M_(c_tmp);k++){
+			for(unsigned int k(0);k<M_(c_tmp);k++){
 				t_tmp += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,j);
 			}
 			t_tmp /= w_[c];
-			for(unsigned int i(0);i<this->M_(c_tmp);i++){
+			for(unsigned int i(0);i<M_(c_tmp);i++){
 				tmp_[c_tmp](i,j) = t_tmp*Ainv_[c_tmp](i,new_r_[c]);
 			}
 		}
@@ -207,8 +226,8 @@ void SystemFermionic<Type>::update(){
 /*methods that return something related to the class*/
 /*{*/
 template<typename Type> 
-Type SystemFermionic<Type>::ratio(){
-	if(this->new_c_[0] == this->new_c_[1]){
+double SystemFermionic<Type>::ratio(bool const& squared){
+	if(new_c_[0] == new_c_[1]){
 		/*!there is no minus sign because if the same color is inverted, the
 		 * matrices will be identical up to the invertion of two columns, this
 		 * minus sign is then cancelled by the reordering of the operators */
@@ -216,33 +235,33 @@ Type SystemFermionic<Type>::ratio(){
 	} else {
 		unsigned int c_tmp;
 		for(unsigned int c(0);c<2;c++){
-			c_tmp = this->new_c_[c];
+			c_tmp = new_c_[c];
 			w_[c] = 0.0;
-			for(unsigned int k(0);k<this->M_(c_tmp);k++){
+			for(unsigned int k(0);k<M_(c_tmp);k++){
 				w_[c] += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,new_r_[c]);
 			}
 		}
 		/*!the minus sign is correct, it comes from <C|H|C'> because when H is
 		 * applied on |C>, the operators are not in the correct color order, so
 		 * they need to be exchanged*/
-		return -w_[0]*w_[1];
+		return squared?my::norm_squared(w_[0]*w_[1]):-my::real(w_[0]*w_[1]);
 	}
 }
 
 template<typename Type>
 void SystemFermionic<Type>::print(){
-	Matrix<Type>* A(new Matrix<Type>[this->N_]);
-	for(unsigned int c(0);c<this->N_;c++){ A[c].set(this->M_(c),this->M_(c)); } 
+	Matrix<Type>* A(new Matrix<Type>[N_]);
+	for(unsigned int c(0);c<N_;c++){ A[c].set(M_(c),M_(c)); } 
 	unsigned int c(0);
-	for(unsigned int s(0);s<this->n_;s++){
-		for(unsigned int p(0);p<this->m_;p++){
-			c = this->s_(s,p);
-			for(unsigned int j(0);j<this->M_(c);j++){
+	for(unsigned int s(0);s<n_;s++){
+		for(unsigned int p(0);p<m_;p++){
+			c = s_(s,p);
+			for(unsigned int j(0);j<M_(c);j++){
 				A[c](row_(s,p),j) = this->EVec_[c](s,j);
 			}
 		}
 	}
-	for(unsigned int c(0);c<this->N_;c++){ std::cout<<(A[c]*Ainv_[c]).chop()<<std::endl<<std::endl; }
+	for(unsigned int c(0);c<N_;c++){ std::cout<<(A[c]*Ainv_[c]).chop()<<std::endl<<std::endl; }
 	delete[] A;
 }
 /*}*/
@@ -253,7 +272,7 @@ template<typename Type>
 bool SystemFermionic<Type>::are_invertible(){
 	Vector<int> ipiv;
 	double rcn(0.0);
-	for(unsigned int c(0); c<this->N_; c++){
+	for(unsigned int c(0); c<N_; c++){
 		Lapack<Type> inv(Ainv_[c],true,'G');
 		ipiv = inv.is_singular(rcn);
 		if(!ipiv.ptr()){ return false; }

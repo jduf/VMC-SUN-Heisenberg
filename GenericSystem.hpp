@@ -21,11 +21,6 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual ~GenericSystem(){}
 
 		/*{Description*/
-		/*!Returns true if the system if bosonic 
-		 * \warning not correctly implemented*/
-		/*}*/
-		bool is_bosonic() const { return false; }
-		/*{Description*/
 		/*!Saves ref_, N_, m_, n_, M_ and bc_ in jd_write_. As the method is
 		 * virtual, a call on this method will call first child::save() const
 		 * if it exists*/

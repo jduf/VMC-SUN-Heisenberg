@@ -8,20 +8,22 @@
 
 class MCSim {
 	public:
-		MCSim(Vector<double> const& param, Data<double> const& E): param_(param), E_(E) { std::cout<<"create "<<param_<<" "<<this<<std::endl; }
+		MCSim(Vector<double> const& param): param_(param) { std::cout<<"create "<<param_<<" "<<this<<std::endl; }
 		~MCSim(){ std::cout<<"destroy "<<this<<std::endl; }
 
 		static unsigned int cmp_for_fuse(MCSim const& list_elem, MCSim const& new_elem);
 		static void fuse(MCSim& list_elem, MCSim& new_elem);
 
 		Vector<double> const& get_param() const { return param_; }
-		Data<double> const& get_energy() const { return E_; }
+		std::unique_ptr<MCSystem> const& get_S() const { return S_; }
+		void create_S(Container* C);
+		void copy_S(std::unique_ptr<MCSystem> const& S);
 
-		void print(std::ostream& flux) const { flux<<param_<<E_; }
+		void print(std::ostream& flux) const { flux<<param_<<S_->get_energy(); }
 
 	private:
 		Vector<double> param_;
-		Data<double> E_;
+		std::unique_ptr<MCSystem> S_;
 };
 
 class MCParticle: public Particle{
@@ -30,7 +32,7 @@ class MCParticle: public Particle{
 		~MCParticle(){}
 
 		void move(Vector<double> const& bx_all);
-		void update_particle_history(std::shared_ptr<MCSim>& new_elem);
+		void update_particle_history(std::shared_ptr<MCSim> const& new_elem);
 
 		static unsigned int pos_iter;
 		static Vector<double> pos;
@@ -53,59 +55,11 @@ class PSOFermionic: public Swarm<MCParticle>{
 	private:
 		bool is_better_x(unsigned int const& p);
 		void create();
-		template<typename Type>
-			bool monte_carlo(CreateSystem& cs, unsigned int const& p);
 
 		unsigned int tmax_;
 		Container system_;
 		List<MCSim> all_results_;
 };
-
-template<typename Type>
-bool PSOFermionic::monte_carlo(CreateSystem& cs, unsigned int const& p){
-	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
-
-	MCSystem<Type>* S;
-	if(cs.is_bosonic()) {S = new SystemBosonic<Type>
-		(*dynamic_cast<const Bosonic<Type>*>(cs.get_system()));}
-	else { S = new SystemFermionic<Type>
-		(*dynamic_cast<const Fermionic<Type>*>(cs.get_system()));}
-	std::shared_ptr<MCSim> rr;
-	double local_e(0.0);
-	//bool local_improvement(false);
-
-	MonteCarlo<Type> sim(S,tmax_);
-	if(S->get_status() == 0){
-		sim.thermalize(1e6);
-		//do {
-			sim.run();
-			sim.complete_analysis(1e-5);
-			rr = std::make_shared<MCSim>(P->get_x(),S->get_energy());
-			local_e = rr->get_energy().get_x();
-#pragma omp critical(add_new_result_to_list)
-			{
-				//std::cout<<"x "<<P->get_x()<<std::endl;
-				//std::cout<<"e "<<rr->get_energy()<<std::endl;
-				if(all_results_.find_sorted(rr,MCSim::cmp_for_fuse)){ all_results_.fuse_with_free(rr, MCSim::fuse); }
-				else { all_results_.add_after_free(rr); }
-				//std::cout<<"e "<<rr->get_energy()<<std::endl;
-			}
-			//local_improvement = rr->get_energy().get_x()<local_e;
-		//} while (local_improvement);
-	} else {
-		std::cerr<<"double PSOFermionic::monte_carlo(CreateSystem& cs, Vector<double> const& x) : no value for x="<<p_[p]->get_x()<<std::endl;
-		return true;
-	}
-
-	delete S;
-	P->update_particle_history(rr);
-	if(local_e < P->get_fbx()){ 
-		P->set_best(P->get_x(),local_e);
-		return true;
-	} else {
-		return false;
-	}
-}
 
 std::ostream& operator<<(std::ostream& flux, MCSim const& mcsim);
 std::ostream& operator<<(std::ostream& flux, PSOFermionic const& pso);
