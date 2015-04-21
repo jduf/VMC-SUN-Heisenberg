@@ -47,38 +47,38 @@ std::ostream& operator<<(std::ostream& flux, MCSim const& mcsim){
 /*}*/
 
 /*{MCParticle*/
-unsigned int MCParticle::pos_iter = 0;
-Vector<double>MCParticle::pos = Vector<double>(16);
+//unsigned int MCParticle::pos_iter = 0;
+//Vector<double>MCParticle::pos = Vector<double>(16);
 
 void MCParticle::move(Vector<double> const& bx_all){
-	//Particle::move(bx_all);
-	//unsigned int n;
-	//double dx(0.01);
-	//for(unsigned int j(0);j<Nfreedom_;j++){
-	//n=0;
-	//if(std::abs(x_(j))<dx/2){ n=1; }
-	//if(std::abs(x_(j)-min_(j))<dx/2){ n=2; }
-	//if(std::abs(x_(j)-max_(j))<dx/2){ n=3; }
-	//switch(n){
-	//case 0:{ x_(j) = std::round(x_(j)/dx)*dx; }break;
-	//case 1:{ x_(j) = 0; }break;
-	//case 2:{ x_(j) = min_(j); }break;
-	//case 3:{ x_(j) = max_(j); }break;
-	//}
-	//}
-
-	(void)(bx_all);
-#pragma omp critical(update_pos_iter)
-	{
-		x_(0) = MCParticle::pos(MCParticle::pos_iter);
-		MCParticle::pos_iter++; 
+	Particle::move(bx_all);
+	unsigned int n;
+	double dx(0.01);
+	for(unsigned int j(0);j<Nfreedom_;j++){
+		n=0;
+		if(std::abs(x_(j))<dx/2){ n=1; }
+		if(std::abs(x_(j)-min_(j))<dx/2){ n=2; }
+		if(std::abs(x_(j)-max_(j))<dx/2){ n=3; }
+		switch(n){
+			case 0:{ x_(j) = std::round(x_(j)/dx)*dx; }break;
+			case 1:{ x_(j) = 0; }break;
+			case 2:{ x_(j) = min_(j); }break;
+			case 3:{ x_(j) = max_(j); }break;
+		}
 	}
+
+	//(void)(bx_all);
+	//#pragma omp critical(update_pos_iter)
+	//{
+	//x_(0) = MCParticle::pos(MCParticle::pos_iter);
+	//MCParticle::pos_iter++; 
+	//}
 }
 
 bool MCParticle::update(std::shared_ptr<MCSim> const& new_elem){
 	if(history_.find_sorted(new_elem,MCSim::cmp_for_fuse)){ history_.set_free(); }
 	else{ history_.add_after_free(new_elem); }
-	
+
 	double tmp;
 	bool is_better(false);
 	while(history_.go_to_next()){
@@ -107,22 +107,22 @@ PSOFermionic::PSOFermionic(Parseur* P):
 	Swarm<MCParticle>(P->get<unsigned int>("Nparticles"),P->get<unsigned int>("maxiter"),P->get<unsigned int>("Nfreedom"),P->get<double>("cg"),P->get<double>("cp")),
 	tmax_(P->get<unsigned int>("tmax"))
 {
-	MCParticle::pos(0) = 0.1;
-	MCParticle::pos(1) = 0.2;
-	MCParticle::pos(2) = 0.3;
-	MCParticle::pos(3) = 0.1;
-	MCParticle::pos(4) = 0.2;
-	MCParticle::pos(5) = 0.2;
-	MCParticle::pos(6) = 0.1;
-	MCParticle::pos(7) = 0.4;
-	MCParticle::pos(8) = 0.6;
-	MCParticle::pos(9) = 0.5;
-	MCParticle::pos(10) = 0.5;
-	MCParticle::pos(11) = 0.5;
-	MCParticle::pos(12) = 0.5;
-	MCParticle::pos(13) = 0.2;
-	MCParticle::pos(14) = 0.1;
-	MCParticle::pos(15) = 0.3;
+	//MCParticle::pos(0) = 0.1;
+	//MCParticle::pos(1) = 0.2;
+	//MCParticle::pos(2) = 0.3;
+	//MCParticle::pos(3) = 0.1;
+	//MCParticle::pos(4) = 0.2;
+	//MCParticle::pos(5) = 0.2;
+	//MCParticle::pos(6) = 0.1;
+	//MCParticle::pos(7) = 0.4;
+	//MCParticle::pos(8) = 0.6;
+	//MCParticle::pos(9) = 0.5;
+	//MCParticle::pos(10) = 0.5;
+	//MCParticle::pos(11) = 0.5;
+	//MCParticle::pos(12) = 0.5;
+	//MCParticle::pos(13) = 0.2;
+	//MCParticle::pos(14) = 0.1;
+	//MCParticle::pos(15) = 0.3;
 	system_.set("N",P->get<unsigned int>("N"));
 	system_.set("m",P->get<unsigned int>("m"));
 	system_.set("n",P->get<unsigned int>("n"));
@@ -150,7 +150,7 @@ bool PSOFermionic::is_better_x(unsigned int const& p){
 	MonteCarlo mc(sim->get_S().get(),tmax_);
 	mc.thermalize(tmp_test?10:1e6);
 	mc.run();
-	mc.complete_analysis(1e-5);
+	//mc.complete_analysis(1e-5);
 
 	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
 #pragma omp critical(all_results_)
@@ -166,11 +166,12 @@ bool PSOFermionic::is_better_x(unsigned int const& p){
 	return tmp_test;
 }
 
-void PSOFermionic::plot(){
+void PSOFermionic::plot() const {
 	IOFiles data("data.dat",true);
-	//while(all_results_.go_to_next()){
-	//data<<all_results_.get().get_param()<<all_results_.get().get_energy()<<IOFiles::endl;
-	//}
+	all_results_.set_free();
+	while(all_results_.go_to_next()){
+		data<<all_results_.get().get_param()<<all_results_.get().get_S()->get_energy()<<IOFiles::endl;
+	}
 	Gnuplot gp("./","test");
 	gp+="plot 'data.dat' u 1:2:3 w e";
 	gp.save_file();
@@ -184,6 +185,14 @@ void PSOFermionic::print(std::ostream& flux) const {
 	while ( all_results_.go_to_next() ){
 		flux<<all_results_.get_ptr()<<" "<<all_results_.get()<<IOFiles::endl;
 	}
+}
+
+void PSOFermionic::complete_analysis(double tol){
+	all_results_.set_free();
+	while ( all_results_.go_to_next() ){
+		all_results_.get().get_S()->complete_analysis(tol);
+	}
+
 }
 
 std::ostream& operator<<(std::ostream& flux, PSOFermionic const& pso){

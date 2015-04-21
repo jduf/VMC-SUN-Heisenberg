@@ -44,8 +44,8 @@ class MCParticle: public Particle{
 		void move(Vector<double> const& bx_all);
 		bool update(std::shared_ptr<MCSim> const& new_elem);
 
-		static unsigned int pos_iter;
-		static Vector<double> pos;
+		//static unsigned int pos_iter;
+		//static Vector<double> pos;
 
 		void print(std::ostream& flux) const;
 
@@ -59,7 +59,9 @@ class PSOFermionic: public Swarm<MCParticle>{
 		PSOFermionic(Parseur* P);
 		virtual ~PSOFermionic(){}
 
-		void plot();
+		void complete_analysis(double tol);
+
+		void plot() const;
 		void print(std::ostream& flux) const;
 
 	private:

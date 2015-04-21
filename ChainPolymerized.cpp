@@ -54,34 +54,34 @@ void ChainPolymerized::create(){
 			}
 		}
 	}
-	if(status_==2){
-		/*!Use the eigenvector (k1+k2)/sqrt(2) which correspond to the
-		 * impulsion k1+k2=0.*/
-		compute_H();
-		diagonalize(false);
-		double n1(0);
-		double n2(0);
-		std::complex<double> tmp1;
-		std::complex<double> tmp2;
-		unsigned int m(M_(0));
-		for(unsigned int i(0);i<n_;i++){
-			tmp1 = evec_(i,m) + evec_(i,m-1);//k=k1+k2=0
-			tmp2 = evec_(i,m) - evec_(i,m-1);//k=k1-k2=2k1
-			evec_(i,m-1)= tmp1;
-			evec_(i,m)  = tmp2;
-			n1 += my::norm_squared(tmp1);
-			n2 += my::norm_squared(tmp2);
-		}
-		for(unsigned int i(0);i<n_;i++){
-			evec_(i,m-1)/= sqrt(n1);
-			evec_(i,m)  /= sqrt(n2);
-		}
-		for(unsigned int c(0);c<N_;c++){
-			for(unsigned int i(0);i<n_;i++){
-				EVec_[c](i,M_(c)-1) = my::real(evec_(i,M_(c)-1));
-			}
-		}
-	}
+	//if(status_==2){
+		///*!Use the eigenvector (k1+k2)/sqrt(2) which correspond to the
+		// * impulsion k1+k2=0.*/
+		//compute_H();
+		//diagonalize(false);
+		//double n1(0);
+		//double n2(0);
+		//std::complex<double> tmp1;
+		//std::complex<double> tmp2;
+		//unsigned int m(M_(0));
+		//for(unsigned int i(0);i<n_;i++){
+			//tmp1 = evec_(i,m) + evec_(i,m-1);//k=k1+k2=0
+			//tmp2 = evec_(i,m) - evec_(i,m-1);//k=k1-k2=2k1
+			//evec_(i,m-1)= tmp1;
+			//evec_(i,m)  = tmp2;
+			//n1 += my::norm_squared(tmp1);
+			//n2 += my::norm_squared(tmp2);
+		//}
+		//for(unsigned int i(0);i<n_;i++){
+			//evec_(i,m-1)/= sqrt(n1);
+			//evec_(i,m)  /= sqrt(n2);
+		//}
+		//for(unsigned int c(0);c<N_;c++){
+			//for(unsigned int i(0);i<n_;i++){
+				//EVec_[c](i,M_(c)-1) = my::real(evec_(i,M_(c)-1));
+			//}
+		//}
+	//}
 }
 
 void ChainPolymerized::save() const {

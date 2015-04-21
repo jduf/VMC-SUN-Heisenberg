@@ -10,10 +10,11 @@ int main(int argc, char* argv[]){
 	PSOFermionic s(&P);
 
 	for(unsigned int i(0);i<Nfreedom;i++){
-		Optimization::set_limit(i,0.9,1.1);
+		Optimization::set_limit(i,0.5,0.99);
 	}
 	s.init(100);
 	s.run();
+	s.complete_analysis(1e-5);
 	std::cout<<s<<std::endl;
-	//s.plot();
+	s.plot();
 }
