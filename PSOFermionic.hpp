@@ -8,8 +8,18 @@
 
 class MCSim {
 	public:
-		MCSim(Vector<double> const& param): param_(param) { std::cout<<"create "<<param_<<" "<<this<<std::endl; }
-		~MCSim(){ std::cout<<"destroy "<<this<<std::endl; }
+		MCSim(Vector<double> const& param): param_(param) { 
+//#pragma omp critical(all_results_)
+			//{
+				//std::cout<<"create "<<param_<<" "<<this<<" "<<S_.get()<<std::endl;
+			//}
+		}
+		~MCSim(){
+//#pragma omp critical(all_results_)
+			//{
+				//std::cout<<"destroy "<<this<<std::endl; 
+			//}
+		}
 
 		static unsigned int cmp_for_fuse(MCSim const& list_elem, MCSim const& new_elem);
 		static void fuse(MCSim& list_elem, MCSim& new_elem);
@@ -32,7 +42,7 @@ class MCParticle: public Particle{
 		~MCParticle(){}
 
 		void move(Vector<double> const& bx_all);
-		void update_particle_history(std::shared_ptr<MCSim> const& new_elem);
+		bool update(std::shared_ptr<MCSim> const& new_elem);
 
 		static unsigned int pos_iter;
 		static Vector<double> pos;

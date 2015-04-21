@@ -48,7 +48,7 @@ std::ostream& operator<<(std::ostream& flux, MCSim const& mcsim){
 
 /*{MCParticle*/
 unsigned int MCParticle::pos_iter = 0;
-Vector<double>MCParticle::pos = Vector<double>(8);
+Vector<double>MCParticle::pos = Vector<double>(16);
 
 void MCParticle::move(Vector<double> const& bx_all){
 	//Particle::move(bx_all);
@@ -71,13 +71,25 @@ void MCParticle::move(Vector<double> const& bx_all){
 #pragma omp critical(update_pos_iter)
 	{
 		x_(0) = MCParticle::pos(MCParticle::pos_iter);
-		//std::cout<<"pos_iter="<<MCParticle::pos_iter<<" x_="<<x_(0)<<std::endl;
 		MCParticle::pos_iter++; 
 	}
 }
 
-void MCParticle::update_particle_history(std::shared_ptr<MCSim> const& new_elem){
-	if(!history_.find_sorted(new_elem,MCSim::cmp_for_fuse)){ history_.add_after_free(new_elem); }
+bool MCParticle::update(std::shared_ptr<MCSim> const& new_elem){
+	if(history_.find_sorted(new_elem,MCSim::cmp_for_fuse)){ history_.set_free(); }
+	else{ history_.add_after_free(new_elem); }
+	
+	double tmp;
+	bool is_better(false);
+	while(history_.go_to_next()){
+		tmp = history_.get().get_S()->get_energy().get_x();
+		if(tmp<fbx_){
+			bx_ = history_.get().get_param();
+			fbx_ = tmp;
+			is_better = true;
+		}
+	}
+	return is_better;
 }
 
 void MCParticle::print(std::ostream& flux) const {
@@ -103,6 +115,14 @@ PSOFermionic::PSOFermionic(Parseur* P):
 	MCParticle::pos(5) = 0.2;
 	MCParticle::pos(6) = 0.1;
 	MCParticle::pos(7) = 0.4;
+	MCParticle::pos(8) = 0.6;
+	MCParticle::pos(9) = 0.5;
+	MCParticle::pos(10) = 0.5;
+	MCParticle::pos(11) = 0.5;
+	MCParticle::pos(12) = 0.5;
+	MCParticle::pos(13) = 0.2;
+	MCParticle::pos(14) = 0.1;
+	MCParticle::pos(15) = 0.3;
 	system_.set("N",P->get<unsigned int>("N"));
 	system_.set("m",P->get<unsigned int>("m"));
 	system_.set("n",P->get<unsigned int>("n"));
@@ -112,30 +132,38 @@ PSOFermionic::PSOFermionic(Parseur* P):
 
 bool PSOFermionic::is_better_x(unsigned int const& p){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(p_[p]->get_x()));
-	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
-	if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){
-		std::cout<<"rerun"<<std::endl;
-		sim->copy_S(all_results_.get().get_S());
-		MonteCarlo mc(sim->get_S().get(),tmax_);
-		mc.thermalize(10);
-		mc.run();
-		mc.complete_analysis(1e-5);
-		all_results_.fuse_with_free(sim, MCSim::fuse);
-		P->update_particle_history(all_results_.get_ptr());
-	} else {
-		std::cout<<"new run"<<std::endl;
-		Container system_param(system_);
-		system_param.set("t2",p_[p]->get_x()(0));
-		sim->create_S(&system_param);
-		MonteCarlo mc(sim->get_S().get(),tmax_);
-		mc.thermalize(1e6);
-		mc.run();
-		mc.complete_analysis(1e-5);
-		all_results_.add_after_free(sim);
-		P->update_particle_history(sim);
+	bool tmp_test;
+#pragma omp critical(all_results_)
+	{
+		if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
+			tmp_test = true;
+			sim->copy_S(all_results_.get().get_S()); 
+			sim->get_S()->set(); //to clear the binning
+		} else {
+			tmp_test = false;
+			Container system_param(system_);
+			system_param.set("t2",p_[p]->get_x()(0));
+			sim->create_S(&system_param);
+		}
 	}
 
-	return false;
+	MonteCarlo mc(sim->get_S().get(),tmax_);
+	mc.thermalize(tmp_test?10:1e6);
+	mc.run();
+	mc.complete_analysis(1e-5);
+
+	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
+#pragma omp critical(all_results_)
+	{
+		if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
+			all_results_.fuse_with_free(sim,MCSim::fuse); 
+			tmp_test = P->update(all_results_.get_ptr()); 
+		} else {
+			all_results_.add_after_free(sim); 
+			tmp_test = P->update(sim); 
+		}
+	}
+	return tmp_test;
 }
 
 void PSOFermionic::plot(){
@@ -152,6 +180,7 @@ void PSOFermionic::plot(){
 void PSOFermionic::print(std::ostream& flux) const {
 	Swarm::print(flux);
 	std::cout<<"Print whole history"<<std::endl;
+	all_results_.set_free();
 	while ( all_results_.go_to_next() ){
 		flux<<all_results_.get_ptr()<<" "<<all_results_.get()<<IOFiles::endl;
 	}
