@@ -5,7 +5,6 @@
 #include"Vector.hpp"
 #include"omp.h"
 
-#include<vector>
 #include<memory>
 
 class Optimization{
@@ -111,7 +110,7 @@ template<typename Type>
 void Swarm<Type>::init(double const& fx){
 	for(unsigned int p(0);p<Nparticles_;p++){ free_[p] = true; }
 
-	//#pragma omp parallel for schedule(dynamic,1)
+#pragma omp parallel for schedule(dynamic,1)
 	for(unsigned int p=0;p<Nparticles_;p++){
 		p_[p]->init(fx);
 		is_better_x(p);
@@ -124,30 +123,23 @@ void Swarm<Type>::init(double const& fx){
 
 template<typename Type>
 void Swarm<Type>::run(){
-	//if(int(Nparticles_)<=omp_get_max_threads()){
-	//std::cout<<"PSO::run all particles in parallel"<<std::endl;
-	//for(unsigned int iter(0);iter<maxiter_;iter++){
-	//#pragma omp parallel for
-	//for(unsigned int p=0;p<Nparticles_;p++){ next_step(p); }
-	//}
-	//} else {
-	//std::cout<<"PSO::run only "+tostring(omp_get_max_threads())+" particles in parallel"<<std::endl;
-	//unsigned int p(0);
-	//#pragma omp parallel for schedule(dynamic,1) firstprivate(p)
-	//for(unsigned int i=0; i<maxiter_*Nparticles_; i++){
-	//if(free_[p]){
-	//free_[p]=false;
-	//next_step(p);
-	//free_[p]=true;
-	//} else { i--; }
-	//p = (p+1) % Nparticles_;
-	//}
-	//}
-
-	for(unsigned int iter(0);iter<maxiter_;iter++){
-		for(unsigned int p=0;p<Nparticles_;p++){ 
-			std::cout<<std::endl<<"run particle "<<p<<std::endl;
-			next_step(p); 
+	if(int(Nparticles_)<=omp_get_max_threads()){
+		std::cout<<"PSO::run all particles in parallel"<<std::endl;
+		for(unsigned int iter(0);iter<maxiter_;iter++){
+#pragma omp parallel for
+			for(unsigned int p=0;p<Nparticles_;p++){ next_step(p); }
+		}
+	} else {
+		std::cout<<"PSO::run only "+my::tostring(omp_get_max_threads())+" particles in parallel"<<std::endl;
+		unsigned int p(0);
+#pragma omp parallel for schedule(dynamic,1) firstprivate(p)
+		for(unsigned int i=0; i<maxiter_*Nparticles_; i++){
+			if(free_[p]){
+				free_[p]=false;
+				next_step(p);
+				free_[p]=true;
+			} else { i--; }
+			p = (p+1) % Nparticles_;
 		}
 	}
 }

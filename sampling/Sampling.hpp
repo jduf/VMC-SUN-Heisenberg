@@ -251,8 +251,10 @@ template<typename Type>
 void Binning<Type>::merge(Binning const& other){
 	if(B_ == other.B_ && b_ == other.b_ ){
 		if(l_>= other.l_){
+			std::cout<<"that merge"<<std::endl;
 			do_merge(other.bin_[0],other.dpl_,other.DPL_,other.Ml_(0));
 		} else {
+			std::cout<<"this merge"<<std::endl;
 			Vector<Type> tmp_bin(bin_[0]);
 			unsigned int tmp_Ml(Ml_(0));
 			unsigned int tmp_dpl(dpl_);
@@ -320,7 +322,22 @@ template<typename Type>
 void Binning<Type>::complete_analysis(double const& tol, Type& x, Type& dx, bool& conv){
 	recompute_dx_usefull_ = addlog_ = true;
 	compute_convergence(tol,dx,conv);
-	x = m_bin_(0);
+	/*{old way to set x*/
+	/*! x = m_bin_(0); */
+	/*}*/
+	x = (m_bin_(0)*Ml_(0)*DPL_+bin_[0](Ml_(0)))/(Ml_(0)*DPL_+dpl_);
+	/*{Description*/
+	/*!
+	  std::cout<<"given x"<<x<<std::endl;
+	  std::cout<<l_<<"leftover "<<bin_[0](Ml_(0))<<" with "<<dpl_<<" therefore "<<(x*Ml_(0)*DPL_+bin_[0](Ml_(0)))/(Ml_(0)*DPL_+dpl_)<<std::endl;
+	  Type tmp(0);
+	  for(unsigned int i(0);i<Ml_(0);i++){
+	  tmp += bin_[0](i);
+	  }
+	  std::cout<<tmp<<" "<<tmp/Ml_(0)<<" "<<Ml_(0)<<std::endl;
+	  */
+	/*}*/
+
 	if(l_>0 && log_){
 		Gnuplot gp("./",log_->get_filename());
 		gp.range("x","0","");
@@ -350,37 +367,25 @@ void Binning<Type>::add_bin(unsigned int l, Type const& a, Type const& b){
 	}
 }
 
-/*{Description*/
-/*
-std::cout<<"the value in the last bin is "<<old_last_bin<<std::endl;
-std::cout<<"the value in the other last bin is "<<b.bin_[0](b.Ml_(0))<<std::endl;
-std::cout<<"the current dpl_ is "<<old_dpl<<std::endl;
-std::cout<<"the other dpl_ is "<<b.dpl_<<std::endl;
-std::cout<<"the current DPL_ is "<<DPL_<<std::endl;
-std::cout<<"the other DPL_ is "<<b.DPL_<<std::endl;
-std::cout<<"sould be an integer "<<1.0*DPL_/(1.0*b.DPL_)<<std::endl;
-std::cout<<"last bin to write in "<<Ml_(0)<<std::endl;
-std::cout<<"last bin to write in for the other "<<b.Ml_(0)<<std::endl;
-*/
-/*}*/
-/*{Description*/
-/*
-Type old_last_bin(bin_[0](Ml_(0)));
-unsigned int old_dpl(dpl_);
-bin_[0](Ml_(0)) = 0;
-dpl_ = 0;
-for(unsigned int i(0);i<b.Ml_(0);i++){
-	dpl_ += b.DPL_-1;
-	add_sample(b.DPL_*b.bin_[0](i));
-}
-Type tmp((b.bin_[0](b.Ml_(0))+old_last_bin)/(b.dpl_+old_dpl));
-for(unsigned int i(0);i<b.dpl_+old_dpl;i++){ add_sample(tmp); }
-*/
-/*}*/
 template<typename Type>
 void Binning<Type>::do_merge(Vector<Type> const& bin, unsigned int const& dpl, unsigned int const& DPL, unsigned int const& Ml){
 	Type old_last_bin(bin_[0](Ml_(0)));
 	unsigned int old_dpl(dpl_);
+	/*{Description*/
+	/*
+	std::cout<<"sould be an integer "<<1.0*DPL_/(1.0*DPL)<<std::endl;
+	std::cout<<"CURRENT"<<std::endl;
+	std::cout<<"x    = "<<old_last_bin<<std::endl;
+	std::cout<<"dpl_ = "<<old_dpl<<std::endl;
+	std::cout<<"DPL_ = "<<DPL_<<std::endl;
+	std::cout<<"last = "<<Ml_(0)<<std::endl;
+	std::cout<<"OTHER"<<std::endl;
+	std::cout<<"x    = "<<bin(Ml)<<std::endl;
+	std::cout<<"dpl_ = "<<dpl<<std::endl;
+	std::cout<<"DPL_ = "<<DPL<<std::endl;
+	std::cout<<"last = "<<Ml<<std::endl;
+	*/
+	/*}*/
 	bin_[0](Ml_(0)) = 0;
 	dpl_ = 0;
 	for(unsigned int i(0);i<Ml;i++){
@@ -389,6 +394,15 @@ void Binning<Type>::do_merge(Vector<Type> const& bin, unsigned int const& dpl, u
 	}
 	Type tmp((bin(Ml)+old_last_bin)/(dpl+old_dpl));
 	for(unsigned int i(0);i<dpl+old_dpl;i++){ add_sample(tmp); }
+	/*{Description*/
+	/*
+	std::cout<<"FINAL"<<std::endl;
+	std::cout<<"x    = "<<bin_[0](Ml_(0))<<std::endl;
+	std::cout<<"dpl_ = "<<dpl_<<std::endl;
+	std::cout<<"DPL_ = "<<DPL_<<std::endl;
+	std::cout<<"last = "<<Ml_(0)<<std::endl;
+	*/
+	/*}*/
 }
 /*}*/
 /*}*/
@@ -529,8 +543,10 @@ void Data<Type>::add_sample(){
 
 template<typename Type>
 void Data<Type>::merge(Data const& d){
-	if(binning_ && d.binning_){ binning_->merge(*d.binning_); }
-	else { std::cerr<<"void Data<Type>::merge(Data const& d) : no binning"<<std::endl; }
+	if(binning_ && d.binning_){
+		binning_->merge(*d.binning_);
+		N_++;
+	} else { std::cerr<<"void Data<Type>::merge(Data const& d) : no binning"<<std::endl; }
 }
 
 template<typename Type>

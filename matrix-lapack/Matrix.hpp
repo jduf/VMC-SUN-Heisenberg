@@ -180,7 +180,7 @@ std::ostream& operator<<(std::ostream& flux, Matrix<Type> const& m){
 }
 
 template<typename Type>
-std::istream& operator>>(std::istream& flux, Matrix<Type> const& m){
+std::istream& operator>>(std::istream& flux, Matrix<Type>& m){
 	unsigned int row(m.row());
 	unsigned int col(m.col());
 	for(unsigned int i(0);i<row;i++){

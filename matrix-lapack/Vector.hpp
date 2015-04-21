@@ -186,8 +186,9 @@ std::ostream& operator<<(std::ostream& flux, Vector<Type> const& v){
 }
 
 template<typename Type>
-std::istream& operator>>(std::istream& flux, Vector<Type> const& v){
-	for(unsigned int i(0);i<v.size();i++){
+std::istream& operator>>(std::istream& flux, Vector<Type>& v){
+	unsigned int size(v.size());
+	for(unsigned int i(0);i<size;i++){
 		flux>>v.ptr()[i]; 
 	}
 	return flux;

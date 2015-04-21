@@ -141,5 +141,3 @@ void IOFiles::write(std::string const& var, Type const& val){
 	}	
 }
 #endif
-
-

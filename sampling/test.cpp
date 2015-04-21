@@ -179,7 +179,8 @@ void read_output_files(){
 }
 
 void merge_two_sim(){
-	Rand<double> rnd(0,1);
+	Rand<double> rnd1(0,1);
+	Rand<double> rnd2(0,0.5);
 	unsigned int iter(0);
 
 	unsigned int B(5);
@@ -194,23 +195,21 @@ void merge_two_sim(){
 	H2.set(B,b,conv);
 	do{ 
 		iter++;
-		H1.set_x(rnd.get());
+		H1.set_x(rnd1.get());
 		H1.add_sample(); 
-		if(iter>1e2){ H1.compute_convergence(tol); }
-	} while (iter<33);
+	} while (iter<60);
 	iter = 0;
 	do{ 
 		iter++;
-		H2.set_x(rnd.get());
+		H2.set_x(rnd2.get());
 		H2.add_sample(); 
-		if(iter>1e2){ H2.compute_convergence(tol); }
-	} while (iter<127);
+	} while (iter<600);
 
 	H1.complete_analysis(tol);
 	H2.complete_analysis(tol);
 
-	std::cout<<H1<<std::endl;
 	std::cout<<H2<<std::endl;
+	std::cout<<H1<<std::endl;
 
 	H2.merge(H1);
 	H2.complete_analysis(tol);

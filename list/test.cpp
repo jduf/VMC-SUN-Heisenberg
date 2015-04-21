@@ -84,16 +84,16 @@ int main(){
 		a.add_sort(std::make_shared<A>(0),func);
 		std::cout<<a<<std::endl;
 		std::cout<<"will print using get_next must be identical to the previous line"<<std::endl;
-		do{ std::cout<<a.get()<<" "; } while (a.go_to_next());
+		while (a.go_to_next()){ std::cout<<a.get()<<" "; }
 		std::cout<<std::endl;
 		std::cout<<"will copy the whole first list without actually copying the value."<<std::endl;
 		List<A> c;
-		do{ c.add_end(a.get_ptr()); } while (a.go_to_next());
-		do{ std::cout<<c.get()<<" "; } while (c.go_to_next());
+		while (a.go_to_next()){ c.add_end(a.get_ptr()); }
+		while (c.go_to_next()){ std::cout<<c.get()<<" ";}
 		std::cout<<std::endl;
 
 		std::cout<<"multiply the first entry bigger than 2 by pi"<<std::endl;
-		while( c.get().a_ < 2.0 && c.go_to_next());
+		while(c.go_to_next() && c.get().a_ < 2.0 );
 		c.get() *= M_PI;
 		std::cout<<c<<std::endl;
 		std::cout<<"the other list should also be affected"<<std::endl;
@@ -172,9 +172,7 @@ int main(){
 			return 2;
 		};
 		auto fuse = [](Vector<int>& a, Vector<int> const& b) { 
-			std::cout<<"should fuse"<<std::endl;
-			(void)(a);
-			(void)(b);
+			std::cout<<"should fuse "<<a<<" and "<<b<<std::endl;
 		};
 		Rand<int> rnd(0,10);
 		List<Vector<int> > a;
@@ -184,11 +182,29 @@ int main(){
 			tmp(0) = rnd.get();
 			tmp(1) = rnd.get();
 			tmp_shared = std::make_shared<Vector<int> >(tmp);
-			if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.fuse_with_move(tmp_shared,fuse); }
+			if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.fuse_with_free(tmp_shared,fuse); }
 			else { a.add_after_free(tmp_shared); }
 
 			std::cout<<a<<std::endl;
 		}
+		a.go_to_next();
+		a.go_to_next();
+		tmp = a.get();
+		std::cout<<tmp<<std::endl;
+		tmp_shared = std::make_shared<Vector<int> >(tmp);
+		if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.fuse_with_free(tmp_shared,fuse); }
+		else { a.add_after_free(tmp_shared); }
+		std::cout<<a<<std::endl;
+
+		IOFiles out("list_vector.jdbin",true);
+		out.write("vector",a);
+	}
+	{
+		IOFiles in("list_vector.jdbin",false);
+		List<Vector<int> > a;
+		in>>a;
+		std::cout<<a<<std::endl;
+
 	}
 	std::cout<<"#(constructor calls)-#(destructor calls)="<<A::N_<<std::endl;
 }
