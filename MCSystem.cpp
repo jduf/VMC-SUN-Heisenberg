@@ -1,6 +1,6 @@
 #include "MCSystem.hpp"
 
-/*constructors and destructor and initialization*/
+/*constructors and destructor*/
 /*{*/
 MCSystem::MCSystem(System const& S):
 	System(S),
@@ -33,6 +33,16 @@ MCSystem::MCSystem(MCSystem const& mcsim):
 	n_rnd_(0,n_-1),
 	m_rnd_(0,m_-1)
 {}
+
+MCSystem::MCSystem(IOFiles& r):
+	System(r),
+	s_(r.read<Matrix<unsigned int> >()),
+	n_rnd_(0,n_-1),
+	m_rnd_(0,m_-1)
+{
+	std::cout<<"MCSystem"<<std::endl;
+	std::cout<<s_<<std::endl;
+}
 /*}*/
 
 /*public method*/
@@ -111,6 +121,11 @@ void MCSystem::complete_analysis(double const& tol){
 		/*C(r)=sum_alpha( <a^d_0alpha.a_0alpha.a^d_ralpha.a_ralpha > )-m^2/N*/
 		lr_corr_[i].substract(1.0*m_*m_/N_);
 	}
+}
+
+void MCSystem::write(IOFiles& w) const{
+	w<<s_;
+	std::cout<<"write MCSystem"<<std::endl;
 }
 /*}*/
 

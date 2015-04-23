@@ -10,6 +10,8 @@ class MCSystem: public virtual System{
 	public:
 		/*!Constructor*/
 		MCSystem(System const& S);
+		/*!Constructor that reads from file*/
+		MCSystem(IOFiles& r);
 		/*!Destructor*/
 		virtual ~MCSystem(){}
 
@@ -30,8 +32,12 @@ class MCSystem: public virtual System{
 		void complete_analysis(double const& tol);
 
 		virtual std::unique_ptr<MCSystem> clone() const = 0;
+		virtual void write(IOFiles& w) const;
 		
 	protected:
+		/*!Allow copy if called from child class*/
+		MCSystem(MCSystem const& mcsim);
+
 		unsigned int new_c_[2];//!< colors of the exchanged sites
 		unsigned int new_s_[2];//!< sites that are exchanged
 		unsigned int new_p_[2];//!< sites that are exchanged
@@ -39,9 +45,6 @@ class MCSystem: public virtual System{
 		Matrix<unsigned int> s_;  //!< s(site,particle)=color
 		Rand<unsigned int> n_rnd_;//!< generator of random numbers 
 		Rand<unsigned int> m_rnd_;//!< generator of random numbers 
-
-		/*!Forbid copy*/
-		MCSystem(MCSystem const& mcsim);
 
 	private:
 		/*!Forbids default*/

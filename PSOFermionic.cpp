@@ -1,6 +1,27 @@
 #include "PSOFermionic.hpp"
 
 /*{MCSim*/
+MCSim::MCSim(IOFiles& r):
+	ref_(r.read<Vector<unsigned int> >()),
+	param_(r.read<Vector<double> >())
+{
+	switch(ref_(1)){
+		case 0:
+			{
+				S_ = std::unique_ptr<SystemBosonic<double> >(new SystemBosonic<double>(r));
+			} break;
+		case 1:
+			{
+				S_ = std::unique_ptr<SystemFermionic<double> >(new SystemFermionic<double>(r));
+			} break;
+		case 2:
+			{
+				S_ = std::unique_ptr<SystemFermionic<std::complex<double> > >(new SystemFermionic<std::complex<double> >(r));
+			} break;
+	}
+}
+
+
 unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem) {
 	for(unsigned int i(0);i<list.param_.size();i++){
 		if(list.param_(i) > new_elem.param_(i)){ return 0; }
@@ -40,16 +61,13 @@ void MCSim::copy_S(std::unique_ptr<MCSystem> const& S){
 	S_ = S->clone();
 }
 
-std::ostream& operator<<(std::ostream& flux, MCSim const& mcsim){
-	mcsim.print(flux);
-	return flux;
+void MCSim::write(IOFiles& w) const {
+	w<<ref_<<param_;
+	S_->write(w);
 }
 /*}*/
 
 /*{MCParticle*/
-//unsigned int MCParticle::pos_iter = 0;
-//Vector<double>MCParticle::pos = Vector<double>(16);
-
 void MCParticle::move(Vector<double> const& bx_all){
 	Particle::move(bx_all);
 	unsigned int n;
@@ -66,13 +84,6 @@ void MCParticle::move(Vector<double> const& bx_all){
 			case 3:{ x_(j) = max_(j); }break;
 		}
 	}
-
-	//(void)(bx_all);
-	//#pragma omp critical(update_pos_iter)
-	//{
-	//x_(0) = MCParticle::pos(MCParticle::pos_iter);
-	//MCParticle::pos_iter++; 
-	//}
 }
 
 bool MCParticle::update(std::shared_ptr<MCSim> const& new_elem){
@@ -92,12 +103,13 @@ bool MCParticle::update(std::shared_ptr<MCSim> const& new_elem){
 	return is_better;
 }
 
-void MCParticle::print(std::ostream& flux) const {
-	Particle::print(flux);
-	flux<<std::endl<<"particle history "<<std::endl;
+void MCParticle::print() const {
+	Particle::print();
+	std::cout<<"particle history "<<std::endl;
 	history_.set_free();
 	while( history_.go_to_next() ){
-		flux<<history_.get_ptr()<<" "<<history_.get()<<IOFiles::endl;
+		std::cout<<history_.get_ptr()<<" ";
+		history_.get().print();
 	}
 }
 /*}*/
@@ -107,22 +119,6 @@ PSOFermionic::PSOFermionic(Parseur* P):
 	Swarm<MCParticle>(P->get<unsigned int>("Nparticles"),P->get<unsigned int>("maxiter"),P->get<unsigned int>("Nfreedom"),P->get<double>("cg"),P->get<double>("cp")),
 	tmax_(P->get<unsigned int>("tmax"))
 {
-	//MCParticle::pos(0) = 0.1;
-	//MCParticle::pos(1) = 0.2;
-	//MCParticle::pos(2) = 0.3;
-	//MCParticle::pos(3) = 0.1;
-	//MCParticle::pos(4) = 0.2;
-	//MCParticle::pos(5) = 0.2;
-	//MCParticle::pos(6) = 0.1;
-	//MCParticle::pos(7) = 0.4;
-	//MCParticle::pos(8) = 0.6;
-	//MCParticle::pos(9) = 0.5;
-	//MCParticle::pos(10) = 0.5;
-	//MCParticle::pos(11) = 0.5;
-	//MCParticle::pos(12) = 0.5;
-	//MCParticle::pos(13) = 0.2;
-	//MCParticle::pos(14) = 0.1;
-	//MCParticle::pos(15) = 0.3;
 	system_.set("N",P->get<unsigned int>("N"));
 	system_.set("m",P->get<unsigned int>("m"));
 	system_.set("n",P->get<unsigned int>("n"));
@@ -150,7 +146,6 @@ bool PSOFermionic::is_better_x(unsigned int const& p){
 	MonteCarlo mc(sim->get_S().get(),tmax_);
 	mc.thermalize(tmp_test?10:1e6);
 	mc.run();
-	//mc.complete_analysis(1e-5);
 
 	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
 #pragma omp critical(all_results_)
@@ -178,12 +173,13 @@ void PSOFermionic::plot() const {
 	gp.create_image(true);
 }
 
-void PSOFermionic::print(std::ostream& flux) const {
-	Swarm::print(flux);
+void PSOFermionic::print() const {
+	Swarm::print();
 	std::cout<<"Print whole history"<<std::endl;
 	all_results_.set_free();
 	while ( all_results_.go_to_next() ){
-		flux<<all_results_.get_ptr()<<" "<<all_results_.get()<<IOFiles::endl;
+		std::cout<<all_results_.get_ptr()<<" ";
+		all_results_.get().print();
 	}
 }
 
@@ -193,10 +189,5 @@ void PSOFermionic::complete_analysis(double tol){
 		all_results_.get().get_S()->complete_analysis(tol);
 	}
 
-}
-
-std::ostream& operator<<(std::ostream& flux, PSOFermionic const& pso){
-	pso.print(flux);
-	return flux;
 }
 /*}*/

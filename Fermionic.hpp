@@ -10,6 +10,8 @@ class Fermionic : public virtual System{
 	public:
 		/*!Copy Constructor*/
 		Fermionic(Fermionic<Type> const& f);
+		/*!Constructor that reads from file*/
+		Fermionic(IOFiles& r);
 		/*!Destructor*/
 		virtual ~Fermionic();
 
@@ -34,6 +36,18 @@ Fermionic<Type>::Fermionic(Fermionic<Type> const& f):
 	EVec_(f.EVec_?new Matrix<Type>[f.N_]:NULL)
 {
 	for(unsigned int c(0);c<N_;c++){ EVec_[c] = f.EVec_[c]; }
+}
+
+template<typename Type>
+Fermionic<Type>::Fermionic(IOFiles& r):
+	System(r),
+	EVec_(N_?new Matrix<Type>[N_]:NULL)
+{
+	for(unsigned int c(0);c<N_;c++){ r>>EVec_[c]; }
+	std::cout<<"Fermionic"<<std::endl;
+	for(unsigned int c(0); c<N_; c++){
+		std::cout<<EVec_[c]<<std::endl;
+	}
 }
 
 template<typename Type>

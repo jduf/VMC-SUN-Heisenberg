@@ -7,10 +7,12 @@
 /*!Class that contains all the necessary informations to sample the
  * configuration of a fermionic system.*/
 template<typename Type>
-class SystemFermionic : public Fermionic<Type>, public MCSystem{
+class SystemFermionic : public MCSystem, public Fermionic<Type>{
 	public:
 		/*!Constructor that creates an initial state*/
 		SystemFermionic(Fermionic<Type> const& S);
+		/*!Constructor that reads from file*/
+		SystemFermionic(IOFiles& r);
 		/*!Destructor that deletes Ainv and tmp*/
 		~SystemFermionic();
 
@@ -34,12 +36,14 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem{
 		 * - updates the Ainv_ matrices */
 		/*}*/
 		void update();
-		/*!Prints some info related to the system*/
-		void print();
 
 		std::unique_ptr<MCSystem> clone() const {
 			return std::unique_ptr<SystemFermionic<Type> >(new SystemFermionic<Type>(*this));
 		}
+
+		/*!Prints some info related to the system*/
+		void print();
+		void write(IOFiles& w) const;
 
 	private:
 		/*!Autorize copy only via clone()*/
@@ -49,15 +53,15 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem{
 		/*!Forbids assignment*/
 		SystemFermionic& operator=(SystemFermionic<Type> const& S);
 
-		/*!returns true is Ainv_ matrices are invertibles*/
-		bool are_invertible();
-
 		Matrix<unsigned int> row_;//!< row of the matrix A that is modified
 		Matrix<Type>* Ainv_;	//!< inverse of A
 		Matrix<Type>* tmp_;		//!< temporary matrix used during the update 
 		Type w_[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0;0,w22)
 		unsigned int new_r_[2];	//!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
 		unsigned int new_ev_[2];//!< newly selected rows of the EVec matrix
+
+		/*!returns true is Ainv_ matrices are invertibles*/
+		bool are_invertible();
 };
 
 /*constructors and destructor and initialization*/
@@ -65,8 +69,8 @@ class SystemFermionic : public Fermionic<Type>, public MCSystem{
 template<typename Type>
 SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	System(S),
-	Fermionic<Type>(S),
 	MCSystem(S),
+	Fermionic<Type>(S),
 	row_(n_,m_),
 	Ainv_(new Matrix<Type>[N_]),
 	tmp_(new Matrix<Type>[N_])
@@ -158,8 +162,8 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 template<typename Type>
 SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
 	System(S),
-	Fermionic<Type>(S),
 	MCSystem(S),
+	Fermionic<Type>(S),
 	row_(S.row_),
 	Ainv_(new Matrix<Type>[N_]),
 	tmp_(new Matrix<Type>[N_])
@@ -171,13 +175,33 @@ SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
 }
 
 template<typename Type>
+SystemFermionic<Type>::SystemFermionic(IOFiles& r):
+	System(r),
+	MCSystem(r),
+	Fermionic<Type>(r),
+	row_(r.read<Matrix<unsigned int> >()),
+	Ainv_(new Matrix<Type>[N_]),
+	tmp_(new Matrix<Type>[N_])
+{
+	for(unsigned int c(0); c<N_; c++){
+		r>>Ainv_[c];
+		tmp_[c].set(M_(c),M_(c));
+	}
+	std::cout<<"SystemFermionic"<<std::endl;
+	std::cout<<row_;
+	for(unsigned int c(0); c<N_; c++){
+		std::cout<<Ainv_[c]<<std::endl;
+	}
+}
+
+template<typename Type>
 SystemFermionic<Type>::~SystemFermionic(){
 	delete[] Ainv_;
 	delete[] tmp_;
 }
 /*}*/
 
-/*methods that modify the class*/
+/*void methods*/
 /*{*/
 template<typename Type>
 void SystemFermionic<Type>::swap(){
@@ -220,6 +244,16 @@ void SystemFermionic<Type>::update(){
 		}
 		Ainv_[c_tmp] -= tmp_[c_tmp];
 	}
+}
+
+template<typename Type>
+void SystemFermionic<Type>::write(IOFiles& w) const{
+	System::write(w);
+	MCSystem::write(w);
+	for(unsigned int c(0);c<N_;c++){ w<<this->EVec_[c]; }
+	w<<row_;
+	for(unsigned int c(0);c<N_;c++){ w<<Ainv_[c]; }
+	std::cout<<"write SystemFermionic"<<std::endl;
 }
 /*}*/
 

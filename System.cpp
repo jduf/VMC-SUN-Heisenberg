@@ -28,6 +28,26 @@ System::System(System const& s):
 	lr_corr_(s.lr_corr_),
 	links_(s.links_)
 {}
+
+System::System(IOFiles& r):
+	ref_(r.read<Vector<unsigned int> >()),
+	N_(r.read<unsigned int>()), 
+	m_(r.read<unsigned int>()),
+	n_(r.read<unsigned int>()),
+	M_(r.read<Vector<unsigned int> >()),
+	bc_(r.read<int>()),
+	status_(r.read<unsigned int>()),
+	E_(r.read<Data<double> >()),
+	corr_(r.read<DataSet<double> >()),
+	lr_corr_(r.read<DataSet<double> >()),
+	links_(r.read<Matrix<unsigned int> >())
+{
+	std::cout<<"System"<<std::endl;
+	std::cout<<ref_<<" "<<N_<<" "<<m_<<" "<<n_<<" "<<m_<<" "<<bc_<<" "<<status_<<" "<<E_<<std::endl;
+	std::cout<<corr_<<std::endl;
+	std::cout<<lr_corr_<<std::endl;
+	std::cout<<links_<<std::endl;
+}
 /*}*/
 
 void System::set(){ 
@@ -40,4 +60,9 @@ void System::delete_binning(){
 	E_.delete_binning();
 	corr_.delete_binning();
 	lr_corr_.delete_binning();
+}
+
+void System::write(IOFiles& w) const {
+	w<<ref_<<N_<<m_<<n_<<M_<<bc_<<status_<<E_<<corr_<<lr_corr_<<links_;
+	std::cout<<"write System"<<std::endl;
 }

@@ -7,7 +7,11 @@
 template<typename Type>
 class Bosonic : public virtual System{
 	public:
+		/*!Copy Constructor*/
 		Bosonic(Bosonic<Type> const& b);
+		/*!Constructor that reads from file*/
+		Bosonic(IOFiles& r);
+		/*!Destructor*/
 		virtual ~Bosonic(){}
 
 		Vector<unsigned int> const& get_sl() const { return sl_;}
@@ -15,8 +19,6 @@ class Bosonic : public virtual System{
 		Matrix<unsigned int> const& get_cc() const { return cc_;}
 		Matrix<double> const& get_nu() const { return nu_;}
 		Matrix<Type> const& get_omega() const { return omega_;}
-
-		Bosonic<Type> const& get_bosonic(){ return (*this);}
 
 	protected:
 		Bosonic(){}
@@ -41,6 +43,16 @@ Bosonic<Type>::Bosonic(Bosonic<Type> const& b):
 	nu_(b.nu_),
 	omega_(b.omega_)
 {}
+
+template<typename Type>
+Bosonic<Type>::Bosonic(IOFiles& r):
+	System(r),
+	sl_(r.read<Vector<unsigned int> >()),
+	nn_(r.read<Matrix<unsigned int> >()),
+	cc_(r.read<Matrix<unsigned int> >()),
+	nu_(r.read<Matrix<double> >()),
+	omega_(r.read<Matrix<Type> >())
+{} 
 
 template<typename Type>
 void Bosonic<Type>::init_bosonic(unsigned int const& z, Matrix<double> const& nu){

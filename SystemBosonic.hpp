@@ -6,10 +6,12 @@
 
 /*!Class that contains the information on the state*/
 template<typename Type>
-class SystemBosonic : public Bosonic<Type>, public MCSystem{
+class SystemBosonic : public MCSystem, public Bosonic<Type>{
 	public:
 		/*!Constructor that creates an initial state*/
 		SystemBosonic(Bosonic<Type> const& S);
+		/*!Constructor that reads from file*/
+		SystemBosonic(IOFiles& r);
 		/*!Destructor*/
 		~SystemBosonic(){};
 
@@ -27,6 +29,8 @@ class SystemBosonic : public Bosonic<Type>, public MCSystem{
 			return std::unique_ptr<SystemBosonic<Type> >(new SystemBosonic<Type>(*this));
 		}
 
+		void write(IOFiles& w) const;
+
 	private:
 		/*!Autorize copy only via clone()*/
 		SystemBosonic(SystemBosonic<Type> const& S);
@@ -41,8 +45,8 @@ class SystemBosonic : public Bosonic<Type>, public MCSystem{
 template<typename Type>
 SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S):
 	System(S),
-	Bosonic<Type>(S),
-	MCSystem(S)
+	MCSystem(S),
+	Bosonic<Type>(S)
 {
 	std::cerr<<"SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S) : check everything"<<std::endl;
 	std::cerr<<"works only for m=1"<<std::endl;
@@ -50,16 +54,32 @@ SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S):
 }
 
 template<typename Type>
+SystemBosonic<Type>:: SystemBosonic(IOFiles& r):
+	System(r),
+	MCSystem(r),
+	Bosonic<Type>(r)
+{}
+
+template<typename Type>
 SystemBosonic<Type>::SystemBosonic(SystemBosonic<Type> const& S):
 	System(S),
-	Bosonic<Type>(S),
-	MCSystem(S)
+	MCSystem(S),
+	Bosonic<Type>(S)
 {
 	std::cerr<<"SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S) : check everything"<<std::endl;
 	std::cerr<<"works only for m=1"<<std::endl;
 	status_--;
 }
+/*}*/
 
+/*void methods*/
+/*{*/
+template<typename Type>
+void SystemBosonic<Type>::write(IOFiles& w) const{
+	System::write(w);
+	MCSystem::write(w);
+	w<<this->sl_<<this->nn_<<this->cc_<<this->nu_<<this->omega_;
+}
 /*}*/
 
 /*methods that return something related to the class*/
