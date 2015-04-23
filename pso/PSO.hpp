@@ -40,7 +40,7 @@ class Particle: public Optimization{
 			fbx_ = fx; 
 		}
 
-		virtual void print(std::ostream& flux) const;
+		virtual void print() const;
 
 	protected:
 		double fbx_;		//!< value at the best position
@@ -64,7 +64,7 @@ class Swarm {
 
 		void init(double const& fx);
 		void run();
-		void print(std::ostream& flux) const;
+		void print() const;
 
 		Vector<double> const& get_bx() const { return p_[bparticle_]->get_bx(); }
 
@@ -145,10 +145,10 @@ void Swarm<Type>::run(){
 }
 
 template<typename Type>
-void Swarm<Type>::print(std::ostream& flux) const {
+void Swarm<Type>::print() const {
 	std::cout<<"Print each particle"<<std::endl;
 	for(unsigned int i(0);i<Nparticles_;i++){
-		p_[i]->print(flux);
+		p_[i]->print();
 	}
 }
 /*}*/

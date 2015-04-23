@@ -17,6 +17,8 @@ class Binning{
 		Binning(unsigned int const& B, unsigned int const& b); 
 		/*!Copy constructor*/
 		Binning(Binning const& b); 
+		/*!Constructor that reads from file*/
+		Binning(IOFiles& r);
 		/*!Destructor*/
 		~Binning();
 		/*!Set the class*/
@@ -37,6 +39,8 @@ class Binning{
 		Type const& get_x() const { return m_bin_(0); }
 		/*!Merge this with b*/
 		void merge(Binning const& b);
+
+		void write(IOFiles& w) const;
 
 	private:
 		/*!Forbids assigment*/
@@ -86,10 +90,7 @@ class Data{
 		void complete_analysis();
 		void delete_binning();
 
-		Type const& get_x() const {
-			if(binning_){ return binning_->get_x(); }
-			else { return x_; } 
-		} 
+		Type const& get_x() const { return binning_?binning_->get_x():x_; } 
 		Type const& get_dx() const { return dx_; } 
 		bool const& get_conv() const { return conv_; } 
 		unsigned int const& get_N() const { return N_; }
@@ -108,6 +109,7 @@ class Data{
 		}
 
 		Binning<Type>* get_binning() const { return binning_; }
+		void set_binning(Binning<Type>* b) { binning_ = b; }
 
 		void header_rst(std::string const& s, RST& rst) const;
 
@@ -191,6 +193,24 @@ Binning<Type>::Binning(Binning const& b):
 }
 
 template<typename Type>
+Binning<Type>::Binning(IOFiles& r):
+	B_(r.read<unsigned int>()),
+	b_(r.read<unsigned int>()),
+	l_(r.read<unsigned int>()),
+	DPL_(r.read<unsigned int>()),
+	dpl_(r.read<unsigned int>()),
+	logl_(0),
+	Ml_(r.read<Vector<unsigned int> >()),
+	m_bin_(r.read<Vector<Type> >()),
+	bin_(b_?new Vector<Type>[b_]:NULL),
+	recompute_dx_usefull_(true),
+	addlog_(0),
+	log_(NULL)
+{
+	for(unsigned int i(0);i<b_;i++){ r>>bin_[i]; }
+}
+
+template<typename Type>
 void Binning<Type>::set(){
 	l_ = 0;
 	DPL_ = 1;
@@ -213,7 +233,7 @@ Binning<Type>::~Binning(){
 }
 /*}*/
 
-/*public methods that modify the class*/
+/*public methods*/
 /*{*/
 template<typename Type>
 void Binning<Type>::add_sample(Type const& x){
@@ -351,6 +371,12 @@ void Binning<Type>::complete_analysis(double const& tol, Type& x, Type& dx, bool
 		gp.save_file();
 		gp.create_image(true);
 	} 
+}
+
+template<typename Type>
+void Binning<Type>::write(IOFiles& w) const {
+	w<<B_<<b_<<l_<<DPL_<<dpl_<<Ml_<<m_bin_;
+	for(unsigned int i(0);i<b_;i++){ w<<bin_[i]; }
 }
 /*}*/
 
@@ -497,8 +523,13 @@ void Data<Type>::header_rst(std::string const& s, RST& rst) const {
 
 template<typename Type>
 IOFiles& operator<<(IOFiles& w, Data<Type> const& d){
-	if(w.is_binary()){ w<<d.get_x()<<d.get_dx()<<d.get_N()<<d.get_conv(); } 
-	else { w.stream()<<d; }
+	if(w.is_binary()){
+		w<<d.get_x()<<d.get_dx()<<d.get_N()<<d.get_conv(); 
+		if(d.get_binning()){ 
+			w<<true; 
+			d.get_binning()->write(w);
+		} else { w<<false; }
+	} else { w.stream()<<d; }
 	return w;
 }
 
@@ -508,8 +539,12 @@ IOFiles& operator>>(IOFiles& r, Data<Type>& d){
 	Type dx(0.0);
 	unsigned int N(0);
 	bool conv(false);
-	r>>x>>dx>>N>>conv;
+	bool binning;
+	r>>x>>dx>>N>>conv>>binning;
 	d.set(x,dx,N,conv);
+	if(binning){
+		std::cout<<"set binning"<<std::endl;
+		d.set_binning(new Binning<Type>(r)); }
 	return r;
 }
 /*}*/

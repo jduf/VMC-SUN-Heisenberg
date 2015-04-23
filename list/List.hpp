@@ -119,6 +119,16 @@ void List<Type>::set(){
 /*i/o methods*/
 /*{*/
 template<typename Type>
+void List<Type>::print(std::ostream& flux) const {
+	List<Type> const* tmp(next_);
+	while(tmp){
+		flux<<(*tmp->t_)<<" "; 
+		tmp = tmp->next_;
+	}
+	flux<<"("<<size()<<")"; 
+}
+
+template<typename Type>
 std::ostream& operator<<(std::ostream& flux, List<Type> const& l){
 	l.print(flux);
 	return flux;
@@ -126,6 +136,9 @@ std::ostream& operator<<(std::ostream& flux, List<Type> const& l){
 
 //template<typename Type>
 //std::istream& operator>>(std::istream& flux, List<Type>& l){
+	//unsigned int size;
+	//flux>>size;
+	//while(size--){ l.add_end( std::make_shared<Type>(flux.read<Type>()) ); }
 	//return flux;
 //}
 
@@ -151,7 +164,7 @@ IOFiles& operator>>(IOFiles& r, List<Type>& l){
 	if(r.is_binary()){
 		unsigned int size;
 		r>>size;
-		while(size--){ l.add_end( std::make_shared<Type>(r.read<Type>()) ); }
+		while(size--){ l.add_end(std::make_shared<Type>(read)); }
 	//} else {
 		//r.stream()>>l;
 	}
@@ -448,16 +461,6 @@ unsigned int List<Type>::size() const{
 	}
 	free_ = const_cast<List<Type>* const>(this);
 	return N;
-}
-
-template<typename Type>
-void List<Type>::print(std::ostream& flux) const {
-	List<Type> const* tmp(next_);
-	while(tmp){
-		flux<<(*tmp->t_)<<" "; 
-		tmp = tmp->next_;
-	}
-	flux<<"("<<size()<<")"; 
 }
 /*}*/
 #endif
