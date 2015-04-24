@@ -22,7 +22,7 @@
 
 class CreateSystem{
 	public:
-		CreateSystem(Container* C);
+		CreateSystem(Container* C, Vector<double> const* param=NULL);
 		CreateSystem(IOFiles* r);
 		virtual ~CreateSystem();
 		/*{Forbidden*/
@@ -84,6 +84,8 @@ class CreateSystem{
 		}
 		/*}*/
 
+		/*!Returns ref*/
+		Vector<unsigned int> const&  get_ref() const { return ref_; }
 		/*!Returns a pointer on the GenericSystem created*/
 		System const* get_system() const { 
 			if(RGL_){return RGL_;}
@@ -114,7 +116,7 @@ class CreateSystem{
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
 
-		void parse(Container* C);
+		void parse(Container* C, Vector<double> const* param);
 		void error();
 };
 #endif

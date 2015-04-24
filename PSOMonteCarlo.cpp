@@ -22,28 +22,30 @@ bool PSOMonteCarlo::is_better_x(unsigned int const& p){
 			sim->get_S()->set(); //to clear the binning
 		} else {
 			tmp_test = false;
-			Container system_param(system_);
-			system_param.set("t2",p_[p]->get_x()(0));
-			sim->create_S(&system_param);
+			sim->create_S(&system_,&p_[p]->get_x());
 		}
 	}
+	if(sim->is_created()){
+		MonteCarlo mc(sim->get_S().get(),tmax_);
+		mc.thermalize(tmp_test?10:1e6);
+		mc.run();
 
-	MonteCarlo mc(sim->get_S().get(),tmax_);
-	mc.thermalize(tmp_test?10:1e6);
-	mc.run();
-
-	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
+		std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
 #pragma omp critical(all_results_)
-	{
-		if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
-			all_results_.fuse_with_free(sim,MCSim::fuse); 
-			tmp_test = P->update(all_results_.get_ptr()); 
-		} else {
-			all_results_.add_after_free(sim); 
-			tmp_test = P->update(sim); 
+		{
+			if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
+				all_results_.fuse_with_free(sim,MCSim::fuse); 
+				tmp_test = P->update(all_results_.get_ptr()); 
+			} else {
+				all_results_.add_after_free(sim); 
+				tmp_test = P->update(sim); 
+			}
 		}
+		return tmp_test;
+	} else {
+		std::cerr<<"bool PSOMonteCarlo::is_better_x(unsigned int const& p) : not valid parameter : "<<p_[p]->get_x()<<std::endl;
+		return false;
 	}
-	return tmp_test;
 }
 
 void PSOMonteCarlo::plot() const {
@@ -69,14 +71,14 @@ void PSOMonteCarlo::print() const {
 }
 
 void PSOMonteCarlo::write(IOFiles& w) const {
-	while(all_results_.go_to_next()){
-		all_results_.get().write(w);
-	}
+	w<<all_results_.size();
+	while(all_results_.go_to_next()){ all_results_.get().write(w); }
 }
 
-void PSOMonteCarlo::load(std::string const& filename){
-	IOFiles r(filename,false);
-	//r>>all_results_;
+void PSOMonteCarlo::read(IOFiles& r){
+	unsigned int size;
+	r>>size;
+	while(size--){ all_results_.add_end(std::make_shared<MCSim>(r)); }
 }
 
 void PSOMonteCarlo::complete_analysis(double tol){

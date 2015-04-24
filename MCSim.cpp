@@ -1,8 +1,12 @@
 #include "MCSim.hpp"
 
+MCSim::MCSim(Vector<double> const& param):
+	param_(param)
+{}
+
 MCSim::MCSim(IOFiles& r):
-	ref_(r.read<Vector<unsigned int> >()),
-	param_(r.read<Vector<double> >())
+	ref_(r),
+	param_(r)
 {
 	switch(ref_(1)){
 		case 0:
@@ -32,8 +36,8 @@ void MCSim::fuse(MCSim& list_elem, MCSim& new_elem) {
 	list_elem.get_S().get()->get_energy().merge(new_elem.get_S().get()->get_energy());
 }
 
-void MCSim::create_S(Container* C){
-	CreateSystem cs(C);
+void MCSim::create_S(Container* C, Vector<double> const* param){
+	CreateSystem cs(C,param);
 	cs.init();
 	if(cs.get_status()==2){
 		cs.create();
@@ -51,6 +55,7 @@ void MCSim::create_S(Container* C){
 					S_.reset(new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())));
 				}
 			}
+			ref_ = cs.get_ref();
 		}
 	}
 }

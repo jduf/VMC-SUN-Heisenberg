@@ -9,14 +9,21 @@ int main(int argc, char* argv[]){
 
 	PSOMonteCarlo s(&P);
 	unsigned int i(0);
-	if(P.find("load",i)){ s.load(P.get<std::string>(i)); }
+	if(P.find("load",i,false)){
+		IOFiles r(P.get<std::string>(i),false);
+		s.read(r); 
+	}
 
 	for(unsigned int i(0);i<Nfreedom;i++){
-		Optimization::set_limit(i,0.5,0.99);
+		Optimization::set_limit(i,-1.2,-0.8);
 	}
 	s.init(100);
 	s.run();
 	s.complete_analysis(1e-5);
 	s.print();
 	s.plot();
+	if(P.find("save",i,false)){
+		IOFiles w(P.get<std::string>(i),true);
+		s.write(w);
+	}
 }

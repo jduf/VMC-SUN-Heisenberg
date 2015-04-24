@@ -9,7 +9,7 @@
 class MCSim {
 	public:
 		/*!Constructor that only sets param_*/
-		MCSim(Vector<double> const& param): param_(param) {}
+		MCSim(Vector<double> const& param);
 		/*!Constructor that reads from file*/
 		MCSim(IOFiles& r);
 		/*!Default destructor*/
@@ -26,11 +26,12 @@ class MCSim {
 
 		Vector<double> const& get_param() const { return param_; }
 		std::unique_ptr<MCSystem> const& get_S() const { return S_; }
-		void create_S(Container* C);
+		void create_S(Container* C, Vector<double> const* param);
 		void copy_S(std::unique_ptr<MCSystem> const& S);
 
 		void print() const { std::cout<<param_<<S_->get_energy(); }
 		void write(IOFiles& w) const;
+		bool is_created() const { return S_.get(); }
 
 	private:
 		Vector<unsigned int> ref_;

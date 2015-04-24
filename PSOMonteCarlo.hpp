@@ -21,7 +21,7 @@ class PSOMonteCarlo: public Swarm<MCParticle>{
 		void plot() const;
 		void print() const;
 		void write(IOFiles& w) const;
-		void load(std::string const& filename);
+		void read(IOFiles& w);
 
 	private:
 		bool is_better_x(unsigned int const& p);

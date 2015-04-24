@@ -1,6 +1,6 @@
 #include "CreateSystem.hpp"
 
-CreateSystem::CreateSystem(Container* C):
+CreateSystem::CreateSystem(Container* C, Vector<double> const* param):
 	ref_(3,0),
 	N_(C->get<unsigned int>("N")),
 	m_(C->get<unsigned int>("m")),
@@ -10,15 +10,15 @@ CreateSystem::CreateSystem(Container* C):
 	RGL_(NULL),
 	CGL_(NULL)
 {
-	parse(C);
+	parse(C,param);
 }
 
 CreateSystem::CreateSystem(IOFiles* r):
-	ref_(r->read<Vector<unsigned int> >()),
+	ref_(*r),
 	N_(r->read<unsigned int>()),
 	m_(r->read<unsigned int>()),
 	n_(r->read<unsigned int>()),
-	M_(r->read<Vector<unsigned int> >()),
+	M_(*r),
 	bc_(r->read<int>()),
 	RGL_(NULL),
 	CGL_(NULL)
@@ -29,7 +29,7 @@ CreateSystem::~CreateSystem(){
 	if(CGL_){delete CGL_;}
 }
 
-void CreateSystem::parse(Container* C){
+void CreateSystem::parse(Container* C, Vector<double> const* param){
 	std::string wf(C->get<std::string>("wf"));
 	if( wf == "chainfermi" ){
 		ref_(0) = 2;
@@ -42,10 +42,10 @@ void CreateSystem::parse(Container* C){
 		ref_(2) = 1;
 		Vector<double> t(N_/m_,1);
 		if(N_/m_ == 4){
-			t(1) = C->get<double>("t2");
-			t(3) = C->get<double>("t4");
+			t(1) = param?(*param)(0):C->get<double>("t2");
+			t(3) = param?(*param)(1):C->get<double>("t4");
 		} else { 
-			t(N_/m_-1) = C->get<double>("t2");
+			t(N_/m_-1) = param?(*param)(0):C->get<double>("t2");
 		}
 		C_.set("t",t);
 	}
@@ -84,8 +84,8 @@ void CreateSystem::parse(Container* C){
 		ref_(0) = 4;
 		ref_(1) = 1;
 		ref_(2) = 3;
-		C_.set("t",C->get<Vector<double> >("t"));
-		C_.set("mu",C->get<Vector<double> >("mu"));
+		C_.set("t",param?param->range(0,3):C->get<Vector<double> >("t"));
+		C_.set("mu",param?param->range(3,5):C->get<Vector<double> >("mu"));
 	}
 	if( wf == "squarefreecomplex" ){
 		ref_(0) = 4;
@@ -98,9 +98,9 @@ void CreateSystem::parse(Container* C){
 		//C_.set("mu",Vector<double>(1,0));
 		//C_.set("phi",Vector<double>(1,M_PI/4.0));
 
-		C_.set("t",C->get<Vector<double> >("t"));
-		C_.set("mu",C->get<Vector<double> >("mu"));
-		C_.set("phi",C->get<Vector<double> >("phi"));
+		C_.set("t",param?param->range(0,3):C->get<Vector<double> >("t"));
+		C_.set("mu",param?param->range(3,5):C->get<Vector<double> >("mu"));
+		C_.set("phi",param?param->range(5,7):C->get<Vector<double> >("phi"));
 	}
 	if( wf == "squarepiflux" ){
 		ref_(0) = 4;
@@ -145,7 +145,7 @@ void CreateSystem::parse(Container* C){
 		ref_(0) = 6;
 		ref_(1) = 1;
 		ref_(2) = 0;
-		C_.set("td",C->get<double>("td"));
+		C_.set("td",param?(*param)(0):C->get<double>("td"));
 	}
 	if( wf == "honeycombsu4" ){
 		ref_(0) = 6;

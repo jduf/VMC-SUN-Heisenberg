@@ -2,6 +2,7 @@
 #define DEF_GENERICSYSTEM
 
 #include "PSTricks.hpp"
+#include "Gnuplot.hpp"
 #include "Bosonic.hpp"
 #include "Fermionic.hpp"
 #include "IOSystem.hpp"

@@ -27,13 +27,13 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 		void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
 
 		/*{Description
-		*!Computes the ratio of the two determinants related to the current
+		 *!Computes the ratio of the two determinants related to the current
 		 * and next configuration
 		 * - when particle of the same color are exchanged a minus sign arises 
 		 *   to conserve the Marshall-Peierls sign rule
 		 * - when two different colors are exchanged, computes the ratio using
 		 *   the determinant lemma
-		}*/
+		 }*/
 		double ratio(bool const& squared);
 		/*{Description*/
 		/*!Calls System::update() and then
