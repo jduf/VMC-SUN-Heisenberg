@@ -36,13 +36,10 @@ MCSystem::MCSystem(MCSystem const& mcsim):
 
 MCSystem::MCSystem(IOFiles& r):
 	System(r),
-	s_(r.read<Matrix<unsigned int> >()),
+	s_(r),
 	n_rnd_(0,n_-1),
 	m_rnd_(0,m_-1)
-{
-	std::cout<<"MCSystem"<<std::endl;
-	std::cout<<s_<<std::endl;
-}
+{}
 /*}*/
 
 /*public method*/
@@ -125,7 +122,6 @@ void MCSystem::complete_analysis(double const& tol){
 
 void MCSystem::write(IOFiles& w) const{
 	w<<s_;
-	std::cout<<"write MCSystem"<<std::endl;
 }
 /*}*/
 

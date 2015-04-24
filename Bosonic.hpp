@@ -47,11 +47,11 @@ Bosonic<Type>::Bosonic(Bosonic<Type> const& b):
 template<typename Type>
 Bosonic<Type>::Bosonic(IOFiles& r):
 	System(r),
-	sl_(r.read<Vector<unsigned int> >()),
-	nn_(r.read<Matrix<unsigned int> >()),
-	cc_(r.read<Matrix<unsigned int> >()),
-	nu_(r.read<Matrix<double> >()),
-	omega_(r.read<Matrix<Type> >())
+	sl_(r),
+	nn_(r),
+	cc_(r),
+	nu_(r),
+	omega_(r)
 {} 
 
 template<typename Type>

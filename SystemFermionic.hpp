@@ -179,18 +179,13 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 	System(r),
 	MCSystem(r),
 	Fermionic<Type>(r),
-	row_(r.read<Matrix<unsigned int> >()),
+	row_(r),
 	Ainv_(new Matrix<Type>[N_]),
 	tmp_(new Matrix<Type>[N_])
 {
 	for(unsigned int c(0); c<N_; c++){
 		r>>Ainv_[c];
 		tmp_[c].set(M_(c),M_(c));
-	}
-	std::cout<<"SystemFermionic"<<std::endl;
-	std::cout<<row_;
-	for(unsigned int c(0); c<N_; c++){
-		std::cout<<Ainv_[c]<<std::endl;
 	}
 }
 
@@ -253,7 +248,6 @@ void SystemFermionic<Type>::write(IOFiles& w) const{
 	for(unsigned int c(0);c<N_;c++){ w<<this->EVec_[c]; }
 	w<<row_;
 	for(unsigned int c(0);c<N_;c++){ w<<Ainv_[c]; }
-	std::cout<<"write SystemFermionic"<<std::endl;
 }
 /*}*/
 
@@ -285,7 +279,7 @@ double SystemFermionic<Type>::ratio(bool const& squared){
 template<typename Type>
 void SystemFermionic<Type>::print(){
 	Matrix<Type>* A(new Matrix<Type>[N_]);
-	for(unsigned int c(0);c<N_;c++){ A[c].set(M_(c),M_(c)); } 
+	for(unsigned int c(0);c<N_;c++){ A[c].set(M_(c),M_(c)); }
 	unsigned int c(0);
 	for(unsigned int s(0);s<n_;s++){
 		for(unsigned int p(0);p<m_;p++){

@@ -44,10 +44,6 @@ Fermionic<Type>::Fermionic(IOFiles& r):
 	EVec_(N_?new Matrix<Type>[N_]:NULL)
 {
 	for(unsigned int c(0);c<N_;c++){ r>>EVec_[c]; }
-	std::cout<<"Fermionic"<<std::endl;
-	for(unsigned int c(0); c<N_; c++){
-		std::cout<<EVec_[c]<<std::endl;
-	}
 }
 
 template<typename Type>

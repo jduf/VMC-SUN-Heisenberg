@@ -8,6 +8,10 @@ int main(int argc, char* argv[]){
 	unsigned int Nfreedom(P.get<unsigned int>("Nfreedom"));
 
 	PSOFermionic s(&P);
+	unsigned int i(0);
+	if(P.find("load",i)){
+		s.load(P.get<std::string>(i));
+	}
 
 	for(unsigned int i(0);i<Nfreedom;i++){
 		Optimization::set_limit(i,0.5,0.99);

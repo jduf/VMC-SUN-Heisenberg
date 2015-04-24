@@ -21,7 +21,6 @@ MCSim::MCSim(IOFiles& r):
 	}
 }
 
-
 unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem) {
 	for(unsigned int i(0);i<list.param_.size();i++){
 		if(list.param_(i) > new_elem.param_(i)){ return 0; }
@@ -177,10 +176,21 @@ void PSOFermionic::print() const {
 	Swarm::print();
 	std::cout<<"Print whole history"<<std::endl;
 	all_results_.set_free();
-	while ( all_results_.go_to_next() ){
+	while( all_results_.go_to_next() ){
 		std::cout<<all_results_.get_ptr()<<" ";
 		all_results_.get().print();
 	}
+}
+
+void PSOFermionic::write(IOFiles& w) const {
+	while(all_results_.go_to_next()){
+		all_results_.get().write(w);
+	}
+}
+
+void PSOFermionic::load(std::string const& filename){
+	IOFiles r(filename,false);
+	//r>>all_results_;
 }
 
 void PSOFermionic::complete_analysis(double tol){

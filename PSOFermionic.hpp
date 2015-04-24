@@ -27,7 +27,9 @@ class MCSim {
 		void write(IOFiles& w) const;
 
 	private:
+		/*Forbid default*/
 		MCSim();
+		/*Forbid copy*/
 		MCSim(MCSim const&);
 
 		Vector<unsigned int> ref_;
@@ -46,6 +48,7 @@ class MCParticle: public Particle{
 		void print() const;
 
 	private:
+		/*Forbid copy*/
 		MCParticle(MCParticle const&);
 
 		List<MCSim> history_;
@@ -62,9 +65,13 @@ class PSOFermionic: public Swarm<MCParticle>{
 
 		void plot() const;
 		void print() const;
+		void write(IOFiles& w) const;
+		void load(std::string const& filename);
 
 	private:
+		/*Forbid default*/
 		PSOFermionic();
+		/*Forbid copy*/
 		PSOFermionic(PSOFermionic const&);
 
 		bool is_better_x(unsigned int const& p);

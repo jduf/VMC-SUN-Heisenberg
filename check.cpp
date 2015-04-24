@@ -50,11 +50,13 @@ int main(int argc, char* argv[]){
 				if(cs.get_status()==2){
 					cs.create();
 					MCSystem* S(NULL);
+					std::cout<<"Create MCSystem #############"<<std::endl;
 					if(cs.use_complex()){
 						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system())); 
 					} else {
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())); 
 					}
+					std::cout<<"Init Monte Carlo #############"<<std::endl;
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
 					sim.run();
