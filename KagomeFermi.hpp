@@ -7,7 +7,7 @@ template<typename Type>
 class KagomeFermi: public Kagome<Type>{
 	public:
 		KagomeFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, unsigned int& sel0, unsigned int& sel1);
-		~KagomeFermi(){}
+		~KagomeFermi() = default;
 
 		void create();
 		void check();

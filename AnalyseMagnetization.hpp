@@ -6,7 +6,14 @@
 class AnalyseMagnetization : public Analyse{
 	public:
 		AnalyseMagnetization(std::string const& sim);
-		~AnalyseMagnetization(){}
+		/*!Default destructor*/
+		~AnalyseMagnetization() = default;
+		/*{Forbidden*/
+		AnalyseMagnetization() = delete;
+		AnalyseMagnetization(AnalyseMagnetization const&) = delete;
+		AnalyseMagnetization(AnalyseMagnetization&&) = delete;
+		AnalyseMagnetization& operator=(AnalyseMagnetization) = delete;
+		/*}*/
 
 	protected:
 		void close_files();

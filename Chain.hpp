@@ -72,7 +72,7 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 }
 
 template<typename Type>
-Chain<Type>::~Chain(){}
+Chain<Type>::~Chain() = default;
 
 template<typename Type>
 Matrix<int> Chain<Type>::get_neighbourg(unsigned int const& i) const {

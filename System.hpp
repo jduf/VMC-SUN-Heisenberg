@@ -20,8 +20,10 @@ class System{
 		System(IOFiles& r);
 		/*!Default destructor*/
 		virtual ~System() = default;
-		/*!Forbid constructor*/
-		System(System&& s) = delete;
+		/*{Forbidden*/
+		System(System&&) = delete;
+		System& operator=(System) = delete;
+		/*}*/
 
 		/*!Returns energy*/
 		Data<double> const& get_energy() const {return E_;}
@@ -60,9 +62,5 @@ class System{
 		DataSet<double> lr_corr_;		//!< long range correlation 
 
 		Matrix<unsigned int> links_;	//!< bonds <i,j> exchanged by H
-
-	private:
-		/*!Forbids assignment*/
-		System& operator=(System const& s);
 };
 #endif

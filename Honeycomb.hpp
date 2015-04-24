@@ -80,7 +80,7 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 }
 
 template<typename Type>
-Honeycomb<Type>::~Honeycomb(){}
+Honeycomb<Type>::~Honeycomb() = default;
 /*}*/
 
 /*{protected methods*/

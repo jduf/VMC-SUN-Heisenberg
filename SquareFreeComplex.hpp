@@ -6,7 +6,7 @@
 class SquareFreeComplex: public Square<std::complex<double> >{
 	public:
 		SquareFreeComplex(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, Vector<double> const& t, Vector<double> const& mu, Vector<double> const& phi);
-		~SquareFreeComplex(){}
+		~SquareFreeComplex() = default;
 
 		void create();
 		void check();

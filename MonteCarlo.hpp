@@ -34,10 +34,12 @@ class MonteCarlo{
 		MonteCarlo(MCSystem* S, unsigned int const& tmax);
 		/*!Default destructor*/
 		~MonteCarlo() = default;
-		/*!Forbids constructors*/
+		/*{Forbids constructors*/
 		MonteCarlo() = delete; 
-		MonteCarlo(MonteCarlo const& mc) = delete; 
-		MonteCarlo(MonteCarlo&& mc) = delete; 
+		MonteCarlo(MonteCarlo const&) = delete; 
+		MonteCarlo(MonteCarlo&&) = delete; 
+		MonteCarlo& operator=(MonteCarlo) = delete; 
+		/*}*/
 
 		/*!Thermalize the Monte-Carlo algorithm*/
 		void thermalize(unsigned int const& N);

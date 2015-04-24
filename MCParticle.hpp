@@ -6,13 +6,15 @@
 
 class MCParticle: public Particle{
 	public:
-		/*Default constructor*/
+		/*!Default constructor*/
 		MCParticle() = default;
-		/*Default destructor*/
+		/*!Default destructor*/
 		~MCParticle() = default;
-		/*Forbid copy*/
+		/*{Forbid copy*/
 		MCParticle(MCParticle const&) = delete;
 		MCParticle(MCParticle&&) = delete;
+		MCParticle& operator=(MCParticle) = delete;
+		/*}*/
 
 		void move(Vector<double> const& bx_all);
 		bool update(std::shared_ptr<MCSim> const& new_elem);

@@ -29,7 +29,7 @@ Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned in
 }
 
 template<typename Type>
-Kagome<Type>::~Kagome(){}
+Kagome<Type>::~Kagome() = default;
 
 template<typename Type>
 Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {

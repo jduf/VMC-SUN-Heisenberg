@@ -7,12 +7,14 @@
 class PSOMonteCarlo: public Swarm<MCParticle>{
 	public:
 		PSOMonteCarlo(Parseur* P);
-		/*Default destructor*/
+		/*!Default destructor*/
 		virtual ~PSOMonteCarlo() = default;
-		/*Forbids constructors*/
+		/*{Forbids constructors*/
 		PSOMonteCarlo() = delete;
 		PSOMonteCarlo(PSOMonteCarlo const&) = delete;
 		PSOMonteCarlo(PSOMonteCarlo&&) = delete;
+		PSOMonteCarlo& operator=(PSOMonteCarlo) = delete;
+		/*}*/
 
 		void complete_analysis(double tol);
 

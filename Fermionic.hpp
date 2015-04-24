@@ -14,16 +14,20 @@ class Fermionic : public virtual System{
 		Fermionic(IOFiles& r);
 		/*!Destructor*/
 		virtual ~Fermionic();
+		/*{Forbidden*/
+		Fermionic(Fermionic<Type>&&) = delete;
+		Fermionic<Type>& operator=(Fermionic<Type>) = delete;
+		/*}*/
 
 		Matrix<Type> const& get_EVec() const { return EVec_; }
 		Fermionic<Type> const& get_fermionic() const { return (*this); }
 
 	protected:
-		/*!Default Constructor*/
+		/*!Constructor*/
 		Fermionic();
 
 		Matrix<Type>* EVec_;//!< eigenvectors matrix (transfer matrix)
-		
+
 		/*!compute the eigenvectors from the mean field Hamiltonian*/
 		void init_fermionic();
 };

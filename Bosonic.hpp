@@ -11,8 +11,12 @@ class Bosonic : public virtual System{
 		Bosonic(Bosonic<Type> const& b);
 		/*!Constructor that reads from file*/
 		Bosonic(IOFiles& r);
-		/*!Destructor*/
-		virtual ~Bosonic(){}
+		/*!Default destructor*/
+		virtual ~Bosonic() = default;
+		/*{Forbidden*/
+		Bosonic(Bosonic<Type>&&) = delete;
+		Bosonic<Type>& operator=(Bosonic<Type>) = delete;
+		/*}*/
 
 		Vector<unsigned int> const& get_sl() const { return sl_;}
 		Matrix<unsigned int> const& get_nn() const { return nn_;}
@@ -21,7 +25,8 @@ class Bosonic : public virtual System{
 		Matrix<Type> const& get_omega() const { return omega_;}
 
 	protected:
-		Bosonic(){}
+		/*!Default Constructor*/
+		Bosonic() = default;
 
 		Vector<unsigned int> sl_;
 		Matrix<unsigned int> nn_;//!< nn_(i,j):jth neighbour of the ith site
@@ -64,4 +69,3 @@ void Bosonic<Type>::init_bosonic(unsigned int const& z, Matrix<double> const& nu
 }
 /*}*/
 #endif
-

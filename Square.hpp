@@ -61,7 +61,7 @@ Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::st
 }
 
 template<typename Type>
-Square<Type>::~Square(){}
+Square<Type>::~Square() = default;
 /*}*/
 
 /*{protected methods*/

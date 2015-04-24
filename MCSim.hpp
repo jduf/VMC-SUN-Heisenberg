@@ -14,10 +14,12 @@ class MCSim {
 		MCSim(IOFiles& r);
 		/*!Default destructor*/
 		~MCSim() = default;
-		/*Forbids constructor*/
+		/*{Forbidden*/
 		MCSim() = delete;
 		MCSim(MCSim const&) = delete;
 		MCSim(MCSim&&) = delete;
+		MCSim& operator&=(MCSim) = delete;
+		/*}*/
 
 		static unsigned int cmp_for_fuse(MCSim const& list_elem, MCSim const& new_elem);
 		static void fuse(MCSim& list_elem, MCSim& new_elem);

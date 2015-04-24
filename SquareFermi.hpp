@@ -7,7 +7,7 @@ template<typename Type>
 class SquareFermi: public Square<Type>{
 	public:
 		SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc);
-		~SquareFermi(){}
+		~SquareFermi() = default;
 
 		void create();
 		void check();

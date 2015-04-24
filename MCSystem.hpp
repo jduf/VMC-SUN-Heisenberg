@@ -14,9 +14,11 @@ class MCSystem: public virtual System{
 		MCSystem(IOFiles& r);
 		/*!Default destructor*/
 		virtual ~MCSystem() = default;
-		/*!Forbids constructors*/
+		/*{Forbidden*/
 		MCSystem() = delete;
-		MCSystem(MCSystem&& mcsim) = delete;
+		MCSystem(MCSystem&&) = delete;
+		MCSystem& operator=(MCSystem const&) = delete;
+		/*}*/
 
 		/*!Exchanges two particles of different colors on random sites*/
 		virtual void swap();
@@ -50,9 +52,6 @@ class MCSystem: public virtual System{
 		Rand<unsigned int> m_rnd_;//!< generator of random numbers 
 
 	private:
-		/*!Forbid assigment*/
-		MCSystem& operator=(MCSystem const& mcsim);
-
 		/*!Check only if the new state has not the same color on one site*/
 		bool is_new_state_forbidden();
 };

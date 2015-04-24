@@ -74,7 +74,7 @@ Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std
 }
 
 template<typename Type>
-Triangle<Type>::~Triangle(){}
+Triangle<Type>::~Triangle() = default;
 /*}*/
 
 /*{protected methods*/

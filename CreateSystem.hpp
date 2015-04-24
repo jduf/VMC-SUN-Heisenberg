@@ -25,10 +25,12 @@ class CreateSystem{
 		CreateSystem(Container* C);
 		CreateSystem(IOFiles* r);
 		virtual ~CreateSystem();
-		/*!Forbids constructors*/
+		/*{Forbidden*/
 		CreateSystem() = delete;
 		CreateSystem(CreateSystem const&) = delete;
 		CreateSystem(CreateSystem&&) = delete;
+		CreateSystem& operator=(CreateSystem cs) = delete;
+		/*}*/
 
 		void init(IOFiles* read=NULL, IOSystem* ios=NULL);
 
@@ -100,9 +102,6 @@ class CreateSystem{
 		}
 
 	private:
-		/*!Forbids assignment*/
-		CreateSystem& operator=(CreateSystem cs);
-
 		Vector<unsigned int> ref_;
 		unsigned int const N_;
 		unsigned int const m_;
