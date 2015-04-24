@@ -137,7 +137,7 @@ void IOFiles::write(std::string const& var, Type const& val){
 		(*this)<<val;
 		header_->add(var,val);
 	} else {
-		std::cerr<<"IOFiles::operator()(string,val) : can't write in "<<filename_<<std::endl;
+		std::cerr<<"void IOFiles::write(string,val) : can't write in "<<filename_<<std::endl;
 	}	
 }
 #endif

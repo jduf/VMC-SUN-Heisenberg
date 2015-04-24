@@ -22,8 +22,12 @@ class Matrix{
 		Matrix(unsigned int N_row, unsigned int N_col);
 		/*!Initializes a static array of Type of size N_row*N_col to a value val*/
 		Matrix(unsigned int N_row, unsigned int N_col, Type val);
-		/*!Deep copy*/
+		/*!Deep copy constructor*/
 		Matrix(Matrix<Type> const& mat);
+		/*!Move constructor*/
+		Matrix(Matrix<Type>&& mat);
+		/*!Constructor that reads from file*/
+		Matrix<Type>(IOFiles& r);
 		/*!Delete the static array*/
 		~Matrix();
 
@@ -147,6 +151,29 @@ Matrix<Type>::Matrix(Matrix<Type> const& mat):
 	mat_(size_?new Type[size_]:NULL)
 {
 	for(unsigned int i(0);i<size_;i++){ mat_[i] = mat.mat_[i]; }
+	std::cout<<"matrix copy"<<std::endl;
+}
+
+template<typename Type>
+Matrix<Type>::Matrix(Matrix<Type>&& mat):
+	row_(mat.row_),
+	col_(mat.col_),
+	size_(mat.size_),
+	mat_(mat.mat_)
+{
+	mat.mat_ = NULL;
+	mat.row_ = mat.col_ = mat.size_ = 0;
+	std::cout<<"matrix move"<<std::endl;
+}
+
+template<typename Type>
+Matrix<Type>::Matrix(IOFiles& r):
+	row_(r.read<unsigned int>()),
+	col_(r.read<unsigned int>()),
+	size_(row_*col_),
+	mat_(size_?new Type[size_]:NULL)
+{
+	r.read(mat_,size_,sizeof(Type));
 }
 
 template<typename Type>
@@ -209,15 +236,8 @@ IOFiles& operator<<(IOFiles& w, Matrix<Type> const& m){
 
 template<typename Type>
 IOFiles& operator>>(IOFiles& r, Matrix<Type>& m){
-	if(r.is_binary()){
-		unsigned int row(0);
-		unsigned int col(0);
-		r>>row>>col;
-		if(row != m.row() || col != m.col()) {m.set(row,col);} 
-		r.read(m.ptr(),m.size(),sizeof(Type));
-	} else {
-		r.stream()>>m;
-	}
+	if(r.is_binary()){ m = std::move(Matrix<Type>(r)); }
+	else { r.stream()>>m; }
 	return r;
 }
 /*}*/

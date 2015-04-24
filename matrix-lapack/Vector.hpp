@@ -21,8 +21,12 @@ class Vector{
 		Vector(unsigned int N, Type val);
 		/*!Initialize with a std::vector*/
 		Vector(std::vector<Type> const& vec);
-		/*!Deep copy*/
+		/*!Deep copy constructor*/
 		Vector(Vector<Type> const& vec);
+		/*!Move constructor*/
+		Vector(Vector<Type>&& vec);
+		/*!Constructor that reads from file*/
+		Vector(IOFiles& r);
 		/*!Delete the static array*/
 		~Vector();
 
@@ -161,6 +165,25 @@ Vector<Type>::Vector(Vector<Type> const& vec):
 	vec_(size_?new Type[size_]:NULL)
 {
 	for(unsigned int i(0);i<size_;i++){ vec_[i] = vec.vec_[i]; }
+	std::cout<<"vector copy"<<std::endl;
+}
+
+template<typename Type>
+Vector<Type>::Vector(Vector<Type>&& vec):
+	size_(vec.size_),
+	vec_(vec.vec_)
+{
+	vec.vec_ = NULL;
+	vec.size_ = 0;
+	std::cout<<"vector move"<<std::endl;
+}
+
+template<typename Type>
+Vector<Type>::Vector(IOFiles& r):
+	size_(r.read<unsigned int>()),
+	vec_(size_?new Type[size_]:NULL)
+{
+	r.read(vec_,size_,sizeof(Type));
 }
 
 template<typename Type>
@@ -212,14 +235,8 @@ IOFiles& operator<<(IOFiles& w, Vector<Type> const& v){
 
 template<typename Type>
 IOFiles& operator>>(IOFiles& r, Vector<Type>& v){
-	if(r.is_binary()){
-		unsigned int size(0);
-		r>>size;
-		if(size != v.size()) {v.set(size);} 
-		r.read(v.ptr(),v.size(),sizeof(Type));
-	} else {
-		r.stream()>>v;
-	}
+	if(r.is_binary()){ v = std::move(Vector<Type>(r)); } 
+	else { r.stream()>>v; }
 	return r;
 }
 /*}*/
@@ -458,7 +475,6 @@ Vector<Type> Vector<Type>::order(Vector<unsigned int> const& index) const{
 }
 /*}*/
 
-#ifdef DEF_MISCELLANEOUS
 namespace my {
 	template<typename Type>
 		bool are_equal(Vector<Type> const& x, Vector<Type> const& y, double abs_tol=1e-14, double rel_tol=1e-14){
@@ -471,5 +487,4 @@ namespace my {
 			}
 		}
 }
-#endif
 #endif

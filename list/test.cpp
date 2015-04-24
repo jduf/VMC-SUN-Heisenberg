@@ -14,6 +14,10 @@ class A{
 			std::cout<<"copy"<<std::endl;
 		}
 
+		A(A&& a):a_(a.a_){
+			std::cout<<"move"<<std::endl;
+		}
+
 		~A(){ 
 			std::cout<<"destroyed"<<std::endl;
 			N_--; 
@@ -137,6 +141,9 @@ int main(){
 		auto cmp = [](int const& a, int const& b){ return a<b;};
 		for(unsigned int i(0);i<30;i++){ a.add_sort(std::make_shared<int>(rnd.get()),cmp ); }
 		std::cout<<a<<std::endl;
+
+		IOFiles out("list_int.jdbin",true);
+		out.write("int",a);
 	}
 	{
 		std::cout<<"#### test add_sort with vector ####"<<std::endl;
@@ -200,11 +207,16 @@ int main(){
 		out.write("vector",a);
 	}
 	{
-		IOFiles in("list_vector.jdbin",false);
-		List<Vector<int> > a;
-		in>>a;
-		std::cout<<a<<std::endl;
+		std::cout<<"#### read list from files ####"<<std::endl;
+		IOFiles in_vector("list_vector.jdbin",false);
+		List<Vector<int> > lvec;
+		in_vector>>lvec;
+		std::cout<<lvec<<std::endl;
 
+		IOFiles in_int("list_int.jdbin",false);
+		List<int> lint;
+		in_int>>lint;
+		std::cout<<lint<<std::endl;
 	}
 	std::cout<<"#(constructor calls)-#(destructor calls)="<<A::N_<<std::endl;
 }

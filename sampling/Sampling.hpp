@@ -17,6 +17,8 @@ class Binning{
 		Binning(unsigned int const& B, unsigned int const& b); 
 		/*!Copy constructor*/
 		Binning(Binning const& b); 
+		/*!Move constructor*/
+		Binning(Binning&& b); 
 		/*!Constructor that reads from file*/
 		Binning(IOFiles& r);
 		/*!Destructor*/
@@ -74,6 +76,10 @@ class Data{
 		Data();
 		/*!Copy constructor*/
 		Data<Type>(Data<Type> const& d);
+		/*!Move constructor*/
+		Data<Type>(Data<Type>&& d);
+		/*!Constructor that reads from file*/
+		Data<Type>(IOFiles& r);
 		/*!Destructor*/
 		~Data();
 		void set(Type const& x, Type const& dx, unsigned int const& N, bool const& conv);
@@ -111,6 +117,8 @@ class Data{
 		Binning<Type>* get_binning() const { return binning_; }
 		void set_binning(Binning<Type>* b) { binning_ = b; }
 
+		void write(IOFiles& w, std::string const& name="") const;
+
 		void header_rst(std::string const& s, RST& rst) const;
 
 	private:
@@ -130,6 +138,10 @@ class DataSet{
 		DataSet();
 		/*!Copy constructor*/
 		DataSet<Type>(DataSet<Type> const& d);
+		/*!Copy constructor*/
+		DataSet<Type>(DataSet<Type>&& d);
+		/*!Constructor that reads from file*/
+		DataSet<Type>(IOFiles& r);
 		/*!Destructor*/
 		~DataSet();
 
@@ -190,6 +202,26 @@ Binning<Type>::Binning(Binning const& b):
 	log_(b.log_?new IOFiles(log_->get_filename()+"bis",true):NULL)
 {
 	for(unsigned int i(0);i<b_;i++){ bin_[i] = b.bin_[i]; }
+	std::cout<<"binning copy"<<std::endl;
+}
+
+template<typename Type>
+Binning<Type>::Binning(Binning&& b):
+	B_(b.B_),
+	b_(b.b_),
+	l_(b.l_),
+	DPL_(b.DPL_),
+	dpl_(b.dpl_),
+	logl_(b.logl_),
+	Ml_(b.Ml_),
+	m_bin_(std::move(b.m_bin_)),
+	bin_(b.bin_),
+	recompute_dx_usefull_(b.recompute_dx_usefull_),
+	addlog_(b.addlog_),
+	log_(b.log_?new IOFiles(log_->get_filename()+"bis",true):NULL)
+{
+	b.bin_ = NULL;
+	std::cout<<"binning move"<<std::endl;
 }
 
 template<typename Type>
@@ -453,6 +485,29 @@ Data<Type>::Data(Data<Type> const& d):
 	N_(d.N_),
 	conv_(d.conv_),
 	binning_(d.binning_?new Binning<Type>(*d.binning_):NULL)
+{
+	std::cout<<"data copy"<<std::endl;
+}
+
+template<typename Type>
+Data<Type>::Data(Data<Type>&& d):
+	x_(d.x_),
+	dx_(d.dx_),
+	N_(d.N_),
+	conv_(d.conv_),
+	binning_(d.binning_)
+{
+	d.binning_ = NULL;
+	std::cout<<"data move"<<std::endl;
+}
+
+template<typename Type>
+Data<Type>::Data(IOFiles& r):
+	x_(r.read<Type>()),
+	dx_(r.read<Type>()),
+	N_(r.read<unsigned int>()),
+	conv_(r.read<bool>()),
+	binning_(r.read<bool>()?new Binning<Type>(r):NULL)
 {}
 
 template<typename Type>
@@ -523,29 +578,28 @@ void Data<Type>::header_rst(std::string const& s, RST& rst) const {
 
 template<typename Type>
 IOFiles& operator<<(IOFiles& w, Data<Type> const& d){
-	if(w.is_binary()){
-		w<<d.get_x()<<d.get_dx()<<d.get_N()<<d.get_conv(); 
-		if(d.get_binning()){ 
-			w<<true; 
-			d.get_binning()->write(w);
-		} else { w<<false; }
-	} else { w.stream()<<d; }
+	if(w.is_binary()){ d.write(w); }
+	else { w.stream()<<d; }
 	return w;
 }
 
 template<typename Type>
 IOFiles& operator>>(IOFiles& r, Data<Type>& d){
-	Type x(0.0);
-	Type dx(0.0);
-	unsigned int N(0);
-	bool conv(false);
-	bool binning;
-	r>>x>>dx>>N>>conv>>binning;
-	d.set(x,dx,N,conv);
-	if(binning){
-		std::cout<<"set binning"<<std::endl;
-		d.set_binning(new Binning<Type>(r)); }
+	if(r.is_binary()){ d = std::move(Data<Type>(r)); }
+	else { r.stream()>>d; }
 	return r;
+}
+
+template<typename Type>
+void Data<Type>::write(IOFiles& w, std::string const& name) const {
+	if(name != ""){
+		w.add_header()->def(name,(conv_?"":"nc:")+my::tostring(get_x())+" ("+my::tostring(get_dx())+")"); 
+	}
+	w<<get_x()<<dx_<<N_<<conv_; 
+	if(binning_){ 
+		w<<true; 
+		binning_->write(w);
+	} else { w<<false; }
 }
 /*}*/
 
@@ -629,6 +683,26 @@ DataSet<Type>::DataSet(DataSet<Type> const& ds):
 {
 	for(unsigned int i(0);i<size_;i++){
 		ds_[i] = ds.ds_[i];
+	}
+	std::cout<<"dataset copy"<<std::endl;
+}
+
+template<typename Type>
+DataSet<Type>::DataSet(DataSet<Type>&& ds):
+	size_(ds.size_),
+	ds_(ds.ds_)
+{
+	ds.ds_ = NULL;
+	std::cout<<"dataset move"<<std::endl;
+}
+
+template<typename Type>
+DataSet<Type>::DataSet(IOFiles& r):
+	size_(r.read<unsigned int>()),
+	ds_(size_?new Data<Type>[size_]:NULL)
+{
+	for(unsigned int i(0);i<size_;i++){
+		ds_[i] = std::move(Data<Type>(r));
 	}
 }
 

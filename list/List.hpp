@@ -65,7 +65,6 @@ class List{
 		bool go_to_next() const;
 		void swap(unsigned int const& a, unsigned int const& b);
 		List<Type> sublist(unsigned int const& a, unsigned int const& b) const;
-		void print(std::ostream& flux) const;
 
 		void header_rst(std::string const& s, RST& rst) const;
 
@@ -119,32 +118,27 @@ void List<Type>::set(){
 /*i/o methods*/
 /*{*/
 template<typename Type>
-void List<Type>::print(std::ostream& flux) const {
-	List<Type> const* tmp(next_);
-	while(tmp){
-		flux<<(*tmp->t_)<<" "; 
-		tmp = tmp->next_;
-	}
-	flux<<"("<<size()<<")"; 
-}
-
-template<typename Type>
 std::ostream& operator<<(std::ostream& flux, List<Type> const& l){
-	l.print(flux);
+	flux<<"("<<l.size()<<")"; 
+	while(l.go_to_next()){ flux<<" "<<l.get(); }
 	return flux;
 }
 
-//template<typename Type>
-//std::istream& operator>>(std::istream& flux, List<Type>& l){
-	//unsigned int size;
-	//flux>>size;
-	//while(size--){ l.add_end( std::make_shared<Type>(flux.read<Type>()) ); }
-	//return flux;
-//}
+template<typename Type>
+std::istream& operator>>(std::istream& flux, List<Type>& l){
+	unsigned int size;
+	flux>>size;
+	Type tmp;
+	while(size--){ 
+		flux>>tmp;
+		l.add_end( std::make_shared<Type>(tmp) ); 
+	}
+	return flux;
+}
 
 template<typename Type>
 void List<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,"List"); 
+	rst.def(s,"List("+my::tostring(size())+")"); 
 }
 
 template<typename Type>
@@ -153,9 +147,7 @@ IOFiles& operator<<(IOFiles& w, List<Type> const& l){
 		l.set_free();
 		w<<l.size();
 		while(l.go_to_next()){ w<<l.get(); }
-	} else {
-		w.stream()<<l;
-	}
+	} else { w.stream()<<l; }
 	return w;
 }
 
@@ -164,10 +156,8 @@ IOFiles& operator>>(IOFiles& r, List<Type>& l){
 	if(r.is_binary()){
 		unsigned int size;
 		r>>size;
-		while(size--){ l.add_end(std::make_shared<Type>(read)); }
-	//} else {
-		//r.stream()>>l;
-	}
+		while(size--){ l.add_end(std::make_shared<Type>(r.read<Type>())); }
+	} else { r.stream()>>l; }
 	return r;
 }
 /*}*/
