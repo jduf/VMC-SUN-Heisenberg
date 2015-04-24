@@ -14,10 +14,12 @@ class Parseur: public Container {
 		Parseur(unsigned int const& argc, char* argv[]);
 		/*!Destructor that warns when an argument has not been set*/
 		~Parseur();
-		/*!Forbids constructors*/
+		/*{Forbidden*/
 		Parseur() = delete;
 		Parseur(Parseur const&) = delete;
 		Parseur(Parseur&&) = delete;
+		Parseur& operator=(Parseur) = delete;
+		/*}*/
 
 		/*!Returns true if there is a var_[i]==patern and sets i*/
 		bool find(std::string const& pattern, unsigned int& i, bool iffail=true);
@@ -27,9 +29,6 @@ class Parseur: public Container {
 		bool status() const { return locked_; }
 
 	private:
-		/*!Forbids assignment*/
-		Parseur& operator=(Parseur const& P);
-
 		/*!Uses std::stringstream to set input=val_[i]*/
 		template<typename Type>
 			Type string2type(std::string const& s);

@@ -10,10 +10,12 @@ class Gnuplot {
 		Gnuplot(std::string const&  path, std::string const& filename);
 		/*!Default destructor*/
 		~Gnuplot() = default;
-		/*!Forbids constructors*/
+		/*{Forbidden*/
 		Gnuplot() = delete;
 		Gnuplot(Gnuplot const&) = delete;
 		Gnuplot(Gnuplot&&) = delete;
+		Gnuplot& operator=(Gnuplot);
+		/*}*/
 
 		void title(std::string const& title);
 
@@ -35,9 +37,6 @@ class Gnuplot {
 		void create_image(bool silent);
 
 	private:
-		/*!Forbids assignment*/
-		Gnuplot& operator=(Gnuplot g);
-		
 		std::string path_;		//!< path of the .gp, .png and .pdf files
 		std::string filename_;	//!< filename (without the extension)
 		std::string plot_;		//!< text of the .gp file

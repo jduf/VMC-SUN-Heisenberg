@@ -10,8 +10,14 @@ class Variable{
 	public:
 		/*!Constructor*/
 		Variable(std::string const& name):name_(name){}
-		/*!Destructor, must be virtual*/
+		/*!Destructor*/
 		virtual ~Variable(){};
+		/*{Forbidden*/
+		Variable() = delete;
+		//Variable(Variable const&) = delete;
+		//Variable(Variable&&) = delete;
+		Variable& operator=(Variable const&) = delete;
+		/*}*/
 
 		/*!Method that allows a copy of the derived class*/
 		virtual Variable* clone() const = 0;
@@ -31,8 +37,14 @@ class GenericVariable : public Variable {
 	public:
 		/*!Constructor*/
 		GenericVariable(std::string const& name, Type t):Variable(name),t_(t){}
-		/*!Destructor*/
-		~GenericVariable(){};
+		/*!Default destructor*/
+		~GenericVariable() = default;
+		/*{Forbidden*/
+		GenericVariable() = delete;
+		//GenericVariable(GenericVariable const&) = delete;
+		//GenericVariable(GenericVariable&&) = delete;
+		GenericVariable& operator=(GenericVariable) = delete;
+		/*}*/
 
 		/*!Returns the value of the data*/
 		Type const& get_val() const {return t_;}
@@ -42,7 +54,7 @@ class GenericVariable : public Variable {
 	private:
 		Type t_;//!< Value of the GenericVariable
 
-		/*!Method that implements*/
+		/*!Returns a copy of*/
 		GenericVariable<Type>* clone() const { return new GenericVariable<Type>(*this);}
 };
 /*}*/
@@ -51,18 +63,25 @@ class GenericVariable : public Variable {
 /*!Contains a vector of Variable*, can store diffrent GenericVariable*/
 class Container{
 	public:
-		Container(){};
+		/*!Default constructor*/
+		Container() = default;
+		/*!Copy constructor*/
 		Container(Container const& c){ 
 			for(unsigned int i(0);i<c.data_.size();i++){
 				data_.push_back((c.data_[i])->clone());
 			}
 		}
+		/*!Destructor*/
 		~Container(){
 			for(unsigned int i(0);i<data_.size();i++){
 				delete data_[i];
 				data_[i] = NULL;
 			}
 		}
+		/*{Forbidden*/
+		Container(Container&&) = delete;
+		Container& operator=(Container) = delete;
+		/*}*/
 
 		/*!Add one GenericVariable<Type> of value t and named name*/
 		template<typename Type>
@@ -137,24 +156,4 @@ Type Container::get(unsigned int i){
 	}
 }
 /*}*/
-
-///*{FileParser*/
-//class FileParser{
-	//public:
-		//FileParser(std::string const& filename):r(filename,false){};
-//
-		//template<typename Type>
-			//void extract(Type& t){ r>>t;}
-//
-		//template<typename Type>
-			//void transfer_to_container(std::string const& name, Container& c){
-				//Type t;
-				//r>>t;
-				//c.set(name,t);
-			//}
-//
-	//private:
-		//IOFiles r;
-//};
-///*}*/
 #endif

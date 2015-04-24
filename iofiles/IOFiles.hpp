@@ -25,10 +25,12 @@ class IOFiles{
 		IOFiles(std::string filename, bool write);
 		/*!Destructor that closes the file*/
 		~IOFiles();
-		/*!Forbids constructors*/
+		/*{Forbidden*/
 		IOFiles() = delete;
 		IOFiles(IOFiles const&) = delete;
 		IOFiles(IOFiles&&) = delete;
+		IOFiles& operator=(IOFiles&) = delete;
+		/*}*/
 
 		/*!Stream operator for all types 
 		 * \warning doesn't work if Type=std::string */
@@ -79,9 +81,6 @@ class IOFiles{
 		static std::string const endl; //!<Gives a way to end lines
 
 	private:
-		/*!Forbids assertion operator*/
-		IOFiles& operator=(IOFiles const&);
-
 		/*!Subroutine that check if the correct extension is given*/
 		void test_ext();
 		/*!Subroutine needed to open a binary file*/

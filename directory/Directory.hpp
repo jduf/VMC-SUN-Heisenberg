@@ -12,10 +12,12 @@ class Directory {
 		/*!Default destructor*/
 		~Directory() = default;
 		/*!Removes all the path_+filename_+extension_ stored*/
-		/*!Forbids constructors*/
+		void set();
+		/*{Forbidden*/
 		Directory(Directory const&) = delete;
 		Directory(Directory&&) = delete;
-		void set();
+		Directory& operator=(Directory d) = delete;
+		/*}*/
 
 		/*!Returns the ith filename_*/
 		inline std::string get_name(unsigned int i) const {return filename_[i];};
@@ -40,9 +42,6 @@ class Directory {
 		void sort();
 
 	private:
-		/*!Forbids assignment*/
-		Directory& operator=(Directory d);
-
 		std::vector<std::string> path_;		//!< stores the paths
 		std::vector<std::string> filename_;	//!< stores the filenames
 		std::vector<std::string> ext_;		//!< stores the extensions

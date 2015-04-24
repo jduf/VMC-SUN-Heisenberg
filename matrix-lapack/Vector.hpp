@@ -23,7 +23,7 @@ class Vector{
 		Vector(std::vector<Type> const& vec);
 		/*!Deep copy constructor*/
 		Vector(Vector<Type> const& vec);
-		/*!Move constructor*/
+		/*!Move constructor (can't be default because of vec_)*/
 		Vector(Vector<Type>&& vec);
 		/*!Constructor that reads from file*/
 		Vector(IOFiles& r);
@@ -175,7 +175,6 @@ Vector<Type>::Vector(Vector<Type>&& vec):
 {
 	vec.vec_ = NULL;
 	vec.size_ = 0;
-	std::cout<<"vector move"<<std::endl;
 }
 
 template<typename Type>

@@ -16,10 +16,12 @@ class Rand{
 		Rand(Type const& min_inclusive, Type const& max_exclusive);
 		/*!Dedfault destructor*/
 		~Rand() = default;
-		/*!Forbids constructors*/
+		/*{Forbidden*/
 		Rand() = delete;
 		Rand(Rand const&) = delete;
 		Rand(Rand&&) = delete;
+		Rand& operator=(Rand) = delete;
+		/*}*/
 
 		/*!Gives the next random unsigned int strictly smaller than max*/
 		Type get() { return dist_(mt_); }

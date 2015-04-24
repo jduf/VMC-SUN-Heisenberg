@@ -9,7 +9,12 @@ class Header:public RST{
 		/*!Constructor*/
 		Header(){}
 		/*!Destructor*/
-		virtual ~Header(){}
+		virtual ~Header() = default;
+		/*{Forbidden*/
+		Header(Header const&) = delete;
+		Header(Header&&) = delete;
+		Header& operator=(Header) = delete;
+		/*}*/
 
 		/*!Initializes the header with a title and the time of creation*/
 		void init(std::string const& s);

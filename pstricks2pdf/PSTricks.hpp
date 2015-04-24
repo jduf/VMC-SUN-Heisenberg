@@ -7,7 +7,14 @@
 class PSTricks {
 	public:
 		PSTricks(std::string path, std::string filename);
-		~PSTricks(){}
+		/*!Default destructor*/
+		~PSTricks() = default;
+		/*{Forbidden*/
+		PSTricks() = delete;
+		PSTricks(PSTricks const&) = delete;
+		PSTricks(PSTricks&&) = delete;
+		PSTricks operator=(PSTricks) = delete;
+		/*}*/
 
 		void add(std::string s);
 		void line(std::string linetype, double x0, double y0, double x1, double y1, std::string options);

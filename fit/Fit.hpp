@@ -9,6 +9,12 @@ class Fit{
 	public:
 		Fit(Vector<double> const& x, Vector<double> const& y, Vector<double> const& p, std::function<double (double, const double*)> f);
 		~Fit();
+		/*{Forbidden*/
+		Fit() = delete;
+		Fit(Fit const&) = delete;
+		Fit(Fit&&) = delete;
+		Fit operator=(Fit) = delete;
+		/*}*/
 
 	private:
 		const double* x_;//!< pointer on a constant x

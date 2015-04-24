@@ -25,9 +25,11 @@ class Linux {
 		Linux() = default;
 		/*!Default destructor*/
 		~Linux() = default;
-		/*!Forbids constructors*/
+		/*{Forbidden*/
 		Linux(Linux const&) = delete;
 		Linux(Linux&&) = delete;
+		Linux& operator=(Linux) = delete;
+		/*}*/
 
 		/*!Execute a UNIX command and get its exit value*/
 		void operator()(std::string cmd, bool silent=false){ ev_=system((cmd+(silent?"> /dev/null 2> /dev/null":"")).c_str()); }
@@ -94,9 +96,6 @@ class Linux {
 		}
 
 	private:
-		/*!Forbids assignment*/
-		Linux& operator=(Linux const& l);
-
 		int ev_;//!< exit value of the last UNIX command
 };
 #endif

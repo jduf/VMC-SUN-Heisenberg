@@ -23,6 +23,10 @@ class Binning{
 		Binning(IOFiles& r);
 		/*!Destructor*/
 		~Binning();
+		/*{Forbidden*/
+		Binning& operator=(Binning) = delete;
+		/*}*/
+
 		/*!Set the class*/
 		void set();
 		/*!Set a filename for the plot*/
@@ -45,9 +49,6 @@ class Binning{
 		void write(IOFiles& w) const;
 
 	private:
-		/*!Forbids assigment*/
-		Binning& operator=(Binning d);
-
 		unsigned int const B_;//!< minimum number of biggest bins needed to compute variance
 		unsigned int const b_;//!< l_+b_ rank of the biggest bin (b !> 30)
 		unsigned int l_;	//!< rank of the "smallest" bin 
@@ -144,6 +145,9 @@ class DataSet{
 		DataSet<Type>(IOFiles& r);
 		/*!Destructor*/
 		~DataSet();
+		/*{Forbidden*/
+		DataSet<Type>& operator=(DataSet<Type>) = delete;
+		/*}*/
 
 		void set();
 		void set(unsigned int const& N);
@@ -168,8 +172,6 @@ class DataSet{
 		{assert(i<size_); return ds_[i];} 
 
 	private:
-		DataSet<Type>& operator=(DataSet<Type> d);
-
 		unsigned int size_;
 		Data<Type>* ds_;
 };
@@ -221,7 +223,6 @@ Binning<Type>::Binning(Binning&& b):
 	log_(b.log_?new IOFiles(log_->get_filename()+"bis",true):NULL)
 {
 	b.bin_ = NULL;
-	std::cout<<"binning move"<<std::endl;
 }
 
 template<typename Type>
@@ -303,10 +304,8 @@ template<typename Type>
 void Binning<Type>::merge(Binning const& other){
 	if(B_ == other.B_ && b_ == other.b_ ){
 		if(l_>= other.l_){
-			std::cout<<"that merge"<<std::endl;
 			do_merge(other.bin_[0],other.dpl_,other.DPL_,other.Ml_(0));
 		} else {
-			std::cout<<"this merge"<<std::endl;
 			Vector<Type> tmp_bin(bin_[0]);
 			unsigned int tmp_Ml(Ml_(0));
 			unsigned int tmp_dpl(dpl_);
@@ -498,7 +497,6 @@ Data<Type>::Data(Data<Type>&& d):
 	binning_(d.binning_)
 {
 	d.binning_ = NULL;
-	std::cout<<"data move"<<std::endl;
 }
 
 template<typename Type>
@@ -693,7 +691,6 @@ DataSet<Type>::DataSet(DataSet<Type>&& ds):
 	ds_(ds.ds_)
 {
 	ds.ds_ = NULL;
-	std::cout<<"dataset move"<<std::endl;
 }
 
 template<typename Type>

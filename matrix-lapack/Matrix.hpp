@@ -24,7 +24,7 @@ class Matrix{
 		Matrix(unsigned int N_row, unsigned int N_col, Type val);
 		/*!Deep copy constructor*/
 		Matrix(Matrix<Type> const& mat);
-		/*!Move constructor*/
+		/*!Move constructor (can't be default because of mat_)*/
 		Matrix(Matrix<Type>&& mat);
 		/*!Constructor that reads from file*/
 		Matrix<Type>(IOFiles& r);
@@ -163,7 +163,6 @@ Matrix<Type>::Matrix(Matrix<Type>&& mat):
 {
 	mat.mat_ = NULL;
 	mat.row_ = mat.col_ = mat.size_ = 0;
-	std::cout<<"matrix move"<<std::endl;
 }
 
 template<typename Type>

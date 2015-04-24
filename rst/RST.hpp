@@ -5,12 +5,17 @@
 
 class RST{
 	public:
-		/*!Constructor*/
-		RST();
+		/*!Default constructor*/
+		RST() = default;
 		/*!Constructor that sets rst_=rst*/
 		RST(std::string const& rst);
-		/*!Destructor*/
-		virtual ~RST(){}
+		/*!Default destructor*/
+		virtual ~RST(){};
+		/*{Forbidden*/
+		RST(RST const&) = delete;
+		RST(RST&&) = delete;
+		RST& operator=(RST) = delete;
+		/*}*/
 
 		void title(std::string const& t, std::string const& symb);
 		void text(std::string const& t);

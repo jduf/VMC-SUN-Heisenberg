@@ -9,9 +9,11 @@ class Time{
 		Time(){set();}
 		/*!Default destructor*/
 		~Time() = default;
-		/*!Forbids constructor*/
-		Time(Time const& l) = delete;
-		Time(Time&& l) = delete;
+		/*{Forbids constructor*/
+		Time(Time const&) = delete;
+		Time(Time&&) = delete;
+		Time& operator=(Time) = delete;
+		/*}*/
 
 		/*!Set to present time*/
 		void set(){
@@ -49,9 +51,6 @@ class Time{
 		time_t elapsed() const { return time(0)-rawtime_; }
 
 	private:
-		/*!Forbids assignment*/
-		Time& operator=(Time const& l);
-
 		time_t rawtime_; //!< return value of time(0)
 		time_t lastcall_;//!< last call to Time::progress(...)  
 		struct tm* time_;//!< return value of localtime(time(0))

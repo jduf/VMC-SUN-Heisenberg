@@ -31,8 +31,13 @@ template<typename Type>
 class List{
 	public:
 		List();
-		List(List<Type> const& l);
+		List(List&&) = default;
 		~List(){ set(); }
+		/*{Forbidden*/
+		List(List<Type> const& l) = delete;
+		List& operator=(List) = delete;
+		/*}*/
+
 		void set();
 		void set_free() const { free_ = const_cast<List<Type>* const>(this); }
 		void set_free(List<Type>* free) const { free_ = free; }
@@ -90,20 +95,6 @@ List<Type>::List(std::shared_ptr<Type> t):
 	free_(this),
 	next_(NULL)
 {}
-
-
-template<typename Type>
-List<Type>::List(List<Type> const& l):
-	t_(l.t_),
-	free_(l.free_),
-	next_(l.next_)
-{ 
-	List<Type> const* tmp(l.next_);
-	while(tmp){
-		add_end(tmp->t_);
-		tmp = tmp->next_;
-	}
-}
 
 template<typename Type>
 void List<Type>::set(){

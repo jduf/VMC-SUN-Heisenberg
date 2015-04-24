@@ -9,8 +9,13 @@
 
 class Optimization{
 	public:
-		Optimization(){}
-		virtual ~Optimization(){}
+		Optimization() = default;
+		virtual ~Optimization(){};
+		/*{Forbidden*/
+		Optimization(Optimization const&) = delete;
+		Optimization(Optimization&&) = delete;
+		Optimization& operator=(Optimization) = delete;
+		/*}*/
 
 		static void set_limit(unsigned int const& param, double const& min, double const& max);
 		static void set(unsigned int const& Nfreedom, double const& cg, double const& cp);
@@ -27,7 +32,12 @@ class Optimization{
 class Particle: public Optimization{
 	public:
 		Particle():rnd_(0.0,1.0){}
-		virtual ~Particle(){}
+		virtual ~Particle() = default;
+		/*{Forbidden*/
+		Particle(Particle const&) = delete;
+		Particle(Particle&&) = delete;
+		Particle& operator=(Particle) = delete;
+		/*}*/
 
 		void init(double fx);
 		virtual void move(Vector<double> const& bx_all);
@@ -49,8 +59,6 @@ class Particle: public Optimization{
 		Vector<double> bx_;	//!< best position 
 
 	private:
-		Particle(Particle const& p);
-
 		Rand<double> rnd_;
 };
 

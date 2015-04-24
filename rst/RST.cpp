@@ -10,10 +10,6 @@ std::string RST::textit(std::string const& t){ return "*" + t + "*"; }
 std::string RST::textbf(std::string const& t){ return "**" + t + "**"; }
 /*}*/
 
-RST::RST():
-	rst_("")
-{}
-
 RST::RST(std::string const& rst):
 	rst_(rst)
 {}
