@@ -25,6 +25,10 @@ class CreateSystem{
 		CreateSystem(Container* C);
 		CreateSystem(IOFiles* r);
 		virtual ~CreateSystem();
+		/*!Forbids constructors*/
+		CreateSystem() = delete;
+		CreateSystem(CreateSystem const&) = delete;
+		CreateSystem(CreateSystem&&) = delete;
 
 		void init(IOFiles* read=NULL, IOSystem* ios=NULL);
 
@@ -96,10 +100,6 @@ class CreateSystem{
 		}
 
 	private:
-		/*!Forbids default*/
-		CreateSystem();
-		/*!Forbids copy*/
-		CreateSystem(CreateSystem const& cs);
 		/*!Forbids assignment*/
 		CreateSystem& operator=(CreateSystem cs);
 

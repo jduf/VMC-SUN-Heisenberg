@@ -12,8 +12,11 @@ class MCSystem: public virtual System{
 		MCSystem(System const& S);
 		/*!Constructor that reads from file*/
 		MCSystem(IOFiles& r);
-		/*!Destructor*/
-		virtual ~MCSystem(){}
+		/*!Default destructor*/
+		virtual ~MCSystem() = default;
+		/*!Forbids constructors*/
+		MCSystem() = delete;
+		MCSystem(MCSystem&& mcsim) = delete;
 
 		/*!Exchanges two particles of different colors on random sites*/
 		virtual void swap();
@@ -47,8 +50,6 @@ class MCSystem: public virtual System{
 		Rand<unsigned int> m_rnd_;//!< generator of random numbers 
 
 	private:
-		/*!Forbids default*/
-		MCSystem();
 		/*!Forbid assigment*/
 		MCSystem& operator=(MCSystem const& mcsim);
 

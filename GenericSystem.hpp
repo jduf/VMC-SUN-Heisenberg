@@ -17,8 +17,12 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		 * most derived class (multiple inheritance)*/
 		/*}*/
 		GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename); 
-		/*!Destructor*/
-		virtual ~GenericSystem(){}
+		/*!Default destructor*/
+		virtual ~GenericSystem() = default;
+		/*!Forbids constructors*/
+		GenericSystem() = delete;
+		GenericSystem(GenericSystem<Type> const&) = delete;
+		GenericSystem(GenericSystem<Type>&&) = delete;
 
 		/*{Description*/
 		/*!Saves ref_, N_, m_, n_, M_ and bc_ in jd_write_. As the method is

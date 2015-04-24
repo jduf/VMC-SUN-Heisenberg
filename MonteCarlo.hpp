@@ -32,8 +32,12 @@ class MonteCarlo{
 	public:
 		/*!Constructor*/
 		MonteCarlo(MCSystem* S, unsigned int const& tmax);
-		/*!Simple destructor*/
-		~MonteCarlo(){}
+		/*!Default destructor*/
+		~MonteCarlo() = default;
+		/*!Forbids constructors*/
+		MonteCarlo() = delete; 
+		MonteCarlo(MonteCarlo const& mc) = delete; 
+		MonteCarlo(MonteCarlo&& mc) = delete; 
 
 		/*!Thermalize the Monte-Carlo algorithm*/
 		void thermalize(unsigned int const& N);
@@ -43,8 +47,6 @@ class MonteCarlo{
 		void delete_binning(){ S_->delete_binning(); }
 
 	private:
-		/*!Forbids copy*/
-		MonteCarlo(MonteCarlo const& mc); 
 		/*!Forbids assignment*/
 		MonteCarlo const& operator=(MonteCarlo const& mc);
 

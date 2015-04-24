@@ -18,8 +18,10 @@ class System{
 		System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
 		/*!Constructor that reads from file*/
 		System(IOFiles& r);
-		/*!Destructor*/
-		virtual ~System(){}
+		/*!Default destructor*/
+		virtual ~System() = default;
+		/*!Forbid constructor*/
+		System(System&& s) = delete;
 
 		/*!Returns energy*/
 		Data<double> const& get_energy() const {return E_;}
@@ -40,10 +42,11 @@ class System{
 		virtual void write(IOFiles& w) const;
 
 	protected:
-		System(System const& s);
+		/*Copy constructor*/
+		System(System const&) = default;
+		/*Default constructor*/
 		System():ref_(0),N_(0),m_(0),n_(0),bc_(0){std::cout<<"System::System() : should never be called"<<std::endl;}
 
-		/*variables that will be saved*/
 		Vector<unsigned int> const ref_;//!< type of system 
 		unsigned int const N_;			//!< number of colors
 		unsigned int const m_;			//!< number of particles per site

@@ -8,7 +8,12 @@
 class Analyse: public IOSystem{
 	public:
 		Analyse(std::string const& path);
-		virtual ~Analyse(){}
+		/*Default destructor*/
+		virtual ~Analyse() = default;
+		/*Forbids constructors*/
+		Analyse() = delete;
+		Analyse(Analyse const& a) = delete;
+		Analyse(Analyse&& a) = delete;
 
 	protected:
 		List<std::string> all_link_names_;
@@ -24,8 +29,6 @@ class Analyse: public IOSystem{
 		std::string extract_level_7();
 
 	private:
-		/*Forbids copy*/
-		Analyse(Analyse const& a);
 		/*Forbids assignment*/
 		Analyse& operator=(Analyse const& a);
 

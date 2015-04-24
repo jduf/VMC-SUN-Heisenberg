@@ -12,8 +12,11 @@ class SystemBosonic : public MCSystem, public Bosonic<Type>{
 		SystemBosonic(Bosonic<Type> const& S);
 		/*!Constructor that reads from file*/
 		SystemBosonic(IOFiles& r);
-		/*!Destructor*/
-		~SystemBosonic(){};
+		/*!Default destructor*/
+		~SystemBosonic() = default;
+		/*!Forbids constructors*/
+		SystemBosonic() = delete;
+		SystemBosonic(SystemBosonic<Type>&) = delete;
 
 		//{Description
 		/*!Computes the ratio of the two Jastrow factor related to the current
@@ -34,8 +37,6 @@ class SystemBosonic : public MCSystem, public Bosonic<Type>{
 	private:
 		/*!Autorize copy only via clone()*/
 		SystemBosonic(SystemBosonic<Type> const& S);
-		/*!Forbids default*/
-		SystemBosonic();
 		/*!Forbids assignment*/
 		SystemBosonic& operator=(SystemBosonic<Type> const& S);
 };

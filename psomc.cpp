@@ -1,17 +1,15 @@
 /*!  @file psomc.cpp */
 
-#include "PSOFermionic.hpp"
+#include "PSOMonteCarlo.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	
 	unsigned int Nfreedom(P.get<unsigned int>("Nfreedom"));
 
-	PSOFermionic s(&P);
+	PSOMonteCarlo s(&P);
 	unsigned int i(0);
-	if(P.find("load",i)){
-		s.load(P.get<std::string>(i));
-	}
+	if(P.find("load",i)){ s.load(P.get<std::string>(i)); }
 
 	for(unsigned int i(0);i<Nfreedom;i++){
 		Optimization::set_limit(i,0.5,0.99);

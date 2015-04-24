@@ -9,7 +9,11 @@ class System2D: public GenericSystem<Type>{
 		/*!Constructor*/
 		System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename);
 		/*!Destructor*/
-		virtual ~System2D(){};
+		virtual ~System2D() = default;
+		/*!Forbis constructor*/
+		System2D() = delete;
+		System2D(System2D<Type> const&) = delete;
+		System2D(System2D<Type>&&) = delete;
 
 	protected:
 		Matrix<Type> H_;		//!< matrix used to get the band structure

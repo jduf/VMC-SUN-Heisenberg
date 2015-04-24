@@ -15,6 +15,9 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 		SystemFermionic(IOFiles& r);
 		/*!Destructor that deletes Ainv and tmp*/
 		~SystemFermionic();
+		/*!Forbids constructors*/
+		SystemFermionic() = delete;
+		SystemFermionic(SystemFermionic<Type>&& S) = delete;
 
 		/*!Set row and new_ev_*/
 		void swap();
@@ -48,8 +51,6 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 	private:
 		/*!Autorize copy only via clone()*/
 		SystemFermionic(SystemFermionic<Type> const& S);
-		/*!Forbids default*/
-		SystemFermionic();
 		/*!Forbids assignment*/
 		SystemFermionic& operator=(SystemFermionic<Type> const& S);
 
