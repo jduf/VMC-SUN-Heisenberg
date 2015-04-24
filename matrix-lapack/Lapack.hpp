@@ -182,6 +182,10 @@ class Lapack{
 		Lapack(Matrix<Type>& mat, bool use_new_matrix, char matrix_type);
 		/*!Destructor (delete mat_ if use_new_matrix_==true)*/
 		~Lapack();
+		/*!Forbids constructors*/
+		Lapack() = delete;
+		Lapack(Lapack const&) = delete;
+		Lapack(Lapack&&) = delete;
 
 		/*{Description*/
 		/*!Specialized routine that computes the eigensystem. If the
@@ -218,10 +222,6 @@ class Lapack{
 		void set_mat(Matrix<Type>& mat) const { mat = *mat_; }
 
 	protected:
-		/*!Forbids default constructor*/
-		Lapack();
-		/*!Forbids copy constructor*/
-		Lapack(Lapack const& l);
 		/*!Forbids assertion operator*/
 		Lapack& operator=(Lapack const& l);
 

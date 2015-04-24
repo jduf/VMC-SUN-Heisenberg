@@ -8,8 +8,12 @@ class Gnuplot {
 	public:
 		/*!Constructor for the creation of a .gp file in path/filename*/
 		Gnuplot(std::string const&  path, std::string const& filename);
-		/*!Destructor*/
-		~Gnuplot(){}
+		/*!Default destructor*/
+		~Gnuplot() = default;
+		/*!Forbids constructors*/
+		Gnuplot() = delete;
+		Gnuplot(Gnuplot const&) = delete;
+		Gnuplot(Gnuplot&&) = delete;
 
 		void title(std::string const& title);
 
@@ -31,8 +35,6 @@ class Gnuplot {
 		void create_image(bool silent);
 
 	private:
-		/*!Forbids copy*/
-		Gnuplot(Gnuplot const& g);
 		/*!Forbids assignment*/
 		Gnuplot& operator=(Gnuplot g);
 		

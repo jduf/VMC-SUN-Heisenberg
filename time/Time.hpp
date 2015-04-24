@@ -7,8 +7,12 @@ class Time{
 	public:
 		/*!Constructor*/
 		Time(){set();}
-		/*!Destructor*/
-		~Time(){}
+		/*!Default destructor*/
+		~Time() = default;
+		/*!Forbids constructor*/
+		Time(Time const& l) = delete;
+		Time(Time&& l) = delete;
+
 		/*!Set to present time*/
 		void set(){
 			rawtime_ = lastcall_ = time(0);
@@ -45,8 +49,6 @@ class Time{
 		time_t elapsed() const { return time(0)-rawtime_; }
 
 	private:
-		/*!Forbids copy*/
-		Time(Time const& l);
 		/*!Forbids assignment*/
 		Time& operator=(Time const& l);
 

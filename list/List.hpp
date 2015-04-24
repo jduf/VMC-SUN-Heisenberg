@@ -1,7 +1,6 @@
 #ifndef DEF_LIST
 #define DEF_LIST
 
-#include <functional>
 #include <memory>
 #include "IOFiles.hpp"
 

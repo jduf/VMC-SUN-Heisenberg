@@ -21,10 +21,13 @@
 
 class Linux {
 	public:
-		/*!Constructor*/
-		Linux(){}
-		/*!Destructor*/
-		~Linux(){}
+		/*!Default constructor*/
+		Linux() = default;
+		/*!Default destructor*/
+		~Linux() = default;
+		/*!Forbids constructors*/
+		Linux(Linux const&) = delete;
+		Linux(Linux&&) = delete;
 
 		/*!Execute a UNIX command and get its exit value*/
 		void operator()(std::string cmd, bool silent=false){ ev_=system((cmd+(silent?"> /dev/null 2> /dev/null":"")).c_str()); }
@@ -91,8 +94,6 @@ class Linux {
 		}
 
 	private:
-		/*!Forbids copy*/
-		Linux(Linux const& l);
 		/*!Forbids assignment*/
 		Linux& operator=(Linux const& l);
 
