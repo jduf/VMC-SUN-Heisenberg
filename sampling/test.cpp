@@ -1,4 +1,5 @@
 #include "Sampling.hpp"
+#include "Gnuplot.hpp"
 #include "Rand.hpp"
 #include<stdlib.h>
 #include<time.h>
@@ -44,9 +45,6 @@ void check_troyer(){
 	DataSet<double> H_right;
 	H_right.set(N+1,B,b,true);
 	iter=0;
-	//for( unsigned int i(0);i<N+1;i++){
-	//H_right[i].get_binning()->plot("log"+tostring(i));
-	//}
 
 	do{
 		r = rnd.get();

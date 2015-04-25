@@ -377,7 +377,7 @@ template<typename Type>
 Vector<Type> Vector<Type>::range(unsigned int min, unsigned int max) const {
 	Vector<Type> out(max-min);
 	for(unsigned int i(0);i<max-min;i++){
-		out[i] = vec_[min+i];
+		out.vec_[i] = vec_[min+i];
 	}
 	return out;
 }

@@ -1,7 +1,6 @@
 #ifndef DEF_SAMPLING
 #define DEF_SAMPLING
 
-#include "Gnuplot.hpp"
 #include "Vector.hpp"
 
 /*{Description*/
@@ -29,17 +28,12 @@ class Binning{
 
 		/*!Set the class*/
 		void set();
-		/*!Set a filename for the plot*/
-		void plot(std::string const& filename){ 
-			std::cerr<<"the merge method might not be working with plot"<<std::endl;
-			log_ = new IOFiles(filename,true);
-		}
 
 		/*!Add sample to the bins*/
 		void add_sample(Type const& x);
 		/*!Compute the convergence*/
 		void compute_convergence(double const& tol, Type& dx, bool& conv);
-		/*!Set x_ to the mean value, dx_ to the variance, plot logl_ if any*/
+		/*!Set x_ to the mean value, dx_ to the variance*/
 		void complete_analysis(double const& tol, Type& x, Type& dx, bool& conv);
 		/*!Compute the mean value*/
 		Type const& get_x() const { return m_bin_(0); }
@@ -54,16 +48,12 @@ class Binning{
 		unsigned int l_;	//!< rank of the "smallest" bin 
 		unsigned int DPL_;	//!< 2^l_ maximum number of element in each bin of rank l_
 		unsigned int dpl_;	//!< current number of element in each bin of rank l_
-		unsigned int logl_;	//!< number of Delta_l stored in log
 
 		Vector<unsigned int> Ml_;//!<number bins of rank l : Ml = M0/2^l
 		Vector<Type> m_bin_;	//!< mean of the Binnings
 		Vector<Type>*  bin_;	//!< Binnings
 
 		bool recompute_dx_usefull_;	//!< true if dx should be recomputed
-		bool addlog_;				//!< true if should be added to the log_
-
-		IOFiles* log_;//!< log of dx_ when recompute_dx_usefull_
 
 		/*!Recursive method that add samples in the different bins*/
 		void add_bin(unsigned int l, Type const& a, Type const& b);
@@ -184,8 +174,7 @@ template<typename Type>
 Binning<Type>::Binning(unsigned int const& B, unsigned int const& b):
 	B_(B),
 	b_(b),
-	bin_(new Vector<Type>[b]),
-	log_(NULL)
+	bin_(new Vector<Type>[b])
 {set();}
 
 template<typename Type>
@@ -195,13 +184,10 @@ Binning<Type>::Binning(Binning const& b):
 	l_(b.l_),
 	DPL_(b.DPL_),
 	dpl_(b.dpl_),
-	logl_(b.logl_),
 	Ml_(b.Ml_),
 	m_bin_(b.m_bin_),
 	bin_(b.bin_?new Vector<Type>[b_]:NULL),
-	recompute_dx_usefull_(b.recompute_dx_usefull_),
-	addlog_(b.addlog_),
-	log_(b.log_?new IOFiles(log_->get_filename()+"bis",true):NULL)
+	recompute_dx_usefull_(b.recompute_dx_usefull_)
 {
 	for(unsigned int i(0);i<b_;i++){ bin_[i] = b.bin_[i]; }
 	std::cout<<"binning copy"<<std::endl;
@@ -214,13 +200,10 @@ Binning<Type>::Binning(Binning&& b):
 	l_(b.l_),
 	DPL_(b.DPL_),
 	dpl_(b.dpl_),
-	logl_(b.logl_),
 	Ml_(b.Ml_),
 	m_bin_(std::move(b.m_bin_)),
 	bin_(b.bin_),
-	recompute_dx_usefull_(b.recompute_dx_usefull_),
-	addlog_(b.addlog_),
-	log_(b.log_?new IOFiles(log_->get_filename()+"bis",true):NULL)
+	recompute_dx_usefull_(b.recompute_dx_usefull_)
 {
 	b.bin_ = NULL;
 }
@@ -232,13 +215,10 @@ Binning<Type>::Binning(IOFiles& r):
 	l_(r.read<unsigned int>()),
 	DPL_(r.read<unsigned int>()),
 	dpl_(r.read<unsigned int>()),
-	logl_(0),
 	Ml_(r.read<Vector<unsigned int> >()),
 	m_bin_(r.read<Vector<Type> >()),
 	bin_(b_?new Vector<Type>[b_]:NULL),
-	recompute_dx_usefull_(true),
-	addlog_(0),
-	log_(NULL)
+	recompute_dx_usefull_(true)
 {
 	for(unsigned int i(0);i<b_;i++){ r>>bin_[i]; }
 }
@@ -248,9 +228,7 @@ void Binning<Type>::set(){
 	l_ = 0;
 	DPL_ = 1;
 	dpl_ = 0;
-	logl_ = 0;
 	recompute_dx_usefull_ = false;
-	addlog_ = false;
 	Ml_.set(b_,0);
 	m_bin_.set(b_,0);
 	bin_[b_-1].set(2*B_,0);
@@ -262,7 +240,6 @@ void Binning<Type>::set(){
 template<typename Type>
 Binning<Type>::~Binning(){
 	if(bin_){ delete[] bin_; }
-	if(log_){ delete log_; }
 }
 /*}*/
 
@@ -295,7 +272,6 @@ void Binning<Type>::add_sample(Type const& x){
 			for(unsigned int i(B_);i<2*B_;i++){ bin_[b_-1](i) = 0; }
 			l_++;
 			DPL_*=2;
-			addlog_ = true;
 		}
 	} else { bin_[0](Ml_(0)) += x; }
 }
@@ -358,20 +334,12 @@ void Binning<Type>::compute_convergence(double const& tol, Type& dx, bool& conv)
 		Type criteria(num/den*m_bin_(0));
 		if(std::abs(criteria)<tol){ conv = true; }
 		else{ conv = false; }
-
-		if(log_ && addlog_){
-			logl_++;
-			addlog_ = false;
-			(*log_)<<criteria<<IOFiles::endl;
-			for(unsigned int i(0);i<b_;i++){(*log_)<<x(i)<<" "<<var_bin(i)<<IOFiles::endl;}
-			(*log_)<<IOFiles::endl<<IOFiles::endl;
-		}
 	}
 }
 
 template<typename Type>
 void Binning<Type>::complete_analysis(double const& tol, Type& x, Type& dx, bool& conv){
-	recompute_dx_usefull_ = addlog_ = true;
+	recompute_dx_usefull_ = true;
 	compute_convergence(tol,dx,conv);
 	/*{old way to set x*/
 	/*! x = m_bin_(0); */
@@ -388,20 +356,6 @@ void Binning<Type>::complete_analysis(double const& tol, Type& x, Type& dx, bool
 	  std::cout<<tmp<<" "<<tmp/Ml_(0)<<" "<<Ml_(0)<<std::endl;
 	  */
 	/*}*/
-
-	if(l_>0 && log_){
-		Gnuplot gp("./",log_->get_filename());
-		gp.range("x","0","");
-		gp.range("y","0","");
-		gp+="set xlabel '$\\ell$'";
-		gp+="set ylabel '$\\Delta_{\\ell}$' rotate by 0 offset 2";
-		gp+="set key left bottom";
-		gp+="plot for [IDX=0:"+my::tostring(logl_-1)+"] '"+log_->get_filename()+"' i IDX t columnheader(1), "+my::tostring(dx);
-		if(log_){delete log_;}
-		log_=NULL;
-		gp.save_file();
-		gp.create_image(true);
-	} 
 }
 
 template<typename Type>

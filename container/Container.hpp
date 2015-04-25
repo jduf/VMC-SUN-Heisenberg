@@ -14,8 +14,7 @@ class Variable{
 		virtual ~Variable(){};
 		/*{Forbidden*/
 		Variable() = delete;
-		//Variable(Variable const&) = delete;
-		//Variable(Variable&&) = delete;
+		Variable(Variable&&) = delete;
 		Variable& operator=(Variable const&) = delete;
 		/*}*/
 
@@ -25,6 +24,9 @@ class Variable{
 		std::string const& get_name() const { return name_;}
 
 	protected:
+		/*!Default copy constructor*/
+		Variable(Variable const&) = default;
+		
 		std::string name_;//!< Name of the (Generic)Variable 
 };
 /*}*/
@@ -33,7 +35,7 @@ class Variable{
 /*!Derived class that can contain any one value of any type and of name
  * Variable::name_*/
 template<typename Type>
-class GenericVariable : public Variable {
+class GenericVariable : public Variable{
 	public:
 		/*!Constructor*/
 		GenericVariable(std::string const& name, Type t):Variable(name),t_(t){}
@@ -41,21 +43,22 @@ class GenericVariable : public Variable {
 		~GenericVariable() = default;
 		/*{Forbidden*/
 		GenericVariable() = delete;
-		//GenericVariable(GenericVariable const&) = delete;
-		//GenericVariable(GenericVariable&&) = delete;
+		GenericVariable(GenericVariable&&) = delete;
 		GenericVariable& operator=(GenericVariable) = delete;
 		/*}*/
+		/*!Returns a copy of*/
+		GenericVariable<Type>* clone() const { return new GenericVariable<Type>(*this);}
 
 		/*!Returns the value of the data*/
 		Type const& get_val() const {return t_;}
 		/*!Set the value*/
-		void set(Type const& t) {t_=t;}
+		void set(Type const& t){ t_=t; }
 
 	private:
-		Type t_;//!< Value of the GenericVariable
+		/*!Default copy constructor accessible via clone()*/
+		GenericVariable(GenericVariable const&) = default;
 
-		/*!Returns a copy of*/
-		GenericVariable<Type>* clone() const { return new GenericVariable<Type>(*this);}
+		Type t_;//!< Value of the GenericVariable
 };
 /*}*/
 
