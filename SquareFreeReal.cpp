@@ -1,8 +1,16 @@
 #include "SquareFreeReal.hpp"
 
-SquareFreeReal::SquareFreeReal(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, Vector<double> const& t, Vector<double> const& mu):
+SquareFreeReal::SquareFreeReal(
+		Vector<unsigned int> const& ref,
+		unsigned int const& N, 
+		unsigned int const& m, 
+		unsigned int const& n, 
+		Vector<unsigned int> const& M,  
+		int const& bc, 
+		Vector<double> const& t, 
+		Vector<double> const& mu):
 	System(ref,N,m,n,M,bc),
-	Square<double>(2,2,1,"square-fermi"),
+	Square<double>(set_ab(),(N/m==2?2:0),"square-free-real"),
 	t_(t),
 	mu_(mu)
 {
@@ -43,6 +51,24 @@ void SquareFreeReal::compute_H(unsigned int const& c){
 		if(i % N_ == c){ H_(i,i) = mu_(c)/2.0; }
 	}
 	H_ += H_.transpose();
+}
+
+unsigned int SquareFreeReal::match_pos_in_ab(Vector<double> const& x) const{
+	Vector<double> match(2,0);
+	if(my::are_equal(x,match)){ return 0; }
+	match(0) = 0.5;
+	match(1) = 0;
+	if(my::are_equal(x,match)){ return 1; }
+	return 2;
+}
+
+Matrix<double> SquareFreeReal::set_ab(){
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 2;
+	tmp(1,0) = 0;
+	tmp(0,1) = 1;
+	tmp(1,1) = 1;
+	return tmp;
 }
 /*}*/
 

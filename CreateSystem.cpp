@@ -80,27 +80,35 @@ void CreateSystem::parse(Container* C, Vector<double> const* param){
 		ref_(1) = 1;
 		ref_(2) = 1;
 	}
-	if( wf == "squarefreereal" ){
-		ref_(0) = 4;
-		ref_(1) = 1;
-		ref_(2) = 3;
-		C_.set("t",param?param->range(0,3):C->get<Vector<double> >("t"));
-		C_.set("mu",param?param->range(3,5):C->get<Vector<double> >("mu"));
-	}
+	//if( wf == "squarefreereal" ){
+		//ref_(0) = 4;
+		//ref_(1) = 1;
+		//ref_(2) = 3;
+		//C_.set("t",param?param->range(0,3):C->get<std::vector<double> >("t"));
+		//C_.set("mu",param?param->range(3,5):C->get<std::vector<double> >("mu"));
+	//}
 	if( wf == "squarefreecomplex" ){
 		ref_(0) = 4;
 		ref_(1) = 2;
 		ref_(2) = 3;
-		//Vector<double> t(2);
-		//t(0) = C->get<double>("t0");
-		//t(1) = C->get<double>("t1");
-		//C_.set("t",t);
+
+		/*3 free parameters*/
+		C_.set("mu",param?param->range(0,0):C->get<std::vector<double> >("mu"));
+		C_.set("t",param?param->range(1,2):C->get<std::vector<double> >("t"));
+		C_.set("phi",Vector<double>(1,M_PI/4.0));
+		
+		/*1 free parameter, box*/
 		//C_.set("mu",Vector<double>(1,0));
+		//C_.set("t",param?Vector<double>(2,(*param)(0)):C->get<std::vector<double> >("t"));
 		//C_.set("phi",Vector<double>(1,M_PI/4.0));
 
-		C_.set("t",param?param->range(0,3):C->get<Vector<double> >("t"));
-		C_.set("mu",param?param->range(3,5):C->get<Vector<double> >("mu"));
-		C_.set("phi",param?param->range(5,7):C->get<Vector<double> >("phi"));
+		/*1 free parameter, dimer*/
+		//Vector<double> t(2);
+		//t(0) = (*param)(0);
+		//t(1) = 1;
+		//C_.set("mu",Vector<double>(1,0));
+		//C_.set("t",param?t:C->get<std::vector<double> >("t"));
+		//C_.set("phi",Vector<double>(1,M_PI/4.0));
 	}
 	if( wf == "squarepiflux" ){
 		ref_(0) = 4;

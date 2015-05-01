@@ -16,11 +16,12 @@ NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic
 LAPACK = -llapack -lblas
 OPTION = -O3 -fopenmp
+FIT = /home/jdufour/travail/cpp-dev/fit/
 
 BUILD=build
 
-CXXFLAGS = $(ERRORS) $(OPTION)
-LDFLAGS  = $(LAPACK) $(ERRORS) $(OPTION)
+CXXFLAGS = -I$(FIT) $(ERRORS) $(OPTION)
+LDFLAGS  = $(FIT)libcminpack.a $(LAPACK) $(ERRORS) $(OPTION)
 
 SRCS=$(wildcard *.cpp)
 
@@ -33,7 +34,7 @@ all:$(EXEC)
 .SECONDEXPANSION:
 $(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
 	@echo Links $(notdir $^)
-	$(CXX) -o $@ $^ libcminpack.a $(LDFLAGS) $(NOASSERT)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
 
 $(BUILD)/%.o:%.cpp
 	@echo Creates $(notdir $@)

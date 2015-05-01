@@ -15,20 +15,6 @@ System::System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned 
 	else{status_--;}
 }
 
-//System::System(System const& s):
-	//ref_(s.ref_),
-	//N_(s.N_), 
-	//m_(s.m_),
-	//n_(s.n_),
-	//M_(s.M_),
-	//bc_(s.bc_),
-	//status_(s.status_),
-	//E_(s.E_),
-	//corr_(s.corr_),
-	//lr_corr_(s.lr_corr_),
-	//links_(s.links_)
-//{}
-//
 System::System(IOFiles& r):
 	ref_(r),
 	N_(r.read<unsigned int>()), 

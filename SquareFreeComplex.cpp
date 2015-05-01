@@ -16,8 +16,6 @@ SquareFreeComplex::SquareFreeComplex(
 	mu_(mu),
 	phi_(phi)
 {
-	//std::cout<<t_<<std::endl;
-	//std::cout<<mu_<<std::endl;
 	if(status_==2){
 		init_fermionic();
 
@@ -32,7 +30,8 @@ void SquareFreeComplex::compute_H(unsigned int const& c){
 	unsigned int s(0);
 	for(unsigned int i(0);i<n_;i++){
 		s = get_site_in_ab(i);
-		if(s == c%2){ H_(i,i) = mu_(0); }
+		if(c%2){ if( s==0 || s==3 ){ H_(i,i) = mu_(0)/2.0; } }
+		else { if( s==2 || s==1 ){ H_(i,i) = mu_(0)/2.0; } }
 		nb = get_neighbourg(i);
 		switch(s){ 
 			case 0:
@@ -44,6 +43,16 @@ void SquareFreeComplex::compute_H(unsigned int const& c){
 				{
 					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),-phi_(0));
 					H_(i,nb(1,0)) = std::polar(t_(1)*nb(1,1),phi_(0));
+				}break;
+			case 2:
+				{
+					H_(i,nb(0,0)) = std::polar(t_(0)*nb(0,1),-phi_(0));
+					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),phi_(0));
+				}break;
+			case 3:
+				{
+					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
+					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
 				}break;
 			default:{ std::cerr<<"void SquareFreeComplex::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
 		}
@@ -75,22 +84,28 @@ unsigned int SquareFreeComplex::match_pos_in_ab(Vector<double> const& x) const{
 	match(0) = 0.5;
 	match(1) = 0;
 	if(my::are_equal(x,match)){ return 1; }
-	return 2;
+	match(0) = 0;
+	match(1) = 0.5;
+	if(my::are_equal(x,match)){ return 2; }
+	match(0) = 0.5;
+	match(1) = 0.5;
+	if(my::are_equal(x,match)){ return 3; }
+	return 4;
 }
 
 Matrix<double> SquareFreeComplex::set_ab(){
 	Matrix<double> tmp(2,2);
 	tmp(0,0) = 2;
 	tmp(1,0) = 0;
-	tmp(0,1) = 1;
-	tmp(1,1) = 1;
+	tmp(0,1) = 0;
+	tmp(1,1) = 2;
 	return tmp;
 }
 /*}*/
 
 /*{method needed for checking*/
 void SquareFreeComplex::lattice(){
-	compute_H(0);
+	compute_H(1);
 	Matrix<int> nb;
 	std::string color("black");
 	std::string linestyle("solid");
@@ -99,7 +114,7 @@ void SquareFreeComplex::lattice(){
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps("./","lattice");
-	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+filename_);
+	ps.add("\\begin{pspicture}(-20,-20)(20,20)%"+filename_);
 	for(unsigned int i(0);i<n_;i++) {
 		xy0 = get_pos_in_lattice(i);
 		set_pos_LxLy(xy0);
@@ -108,44 +123,43 @@ void SquareFreeComplex::lattice(){
 		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
 		nb = get_neighbourg(i);
 
-		if(nb(0,1)<0){
-			color = "red";
+		if(nb(0,1)<0){ color = "red"; }
+		else { color = "black"; }
+		xy1 = get_pos_in_lattice(nb(0,0));
+		set_pos_LxLy(xy1);
+		set_in_basis(xy1);
+		xy1 = LxLy_*xy1;
+		xy1 = xy1.chop();
+		if( xy1(0)<xy0(0) || i+1==xloop_){ 
 			xy1 = xy0;
 			xy1(0) += 1.0;
 			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
-		} else {
-			color = "black";
-			if(i+1==xloop_){
-				xy1 = xy0;
-				xy1(0) += 1.0;
-			} else {
-				xy1 = get_pos_in_lattice(nb(0,0));
-				set_pos_LxLy(xy1);
-				set_in_basis(xy1);
-				xy1 = (LxLy_*xy1).chop();
-			}
-		}
+			linestyle="dashed";
+		} else { linestyle="solid"; }
+
 		if(arg(H_(i,nb(0,0)))>0){ arrow = "->"; }
 		else { arrow = "<-"; }
 		linewidth = my::tostring(std::abs(H_(i,nb(0,0))))+"pt";
 		/*x-link*/ ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 
-		if(nb(1,1)<0){
-			color = "red";
+		if(nb(1,1)<0){ color = "red"; }
+		else { color = "black"; }
+		xy1 = get_pos_in_lattice(nb(1,0));
+		set_pos_LxLy(xy1);
+		set_in_basis(xy1);
+		xy1 = (LxLy_*xy1).chop();
+		if( xy1(1)<xy0(1) ){ 
 			xy1 = xy0;
 			xy1(1) += 1.0;
 			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
-		} else {
-			color = "black";
-			xy1 = get_pos_in_lattice(nb(1,0));
-			set_pos_LxLy(xy1);
-			set_in_basis(xy1);
-			xy1 = (LxLy_*xy1).chop();
-		}
+			linestyle="dashed";
+		} else { linestyle="solid"; }
 		if(arg(H_(i,nb(1,0)))>0){ arrow = "->"; }
 		else { arrow = "<-"; }
 		linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"pt";
 		/*y-link*/ ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+
+		if(my::real(H_(i,i))){ ps.circle(xy0,my::real(H_(i,i)),"linecolor=magenta,fillstyle=solid,fillcolor=magenta"); }
 	}
 
 	Matrix<double> polygon(4,2);

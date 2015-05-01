@@ -24,7 +24,7 @@ class PSOMonteCarlo: public Swarm<MCParticle>{
 		void read(IOFiles& w);
 
 	private:
-		bool is_better_x(unsigned int const& p);
+		bool evaluate(unsigned int const& p);
 		void create();
 
 		unsigned int tmax_;

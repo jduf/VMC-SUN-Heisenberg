@@ -11,7 +11,7 @@ PSOMonteCarlo::PSOMonteCarlo(Parseur* P):
 	system_.set("wf",P->get<std::string>("wf"));
 }
 
-bool PSOMonteCarlo::is_better_x(unsigned int const& p){
+bool PSOMonteCarlo::evaluate(unsigned int const& p){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(p_[p]->get_x()));
 	bool tmp_test;
 #pragma omp critical(all_results_)
@@ -43,7 +43,7 @@ bool PSOMonteCarlo::is_better_x(unsigned int const& p){
 		}
 		return tmp_test;
 	} else {
-		std::cerr<<"bool PSOMonteCarlo::is_better_x(unsigned int const& p) : not valid parameter : "<<p_[p]->get_x()<<std::endl;
+		std::cerr<<"bool PSOMonteCarlo::evaluate(unsigned int const& p) : not valid parameter : "<<p_[p]->get_x()<<std::endl;
 		return false;
 	}
 }
@@ -54,8 +54,13 @@ void PSOMonteCarlo::plot() const {
 	while(all_results_.go_to_next()){
 		data<<all_results_.get().get_param()<<all_results_.get().get_S()->get_energy()<<IOFiles::endl;
 	}
+	all_results_.go_to_next();
 	Gnuplot gp("./","test");
-	gp+="plot 'data.dat' u 1:2:3 w e";
+	unsigned int N(all_results_.get().get_param().size());
+	gp+="plot 'data.dat' u "+my::tostring(N+1)+":1:"+my::tostring(N+2)+" w xe"+(N==1?"":",\\"); 
+	for(unsigned int i(1);i<N;i++){
+		gp+="     'data.dat' u "+my::tostring(N+1)+":"+my::tostring(i+1)+":"+my::tostring(N+2)+" w xe"+(i==N-1?"":",\\");
+	}
 	gp.save_file();
 	gp.create_image(true);
 }
@@ -67,6 +72,7 @@ void PSOMonteCarlo::print() const {
 	while( all_results_.go_to_next() ){
 		std::cout<<all_results_.get_ptr()<<" ";
 		all_results_.get().print();
+		std::cout<<std::endl;
 	}
 }
 
@@ -79,6 +85,25 @@ void PSOMonteCarlo::read(IOFiles& r){
 	unsigned int size;
 	r>>size;
 	while(size--){ all_results_.add_end(std::make_shared<MCSim>(r)); }
+	size = 0;
+	while(all_results_.go_to_next()){
+		if(Optimization::within_limit(all_results_.get().get_param())){ size++; }
+	}
+	unsigned int Npp(size/Nparticles_);
+	unsigned int s;
+	std::shared_ptr<MCParticle> P;
+	for(unsigned int p(0);p<Nparticles_;p++){
+		if(p==Nparticles_-size%Nparticles_){ Npp++; }
+		P = std::dynamic_pointer_cast<MCParticle>(p_[p]);
+		s = 0;
+		while( s!=Npp && all_results_.go_to_next()){
+			if(Optimization::within_limit(all_results_.get().get_param())){
+				s++;
+				P->add_to_history(all_results_.get_ptr());
+			}
+		}
+		P->select_new_best();
+	}
 }
 
 void PSOMonteCarlo::complete_analysis(double tol){
@@ -86,5 +111,4 @@ void PSOMonteCarlo::complete_analysis(double tol){
 	while ( all_results_.go_to_next() ){
 		all_results_.get().get_S()->complete_analysis(tol);
 	}
-
 }

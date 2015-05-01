@@ -7,7 +7,7 @@ class IOSystem{
 	public:
 		IOSystem(std::string const& filename = "");
 		IOSystem() = default;
-		virtual ~IOSystem(){};
+		virtual ~IOSystem() = default;
 		/*{Forbidden*/
 		IOSystem(IOSystem const&) = delete;
 		IOSystem(IOSystem&&) = delete;

@@ -8,6 +8,8 @@ int main(int argc, char* argv[]){
 	CreateSystem cs(&P);
 	unsigned int i(0);
 	switch(P.find("what",i)?P.get<unsigned int>(i):0){
+		case 0:/*call CreateSystem::init*/
+			{ cs.init(); } break;
 		case 1:/*call CreateSystem::init and check*/
 			{ 
 				cs.init();
@@ -78,6 +80,7 @@ int main(int argc, char* argv[]){
 					S = new SystemFermionic<double>(in); 
 				}
 				MonteCarlo sim(S,tmax);
+				sim.thermalize(10);
 				sim.run();
 				sim.complete_analysis(1e-5);
 				std::cout<<S->get_energy()<<std::endl;
@@ -86,9 +89,12 @@ int main(int argc, char* argv[]){
 		default:
 			{
 				std::cerr<<"check : unknown option 'what', options are :"<<std::endl;
-				std::cerr<<"      - init + check          : 1"<<std::endl;
-				std::cerr<<"      - init + create + check : 2"<<std::endl;
-				std::cerr<<"      - init + create + run   : 3"<<std::endl;
+				std::cerr<<"      - init                        : 0"<<std::endl;
+				std::cerr<<"      - init + check                : 1"<<std::endl;
+				std::cerr<<"      - init + create + check       : 2"<<std::endl;
+				std::cerr<<"      - init + create + run         : 3"<<std::endl;
+				std::cerr<<"      - init + create + run + write : 4"<<std::endl;
+				std::cerr<<"      - load + run                  : 5"<<std::endl;
 			}
 	} 
 }

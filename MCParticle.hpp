@@ -16,14 +16,17 @@ class MCParticle: public Particle{
 		MCParticle& operator=(MCParticle) = delete;
 		/*}*/
 
+		void init(double fx);
 		void move(Vector<double> const& bx_all);
-		bool update(std::shared_ptr<MCSim> const& new_elem);
-
 		void print() const;
+
+		bool update(std::shared_ptr<MCSim> const& new_elem);
+		void add_to_history(std::shared_ptr<MCSim> const& new_elem);
+		bool select_new_best();
 
 	private:
 		List<MCSim> history_;
-
-		static void fuse(MCSim& list_elem, MCSim& new_elem);
+		unsigned int const update_now_ = 10;
+		unsigned int Nupdate_ = 0;
 };
 #endif
