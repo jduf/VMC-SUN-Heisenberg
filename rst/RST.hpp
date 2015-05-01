@@ -10,7 +10,7 @@ class RST{
 		/*!Constructor that sets rst_=rst*/
 		RST(std::string const& rst);
 		/*!Default destructor*/
-		virtual ~RST(){};
+		virtual ~RST() = default;
 		/*{Forbidden*/
 		RST(RST const&) = delete;
 		RST(RST&&) = delete;
@@ -41,7 +41,7 @@ class RST{
 		static std::string const item_;	//!< string for a new item
 
 	protected:
-		std::string rst_;//!< text of the .rst file
+		std::string rst_ = "";//!< text of the .rst file
 };
 
 std::ostream& operator<<(std::ostream& flux, RST const& rst);

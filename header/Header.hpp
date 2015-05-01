@@ -7,7 +7,7 @@
 class Header:public RST{
 	public:
 		/*!Constructor*/
-		Header(){}
+		Header() = default;
 		/*!Destructor*/
 		virtual ~Header() = default;
 		/*{Forbidden*/

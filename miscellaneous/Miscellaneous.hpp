@@ -17,6 +17,14 @@ namespace my{
 			return s.str();
 		}
 
+	template<typename Type>
+		Type string2type(std::string const& s){
+			Type out;
+			std::stringstream ss(s);
+			ss>>out;
+			return out;
+		}
+
 	inline std::vector<std::string> &string_split(const std::string &s, char delim, std::vector<std::string> &elems){
 		std::stringstream ss(s);
 		std::string item;

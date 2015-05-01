@@ -12,7 +12,7 @@ template<typename Type>
 class Vector{
 	public:
 		/*!Default constructor that initializes *m to NULL and N to 0*/
-		Vector();
+		Vector() = default;
 		/*!Initializes a static array of Type of size N*/
 		Vector(unsigned int N);
 		/*!Initializes with {min,min+dx,...,max-dx,max}*/
@@ -112,8 +112,8 @@ class Vector{
 		void header_rst(std::string const& s, RST& rst) const;
 
 	private:
-		unsigned int size_; //!< number of rows
-		Type* vec_; //!< pointer to a static array
+		unsigned int size_ = 0; //!< number of rows
+		Type* vec_ = NULL; //!< pointer to a static array
 
 		/*!Copy-And-Swap Idiom*/
 		void swap_to_assign(Vector<Type>& v1,Vector<Type>& v2);
@@ -121,12 +121,6 @@ class Vector{
 
 /*constructors and destructor*/
 /*{*/
-template<typename Type>
-Vector<Type>::Vector():
-	size_(0),
-	vec_(NULL)
-{}
-
 template<typename Type>
 Vector<Type>::Vector(unsigned int N):
 	size_(N),
@@ -136,10 +130,9 @@ Vector<Type>::Vector(unsigned int N):
 /*!Initializes with {min,min+dx,...,max-dx,max}*/
 template<typename Type>
 Vector<Type>::Vector(Type const& min, Type const& max, Type const& dx):
-	size_(0),
-	vec_(NULL)
+	size_((max-min)/dx+1),
+	vec_(size_?new Type[size_]:NULL)
 {
-	set((max-min)/dx+1);
 	for(unsigned int i(0);i<size_;i++){ vec_[i] = min+i*dx; }
 }
 
@@ -375,8 +368,8 @@ inline Vector<std::complex<double> > Vector<std::complex<double> >::chop(double 
 
 template<typename Type>
 Vector<Type> Vector<Type>::range(unsigned int min, unsigned int max) const {
-	Vector<Type> out(max-min);
-	for(unsigned int i(0);i<max-min;i++){
+	Vector<Type> out(max-min+1);
+	for(unsigned int i(0);i<out.size();i++){
 		out.vec_[i] = vec_[min+i];
 	}
 	return out;

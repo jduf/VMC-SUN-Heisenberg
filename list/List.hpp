@@ -30,7 +30,7 @@
 template<typename Type>
 class List{
 	public:
-		List();
+		List() = default;
 		List(List&&) = default;
 		~List(){ set(); }
 		/*{Forbidden*/
@@ -75,20 +75,13 @@ class List{
 	protected:
 		List(std::shared_ptr<Type> t);
 
-		std::shared_ptr<Type> t_;
-		mutable List<Type>* free_;
-		List<Type>* next_;
+		std::shared_ptr<Type> t_  = NULL;
+		mutable List<Type>* free_ = this;
+		List<Type>* next_         = NULL;
 };
 
 /*constructors and destructor*/
 /*{*/
-template<typename Type>
-List<Type>::List():
-	t_(NULL),
-	free_(this),
-	next_(NULL)
-{}
-
 template<typename Type>
 List<Type>::List(std::shared_ptr<Type> t):
 	t_(t),

@@ -3,50 +3,57 @@
 Parseur::Parseur(unsigned int const& argc, char* argv[]):
 	locked_(false)
 {
-	std::string tmp;
+	std::string name;
+	std::string val;
+	unsigned int type;
 	for(unsigned int i(1);i<argc;i+=2){
-		tmp = argv[i];
-		if(!locked_ && tmp[0] == '-'){
-			if(tmp.size() > 3){
-				switch(tmp[2]){
-					case ':':
+		name = argv[i];
+		val = argv[i+1];
+		used_.push_back(false);
+		if(name[0] == '-'){
+			/*check if the type is specified*/
+			if(name.find(":") != std::string::npos){
+				type = 0;
+				if(val.find(":") != std::string::npos){ type = 1; }
+				if(val.find(",") != std::string::npos){ type = 2; }
+				switch(type){
+					case 0:
 						{
-							switch(tmp[1]){
-								case 'i':{ set(tmp.substr(3),string2type<int>(argv[i+1])); } break;
-								case 'u':{ set(tmp.substr(3),string2type<unsigned int>(argv[i+1])); } break;
-								case 'd':{ set(tmp.substr(3),string2type<double>(argv[i+1])); } break;
-								case 's':{ set(tmp.substr(3),std::string(argv[i+1])); } break;
-								default: { std::cerr<<"Parseur::Parseur(unsigned int argc, char* argv[]) : undefined type"<<std::endl; }
+							switch(name[1]){
+								case 'i':{ set(name.substr(3),my::string2type<int>(val)); } break;
+								case 'u':{ set(name.substr(3),my::string2type<unsigned int>(val)); } break;
+								case 'd':{ set(name.substr(3),my::string2type<double>(val)); } break;
+								case 's':{ set(name.substr(3),std::string(val)); } break;
+								default: { locked_ = true; }
 							}
-						} break;
-					case '{':
+						}break;
+					case 1:
 						{
-							if(tmp[1] == 'd' && tmp[tmp.size()-1] == '}'){
-								double min(string2type<double>(argv[i+1]));
-								double max(string2type<double>(argv[i+2]));
-								double dx (string2type<double>(argv[i+3]));
-								std::vector<double> v((max-min)/dx+1);
-								for(unsigned int i(0);i<v.size();i++){ v[i] = min+i*dx; }
-								set(tmp.substr(3,tmp.size()-4),v);
-								is_vec.push_back(size()-1);
-								i+=2;
-							} else { locked_ = true; }
-						} break;
-					default: { locked_ = true; }
+							switch(name[1]){
+								case 'i':{set_vector_from_range<int>(name,val);} break;
+								case 'u':{set_vector_from_range<unsigned int>(name,val);} break;
+								case 'd':{set_vector_from_range<double>(name,val);} break;
+								default: { locked_ = true; }
+							}
+						}break;
+					case 2:
+						{
+							switch(name[1]){
+								case 'i':{set_vector_from_list<int>(name,val);} break;
+								case 'u':{set_vector_from_list<unsigned int>(name,val);} break;
+								case 'd':{set_vector_from_list<double>(name,val);} break;
+								default: { locked_ = true; }
+							}
+						}break;
 				}
-				used_.push_back(false);
-			} else {
-				set(tmp.substr(1),std::string(argv[i+1])); 
-				used_.push_back(true);
-			}
+			} else { set(name.substr(1),val); }
 		} else {
 			i--;
-			set(my::tostring(i),std::string(argv[i+1])); 
-			used_.push_back(true);
+			set(my::tostring(i),val); 
 		}
 	}
 	if(locked_){
-		std::cerr<<"Parseur::Parseur(unsigned int argc, char* argv[]) : wrong argument, should be '-[iuds]:name' or '-[uids]{name}'"<<std::endl; 
+		std::cerr<<"Parseur::Parseur(unsigned int argc, char* argv[]) : wrong argument, should be '-[iuds]:name' or '-[uids].name'"<<std::endl; 
 	}
 }
 
@@ -70,19 +77,4 @@ bool Parseur::find(std::string const& pattern, unsigned int& i, bool iffail){
 	} else {
 		return false;
 	}
-}
-
-bool Parseur::is_vector(std::string const& pattern){
-	unsigned int i(0);
-	if(!locked_ && find(pattern,i)){
-		unsigned int j(0);
-		while(j<is_vec.size()){ 
-			if(i == is_vec[j] ) {return true;}
-			j++;
-		}
-		return false;
-	}
-	locked_ = true; 
-	std::cerr<<"bool Parseur::is_vector(std::string const& pattern) : -"<<pattern<<" wasn't found, the class is locked"<<std::endl; 
-	return false;
 }

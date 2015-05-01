@@ -23,6 +23,7 @@ void PSTricks::polygon(Matrix<double> const& xy, std::string options){
 	for(unsigned int i(0);i<xy.row();i++){
 		s_ += "(" + my::tostring(xy(i,0)) + "," + my::tostring(xy(i,1)) + ")";
 	}
+	s_ += "\n";
 }
 
 void PSTricks::frame(double x0, double y0, double x1, double y1, std::string options){
@@ -42,11 +43,14 @@ void PSTricks::pie(Vector<double> const& x, double r, std::string options){
 	s_ += "}{}{"+my::tostring(r)+"}\n";
 }
 
+void PSTricks::circle(Vector<double> const& x, double r, std::string options){
+	s_ += "\\pscircle["+options+"]("+my::tostring(x(0))+","+my::tostring(x(1))+"){"+my::tostring(r)+"}\n";
+}
+
 void PSTricks::save(bool silent, bool pdf, bool crop){
 	{/*to make sure that the file w is closed after the brackets*/
 		IOFiles w(path_+filename_ + ".tex",true);
 		s_ += "\\end{document}\n";
-	std::cout<<s_<<std::endl;
 		w<<s_;
 	}
 

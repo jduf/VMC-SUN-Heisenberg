@@ -215,12 +215,18 @@ Binning<Type>::Binning(IOFiles& r):
 	l_(r.read<unsigned int>()),
 	DPL_(r.read<unsigned int>()),
 	dpl_(r.read<unsigned int>()),
-	Ml_(r.read<Vector<unsigned int> >()),
-	m_bin_(r.read<Vector<Type> >()),
+	Ml_(r),
+	m_bin_(r),
 	bin_(b_?new Vector<Type>[b_]:NULL),
 	recompute_dx_usefull_(true)
 {
-	for(unsigned int i(0);i<b_;i++){ r>>bin_[i]; }
+	r>>bin_[0];
+	for(unsigned int l(0);l<b_-1;l++){
+		bin_[l+1].set(bin_[l].size()/2);
+		for(unsigned int i(0);i<Ml_(l);i+=2){
+			bin_[l+1](i/2) = (bin_[l](i)+bin_[l](i+1))/2.0;
+		}
+	}
 }
 
 template<typename Type>
@@ -360,8 +366,7 @@ void Binning<Type>::complete_analysis(double const& tol, Type& x, Type& dx, bool
 
 template<typename Type>
 void Binning<Type>::write(IOFiles& w) const {
-	w<<B_<<b_<<l_<<DPL_<<dpl_<<Ml_<<m_bin_;
-	for(unsigned int i(0);i<b_;i++){ w<<bin_[i]; }
+	w<<B_<<b_<<l_<<DPL_<<dpl_<<Ml_<<m_bin_<<bin_[0];
 }
 /*}*/
 
@@ -384,18 +389,18 @@ void Binning<Type>::do_merge(Vector<Type> const& bin, unsigned int const& dpl, u
 	unsigned int old_dpl(dpl_);
 	/*{Description*/
 	/*
-	std::cout<<"sould be an integer "<<1.0*DPL_/(1.0*DPL)<<std::endl;
-	std::cout<<"CURRENT"<<std::endl;
-	std::cout<<"x    = "<<old_last_bin<<std::endl;
-	std::cout<<"dpl_ = "<<old_dpl<<std::endl;
-	std::cout<<"DPL_ = "<<DPL_<<std::endl;
-	std::cout<<"last = "<<Ml_(0)<<std::endl;
-	std::cout<<"OTHER"<<std::endl;
-	std::cout<<"x    = "<<bin(Ml)<<std::endl;
-	std::cout<<"dpl_ = "<<dpl<<std::endl;
-	std::cout<<"DPL_ = "<<DPL<<std::endl;
-	std::cout<<"last = "<<Ml<<std::endl;
-	*/
+	   std::cout<<"sould be an integer "<<1.0*DPL_/(1.0*DPL)<<std::endl;
+	   std::cout<<"CURRENT"<<std::endl;
+	   std::cout<<"x    = "<<old_last_bin<<std::endl;
+	   std::cout<<"dpl_ = "<<old_dpl<<std::endl;
+	   std::cout<<"DPL_ = "<<DPL_<<std::endl;
+	   std::cout<<"last = "<<Ml_(0)<<std::endl;
+	   std::cout<<"OTHER"<<std::endl;
+	   std::cout<<"x    = "<<bin(Ml)<<std::endl;
+	   std::cout<<"dpl_ = "<<dpl<<std::endl;
+	   std::cout<<"DPL_ = "<<DPL<<std::endl;
+	   std::cout<<"last = "<<Ml<<std::endl;
+	   */
 	/*}*/
 	bin_[0](Ml_(0)) = 0;
 	dpl_ = 0;
@@ -407,12 +412,12 @@ void Binning<Type>::do_merge(Vector<Type> const& bin, unsigned int const& dpl, u
 	for(unsigned int i(0);i<dpl+old_dpl;i++){ add_sample(tmp); }
 	/*{Description*/
 	/*
-	std::cout<<"FINAL"<<std::endl;
-	std::cout<<"x    = "<<bin_[0](Ml_(0))<<std::endl;
-	std::cout<<"dpl_ = "<<dpl_<<std::endl;
-	std::cout<<"DPL_ = "<<DPL_<<std::endl;
-	std::cout<<"last = "<<Ml_(0)<<std::endl;
-	*/
+	   std::cout<<"FINAL"<<std::endl;
+	   std::cout<<"x    = "<<bin_[0](Ml_(0))<<std::endl;
+	   std::cout<<"dpl_ = "<<dpl_<<std::endl;
+	   std::cout<<"DPL_ = "<<DPL_<<std::endl;
+	   std::cout<<"last = "<<Ml_(0)<<std::endl;
+	   */
 	/*}*/
 }
 /*}*/

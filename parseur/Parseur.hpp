@@ -23,26 +23,40 @@ class Parseur: public Container {
 
 		/*!Returns true if there is a var_[i]==patern and sets i*/
 		bool find(std::string const& pattern, unsigned int& i, bool iffail=true);
-		/*!Returns true if val_[i] for var_[i]==patern is a vector*/
-		bool is_vector(std::string const& pattern);
 		/*!Returns locked_*/
 		bool status() const { return locked_; }
 
 	private:
-		/*!Uses std::stringstream to set input=val_[i]*/
-		template<typename Type>
-			Type string2type(std::string const& s);
-		
 		std::vector<bool> used_;
-		std::vector<unsigned int> is_vec;
 		bool locked_;
+
+		template<typename Type>
+			void set_vector_from_list(std::string const& name, std::string const& val);
+		template<typename Type>
+			void set_vector_from_range(std::string const& name, std::string const& val);
 };
 
+
 template<typename Type>
-Type Parseur::string2type(std::string const& s){
-	Type out;
-	std::stringstream ss(s);
-	ss>>out;
-	return out;
+void Parseur::set_vector_from_list(std::string const& name, std::string const& val){
+	std::vector<std::string> vitem(my::string_split(val,','));
+	std::vector<Type> v(vitem.size());
+	for(unsigned int i(0);i<vitem.size();i++){ v[i] = my::string2type<Type>(vitem[i]); }
+	set(name.substr(3,name.size()-3),v);
+}
+
+template<typename Type>
+void Parseur::set_vector_from_range(std::string const& name, std::string const& val){
+	std::vector<std::string> vrange(my::string_split(val,':'));
+	if(vrange.size() != 3){
+		Type min(my::string2type<Type>(vrange[0]));
+		Type dx (my::string2type<Type>(vrange[1]));
+		Type max(my::string2type<Type>(vrange[2]));
+		std::vector<Type> v((max-min)/dx+1);
+		for(unsigned int j(0);j<v.size();j++){ v[j] = min+j*dx; }
+		set(name.substr(3,name.size()-3),v);
+	} else {
+		std::cerr<<"void Parseur::set_vector_from_range(std::string const& name, std::string const& val) : -t:name min:dx:max"<<std::endl;
+	}
 }
 #endif

@@ -11,7 +11,7 @@ class Variable{
 		/*!Constructor*/
 		Variable(std::string const& name):name_(name){}
 		/*!Destructor*/
-		virtual ~Variable(){};
+		virtual ~Variable() = default;
 		/*{Forbidden*/
 		Variable() = delete;
 		Variable(Variable&&) = delete;

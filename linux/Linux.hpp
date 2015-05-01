@@ -18,6 +18,8 @@
 #include <cstdlib> 
 #include <string>
 #include <unistd.h>
+#include <fstream>
+#include <iostream>
 
 class Linux {
 	public:
@@ -37,7 +39,7 @@ class Linux {
 		int status(){return ev_;}
 		/*!Returns a string containing the current path*/
 		std::string pwd(){ return std::string(get_current_dir_name()) + '/'; }
-		
+
 		static std::string rst2html(std::string const& path, std::string const& filename){
 			std::string cmd(MY_BIN_RST2HTML);
 			cmd+= " --stylesheet=" + std::string(MY_RST2HTML_STYLESHEET);
@@ -81,10 +83,28 @@ class Linux {
 			return cmd;
 		}
 
+		/*{Description*/
+		/*!Using a simple gnuplot file (with extension .gp) creates and .eps
+		 * picture and .tex file which can be used to create .pdf files via
+		 * Linux::pdflatex
+		 * A default size size is set such that its ratio equals the golden
+		 * number and when reduced by 70%, fits perfectly in one column in
+		 * revtex-4.1 articles
+		 * To specify a personal ratio, the first line of the .gp file must
+		 * start with "#latex_size x,y" where x,y are dimension of the desired
+		 * picture
+		 * */
+		/*}*/
 		static std::string gp2latex(std::string const& texfile, std::string const& path, std::string const& gpfile){
 			std::string cmd(MY_BIN_GNUPLOT);
 			cmd = "cd " + path + "; " + cmd;
-			cmd+= " -e \"set terminal epslatex color size 12.5cm,7.73 standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'" + texfile + ".tex\'\" ";
+			std::ifstream file(path+gpfile+".gp",std::ifstream::in);
+			std::string size;
+			if(file.is_open() && std::getline(file,size) && size.find("#latex_size") != std::string::npos){ 
+				size = size.substr(12); 
+				std::cerr<<"static std::string gp2latex(std::string const& texfile, std::string const& path, std::string const& gpfile) : set size "<<size<<std::endl;
+			} else { size = "12.15cm,7.54"; } 
+			cmd+= " -e \"set terminal epslatex color size "+size+" standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'" + texfile + ".tex\'\" ";
 			cmd+= path + gpfile + ".gp";
 			return cmd;
 		}
@@ -96,6 +116,6 @@ class Linux {
 		}
 
 	private:
-		int ev_;//!< exit value of the last UNIX command
+		int ev_ = 0;//!< exit value of the last UNIX command
 };
 #endif

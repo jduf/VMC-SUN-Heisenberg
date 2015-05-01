@@ -10,7 +10,7 @@
 class Optimization{
 	public:
 		Optimization() = default;
-		virtual ~Optimization(){};
+		virtual ~Optimization() = default;
 		/*{Forbidden*/
 		Optimization(Optimization const&) = delete;
 		Optimization(Optimization&&) = delete;
@@ -19,6 +19,7 @@ class Optimization{
 
 		static void set_limit(unsigned int const& param, double const& min, double const& max);
 		static void set(unsigned int const& Nfreedom, double const& cg, double const& cp);
+		static bool within_limit(Vector<double> const& x);
 
 	protected:
 		static unsigned int Nfreedom_; //!< number of degrees of freedom
@@ -39,18 +40,14 @@ class Particle: public Optimization{
 		Particle& operator=(Particle) = delete;
 		/*}*/
 
-		void init(double fx);
+		virtual void init(double fx);
 		virtual void move(Vector<double> const& bx_all);
+		virtual void print() const;
 
+		void set_best(Vector<double> const& x, double fx);
 		double const& get_fbx() const { return fbx_; }
 		Vector<double> const& get_x() const { return x_; }
 		Vector<double> const& get_bx() const { return bx_; }
-		void set_best(Vector<double> const& x, double fx){ 
-			bx_ = x;
-			fbx_ = fx; 
-		}
-
-		virtual void print() const;
 
 	protected:
 		double fbx_;		//!< value at the best position
@@ -77,10 +74,10 @@ class Swarm {
 		Vector<double> const& get_bx() const { return p_[bparticle_]->get_bx(); }
 
 	protected:
+		unsigned int const Nparticles_;//!< numbre of particles
 		std::vector<std::shared_ptr<Particle> > p_;
 
 	private:
-		unsigned int const Nparticles_;//!< numbre of particles
 		unsigned int const maxiter_;	//!< maximum number of iteration
 		unsigned int bparticle_;//!< best particle
 		bool* free_;         //!< true if particle_ isn't running
@@ -88,7 +85,7 @@ class Swarm {
 		void next_step(unsigned int const& p);
 		/*!This method must exist is the child class, it is the function that
 		 * is minimized*/
-		virtual bool is_better_x(unsigned int const& p)=0;
+		virtual bool evaluate(unsigned int const& p)=0;
 };
 
 /*{Swarm*/
@@ -96,8 +93,8 @@ class Swarm {
 /*{*/
 template<typename Type>
 Swarm<Type>::Swarm(unsigned int const& Nparticles, unsigned int const& maxiter, unsigned int const& Nfreedom, double const& cg, double const& cp):
-	p_(Nparticles),
 	Nparticles_(Nparticles),
+	p_(Nparticles),
 	maxiter_(maxiter),
 	bparticle_(0),
 	free_(new bool[Nparticles])
@@ -121,7 +118,7 @@ void Swarm<Type>::init(double const& fx){
 #pragma omp parallel for schedule(dynamic,1)
 	for(unsigned int p=0;p<Nparticles_;p++){
 		p_[p]->init(fx);
-		is_better_x(p);
+		evaluate(p);
 	}
 	/*as bparticle_=0, start at i=1*/
 	for(unsigned int p(1);p<Nparticles_;p++){
@@ -166,7 +163,7 @@ void Swarm<Type>::print() const {
 template<typename Type>
 void Swarm<Type>::next_step(unsigned int const& p){
 	p_[p]->move(p_[bparticle_]->get_x());
-	if(is_better_x(p)){
+	if(evaluate(p)){
 #pragma omp critical(update_best_pos_particle)
 		{
 			for(unsigned int p(0);p<Nparticles_;p++){

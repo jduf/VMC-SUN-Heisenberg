@@ -26,11 +26,16 @@ void Optimization::set_limit(unsigned int const& param, double const& min, doubl
 	min_(param) = min;
 	max_(param) = max;
 }
+
+bool Optimization::within_limit(Vector<double> const& x){
+	for(unsigned int i(0);i<Nfreedom_;i++){
+		if(x(i)<min_(i) || x(i)>max_(i)) { return false; }
+	}
+	return true;
+}
 /*}*/
 
 /*{Particle*/
-/*core of the class*/
-/*{*/
 void Particle::move(Vector<double> const& bx_all){
 	for(unsigned int i(0);i<Nfreedom_;i++){
 		v_(i) = chi_*(v_(i) + cp_*rnd_.get()*(bx_(i)-x_(i)) + cg_*rnd_.get()*(bx_all(i)-x_(i)));
@@ -58,5 +63,9 @@ void Particle::init(double fx){
 void Particle::print() const {
 	std::cout<<"x="<<x_<<" bx="<<bx_<<" fbx="<<fbx_<<std::endl;
 }
-/*}*/
+
+void Particle::set_best(Vector<double> const& x, double fx){ 
+	bx_ = x;
+	fbx_ = fx; 
+}
 /*}*/

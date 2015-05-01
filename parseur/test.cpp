@@ -16,11 +16,4 @@ int main(int argc,char* argv[]){
 	Vector<double> vec;
 	vec = P.get<std::vector<double> >("vec");
 	std::cout<<vec<<std::endl;
-	if(P.is_vector("param")){
-		Vector<double> param(P.get<Vector<double> >("param"));
-		std::cout<<param<<std::endl;
-	} else {
-		double param(P.get<double>("param"));
-		std::cout<<param<<std::endl;
-	}
 }

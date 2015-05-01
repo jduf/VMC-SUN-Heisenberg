@@ -17,7 +17,7 @@ template<typename Type>
 class Matrix{
 	public:
 		/*!Default constructor that initializes *m to NULL and N to 0*/
-		Matrix();
+		Matrix() = default;
 		/*!Initializes a static array of Type of size N_row*N_col*/
 		Matrix(unsigned int N_row, unsigned int N_col);
 		/*!Initializes a static array of Type of size N_row*N_col to a value val*/
@@ -106,10 +106,10 @@ class Matrix{
 		void header_rst(std::string const& s, RST& rst) const;
 
 	private:
-		unsigned int row_; //!< number of rows
-		unsigned int col_; //!< number of columns
-		unsigned int size_; //!< size of the array
-		Type* mat_; //!< pointer to a static array
+		unsigned int row_ = 0; //!< number of rows
+		unsigned int col_ = 0; //!< number of columns
+		unsigned int size_= 0; //!< size of the array
+		Type* mat_ = NULL; //!< pointer to a static array
 
 		/*!Copy-And-Swap Idiom*/
 		void swap_to_assign(Matrix<Type>& m1,Matrix<Type>& m2);
@@ -117,14 +117,6 @@ class Matrix{
 
 /*constructors and destructor*/
 /*{*/
-template<typename Type>
-Matrix<Type>::Matrix():
-	row_(0),
-	col_(0),
-	size_(0),
-	mat_(NULL)
-{}
-
 template<typename Type>
 Matrix<Type>::Matrix(unsigned int N_row, unsigned int N_col):
 	row_(N_row),
