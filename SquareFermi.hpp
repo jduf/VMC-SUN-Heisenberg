@@ -35,13 +35,12 @@ SquareFermi<Type>::SquareFermi(Vector<unsigned int> const& ref, unsigned int con
 /*{method needed for running*/
 template<typename Type>
 void SquareFermi<Type>::compute_H(){
-	double t(1.0);
 	this->H_.set(this->n_,this->n_,0);
 	Matrix<int> nb;
 	for(unsigned int i(0); i < this->n_; i++){
 		nb = this->get_neighbourg(i);
 		for(unsigned int j(0);j<2;j++){
-			this->H_(i,nb(j,0)) = nb(j,1)*t;
+			this->H_(i,nb(j,0)) = nb(j,1);
 		}
 	}
 	this->H_ += this->H_.transpose();

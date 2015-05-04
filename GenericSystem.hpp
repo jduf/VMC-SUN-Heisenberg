@@ -49,8 +49,12 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		 */
 		/*}*/
 		virtual Matrix<int> get_neighbourg(unsigned int const& i) const = 0;
-		/*!Computes the array of links between neighbouring sites*/
-		void compute_links();
+		/*{Description*/
+		/*!Computes the array of links between neighbouring sites
+		 * The argument l gives the number of links that need to be computed
+		 * for the site i%l.size()*/
+		/*}*/
+		void compute_links(Vector<unsigned int> const& l);
 		void check_lattice();
 };
 
@@ -82,37 +86,33 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 }
 
 template<typename Type>
-void GenericSystem<Type>::compute_links(){
-	unsigned int z_link(0);
-	unsigned int incr(0);
-	if(z_%2){
-		if(this->n_%2){ 
-			std::cerr<<"void GenericSystem<Type>::compute_links() : can't compute links_"<<std::endl;
-		} else {
-			z_link = z_;
-			incr = 2;
-		}
-	} else {
-		z_link = z_/2;
-		incr = 1;
-	}
-	unsigned int k(0);
-	Matrix<int> nb;
-	for(unsigned int i(0);i<this->n_;i+=incr){
-		nb = get_neighbourg(i);
-		for(unsigned int j(0);j<z_link;j++){ if(nb(j,1)!=0){ k++; } }
-	}
-	this->links_.set(k,2);
-	k=0;
-	for(unsigned int i(0);i<this->n_;i+=incr){
-		nb = get_neighbourg(i);
-		for(unsigned int j(0);j<z_link;j++){
-			if(nb(j,1)!=0){
-				this->links_(k,0) = i;
-				this->links_(k,1) = nb(j,0);
-				k++;
+void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
+	if(2*l.sum()==l.size()*z_){
+		unsigned int k(0);
+		Matrix<int> nb;
+		for(unsigned int i(0);i<this->n_;i++){
+			nb = get_neighbourg(i);
+			for(unsigned int j(0);j<l(i%l.size());j++){
+				if(nb(j,1)!=0){ k++; }
 			}
 		}
+		this->links_.set(k,2);
+		k=0;
+		for(unsigned int i(0);i<this->n_;i++){
+			nb = get_neighbourg(i);
+			for(unsigned int j(0);j<l(i%l.size());j++){
+				if(nb(j,1)!=0){
+					this->links_(k,0) = i;
+					this->links_(k,1) = nb(j,0);
+					k++;
+				}
+			}
+		}
+	} else {
+		std::cerr<<"void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l) : incoherent number of link";
+	}
+	if(this->bc_==0){
+		std::cerr<<"void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l) : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl;
 	}
 }
 

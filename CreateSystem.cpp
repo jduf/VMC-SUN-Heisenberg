@@ -32,12 +32,12 @@ CreateSystem::~CreateSystem(){
 void CreateSystem::parse(Container* C, Vector<double> const* param){
 	std::string wf(C->get<std::string>("wf"));
 	if( wf == "chainfermi" ){
-		ref_(0) = 2;
+		ref_(0) = 1;
 		ref_(1) = 1;
 		ref_(2) = 0;
 	}
 	if( wf == "chainpolymerized" ){
-		ref_(0) = 2;
+		ref_(0) = 1;
 		ref_(1) = 1;
 		ref_(2) = 1;
 		Vector<double> t(N_/m_,1);
@@ -48,6 +48,12 @@ void CreateSystem::parse(Container* C, Vector<double> const* param){
 			t(N_/m_-1) = param?(*param)(0):C->get<double>("t2");
 		}
 		C_.set("t",t);
+	}
+
+	if( wf == "ladderfermi"){
+		ref_(0) = 2;
+		ref_(1) = 1;
+		ref_(2) = 0;
 	}
 
 	if( wf == "trianglefermi" ){
@@ -81,11 +87,11 @@ void CreateSystem::parse(Container* C, Vector<double> const* param){
 		ref_(2) = 1;
 	}
 	//if( wf == "squarefreereal" ){
-		//ref_(0) = 4;
-		//ref_(1) = 1;
-		//ref_(2) = 3;
-		//C_.set("t",param?param->range(0,3):C->get<std::vector<double> >("t"));
-		//C_.set("mu",param?param->range(3,5):C->get<std::vector<double> >("mu"));
+	//ref_(0) = 4;
+	//ref_(1) = 1;
+	//ref_(2) = 3;
+	//C_.set("t",param?param->range(0,3):C->get<std::vector<double> >("t"));
+	//C_.set("mu",param?param->range(3,5):C->get<std::vector<double> >("mu"));
 	//}
 	if( wf == "squarefreecomplex" ){
 		ref_(0) = 4;
@@ -96,7 +102,7 @@ void CreateSystem::parse(Container* C, Vector<double> const* param){
 		C_.set("mu",param?param->range(0,0):C->get<std::vector<double> >("mu"));
 		C_.set("t",param?param->range(1,2):C->get<std::vector<double> >("t"));
 		C_.set("phi",Vector<double>(1,M_PI/4.0));
-		
+
 		/*1 free parameter, box*/
 		//C_.set("mu",Vector<double>(1,0));
 		//C_.set("t",param?Vector<double>(2,(*param)(0)):C->get<std::vector<double> >("t"));
@@ -166,7 +172,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 	switch(ref_(0)){
-		case 2:
+		case 1:
 			{
 				switch(ref_(1)){
 					case 1:
@@ -193,6 +199,28 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 					default:{error();}break;
 				}
 			}break;
+		case 2:	
+			{
+				switch(ref_(1)){
+					case 1:
+						{
+							switch(ref_(2)){
+								case 0:
+									{ RGL_ = new LadderFermi<double>(ref_,N_,m_,n_,M_,bc_); }break;
+								default: {error();}break;
+							}
+						}break;
+					case 2:
+						{
+							switch(ref_(2)){
+								case 0:
+									{ CGL_ = new LadderFermi<std::complex<double> >(ref_,N_,m_,n_,M_,bc_); }break;
+								default: {error();}break;
+							}
+						}break;
+					default: {error();}break;
+				}
+			}
 		case 3:
 			{
 				switch(ref_(1)){
@@ -301,7 +329,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 	}
 }
 
-void CreateSystem::error(){
+void CreateSystem::error() const {
 	std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;
 } 
 

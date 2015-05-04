@@ -25,7 +25,8 @@ template<typename Type>
 Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
 	System2D<Type>(Lx,Ly,spuc,4,filename)
 {
-	if(this->status_==2){ this->compute_links(); }
+	std::cerr<<"new def of compute_links will be problematic"<<std::endl;
+	if(this->status_==2){ this->compute_links(Vector<unsigned int>(1,2)); }
 }
 
 template<typename Type>

@@ -4,6 +4,8 @@
 #include "ChainFermi.hpp"
 #include "ChainPolymerized.hpp"
 
+#include "LadderFermi.hpp"
+
 #include "TriangleFermi.hpp"
 
 #include "SquareFermi.hpp"
@@ -117,6 +119,6 @@ class CreateSystem{
 		GenericSystem<std::complex<double> >* CGL_;
 
 		void parse(Container* C, Vector<double> const* param);
-		void error();
+		void error() const;
 };
 #endif
