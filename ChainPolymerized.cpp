@@ -12,13 +12,14 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 			filename_ += ((t_(j)>0)?"+":"")+my::tostring(t_(j));
 		}
 		if(spuc_ != 1){
-			system_info_.item("Spin chain, with different my::real hopping terms.");
+			system_info_.text("Trial wavefunction with different real hopping ");
+			system_info_.text("terms for a "+RST::math("\\mathrm{SU}(N)")+" chain :"+RST::nl_);
 			if(spuc_ != 4){
 				std::string tmp("");
 				for(unsigned int i(0);i<spuc_-1;i++){ tmp += "=\\bullet"; }
 				system_info_.text(" "+RST::math("t_i : "+tmp+"-"));
 			}
-			else{system_info_.item(":math:`t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-`");}
+			else{system_info_.text(" "+RST::math("t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-"));}
 			system_info_.nl();
 		} else {
 			system_info_.text("Trial wavefunction with uniform real hopping ");
@@ -279,7 +280,7 @@ std::string ChainPolymerized::extract_level_6(){
 
 	save();
 	jd_write_->write("energy per site",E_);
-	jd_write_->write("polymerizaton strength",polymerizaton_strength);
+	jd_write_->write("polymerization strength",polymerization_strength);
 	jd_write_->write("critical exponents",exponents);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);

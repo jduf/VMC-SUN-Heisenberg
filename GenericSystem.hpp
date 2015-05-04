@@ -97,6 +97,7 @@ void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
 			}
 		}
 		this->links_.set(k,2);
+		this->J_.set(k,1.0);
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
 			nb = get_neighbourg(i);
@@ -114,7 +115,6 @@ void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
 	if(this->bc_==0){
 		std::cerr<<"void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l) : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl;
 	}
-	this->J_.set(k,1.0);
 }
 
 template<typename Type>

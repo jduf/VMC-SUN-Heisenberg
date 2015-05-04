@@ -41,11 +41,11 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 		num_of_links_for_each_site(1) = 1;
 		this->compute_links(num_of_links_for_each_site);
 		
-		//this->J_.set(this->links_.row());
-		//for (unsigned int i=0; i<this->links_.row() ; i++){
-			//if (i%3==1){ this->J_(i) = 1; }
-			//else{ this->J_(i) = 0.1; }
-		//}
+		this->J_.set(this->links_.row());
+		for (unsigned int i=0; i<this->links_.row() ; i++){
+			if (i%3==1){ this->J_(i) = 1; }
+			else{ this->J_(i) = 0.1; }
+		}
 	}
 }
 

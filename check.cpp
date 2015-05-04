@@ -36,10 +36,6 @@ int main(int argc, char* argv[]){
 						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system())); 
 					} else {
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())); 
-						MonteCarlo<double> sim(S,tmax);
-						sim.run();
-						std::cout<<S->get_energy()<<std::endl;
-						delete S;
 					}
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
