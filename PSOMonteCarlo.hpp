@@ -19,6 +19,7 @@ class PSOMonteCarlo: public Swarm<MCParticle>{
 		void complete_analysis(double tol);
 
 		void plot() const;
+		void refine(unsigned int const& Nrefine, unsigned int const& tmax);
 		void print() const;
 		void write(IOFiles& w) const;
 		void read(IOFiles& w);

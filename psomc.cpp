@@ -23,6 +23,7 @@ int main(int argc, char* argv[]){
 	s.init(100);
 	s.run();
 	s.complete_analysis(1e-5);
+	s.refine(3000,10);
 	s.print();
 	s.plot();
 	if(P.find("save",i,false)){

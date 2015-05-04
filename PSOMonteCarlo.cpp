@@ -112,3 +112,36 @@ void PSOMonteCarlo::complete_analysis(double tol){
 		all_results_.get().get_S()->complete_analysis(tol);
 	}
 }
+
+void PSOMonteCarlo::refine(unsigned int const& Nrefine, unsigned int const& tmax){
+	auto sort = [](MCSim const& a, MCSim const& b){ 
+		return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
+	};
+
+	List<MCSim> best;
+	all_results_.set_free();
+	while(all_results_.go_to_next()){
+		best.add_sort(all_results_.get_ptr(),sort);
+	}
+	unsigned int N(all_results_.size());
+	N  = (N<Nrefine?N:Nrefine);
+	best.set_free();
+#pragma omp parallel for schedule(dynamic,1)
+	for(unsigned int i=0;i<N;i++){
+		std::shared_ptr<MCSim> sim;
+#pragma omp critical
+		{
+			best.go_to_next();
+			sim = best.get_ptr();
+		}
+		MonteCarlo mc(sim->get_S().get(),tmax);
+		while(sim->get_S()->get_energy().get_dx()>0.01){
+			mc.run();
+			sim->get_S()->complete_analysis(1e-5);
+		}
+#pragma omp critical
+		{
+			std::cout<<i<<" sim refined "<<sim->get_S()->get_energy()<<std::endl;
+		}
+	}
+}
