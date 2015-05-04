@@ -7,8 +7,16 @@
 template<typename Type>
 class Bosonic : public virtual System{
 	public:
+		/*!Copy Constructor*/
 		Bosonic(Bosonic<Type> const& b);
-		virtual ~Bosonic(){}
+		/*!Constructor that reads from file*/
+		Bosonic(IOFiles& r);
+		/*!Default destructor*/
+		virtual ~Bosonic() = default;
+		/*{Forbidden*/
+		Bosonic(Bosonic<Type>&&) = delete;
+		Bosonic<Type>& operator=(Bosonic<Type>) = delete;
+		/*}*/
 
 		Vector<unsigned int> const& get_sl() const { return sl_;}
 		Matrix<unsigned int> const& get_nn() const { return nn_;}
@@ -16,10 +24,9 @@ class Bosonic : public virtual System{
 		Matrix<double> const& get_nu() const { return nu_;}
 		Matrix<Type> const& get_omega() const { return omega_;}
 
-		Bosonic<Type> const& get_bosonic(){ return (*this);}
-
 	protected:
-		Bosonic(){}
+		/*!Default Constructor*/
+		Bosonic() = default;
 
 		Vector<unsigned int> sl_;
 		Matrix<unsigned int> nn_;//!< nn_(i,j):jth neighbour of the ith site
@@ -43,6 +50,16 @@ Bosonic<Type>::Bosonic(Bosonic<Type> const& b):
 {}
 
 template<typename Type>
+Bosonic<Type>::Bosonic(IOFiles& r):
+	System(r),
+	sl_(r),
+	nn_(r),
+	cc_(r),
+	nu_(r),
+	omega_(r)
+{} 
+
+template<typename Type>
 void Bosonic<Type>::init_bosonic(unsigned int const& z, Matrix<double> const& nu){
 	nu_ = nu;
 	nn_.set(n_,z);
@@ -52,4 +69,3 @@ void Bosonic<Type>::init_bosonic(unsigned int const& z, Matrix<double> const& nu
 }
 /*}*/
 #endif
-

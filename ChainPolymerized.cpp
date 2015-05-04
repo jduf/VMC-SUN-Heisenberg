@@ -12,16 +12,14 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 			filename_ += ((t_(j)>0)?"+":"")+my::tostring(t_(j));
 		}
 		if(spuc_ != 1){
-			system_info_.text("Trial wavefunction with different real hopping ");
-			system_info_.text("terms for a "+RST::math("\\mathrm{SU}(N)")+" chain :"+RST::nl_);
+			system_info_.item("Spin chain, with different my::real hopping terms.");
 			if(spuc_ != 4){
 				std::string tmp("");
 				for(unsigned int i(0);i<spuc_-1;i++){ tmp += "=\\bullet"; }
 				system_info_.text(" "+RST::math("t_i : "+tmp+"-"));
 			}
-			else{system_info_.text(" "+RST::math("t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-"));}
+			else{system_info_.item(":math:`t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-`");}
 			system_info_.nl();
-
 		} else {
 			system_info_.text("Trial wavefunction with uniform real hopping ");
 			system_info_.text("terms for a "+RST::math("\\mathrm{SU}(N)")+" chain :");
@@ -166,7 +164,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gp+="plot '"+filename_+"-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gp+="     '"+filename_+"-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gp+="     '"+filename_+"-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
-	gp+="     "+my::tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merizaton="+my::tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
+	gp+="     "+my::tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merization="+my::tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
 	gp+="     "+my::tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
 	gp.save_file();
 	//gp.create_image(true);
@@ -263,18 +261,18 @@ std::string ChainPolymerized::extract_level_6(){
 	E_.set_x(1e33);
 	Vector<double> exponents;
 	Vector<double> tmp_exponents;
-	double polymerizaton_strength;
-	double tmp_polymerizaton_strength;
+	double polymerization_strength;
+	double tmp_polymerization_strength;
 	Vector<double> tmp_t;
 	unsigned int nof(0);
 	(*read_)>>nof;
 
 	for(unsigned int i(0);i<nof;i++){
-		(*read_)>>tmp_t>>tmp_E>>tmp_polymerizaton_strength>>tmp_exponents;
+		(*read_)>>tmp_t>>tmp_E>>tmp_polymerization_strength>>tmp_exponents;
 		if(tmp_E.get_x()<E_.get_x()){ 
 			E_ = tmp_E;
 			t_ = tmp_t;
-			polymerizaton_strength = tmp_polymerizaton_strength;
+			polymerization_strength = tmp_polymerization_strength;
 			exponents = tmp_exponents;
 		}
 	}

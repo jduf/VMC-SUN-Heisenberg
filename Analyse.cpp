@@ -4,12 +4,6 @@ Analyse::Analyse(std::string const& path):
 	IOSystem(""),
 	level_(0)
 {
-	Linux command;
-	std::string root(command.pwd());
-	sim_ = root+sim_;
-	info_ = root+info_;
-	analyse_ = root+analyse_;
-
 	if(path == ""){ study_=0; }
 	if(path == "README"){ study_=1; }
 	if(path != "README" && path != ""){ study_=2; path_ = path; }

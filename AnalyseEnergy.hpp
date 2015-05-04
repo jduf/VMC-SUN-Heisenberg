@@ -6,7 +6,14 @@
 class AnalyseEnergy : public Analyse{
 	public:
 		AnalyseEnergy(std::string const& sim);
-		~AnalyseEnergy(){}
+		/*!Default destructor*/
+		~AnalyseEnergy() = default;
+		/*{Forbidden*/
+		AnalyseEnergy() = delete;
+		AnalyseEnergy(AnalyseEnergy const&) = delete;
+		AnalyseEnergy(AnalyseEnergy&&) = delete;
+		AnalyseEnergy& operator=(AnalyseEnergy) = delete;
+		/*}*/
 
 	protected:
 		void open_files();

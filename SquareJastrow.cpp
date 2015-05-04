@@ -142,7 +142,7 @@ void SquareJastrow::lattice(){
 			//pie(j) = lat(i,j)/m;
 			//if(pie(j) < 1e-4){pie(j) = 0;}
 		//}
-		//ps.add("\\rput("+tostring(i%Lx_)+","+tostring(i/Ly_)+"){%");
+		//ps.add("\\rput("+my::tostring(i%Lx_)+","+my::tostring(i/Ly_)+"){%");
 		//ps.pie(pie,r,"chartColor=color,userColor={red,blue}");
 		//ps.add("}");
 //
@@ -151,7 +151,7 @@ void SquareJastrow::lattice(){
 			//case 1: { color = "blue";} break;
 			//case 2: { color = "green";} break;
 		//}
-		//ps.put(i%Lx_+r*1.2, i/Ly_+r*1.2, "\\tiny{"+tostring(i)+"}");
+		//ps.put(i%Lx_+r*1.2, i/Ly_+r*1.2, "\\tiny{"+my::tostring(i)+"}");
 	//}
 //
 	//ps.frame(-0.5,-0.5,Lx_-0.5,Ly_-0.5,"linecolor=red");

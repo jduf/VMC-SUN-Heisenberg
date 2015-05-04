@@ -6,7 +6,7 @@
 class SquareJastrow: public Square<double>{
 	public:
 		SquareJastrow(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, Matrix<double> const& nu);
-		~SquareJastrow(){}
+		~SquareJastrow() = default;
 
 		void create();
 		void check();

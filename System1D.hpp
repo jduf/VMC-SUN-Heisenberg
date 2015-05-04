@@ -20,7 +20,7 @@ class System1D: public GenericSystem<Type>{
 	public:
 		/*!Constructor*/
 		System1D(unsigned int const& spuc, unsigned int const& z, std::string const& filename);
-		/*!Destructor*/
+		/*!Default destructor*/
 		virtual ~System1D()=0;
 
 	protected:
@@ -61,7 +61,7 @@ System1D<Type>::System1D(unsigned int const& spuc, unsigned int const& z, std::s
 }
 
 template<typename Type>
-System1D<Type>::~System1D(){}
+System1D<Type>::~System1D() = default;
 /*}*/
 
 /*{protected methods*/

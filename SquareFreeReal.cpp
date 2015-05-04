@@ -1,8 +1,16 @@
 #include "SquareFreeReal.hpp"
 
-SquareFreeReal::SquareFreeReal(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, Vector<double> const& t, Vector<double> const& mu):
+SquareFreeReal::SquareFreeReal(
+		Vector<unsigned int> const& ref,
+		unsigned int const& N, 
+		unsigned int const& m, 
+		unsigned int const& n, 
+		Vector<unsigned int> const& M,  
+		int const& bc, 
+		Vector<double> const& t, 
+		Vector<double> const& mu):
 	System(ref,N,m,n,M,bc),
-	Square<double>(2,2,1,"square-fermi"),
+	Square<double>(set_ab(),(N/m==2?2:0),"square-free-real"),
 	t_(t),
 	mu_(mu)
 {
@@ -44,6 +52,24 @@ void SquareFreeReal::compute_H(unsigned int const& c){
 	}
 	H_ += H_.transpose();
 }
+
+unsigned int SquareFreeReal::match_pos_in_ab(Vector<double> const& x) const{
+	Vector<double> match(2,0);
+	if(my::are_equal(x,match)){ return 0; }
+	match(0) = 0.5;
+	match(1) = 0;
+	if(my::are_equal(x,match)){ return 1; }
+	return 2;
+}
+
+Matrix<double> SquareFreeReal::set_ab(){
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 2;
+	tmp(1,0) = 0;
+	tmp(0,1) = 1;
+	tmp(1,1) = 1;
+	return tmp;
+}
 /*}*/
 
 /*{method needed for checking*/
@@ -67,7 +93,7 @@ void SquareFreeReal::lattice(){
 			x0 = i*ex;
 			y0 = j*ey;
 			nb = get_neighbourg(s);
-			ps.put(x0-0.2,y0+0.2,tostring(s));
+			ps.put(x0-0.2,y0+0.2,my::tostring(s));
 			x1 = x0+ll;
 			y1 = y0;
 			if(H_(s,nb(0,0))>0){ color = "green"; }
@@ -93,8 +119,8 @@ void SquareFreeReal::check(){
 	//unsigned int a(M_(c)-1);
 	//unsigned int b(M_(c)-1);
 	//Vector<double> eval;
-	//do{b++;} while (b+1<n_ && are_equal(eval(b),eval(b-1)));
-	//if(b!=M_(c)){ while(a>0 && are_equal(eval(a-1),eval(a))){a--;} }
+	//do{b++;} while (b+1<n_ && my::are_equal(eval(b),eval(b-1)));
+	//if(b!=M_(c)){ while(a>0 && my::are_equal(eval(a-1),eval(a))){a--;} }
 	//std::cout<<a<<" "<<b<<std::endl;
 	std::cout<<t_<<std::endl;
 	std::cout<<mu_<<std::endl;

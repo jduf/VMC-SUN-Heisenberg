@@ -1,50 +1,58 @@
-#ifndef DEF_CHAINFERMI
-#define DEF_CHAINFERMI
+#ifndef DEF_LADDERFERMI
+#define DEF_LADDERFERMI
 
-#include "Chain.hpp"
+#include "Ladder.hpp"
 
 /*{Description*/
-/*!Creates a chain with uniform hopping parameter
- * To properly solve the degeneracy problem, this wavefunction selects the
- * eigenvector |E_F,-> or |E_F,->. This seems to have exactly the same effect
- * as choosing anti-periodic boundary conditions
- */
+/*!Creates a ladder with uniform hopping parameter 
+ * 
+ *  => Fermi Ladder<=
+ * 
+ * */
 /*}*/
 template<typename Type>
-class ChainFermi: public Chain<Type>{
+class LadderFermi: public Ladder<Type>{
 	public:
-		ChainFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc);
-		~ChainFermi() = default;
+		LadderFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
+		~LadderFermi(){}
 
 		void create();
 		void check();
 
 	private:
 		void compute_H();
+		void lattice();
+
 		std::string extract_level_7();
 		std::string extract_level_6();
 };
 
 template<typename Type>
-ChainFermi<Type>::ChainFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
+LadderFermi<Type>::LadderFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
 	System(ref,N,m,n,M,bc),
-	Chain<Type>(1,"chain-fermi")
+	Ladder<Type>(2,"ladder-fermi")
 {
 	if(this->status_==2){
 		this->init_fermionic();
 
-		this->system_info_.item("+ Spin chain with real and identical hopping term between each sites");
+		this->system_info_.item("Spin ladder with real and identical hopping term between each sites :");
+		this->system_info_.item("   => Fermi ladder <=   ");
 	}
 }
 
 /*{method needed for running*/
 template<typename Type>
-void ChainFermi<Type>::compute_H(){
+void LadderFermi<Type>::compute_H(){
 	this->H_.set(this->n_,this->n_,0);
 	Matrix<int> nb;
 	for(unsigned int i(0);i<this->n_;i++){
 		nb = this->get_neighbourg(i);
-		this->H_(i,nb(0,0)) = nb(0,1);
+		if( ( i % 2 ) == 0){				//even sites => top
+			this->H_(i,nb(0,0)) = nb(0,1);
+			this->H_(i,nb(1,0)) = nb(1,1);	
+		} else {							//odd sites => bottom
+			this->H_(i,nb(0,0)) = nb(0,1);
+		}
 	}
 	this->H_ += this->H_.transpose();
 }
@@ -52,16 +60,98 @@ void ChainFermi<Type>::compute_H(){
 
 /*{method needed for checking*/
 template<typename Type>
-void ChainFermi<Type>::check(){
+void LadderFermi<Type>::check(){
 	this->compute_H();
+	std::cout<<"liens :"<<std::endl;
+	std::cout<<this->links_<<std::endl;
+
+	for(unsigned int i(0);i<this->n_;i++){
+		std::cout << "get_neighbourg. right - top/bot - left" << std::endl;
+		std::cout<<"i="<<i<<std::endl;
+		std::cout<<this->get_neighbourg(i)<<std::endl;// shows the links
+	} 
+	std::cout<<"Hamiltonien"<<std::endl;
+	std::cout<<this->H_<<std::endl;
+
 	this->plot_band_structure();
-	this->status_++;
+}
+
+template<typename Type>
+void LadderFermi<Type>::lattice(){
+	Matrix<int> nb;
+	std::string color("black");
+	std::string linestyle("solid");
+	Vector<double> xy0(2,0);
+	Vector<double> xy1(2,0);
+	PSTricks ps("./","lattice");
+	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+this->filename_);
+	for(unsigned int i(0);i<this->n_;i++) {
+		xy0(0) = i/2;
+		xy0(1) = i%2;
+		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
+		nb = this->get_neighbourg(i);
+
+		if(nb(0,1)<0){ color = "red"; } 
+		else { color = "black"; }
+		xy1(0) = nb(0,0)/2;
+		xy1(1) = nb(0,0)%2;
+		if(xy1(0)<xy0(0)){ 
+			xy1(0) = xy0(0)+1;
+			linestyle="dashed";
+		} else{ linestyle="solid"; }
+		/*x-link*/  ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linecolor="+color+",linestyle="+linestyle);
+		if(i%2){
+			color = "black";
+			linestyle="solid"; 
+			xy1(0) = nb(1,0)/2;
+			xy1(1) = nb(1,0)%2;
+			/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linecolor="+color+",linestyle="+linestyle);
+		}
+	}
+
+	Matrix<double> polygon(4,2);
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=this->n_;
+	polygon(1,1)=0;
+	polygon(2,0)=this->n_;
+	polygon(2,1)=1;
+	polygon(3,0)=0;
+	polygon(3,1)=1;
+	ps.polygon(polygon,"linecolor=green");
+
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=0;
+	polygon(1,1)=1;
+	polygon(2,0)=1;
+	polygon(2,1)=1;
+	polygon(3,0)=1;
+	polygon(3,1)=0;
+	ps.polygon(polygon,"linecolor=blue");
+
+	ps.add("\\end{pspicture}");
+	ps.save(true,true,true);
 }
 /*}*/
 
 /*{method needed for analysing*/
 template<typename Type>
-std::string ChainFermi<Type>::extract_level_7(){
+std::string LadderFermi<Type>::extract_level_6(){
+	double polymerization_strength;
+	unsigned int nof(0);
+	(*this->read_)>>nof>>this->E_>>polymerization_strength;
+
+	this->jd_write_->add_header()->nl();
+	this->save();
+	this->jd_write_->write("energy per site",this->E_);
+	this->jd_write_->write("polymerization strength",polymerization_strength);
+
+	return this->filename_;
+}
+
+template<typename Type>
+std::string LadderFermi<Type>::extract_level_7(){
 	this->rst_file_ = new RSTFile(this->info_+this->path_+this->dir_,this->filename_);
 	std::string title("$N="+my::tostring(this->N_)+"$ $m="+my::tostring(this->m_)+"$ $n="+my::tostring(this->n_)+"$ bc="+my::tostring(this->bc_));
 
@@ -101,6 +191,9 @@ std::string ChainFermi<Type>::extract_level_7(){
 	/*}*/
 	/*!nearest neighbourg correlations*/
 	/*{*/
+
+	// A VOIR SI LES CORRELATIONS SE COMPORTENT DIFFEREMMENT POUR L'ECHELLE ?!
+
 	Gnuplot gp(this->analyse_+this->path_+this->dir_,this->filename_+"-corr");
 	gp.label("x","site","offset 0,0.5");
 	gp.label("y2","$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$");
@@ -117,7 +210,7 @@ std::string ChainFermi<Type>::extract_level_7(){
 	unsigned int xi;
 	unsigned int xf;
 	Vector<double> exponents;
-	bool fit(this->compute_critical_exponents(lrc_mean,xi,xf,exponents));
+	//bool fit(this->compute_critical_exponents(lrc_mean,xi,xf,exponents));
 
 	Gnuplot gplr(this->analyse_+this->path_+this->dir_,this->filename_+"-long-range-corr");
 	gplr.range("x",this->N_/this->m_,this->n_-this->N_/this->m_);
@@ -139,8 +232,10 @@ std::string ChainFermi<Type>::extract_level_7(){
 	gplr+="plot '"+this->filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
-	gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
+	//gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
 	gplr.save_file();
+
+
 	//gplr.create_image(true);
 	this->rst_file_->link_figure(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.png","Long range correlation",this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.gp",1000);
 	/*}*/
@@ -185,29 +280,12 @@ std::string ChainFermi<Type>::extract_level_7(){
 	/*{*/
 	this->jd_write_->write("energy per site",this->E_);
 	this->jd_write_->write("polymerization strength",0.0);
-	this->jd_write_->write("critical exponents",exponents);
 	/*}*/
 
 	this->rst_file_->text(this->read_->get_header());
 	this->rst_file_->save(false);
 	delete this->rst_file_;
 	this->rst_file_ = NULL;
-
-	return this->filename_;
-}
-
-template<typename Type>
-std::string ChainFermi<Type>::extract_level_6(){
-	double polymerization_strength;
-	Vector<double> exponents;
-	unsigned int nof(0);
-	(*this->read_)>>nof>>this->E_>>polymerization_strength>>exponents;
-
-	this->jd_write_->add_header()->nl();
-	this->save();
-	this->jd_write_->write("energy per site",this->E_);
-	this->jd_write_->write("polymerization strength",polymerization_strength);
-	this->jd_write_->write("critical exponents",exponents);
 
 	return this->filename_;
 }

@@ -9,7 +9,7 @@ class System2D: public GenericSystem<Type>{
 		/*!Constructor*/
 		System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename);
 		/*!Destructor*/
-		virtual ~System2D(){};
+		virtual ~System2D() = default;
 
 	protected:
 		Matrix<Type> H_;		//!< matrix used to get the band structure
@@ -152,8 +152,8 @@ void System2D<Type>::select_eigenvectors(){
 	  for(unsigned int c(0);c<this->N_;c++){
 	  unsigned int a(this->M_(c)-1);
 	  unsigned int b(this->M_(c)-1);
-	  do{b++;} while (b+1<this->n_ && are_equal(e_(b),e_(b-1)));
-	  if(b!=this->M_(c)){ while(a>0 && are_equal(e_(a-1),e_(a))){a--;} }
+	  do{b++;} while (b+1<this->n_ && my::are_equal(e_(b),e_(b-1)));
+	  if(b!=this->M_(c)){ while(a>0 && my::are_equal(e_(a-1),e_(a))){a--;} }
 	  Vector<unsigned int> cnk;
 	  Combination cbn;
 	  cbn.set(this->M_(c)-a,b-a,cnk);
@@ -165,11 +165,11 @@ void System2D<Type>::select_eigenvectors(){
 	  double Px(0.0);
 	  double Py(0.0);
 	  for(unsigned int i(0);i<this->M_(c);i++){
-	  Px+= are_equal(std::abs(px_(select_[c](i))),M_PI,1e-12,1e-12)?0:px_(select_[c](i));
-	  Py+= are_equal(std::abs(py_(select_[c](i))),M_PI,1e-12,1e-12)?0:py_(select_[c](i));
+	  Px+= my::are_equal(std::abs(px_(select_[c](i))),M_PI,1e-12,1e-12)?0:px_(select_[c](i));
+	  Py+= my::are_equal(std::abs(py_(select_[c](i))),M_PI,1e-12,1e-12)?0:py_(select_[c](i));
 	  e += e_(select_[c](i));
 	  }
-	  if(!are_equal(Px,0.,1e-14) || !are_equal(Py,0.,1e-14)){ 
+	  if(!my::are_equal(Px,0.,1e-14) || !my::are_equal(Py,0.,1e-14)){ 
 	  this->degenerate_ = true;
 	  } else {
 	  pxpy[c].set(this->M_(c)-a,2);

@@ -5,6 +5,8 @@
 #include "ChainPolymerized.hpp"
 #include "ChainPolymerizedJJp.hpp"
 
+#include "LadderFermi.hpp"
+
 #include "TriangleFermi.hpp"
 
 #include "SquareFermi.hpp"
@@ -23,9 +25,15 @@
 
 class CreateSystem{
 	public:
-		CreateSystem(Container* C);
+		CreateSystem(Container* C, Vector<double> const* param=NULL);
 		CreateSystem(IOFiles* r);
 		virtual ~CreateSystem();
+		/*{Forbidden*/
+		CreateSystem() = delete;
+		CreateSystem(CreateSystem const&) = delete;
+		CreateSystem(CreateSystem&&) = delete;
+		CreateSystem& operator=(CreateSystem cs) = delete;
+		/*}*/
 
 		void init(IOFiles* read=NULL, IOSystem* ios=NULL);
 
@@ -79,6 +87,8 @@ class CreateSystem{
 		}
 		/*}*/
 
+		/*!Returns ref*/
+		Vector<unsigned int> const&  get_ref() const { return ref_; }
 		/*!Returns a pointer on the GenericSystem created*/
 		System const* get_system() const { 
 			if(RGL_){return RGL_;}
@@ -97,13 +107,6 @@ class CreateSystem{
 		}
 
 	private:
-		/*!Forbids default*/
-		CreateSystem();
-		/*!Forbids copy*/
-		CreateSystem(CreateSystem const& cs);
-		/*!Forbids assignment*/
-		CreateSystem& operator=(CreateSystem cs);
-
 		Vector<unsigned int> ref_;
 		unsigned int const N_;
 		unsigned int const m_;
@@ -116,7 +119,7 @@ class CreateSystem{
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
 
-		void parse(Container* C);
-		void error();
+		void parse(Container* C, Vector<double> const* param);
+		void error() const;
 };
 #endif

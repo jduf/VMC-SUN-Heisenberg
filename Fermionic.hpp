@@ -10,18 +10,24 @@ class Fermionic : public virtual System{
 	public:
 		/*!Copy Constructor*/
 		Fermionic(Fermionic<Type> const& f);
+		/*!Constructor that reads from file*/
+		Fermionic(IOFiles& r);
 		/*!Destructor*/
 		virtual ~Fermionic();
+		/*{Forbidden*/
+		Fermionic(Fermionic<Type>&&) = delete;
+		Fermionic<Type>& operator=(Fermionic<Type>) = delete;
+		/*}*/
 
 		Matrix<Type> const& get_EVec() const { return EVec_; }
 		Fermionic<Type> const& get_fermionic() const { return (*this); }
 
 	protected:
-		/*!Default Constructor*/
+		/*!Constructor*/
 		Fermionic();
 
 		Matrix<Type>* EVec_;//!< eigenvectors matrix (transfer matrix)
-		
+
 		/*!compute the eigenvectors from the mean field Hamiltonian*/
 		void init_fermionic();
 };
@@ -34,6 +40,14 @@ Fermionic<Type>::Fermionic(Fermionic<Type> const& f):
 	EVec_(f.EVec_?new Matrix<Type>[f.N_]:NULL)
 {
 	for(unsigned int c(0);c<N_;c++){ EVec_[c] = f.EVec_[c]; }
+}
+
+template<typename Type>
+Fermionic<Type>::Fermionic(IOFiles& r):
+	System(r),
+	EVec_(N_?new Matrix<Type>[N_]:NULL)
+{
+	for(unsigned int c(0);c<N_;c++){ r>>EVec_[c]; }
 }
 
 template<typename Type>

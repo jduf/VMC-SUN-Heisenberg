@@ -7,7 +7,7 @@ template<typename Type>
 class SquareFermi: public Square<Type>{
 	public:
 		SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc);
-		~SquareFermi(){}
+		~SquareFermi() = default;
 
 		void create();
 		void check();
@@ -35,13 +35,12 @@ SquareFermi<Type>::SquareFermi(Vector<unsigned int> const& ref, unsigned int con
 /*{method needed for running*/
 template<typename Type>
 void SquareFermi<Type>::compute_H(){
-	double t(1.0);
 	this->H_.set(this->n_,this->n_,0);
 	Matrix<int> nb;
 	for(unsigned int i(0); i < this->n_; i++){
 		nb = this->get_neighbourg(i);
 		for(unsigned int j(0);j<2;j++){
-			this->H_(i,nb(j,0)) = nb(j,1)*t;
+			this->H_(i,nb(j,0)) = nb(j,1);
 		}
 	}
 	this->H_ += this->H_.transpose();

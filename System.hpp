@@ -14,8 +14,16 @@
 /*}*/
 class System{
 	public:
+		/*!Constructor*/
 		System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
-		virtual ~System(){}
+		/*!Constructor that reads from file*/
+		System(IOFiles& r);
+		/*!Default destructor*/
+		virtual ~System() = default;
+		/*{Forbidden*/
+		System(System&&) = delete;
+		System& operator=(System) = delete;
+		/*}*/
 
 		/*!Returns energy*/
 		Data<double> const& get_energy() const {return E_;}
@@ -35,11 +43,14 @@ class System{
 		/*!Delete the binning for all observables*/
 		void delete_binning();
 
+		virtual void write(IOFiles& w) const;
+
 	protected:
-		System(System const& s);
+		/*Copy constructor*/
+		System(System const&) = default;
+		/*Default constructor*/
 		System():ref_(0),N_(0),m_(0),n_(0),bc_(0){std::cout<<"System::System() : should never be called"<<std::endl;}
 
-		/*variables that will be saved*/
 		Vector<unsigned int> const ref_;//!< type of system 
 		unsigned int const N_;			//!< number of colors
 		unsigned int const m_;			//!< number of particles per site
@@ -54,9 +65,5 @@ class System{
 
 		Matrix<unsigned int> links_;	//!< bonds <i,j> exchanged by H
 		Vector<double> J_;
-
-	private:
-		/*!Forbids assignment*/
-		System& operator=(System const& s);
 };
 #endif

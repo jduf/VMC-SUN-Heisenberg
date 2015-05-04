@@ -56,12 +56,12 @@ Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::st
 		this->dir_nn_LxLy_(3,0) = dir(0);
 		this->dir_nn_LxLy_(3,1) = dir(1);
 
-		this->compute_links(); 
+		this->compute_links(Vector<unsigned int>(1,4));
 	}
 }
 
 template<typename Type>
-Square<Type>::~Square(){}
+Square<Type>::~Square() = default;
 /*}*/
 
 /*{protected methods*/

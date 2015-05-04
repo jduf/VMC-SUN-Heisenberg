@@ -15,19 +15,18 @@ System::System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned 
 	else{status_--;}
 }
 
-System::System(System const& s):
-	ref_(s.ref_),
-	N_(s.N_), 
-	m_(s.m_),
-	n_(s.n_),
-	M_(s.M_),
-	bc_(s.bc_),
-	status_(s.status_),
-	E_(s.E_),
-	corr_(s.corr_),
-	lr_corr_(s.lr_corr_),
-	links_(s.links_),
-	J_(s.J_)
+System::System(IOFiles& r):
+	ref_(r),
+	N_(r.read<unsigned int>()), 
+	m_(r.read<unsigned int>()),
+	n_(r.read<unsigned int>()),
+	M_(r),
+	bc_(r.read<int>()),
+	status_(r.read<unsigned int>()),
+	E_(r),
+	corr_(r),
+	lr_corr_(r),
+	links_(r)
 {}
 /*}*/
 
@@ -49,4 +48,8 @@ void System::delete_binning(){
 	E_.delete_binning();
 	corr_.delete_binning();
 	lr_corr_.delete_binning();
+}
+
+void System::write(IOFiles& w) const {
+	w<<ref_<<N_<<m_<<n_<<M_<<bc_<<status_<<E_<<corr_<<lr_corr_<<links_;
 }

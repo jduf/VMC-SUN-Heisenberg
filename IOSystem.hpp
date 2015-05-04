@@ -6,7 +6,13 @@
 class IOSystem{
 	public:
 		IOSystem(std::string const& filename = "");
-		virtual ~IOSystem(){}
+		IOSystem() = default;
+		virtual ~IOSystem() = default;
+		/*{Forbidden*/
+		IOSystem(IOSystem const&) = delete;
+		IOSystem(IOSystem&&) = delete;
+		IOSystem& operator=(IOSystem ios) = delete;
+		/*}*/
 
 		/*!Set this to the value contained in t*/
 		void set_IOSystem(IOSystem* t);
@@ -41,11 +47,5 @@ class IOSystem{
 		virtual std::string extract_level_5(){return filename_;}
 		virtual std::string extract_level_6(){return filename_;}
 		virtual std::string extract_level_7(){return filename_;}
-
-	private:
-		/*!Forbids copy*/
-		IOSystem(IOSystem const& ios);
-		/*!Forbids assigment*/
-		IOSystem& operator=(IOSystem const& ios);
 };
 #endif
