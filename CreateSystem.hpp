@@ -5,6 +5,7 @@
 #include "ChainPolymerized.hpp"
 
 #include "LadderFermi.hpp"
+#include "LadderFree.hpp"
 
 #include "TriangleFermi.hpp"
 

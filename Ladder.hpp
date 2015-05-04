@@ -7,9 +7,9 @@
 /*! 
  * This is our ladder.
  * 
- * 		0_______2_______4_______6__...__n-2
- * 		|       |       |       |        |       
- * 		1_______3_______5_______7__...__n-1
+ * 		1___3___5___7__...__n-1
+ * 		|   |   |   |        |       
+ * 		0___2___4___6__...__n-2
  */
 /*}*/
 template<typename Type>
@@ -36,16 +36,10 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,3,filename)
 {
 	if(this->status_==2){ 
-		Vector<unsigned int> num_of_links_for_each_site(2);
-		num_of_links_for_each_site(0) = 2;
-		num_of_links_for_each_site(1) = 1;
-		this->compute_links(num_of_links_for_each_site);
-		
-		//this->J_.set(this->links_.row());
-		//for (unsigned int i=0; i<this->links_.row() ; i++){
-			//if (i%3==1){ this->J_(i) = 1; }
-			//else{ this->J_(i) = 0.1; }
-		//}
+		Vector<unsigned int> l(2);
+		l(0) = 2;
+		l(1) = 1;
+		this->compute_links(l);
 	}
 }
 
@@ -55,7 +49,7 @@ Ladder<Type>::~Ladder() = default;
 template<typename Type>
 Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {
 	Matrix<int> nb(this->z_,2,1);
-	if(i%2){// odd number => lower part. 1st link: right, 2nd link: up, 3rd link: left
+	if(i%2){// odd number => upper part. 0:right, 1:down, 2:left
 		if(i+1 != this->n_){nb(0,0) = i+2;}
 		else {
 			nb(0,0) = 1;
@@ -67,7 +61,7 @@ Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {
 			nb(2,0) = this-> n_-1;
 			nb(2,1) = this-> bc_;
 		}
-	} else {// even number => upper part. 1st link: right, 2nd link: down, 3rd link: left
+	} else {// even number => lower part. 0:right, 1:up, 2:left
 		if(i+2 != this->n_){nb(0,0) = i+2;}
 		else {
 			nb(0,0) = 0;
@@ -85,9 +79,8 @@ Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {
 
 template<typename Type>
 std::string Ladder<Type>::extract_level_3(){
-	double polymerization_strength;
-	(*this->read_)>>this->E_>>polymerization_strength;
-	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<IOFiles::endl;
+	(*this->read_)>>this->E_;
+	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<IOFiles::endl;
 
 	return this->filename_;
 }

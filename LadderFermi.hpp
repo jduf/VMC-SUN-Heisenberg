@@ -74,10 +74,12 @@ void LadderFermi<Type>::check(){
 	std::cout<<this->H_<<std::endl;
 
 	this->plot_band_structure();
+	lattice();
 }
 
 template<typename Type>
 void LadderFermi<Type>::lattice(){
+	compute_H();
 	Matrix<int> nb;
 	std::string color("black");
 	std::string linestyle("solid");
@@ -110,24 +112,24 @@ void LadderFermi<Type>::lattice(){
 	}
 
 	Matrix<double> polygon(4,2);
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=this->n_;
-	polygon(1,1)=0;
-	polygon(2,0)=this->n_;
-	polygon(2,1)=1;
-	polygon(3,0)=0;
-	polygon(3,1)=1;
+	polygon(0,0)=-0.1;
+	polygon(0,1)=-0.1;
+	polygon(1,0)=this->n_/2-0.1;
+	polygon(1,1)=-0.1;
+	polygon(2,0)=this->n_/2-0.1;
+	polygon(2,1)=1.1;
+	polygon(3,0)=-0.1;
+	polygon(3,1)=1.1;
 	ps.polygon(polygon,"linecolor=green");
 
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=0;
-	polygon(1,1)=1;
-	polygon(2,0)=1;
-	polygon(2,1)=1;
-	polygon(3,0)=1;
-	polygon(3,1)=0;
+	polygon(0,0)=-0.1;
+	polygon(0,1)=-0.1;
+	polygon(1,0)=0.9;
+	polygon(1,1)=-0.1;
+	polygon(2,0)=0.9;
+	polygon(2,1)=1.1;
+	polygon(3,0)=-0.1;
+	polygon(3,1)=1.1;
 	ps.polygon(polygon,"linecolor=blue");
 
 	ps.add("\\end{pspicture}");
@@ -136,20 +138,6 @@ void LadderFermi<Type>::lattice(){
 /*}*/
 
 /*{method needed for analysing*/
-template<typename Type>
-std::string LadderFermi<Type>::extract_level_6(){
-	double polymerization_strength;
-	unsigned int nof(0);
-	(*this->read_)>>nof>>this->E_>>polymerization_strength;
-
-	this->jd_write_->add_header()->nl();
-	this->save();
-	this->jd_write_->write("energy per site",this->E_);
-	this->jd_write_->write("polymerization strength",polymerization_strength);
-
-	return this->filename_;
-}
-
 template<typename Type>
 std::string LadderFermi<Type>::extract_level_7(){
 	this->rst_file_ = new RSTFile(this->info_+this->path_+this->dir_,this->filename_);
@@ -191,9 +179,6 @@ std::string LadderFermi<Type>::extract_level_7(){
 	/*}*/
 	/*!nearest neighbourg correlations*/
 	/*{*/
-
-	// A VOIR SI LES CORRELATIONS SE COMPORTENT DIFFEREMMENT POUR L'ECHELLE ?!
-
 	Gnuplot gp(this->analyse_+this->path_+this->dir_,this->filename_+"-corr");
 	gp.label("x","site","offset 0,0.5");
 	gp.label("y2","$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$");
@@ -207,10 +192,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 	/*}*/
 	/*!long range correlations*/
 	/*{*/
-	unsigned int xi;
-	unsigned int xf;
 	Vector<double> exponents;
-	//bool fit(this->compute_critical_exponents(lrc_mean,xi,xf,exponents));
 
 	Gnuplot gplr(this->analyse_+this->path_+this->dir_,this->filename_+"-long-range-corr");
 	gplr.range("x",this->N_/this->m_,this->n_-this->N_/this->m_);
@@ -218,24 +200,13 @@ std::string LadderFermi<Type>::extract_level_7(){
 	gplr.label("y2","$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$","offset 1");
 	gp.title(title);
 	gplr+="set key center bottom";
-	gplr+="set sample 1000";
 	gplr+="m="+my::tostring(this->m_)+".0";
 	gplr+="N="+my::tostring(this->N_)+".0";
 	gplr+="n="+my::tostring(this->n_)+".0";
-	gplr+="p0 = 1.0";
-	gplr+="p1 = 2.0-2.0/N";
-	gplr+="p2 = -1.0";
-	gplr+="p3 = 2.0";
-	gplr+="f(x) = p0*cos(2.0*pi*x*m/N)*(x**(-p1)+(n-x)**(-p1))+p2*(x**(-p3)+(n-x)**(-p3))";
-	gplr+="set fit quiet";
-	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via p0,p1,p2,p3"; 
 	gplr+="plot '"+this->filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
-	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean',\\";
-	//gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
+	gplr+="     '"+this->filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean'";
 	gplr.save_file();
-
-
 	//gplr.create_image(true);
 	this->rst_file_->link_figure(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.png","Long range correlation",this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.gp",1000);
 	/*}*/
@@ -263,11 +234,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 	gp.title(title);
 	gpsf+="set key bottom";
 	gpsf.range("x","0","2*pi");
-	switch(this->N_/this->m_){
-		case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0, '$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
-		case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
-		default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
-	}
+	gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; 
 	gpsf.label("x","$k$","offset 0,0.5");
 	gpsf.label("y2","$<S(k)>$");
 	gpsf+="plot '"+this->filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";
@@ -279,13 +246,24 @@ std::string LadderFermi<Type>::extract_level_7(){
 	/*!save some additionnal values */
 	/*{*/
 	this->jd_write_->write("energy per site",this->E_);
-	this->jd_write_->write("polymerization strength",0.0);
 	/*}*/
 
 	this->rst_file_->text(this->read_->get_header());
 	this->rst_file_->save(false);
 	delete this->rst_file_;
 	this->rst_file_ = NULL;
+
+	return this->filename_;
+}
+
+template<typename Type>
+std::string LadderFermi<Type>::extract_level_6(){
+	unsigned int nof(0);
+	(*this->read_)>>nof>>this->E_;
+
+	this->jd_write_->add_header()->nl();
+	this->save();
+	this->jd_write_->write("energy per site",this->E_);
 
 	return this->filename_;
 }
