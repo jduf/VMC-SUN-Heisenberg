@@ -81,7 +81,7 @@ void MCSystem::measure_new_step(){
 				 * need to complete the else condition*/
 				if(!is_new_state_forbidden()){ 
 					r = ratio(false);
-					E_.add(r); 
+					E_.add(r*J_(i)); 
 					corr_[i].add(r);
 				}
 			}

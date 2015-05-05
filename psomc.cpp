@@ -18,13 +18,13 @@ int main(int argc, char* argv[]){
 	unsigned int i(0);
 	if(P.find("load",i,false)){
 		IOFiles r(P.get<std::string>(i),false);
-		s.read(r); 
+		s.read(r,false); 
 	}
-	s.init(100);
-	s.run();
-	s.complete_analysis(1e-5);
-	s.refine(3000,10);
-	s.print();
+	//s.init(100);
+	//s.run();
+	//s.complete_analysis(1e-5);
+	s.refine(30,0.001,10);
+	//s.print();
 	s.plot();
 	if(P.find("save",i,false)){
 		IOFiles w(P.get<std::string>(i),true);

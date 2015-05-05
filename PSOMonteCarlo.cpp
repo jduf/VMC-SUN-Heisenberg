@@ -4,15 +4,16 @@ PSOMonteCarlo::PSOMonteCarlo(Parseur* P):
 	Swarm<MCParticle>(P->get<unsigned int>("Nparticles"),P->get<unsigned int>("maxiter"),P->get<unsigned int>("Nfreedom"),P->get<double>("cg"),P->get<double>("cp")),
 	tmax_(P->get<unsigned int>("tmax"))
 {
-	system_.set("N",P->get<unsigned int>("N"));
-	system_.set("m",P->get<unsigned int>("m"));
-	system_.set("n",P->get<unsigned int>("n"));
-	system_.set("bc",P->get<int>("bc"));
-	system_.set("wf",P->get<std::string>("wf"));
+	system_param_.set("N",P->get<unsigned int>("N"));
+	system_param_.set("m",P->get<unsigned int>("m"));
+	system_param_.set("n",P->get<unsigned int>("n"));
+	system_param_.set("bc",P->get<int>("bc"));
+	system_param_.set("wf",P->get<std::string>("wf"));
 }
 
 bool PSOMonteCarlo::evaluate(unsigned int const& p){
-	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(p_[p]->get_x()));
+	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
+	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(P->get_x()));
 	bool tmp_test;
 #pragma omp critical(all_results_)
 	{
@@ -22,7 +23,7 @@ bool PSOMonteCarlo::evaluate(unsigned int const& p){
 			sim->get_S()->set(); //to clear the binning
 		} else {
 			tmp_test = false;
-			sim->create_S(&system_,&p_[p]->get_x());
+			sim->create_S(&system_param_,&P->get_x());
 		}
 	}
 	if(sim->is_created()){
@@ -30,7 +31,6 @@ bool PSOMonteCarlo::evaluate(unsigned int const& p){
 		mc.thermalize(tmp_test?10:1e6);
 		mc.run();
 
-		std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
 #pragma omp critical(all_results_)
 		{
 			if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
@@ -46,6 +46,43 @@ bool PSOMonteCarlo::evaluate(unsigned int const& p){
 		std::cerr<<"bool PSOMonteCarlo::evaluate(unsigned int const& p) : not valid parameter : "<<p_[p]->get_x()<<std::endl;
 		return false;
 	}
+}
+
+void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& tol, unsigned int const& tmax){
+	auto sort = [](MCSim const& a, MCSim const& b){ 
+		return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
+	};
+
+	List<MCSim> best;
+	all_results_.set_free();
+	while(all_results_.go_to_next()){
+		best.add_sort(all_results_.get_ptr(),sort);
+	}
+	unsigned int N(all_results_.size());
+	N  = (N<Nrefine?N:Nrefine);
+	best.set_free();
+#pragma omp parallel for schedule(dynamic,1)
+	for(unsigned int i=0;i<N;i++){
+		std::shared_ptr<MCSim> sim;
+#pragma omp critical
+		{
+			best.go_to_next();
+			sim = best.get_ptr();
+		}
+		MonteCarlo mc(sim->get_S().get(),tmax);
+		while(sim->get_S()->get_energy().get_dx()>tol){
+			mc.run();
+			sim->get_S()->complete_analysis(1e-5);
+		}
+#pragma omp critical
+		{
+			std::cout<<i<<" sim refined "<<sim->get_S()->get_energy()<<std::endl;
+		}
+	}
+	//best.set_free();
+	//while(best.go_to_next()){
+	//std::cout<<best.get().get_S()->get_energy()<<std::endl;
+	//}
 }
 
 void PSOMonteCarlo::plot() const {
@@ -81,67 +118,36 @@ void PSOMonteCarlo::write(IOFiles& w) const {
 	while(all_results_.go_to_next()){ all_results_.get().write(w); }
 }
 
-void PSOMonteCarlo::read(IOFiles& r){
+void PSOMonteCarlo::read(IOFiles& r, bool create_particle_history){
 	unsigned int size;
 	r>>size;
 	while(size--){ all_results_.add_end(std::make_shared<MCSim>(r)); }
-	size = 0;
-	while(all_results_.go_to_next()){
-		if(Optimization::within_limit(all_results_.get().get_param())){ size++; }
-	}
-	unsigned int Npp(size/Nparticles_);
-	unsigned int s;
-	std::shared_ptr<MCParticle> P;
-	for(unsigned int p(0);p<Nparticles_;p++){
-		if(p==Nparticles_-size%Nparticles_){ Npp++; }
-		P = std::dynamic_pointer_cast<MCParticle>(p_[p]);
-		s = 0;
-		while( s!=Npp && all_results_.go_to_next()){
-			if(Optimization::within_limit(all_results_.get().get_param())){
-				s++;
-				P->add_to_history(all_results_.get_ptr());
-			}
+	if(create_particle_history){
+		size = 0;
+		while(all_results_.go_to_next()){
+			if(Optimization::within_limit(all_results_.get().get_param())){ size++; }
 		}
-		P->select_new_best();
+		unsigned int Npp(size/Nparticles_);
+		unsigned int s;
+		std::shared_ptr<MCParticle> P;
+		for(unsigned int p(0);p<Nparticles_;p++){
+			if(p==Nparticles_-size%Nparticles_){ Npp++; }
+			P = std::dynamic_pointer_cast<MCParticle>(p_[p]);
+			s = 0;
+			while( s!=Npp && all_results_.go_to_next()){
+				if(Optimization::within_limit(all_results_.get().get_param())){
+					s++;
+					P->add_to_history(all_results_.get_ptr());
+				}
+			}
+			P->select_new_best();
+		}
 	}
 }
 
-void PSOMonteCarlo::complete_analysis(double tol){
+void PSOMonteCarlo::complete_analysis(double const& tol){
 	all_results_.set_free();
 	while ( all_results_.go_to_next() ){
 		all_results_.get().get_S()->complete_analysis(tol);
-	}
-}
-
-void PSOMonteCarlo::refine(unsigned int const& Nrefine, unsigned int const& tmax){
-	auto sort = [](MCSim const& a, MCSim const& b){ 
-		return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
-	};
-
-	List<MCSim> best;
-	all_results_.set_free();
-	while(all_results_.go_to_next()){
-		best.add_sort(all_results_.get_ptr(),sort);
-	}
-	unsigned int N(all_results_.size());
-	N  = (N<Nrefine?N:Nrefine);
-	best.set_free();
-#pragma omp parallel for schedule(dynamic,1)
-	for(unsigned int i=0;i<N;i++){
-		std::shared_ptr<MCSim> sim;
-#pragma omp critical
-		{
-			best.go_to_next();
-			sim = best.get_ptr();
-		}
-		MonteCarlo mc(sim->get_S().get(),tmax);
-		while(sim->get_S()->get_energy().get_dx()>0.01){
-			mc.run();
-			sim->get_S()->complete_analysis(1e-5);
-		}
-#pragma omp critical
-		{
-			std::cout<<i<<" sim refined "<<sim->get_S()->get_energy()<<std::endl;
-		}
 	}
 }

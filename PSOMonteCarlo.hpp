@@ -16,20 +16,19 @@ class PSOMonteCarlo: public Swarm<MCParticle>{
 		PSOMonteCarlo& operator=(PSOMonteCarlo) = delete;
 		/*}*/
 
-		void complete_analysis(double tol);
-
+		void refine(unsigned int const& Nrefine, double const& tol, unsigned int const& tmax);
+		void complete_analysis(double const& tol);
 		void plot() const;
-		void refine(unsigned int const& Nrefine, unsigned int const& tmax);
 		void print() const;
+
 		void write(IOFiles& w) const;
-		void read(IOFiles& w);
+		void read(IOFiles& w, bool create_particle_history);
 
 	private:
 		bool evaluate(unsigned int const& p);
-		void create();
 
 		unsigned int tmax_;
-		Container system_;
+		Container system_param_;
 		List<MCSim> all_results_;
 };
 #endif

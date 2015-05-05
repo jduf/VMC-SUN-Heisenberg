@@ -73,6 +73,12 @@ void CreateSystem::parse(Container* C, Vector<double> const* param){
 		ref_(1) = 1;
 		ref_(2) = 0;
 	}
+	if( wf == "ladderfree"){
+		ref_(0) = 2;
+		ref_(1) = 1;
+		ref_(2) = 4;
+		C_.set("t",param?(*param):C->get<std::vector<double> >("t"));
+	}
 
 	if( wf == "trianglefermi" ){
 		ref_(0) = 3;
@@ -230,6 +236,8 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 							switch(ref_(2)){
 								case 0:
 									{ RGL_ = new LadderFermi<double>(ref_,N_,m_,n_,M_,bc_); }break;
+								case 4:
+									{ RGL_ = new LadderFree(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t")); }break;
 								default: {error();}break;
 							}
 						}break;
@@ -243,7 +251,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 						}break;
 					default: {error();}break;
 				}
-			}
+			}break;
 		case 3:
 			{
 				switch(ref_(1)){
