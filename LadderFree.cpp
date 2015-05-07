@@ -9,7 +9,7 @@ LadderFree::LadderFree(
 		int const& bc, 
 		Vector<double> const& t):
 	System(ref,N,m,n,M,bc),
-	Ladder<double>(4,"ladder-free-complex"),
+	Ladder<double>(8,"ladder-free-complex"),
 	t_(t)
 {
 	if(status_==2){
@@ -40,6 +40,24 @@ void LadderFree::compute_H(){
 					H_(i,nb(1,0)) = nb(1,1);
 				}break;
 			case 3:
+				{
+					H_(i,nb(0,0)) = nb(0,1)*t_(2);
+				}break; 
+			case 4:
+				{
+					H_(i,nb(0,0)) = nb(0,1)*t_(0);
+					H_(i,nb(1,0)) = nb(1,1);
+				}break;
+			case 5:
+				{
+					H_(i,nb(0,0)) = nb(0,1)*t_(0);
+				}break;
+			case 6:
+				{
+					H_(i,nb(0,0)) = nb(0,1)*t_(2);
+					H_(i,nb(1,0)) = nb(1,1);
+				}break;
+			case 7:
 				{
 					H_(i,nb(0,0)) = nb(0,1)*t_(1);
 				}break;
@@ -81,8 +99,8 @@ void LadderFree::check(){
 	std::cout<<"Hamiltonien"<<std::endl;
 	std::cout<<H_<<std::endl;
 
-	plot_band_structure();
 	lattice();
+	plot_band_structure();
 }
 
 void LadderFree::lattice(){

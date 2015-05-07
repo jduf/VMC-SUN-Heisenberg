@@ -96,5 +96,5 @@ int main(int argc, char* argv[]){
 				std::cerr<<"      - init + create + run + write : 4"<<std::endl;
 				std::cerr<<"      - load + run                  : 5"<<std::endl;
 			}
-	} 
+	}
 }

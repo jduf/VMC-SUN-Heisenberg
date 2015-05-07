@@ -12,13 +12,14 @@ ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int
 			filename_ += ((t_(j)>0)?"+":"")+my::tostring(t_(j));
 		}
 		if(spuc_ != 1){
-			system_info_.item("Spin chain, with different my::real hopping terms.");
+			system_info_.text("Trial wavefunction with different real hopping ");
+			system_info_.text("terms for a "+RST::math("\\mathrm{SU}(N)")+" chain :"+RST::nl_);
 			if(spuc_ != 4){
 				std::string tmp("");
 				for(unsigned int i(0);i<spuc_-1;i++){ tmp += "=\\bullet"; }
-				system_info_.item(":math:`t_i : "+tmp+"-`");
+				system_info_.text(" "+RST::math("t_i : "+tmp+"-"));
 			}
-			else{system_info_.item(":math:`t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-`");}
+			else{system_info_.text(" "+RST::math("t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-"));}
 			system_info_.nl();
 		} else {
 			system_info_.text("Trial wavefunction with uniform real hopping ");
@@ -54,34 +55,34 @@ void ChainPolymerized::create(){
 			}
 		}
 	}
-	//if(status_==2){
-		///*!Use the eigenvector (k1+k2)/sqrt(2) which correspond to the
-		// * impulsion k1+k2=0.*/
-		//compute_H();
-		//diagonalize(false);
-		//double n1(0);
-		//double n2(0);
-		//std::complex<double> tmp1;
-		//std::complex<double> tmp2;
-		//unsigned int m(M_(0));
-		//for(unsigned int i(0);i<n_;i++){
-			//tmp1 = evec_(i,m) + evec_(i,m-1);//k=k1+k2=0
-			//tmp2 = evec_(i,m) - evec_(i,m-1);//k=k1-k2=2k1
-			//evec_(i,m-1)= tmp1;
-			//evec_(i,m)  = tmp2;
-			//n1 += my::norm_squared(tmp1);
-			//n2 += my::norm_squared(tmp2);
-		//}
-		//for(unsigned int i(0);i<n_;i++){
-			//evec_(i,m-1)/= sqrt(n1);
-			//evec_(i,m)  /= sqrt(n2);
-		//}
-		//for(unsigned int c(0);c<N_;c++){
-			//for(unsigned int i(0);i<n_;i++){
-				//EVec_[c](i,M_(c)-1) = my::real(evec_(i,M_(c)-1));
-			//}
-		//}
-	//}
+	if(status_==2){
+		/*!Use the eigenvector (k1+k2)/sqrt(2) which correspond to the
+		 * impulsion k1+k2=0.*/
+		compute_H();
+		diagonalize(false);
+		double n1(0);
+		double n2(0);
+		std::complex<double> tmp1;
+		std::complex<double> tmp2;
+		unsigned int m(M_(0));
+		for(unsigned int i(0);i<n_;i++){
+			tmp1 = evec_(i,m) + evec_(i,m-1);//k=k1+k2=0
+			tmp2 = evec_(i,m) - evec_(i,m-1);//k=k1-k2=2k1
+			evec_(i,m-1)= tmp1;
+			evec_(i,m)  = tmp2;
+			n1 += my::norm_squared(tmp1);
+			n2 += my::norm_squared(tmp2);
+		}
+		for(unsigned int i(0);i<n_;i++){
+			evec_(i,m-1)/= sqrt(n1);
+			evec_(i,m)  /= sqrt(n2);
+		}
+		for(unsigned int c(0);c<N_;c++){
+			for(unsigned int i(0);i<n_;i++){
+				EVec_[c](i,M_(c)-1) = real(evec_(i,M_(c)-1));
+			}
+		}
+	}
 }
 
 void ChainPolymerized::save() const {

@@ -31,7 +31,7 @@ class MCSim {
 
 		void print() const { std::cout<<param_<<S_->get_energy(); }
 		void write(IOFiles& w) const;
-		bool is_created() const { return S_.get(); }
+		bool is_created() const { return (S_.get()?!S_->get_status():false); }
 
 	private:
 		Vector<unsigned int> ref_;

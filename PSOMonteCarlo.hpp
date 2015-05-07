@@ -6,10 +6,10 @@
 
 class PSOMonteCarlo: public Swarm<MCParticle>{
 	public:
-		PSOMonteCarlo(Parseur* P);
+		PSOMonteCarlo(Parseur& P, IOFiles* in=NULL);
 		/*!Default destructor*/
 		virtual ~PSOMonteCarlo() = default;
-		/*{Forbids constructors*/
+		/*{Forbidden*/
 		PSOMonteCarlo() = delete;
 		PSOMonteCarlo(PSOMonteCarlo const&) = delete;
 		PSOMonteCarlo(PSOMonteCarlo&&) = delete;
@@ -21,8 +21,8 @@ class PSOMonteCarlo: public Swarm<MCParticle>{
 		void plot() const;
 		void print() const;
 
-		void write(IOFiles& w) const;
-		void read(IOFiles& w, bool create_particle_history);
+		void save();
+		void create_particle_history(bool create);
 
 	private:
 		bool evaluate(unsigned int const& p);
@@ -30,5 +30,8 @@ class PSOMonteCarlo: public Swarm<MCParticle>{
 		unsigned int tmax_;
 		Container system_param_;
 		List<MCSim> all_results_;
+		IOFiles out_;
+
+		std::string init_read(Parseur& P, IOFiles* in=NULL);
 };
 #endif

@@ -64,6 +64,10 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 	spuc_(spuc),
 	z_(z)
 { 
+	if(this->n_%this->spuc_){
+		this->status_++;
+		std::cerr<<"GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename) : the number of sites is not comensurate with the unit cell"<<std::endl;
+	}
 	filename_ += "-N" + my::tostring(this->N_);
 	path_ += "N" + my::tostring(this->N_);
 	filename_ += "-m" + my::tostring(this->m_);
@@ -80,7 +84,11 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 		case -1:{filename_ += "-A"; path_ += "/A/"; }break;
 		case 0: {filename_ += "-O"; path_ += "/O/"; }break;
 		case 1: {filename_ += "-P"; path_ += "/P/"; }break;
-		default:{std::cerr<<"GenericSystem : Unknown boundary condition"<<std::endl;}
+		default:
+				{
+					this->status_++;
+					std::cerr<<"GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename) : unknown boundary condition"<<std::endl;
+				}
 	}
 	path_ += my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2))+"/";
 }
@@ -128,7 +136,7 @@ void GenericSystem<Type>::save() const {
 }
 
 template<typename Type>
-void GenericSystem<Type>::check_lattice() {
+void GenericSystem<Type>::check_lattice(){
 	Matrix<int> nb;
 	Vector<int> dir;
 	Rand<unsigned int> rnd(0,z_-1);

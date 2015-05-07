@@ -62,13 +62,19 @@ void LadderFermi<Type>::compute_H(){
 template<typename Type>
 void LadderFermi<Type>::check(){
 	this->compute_H();
-	std::cout<<"liens :"<<std::endl;
-	std::cout<<this->links_<<std::endl;
 
+	Matrix<int> nb;
 	for(unsigned int i(0);i<this->n_;i++){
-		std::cout << "get_neighbourg. right - top/bot - left" << std::endl;
-		std::cout<<"i="<<i<<std::endl;
-		std::cout<<this->get_neighbourg(i)<<std::endl;// shows the links
+		nb = this->get_neighbourg(i);
+		std::cout<<"i="<<i;
+		std::cout<<" nb="<<nb(0,0);
+		std::cout<<","<<nb(1,0);
+		std::cout<<","<<nb(2,0)<<std::endl;;
+	} 
+	for(unsigned int i(0);i<this->links_.row();i++){
+		std::cout<<"i="<<i;
+		std::cout<<" l="<<this->links_(i,0);
+		std::cout<<","<<this->links_(i,1)<<std::endl;
 	} 
 	std::cout<<"Hamiltonien"<<std::endl;
 	std::cout<<this->H_<<std::endl;

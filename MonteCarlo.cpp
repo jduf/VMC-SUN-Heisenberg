@@ -12,7 +12,7 @@ MonteCarlo::MonteCarlo(MCSystem* S, unsigned int const& tmax):
 /*public methods*/
 /*{*/
 void MonteCarlo::thermalize(unsigned int const& N){
-	if(S_->get_status()==0){
+	if(!S_->get_status()){
 		for(unsigned int i(0);i<N;i++){
 			S_->swap();
 			if( S_->ratio(true) > rnd_.get() ){ S_->update(); }
@@ -23,7 +23,7 @@ void MonteCarlo::thermalize(unsigned int const& N){
 
 void MonteCarlo::run(){
 	time_.set();
-	if(S_->get_status()==0){
+	if(!S_->get_status()){
 		do{next_step();}
 		while(keepon());
 	}

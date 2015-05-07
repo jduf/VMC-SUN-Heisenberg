@@ -73,17 +73,19 @@ void System1D<Type>::diagonalize(bool simple){
 
 template<typename Type>
 void System1D<Type>::plot_band_structure(){
-	full_diagonalization();
+	if(full_diagonalization()){
+		IOFiles spectrum("spectrum.dat",true);
+		for(unsigned int i(0);i<this->n_;i++){
+			spectrum<<p_(i)<<" "<<e_(i)<<IOFiles::endl;
+		}
 
-	IOFiles spectrum("spectrum.dat",true);
-	for(unsigned int i(0);i<this->n_;i++){
-		spectrum<<p_(i)<<" "<<e_(i)<<IOFiles::endl;
+		Gnuplot gp("./","spectrum");
+		gp.range("x","-pi","pi");
+		gp+="plot 'spectrum.dat' u 1:2 w p ps 1.5 lt 3 lc 7";
+		gp.save_file();
+	} else {
+		std::cerr<<"void System1D<Type>::plot_band_structure() : diagonalization failed, the band structure can't be computed"<<std::endl;
 	}
-
-	Gnuplot gp("./","spectrum");
-	gp.range("x","-pi","pi");
-	gp+="plot 'spectrum.dat' u 1:2 w p ps 1.5 lt 3 lc 7";
-	gp.save_file();
 }
 /*}*/
 
