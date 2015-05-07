@@ -190,7 +190,6 @@ Binning<Type>::Binning(Binning const& b):
 	recompute_dx_usefull_(b.recompute_dx_usefull_)
 {
 	for(unsigned int i(0);i<b_;i++){ bin_[i] = b.bin_[i]; }
-	std::cout<<"binning copy"<<std::endl;
 }
 
 template<typename Type>
@@ -443,9 +442,7 @@ Data<Type>::Data(Data<Type> const& d):
 	N_(d.N_),
 	conv_(d.conv_),
 	binning_(d.binning_?new Binning<Type>(*d.binning_):NULL)
-{
-	std::cout<<"data copy"<<std::endl;
-}
+{}
 
 template<typename Type>
 Data<Type>::Data(Data<Type>&& d):
@@ -641,7 +638,6 @@ DataSet<Type>::DataSet(DataSet<Type> const& ds):
 	for(unsigned int i(0);i<size_;i++){
 		ds_[i] = ds.ds_[i];
 	}
-	std::cout<<"dataset copy"<<std::endl;
 }
 
 template<typename Type>

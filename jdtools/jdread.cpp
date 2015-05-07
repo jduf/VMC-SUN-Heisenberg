@@ -6,6 +6,6 @@ int main(int argc, char* argv[]){
 		IOFiles r(argv[1],false);
 		std::cout<<r.get_header()<<std::endl;
 	} else {
-		std::cerr<<"jdread : take exactly one input argument : ./jdread filename"<<std::endl;
+		std::cerr<<"jdread : takes exactly one input argument : ./jdread filename"<<std::endl;
 	}
 }	

@@ -143,7 +143,6 @@ Matrix<Type>::Matrix(Matrix<Type> const& mat):
 	mat_(size_?new Type[size_]:NULL)
 {
 	for(unsigned int i(0);i<size_;i++){ mat_[i] = mat.mat_[i]; }
-	std::cout<<"matrix copy"<<std::endl;
 }
 
 template<typename Type>

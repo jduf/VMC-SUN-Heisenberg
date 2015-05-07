@@ -9,8 +9,8 @@
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	std::string directory_name_1(P.get<std::string>("0"));
-	std::string directory_name_2(P.get<std::string>("1"));
+	std::string directory_name_1(P.get<std::string>(0));
+	std::string directory_name_2(P.get<std::string>(1));
 	unsigned int i(0);
 	std::string ext(P.find("e",i,false)?P.get<std::string>(i):"");
 	std::string keyword(P.find("k",i,false)?P.get<std::string>(i):"");

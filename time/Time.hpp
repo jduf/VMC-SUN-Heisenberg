@@ -2,6 +2,7 @@
 #define DEF_TIME
 
 #include <ctime> 
+#include <string> 
 
 class Time{
 	public:
@@ -9,7 +10,7 @@ class Time{
 		Time(){set();}
 		/*!Default destructor*/
 		~Time() = default;
-		/*{Forbids constructor*/
+		/*{Forbidden*/
 		Time(Time const&) = delete;
 		Time(Time&&) = delete;
 		Time& operator=(Time) = delete;
@@ -33,6 +34,13 @@ class Time{
 		int min() const { return time_->tm_min;}
 		/*!Returns the current sec*/
 		int sec() const { return time_->tm_sec;}
+		/*!Returns the date*/
+		std::string date(){ 
+			char tmp[20];
+			//std::strftime(tmp,20,"%G-%m-%d_%H:%M:%S",localtime(&rawtime_));
+			std::strftime(tmp,20,"%F_%T",localtime(&rawtime_));
+			return tmp;
+		}
 
 		/*!Returns true if time limit (in second) has been reached*/
 		bool limit_reached(time_t const& limit) const 

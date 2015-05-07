@@ -1,9 +1,8 @@
-EXEC=jdinfo jdread jdtags jdfind
+EXEC=jdread jdhtml
 
-jdinfo_SRCS = jdinfo.cpp Directory.cpp Header.cpp Parseur.cpp IOFiles.cpp RST.cpp RSTFile.cpp
-jdread_SRCS = jdread.cpp Directory.cpp Header.cpp Parseur.cpp IOFiles.cpp RST.cpp 
-jdtags_SRCS = jdtags.cpp Directory.cpp Header.cpp Parseur.cpp IOFiles.cpp RST.cpp RSTFile.cpp
-jdfind_SRCS = jdfind.cpp Directory.cpp Header.cpp Parseur.cpp IOFiles.cpp RST.cpp RSTFile.cpp
+jdread_SRCS = jdread.cpp Header.cpp IOFiles.cpp RST.cpp
+jdhtml_SRCS = jdhtml.cpp Header.cpp IOFiles.cpp RST.cpp RSTFile.cpp
+
 #-----------------------------------------------------------------
 
 CXX = g++ -std=c++11

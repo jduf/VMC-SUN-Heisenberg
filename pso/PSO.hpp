@@ -1,11 +1,11 @@
 #ifndef DEF_PSO
 #define DEF_PSO
 
+#include<memory>
+
 #include"Rand.hpp"
 #include"Vector.hpp"
 #include"omp.h"
-
-#include<memory>
 
 class Optimization{
 	public:
@@ -59,8 +59,6 @@ class Particle: public Optimization{
 		Rand<double> rnd_;
 };
 
-std::ostream& operator<<(std::ostream& flux, Particle const& p);
-
 template<typename Type>
 class Swarm {
 	public:
@@ -78,9 +76,9 @@ class Swarm {
 		std::vector<std::shared_ptr<Particle> > p_;
 
 	private:
-		unsigned int const maxiter_;	//!< maximum number of iteration
-		unsigned int bparticle_;//!< best particle
-		bool* free_;         //!< true if particle_ isn't running
+		unsigned int const maxiter_;//!< maximum number of iteration
+		unsigned int bparticle_;	//!< best particle
+		bool* free_;         		//!< true if particle_ isn't running
 
 		void next_step(unsigned int const& p);
 		/*!This method must exist is the child class, it is the function that
@@ -129,13 +127,11 @@ void Swarm<Type>::init(double const& fx){
 template<typename Type>
 void Swarm<Type>::run(){
 	if(int(Nparticles_)<=omp_get_max_threads()){
-		std::cout<<"PSO::run all particles in parallel"<<std::endl;
 		for(unsigned int iter(0);iter<maxiter_;iter++){
 #pragma omp parallel for
 			for(unsigned int p=0;p<Nparticles_;p++){ next_step(p); }
 		}
 	} else {
-		std::cout<<"PSO::run only "+my::tostring(omp_get_max_threads())+" particles in parallel"<<std::endl;
 		unsigned int p(0);
 #pragma omp parallel for schedule(dynamic,1) firstprivate(p)
 		for(unsigned int i=0; i<maxiter_*Nparticles_; i++){

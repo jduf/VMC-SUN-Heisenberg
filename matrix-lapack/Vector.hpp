@@ -158,7 +158,6 @@ Vector<Type>::Vector(Vector<Type> const& vec):
 	vec_(size_?new Type[size_]:NULL)
 {
 	for(unsigned int i(0);i<size_;i++){ vec_[i] = vec.vec_[i]; }
-	std::cout<<"vector copy"<<std::endl;
 }
 
 template<typename Type>
