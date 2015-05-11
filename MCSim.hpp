@@ -32,6 +32,7 @@ class MCSim {
 		void print() const { std::cout<<param_<<S_->get_energy(); }
 		void write(IOFiles& w) const;
 		bool is_created() const { return (S_.get()?!S_->get_status():false); }
+		void save(Container* C) const;
 
 	private:
 		Vector<unsigned int> ref_;

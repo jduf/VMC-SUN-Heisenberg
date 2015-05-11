@@ -68,3 +68,24 @@ void MCSim::write(IOFiles& w) const {
 	w<<ref_<<param_;
 	S_->write(w);
 }
+
+void MCSim::save(Container* C) const {
+	CreateSystem cs(C,&param_);
+	cs.init();
+	if(cs.get_status()==2){
+		cs.create();
+		if(cs.get_status()==1){
+			Linux command;
+			command("/bin/mkdir -p " + cs.get_path());
+			IOFiles file_results(cs.get_path() + cs.get_filename()+".jdbin",true);
+			cs.init_output_file(file_results);
+			cs.save();
+			RST rst;
+			rst.title("Results",'-');
+			file_results.add_header()->add(rst.get());
+			file_results.write("energy per site",S_->get_energy());
+			file_results.write("correlation on links",S_->get_corr());
+			file_results.write("long range correlation",S_->get_lr_corr());
+		}
+	}
+}

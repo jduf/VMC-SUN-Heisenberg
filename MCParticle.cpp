@@ -4,27 +4,27 @@ void MCParticle::move(Vector<double> const& bx_all){
 	Particle::move(bx_all);
 	unsigned int n;
 	double dx(0.1);
-	for(unsigned int j(0);j<Nfreedom_;j++){
+	for(unsigned int i(0);i<Nfreedom_;i++){
 		n=0;
-		if(std::abs(x_(j))<dx/2){ n=1; }
-		if(std::abs(x_(j)-min_(j))<dx/2){ n=2; }
-		if(std::abs(x_(j)-max_(j))<dx/2){ n=3; }
+		if(std::abs(x_(i))<dx/2){ n=1; }
+		if(std::abs(x_(i)-min_(i))<dx/2){ n=2; }
+		if(std::abs(x_(i)-max_(i))<dx/2){ n=3; }
 		switch(n){
-			case 0:{ x_(j) = std::round(x_(j)/dx)*dx; }break;
-			case 1:{ x_(j) = 0; }break;
-			case 2:{ x_(j) = min_(j); }break;
-			case 3:{ x_(j) = max_(j); }break;
+			case 0:{ x_(i) = std::round(x_(i)/dx)*dx; }break;
+			case 1:{ x_(i) = 0; }break;
+			case 2:{ x_(i) = min_(i)+dx; }break;
+			case 3:{ x_(i) = max_(i)-dx; }break;
 		}
 	}
 }
 
-void MCParticle::init(double fx){
-	Particle::init(fx);
+void MCParticle::init_Particle(double fx){
+	Particle::init_Particle(fx);
 	unsigned int s(history_.size());
 	if(s){
 		Rand<unsigned int> rnd(1,s);
 		s = rnd.get();
-		while(history_.go_to_next() && --s);
+		while(history_.target_next() && --s);
 		x_ = history_.get().get_param();
 	}
 }
@@ -32,8 +32,8 @@ void MCParticle::init(double fx){
 void MCParticle::print() const {
 	Particle::print();
 	std::cout<<"particle history ("<<history_.size()<<")"<<std::endl;
-	history_.set_free();
-	while( history_.go_to_next() ){
+	history_.set_target();
+	while( history_.target_next() ){
 		std::cout<<history_.get_ptr()<<" ";
 		history_.get().print();
 		std::cout<<std::endl;
@@ -41,8 +41,8 @@ void MCParticle::print() const {
 }
 
 bool MCParticle::update(std::shared_ptr<MCSim> const& new_elem){
-	if(history_.find_sorted(new_elem,MCSim::cmp_for_fuse)){ history_.set_free(); }
-	else{ history_.add_after_free(new_elem); }
+	if(history_.find_sorted(new_elem,MCSim::cmp_for_fuse)){ history_.set_target(); }
+	else{ history_.add_after_target(new_elem); }
 	/*\warning may not need to run select_new_best at each step*/
 
 	if(Nupdate_ == update_now_){
@@ -67,7 +67,7 @@ void MCParticle::add_to_history(std::shared_ptr<MCSim> const& new_elem){
 bool MCParticle::select_new_best(){
 	double tmp;
 	bool new_best(false);
-	while(history_.go_to_next()){
+	while(history_.target_next()){
 		tmp = history_.get().get_S()->get_energy().get_x();
 		if(tmp<fbx_){
 			bx_ = history_.get().get_param();

@@ -33,13 +33,13 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 	cs.save();
 
 	RST rst;
-	rst.title("Simulation's parameters","-");
+	rst.title("Simulation's parameters",'-');
 	file_results.add_header()->add(rst.get());
 	file_results.write("number of simulations runned",nruns);
 	file_results.write("tmax",tmax);
 	std::cout<<file_results.get_header()<<std::endl;
 	rst.set();
-	rst.title("Results","-");
+	rst.title("Results",'-');
 	file_results.add_header()->add(rst.get());
 
 	Data<double> E;
@@ -81,7 +81,7 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 	lr_corr.complete_analysis();
 
 	rst.set();
-	rst.title("Mean results","-");
+	rst.title("Mean results",'-');
 	file_results.add_header()->add(rst.get());
 	file_results.write("energy per site",E);
 	file_results.write("correlation on links",corr);

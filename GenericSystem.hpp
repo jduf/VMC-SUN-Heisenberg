@@ -63,7 +63,7 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 	IOSystem(filename),
 	spuc_(spuc),
 	z_(z)
-{ 
+{
 	if(this->n_%this->spuc_){
 		this->status_++;
 		std::cerr<<"GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename) : the number of sites is not comensurate with the unit cell"<<std::endl;

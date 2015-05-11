@@ -9,6 +9,7 @@ class LadderFree: public Ladder<double>{
 		~LadderFree() = default;
 
 		void create();
+		void save() const;
 		void check();
 
 	protected:
