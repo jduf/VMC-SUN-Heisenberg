@@ -13,13 +13,13 @@
    | o─→o←──→o←──→o←──→o─→x|
    | │  │              ↑   |
    | │  └──────────────┘   |
-   | └──"free pointer"     |
+   | └──"target pointer"     |
    |_______________________|
 \endverbatim
  *
  * The first element is particular because t_=NULL and the next_ pointer points
- * to the first element of the list. The free_ pointer is free to point
- * anywhere. This construction allows the "free pointer" to point to any
+ * to the first element of the list. The target_ pointer is target to point
+ * anywhere. This construction allows the "target pointer" to point to any
  * element of the list and can therefore access quickly to the next or previous
  * element.
  *
@@ -39,23 +39,21 @@ class List{
 		/*}*/
 
 		void set();
-		void set_free() const { free_ = const_cast<List<Type>* const>(this); }
-		void set_free(List<Type>* free) const { free_ = free; }
-		List<Type>* get_free() { return free_; }
+		void set_target() const { target_ = const_cast<List<Type>* const>(this); }
 
-		Type& get() { return (*free_->t_); }
-		Type const& get() const { return (*free_->t_); }
-		std::shared_ptr<Type> const& get_ptr() const { return free_->t_; }
+		Type& get() { return (*target_->t_); }
+		Type const& get() const { return (*target_->t_); }
+		std::shared_ptr<Type> const& get_ptr() const { return target_->t_; }
 		Type& first(){ return *next_->t_; }
 		Type const& first() const { return *next_->t_; }
-		Type& last() { return (*next_->free_->t_); }
-		Type const& last() const { return (*next_->free_->t_); }
+		Type& last() { return (*next_->target_->t_); }
+		Type const& last() const { return (*next_->target_->t_); }
 
 		void add_start(std::shared_ptr<Type> t);
 		void add_end(std::shared_ptr<Type> t);
 		void add(std::shared_ptr<Type> t, unsigned int const& idx);
 		void add_sort(std::shared_ptr<Type> t,  std::function<bool (Type const&, Type const&)> cmp);
-		void add_after_free(std::shared_ptr<Type> t);
+		void add_after_target(std::shared_ptr<Type> t);
 
 		void pop_start();
 		void pop_end();
@@ -63,10 +61,10 @@ class List{
 		void pop_range(unsigned int const& a, unsigned int const& b);
 
 		bool find_sorted(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp);
-		void fuse_with_free(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> fuse);
+		void fuse_with_target(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> fuse);
 
 		unsigned int size() const;
-		bool go_to_next() const;
+		bool target_next() const;
 		void swap(unsigned int const& a, unsigned int const& b);
 		List<Type> sublist(unsigned int const& a, unsigned int const& b) const;
 
@@ -76,7 +74,7 @@ class List{
 		List(std::shared_ptr<Type> t);
 
 		std::shared_ptr<Type> t_  = NULL;
-		mutable List<Type>* free_ = this;
+		mutable List<Type>* target_ = this;
 		List<Type>* next_         = NULL;
 };
 
@@ -85,7 +83,7 @@ class List{
 template<typename Type>
 List<Type>::List(std::shared_ptr<Type> t):
 	t_(t),
-	free_(this),
+	target_(this),
 	next_(NULL)
 {}
 
@@ -103,7 +101,7 @@ void List<Type>::set(){
 template<typename Type>
 std::ostream& operator<<(std::ostream& flux, List<Type> const& l){
 	flux<<"("<<l.size()<<")"; 
-	while(l.go_to_next()){ flux<<" "<<l.get(); }
+	while(l.target_next()){ flux<<" "<<l.get(); }
 	return flux;
 }
 
@@ -127,9 +125,9 @@ void List<Type>::header_rst(std::string const& s, RST& rst) const {
 template<typename Type>
 IOFiles& operator<<(IOFiles& w, List<Type> const& l){
 	if(w.is_binary()){
-		l.set_free();
+		l.set_target();
 		w<<l.size();
-		while(l.go_to_next()){ w<<l.get(); }
+		while(l.target_next()){ w<<l.get(); }
 	} else { w.stream()<<l; }
 	return w;
 }
@@ -149,46 +147,46 @@ IOFiles& operator>>(IOFiles& r, List<Type>& l){
 /*{*/
 template<typename Type>
 void List<Type>::add_start(std::shared_ptr<Type> t){
-	free_ = new List<Type>(t);
+	target_ = new List<Type>(t);
 	if(next_){
-		free_->free_ = next_->free_;
-		next_->free_ = free_;
-		free_->next_ = next_;
+		target_->target_ = next_->target_;
+		next_->target_ = target_;
+		target_->next_ = next_;
 	} else {
-		free_->free_ = free_;
+		target_->target_ = target_;
 	}
-	next_ = free_;
-	free_ = this;
+	next_ = target_;
+	target_ = this;
 }
 
 template<typename Type>
 void List<Type>::add_end(std::shared_ptr<Type> t){
-	free_ = new List<Type>(t);
+	target_ = new List<Type>(t);
 	if(next_){
-		next_->free_->next_ = free_;
-		free_->free_ = next_->free_;
-		next_->free_ = free_;
+		next_->target_->next_ = target_;
+		target_->target_ = next_->target_;
+		next_->target_ = target_;
 	} else {
-		free_->free_ = free_;
-		next_ = free_;
+		target_->target_ = target_;
+		next_ = target_;
 	}
-	free_ = this;
+	target_ = this;
 }
 
 template<typename Type>
 void List<Type>::add(std::shared_ptr<Type> t, unsigned int const& idx){
 	if(idx == 0){ add_start(t); }
 	else{
-		free_ = next_;
+		target_ = next_;
 		unsigned int i(0);
-		while ( ++i<idx && free_ ) { free_ = free_->next_; }
-		if(free_){
-			if(free_->next_){
-				free_->next_->free_ = new List<Type>(t);
-				free_->next_->free_->next_ = free_->next_;
-				free_->next_ = free_->next_->free_;
-				free_->next_->free_ = free_;
-				free_ = this;
+		while ( ++i<idx && target_ ) { target_ = target_->next_; }
+		if(target_){
+			if(target_->next_){
+				target_->next_->target_ = new List<Type>(t);
+				target_->next_->target_->next_ = target_->next_;
+				target_->next_ = target_->next_->target_;
+				target_->next_->target_ = target_;
+				target_ = this;
 			} else {
 				add_end(t);
 			}
@@ -197,15 +195,15 @@ void List<Type>::add(std::shared_ptr<Type> t, unsigned int const& idx){
 }
 
 template<typename Type>
-void List<Type>::add_after_free(std::shared_ptr<Type> t){
-	if(free_==this){ add_start(t); }
+void List<Type>::add_after_target(std::shared_ptr<Type> t){
+	if(target_==this){ add_start(t); }
 	else {
-		if(free_->next_){
-			free_->next_->free_ = new List<Type>(t);
-			free_->next_->free_->next_ = free_->next_;
-			free_->next_ = free_->next_->free_;
-			free_->next_->free_ = free_;
-			free_ = this;
+		if(target_->next_){
+			target_->next_->target_ = new List<Type>(t);
+			target_->next_->target_->next_ = target_->next_;
+			target_->next_ = target_->next_->target_;
+			target_->next_->target_ = target_;
+			target_ = this;
 		} else {
 			add_end(t);
 		}
@@ -216,11 +214,11 @@ template<typename Type>
 void List<Type>::add_sort(std::shared_ptr<Type> t, std::function<bool (Type const&, Type const&)> cmp){
 	if(next_){
 		if(next_->next_){
-			if(cmp(*next_->free_->t_,*t)){ add_end(t); }
+			if(cmp(*next_->target_->t_,*t)){ add_end(t); }
 			else {
-				free_ = this;
-				while( cmp(*free_->next_->t_,*t) ){ free_ = free_->next_; }
-				add_after_free(t);
+				target_ = this;
+				while( cmp(*target_->next_->t_,*t) ){ target_ = target_->next_; }
+				add_after_target(t);
 			}
 		} else {
 			if( cmp(*next_->t_,*t) ){ add_end(t); } 
@@ -235,50 +233,50 @@ void List<Type>::add_sort(std::shared_ptr<Type> t, std::function<bool (Type cons
 template<typename Type>
 void List<Type>::pop_start(){
 	if(next_){
-		free_ = next_->next_;
-		if(free_){
+		target_ = next_->next_;
+		if(target_){
 			next_->next_ = NULL;
-			free_->free_ = next_->free_;
+			target_->target_ = next_->target_;
 			delete next_;
-			next_ = free_;
+			next_ = target_;
 		} else {
 			delete next_;
 			next_ = NULL;
 		}
 	}
-	free_ = this;
+	target_ = this;
 }
 
 template<typename Type>
 void List<Type>::pop_end(){
 	if(next_){
 		if(next_->next_){
-			next_->free_ = next_->free_->free_;
-			delete next_->free_->next_;
-			next_->free_->next_ = NULL;
+			next_->target_ = next_->target_->target_;
+			delete next_->target_->next_;
+			next_->target_->next_ = NULL;
 		} else {
 			delete next_;
 			next_ = NULL;
 		}
 	}
-	free_ = this;
+	target_ = this;
 }
 
 template<typename Type>
 void List<Type>::pop(unsigned int const& idx){
 	if(idx == 0){ pop_start(); }
 	else {
-		free_ = next_;
+		target_ = next_;
 		unsigned int i(0);
-		while ( i++<idx && free_ )
-		{ free_ = free_->next_; }
-		if(free_){
-			if(free_->next_){
-				free_->free_->next_ = free_->next_;
-				free_->next_->free_ = free_->free_;
-				free_->next_ = NULL;
-				delete free_;
-				free_ = this;
+		while ( i++<idx && target_ )
+		{ target_ = target_->next_; }
+		if(target_){
+			if(target_->next_){
+				target_->target_->next_ = target_->next_;
+				target_->next_->target_ = target_->target_;
+				target_->next_ = NULL;
+				delete target_;
+				target_ = this;
 			} else {
 				pop_end();
 			}
@@ -323,8 +321,8 @@ void List<Type>::swap(unsigned int const& a, unsigned int const& b){
 }
 
 template<typename Type>
-void List<Type>::fuse_with_free(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> fuse){
-	fuse(*free_->t_,*t);
+void List<Type>::fuse_with_target(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> fuse){
+	fuse(*target_->t_,*t);
 }
 /*}*/
 
@@ -334,44 +332,44 @@ template<typename Type>
 bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp){
 	if(next_){//check if there is at least one element
 		if(next_->next_){//check if there is at least two elements
-			switch(cmp(*next_->free_->t_,*t)){ //check cmp(last,t)
+			switch(cmp(*next_->target_->t_,*t)){ //check cmp(last,t)
 				case 0://the last element is "bigger" than t
 					{ 
 						switch(cmp(*next_->t_,*t)){
 							case 0:
 								{ 
-									free_ = this;
+									target_ = this;
 									return false;
 								}break;
 							case 1:
 								{
-									free_ = this;
+									target_ = this;
 									unsigned int c(1);
 									while(c==1){
-										free_ = free_->next_;
-										c = cmp(*free_->next_->t_,*t);
+										target_ = target_->next_;
+										c = cmp(*target_->next_->t_,*t);
 									}
 									if(c==0){ return false; } 
 									else { 
-										free_ = free_->next_;
+										target_ = target_->next_;
 										return true; 
 									}
 								}break; 
 							case 2:
 								{
-									free_ = next_;
+									target_ = next_;
 									return true;
 								}
 						}
 					} break;
 				case 1://the last element is "smaller" than t
 					{ 
-						free_ = next_->free_;
+						target_ = next_->target_;
 						return false;
 					} break;
 				case 2://the last element is equal to t
 					{ 
-						free_ = next_->free_;
+						target_ = next_->target_;
 						return true;
 					} break;
 			}
@@ -379,17 +377,17 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 			switch(cmp(*next_->t_,*t)){//check the unique element of the list
 				case 0://the unique element is "bigger"  than t
 					{ 
-						free_ = this;
+						target_ = this;
 						return false;
 					} break;
 				case 1://the unique element is "smaller" than t
 					{ 
-						free_ = next_;
+						target_ = next_;
 						return false;
 					} break;
 				case 2://the unique element is equal to t 
 					{ 
-						free_ = next_;
+						target_ = next_;
 						return true;
 					} break;
 			}
@@ -397,17 +395,17 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 		std::cerr<<"bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp) : unexpected value returned from cmp"<<std::endl;
 		return false;
 	} else {
-		free_ = this;
+		target_ = this;
 		return false;
 	}
 }
 
 template<typename Type>
-bool List<Type>::go_to_next() const { 
-	free_ = free_->next_; 
-	if(free_){ return true; }
+bool List<Type>::target_next() const { 
+	target_ = target_->next_; 
+	if(target_){ return true; }
 	else { 
-		free_ = const_cast<List<Type>* const>(this);
+		target_ = const_cast<List<Type>* const>(this);
 		return false; 
 	}
 }
@@ -427,12 +425,12 @@ List<Type> List<Type>::sublist(unsigned int const& a, unsigned int const& b) con
 template<typename Type>
 unsigned int List<Type>::size() const{
 	unsigned int N(0);
-	free_ = next_;
-	while(free_){ 
+	target_ = next_;
+	while(target_){ 
 		N++;
-		free_ = free_->next_;
+		target_ = target_->next_;
 	}
-	free_ = const_cast<List<Type>* const>(this);
+	target_ = const_cast<List<Type>* const>(this);
 	return N;
 }
 /*}*/

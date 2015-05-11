@@ -10,8 +10,8 @@ Vector<double> Optimization::max_ = Vector<double>();
 
 void Optimization::set(unsigned int const& Nfreedom, double const& cg, double const& cp){
 	Nfreedom_ = Nfreedom;
-	min_.set(Nfreedom,-2.5);
-	max_.set(Nfreedom,2.5);
+	min_.set(Nfreedom,-1e10);
+	max_.set(Nfreedom,1e10);
 	chi_ = -2.0/(2.0-(cp_+cg_)-sqrt((cp_+cg_)*(cp_+cg_)-4*(cp_+cg_)));
 	if(cg+cp>=4){
 		cg_ = cg;
@@ -36,28 +36,34 @@ bool Optimization::within_limit(Vector<double> const& x){
 /*}*/
 
 /*{Particle*/
-void Particle::move(Vector<double> const& bx_all){
-	for(unsigned int i(0);i<Nfreedom_;i++){
-		v_(i) = chi_*(v_(i) + cp_*rnd_.get()*(bx_(i)-x_(i)) + cg_*rnd_.get()*(bx_all(i)-x_(i)));
-		if( x_(i)+v_(i) > max_(i)){ v_(i) = log(1.0+rnd_.get()*(exp(max_(i)-x_(i))-1.0)); }
-		if( x_(i)+v_(i) < min_(i)){ v_(i) =-log(1.0+rnd_.get()*(exp(x_(i)-min_(i))-1.0)); }
-		x_(i) += v_(i); 
-	}
-}
-
-void Particle::init(double fx){
+void Particle::init_Particle(double fx){
 	fbx_ = fx;
-	x_.set(Nfreedom_,1.0);
-	v_.set(Nfreedom_,2.0);
+	x_.set(Nfreedom_);
+	v_.set(Nfreedom_);
 
 	for(unsigned int i(0);i<Nfreedom_;i++){
 		x_(i) = rnd_.get()*(max_(i)-min_(i))+min_(i);
 		v_(i) = rnd_.get()*(max_(i)-min_(i))+min_(i);
 	}
+	bx_ = x_;
+	move(bx_);
+	bx_ = x_;
+}
 
-	bx_ = x_;
-	move(x_);
-	bx_ = x_;
+void Particle::move(Vector<double> const& bx_all){
+	double r;
+	for(unsigned int i(0);i<Nfreedom_;i++){
+		v_(i) = chi_*(v_(i) + cp_*rnd_.get()*(bx_(i)-x_(i)) + cg_*rnd_.get()*(bx_all(i)-x_(i)));
+		r = rnd_.get();
+		if( x_(i)+v_(i) > max_(i)){ v_(i) = log(1.0+r*(exp(max_(i)-x_(i))-1.0)); }
+		if( x_(i)+v_(i) < min_(i)){ v_(i) =-log(1.0+r*(exp(x_(i)-min_(i))-1.0)); }
+#pragma omp critical
+		{
+			if( x_(i)+v_(i) > max_(i)){ std::cerr<<"there upper limit "<<x_(i)<<" "<<v_(i)<<" "<<max_(i)<<" "<<r<<std::endl; }
+			if( x_(i)+v_(i) < min_(i)){ std::cerr<<"there lower limit "<<x_(i)<<" "<<v_(i)<<" "<<min_(i)<<" "<<r<<std::endl; }
+		}
+		x_(i) += v_(i); 
+	}
 }
 
 void Particle::print() const {

@@ -82,7 +82,7 @@ class FuncPSO : public Swarm<ParticleOnGrid> {
 		List<Measure> m_;
 
 	private:
-		bool is_better_x(unsigned int const& p); 
+		bool evaluate(unsigned int const& p); 
 };
 
 FuncPSO::FuncPSO(unsigned int Nparticles, unsigned int maxiter, unsigned int Nfreedom, double cg, double cp):
@@ -93,7 +93,7 @@ double FuncPSO::f(Vector<double> const& x){
 	return (1-x(0)*x(0))*(1-x(0)*x(0))+(3-x(1)*x(1))*(3-x(1)*x(1));
 }
 
-bool FuncPSO::is_better_x(unsigned int const& p){
+bool FuncPSO::evaluate(unsigned int const& p){
 	double fx(f(p_[p]->get_x()));
 	std::shared_ptr<Measure> result(std::make_shared<Measure>(p_[p]->get_x(),fx));
 #pragma omp critical

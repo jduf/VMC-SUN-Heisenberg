@@ -67,9 +67,8 @@ Parseur::~Parseur(){
 	if(locked_){ std::cerr<<"Parseur::~Parseur() : the parseur was locked"<<std::endl; }
 }
 
-bool Parseur::find(std::string const& pattern, unsigned int& i, bool iffail){
+bool Parseur::find(std::string const& pattern, unsigned int& i, bool iffail) const {
 	if(!locked_){
-		i=0;
 		if(Container::find(pattern,i)){
 			used_[i] = true;
 			return true;
@@ -77,7 +76,5 @@ bool Parseur::find(std::string const& pattern, unsigned int& i, bool iffail){
 			locked_ = iffail;
 			return false;
 		}
-	} else {
-		return false;
-	}
+	} else { return false; }
 }

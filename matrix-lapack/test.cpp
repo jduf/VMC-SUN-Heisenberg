@@ -371,6 +371,7 @@ int main(){
 	//m1 = m4;
 	//Matrix<double> m5(&m1);
 	///*}*/
+	//
 }
 
 std::complex<double> projection(Matrix<double> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket){

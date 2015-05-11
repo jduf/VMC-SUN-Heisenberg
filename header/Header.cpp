@@ -13,7 +13,7 @@ std::string Header::when(){
 }
 
 void Header::init(std::string const& s){
-	title(s,"=");
+	title(s,'=');
 	textit(when());
 	nl();
 }

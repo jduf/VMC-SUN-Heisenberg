@@ -17,7 +17,7 @@ class RST{
 		RST& operator=(RST) = delete;
 		/*}*/
 
-		void title(std::string const& t, std::string const& symb);
+		void title(std::string const& t, char const& symb);
 		void text(std::string const& t);
 		void math_centered(std::string const& t);
 		void item(std::string const& t);

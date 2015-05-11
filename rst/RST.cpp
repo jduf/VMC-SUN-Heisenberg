@@ -14,7 +14,7 @@ RST::RST(std::string const& rst):
 	rst_(rst)
 {}
 
-void RST::title(std::string const& t,std::string const& symb){
+void RST::title(std::string const& t, char const& symb){
 	rst_ += RST::np_ + t + RST::nl_;
 	for(unsigned int i(0);i<t.size();i++){ rst_ +=  symb; }
 	rst_ += RST::np_;

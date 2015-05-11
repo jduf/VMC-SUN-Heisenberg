@@ -101,8 +101,8 @@ class Vector{
 		Type max() const;
 		/*!Returns the minimal value of vec_*/
 		Type min() const;
-		/*!Returns the norm of the vector (sqrt(xx+yy+zz+...))*/
-		double norm() const;
+		/*!Returns the norm squared of the vector (xx+yy+zz+...)*/
+		double norm_squared() const;
 
 		/*!Returns the size of the Vector*/
 		unsigned int size() const {return size_;}
@@ -418,10 +418,10 @@ Type Vector<Type>::sum() const {
 }
 
 template<typename Type>
-double Vector<Type>::norm() const {
-	double norm(0);
-	for(unsigned int i(0);i<size_;i++){ norm += norm_squared(vec_[i]);}
-	return sqrt(norm);
+double Vector<Type>::norm_squared() const {
+	double ns(0);
+	for(unsigned int i(0);i<size_;i++){ ns += my::norm_squared(vec_[i]);}
+	return ns;
 }
 /*}*/
 

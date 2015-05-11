@@ -22,20 +22,19 @@ class Parseur: public Container {
 		/*}*/
 
 		/*!Returns true if there is a var_[i]==patern and sets i*/
-		bool find(std::string const& pattern, unsigned int& i, bool iffail=true);
+		bool find(std::string const& pattern, unsigned int& i, bool iffail=true) const;
 		/*!Returns locked_*/
 		bool status() const { return locked_; }
 
 	private:
-		std::vector<bool> used_;
-		bool locked_;
+		mutable std::vector<bool> used_;
+		mutable bool locked_;
 
 		template<typename Type>
 			void set_vector_from_list(std::string const& name, std::string const& val);
 		template<typename Type>
 			void set_vector_from_range(std::string const& name, std::string const& val);
 };
-
 
 template<typename Type>
 void Parseur::set_vector_from_list(std::string const& name, std::string const& val){
