@@ -1,6 +1,7 @@
 #include "MCParticle.hpp"
 
 void MCParticle::move(Vector<double> const& bx_all){
+	Vector<double> tmp(x_);
 	Particle::move(bx_all);
 	unsigned int n;
 	double dx(0.1);
@@ -15,6 +16,19 @@ void MCParticle::move(Vector<double> const& bx_all){
 			case 2:{ x_(i) = min_(i)+dx; }break;
 			case 3:{ x_(i) = max_(i)-dx; }break;
 		}
+	}
+#pragma omp critical
+	if(my::are_equal(tmp,x_)){
+		Rand<int> rnd(0,2);
+		std::cerr<<"force move"<<std::endl;
+		double dv;
+		for(unsigned int i(0);i<Nfreedom_;i++){
+			dv = dx*rnd.get();
+			v_(i) += dv;
+			x_(i) += dv;
+		}
+	} else {
+		std::cerr<<tmp<<" "<<x_<<std::endl;
 	}
 }
 

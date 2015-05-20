@@ -30,8 +30,15 @@ class PSOMonteCarlo: public Swarm<MCParticle>{
 		unsigned int tmax_;
 		Container system_param_;
 		List<MCSim> all_results_;
+		std::string basename_;
+		std::string time_;
 		RST pso_info_;
 
-		std::string get_filename() const;
+		std::string get_filename() const { return basename_+"_"+time_; }
+
+		static bool sort_per_energy(MCSim const& a, MCSim const& b){ 
+			return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
+		};
+
 };
 #endif

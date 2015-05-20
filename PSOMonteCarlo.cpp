@@ -2,20 +2,34 @@
 
 PSOMonteCarlo::PSOMonteCarlo(Parseur& P):
 	Swarm<MCParticle>(P.get<unsigned int>("Nparticles"),P.get<unsigned int>("maxiter"),P.get<unsigned int>("Nfreedom"),P.get<double>("cg"),P.get<double>("cp")),
-	tmax_(P.get<unsigned int>("tmax"))
+	tmax_(P.get<unsigned int>("tmax")),
+	basename_("PSO")
 {
 	unsigned int i(0);
 	IOFiles* in(P.find("load",i,false)?(new IOFiles(P.get<std::string>(i),false)):NULL);
-	system_param_.set("wf",(in?in->read<std::string>():P.get<std::string>("wf")));
-	system_param_.set("N",(in?in->read<unsigned int>():P.get<unsigned int>("N")));
-	system_param_.set("m",(in?in->read<unsigned int>():P.get<unsigned int>("m")));
-	system_param_.set("n",(in?in->read<unsigned int>():P.get<unsigned int>("n")));
-	system_param_.set("bc",(in?in->read<int>():P.get<int>("bc")));
+	std::string wf(in?in->read<std::string>():P.get<std::string>("wf"));
+	unsigned int N(in?in->read<unsigned int>():P.get<unsigned int>("N"));
+	unsigned int m(in?in->read<unsigned int>():P.get<unsigned int>("m"));
+	unsigned int n(in?in->read<unsigned int>():P.get<unsigned int>("n"));
+	int bc(in?in->read<int>():P.get<int>("bc"));
+
+	system_param_.set("wf",wf);
+	system_param_.set("N",N);
+	system_param_.set("m",m);
+	system_param_.set("n",n);
+	system_param_.set("bc",bc);
+
+	basename_ += "-wf"+system_param_.get<std::string>("wf");
+	basename_ += "-N" +my::tostring(N);
+	basename_ += "-m" +my::tostring(m);
+	basename_ += "-n" +my::tostring(n);
+	basename_ += "-bc"+my::tostring(bc);
+
 	if(in){
 		unsigned int size(in->read<int>());
 		while(size--){ all_results_.add_end(std::make_shared<MCSim>(*in)); }
 		pso_info_.text("loads data from "+in->get_filename()+RST::nl_);
-		
+
 		delete in;
 		in = NULL;
 	}
@@ -29,6 +43,9 @@ void PSOMonteCarlo::init(bool const& clear_particle_history, bool const& create_
 			std::dynamic_pointer_cast<MCParticle>(particle_[p])->clear_history();
 		}
 	}
+	time_ = Time().date();
+
+	track_particles_ = new IOFiles(get_filename()+"-ERR.dat",true);
 	init_PSO(100); 
 	if(clear_particle_history && create_particle_history && all_results_.size()){
 		pso_info_.text("set history"+RST::nl_);
@@ -97,12 +114,9 @@ void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& tol, unsig
 		pso_info_.item(my::tostring(Nrefine));
 		pso_info_.item(my::tostring(tol));
 		pso_info_.item(my::tostring(tmax)+RST::nl_);
-		auto sort = [](MCSim const& a, MCSim const& b){ 
-			return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
-		};
 
 		List<MCSim> best;
-		while(all_results_.target_next()){ best.add_sort(all_results_.get_ptr(),sort); }
+		while(all_results_.target_next()){ best.add_sort(all_results_.get_ptr(),PSOMonteCarlo::sort_per_energy); }
 		unsigned int N(all_results_.size());
 		N  = (N<Nrefine?N:Nrefine);
 		best.set_target();
@@ -127,10 +141,6 @@ void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& tol, unsig
 	} else {
 		std::cerr<<"void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& tol, unsigned int const& tmax) : there is no data"<<std::endl;
 	}
-	//best.set_free();
-	//while(best.target_next()){
-	//std::cout<<best.get().get_S()->get_energy()<<std::endl;
-	//}
 }
 
 void PSOMonteCarlo::complete_analysis(double const& tol){
@@ -138,17 +148,30 @@ void PSOMonteCarlo::complete_analysis(double const& tol){
 	while ( all_results_.target_next() ){
 		all_results_.get().get_S()->complete_analysis(tol);
 	}
-}
 
-std::string PSOMonteCarlo::get_filename() const {
-	std::string filename("PSO");
-	filename += "-wf"+system_param_.get<std::string>("wf");
-	filename += "-N" +my::tostring(system_param_.get<unsigned int>("N"));
-	filename += "-m" +my::tostring(system_param_.get<unsigned int>("m"));
-	filename += "-n" +my::tostring(system_param_.get<unsigned int>("n"));
-	filename += "-bc"+my::tostring(system_param_.get<int>("bc"));
-	filename += "_"+Time().date();
-	return filename;
+	if(track_particles_){
+		Gnuplot gp("./",get_filename()+"-ERR");
+		gp+="ERRFILE='"+get_filename()+"-ERR.dat'";
+		Vector<double> m(get_bx());
+		std::string space(16+my::tostring(Nparticles_).size(),' ');
+		for(unsigned int i(0);i<Optimization::get_Nfreedom();i++){ gp+="a"+my::tostring(i)+"="+my::tostring(m(i)); }
+		gp+="";
+		gp+="set multiplot layout 2,1";
+		for(unsigned int i(0);i<Optimization::get_Nfreedom();i++){
+			gp+=std::string(!i?"plot":"    ")+" for [p=0:"+my::tostring(Nparticles_-1)+"] ERRFILE u 1:($2==p? ($"+my::tostring(4+i)+"-a"+my::tostring(i)+"):1/0) pt 13 lc "+my::tostring(i)+" notitle,\\";
+		}
+		for(unsigned int i(0);i<Optimization::get_Nfreedom();i++){
+			gp+=space+"ERRFILE u 1:($2==-1? ($"+my::tostring(4+i)+"-a"+my::tostring(i)+"):1/0) pt 4 lc "+my::tostring(i)+" t sprintf('%f',a"+my::tostring(i)+")"+(i==Optimization::get_Nfreedom()-1?"":",\\");
+		}
+		gp+="";
+		gp+="plot for [p=0:"+my::tostring(Nparticles_-1)+"] ERRFILE u 1:($2==p? $3:1/0) pt 13 lc 1  notitle,\\";
+		gp+=space+"ERRFILE u 1:($2==-1?$3:1/0) pt 4 lc 1 notitle";
+		gp+="unset multiplot";
+		gp.save_file();
+
+		delete track_particles_;
+		track_particles_ = NULL;
+	}
 }
 
 void PSOMonteCarlo::plot() const {
@@ -161,9 +184,8 @@ void PSOMonteCarlo::plot() const {
 	all_results_.target_next();
 	Gnuplot gp("./",filename);
 	unsigned int N(all_results_.get().get_param().size());
-	gp+="plot '"+filename+".dat' u "+my::tostring(N+1)+":1:"+my::tostring(N+2)+" w xe notitle"+(N==1?"":",\\"); 
-	for(unsigned int i(1);i<N;i++){
-		gp+="     '"+filename+".dat' u "+my::tostring(N+1)+":"+my::tostring(i+1)+":"+my::tostring(N+2)+" w xe notitle"+(i==N-1?"":",\\");
+	for(unsigned int i(0);i<N;i++){
+		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(N+1)+":"+my::tostring(i+1)+":"+my::tostring(N+2)+" w xe notitle"+(i==N-1?"":",\\");
 	}
 	gp.save_file();
 	gp.create_image(true);
@@ -194,20 +216,12 @@ void PSOMonteCarlo::save() const {
 
 void PSOMonteCarlo::save(unsigned int const& nsave){
 	if(all_results_.size()){
-		auto sort = [](MCSim const& a, MCSim const& b){ 
-			return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
-		};
-
 		List<MCSim> best;
-		while(all_results_.target_next()){ best.add_sort(all_results_.get_ptr(),sort); }
+		while(all_results_.target_next()){ best.add_sort(all_results_.get_ptr(),PSOMonteCarlo::sort_per_energy); }
 		best.set_target();
 		unsigned int i(0);
 		while(best.target_next() && i++<nsave){ best.get().save(&system_param_); }
 	} else {
 		std::cerr<<"void PSOMonteCarlo::save(unsigned int const& nsave) : there is no data"<<std::endl;
 	}
-	//best.set_free();
-	//while(best.target_next()){
-	//std::cout<<best.get().get_S()->get_energy()<<std::endl;
-	//}
 }
