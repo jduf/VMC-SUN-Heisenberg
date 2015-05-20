@@ -61,8 +61,8 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 		MonteCarlo sim(S,tmax);
 		sim.thermalize(1e6);
 		sim.run();
-		sim.complete_analysis(1e-5);
-		sim.delete_binning();
+		S->complete_analysis(1e-5);
+		S->delete_binning();
 
 #pragma omp critical
 		{

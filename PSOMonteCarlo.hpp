@@ -1,7 +1,6 @@
 #ifndef DEF_PSOMONTECARLO
 #define DEF_PSOMONTECARLO
 
-#include "MonteCarlo.hpp"
 #include "MCParticle.hpp"
 
 class PSOMonteCarlo: public Swarm<MCParticle>{
@@ -17,8 +16,8 @@ class PSOMonteCarlo: public Swarm<MCParticle>{
 		/*}*/
 
 		void init(bool const& clear_particle_history, bool const& create_particle_history);
-		void complete_analysis(double const& tol);
-		void refine(unsigned int const& Nrefine, double const& tol, unsigned int const& tmax);
+		void complete_analysis(double const& convergence_criterion);
+		void refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax);
 		void save() const;
 		void save(unsigned int const& nsave);
 		void plot() const;
@@ -39,6 +38,5 @@ class PSOMonteCarlo: public Swarm<MCParticle>{
 		static bool sort_per_energy(MCSim const& a, MCSim const& b){ 
 			return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
 		};
-
 };
 #endif

@@ -110,10 +110,10 @@ void MCSystem::add_sample(){
 	lr_corr_.add_sample();
 }
 
-void MCSystem::complete_analysis(double const& tol){ 
-	E_.complete_analysis(tol); 
-	corr_.complete_analysis(tol); 
-	lr_corr_.complete_analysis(tol); 
+void MCSystem::complete_analysis(double const& convergence_criterion){ 
+	E_.complete_analysis(convergence_criterion); 
+	corr_.complete_analysis(convergence_criterion); 
+	lr_corr_.complete_analysis(convergence_criterion); 
 	for(unsigned int i(0);i<lr_corr_.size();i++){
 		/*C(r)=sum_alpha( <a^d_0alpha.a_0alpha.a^d_ralpha.a_ralpha > )-m^2/N*/
 		lr_corr_[i].substract(1.0*m_*m_/N_);

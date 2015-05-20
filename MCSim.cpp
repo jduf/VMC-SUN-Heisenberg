@@ -36,8 +36,8 @@ void MCSim::fuse(MCSim& list_elem, MCSim& new_elem) {
 	list_elem.get_S().get()->get_energy().merge(new_elem.get_S().get()->get_energy());
 }
 
-void MCSim::create_S(Container* C, Vector<double> const* param){
-	CreateSystem cs(C,param);
+void MCSim::create_S(Container* C){
+	CreateSystem cs(C,&param_);
 	cs.init();
 	if(cs.get_status()==2){
 		cs.create();
@@ -62,6 +62,7 @@ void MCSim::create_S(Container* C, Vector<double> const* param){
 
 void MCSim::copy_S(std::unique_ptr<MCSystem> const& S){
 	S_ = S->clone();
+	S_->set(); //to clear the binning
 }
 
 void MCSim::write(IOFiles& w) const {
@@ -89,3 +90,19 @@ void MCSim::save(Container* C) const {
 		}
 	}
 }
+
+void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tmax){
+	MonteCarlo mc(S_.get(),tmax);
+	mc.thermalize(thermalization_steps);
+	mc.run();
+}
+
+bool MCSim::check_conv(double const& convergence_criterion){
+	S_->get_energy().compute_convergence(convergence_criterion);
+	return S_->get_energy().get_conv();
+}
+
+void MCSim::complete_analysis(double const& convergence_criterion){
+	S_->complete_analysis(convergence_criterion);
+}
+
