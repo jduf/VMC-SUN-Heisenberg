@@ -45,8 +45,6 @@ class MonteCarlo{
 		void thermalize(unsigned int const& N);
 		/*!Run the Monte-Carlo algorithm*/
 		void run();
-		void complete_analysis(double tol){ S_->complete_analysis(tol); }
-		void delete_binning(){ S_->delete_binning(); }
 
 	private:
 		/*!Find the next configuration and measure it*/

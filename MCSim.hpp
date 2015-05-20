@@ -5,6 +5,7 @@
 #include "CreateSystem.hpp"
 #include "SystemBosonic.hpp"
 #include "SystemFermionic.hpp"
+#include "MonteCarlo.hpp"
 
 class MCSim {
 	public:
@@ -33,6 +34,7 @@ class MCSim {
 		void write(IOFiles& w) const;
 		bool is_created() const { return (S_.get()?!S_->get_status():false); }
 		void save(Container* C) const;
+		void run(double const& converged_criterion, unsigned int const& tmax);
 
 	private:
 		Vector<unsigned int> ref_;

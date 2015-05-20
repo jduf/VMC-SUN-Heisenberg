@@ -89,3 +89,11 @@ void MCSim::save(Container* C) const {
 		}
 	}
 }
+
+void MCSim::run(double const& converged_criterion, unsigned int const& tmax){
+	MonteCarlo mc(S_.get(),tmax);
+	do{
+		mc.run();
+		S_->complete_analysis(converged_criterion);
+	} while (!S_->get_energy().get_conv());
+}

@@ -108,11 +108,11 @@ bool PSOMonteCarlo::evaluate(unsigned int const& p){
 	}
 }
 
-void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& tol, unsigned int const& tmax){
+void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& converged_criterion, unsigned int const& tmax){
 	if(all_results_.size()){
 		pso_info_.text("refine called with"+RST::nl_);
 		pso_info_.item(my::tostring(Nrefine));
-		pso_info_.item(my::tostring(tol));
+		pso_info_.item(my::tostring(converged_criterion));
 		pso_info_.item(my::tostring(tmax)+RST::nl_);
 
 		List<MCSim> best;
@@ -128,25 +128,21 @@ void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& tol, unsig
 				best.target_next();
 				sim = best.get_ptr();
 			}
-			MonteCarlo mc(sim->get_S().get(),tmax);
-			while(sim->get_S()->get_energy().get_dx()>tol){
-				mc.run();
-				sim->get_S()->complete_analysis(1e-5);
-			}
+			sim->run(converged_criterion,tmax);
 #pragma omp critical
 			{
 				std::cout<<i<<" sim refined "<<sim->get_S()->get_energy()<<std::endl;
 			}
 		}
 	} else {
-		std::cerr<<"void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& tol, unsigned int const& tmax) : there is no data"<<std::endl;
+		std::cerr<<"void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& converged_criterion, unsigned int const& tmax) : there is no data"<<std::endl;
 	}
 }
 
-void PSOMonteCarlo::complete_analysis(double const& tol){
+void PSOMonteCarlo::complete_analysis(double const& converged_criterion){
 	all_results_.set_target();
 	while ( all_results_.target_next() ){
-		all_results_.get().get_S()->complete_analysis(tol);
+		all_results_.get().get_S()->complete_analysis(converged_criterion);
 	}
 
 	if(track_particles_){
