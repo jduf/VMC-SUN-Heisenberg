@@ -96,3 +96,12 @@ void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tm
 	mc.thermalize(thermalization_steps);
 	mc.run();
 }
+
+bool MCSim::check_conv(double const& convergence_criterion){
+	S_->get_energy().compute_convergence(convergence_criterion);
+	return S_->get_energy().get_conv();
+}
+
+void MCSim::complete_analysis(double const& convergence_criterion){
+	S_->complete_analysis(convergence_criterion);
+}

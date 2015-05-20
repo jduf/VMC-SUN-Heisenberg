@@ -125,11 +125,8 @@ void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& convergenc
 				best.target_next();
 				sim = best.get_ptr();
 			}
-			do{
-				sim->run(0,tmax);
-				sim->get_S()->get_energy().complete_analysis(convergence_criterion);
-			} while ( !sim->get_S()->get_energy().get_conv() );
-			sim->get_S()->complete_analysis(convergence_criterion);
+			while(!sim->check_conv(convergence_criterion)) { sim->run(0,tmax); }
+			sim->complete_analysis(convergence_criterion);
 
 #pragma omp critical
 			{
@@ -144,7 +141,7 @@ void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& convergenc
 void PSOMonteCarlo::complete_analysis(double const& converged_criterion){
 	all_results_.set_target();
 	while ( all_results_.target_next() ){
-		all_results_.get().get_S()->complete_analysis(converged_criterion);
+		all_results_.get().complete_analysis(converged_criterion);
 	}
 
 	if(track_particles_){

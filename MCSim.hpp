@@ -33,6 +33,8 @@ class MCSim {
 		bool is_created() const { return (S_.get()?!S_->get_status():false); }
 		void save(Container* C) const;
 		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
+		void complete_analysis(double const& convergence_criterion);
+		bool check_conv(double const& convergence_criterion);
 
 	private:
 		Vector<unsigned int> ref_;
