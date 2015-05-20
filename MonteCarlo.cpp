@@ -11,9 +11,9 @@ MonteCarlo::MonteCarlo(MCSystem* S, unsigned int const& tmax):
 
 /*public methods*/
 /*{*/
-void MonteCarlo::thermalize(unsigned int const& N){
+void MonteCarlo::thermalize(unsigned int const& thermalization_steps){
 	if(!S_->get_status()){
-		for(unsigned int i(0);i<N;i++){
+		for(unsigned int i(0);i<thermalization_steps;i++){
 			S_->swap();
 			if( S_->ratio(true) > rnd_.get() ){ S_->update(); }
 		}

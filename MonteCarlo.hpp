@@ -42,7 +42,7 @@ class MonteCarlo{
 		/*}*/
 
 		/*!Thermalize the Monte-Carlo algorithm*/
-		void thermalize(unsigned int const& N);
+		void thermalize(unsigned int const& thermalization_steps);
 		/*!Run the Monte-Carlo algorithm*/
 		void run();
 

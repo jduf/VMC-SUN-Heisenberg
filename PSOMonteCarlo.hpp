@@ -16,8 +16,8 @@ class PSOMonteCarlo: public Swarm<MCParticle>{
 		/*}*/
 
 		void init(bool const& clear_particle_history, bool const& create_particle_history);
-		void complete_analysis(double const& converged_criterion);
-		void refine(unsigned int const& Nrefine, double const& converged_criterion, unsigned int const& tmax);
+		void complete_analysis(double const& convergence_criterion);
+		void refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax);
 		void save() const;
 		void save(unsigned int const& nsave);
 		void plot() const;

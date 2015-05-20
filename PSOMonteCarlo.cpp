@@ -80,16 +80,13 @@ bool PSOMonteCarlo::evaluate(unsigned int const& p){
 		if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
 			tmp_test = true;
 			sim->copy_S(all_results_.get().get_S()); 
-			sim->get_S()->set(); //to clear the binning
 		} else {
 			tmp_test = false;
-			sim->create_S(&system_param_,&P->get_x());
+			sim->create_S(&system_param_);
 		}
 	}
 	if(sim->is_created()){
-		MonteCarlo mc(sim->get_S().get(),tmax_);
-		mc.thermalize(tmp_test?10:1e6);
-		mc.run();
+		sim->run(tmp_test?10:1e6,tmax_);
 
 #pragma omp critical(all_results_)
 		{
@@ -108,11 +105,11 @@ bool PSOMonteCarlo::evaluate(unsigned int const& p){
 	}
 }
 
-void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& converged_criterion, unsigned int const& tmax){
+void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax){
 	if(all_results_.size()){
 		pso_info_.text("refine called with"+RST::nl_);
 		pso_info_.item(my::tostring(Nrefine));
-		pso_info_.item(my::tostring(converged_criterion));
+		pso_info_.item(my::tostring(convergence_criterion));
 		pso_info_.item(my::tostring(tmax)+RST::nl_);
 
 		List<MCSim> best;
@@ -128,7 +125,12 @@ void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& converged_
 				best.target_next();
 				sim = best.get_ptr();
 			}
-			sim->run(converged_criterion,tmax);
+			do{
+				sim->run(0,tmax);
+				sim->get_S()->get_energy().complete_analysis(convergence_criterion);
+			} while ( !sim->get_S()->get_energy().get_conv() );
+			sim->get_S()->complete_analysis(convergence_criterion);
+
 #pragma omp critical
 			{
 				std::cout<<i<<" sim refined "<<sim->get_S()->get_energy()<<std::endl;
