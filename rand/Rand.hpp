@@ -12,8 +12,8 @@
 template<typename Type>
 class Rand{
 	public:
-		/*!Constructor that takes the range of generated random numbers*/
-		Rand(Type const& min_inclusive, Type const& max_exclusive);
+		/*!Constructor that sets [min,max) for double and [min,max] for unsigned int*/
+		Rand(Type const& min, Type const& max);
 		/*!Dedfault destructor*/
 		~Rand() = default;
 		/*{Forbidden*/
@@ -36,8 +36,8 @@ class Rand{
 };
 
 template<typename Type>
-Rand<Type>::Rand(Type const& min_inclusive, Type const& max_exclusive):
+Rand<Type>::Rand(Type const& min, Type const& max):
 	mt_(std::random_device()()),
-	dist_(min_inclusive,max_exclusive)
+	dist_(min,max)
 {}
 #endif

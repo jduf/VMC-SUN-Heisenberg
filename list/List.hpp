@@ -13,12 +13,12 @@
    | o─→o←──→o←──→o←──→o─→x|
    | │  │              ↑   |
    | │  └──────────────┘   |
-   | └──"target pointer"     |
+   | └──"target pointer"   |
    |_______________________|
 \endverbatim
  *
  * The first element is particular because t_=NULL and the next_ pointer points
- * to the first element of the list. The target_ pointer is target to point
+ * to the first element of the list. The target_ pointer is free to point
  * anywhere. This construction allows the "target pointer" to point to any
  * element of the list and can therefore access quickly to the next or previous
  * element.

@@ -19,7 +19,8 @@ class Myclass{
 			}
 
 			Vector<double> p(3,1);
-			Fit F(x,y,p,[this](double x, const double* p){return f(x,p);});
+			auto func = [this](double x, const double* p){return f(x,p);};
+			Fit F(x,y,p,func);
 
 			IOFiles data("data.dat",true);
 			for(unsigned int i(0);i<m;i++){
@@ -67,8 +68,9 @@ class Myclass{
 			gp.create_image(true);
 			std::cout<<p<<std::endl;
 		}
+
 	private:
-		double f(double x, const double* p);
+		double f(double x, const double* p){ return p[0]*x+p[1]*x*x+p[2]; }
 		unsigned int N_;
 		unsigned int m_;
 		unsigned int n_;
@@ -78,8 +80,4 @@ int main() {
 	Myclass mc;
 	//mc.fitquad();
 	mc.fitcorr();
-}
-
-double Myclass::f(double x, const double* p){
-	return p[0]*x+p[1]*x*x+p[2];
 }

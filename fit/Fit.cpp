@@ -26,8 +26,8 @@ Fit::~Fit(){
 }
 
 int Fit::eval(void *data, int m, int n, const double *p, double *fvec, int iflag) {
-	(void)iflag;
-	(void)n;
+	(void)(iflag);
+	(void)(n);
 
 	std::function<double (double, const double*)> f(((Fit*)data)->f_);
 	const double* x(((Fit*)data)->x_);

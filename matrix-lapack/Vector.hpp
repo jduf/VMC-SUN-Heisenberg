@@ -193,9 +193,10 @@ void Vector<Type>::swap_to_assign(Vector<Type>& v1,Vector<Type>& v2){
 /*{*/
 template<typename Type>
 std::ostream& operator<<(std::ostream& flux, Vector<Type> const& v){
-	for(unsigned int i(0);i<v.size();i++){
+	for(unsigned int i(0);i<v.size()-1;i++){
 		flux<<v(i)<<" "; 
 	}
+	flux<<v(v.size()-1); 
 	return flux;
 }
 

@@ -60,7 +60,7 @@ extern "C" void zgeev_( /*eigensystem of a complex general matrix*/
 		int& info
 		);
 
-extern "C" void dgetrf_(
+extern "C" void dgetrf_( /*lu factorization of real general matrix*/
 		unsigned int const& row,
 		unsigned int const& col,
 		double *m,
@@ -68,7 +68,7 @@ extern "C" void dgetrf_(
 		int *ipiv,
 		int& info
 		);
-extern "C" void zgetrf_(
+extern "C" void zgetrf_( /*lu factorization of complex general matrix*/
 		unsigned int const& row,
 		unsigned int const& col,
 		std::complex<double> *m,
@@ -76,8 +76,18 @@ extern "C" void zgetrf_(
 		int *ipiv,
 		int& info
 		);
+extern "C" void dsytrf_( /*Bunch-Kaufman factorization of real symmetric matrix*/
+		char const& uplo,
+		unsigned int const& row,
+		double *m,
+		unsigned int const& lda,
+		int *ipiv,
+		double *work,
+		int const& lwork,
+		int& info
+		);
 
-extern "C" void dgetri_(
+extern "C" void dgetri_( /*invert a general real matrix using a lu factorization*/
 		unsigned int const& n,
 		double *m,
 		unsigned int const& ldm,
@@ -86,13 +96,22 @@ extern "C" void dgetri_(
 		int const& lwork,
 		int& info
 		);
-extern "C" void zgetri_(
+extern "C" void zgetri_( /*invert a general complex matrix using a lu factorization*/
 		unsigned int const& n,
 		std::complex<double> *m,
 		unsigned int const& ldm,
 		int *ipiv,
 		std::complex<double> *work,
 		int const& lwork,
+		int& info
+		);
+extern "C" void dsytri_( /*invert a general real matrix using a Bunch-Kaufman factorization of real symmetric matrix*/
+		char const& uplo,
+		unsigned int const& n,
+		double *m,
+		unsigned int const& lda,
+		int const *ipiv,
+		double *work,
 		int& info
 		);
 
@@ -232,8 +251,14 @@ class Lapack{
 		 * LU decomposition*/
 		void getrf(Vector<int>& ipiv);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * Bunch-Kaufman decomposition for a symmetrix matrix*/
+		void sytrf(Vector<int>& ipiv);
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * inverse after the call of getrf*/
 		void getri(Vector<int>& ipiv);
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * inverse after the call of sytrf*/
+		void sytri(Vector<int>& ipiv);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * QR decomposition*/
 		void geqp3(double* tau, int* jpvt);
@@ -321,15 +346,36 @@ void Lapack<Type>::inv(){
 	if (mat_->row() != mat_->col()) {
 		std::cerr<<"void Lapack<Type>::inv() : no inverse for a rectangular matrix"<<std::endl;
 	} else {
-		if (matrix_type_ != 'G'){
-			std::cerr<<"void Lapack<Type>::inv() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-			std::cerr<<"                           the only matrix type implemented is G"<<std::endl;
-		} else {
-			Vector<int> ipiv(std::min(mat_->row(),mat_->col()));
-			getrf(ipiv);
-			if(ipiv.ptr()){ getri(ipiv); }
-			else { std::cerr<<"Lapack::inv() : illegal value"<<std::endl; }
+		Vector<int> ipiv;
+		switch(matrix_type_){
+			case 'G':
+				{
+					ipiv.set(std::min(mat_->row(),mat_->col()));
+					getrf(ipiv);
+					if(ipiv.ptr()){ getri(ipiv); }
+				}break;
+			case 'S':
+				{
+					ipiv.set(mat_->col());
+					sytrf(ipiv);
+					if(ipiv.ptr()){
+						sytri(ipiv); 
+						if(ipiv.ptr()){
+							for(unsigned int i(0);i<mat_->row();i++){
+								for(unsigned int j(i+1);j<mat_->col();j++){
+									(*mat_)(j,i) = (*mat_)(i,j);
+								}
+							}
+						}
+					}
+				}break;
+			default:
+				{
+					std::cerr<<"void Lapack<Type>::inv() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
+					std::cerr<<"                           choose between general (G) and symmetric (S)"<<std::endl;
+				} 
 		}
+		if(!ipiv.ptr()){ std::cerr<<"Lapack::inv() : error"<<std::endl; }
 	}
 }
 

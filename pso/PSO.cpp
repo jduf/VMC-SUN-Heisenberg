@@ -19,7 +19,7 @@ void Optimization::set(unsigned int const& Nfreedom, double const& cg, double co
 	} else {
 		std::cerr<<"Optimization::set(unsigned int Nfreedom, double cg, double cp) : cg+cp<4 => chi=nan. Keep definition cg=cp=2.05, chi=0.729844"<<std::endl;
 	}
-	chi_ = -2.0/(2.0-(cp_+cg_)-sqrt((cp_+cg_)*(cp_+cg_)-4*(cp_+cg_)));
+	chi_ = 2.0/(cp_+cg_-2.0+sqrt((cp_+cg_)*(cp_+cg_)-4*(cp_+cg_)));
 }
 
 void Optimization::set_limit(unsigned int const& param, double const& min, double const& max){
