@@ -1,7 +1,6 @@
 #ifndef DEF_MCSim
 #define DEF_MCSim
 
-#include "List.hpp"
 #include "CreateSystem.hpp"
 #include "MonteCarlo.hpp"
 
@@ -20,8 +19,8 @@ class MCSim {
 		MCSim& operator&=(MCSim) = delete;
 		/*}*/
 
-		static unsigned int cmp_for_fuse(MCSim const& list_elem, MCSim const& new_elem);
-		static void fuse(MCSim& list_elem, MCSim& new_elem);
+		static unsigned int cmp_for_fuse(MCSim const& list, MCSim const& new_elem);
+		static void fuse(MCSim& list, MCSim& new_elem);
 
 		Vector<double> const& get_param() const { return param_; }
 		std::unique_ptr<MCSystem> const& get_S() const { return S_; }
@@ -30,7 +29,7 @@ class MCSim {
 
 		void print() const { std::cout<<param_<<S_->get_energy(); }
 		void write(IOFiles& w) const;
-		bool is_created() const { return (S_.get()?!S_->get_status():false); }
+		bool is_created() const { return (S_.get() && !S_->get_status()); }
 		void save(Container* C) const;
 		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
 		void complete_analysis(double const& convergence_criterion);

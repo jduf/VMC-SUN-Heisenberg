@@ -1,8 +1,9 @@
 #ifndef DEF_MCPARTICLE
 #define DEF_MCPARTICLE
 
-#include "PSO.hpp"
 #include "MCSim.hpp"
+#include "PSO.hpp"
+#include "List.hpp"
 
 class MCParticle: public Particle{
 	public:

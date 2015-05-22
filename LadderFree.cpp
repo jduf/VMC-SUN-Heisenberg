@@ -26,6 +26,49 @@ LadderFree::LadderFree(
 void LadderFree::compute_H(){
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
+	//for(unsigned int i(0);i<n_;i++){
+		//nb = get_neighbourg(i);
+		//switch(i%spuc_){ 
+			//case 0:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
+					//H_(i,nb(1,0)) = nb(1,1);
+				//}break;
+			//case 1:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
+				//}break;
+			//case 2:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(1);
+					//H_(i,nb(1,0)) = nb(1,1);
+				//}break;
+			//case 3:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(2);
+				//}break; 
+			//case 4:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
+					//H_(i,nb(1,0)) = nb(1,1);
+				//}break;
+			//case 5:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
+				//}break;
+			//case 6:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(2);
+					//H_(i,nb(1,0)) = nb(1,1);
+				//}break;
+			//case 7:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(1);
+				//}break;
+			//default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
+		//}
+	//}
+	
 	for(unsigned int i(0);i<n_;i++){
 		nb = get_neighbourg(i);
 		switch(i%spuc_){ 
@@ -45,7 +88,7 @@ void LadderFree::compute_H(){
 				}break;
 			case 3:
 				{
-					H_(i,nb(0,0)) = nb(0,1)*t_(2);
+					H_(i,nb(0,0)) = nb(0,1)*t_(0);
 				}break; 
 			case 4:
 				{
@@ -58,7 +101,7 @@ void LadderFree::compute_H(){
 				}break;
 			case 6:
 				{
-					H_(i,nb(0,0)) = nb(0,1)*t_(2);
+					H_(i,nb(0,0)) = nb(0,1)*t_(0);
 					H_(i,nb(1,0)) = nb(1,1);
 				}break;
 			case 7:
@@ -77,8 +120,8 @@ void LadderFree::create(){
 
 	compute_H();
 	diagonalize(true);
-	for(unsigned int c(0);c<N_;c++){
-		if(status_==1){
+	if(status_==1){
+		for(unsigned int c(0);c<N_;c++){
 			for(unsigned int i(0);i<n_;i++){
 				for(unsigned int j(0);j<M_(c);j++){
 					EVec_[c](i,j) = H_(i,j);

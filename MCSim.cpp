@@ -24,16 +24,16 @@ MCSim::MCSim(IOFiles& r):
 	}
 }
 
-unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem) {
+unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem){
 	for(unsigned int i(0);i<list.param_.size();i++){
-		if(list.param_(i) > new_elem.param_(i)){ return 0; }
-		if(list.param_(i) < new_elem.param_(i)){ return 1; }
+		if(list.param_(i) - new_elem.param_(i) > 0.01){ return 0; }
+		if(list.param_(i) - new_elem.param_(i) < -0.01){ return 1; }
 	}
 	return 2;
 }
 
-void MCSim::fuse(MCSim& list_elem, MCSim& new_elem) { 
-	list_elem.get_S().get()->get_energy().merge(new_elem.get_S().get()->get_energy());
+void MCSim::fuse(MCSim& list, MCSim& new_elem) { 
+	list.get_S()->get_energy().merge(new_elem.get_S()->get_energy());
 }
 
 void MCSim::create_S(Container* C){
@@ -57,6 +57,9 @@ void MCSim::create_S(Container* C){
 			}
 			ref_ = cs.get_ref();
 		}
+	}
+	if(!is_created()){
+		std::cerr<<"void MCSim::create_S(Container* C) : faulty parameters : "<<param_<<std::endl;
 	}
 }
 
@@ -92,9 +95,13 @@ void MCSim::save(Container* C) const {
 }
 
 void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tmax){
-	MonteCarlo mc(S_.get(),tmax);
-	mc.thermalize(thermalization_steps);
-	mc.run();
+	if(is_created()){
+		MonteCarlo mc(S_.get(),tmax);
+		mc.thermalize(thermalization_steps);
+		mc.run();
+	} else {
+		std::cerr<<"void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tmax) : faulty parameters : "<<param_<<std::endl;
+	}
 }
 
 bool MCSim::check_conv(double const& convergence_criterion){

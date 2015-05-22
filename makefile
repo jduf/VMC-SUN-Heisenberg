@@ -31,6 +31,7 @@ all:$(EXEC)
 	cp mc ../sim
 	cp check ../sim
 	cp psomc ../sim
+	cp psplinemc ../sim
 	cp study ..
 
 .SECONDEXPANSION:
