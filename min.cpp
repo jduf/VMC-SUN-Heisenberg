@@ -1,6 +1,7 @@
-/*! @file psomc.cpp */
+/*! @file min.cpp */
 
 #include "VMCPSO.hpp"
+#include "VMCSpline.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
@@ -25,16 +26,6 @@ int main(int argc, char* argv[]){
 		s.plot();
 	}
 	tol=1.0;
-	for(unsigned int i(0);i<3;i++){
-		std::cout<<"new independant run"<<std::endl;
-		s.init(true, true);
-		if(s.run(tol)){  tol /= 2.0; }
-		else { tol *= 2.0; }
-		s.complete_analysis(1e-5);
-		s.refine(50,0.001,10);
-		s.save();
-		s.print();
-		s.plot();
-	}
-	s.save_best(10);
+
+	VMCSpline s(P);
 }
