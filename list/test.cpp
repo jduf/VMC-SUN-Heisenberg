@@ -81,6 +81,9 @@ int main(){
 		std::cout<<"will add -1 in at the first ordered position"<<std::endl;
 		a.add_sort(std::make_shared<A>(-1),func);
 		std::cout<<a<<std::endl;
+		std::cout<<"will add -0.5 in at the first ordered position"<<std::endl;
+		a.add_sort(std::make_shared<A>(-0.5),func);
+		std::cout<<a<<std::endl;
 		std::cout<<"will add 9 in at the first ordered position"<<std::endl;
 		a.add_sort(std::make_shared<A>(9),func);
 		std::cout<<a<<std::endl;
@@ -88,24 +91,25 @@ int main(){
 		a.add_sort(std::make_shared<A>(0),func);
 		std::cout<<a<<std::endl;
 		std::cout<<"will print using get_next must be identical to the previous line"<<std::endl;
-		while (a.go_to_next()){ std::cout<<a.get()<<" "; }
+		while (a.target_next()){ std::cout<<a.get()<<" "; }
 		std::cout<<std::endl;
 		std::cout<<"will copy the whole first list without actually copying the value."<<std::endl;
 		List<A> c;
-		while (a.go_to_next()){ c.add_end(a.get_ptr()); }
-		while (c.go_to_next()){ std::cout<<c.get()<<" ";}
+		while (a.target_next()){ c.add_end(a.get_ptr()); }
+		while (c.target_next()){ std::cout<<c.get()<<" ";}
 		std::cout<<std::endl;
 
-		std::cout<<"multiply the first entry bigger than 2 by pi"<<std::endl;
-		while(c.go_to_next() && c.get().a_ < 2.0 );
+		std::cout<<"multiply the first entry bigger or equal to 2 by pi"<<std::endl;
+		while(c.target_next() && c.get().a_ < 2.0 );
 		c.get() *= M_PI;
 		std::cout<<c<<std::endl;
 		std::cout<<"the other list should also be affected"<<std::endl;
 		std::cout<<a<<std::endl;
 
 
-		std::cout<<"list copied from the first one between enty [3,7)"<<std::endl;
+		std::cout<<"list copied from the first one between entry [3,7)"<<std::endl;
 		List<A> b(a.sublist(3,7));/*understand why it doesn't call a copy constructor*/
+		//List<A> b(std::move(a.sublist(3,7)));/*understand why it doesn't call a copy constructor*/
 		std::cout<<b<<std::endl;
 		std::cout<<"will remove the 2nd entry with pop(1)"<<std::endl;
 		b.pop(1);
@@ -189,18 +193,18 @@ int main(){
 			tmp(0) = rnd.get();
 			tmp(1) = rnd.get();
 			tmp_shared = std::make_shared<Vector<int> >(tmp);
-			if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.fuse_with_free(tmp_shared,fuse); }
-			else { a.add_after_free(tmp_shared); }
+			if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.fuse_with_target(tmp_shared,fuse); }
+			else { a.add_after_target(tmp_shared); }
 
 			std::cout<<a<<std::endl;
 		}
-		a.go_to_next();
-		a.go_to_next();
+		a.target_next();
+		a.target_next();
 		tmp = a.get();
 		std::cout<<tmp<<std::endl;
 		tmp_shared = std::make_shared<Vector<int> >(tmp);
-		if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.fuse_with_free(tmp_shared,fuse); }
-		else { a.add_after_free(tmp_shared); }
+		if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.fuse_with_target(tmp_shared,fuse); }
+		else { a.add_after_target(tmp_shared); }
 		std::cout<<a<<std::endl;
 
 		IOFiles out("list_vector.jdbin",true);

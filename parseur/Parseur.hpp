@@ -47,7 +47,7 @@ void Parseur::set_vector_from_list(std::string const& name, std::string const& v
 template<typename Type>
 void Parseur::set_vector_from_range(std::string const& name, std::string const& val){
 	std::vector<std::string> vrange(my::string_split(val,':'));
-	if(vrange.size() != 3){
+	if(vrange.size() == 3){
 		Type min(my::string2type<Type>(vrange[0]));
 		Type dx (my::string2type<Type>(vrange[1]));
 		Type max(my::string2type<Type>(vrange[2]));
