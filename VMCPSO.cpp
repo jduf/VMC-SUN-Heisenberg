@@ -3,17 +3,20 @@
 VMCPSO::VMCPSO(Parseur& P):
 	Swarm<MCParticle>(P.get<unsigned int>("Nparticles"),P.get<unsigned int>("maxiter"),P.get<unsigned int>("Nfreedom"),P.get<double>("cg"),P.get<double>("cp")),
 	VMCMinimization(P)
-{}
+{
+	std::cout<<"vmcpso init"<<std::endl;
+}
 
 void VMCPSO::init(bool const& clear_particle_history, bool const& create_particle_history){
-	pso_info_.title("New run",'-');
+	set_time();
+	pso_info_.title("New PSO run",'-');
+
 	if(clear_particle_history){ 
 		pso_info_.text("clear history"+RST::nl_);
 		for(unsigned int p(0);p<Nparticles_;p++){
 			std::dynamic_pointer_cast<MCParticle>(particle_[p])->clear_history();
 		}
 	}
-	set_time();
 
 	track_particles_ = new IOFiles(get_filename()+"-ERR.dat",true);
 	init_PSO(100); 
@@ -27,7 +30,7 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 		unsigned int s;
 		std::shared_ptr<MCParticle> P;
 		for(unsigned int p(0);p<Nparticles_;p++){
-			if(p==Nparticles_-size%Nparticles_){ Npp++; }
+			if(p == Nparticles_ - (size%Nparticles_) ){ Npp++; }
 			P = std::dynamic_pointer_cast<MCParticle>(particle_[p]);
 			s = 0;
 			while( s!=Npp && all_results_.target_next()){
@@ -72,39 +75,6 @@ bool VMCPSO::evaluate(unsigned int const& p){
 	} else {
 		std::cerr<<"bool VMCPSO::evaluate(unsigned int const& p) : not valid parameter : "<<particle_[p]->get_x()<<std::endl;
 		return false;
-	}
-}
-
-void VMCPSO::refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax){
-	if(all_results_.size()){
-		pso_info_.text("refine called with"+RST::nl_);
-		pso_info_.item(my::tostring(Nrefine));
-		pso_info_.item(my::tostring(convergence_criterion));
-		pso_info_.item(my::tostring(tmax)+RST::nl_);
-
-		List<MCSim> best;
-		while(all_results_.target_next()){ best.add_sort(all_results_.get_ptr(),VMCPSO::sort_per_energy); }
-		unsigned int N(all_results_.size());
-		N  = (N<Nrefine?N:Nrefine);
-		best.set_target();
-#pragma omp parallel for schedule(dynamic,1)
-		for(unsigned int i=0;i<N;i++){
-			std::shared_ptr<MCSim> sim;
-#pragma omp critical
-			{
-				best.target_next();
-				sim = best.get_ptr();
-			}
-			while(!sim->check_conv(convergence_criterion)) { sim->run(0,tmax); }
-			sim->complete_analysis(convergence_criterion);
-
-#pragma omp critical
-			{
-				std::cout<<i<<" sim refined "<<sim->get_S()->get_energy()<<std::endl;
-			}
-		}
-	} else {
-		std::cerr<<"void VMCPSO::refine(unsigned int const& Nrefine, double const& converged_criterion, unsigned int const& tmax) : there is no data"<<std::endl;
 	}
 }
 

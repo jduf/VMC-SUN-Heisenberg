@@ -4,7 +4,7 @@
 #include "PSpline.hpp"
 #include "VMCMinimization.hpp"
 
-class VMCSpline : public VMCMinimization{
+class VMCSpline : public VMCMinimization {
 	public:
 		VMCSpline(Parseur& P);
 		/*!Default destructor*/
@@ -17,15 +17,12 @@ class VMCSpline : public VMCMinimization{
 		/*}*/
 
 		void run();
+		void plot();
 
 	private:
 		PSpline pspline_;
-		double min_;
-		double max_;
-		double dx_;
 
-		void compute_border(double const& border, unsigned int const& dir);
-		void set_param(Vector<double>& param);
+		void compute_border();
+		void set_param(Vector<double>& param, Vector<unsigned int>& idx);
 };
 #endif
-

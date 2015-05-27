@@ -6,26 +6,27 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	
-	VMCPSO s(P);
-	for(unsigned int i(0);i<Optimization::get_Nfreedom();i++){
-		Optimization::set_limit(i,-2.0,2.0);
-	}
-	//Optimization::set_limit(0,-1.0,-0.5);
-	//Optimization::set_limit(1,0.7,1.3);
-	//Optimization::set_limit(2,-1.3,-0.7);
-	double tol(0.8);
-	for(unsigned int i(0);i<10;i++){
-		std::cout<<"new independant run"<<std::endl;
-		s.init(true, false);
-		if(s.run(tol)){  tol *= 2./3.; }
-		else { tol *= 3./2.; }
-		s.complete_analysis(1e-5);
-		s.refine(50,0.001,10);
-		s.save();
-		s.print();
-		s.plot();
-	}
-	tol=1.0;
+	//VMCPSO pso(P);
+	//for(unsigned int i(0);i<Optimization::get_Nfreedom();i++){
+		//Optimization::set_limit(i,-2.0,2.0);
+	//}
+	////Optimization::set_limit(0,-1.0,-0.5);
+	////Optimization::set_limit(1,0.7,1.3);
+	////Optimization::set_limit(2,-1.3,-0.7);
+	//std::cout<<"new independant run"<<std::endl;
+	//pso.init(true, false);
+	//pso.run(0.8);
+	//pso.complete_analysis(1e-5);
+	////pso.refine(50,0.001,10);
+	//pso.save();
+	//pso.print();
+	//pso.plot();
 
-	VMCSpline s(P);
+	VMCSpline spline(P);
+	spline.set_x(0,P.get<std::vector<double> >("t1"));
+	spline.set_x(1,P.get<std::vector<double> >("t2"));
+
+	//spline.move(&pso);
+	spline.run();
+	spline.plot();
 }
