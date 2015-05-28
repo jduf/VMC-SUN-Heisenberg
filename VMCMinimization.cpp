@@ -1,10 +1,10 @@
 #include "VMCMinimization.hpp"
 
-VMCMinimization::VMCMinimization(Parseur& P):
+VMCMinimization::VMCMinimization(Parseur& P, std::string const& prefix):
 	Nfreedom_(P.get<unsigned int>("Nfreedom")),
 	tmax_(P.get<unsigned int>("tmax")),
 	x_(NULL),
-	basename_("")
+	basename_(prefix)
 {
 	unsigned int i(0);
 	IOFiles* in(P.find("load",i,false)?(new IOFiles(P.get<std::string>(i),false)):NULL);

@@ -2,10 +2,8 @@
 
 VMCPSO::VMCPSO(Parseur& P):
 	Swarm<MCParticle>(P.get<unsigned int>("Nparticles"),P.get<unsigned int>("maxiter"),P.get<unsigned int>("Nfreedom"),P.get<double>("cg"),P.get<double>("cp")),
-	VMCMinimization(P)
-{
-	std::cout<<"vmcpso init"<<std::endl;
-}
+	VMCMinimization(P,"PSO")
+{}
 
 void VMCPSO::init(bool const& clear_particle_history, bool const& create_particle_history){
 	set_time();
@@ -18,7 +16,6 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 		}
 	}
 
-	track_particles_ = new IOFiles(get_filename()+"-ERR.dat",true);
 	init_PSO(100); 
 	if(clear_particle_history && create_particle_history && all_results_.size()){
 		pso_info_.text("set history"+RST::nl_);
@@ -60,7 +57,6 @@ bool VMCPSO::evaluate(unsigned int const& p){
 	}
 	if(sim->is_created()){
 		sim->run(tmp_test?10:1e6,tmax_);
-
 #pragma omp critical(all_results_)
 		{
 			if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 

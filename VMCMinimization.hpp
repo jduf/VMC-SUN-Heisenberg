@@ -6,7 +6,7 @@
 
 class VMCMinimization{
 	public:
-		VMCMinimization(Parseur& P);
+		VMCMinimization(Parseur& P, std::string const& prefix);
 		/*!Default destructor*/
 		virtual ~VMCMinimization()=0;
 		/*{Forbidden*/
@@ -42,4 +42,3 @@ class VMCMinimization{
 		std::string time_;
 };
 #endif
-

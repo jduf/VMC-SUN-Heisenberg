@@ -16,13 +16,16 @@ class VMCSpline : public VMCMinimization {
 		VMCSpline& operator=(VMCSpline) = delete;
 		/*}*/
 
+		void init(bool border);
 		void run();
 		void plot();
 
 	private:
 		PSpline pspline_;
+		std::vector<Vector<double> > border_;
+		std::vector<Vector<double> > parameter_space_;
+		std::vector<Vector<unsigned int> > parameter_idx_;
 
-		void compute_border();
-		void set_param(Vector<double>& param, Vector<unsigned int>& idx);
+		bool set_parameter_space(Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, bool const& border);
 };
 #endif
