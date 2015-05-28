@@ -142,8 +142,8 @@ bool Swarm<Type>::run(double const& tol){
 		for(unsigned int i(0);i<maxiter_;i++){
 #pragma omp parallel for
 			for(unsigned int p=0;p<Nparticles_;p++){ next_step(p); }
-			converged = is_converged(tol,i);
-			if(converged){ i=maxiter_; }
+			//converged = is_converged(tol,i);
+			//if(converged){ i=maxiter_; }
 		}
 	} else {
 		unsigned int p(0);

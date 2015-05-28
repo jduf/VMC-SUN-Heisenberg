@@ -221,6 +221,12 @@ int main(){
 		List<int> lint;
 		in_int>>lint;
 		std::cout<<lint<<std::endl;
+
+		std::cout<<"#### move list ####"<<std::endl;
+		List<int> move_test;
+		move_test.move(lint);
+		std::cout<<move_test<<std::endl;
+		std::cout<<lint<<std::endl;
 	}
 	std::cout<<"#(constructor calls)-#(destructor calls)="<<A::N_<<std::endl;
 }

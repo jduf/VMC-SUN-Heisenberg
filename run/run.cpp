@@ -40,7 +40,7 @@ int main(int argc,char* argv[]){
 		}
 
 		RSTFile rst("./","SIM");
-		rst.title("bla","=");
+		rst.title("bla",'=');
 
 		L("firefox SIM.html");
 	}

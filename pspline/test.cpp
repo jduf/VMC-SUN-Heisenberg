@@ -1,13 +1,15 @@
 /* @file test.cpp */
 
 #include "PSpline.hpp"
+#include "Rand.hpp"
+#include "Gnuplot.hpp"
 
 void test_given_function();
 void test_211();
 void test_212();
 
 int main(){
-	//test_given_function();
+	test_given_function();
 	test_211();
 	test_212();
 }
@@ -32,7 +34,7 @@ void test_given_function(){
 	}
 
 	s.compute_weights();
-	IOFiles out("attempt.dat",true);
+	IOFiles out("spline.dat",true);
 	double min(-1.0);
 	double dx(0.04);
 	Vector<double> tmp(2);
@@ -50,7 +52,7 @@ void test_given_function(){
 	plot.range("y",-1,1);
 	plot+="f(x,y) = x*y+cos(y)*exp(x*x)";
 	plot+="splot 'surf.dat' u 1:2:3 notitle,\\";
-	plot+="      'attempt.dat' u 1:2:3 notitle,\\";
+	plot+="      'spline.dat' u 1:2:3 notitle,\\";
 	plot+="      f(x,y)";
 	plot.save_file();
 }
@@ -68,7 +70,7 @@ void test_211(){
 	}
 	s.compute_weights();
 
-	IOFiles out("attempt.dat",true);
+	IOFiles out("spline.dat",true);
 	double min(-2.0);
 	double dx(0.05);
 	for(unsigned int i(0);i<80;i++){
@@ -84,7 +86,7 @@ void test_211(){
 	plot.range("x",-2,2);
 	plot.range("y",-2,2);
 	plot+="splot '211.dat' u 2:3:4 notitle,\\";
-	plot+="      'attempt.dat' u 1:2:3 notitle";
+	plot+="      'spline.dat' u 1:2:3 notitle";
 	plot.save_file();
 }
 
@@ -101,7 +103,7 @@ void test_212(){
 	}
 	s.compute_weights();
 
-	IOFiles out("attempt.dat",true);
+	IOFiles out("spline.dat",true);
 	double min(-2.0);
 	double dx(0.05);
 	for(unsigned int i(0);i<80;i++){
@@ -117,6 +119,6 @@ void test_212(){
 	plot.range("x",-1,1);
 	plot.range("y",-1,1);
 	plot+="splot '212.dat' u 2:3:4 notitle,\\";
-	plot+="      'attempt.dat' u 1:2:3 notitle";
+	plot+="      'spline.dat' u 1:2:3 notitle";
 	plot.save_file();
 }

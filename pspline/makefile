@@ -32,5 +32,5 @@ $(BUILD)/%.o:%.cpp
 -include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm -f $(BUILD)/* test spectrum*
+	rm -f $(BUILD)/* test plot* spline.dat surf.dat
 

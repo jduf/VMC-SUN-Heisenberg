@@ -363,12 +363,12 @@ void List<Type>::fuse_with_target(std::shared_ptr<Type> t, std::function<void (T
 
 template<typename Type>
 void List<Type>::move(List<Type>& other){
-	other.head_ = head_;
-	other.tail_ = tail_;
-	other.target_ = target_;
-	head_ = NULL;
-	tail_ = NULL;
+	head_ = other.head_;
+	tail_ = other.tail_;
 	target_ = NULL;
+	other.head_ = NULL;
+	other.tail_ = NULL;
+	other.target_ = NULL;
 }
 /*}*/
 

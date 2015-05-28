@@ -22,8 +22,8 @@ int main(){
 	}
 
 	RSTFile rst("./","index");
-	rst.title("RST","=");
-	rst.title("Possibilities","-");
+	rst.title("RST",'=');
+	rst.title("Possibilities",'-');
 	rst.text("Here I display all the bin files");
 	rst.np();
 	rst.item("this is an item");
@@ -33,7 +33,7 @@ int main(){
 	rst.hyperlink("output/data-1","output/data-1.html");
 	rst.text("or at least, i hope");
 	rst.np();
-	rst.title("List of all the files","<");
+	rst.title("List of all the files",'<');
 
 	std::string file_link;
 	rst.link_figure("output/bla.png","sin","/home/jdufour/travail/cpp-dev/rst/output/bla.gp");

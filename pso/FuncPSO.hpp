@@ -94,15 +94,15 @@ double FuncPSO::f(Vector<double> const& x){
 }
 
 bool FuncPSO::evaluate(unsigned int const& p){
-	double fx(f(p_[p]->get_x()));
-	std::shared_ptr<Measure> result(std::make_shared<Measure>(p_[p]->get_x(),fx));
+	double fx(f(particle_[p]->get_x()));
+	std::shared_ptr<Measure> result(std::make_shared<Measure>(particle_[p]->get_x(),fx));
 #pragma omp critical
 	{
 		m_.add_sort(result,func);
 	}
 
-	if( fx<p_[p]->get_fbx() ){ 
-		p_[p]->set_best(p_[p]->get_x(),fx);
+	if( fx<particle_[p]->get_fbx() ){ 
+		particle_[p]->set_best(particle_[p]->get_x(),fx);
 		return true;
 	} else {
 		return false;
