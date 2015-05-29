@@ -2,42 +2,37 @@
 
 VMCSpline::VMCSpline(Parseur& P):
 	VMCMinimization(P,"PSpline"),
-	pspline_(2)
+	pspline_(2),
+	border_(NULL)
 {}
+
+VMCSpline::~VMCSpline(){
+	if(border_){ delete[] border_; }
+}
 
 void VMCSpline::init(bool border){
 	set_time();
 	pso_info_.title("New PSpline run",'-');
-	if(border){
-		pso_info_.text("set border"+RST::nl_);
-	}
-
-#pragma omp parallel
-	{
-		unsigned int min0(omp_get_thread_num()*x_[0].size()/8);
-		unsigned int max0((omp_get_thread_num()+1)*x_[0].size()/8);
-		Vector<unsigned int> idx;
-		idx.set(Nfreedom_,0);
-		idx(0) = min0;
-		while(set_parameter_space(idx,min0,max0,border));
-	}
-	unsigned int incr(border_.size()/12);
-#pragma omp parallel for
-	for(unsigned int i=0;i<border_.size();i+=incr){
-		std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(border_[i]));
-		sim->create_S(&system_param_);
-		if(sim->is_created()){
-			sim->run(1e6,tmax_);
-#pragma omp critical(all_results_)
-			{
-				if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){
-					all_results_.fuse_with_target(sim,MCSim::fuse);
-				} else {
-					all_results_.add_after_target(sim);
-				}
-			}
-		}
-	}
+	(void)(border);
+	//if(border){
+		//pso_info_.text("set border"+RST::nl_);
+		//border_ = new Vector<double>[compute_border_size(n)];
+//#pragma omp parallel
+		//{
+			//unsigned int min0(omp_get_thread_num()*x_[0].size()/omp_get_num_threads());
+			//unsigned int max0((omp_get_thread_num()+1)*x_[0].size()/omp_get_num_threads());
+			//Vector<unsigned int> idx;
+			//idx.set(Nfreedom_,0);
+			//idx(0) = min0;
+			///*could remove the while I think*/
+			//while(set_parameter_space(x_,idx,min0,max0,border));
+		//}
+		//unsigned int incr(border_.size()/12);
+//#pragma omp parallel for
+		//for(unsigned int i=0;i<border_.size();i+=incr){
+			//compute_vmc(border_[i]);
+		//}
+	//}
 }
 
 void VMCSpline::run(){
@@ -48,100 +43,55 @@ void VMCSpline::run(){
 		pso_info_.title("New PSpline run",'-');
 		pspline_.compute_weights(); 
 
-		double f;
-		double f_tmp;
-		bool is_min;
-		Vector<double> param;
-		Vector<unsigned int> idx;
-		std::vector<Vector<double> > list_min;
-#pragma omp parallel for private(is_min,idx,param,f,f_tmp)
-		for(unsigned int i=0;i<parameter_space_.size();i++){
-			is_min = true;
-			idx = parameter_idx_[i];
-			param = parameter_space_[i];
-			f = pspline_.extrapolate(param);
-			if(!isnan(f)){
-				for(unsigned int j(0);j<Nfreedom_;j++){
-					if(is_min){
-						if(idx(j)+1<x_[j].size()){
-							param(j) = x_[j](idx(j)+1);
-							f_tmp = pspline_.extrapolate(param);
-							if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
-						}
-						if(is_min && idx(j)>0){
-							param(j) = x_[j](idx(j)-1);
-							f_tmp = pspline_.extrapolate(param);
-							if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
-						}
-						param(j) = x_[j](parameter_idx_[i](j));
-					}
-				}
-			} else { is_min = false; }
+		std::cout<<"try to find min"<<std::endl;
+#pragma omp parallel 
+		{
+			unsigned int min0(omp_get_thread_num()*x_[0].size()/omp_get_num_threads());
+			unsigned int max0((omp_get_thread_num()+1)*x_[0].size()/omp_get_num_threads());
+			Vector<unsigned int> idx;
+			idx.set(Nfreedom_,0);
+			idx(0) = min0;
+			go_through_parameter_space(x_,idx,min0,max0,&VMCSpline::run_if_min);
+		}
+		for(unsigned int j(0); j<Nfreedom_;j++){ 
+			std::cout<<min_idx_[j]<<std::endl;
+		}
 
-			if(is_min){ 
-#pragma omp critical(list_min)
-				{
-					list_min.push_back(param);
-				}
-			}
-		}
-		std::cout<<"min"<<std::endl;
-		for(unsigned int i=0;i<list_min.size();i++){
-			std::cout<<list_min[i]<<std::endl;
-		}
 #pragma omp parallel for
-		for(unsigned int i=0;i<list_min.size();i++){
-			bool tmp_test;
-			std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(list_min[i]));
-#pragma omp critical(all_results_)
-			{
-				if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
-					sim->copy_S(all_results_.get().get_S()); 
-					tmp_test=true;
-				} else {
-					sim->create_S(&system_param_);
-					tmp_test=false;
-				}
-			}
-			if(sim->is_created()){
-				sim->run(tmp_test?10:1e6,tmax_);
-#pragma omp critical(all_results_)
-				{
-					if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){
-						all_results_.fuse_with_target(sim,MCSim::fuse);
-					} else {
-						all_results_.add_after_target(sim);
-					}
-				}
-			}
+		for(unsigned int i=0;i<min_idx_.size();i++){
+			//Vector<double>* x(new Vector<double>[Nfreedom_]);
+			//for(unsigned int j(0);j<Nfreedom_;j++){
+				//x[j].set(5,0);
+				//for(unsigned int k(0);k<x[j].size();k++){
+					//if(min_idx_[i](j) >= k-2 && min_idx_[i](j)+k-2 < .size()){
+						//x[j](k) = x_(min_idx_[i](j)+k-2);
+					//}
+				//}
+			//}
+			//Vector<unsigned int> idx;
+//
+			//std::vector<Vector<double> > parameter_space;
+			//std::vector<Vector<unsigned int> > parameter_idx;
+			//set_parameter_space(x,parameter_space,parameter_idx,idx);
+			//for(unsigned int j(0);j<parameter_space.size();j++){
+				//compute_vmc(parameter_space[j]);
+			//}
+			//delete[] x;
+
+			Vector<double> param(Nfreedom_);
+			for(unsigned int j(0); j<Nfreedom_;j++){ param(j) = x_[j](min_idx_[i](j)); }
+			compute_vmc(param);
 		}
 	}
 }
 
-bool VMCSpline::set_parameter_space(Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, bool const& border){
-	Vector<double> tmp(Nfreedom_);
-	for(unsigned int j(0); j<Nfreedom_;j++){ tmp(j) = x_[j](idx(j)); }
-#pragma omp critical(parameter_space)
-	{
-		parameter_space_.push_back(tmp);
-		parameter_idx_.push_back(idx);
-	}
-	if(border){
-		for(unsigned int i(0);i<Nfreedom_;i++){
-			if(i<Nfreedom_ && (idx(i) == 0 || idx(i) == x_[i].size()-1) ){
-				i = Nfreedom_;
-#pragma omp critical(border)
-				{
-					border_.push_back(tmp);
-				}
-			}
-		}
-	}
+bool VMCSpline::go_through_parameter_space(Vector<double>* x, Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, void (VMCSpline::*f)(Vector<double>*, Vector<unsigned int> const&)){
+	(this->*f)(x,idx);
 
 	idx(0)++;
 	if(min0==0 && max0==0){
 		for(unsigned int i(0);i<Nfreedom_;i++){
-			if(idx(i) == x_[i].size()){ 
+			if(idx(i) == x[i].size()){ 
 				if(i+1 == Nfreedom_){ return false; }
 				idx(i) = 0;
 				idx(i+1)++;
@@ -154,7 +104,7 @@ bool VMCSpline::set_parameter_space(Vector<unsigned int>& idx, unsigned int cons
 			idx(1)++;
 		}
 		for(unsigned int i(1);i<Nfreedom_;i++){
-			if(idx(i) == x_[i].size()){ 
+			if(idx(i) == x[i].size()){ 
 				if(i+1 == Nfreedom_){ return false; }
 				idx(i) = 0;
 				idx(i+1)++;
@@ -162,20 +112,61 @@ bool VMCSpline::set_parameter_space(Vector<unsigned int>& idx, unsigned int cons
 		}
 	}
 
-	return set_parameter_space(idx,min0,max0,border);
+	return go_through_parameter_space(x,idx,min0,max0,f);
+}
+
+void VMCSpline::run_if_min(Vector<double>* x, Vector<unsigned int> const& idx){
+	double f;
+	double f_tmp;
+	bool is_min(true);
+	Vector<double> param(Nfreedom_);
+	for(unsigned int i(0); i<Nfreedom_;i++){ param(i) = x[i](idx(i)); }
+	f = pspline_.extrapolate(param);
+	if(!isnan(f)){
+		for(unsigned int j(0);j<Nfreedom_;j++){
+			if(is_min){
+				if(idx(j)+1<x_[j].size()){
+					param(j) = x[j](idx(j)+1);
+					f_tmp = pspline_.extrapolate(param);
+					if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
+				}
+				if(is_min && idx(j)>0){
+					param(j) = x[j](idx(j)-1);
+					f_tmp = pspline_.extrapolate(param);
+					if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
+				}
+				param(j) = x[j](idx(j));
+			}
+		}
+	} else { is_min = false; }
+
+	if(is_min){ 
+#pragma omp critical(list_min)
+		{
+			min_idx_.push_back(idx);
+		}
+	}
+}
+
+void VMCSpline::save_spline_data(Vector<double>* x, Vector<unsigned int> const& idx){
+	Vector<double> param(Nfreedom_);
+	for(unsigned int i(0); i<Nfreedom_;i++){ param(i) = x[i](idx(i)); }
+	(*out_)<<param<<" "<<pspline_.extrapolate(param)<<IOFiles::endl;
 }
 
 void VMCSpline::plot(){
-	IOFiles data(get_filename()+".dat",true);
+	out_ = new IOFiles(get_filename()+".dat",true);
 	all_results_.set_target();
 	while(all_results_.target_next()){
-		data<<all_results_.get().get_param()<<" "<<all_results_.get().get_S()->get_energy().get_x()<<IOFiles::endl;
+		(*out_)<<all_results_.get().get_param()<<" "<<all_results_.get().get_S()->get_energy().get_x()<<IOFiles::endl;
 	}
+	delete out_;
 
-	IOFiles out(get_filename()+"-spline.dat",true);
-	for(unsigned int i(0);i<parameter_space_.size();i++){
-		out<<parameter_space_[i]<<" "<<pspline_.extrapolate(parameter_space_[i])<<IOFiles::endl;
-	}
+	out_ = new IOFiles(get_filename()+"-spline.dat",true);
+	Vector<unsigned int> idx(Nfreedom_,0);
+	go_through_parameter_space(x_,idx,0,0,&VMCSpline::save_spline_data);
+	delete out_;
+	out_ = NULL;
 
 	Gnuplot plot("./",get_filename());
 	plot.range("x","-2","2");

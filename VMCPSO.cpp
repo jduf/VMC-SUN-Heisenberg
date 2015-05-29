@@ -43,35 +43,8 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 
 bool VMCPSO::evaluate(unsigned int const& p){
 	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(particle_[p]));
-	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(P->get_x()));
-	bool tmp_test;
-#pragma omp critical(all_results_)
-	{
-		if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
-			tmp_test = true;
-			sim->copy_S(all_results_.get().get_S()); 
-		} else {
-			tmp_test = false;
-			sim->create_S(&system_param_);
-		}
-	}
-	if(sim->is_created()){
-		sim->run(tmp_test?10:1e6,tmax_);
-#pragma omp critical(all_results_)
-		{
-			if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
-				all_results_.fuse_with_target(sim,MCSim::fuse); 
-				tmp_test = P->update(all_results_.get_ptr()); 
-			} else {
-				all_results_.add_after_target(sim); 
-				tmp_test = P->update(sim); 
-			}
-		}
-		return tmp_test;
-	} else {
-		std::cerr<<"bool VMCPSO::evaluate(unsigned int const& p) : not valid parameter : "<<particle_[p]->get_x()<<std::endl;
-		return false;
-	}
+	std::shared_ptr<MCSim> sim(compute_vmc(P->get_x()));
+	return (sim.get()?P->update(sim):false);
 }
 
 void VMCPSO::plot() const {

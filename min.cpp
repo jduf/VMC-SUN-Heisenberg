@@ -30,25 +30,4 @@ int main(int argc, char* argv[]){
 	spline.init(true);
 	spline.run();
 	spline.plot();
-
-	VMCPSO pso2(P);
-	for(unsigned int i(0);i<Optimization::get_Nfreedom();i++){
-		Optimization::set_limit(i,-2.0,2.0);
-	}
-	pso2.move(&spline);
-	pso2.init(true, false);
-	pso2.run();
-	pso2.complete_analysis(1e-5);
-	//pso.refine(50,0.001,10);
-	//pso.save();
-	pso2.print();
-
-	VMCSpline spline2(P);
-	spline2.set_x(0,P.get<std::vector<double> >("t1"));
-	spline2.set_x(1,P.get<std::vector<double> >("t2"));
-
-	spline2.move(&pso2);
-	spline2.init(true);
-	spline2.run();
-	spline2.plot();
 }

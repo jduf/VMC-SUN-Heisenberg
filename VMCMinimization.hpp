@@ -37,6 +37,8 @@ class VMCMinimization{
 			return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
 		};
 
+		std::shared_ptr<MCSim> compute_vmc(Vector<double> const& param);
+
 	private:
 		std::string basename_;
 		std::string time_;

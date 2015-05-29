@@ -103,3 +103,34 @@ void VMCMinimization::move(VMCMinimization* min){
 	pso_info_.text(min->pso_info_.get());
 	min->pso_info_.text("");
 }
+
+std::shared_ptr<MCSim> VMCMinimization::compute_vmc(Vector<double> const& param){
+	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
+	bool tmp_test;
+#pragma omp critical(all_results_)
+	{
+		if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
+			tmp_test = true;
+			sim->copy_S(all_results_.get().get_S()); 
+		} else {
+			tmp_test = false;
+			sim->create_S(&system_param_);
+		}
+	}
+	if(sim->is_created()){
+		sim->run(tmp_test?10:1e6,tmax_);
+#pragma omp critical(all_results_)
+		{
+			if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
+				all_results_.fuse_with_target(sim,MCSim::fuse); 
+				sim = all_results_.get_ptr();
+			} else {
+				all_results_.add_after_target(sim); 
+			}
+		}
+		return sim;
+	} else {
+		std::cerr<<"bool VMCMinimization::compute_vmc(Vector<double> const& param) : not valid parameter : "<<param<<std::endl;
+		return NULL;
+	}
+}
