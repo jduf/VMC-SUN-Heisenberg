@@ -94,15 +94,14 @@ template<typename Type>
 void System1D<Type>::compute_T(){
 	T_.set(this->n_,this->n_,0);
 	unsigned int tmp;
-	double t(1);
 	for(unsigned int i(0); i<L_-1; i++){ 
 		tmp = this->spuc_*i;
 		for(unsigned int k(0);k<this->spuc_;k++){
-			T_(tmp+k,tmp+k+this->spuc_) = t; 
+			T_(tmp+k,tmp+k+this->spuc_) = 1; 
 		}
 	}
 	tmp = this->n_-this->spuc_;
-	for(unsigned int k(0);k<this->spuc_;k++){ T_(tmp+k,k) = this->bc_*t; }
+	for(unsigned int k(0);k<this->spuc_;k++){ T_(tmp+k,k) = this->bc_; }
 }
 
 template<typename Type>

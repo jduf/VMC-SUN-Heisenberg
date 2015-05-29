@@ -41,8 +41,12 @@ VMCMinimization::~VMCMinimization(){
 }
 
 void VMCMinimization::set_x(unsigned int const& i, Vector<double> const& x){
-	if(!x_){ x_ = new Vector<double>[Nfreedom_]; }
-	x_[i] = x;
+	if(i<Nfreedom_){
+		if(!x_){ x_ = new Vector<double>[Nfreedom_]; }
+		x_[i] = x;
+	} else {
+		std::cerr<<"void VMCMinimization::set_x(unsigned int const& i, Vector<double> const& x) : i>=Nfreedom"<<std::endl;
+	}
 }
 
 void VMCMinimization::complete_analysis(double const& converged_criterion){

@@ -27,8 +27,6 @@ void MCParticle::move(Vector<double> const& bx_all){
 			v_(i) += dv;
 			x_(i) += dv;
 		}
-	} else {
-		std::cerr<<tmp<<" "<<x_<<std::endl;
 	}
 }
 

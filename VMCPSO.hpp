@@ -16,6 +16,8 @@ class VMCPSO: public Swarm<MCParticle>, public VMCMinimization {
 		VMCPSO& operator=(VMCPSO) = delete;
 		/*}*/
 
+		//void set_x(unsigned int const& i, Vector<double> const& x);
+
 		void init(bool const& clear_particle_history, bool const& create_particle_history);
 		void save_best(unsigned int const& nsave);
 		void plot() const;

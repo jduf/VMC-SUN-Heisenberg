@@ -5,6 +5,11 @@ VMCPSO::VMCPSO(Parseur& P):
 	VMCMinimization(P,"PSO")
 {}
 
+//void VMCPSO::set_x(unsigned int const& i, Vector<double> const& x){
+	//VMCMinimization::set_x(i,x);
+	//Optimization::set_limit(i,0,x.size());
+//}
+
 void VMCPSO::init(bool const& clear_particle_history, bool const& create_particle_history){
 	set_time();
 	pso_info_.title("New PSO run",'-');

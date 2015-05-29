@@ -35,7 +35,7 @@ void VMCSpline::init(bool border){
 	//}
 }
 
-void VMCSpline::run(){
+void VMCSpline::run(unsigned int const& explore_around_minima){
 	if(all_results_.size()){
 		while(all_results_.target_next()){
 			pspline_.add_data(all_results_.get().get_param(),all_results_.get().get_S()->get_energy().get_x());
@@ -43,45 +43,52 @@ void VMCSpline::run(){
 		pso_info_.title("New PSpline run",'-');
 		pspline_.compute_weights(); 
 
-		std::cout<<"try to find min"<<std::endl;
 #pragma omp parallel 
 		{
 			unsigned int min0(omp_get_thread_num()*x_[0].size()/omp_get_num_threads());
 			unsigned int max0((omp_get_thread_num()+1)*x_[0].size()/omp_get_num_threads());
-			Vector<unsigned int> idx;
-			idx.set(Nfreedom_,0);
+			Vector<unsigned int> idx(Nfreedom_,0);
 			idx(0) = min0;
-			go_through_parameter_space(x_,idx,min0,max0,&VMCSpline::run_if_min);
+			while(go_through_parameter_space(x_,idx,min0,max0,&VMCSpline::run_if_min));
 		}
-		for(unsigned int j(0); j<Nfreedom_;j++){ 
-			std::cout<<min_idx_[j]<<std::endl;
-		}
-
-#pragma omp parallel for
-		for(unsigned int i=0;i<min_idx_.size();i++){
-			//Vector<double>* x(new Vector<double>[Nfreedom_]);
-			//for(unsigned int j(0);j<Nfreedom_;j++){
-				//x[j].set(5,0);
-				//for(unsigned int k(0);k<x[j].size();k++){
-					//if(min_idx_[i](j) >= k-2 && min_idx_[i](j)+k-2 < .size()){
-						//x[j](k) = x_(min_idx_[i](j)+k-2);
-					//}
-				//}
-			//}
-			//Vector<unsigned int> idx;
-//
-			//std::vector<Vector<double> > parameter_space;
-			//std::vector<Vector<unsigned int> > parameter_idx;
-			//set_parameter_space(x,parameter_space,parameter_idx,idx);
-			//for(unsigned int j(0);j<parameter_space.size();j++){
-				//compute_vmc(parameter_space[j]);
-			//}
-			//delete[] x;
-
+		for(unsigned int j(0); j<all_min_idx_.size();j++){ 
 			Vector<double> param(Nfreedom_);
-			for(unsigned int j(0); j<Nfreedom_;j++){ param(j) = x_[j](min_idx_[i](j)); }
-			compute_vmc(param);
+			for(unsigned int i(0); i<Nfreedom_;i++){ param(i) = x_[i](all_min_idx_[j](i)); }
 		}
+
+		if(explore_around_minima){
+#pragma omp parallel for
+			for(unsigned int i=0;i<all_min_idx_.size();i++){
+				std::vector<unsigned int>* min_idx(new std::vector<unsigned int>[Nfreedom_]);
+				for(unsigned int j(0);j<Nfreedom_;j++){
+					for(unsigned int k(0);k<2*explore_around_minima+1;k++){
+						if(all_min_idx_[i](j)+k >= 2 && all_min_idx_[i](j)+k < x_[j].size()+2){ 
+							min_idx[j].push_back(all_min_idx_[i](j)+k-2);
+						}
+					}
+				}
+
+				Vector<double>* local_x(new Vector<double>[Nfreedom_]);
+				for(unsigned int j(0);j<Nfreedom_;j++){
+					local_x[j].set(min_idx[j].size(),0);
+					for(unsigned int k(0);k<min_idx[j].size();k++){
+						local_x[j](k) = x_[j](min_idx[j][k]);
+					}
+				}
+
+				Vector<unsigned int> idx(Nfreedom_,0);
+				while(go_through_parameter_space(local_x,idx,0,0,&VMCSpline::call_compute_vmc));
+				delete[] local_x;
+			}
+		} else {
+#pragma omp parallel for
+			for(unsigned int i=0;i<all_min_idx_.size();i++){
+				Vector<double> param(Nfreedom_);
+				for(unsigned int j(0); j<Nfreedom_;j++){ param(j) = x_[j](all_min_idx_[i](j)); }
+				compute_vmc(param);
+			}
+		} 
+
 	}
 }
 
@@ -115,6 +122,12 @@ bool VMCSpline::go_through_parameter_space(Vector<double>* x, Vector<unsigned in
 	return go_through_parameter_space(x,idx,min0,max0,f);
 }
 
+void VMCSpline::call_compute_vmc(Vector<double>* x, Vector<unsigned int> const& idx){
+	Vector<double> param(Nfreedom_);
+	for(unsigned int i(0); i<Nfreedom_;i++){ param(i) = x[i](idx(i)); }
+	compute_vmc(param);
+}
+
 void VMCSpline::run_if_min(Vector<double>* x, Vector<unsigned int> const& idx){
 	double f;
 	double f_tmp;
@@ -143,7 +156,7 @@ void VMCSpline::run_if_min(Vector<double>* x, Vector<unsigned int> const& idx){
 	if(is_min){ 
 #pragma omp critical(list_min)
 		{
-			min_idx_.push_back(idx);
+			all_min_idx_.push_back(idx);
 		}
 	}
 }
@@ -155,25 +168,37 @@ void VMCSpline::save_spline_data(Vector<double>* x, Vector<unsigned int> const& 
 }
 
 void VMCSpline::plot(){
-	out_ = new IOFiles(get_filename()+".dat",true);
-	all_results_.set_target();
-	while(all_results_.target_next()){
-		(*out_)<<all_results_.get().get_param()<<" "<<all_results_.get().get_S()->get_energy().get_x()<<IOFiles::endl;
+	if(Nfreedom_<4){
+		out_ = new IOFiles(get_filename()+".dat",true);
+		all_results_.set_target();
+		double min(0);
+		while(all_results_.target_next()){
+			if(all_results_.get().get_S()->get_energy().get_x()<min){ min = all_results_.get().get_S()->get_energy().get_x(); }
+			(*out_)<<all_results_.get().get_param()<<" "<<all_results_.get().get_S()->get_energy().get_x()<<IOFiles::endl;
+		}
+		delete out_;
+
+		out_ = new IOFiles(get_filename()+"-spline.dat",true);
+		Vector<unsigned int> idx(Nfreedom_,0);
+		while(go_through_parameter_space(x_,idx,0,0,&VMCSpline::save_spline_data));
+		delete out_;
+		out_ = NULL;
+
+		Gnuplot plot("./",get_filename());
+		plot.range("x","-2","2");
+		plot.range("y","-2","2");
+		plot.range("z","-1","");
+		plot+="set ticslevel 0";
+		if(Nfreedom_==2){
+			plot+="splot '"+get_filename()+"-spline.dat' u 1:2:3 t 'spline',\\";
+			plot+="      '"+get_filename()+".dat'        u 1:2:3 notitle";
+		} 
+		if(Nfreedom_==3){
+			plot+="splot '"+get_filename()+"-spline.dat' u 1:2:3:($4>-0.93?0:exp("+my::tostring(min)+"-$4)) w p lt 7 lc 1 ps variable t 'spline',\\";
+			plot+="      '"+get_filename()+".dat'        u 1:2:3:($4>-0.93?0:exp("+my::tostring(min)+"-$4)) w p lt 7 lc 2 ps variable notitle";
+		} 
+		plot.save_file();
+	} else {
+		std::cerr<<"void VMCSpline::plot() : how to plot "<Nfreedom<<"-dimentional data ?"<<std::endl;
 	}
-	delete out_;
-
-	out_ = new IOFiles(get_filename()+"-spline.dat",true);
-	Vector<unsigned int> idx(Nfreedom_,0);
-	go_through_parameter_space(x_,idx,0,0,&VMCSpline::save_spline_data);
-	delete out_;
-	out_ = NULL;
-
-	Gnuplot plot("./",get_filename());
-	plot.range("x","-2","2");
-	plot.range("y","-2","2");
-	plot.range("z","-1","");
-	plot+="set ticslevel 0";
-	plot+="splot '"+get_filename()+".dat' u 1:2:3 notitle,\\";
-	plot+="      '"+get_filename()+"-spline.dat' u 1:2:3 t 'spline'";
-	plot.save_file();
 }

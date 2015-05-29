@@ -25,9 +25,10 @@ int main(int argc, char* argv[]){
 	VMCSpline spline(P);
 	spline.set_x(0,P.get<std::vector<double> >("t1"));
 	spline.set_x(1,P.get<std::vector<double> >("t2"));
+	spline.set_x(2,P.get<std::vector<double> >("t3"));
 
 	spline.move(&pso);
 	spline.init(true);
-	spline.run();
+	spline.run(1);
 	spline.plot();
 }
