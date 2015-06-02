@@ -4,7 +4,8 @@
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	VMCSpline s(P);
+	Minimization m(P);
+	VMCSpline s(m);
 	s.run(1);
 	//List<MCSim> all_results_;
 	//unsigned int Nfreedom(2);

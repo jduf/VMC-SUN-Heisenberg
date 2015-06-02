@@ -6,7 +6,7 @@
 
 class VMCSpline : public VMCMinimization {
 	public:
-		VMCSpline(Parseur& P);
+		VMCSpline(Minimization& m);
 		/*!Default destructor*/
 		virtual ~VMCSpline() = default;
 		/*{Forbidden*/
@@ -17,9 +17,10 @@ class VMCSpline : public VMCMinimization {
 		/*}*/
 
 		void init();
+		void set_ps(unsigned int const& i, Vector<double> const& ps);
 		void run(unsigned int const& explore_around_minima);
 		void plot();
-		void print();
+		void print() const;
 
 	private:
 		PSpline pspline_;

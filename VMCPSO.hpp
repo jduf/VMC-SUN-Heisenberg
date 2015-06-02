@@ -6,7 +6,7 @@
 
 class VMCPSO: public Swarm<MCParticle>, public VMCMinimization {
 	public:
-		VMCPSO(Parseur& P);
+		VMCPSO(Parseur& P, Minimization& m);
 		/*!Default destructor*/
 		virtual ~VMCPSO() = default;
 		/*{Forbidden*/
@@ -17,13 +17,12 @@ class VMCPSO: public Swarm<MCParticle>, public VMCMinimization {
 		/*}*/
 
 		void init(bool const& clear_particle_history, bool const& create_particle_history);
+		void set_ps(unsigned int const& i, Vector<double> const& ps);
 		void save_best(unsigned int const& nsave);
 		void plot() const;
 		void print() const;
-		void set_ps(unsigned int const& i, Vector<double> const& ps);
 
 	private:
-		bool within_limit(Vector<double> const& x);
 		bool evaluate(unsigned int const& p);
 };
 #endif

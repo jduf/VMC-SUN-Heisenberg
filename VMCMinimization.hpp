@@ -1,14 +1,13 @@
 #ifndef DEF_VMCMINIMIZATION
 #define DEF_VMCMINIMIZATION
 
-#include "List.hpp"
-#include "MCSim.hpp"
+#include "Minimization.hpp"
 
 class VMCMinimization{
 	public:
-		VMCMinimization(Parseur& P, std::string const& prefix);
+		VMCMinimization(Minimization& m, std::string const& prefix);
 		/*!Default destructor*/
-		virtual ~VMCMinimization()=0;
+		virtual ~VMCMinimization() = default;
 		/*{Forbidden*/
 		VMCMinimization() = delete;
 		VMCMinimization(VMCMinimization const&) = delete;
@@ -16,26 +15,17 @@ class VMCMinimization{
 		VMCMinimization& operator=(VMCMinimization const&) = delete;
 		/*}*/
 
-		virtual void set_ps(unsigned int const& i, Vector<double> const& ps);
+		virtual void set_ps(unsigned int const& i, Vector<double> const& ps)=0;
 		void move(VMCMinimization* min);
 		void refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax);
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
 
 	protected:
-		unsigned int Nfreedom_;
-		unsigned int tmax_;
-		Vector<double>* ps_; //<! parameter space
-		List<MCSim> all_results_;
-		Container system_param_;
-		RST pso_info_;
+		Minimization& m_;
 
 		std::string get_filename() const { return basename_+"_"+time_; }
 		void set_time() { time_ = Time().date(); }
-
-		static bool sort_per_energy(MCSim const& a, MCSim const& b){ 
-			return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
-		};
 
 		std::shared_ptr<MCSim> compute_vmc(Vector<double> const& param);
 

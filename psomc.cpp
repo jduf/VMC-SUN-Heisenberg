@@ -4,8 +4,10 @@
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
+
 	
-	VMCPSO s(P);
+	Minimization m(P);
+	VMCPSO s(P,m);
 	//for(unsigned int i(0);i<Optimization::get_Nfreedom();i++){
 		//Optimization::set_limit(i,-2.0,2.0);
 	//}
