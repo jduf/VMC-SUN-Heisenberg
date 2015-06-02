@@ -8,7 +8,7 @@ class VMCSpline : public VMCMinimization {
 	public:
 		VMCSpline(Parseur& P);
 		/*!Default destructor*/
-		virtual ~VMCSpline();
+		virtual ~VMCSpline() = default;
 		/*{Forbidden*/
 		VMCSpline() = delete;
 		VMCSpline(VMCSpline const&) = delete;
@@ -16,19 +16,20 @@ class VMCSpline : public VMCMinimization {
 		VMCSpline& operator=(VMCSpline) = delete;
 		/*}*/
 
-		void init(bool border);
+		void init();
 		void run(unsigned int const& explore_around_minima);
 		void plot();
+		void print();
 
 	private:
 		PSpline pspline_;
-		Vector<double>* border_;
 		std::vector<Vector<unsigned int> > all_min_idx_;
 		IOFiles* out_;
 
+		void search_minima();
 		bool go_through_parameter_space(Vector<double>* x, Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, void (VMCSpline::*f)(Vector<double>*, Vector<unsigned int> const&));
 		
-		void run_if_min(Vector<double>* x, Vector<unsigned int> const& idx);
+		void select_if_min(Vector<double>* x, Vector<unsigned int> const& idx);
 		void save_spline_data(Vector<double>* x, Vector<unsigned int> const& idx);
 		void call_compute_vmc(Vector<double>* x, Vector<unsigned int> const& idx);
 };

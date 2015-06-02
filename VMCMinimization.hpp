@@ -16,16 +16,16 @@ class VMCMinimization{
 		VMCMinimization& operator=(VMCMinimization const&) = delete;
 		/*}*/
 
-		void set_x(unsigned int const& i, Vector<double> const& x);
+		virtual void set_ps(unsigned int const& i, Vector<double> const& ps);
 		void move(VMCMinimization* min);
 		void refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax);
-		void complete_analysis(double const& converged_criterion);
+		void complete_analysis(double const& convergence_criterion);
 		void save() const;
 
 	protected:
 		unsigned int Nfreedom_;
 		unsigned int tmax_;
-		Vector<double>* x_;
+		Vector<double>* ps_; //<! parameter space
 		List<MCSim> all_results_;
 		Container system_param_;
 		RST pso_info_;

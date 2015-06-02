@@ -18,17 +18,21 @@ class MCParticle: public Particle{
 		/*}*/
 
 		void init_Particle(double fx);
-		void move(Vector<double> const& bx_all);
 		void print() const;
 
 		bool update(std::shared_ptr<MCSim> const& new_elem);
 		void add_to_history(std::shared_ptr<MCSim> const& new_elem);
 		bool select_new_best();
 		void clear_history(){ history_.set(); }
+		void set_ps(Vector<double>* ps){ ps_ = ps; }
+		Vector<double> get_param() const;
 
 	private:
 		List<MCSim> history_;
 		unsigned int const update_now_ = 10;
 		unsigned int Nupdate_ = 0;
+		Vector<double>* ps_ = NULL;
+
+		void set_bx_via(Vector<double> const& param);
 };
 #endif

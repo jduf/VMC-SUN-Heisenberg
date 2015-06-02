@@ -5,14 +5,14 @@ VMCPSO::VMCPSO(Parseur& P):
 	VMCMinimization(P,"PSO")
 {}
 
-//void VMCPSO::set_x(unsigned int const& i, Vector<double> const& x){
-	//VMCMinimization::set_x(i,x);
-	//Optimization::set_limit(i,0,x.size());
-//}
-
 void VMCPSO::init(bool const& clear_particle_history, bool const& create_particle_history){
 	set_time();
 	pso_info_.title("New PSO run",'-');
+
+	std::cout<<"#######################"<<std::endl;
+	std::cout<<"#new VMCPSO"<<std::endl;
+	std::cout<<"#"<<get_filename()<<std::endl;
+	std::cout<<"#contains "<<all_results_.size()<<" samples"<<std::endl;
 
 	if(clear_particle_history){ 
 		pso_info_.text("clear history"+RST::nl_);
@@ -21,35 +21,49 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 		}
 	}
 
+	std::shared_ptr<MCParticle> MCP;
+	for(unsigned int i(0);i<Nparticles_;i++){
+		MCP = std::dynamic_pointer_cast<MCParticle>(particle_[i]);
+		MCP->set_ps(ps_);
+	}
 	init_PSO(100); 
 	if(clear_particle_history && create_particle_history && all_results_.size()){
 		pso_info_.text("set history"+RST::nl_);
 		unsigned int size(0);
 		while(all_results_.target_next()){
-			if(Optimization::within_limit(all_results_.get().get_param())){ size++; }
+			if(within_limit(all_results_.get().get_param())){ size++; }
 		}
 		unsigned int Npp(size/Nparticles_);
 		unsigned int s;
-		std::shared_ptr<MCParticle> P;
+		std::shared_ptr<MCParticle> MCP;
 		for(unsigned int p(0);p<Nparticles_;p++){
 			if(p == Nparticles_ - (size%Nparticles_) ){ Npp++; }
-			P = std::dynamic_pointer_cast<MCParticle>(particle_[p]);
+			MCP = std::dynamic_pointer_cast<MCParticle>(particle_[p]);
 			s = 0;
 			while( s!=Npp && all_results_.target_next()){
-				if(Optimization::within_limit(all_results_.get().get_param())){
+				if(within_limit(all_results_.get().get_param())){
+					MCP->add_to_history(all_results_.get_ptr());
 					s++;
-					P->add_to_history(all_results_.get_ptr());
 				}
 			}
-			P->select_new_best();
+			MCP->select_new_best();
 		}
 	}
 }
 
+void VMCPSO::set_ps(unsigned int const& i, Vector<double> const& ps){
+	VMCMinimization::set_ps(i,ps);
+	if(i<Nfreedom_){
+		Particle::set_limit(i,0,ps_[i].size());
+	} else {
+		std::cerr<<"void VMCPSO::set_x(unsigned int const& i, Vector<double> const& x) : i>=Nfreedom"<<std::endl;
+	}
+}
+
 bool VMCPSO::evaluate(unsigned int const& p){
-	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(particle_[p]));
-	std::shared_ptr<MCSim> sim(compute_vmc(P->get_x()));
-	return (sim.get()?P->update(sim):false);
+	std::shared_ptr<MCParticle> MCP(std::dynamic_pointer_cast<MCParticle>(particle_[p]));
+	std::shared_ptr<MCSim> sim(compute_vmc(MCP->get_param()));
+	return (sim.get()?MCP->update(sim):false);
 }
 
 void VMCPSO::plot() const {
@@ -89,4 +103,11 @@ void VMCPSO::save_best(unsigned int const& nsave){
 	} else {
 		std::cerr<<"void VMCPSO::save(unsigned int const& nsave) : there is no data"<<std::endl;
 	}
+}
+
+bool VMCPSO::within_limit(Vector<double> const& x){
+	for(unsigned int i(0);i<Nfreedom_;i++){
+		if(x(i)<ps_[i](0) || x(i)>ps_[i].back()) { return false; }
+	}
+	return true;
 }

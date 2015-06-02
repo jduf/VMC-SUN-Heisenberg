@@ -3,7 +3,7 @@
 VMCMinimization::VMCMinimization(Parseur& P, std::string const& prefix):
 	Nfreedom_(P.get<unsigned int>("Nfreedom")),
 	tmax_(P.get<unsigned int>("tmax")),
-	x_(NULL),
+	ps_(NULL),
 	basename_(prefix)
 {
 	unsigned int i(0);
@@ -37,22 +37,24 @@ VMCMinimization::VMCMinimization(Parseur& P, std::string const& prefix):
 }
 
 VMCMinimization::~VMCMinimization(){
-	if(x_){ delete[] x_; }
+	if(ps_){ delete[] ps_; }
 }
 
-void VMCMinimization::set_x(unsigned int const& i, Vector<double> const& x){
+void VMCMinimization::set_ps(unsigned int const& i, Vector<double> const& ps){
 	if(i<Nfreedom_){
-		if(!x_){ x_ = new Vector<double>[Nfreedom_]; }
-		x_[i] = x;
+		if(!ps_){ ps_ = new Vector<double>[Nfreedom_]; }
+		ps_[i] = ps;
 	} else {
 		std::cerr<<"void VMCMinimization::set_x(unsigned int const& i, Vector<double> const& x) : i>=Nfreedom"<<std::endl;
 	}
 }
 
-void VMCMinimization::complete_analysis(double const& converged_criterion){
+void VMCMinimization::complete_analysis(double const& convergence_criterion){
+	std::cout<<"#######################"<<std::endl;
+	std::cout<<"#complete_analysis called with convergence_criterion="<<convergence_criterion<<std::endl;
 	all_results_.set_target();
 	while ( all_results_.target_next() ){
-		all_results_.get().complete_analysis(converged_criterion);
+		all_results_.get().complete_analysis(convergence_criterion);
 	}
 }
 
@@ -71,6 +73,8 @@ void VMCMinimization::save() const {
 
 void VMCMinimization::refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax){
 	if(all_results_.size()){
+		std::cout<<"#######################"<<std::endl;
+		std::cout<<"#refine called with Nrefine="<<Nrefine<<" convergence_criterion="<<convergence_criterion<<" tmax="<<tmax<<std::endl;
 		pso_info_.text("refine called with"+RST::nl_);
 		pso_info_.item(my::tostring(Nrefine));
 		pso_info_.item(my::tostring(convergence_criterion));

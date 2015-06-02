@@ -91,7 +91,7 @@ void ChainPolymerized::save() const {
 	for(unsigned int i(0);i<t_.size()-1;i++){
 		t_string += my::tostring(t_(i))+",";
 	}
-	t_string += my::tostring(t_(t_.size()-1));
+	t_string += my::tostring(t_.back());
 	jd_write_->write("t ("+t_string+")",t_);
 }
 /*}*/
@@ -110,7 +110,7 @@ std::string ChainPolymerized::extract_level_7(){
 	for(unsigned int i(0);i<t_.size()-1;i++){
 		t_string += my::tostring(t_(i))+",";
 	}
-	t_string += my::tostring(t_(t_.size()-1))+")";
+	t_string += my::tostring(t_.back())+")";
 	std::string title("$N="+my::tostring(N_)+"$ $m="+my::tostring(m_)+"$ $n="+my::tostring(n_)+"$ bc="+my::tostring(bc_)+" $t_{ij}="+t_string+"$");
 
 	/*!extract jdbin*/

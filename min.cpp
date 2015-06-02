@@ -3,32 +3,49 @@
 #include "VMCPSO.hpp"
 #include "VMCSpline.hpp"
 
+
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	
-	VMCPSO pso(P);
-	for(unsigned int i(0);i<Optimization::get_Nfreedom();i++){
-		Optimization::set_limit(i,-2.0,2.0);
+	VMCPSO m1(P);
+	VMCSpline m2(P);
+	m1.set_ps(0,P.get<std::vector<double> >("t1"));
+	m1.set_ps(1,P.get<std::vector<double> >("t2"));
+	m1.set_ps(2,P.get<std::vector<double> >("t3"));
+	m2.set_ps(0,P.get<std::vector<double> >("t1"));
+	m2.set_ps(1,P.get<std::vector<double> >("t2"));
+	m2.set_ps(2,P.get<std::vector<double> >("t3"));
+
+	for(unsigned int i(0);i<3;i++){
+		if(i){m1.move(&m2); }
+		m1.init(true, false);
+		m1.run();
+		//m1.save();
+		//m1.print();
+		//m1.plot();
+
+		m2.move(&m1);
+		m2.init();
+		m2.run(1);
+		m2.plot();
 	}
-	//Optimization::set_limit(0,-1.0,-0.5);
-	//Optimization::set_limit(1,0.7,1.3);
-	//Optimization::set_limit(2,-1.3,-0.7);
-	pso.init(true, false);
-	std::cout<<"init over"<<std::endl;
-	pso.run();
-	pso.complete_analysis(1e-5);
-	//pso.refine(50,0.001,10);
-	//pso.save();
-	pso.print();
-	//pso.plot();
 
-	VMCSpline spline(P);
-	spline.set_x(0,P.get<std::vector<double> >("t1"));
-	spline.set_x(1,P.get<std::vector<double> >("t2"));
-	spline.set_x(2,P.get<std::vector<double> >("t3"));
-
-	spline.move(&pso);
-	spline.init(true);
-	spline.run(1);
-	spline.plot();
+	m2.complete_analysis(1e-5);
+	m2.refine(50,0.001,10);
+	m2.print();
+	m2.save();
 }
+
+//int main(int argc, char* argv[]){
+	//Parseur P(argc,argv);
+	//
+	//VMCSpline m2(P);
+	//m2.set_ps(0,P.get<std::vector<double> >("t1"));
+	//m2.set_ps(1,P.get<std::vector<double> >("t2"));
+	//m2.set_ps(2,P.get<std::vector<double> >("t3"));
+//
+	//m2.init();
+	//m2.run(1);
+	//m2.plot();
+	//m2.print();
+//}

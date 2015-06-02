@@ -11,7 +11,7 @@ class MCSim {
 		/*!Constructor that reads from file*/
 		MCSim(IOFiles& r);
 		/*!Default destructor*/
-		~MCSim() = default;
+		virtual ~MCSim() = default;
 		/*{Forbidden*/
 		MCSim() = delete;
 		MCSim(MCSim const&) = delete;
