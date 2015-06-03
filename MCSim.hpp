@@ -35,6 +35,9 @@ class MCSim {
 		void complete_analysis(double const& convergence_criterion);
 		bool check_conv(double const& convergence_criterion);
 
+		static bool compare(MCSim const& a, MCSim const& b){ 
+			return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
+		};
 	private:
 		Vector<unsigned int> ref_;
 		Vector<double> param_;
