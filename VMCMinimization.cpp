@@ -23,17 +23,15 @@ VMCMinimization::VMCMinimization(VMCMinimization const& vmcm, std::string const&
 
 /*{Public methods*/
 void VMCMinimization::refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax){
-	if(m_->all_results_.size()){
+	if(m_->samples_list_.size()){
 		std::cout<<"#######################"<<std::endl;
-		std::cout<<"#refine called with Nrefine="<<Nrefine<<" convergence_criterion="<<convergence_criterion<<" tmax="<<tmax<<std::endl;
-		m_->pso_info_.text("refine called with"+RST::nl_);
-		m_->pso_info_.item(my::tostring(Nrefine));
-		m_->pso_info_.item(my::tostring(convergence_criterion));
-		m_->pso_info_.item(my::tostring(tmax)+RST::nl_);
+		std::string msg("refine ("+my::tostring(Nrefine)+","+my::tostring(convergence_criterion)+","+my::tostring(tmax)+")");
+		std::cout<<"#"<<msg<<std::endl;
+		m_->pso_info_.item(msg);
 
 		List<MCSim> best;
-		while(m_->all_results_.target_next()){ best.add_sort(m_->all_results_.get_ptr(),MCSim::compare); }
-		unsigned int N(m_->all_results_.size());
+		while(m_->samples_list_.target_next()){ best.add_sort(m_->samples_list_.get_ptr(),MCSim::compare); }
+		unsigned int N(m_->samples_list_.size());
 		N  = (N<Nrefine?N:Nrefine);
 		best.set_target();
 #pragma omp parallel for schedule(dynamic,1)
@@ -60,29 +58,21 @@ void VMCMinimization::refine(unsigned int const& Nrefine, double const& converge
 void VMCMinimization::complete_analysis(double const& convergence_criterion){
 	std::cout<<"#######################"<<std::endl;
 	std::cout<<"#complete_analysis called with convergence_criterion="<<convergence_criterion<<std::endl;
-	m_->all_results_.set_target();
-	while ( m_->all_results_.target_next() ){
-		m_->all_results_.get().complete_analysis(convergence_criterion);
+	m_->samples_list_.set_target();
+	while ( m_->samples_list_.target_next() ){
+		m_->samples_list_.get().complete_analysis(convergence_criterion);
 	}
 }
 
 void VMCMinimization::save() const {
 	IOFiles out(get_filename()+".jdbin",true);
-	out.write("wf",m_->system_param_.get<std::string>("wf"));
-	out.write("N", m_->system_param_.get<unsigned int>("N"));
-	out.write("m", m_->system_param_.get<unsigned int>("m"));
-	out.write("n", m_->system_param_.get<unsigned int>("n"));
-	out.write("bc",m_->system_param_.get<int>("bc"));
-	out.write("#", m_->all_results_.size());
-	out.add_header()->nl();
-	out.add_header()->text(m_->pso_info_.get());
-	while(m_->all_results_.target_next()){ m_->all_results_.get().write(out); }
+	m_->save(out);
 }
 
 void VMCMinimization::save_best(unsigned int const& nsave){
-	if(m_->all_results_.size()){
+	if(m_->samples_list_.size()){
 		List<MCSim> best;
-		while(m_->all_results_.target_next()){ best.add_sort(m_->all_results_.get_ptr(),MCSim::compare); }
+		while(m_->samples_list_.target_next()){ best.add_sort(m_->samples_list_.get_ptr(),MCSim::compare); }
 		best.set_target();
 		unsigned int i(0);
 		while(best.target_next() && i++<nsave){ best.get().save(&m_->system_param_); }
@@ -91,36 +81,25 @@ void VMCMinimization::save_best(unsigned int const& nsave){
 	}
 }
 
-/*{Virtual methods*/
-void VMCMinimization::set_ps(unsigned int const& i, Vector<double> const& ps){
-	if(i<m_->Nfreedom_){
-		if(!m_->ps_){ m_->ps_ = new Vector<double>[m_->Nfreedom_]; }
-		m_->ps_[i] = ps;
-	} else {
-		std::cerr<<"void Minimization::set_x(unsigned int const& i, Vector<double> const& x) : i>=m_->Nfreedom"<<std::endl;
-	}
-}
-
 void VMCMinimization::print() const {
-	std::cout<<"Print whole history ("<< m_->all_results_.size()<<")"<<std::endl;
-	while( m_->all_results_.target_next() ){
-		std::cout<<m_->all_results_.get_ptr()<<" ";
-		m_->all_results_.get().print();
+	std::cout<<"Print whole history ("<< m_->samples_list_.size()<<")"<<std::endl;
+	while( m_->samples_list_.target_next() ){
+		std::cout<<m_->samples_list_.get_ptr()<<" ";
+		m_->samples_list_.get().print();
 		std::cout<<std::endl;
 	}
 }
-/*}*/
 /*}*/
 
 /*{Protected methods*/
 std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 	bool tmp_test;
-#pragma omp critical(all_results_)
+#pragma omp critical(samples_list_)
 	{
-		if(m_->all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
+		if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
 			tmp_test = true;
-			sim->copy_S(m_->all_results_.get().get_S()); 
+			sim->copy_S(m_->samples_list_.get().get_S()); 
 		} else {
 			tmp_test = false;
 			sim->create_S(&m_->system_param_);
@@ -128,13 +107,13 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 	}
 	if(sim->is_created()){
 		sim->run(tmp_test?10:1e6,m_->tmax_);
-#pragma omp critical(all_results_)
+#pragma omp critical(samples_list_)
 		{
-			if(m_->all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
-				m_->all_results_.fuse_with_target(sim,MCSim::fuse); 
-				sim = m_->all_results_.get_ptr();
+			if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
+				m_->samples_list_.fuse_with_target(sim,MCSim::fuse); 
+				sim = m_->samples_list_.get_ptr();
 			} else {
-				m_->all_results_.add_after_target(sim); 
+				m_->samples_list_.add_after_target(sim); 
 			}
 		}
 		return sim;
@@ -148,40 +127,53 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 
 /*{Minimization*/
 VMCMinimization::Minimization::Minimization(Parseur& P):
-	Nfreedom_(P.get<unsigned int>("Nfreedom")),
-	tmax_(P.get<unsigned int>("tmax")),
-	ps_(NULL)
+	tmax_(P.get<unsigned int>("tmax"))
 {
 	std::cout<<"#######################"<<std::endl;
 	std::cout<<"#creating Minimization"<<std::endl;
+
 	unsigned int i(0);
 	IOFiles* in(P.find("load",i,false)?(new IOFiles(P.get<std::string>(i),false)):NULL);
 
-	wf_=(in?in->read<std::string>():P.get<std::string>("wf"));
-	N_ =(in?in->read<unsigned int>():P.get<unsigned int>("N"));
-	m_ =(in?in->read<unsigned int>():P.get<unsigned int>("m"));
-	n_ =(in?in->read<unsigned int>():P.get<unsigned int>("n"));
-	bc_=(in?in->read<int>():P.get<int>("bc"));
+	wf_      =(in?in->read<std::string>() :P.get<std::string>("wf"));
+	N_       =(in?in->read<unsigned int>():P.get<unsigned int>("N"));
+	m_       =(in?in->read<unsigned int>():P.get<unsigned int>("m"));
+	n_       =(in?in->read<unsigned int>():P.get<unsigned int>("n"));
+	bc_      =(in?in->read<int>()         :P.get<int>("bc"));
+	Nfreedom_=(in?in->read<unsigned int>():P.get<unsigned int>("Nfreedom"));
+	ps_ = new Vector<double>[Nfreedom_];
+	for(unsigned int i(0);i<Nfreedom_;i++){
+		ps_[i] = (in?in->read<Vector<double> >():P.get<std::vector<double> >("ps"+my::tostring(i))); 
+	}
+	if(in){
+		std::string msg1("loading samples from "+in->get_filename());
+		std::cout<<"#"+msg1<<std::flush;
+		Time chrono;
+		unsigned int size(in->read<int>());
+		while(size--){ samples_list_.add_end(std::make_shared<MCSim>(*in)); }
+
+		std::string msg2(" ("+my::tostring(samples_list_.size())+" samples loaded in "+my::tostring(chrono.elapsed())+"s)");
+		std::string header(in->get_header());
+		header.erase(0,header.find(".. end_of_saved_variables\n",0)+28);
+		pso_info_.text(header);
+		pso_info_.title("Minimization",'>');
+		pso_info_.item(msg1+msg2);
+		std::cout<<msg2<<std::endl;
+
+		delete in;
+		in = NULL;
+	} else {
+		std::string msg("no samples loaded");
+		std::cout<<"#"+msg<<std::endl;
+		pso_info_.title("Minimization",'>');
+		pso_info_.item(msg);
+	}
 
 	system_param_.set("wf",wf_);
 	system_param_.set("N",N_);
 	system_param_.set("m",m_);
 	system_param_.set("n",n_);
 	system_param_.set("bc",bc_);
-
-	if(in){
-		std::cout<<"#loading";
-		Time chrono;
-		unsigned int size(in->read<int>());
-		while(size--){ all_results_.add_end(std::make_shared<MCSim>(*in)); }
-		pso_info_.text("loads data from "+in->get_filename()+RST::nl_);
-
-		delete in;
-		in = NULL;
-		std::cout<<" ("<<all_results_.size()<<" samples loaded "<<chrono.elapsed()<<"s)"<<std::endl;
-	} else {
-		std::cout<<"#no samples loaded"<<std::endl;
-	}
 }
 
 VMCMinimization::Minimization::~Minimization(){
@@ -193,5 +185,20 @@ bool VMCMinimization::Minimization::within_limit(Vector<double> const& x){
 		if(x(i)<ps_[i](0) || x(i)>ps_[i].back()) { return false; }
 	}
 	return true;
+}
+
+void VMCMinimization::Minimization::save(IOFiles& out) const {
+	out.write("wf",wf_);
+	out.write("N", N_);
+	out.write("m", m_);
+	out.write("n", n_);
+	out.write("bc",bc_);
+	out.write("Nfreedom",Nfreedom_);
+	for(unsigned int i(0);i<Nfreedom_;i++){ out<<ps_[i]; }
+	out.write("#",samples_list_.size());
+	out.add_header()->nl();
+	out.add_header()->comment("end_of_saved_variables");
+	out.add_header()->text(pso_info_.get());
+	while(samples_list_.target_next()){ samples_list_.get().write(out); }
 }
 /*}*/

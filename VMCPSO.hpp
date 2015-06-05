@@ -4,7 +4,7 @@
 #include "MCParticle.hpp"
 #include "VMCMinimization.hpp"
 
-class VMCPSO: public Swarm<MCParticle>, public VMCMinimization {
+class VMCPSO: public VMCMinimization, public Swarm<MCParticle>{
 	public:
 		VMCPSO(Parseur& P, VMCMinimization const& vmcm);
 		/*!Default destructor*/
@@ -17,10 +17,8 @@ class VMCPSO: public Swarm<MCParticle>, public VMCMinimization {
 		/*}*/
 
 		void init(bool const& clear_particle_history, bool const& create_particle_history);
-		void set_ps(unsigned int const& i, Vector<double> const& ps);
-
+		void run();
 		void plot() const;
-		void print() const;
 
 	private:
 		/*!Create param p then call VMCMinimization::evaluate(param)*/

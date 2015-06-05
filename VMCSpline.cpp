@@ -8,24 +8,33 @@ VMCSpline::VMCSpline(VMCMinimization const& m):
 /*{Public methods*/
 void VMCSpline::init(){
 	set_time();
-	m_->pso_info_.title("New PSpline run",'-');
-	list_min_idx_.clear();
 	pspline_.set();
+	list_min_idx_.clear();
+
 	std::cout<<"#######################"<<std::endl;
 	std::cout<<"#initialize VMCSpline"<<std::endl;
 	std::cout<<"#"<<get_filename()<<std::endl;
-	if(m_->all_results_.size()){ search_minima(); }
-	else { std::cerr<<"VMCSpline::run() : empty list of data"<<std::endl; }
+	m_->pso_info_.title("New PSpline run",'-');
+	m_->pso_info_.item(get_filename());
+
+	if(m_->samples_list_.size()){ search_minima(); }
+	else { 
+		std::cerr<<"VMCSpline::run() : empty samples_list_"<<std::endl; 
+		m_->pso_info_.item("error : empty samples_list_");
+	}
 }
 
 void VMCSpline::run(unsigned int const& explore_around_minima){
-	if(list_min_idx_.size()){
-		std::cout<<"#measuring "<<pow(2*explore_around_minima+1,m_->Nfreedom_)<<" samples per minima "
-			<<"(time estimated "<<m_->tmax_*list_min_idx_.size()*pow(2*explore_around_minima+1,m_->Nfreedom_)/omp_get_num_threads()<<"s";
-			Time chrono;
+	unsigned int lmis(list_min_idx_.size());
+	if(lmis){
+		unsigned int nsim(pow(2*explore_around_minima+1,m_->Nfreedom_));
+		std::string msg1("measuring "+my::tostring(nsim)+" samples per minima (time estimated "+my::tostring(lmis*m_->tmax_*nsim/omp_get_max_threads())+"s");
+		std::cout<<"#"<<msg1<<std::flush;
+		Time chrono;
+
 		if(explore_around_minima){
 #pragma omp parallel for
-			for(unsigned int i=0;i<list_min_idx_.size();i++){
+			for(unsigned int i=0;i<lmis;i++){
 				std::vector<unsigned int>* min_idx(new std::vector<unsigned int>[m_->Nfreedom_]);
 				for(unsigned int j(0);j<m_->Nfreedom_;j++){
 					for(unsigned int k(0);k<2*explore_around_minima+1;k++){
@@ -50,22 +59,25 @@ void VMCSpline::run(unsigned int const& explore_around_minima){
 			}
 		} else {
 #pragma omp parallel for
-			for(unsigned int i=0;i<list_min_idx_.size();i++){
+			for(unsigned int i=0;i<lmis;i++){
 				evaluate(m_->ps_,list_min_idx_[i]);
 			}
 		} 
-		std::cout<<", done in "<<chrono.elapsed()<<"s)"<<std::endl;
+
+		std::string msg2(", done in "+my::tostring(chrono.elapsed())+"s)");
+		std::cout<<msg2<<std::endl;
+		m_->pso_info_.item(msg1+msg2);
 	}
 }
 
 void VMCSpline::plot(){
 	if(m_->Nfreedom_<4){
 		out_ = new IOFiles(get_filename()+".dat",true);
-		m_->all_results_.set_target();
+		m_->samples_list_.set_target();
 		double min(0);
-		while(m_->all_results_.target_next()){
-			if(m_->all_results_.get().get_S()->get_energy().get_x()<min){ min = m_->all_results_.get().get_S()->get_energy().get_x(); }
-			(*out_)<<m_->all_results_.get().get_param()<<" "<<m_->all_results_.get().get_S()->get_energy().get_x()<<IOFiles::endl;
+		while(m_->samples_list_.target_next()){
+			if(m_->samples_list_.get().get_S()->get_energy().get_x()<min){ min = m_->samples_list_.get().get_S()->get_energy().get_x(); }
+			(*out_)<<m_->samples_list_.get().get_param()<<" "<<m_->samples_list_.get().get_S()->get_energy().get_x()<<IOFiles::endl;
 		}
 		delete out_;
 
@@ -94,31 +106,41 @@ void VMCSpline::plot(){
 	}
 }
 
-/*{Virtual methods*/
-void VMCSpline::print() const {
+void VMCSpline::print(){
 	Vector<double> param(m_->Nfreedom_);
-	for(unsigned int i(0);i<list_min_idx_.size();i++){
-		for(unsigned int j(0); j<m_->Nfreedom_;j++){ param(j) = m_->ps_[j](list_min_idx_[i](j)); }
-		std::cout<<param<<" "<<pspline_.extrapolate(param)<<std::endl;
+#pragma omp parallel for firstprivate(param)
+	for(unsigned int i=0;i<list_min_idx_.size();i++){
+		for(unsigned int j(0);j<m_->Nfreedom_;j++){ param(j) = m_->ps_[j](list_min_idx_[i](j)); }
+		std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
+		if(sim.get()){
+#pragma omp critical
+			std::cout<<param<<" "<<pspline_.extrapolate(param)<<" "<<sim->get_S()->get_energy()<<std::endl;
+		}
 	}
 }
-/*}*/
 /*}*/
 
 /*{Private methods*/
 void VMCSpline::search_minima(){
 	list_min_idx_.clear();
-	pspline_.set(m_->all_results_.size());
+	pspline_.set(m_->samples_list_.size());
 	unsigned int i(0);
-	while(m_->all_results_.target_next()){
-		pspline_.add_data(i++,m_->all_results_.get().get_param(),m_->all_results_.get().get_S()->get_energy().get_x());
+	while(m_->samples_list_.target_next()){
+		pspline_.add_data(i++,m_->samples_list_.get().get_param(),m_->samples_list_.get().get_S()->get_energy().get_x());
 	}
 	Time chrono;
-	pspline_.compute_weights();
-	std::cout<<"#computing the weights (done in "<<chrono.elapsed()<<"s)"<<std::endl;
-	chrono.set();
+	std::string msg1("computing the weights");
+	std::cout<<"#"<<msg1<<std::flush;
 
-	std::cout<<"#searching for minima";
+	pspline_.compute_weights();
+
+	std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
+	std::cout<<msg2<<std::endl;
+	m_->pso_info_.item(msg1+msg2);
+	chrono.set();
+	msg1="searching for minima";
+	std::cout<<"#"<<msg1<<std::flush;
+
 #pragma omp parallel 
 	{
 		unsigned int min0(omp_get_thread_num()*m_->ps_[0].size()/omp_get_num_threads());
@@ -131,7 +153,10 @@ void VMCSpline::search_minima(){
 		Vector<double> param(m_->Nfreedom_);
 		for(unsigned int i(0); i<m_->Nfreedom_;i++){ param(i) = m_->ps_[i](list_min_idx_[j](i)); }
 	}
-	std::cout<<" (found "<<list_min_idx_.size()<<" minimas in "<<chrono.elapsed()<<"s)"<<std::endl;
+
+	msg2=" (found "+my::tostring(list_min_idx_.size())+" minimas in "+my::tostring(chrono.elapsed())+"s)";
+	std::cout<<msg2<<std::endl;
+	m_->pso_info_.item(msg1+msg2);
 }
 
 bool VMCSpline::go_through_parameter_space(Vector<double>* x, Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, void (VMCSpline::*f)(Vector<double>*, Vector<unsigned int> const&)){

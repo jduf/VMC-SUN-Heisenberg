@@ -20,7 +20,7 @@ class VMCSpline : public VMCMinimization{
 		void run(unsigned int const& explore_around_minima);
 
 		void plot();
-		void print() const;
+		void print();
 
 	private:
 		PSpline pspline_;

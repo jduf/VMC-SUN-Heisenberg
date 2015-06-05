@@ -22,7 +22,6 @@ class VMCMinimization{
 		void save() const;
 		void save_best(unsigned int const& nsave);
 
-		virtual void set_ps(unsigned int const& i, Vector<double> const& ps);
 		virtual void print() const;
 
 	private:
@@ -41,18 +40,19 @@ class VMCMinimization{
 				Minimization& operator=(Minimization const&) = delete;
 				/*}*/
 				bool within_limit(Vector<double> const& x);
+				void save(IOFiles& out) const;
 
-				std::string  wf_;
-				unsigned int N_;
-				unsigned int m_;
-				unsigned int n_;
-				int          bc_;
-				unsigned int Nfreedom_;
-				unsigned int tmax_;
-				Vector<double>* ps_; //<! parameter space
-				List<MCSim> all_results_;
-				Container system_param_;
 				RST pso_info_;
+				Container system_param_;
+				unsigned int tmax_     = 0;
+				std::string  wf_       ="";
+				unsigned int N_        = 0;
+				unsigned int m_        = 0;
+				unsigned int n_        = 0;
+				int          bc_       = 0;
+				unsigned int Nfreedom_ = 0;
+				Vector<double>* ps_    = NULL; //<! parameter space
+				List<MCSim> samples_list_;
 		};
 
 	protected:
