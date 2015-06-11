@@ -1,153 +1,98 @@
 #include "VMCPSO.hpp"
 
-VMCPSO::VMCPSO(Parseur* P):
-	Swarm<MCParticle>(P->get<unsigned int>("Nparticles"),P->get<unsigned int>("maxiter"),P->get<unsigned int>("Nfreedom"),P->get<double>("cg"),P->get<double>("cp")),
-	tmax_(P->get<unsigned int>("tmax"))
+VMCPSO::VMCPSO(Parseur& P, VMCMinimization const& vmcm):
+	VMCMinimization(vmcm,"PSO"),
+	Swarm<MCParticle>(P.get<unsigned int>("Nparticles"),P.get<unsigned int>("maxiter"),m_->Nfreedom_,P.get<double>("cg"),P.get<double>("cp"))
 {
-	system_param_.set("N",P->get<unsigned int>("N"));
-	system_param_.set("m",P->get<unsigned int>("m"));
-	system_param_.set("n",P->get<unsigned int>("n"));
-	system_param_.set("bc",P->get<int>("bc"));
-	system_param_.set("wf",P->get<std::string>("wf"));
+	for(unsigned int i(0);i<m_->Nfreedom_;i++){
+		Particle::set_limit(i,0,m_->ps_[i].size());
+	}
 }
 
-bool VMCPSO::evaluate(unsigned int const& p){
-	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(particle_[p]));
-	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(P->get_x()));
-	bool tmp_test;
-#pragma omp critical(all_results_)
-	{
-		if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
-			tmp_test = true;
-			sim->copy_S(all_results_.get().get_S()); 
-			sim->get_S()->set(); //to clear the binning
-		} else {
-			tmp_test = false;
-			sim->create_S(&system_param_,&P->get_x());
-		}
-	}
-	if(sim->is_created()){
-		MonteCarlo mc(sim->get_S().get(),tmax_);
-		mc.thermalize(tmp_test?10:1e6);
-		mc.run();
+/*{Public methods*/
+void VMCPSO::init(bool const& clear_particle_history, bool const& create_particle_history){
+	set_time();
 
-#pragma omp critical(all_results_)
-		{
-			if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
-				all_results_.fuse_with_target(sim,MCSim::fuse); 
-				tmp_test = P->update(all_results_.get_ptr()); 
-			} else {
-				all_results_.add_after_target(sim); 
-				tmp_test = P->update(sim); 
+	std::cout<<"#######################"<<std::endl;
+	std::cout<<"#new VMCPSO"<<std::endl;
+	std::cout<<"#"<<get_filename()<<std::endl;
+	std::cout<<"#contains "<<m_->samples_list_.size()<<" samples"<<std::endl;
+	m_->pso_info_.title("New PSO run",'-');
+	m_->pso_info_.item(get_filename());
+
+	if(clear_particle_history){ 
+		m_->pso_info_.item("clear history");
+		for(unsigned int p(0);p<Nparticles_;p++){
+			std::dynamic_pointer_cast<MCParticle>(particle_[p])->clear_history();
+		}
+	} else { m_->pso_info_.item("keep old history"); }
+
+	std::shared_ptr<MCParticle> MCP;
+	for(unsigned int i(0);i<Nparticles_;i++){
+		MCP = std::dynamic_pointer_cast<MCParticle>(particle_[i]);
+		MCP->set_ps(m_->ps_);
+	}
+	init_PSO(100); 
+	if(clear_particle_history && create_particle_history && m_->samples_list_.size()){
+		unsigned int size(0);
+		while(m_->samples_list_.target_next()){
+			if(m_->within_limit(m_->samples_list_.get().get_param())){ size++; }
+		}
+		unsigned int Npp(size/Nparticles_);
+		unsigned int s;
+		std::shared_ptr<MCParticle> MCP;
+		for(unsigned int p(0);p<Nparticles_;p++){
+			if(p == Nparticles_ - (size%Nparticles_) ){ Npp++; }
+			MCP = std::dynamic_pointer_cast<MCParticle>(particle_[p]);
+			s = 0;
+			while( s!=Npp && m_->samples_list_.target_next()){
+				if(m_->within_limit(m_->samples_list_.get().get_param())){
+					MCP->add_to_history(m_->samples_list_.get_ptr());
+					s++;
+				}
 			}
+			MCP->select_new_best();
 		}
-		return tmp_test;
-	} else {
-		std::cerr<<"bool VMCPSO::evaluate(unsigned int const& p) : not valid parameter : "<<particle_[p]->get_x()<<std::endl;
-		return false;
-	}
+		m_->pso_info_.item("set history");
+		m_->pso_info_.item("each particle knows "+my::tostring(Npp)+" samples");
+	} else { m_->pso_info_.item("start with empty history"); }
 }
 
-void VMCPSO::refine(unsigned int const& Nrefine, double const& tol, unsigned int const& tmax){
-	auto sort = [](MCSim const& a, MCSim const& b){ 
-		return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
-	};
+void VMCPSO::run(){
+	std::string msg1("explore with "+my::tostring(Nparticles_)+" particles for "+my::tostring(maxiter_)+" steps");
+	msg1 += " estimated time "+my::tostring(Nparticles_*(maxiter_+1)/omp_get_max_threads())+"s";
+	std::cout<<"#"<<msg1<<std::flush;
+	Time chrono;
 
-	List<MCSim> best;
-	all_results_.set_target();
-	while(all_results_.target_next()){
-		best.add_sort(all_results_.get_ptr(),sort);
-	}
-	unsigned int N(all_results_.size());
-	N  = (N<Nrefine?N:Nrefine);
-	best.set_target();
-#pragma omp parallel for schedule(dynamic,1)
-	for(unsigned int i=0;i<N;i++){
-		std::shared_ptr<MCSim> sim;
-#pragma omp critical
-		{
-			best.target_next();
-			sim = best.get_ptr();
-		}
-		MonteCarlo mc(sim->get_S().get(),tmax);
-		while(sim->get_S()->get_energy().get_dx()>tol){
-			mc.run();
-			sim->get_S()->complete_analysis(1e-5);
-		}
-#pragma omp critical
-		{
-			std::cout<<i<<" sim refined "<<sim->get_S()->get_energy()<<std::endl;
-		}
-	}
-	//best.set_free();
-	//while(best.target_next()){
-	//std::cout<<best.get().get_S()->get_energy()<<std::endl;
-	//}
+	minimize();
+
+	std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
+	std::cout<<msg2<<std::endl;
+	m_->pso_info_.item(msg1+msg2);
 }
 
 void VMCPSO::plot() const {
-	IOFiles data("data.dat",true);
-	all_results_.set_target();
-	while(all_results_.target_next()){
-		data<<all_results_.get().get_param()<<all_results_.get().get_S()->get_energy()<<IOFiles::endl;
+	std::string filename(get_filename());
+	IOFiles data(filename+".dat",true);
+	m_->samples_list_.set_target();
+	while(m_->samples_list_.target_next()){
+		data<<m_->samples_list_.get().get_param()<<m_->samples_list_.get().get_S()->get_energy()<<IOFiles::endl;
 	}
-	all_results_.target_next();
-	Gnuplot gp("./","test");
-	unsigned int N(all_results_.get().get_param().size());
-	gp+="plot 'data.dat' u "+my::tostring(N+1)+":1:"+my::tostring(N+2)+" w xe"+(N==1?"":",\\"); 
-	for(unsigned int i(1);i<N;i++){
-		gp+="     'data.dat' u "+my::tostring(N+1)+":"+my::tostring(i+1)+":"+my::tostring(N+2)+" w xe"+(i==N-1?"":",\\");
+	m_->samples_list_.target_next();
+	Gnuplot gp("./",filename);
+	unsigned int N(m_->samples_list_.get().get_param().size());
+	for(unsigned int i(0);i<N;i++){
+		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(N+1)+":"+my::tostring(i+1)+":"+my::tostring(N+2)+" w xe notitle"+(i==N-1?"":",\\");
 	}
 	gp.save_file();
 	gp.create_image(true);
 }
+/*}*/
 
-void VMCPSO::print() const {
-	Swarm::print();
-	std::cout<<"Print whole history"<<std::endl;
-	all_results_.set_target();
-	while( all_results_.target_next() ){
-		std::cout<<all_results_.get_ptr()<<" ";
-		all_results_.get().print();
-		std::cout<<std::endl;
-	}
+/*{Private methods*/
+bool VMCPSO::evaluate(unsigned int const& p){
+	std::shared_ptr<MCParticle> MCP(std::dynamic_pointer_cast<MCParticle>(particle_[p]));
+	std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(MCP->get_param()));
+	return (sim.get()?MCP->update(sim):false);
 }
-
-void VMCPSO::write(IOFiles& w) const {
-	w<<all_results_.size();
-	while(all_results_.target_next()){ all_results_.get().write(w); }
-}
-
-void VMCPSO::read(IOFiles& r, bool create_particle_history){
-	unsigned int size;
-	r>>size;
-	while(size--){ all_results_.add_end(std::make_shared<MCSim>(r)); }
-	//if(create_particle_history){
-		//size = 0;
-		//while(all_results_.target_next()){
-			//if(Optimization::within_limit(all_results_.get().get_param())){ size++; }
-		//}
-		//unsigned int Npp(size/Nparticles_);
-		//unsigned int s;
-		//std::shared_ptr<MCParticle> P;
-		//for(unsigned int p(0);p<Nparticles_;p++){
-			//if(p==Nparticles_-size%Nparticles_){ Npp++; }
-			//P = std::dynamic_pointer_cast<MCParticle>(particle_[p]);
-			//s = 0;
-			//while( s!=Npp && all_results_.target_next()){
-				//if(Optimization::within_limit(all_results_.get().get_param())){
-					//s++;
-					//P->add_to_history(all_results_.get_ptr());
-				//}
-			//}
-			//P->select_new_best();
-		//}
-	//}
-}
-
-void VMCPSO::complete_analysis(double const& tol){
-	all_results_.set_target();
-	while ( all_results_.target_next() ){
-		all_results_.get().get_S()->complete_analysis(tol);
-	}
-}
+/*}*/

@@ -2,8 +2,7 @@
 #define DEF_MCSim
 
 #include "CreateSystem.hpp"
-#include "SystemBosonic.hpp"
-#include "SystemFermionic.hpp"
+#include "MonteCarlo.hpp"
 
 class MCSim {
 	public:
@@ -12,7 +11,7 @@ class MCSim {
 		/*!Constructor that reads from file*/
 		MCSim(IOFiles& r);
 		/*!Default destructor*/
-		~MCSim() = default;
+		virtual ~MCSim() = default;
 		/*{Forbidden*/
 		MCSim() = delete;
 		MCSim(MCSim const&) = delete;
@@ -25,13 +24,20 @@ class MCSim {
 
 		Vector<double> const& get_param() const { return param_; }
 		std::unique_ptr<MCSystem> const& get_S() const { return S_; }
-		void create_S(Container* C, Vector<double> const* param);
+		void create_S(Container* C);
 		void copy_S(std::unique_ptr<MCSystem> const& S);
 
 		void print() const { std::cout<<param_<<" "<<S_->get_energy(); }
 		void write(IOFiles& w) const;
 		bool is_created() const { return (S_.get() && !S_->get_status()); }
+		void save(Container* C) const;
+		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
+		void complete_analysis(double const& convergence_criterion);
+		bool check_conv(double const& convergence_criterion);
 
+		static bool compare(MCSim const& a, MCSim const& b){ 
+			return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
+		};
 	private:
 		Vector<unsigned int> ref_;
 		Vector<double> param_;

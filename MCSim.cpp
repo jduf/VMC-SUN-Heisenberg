@@ -26,8 +26,8 @@ MCSim::MCSim(IOFiles& r):
 
 unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem){
 	for(unsigned int i(0);i<list.param_.size();i++){
-		if(list.param_(i) > new_elem.param_(i)){ return 0; }
-		if(list.param_(i) < new_elem.param_(i)){ return 1; }
+		if(list.param_(i) - new_elem.param_(i) > 0.01){ return 0; }
+		if(list.param_(i) - new_elem.param_(i) < -0.01){ return 1; }
 	}
 	return 2;
 }
@@ -36,8 +36,8 @@ void MCSim::fuse(MCSim& list, MCSim& new_elem) {
 	list.get_S()->get_energy().merge(new_elem.get_S()->get_energy());
 }
 
-void MCSim::create_S(Container* C, Vector<double> const* param){
-	CreateSystem cs(C,param);
+void MCSim::create_S(Container* C){
+	CreateSystem cs(C,&param_);
 	cs.init();
 	if(cs.get_status()==2){
 		cs.create();
@@ -65,9 +65,50 @@ void MCSim::create_S(Container* C, Vector<double> const* param){
 
 void MCSim::copy_S(std::unique_ptr<MCSystem> const& S){
 	S_ = S->clone();
+	S_->set(); //to clear the binning
 }
 
 void MCSim::write(IOFiles& w) const {
 	w<<ref_<<param_;
 	S_->write(w);
+}
+
+void MCSim::save(Container* C) const {
+	CreateSystem cs(C,&param_);
+	cs.init();
+	if(cs.get_status()==2){
+		cs.create();
+		if(cs.get_status()==1){
+			Linux command;
+			command("/bin/mkdir -p " + cs.get_path());
+			IOFiles file_results(cs.get_path() + cs.get_filename()+".jdbin",true);
+			cs.init_output_file(file_results);
+			cs.save();
+			RST rst;
+			rst.title("Results",'-');
+			file_results.add_header()->add(rst.get());
+			file_results.write("energy per site",S_->get_energy());
+			file_results.write("correlation on links",S_->get_corr());
+			file_results.write("long range correlation",S_->get_lr_corr());
+		}
+	}
+}
+
+void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tmax){
+	if(is_created()){
+		MonteCarlo mc(S_.get(),tmax);
+		mc.thermalize(thermalization_steps);
+		mc.run();
+	} else {
+		std::cerr<<"void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tmax) : faulty parameters : "<<param_<<std::endl;
+	}
+}
+
+bool MCSim::check_conv(double const& convergence_criterion){
+	S_->get_energy().compute_convergence(convergence_criterion);
+	return S_->get_energy().get_conv();
+}
+
+void MCSim::complete_analysis(double const& convergence_criterion){
+	S_->complete_analysis(convergence_criterion);
 }

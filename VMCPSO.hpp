@@ -1,34 +1,27 @@
 #ifndef DEF_VMCPSO
 #define DEF_VMCPSO
 
-#include "MonteCarlo.hpp"
 #include "MCParticle.hpp"
+#include "VMCMinimization.hpp"
 
-class VMCPSO: public Swarm<MCParticle>{
+class VMCPSO: public VMCMinimization, public Swarm<MCParticle>{
 	public:
-		VMCPSO(Parseur* P);
+		VMCPSO(Parseur& P, VMCMinimization const& vmcm);
 		/*!Default destructor*/
 		virtual ~VMCPSO() = default;
-		/*{Forbids constructors*/
+		/*{Forbidden*/
 		VMCPSO() = delete;
 		VMCPSO(VMCPSO const&) = delete;
 		VMCPSO(VMCPSO&&) = delete;
 		VMCPSO& operator=(VMCPSO) = delete;
 		/*}*/
 
-		void refine(unsigned int const& Nrefine, double const& tol, unsigned int const& tmax);
-		void complete_analysis(double const& tol);
+		void init(bool const& clear_particle_history, bool const& create_particle_history);
+		void run();
 		void plot() const;
-		void print() const;
-
-		void write(IOFiles& w) const;
-		void read(IOFiles& w, bool create_particle_history);
 
 	private:
+		/*!Create param p then call VMCMinimization::evaluate(param)*/
 		bool evaluate(unsigned int const& p);
-
-		unsigned int tmax_;
-		Container system_param_;
-		List<MCSim> all_results_;
 };
 #endif
