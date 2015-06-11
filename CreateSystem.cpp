@@ -364,20 +364,24 @@ void CreateSystem::error() const {
 	std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;
 } 
 
-void CreateSystem::create(){
+void CreateSystem::create(bool try_solve_degeneracy){
 	if(RGL_){
 		RGL_->create();
 		if(get_status()!=1){
-			delete RGL_;
-			RGL_=NULL;
-			ref_(1)=2;
-			init();
-			if(CGL_){ CGL_->create(); }
+			if(try_solve_degeneracy){
+				delete RGL_;
+				RGL_=NULL;
+				ref_(1)=2;
+				init();
+				if(CGL_){ CGL_->create(); }
+			} else {
+				std::cerr<<"void CreateSystem::create(bool try_solve_degeneracy) : giving up"<<std::endl;
+			}
 		}
 	} else {
 		if(CGL_){ CGL_->create(); }
 		if(CGL_ && get_status()!=1){
-			std::cerr<<"void CreateSystem::create() : behaviour undefined"<<std::endl;
+			std::cerr<<"void CreateSystem::create(bool try_solve_degeneracy) : behaviour undefined"<<std::endl;
 		}
 	}
 }  

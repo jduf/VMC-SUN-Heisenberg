@@ -106,7 +106,7 @@ void Analyse::search_jdbin(){
 		}
 
 		do{ rst_file_.last().hyperlink(all_link_names_.get(),all_link_files_.get()); }
-		while ( all_link_names_.go_to_next() && all_link_files_.go_to_next() );
+		while ( all_link_names_.target_next() && all_link_files_.target_next() );
 
 		close_files();
 		all_link_names_.set();
@@ -125,7 +125,7 @@ std::string Analyse::extract_level_7(){
 		cs.save();
 		jd_write_->add_header()->nl();
 		jd_write_->write("number of jdfiles",nof_);
-		jd_write_->add_header()->title("System's parameters","-");
+		jd_write_->add_header()->title("System's parameters",'-');
 	}
 	std::string link_name(cs.analyse(level_));
 

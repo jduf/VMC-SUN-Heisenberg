@@ -34,7 +34,7 @@ class MonteCarlo{
 		MonteCarlo(MCSystem* S, unsigned int const& tmax);
 		/*!Default destructor*/
 		~MonteCarlo() = default;
-		/*{Forbids constructors*/
+		/*{Forbidden*/
 		MonteCarlo() = delete; 
 		MonteCarlo(MonteCarlo const&) = delete; 
 		MonteCarlo(MonteCarlo&&) = delete; 
@@ -42,16 +42,11 @@ class MonteCarlo{
 		/*}*/
 
 		/*!Thermalize the Monte-Carlo algorithm*/
-		void thermalize(unsigned int const& N);
+		void thermalize(unsigned int const& thermalization_steps);
 		/*!Run the Monte-Carlo algorithm*/
 		void run();
-		void complete_analysis(double tol){ S_->complete_analysis(tol); }
-		void delete_binning(){ S_->delete_binning(); }
 
 	private:
-		/*!Forbids assignment*/
-		MonteCarlo const& operator=(MonteCarlo const& mc);
-
 		/*!Find the next configuration and measure it*/
 		void next_step();
 		/*{Description*/
@@ -66,7 +61,7 @@ class MonteCarlo{
 		bool keepon();
 
 		unsigned int const tmax_;//!< Time limit in second, by default 5min
-		MCSystem* S_;		//!< Pointer to a Fermionic or Bosonic System 
+		MCSystem* S_;			//!< Pointer to a Fermionic or Bosonic System 
 		Time time_; 			//!< To stop the simulation after time_limit seconds
 		Rand<double> rnd_;		//!< Pointer to a random number generator
 };

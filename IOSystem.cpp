@@ -30,7 +30,7 @@ void IOSystem::init_output_file(IOFiles& output){
 	else{
 		jd_write_ = &output; 
 		RST rst;
-		rst.title("Input","-");
+		rst.title("Input",'-');
 		jd_write_->add_header()->add(rst.get());
 	}
 }

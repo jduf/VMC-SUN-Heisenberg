@@ -76,7 +76,7 @@ class CreateSystem{
 			if(CGL_){return CGL_->check();}
 		}
 		/*!Calls GenericSystem::create() pure virtual method*/
-		void create();
+		void create(bool try_solve_degeneracy=false);
 		/*}*/
 
 		/*{Other class calls*/

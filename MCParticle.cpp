@@ -18,13 +18,13 @@ void MCParticle::move(Vector<double> const& bx_all){
 	}
 }
 
-void MCParticle::init(double fx){
-	Particle::init(fx);
+void MCParticle::init_Particle(double fx){
+	Particle::init_Particle(fx);
 	unsigned int s(history_.size());
 	if(s){
 		Rand<unsigned int> rnd(1,s);
 		s = rnd.get();
-		while(history_.go_to_next() && --s);
+		while(history_.target_next() && --s);
 		x_ = history_.get().get_param();
 	}
 }
@@ -32,8 +32,8 @@ void MCParticle::init(double fx){
 void MCParticle::print() const {
 	Particle::print();
 	std::cout<<"particle history ("<<history_.size()<<")"<<std::endl;
-	history_.set_free();
-	while( history_.go_to_next() ){
+	history_.set_target();
+	while( history_.target_next() ){
 		std::cout<<history_.get_ptr()<<" ";
 		history_.get().print();
 		std::cout<<std::endl;
@@ -41,16 +41,16 @@ void MCParticle::print() const {
 }
 
 bool MCParticle::update(std::shared_ptr<MCSim> const& new_elem){
-	if(history_.find_sorted(new_elem,MCSim::cmp_for_fuse)){ history_.set_free(); }
-	else{ history_.add_after_free(new_elem); }
-	/*\warning may not need to run select_new_best at each step*/
+	if(history_.find_sorted(new_elem,MCSim::cmp_for_fuse)){ history_.set_target(); }
+	else{ history_.add_after_target(new_elem); }
 
+	/*\warning may not need to run select_new_best at each step*/
 	if(Nupdate_ == update_now_){
 		Nupdate_ = 0;
 		return select_new_best();
 	} else {
 		Nupdate_++;
-		double tmp(new_elem.get()->get_S()->get_energy().get_x());
+		double tmp(new_elem->get_S()->get_energy().get_x());
 		if(tmp<fbx_){
 			bx_ = new_elem.get()->get_param();
 			fbx_ = tmp;
@@ -67,7 +67,7 @@ void MCParticle::add_to_history(std::shared_ptr<MCSim> const& new_elem){
 bool MCParticle::select_new_best(){
 	double tmp;
 	bool new_best(false);
-	while(history_.go_to_next()){
+	while(history_.target_next()){
 		tmp = history_.get().get_S()->get_energy().get_x();
 		if(tmp<fbx_){
 			bx_ = history_.get().get_param();

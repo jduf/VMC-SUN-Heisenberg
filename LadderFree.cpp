@@ -9,12 +9,16 @@ LadderFree::LadderFree(
 		int const& bc, 
 		Vector<double> const& t):
 	System(ref,N,m,n,M,bc),
-	Ladder<double>(4,"ladder-free-complex"),
+	Ladder<double>(8,"ladder-free-complex"),
 	t_(t)
 {
 	if(status_==2){
 		init_fermionic();
 		system_info_.text("LadderFree : all colors experience the same Hamiltonian");
+		filename_ += "-t";
+		for(unsigned int j(0);j<t_.size();j++){
+			filename_ += ((t_(j)>0)?"+":"")+my::tostring(t_(j));
+		}
 	}
 }
 
@@ -41,11 +45,72 @@ void LadderFree::compute_H(){
 				}break;
 			case 3:
 				{
+					H_(i,nb(0,0)) = nb(0,1)*t_(2);
+				}break; 
+			case 4:
+				{
+					H_(i,nb(0,0)) = nb(0,1)*t_(0);
+					H_(i,nb(1,0)) = nb(1,1);
+				}break;
+			case 5:
+				{
+					H_(i,nb(0,0)) = nb(0,1)*t_(0);
+				}break;
+			case 6:
+				{
+					H_(i,nb(0,0)) = nb(0,1)*t_(2);
+					H_(i,nb(1,0)) = nb(1,1);
+				}break;
+			case 7:
+				{
 					H_(i,nb(0,0)) = nb(0,1)*t_(1);
 				}break;
 			default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
+	
+	//for(unsigned int i(0);i<n_;i++){
+		//nb = get_neighbourg(i);
+		//switch(i%spuc_){ 
+			//case 0:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
+					//H_(i,nb(1,0)) = nb(1,1);
+				//}break;
+			//case 1:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
+				//}break;
+			//case 2:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(1);
+					//H_(i,nb(1,0)) = nb(1,1);
+				//}break;
+			//case 3:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
+				//}break; 
+			//case 4:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
+					//H_(i,nb(1,0)) = nb(1,1);
+				//}break;
+			//case 5:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
+				//}break;
+			//case 6:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
+					//H_(i,nb(1,0)) = nb(1,1);
+				//}break;
+			//case 7:
+				//{
+					//H_(i,nb(0,0)) = nb(0,1)*t_(1);
+				//}break;
+			//default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
+		//}
+	//}
 	H_ += H_.transpose(); 
 }
 
@@ -55,8 +120,8 @@ void LadderFree::create(){
 
 	compute_H();
 	diagonalize(true);
-	for(unsigned int c(0);c<N_;c++){
-		if(status_==1){
+	if(status_==1){
+		for(unsigned int c(0);c<N_;c++){
 			for(unsigned int i(0);i<n_;i++){
 				for(unsigned int j(0);j<M_(c);j++){
 					EVec_[c](i,j) = H_(i,j);
@@ -64,6 +129,16 @@ void LadderFree::create(){
 			}
 		}
 	}
+}
+
+void LadderFree::save() const {
+	GenericSystem<double>::save();
+	std::string t_string("");
+	for(unsigned int i(0);i<t_.size()-1;i++){
+		t_string += my::tostring(t_(i))+",";
+	}
+	t_string += my::tostring(t_.back());
+	jd_write_->write("t ("+t_string+")",t_);
 }
 /*}*/
 
@@ -81,8 +156,8 @@ void LadderFree::check(){
 	std::cout<<"Hamiltonien"<<std::endl;
 	std::cout<<H_<<std::endl;
 
-	plot_band_structure();
 	lattice();
+	plot_band_structure();
 }
 
 void LadderFree::lattice(){

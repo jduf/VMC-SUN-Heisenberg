@@ -1,8 +1,9 @@
 #ifndef DEF_MCPARTICLE
 #define DEF_MCPARTICLE
 
-#include "PSO.hpp"
 #include "MCSim.hpp"
+#include "PSO.hpp"
+#include "List.hpp"
 
 class MCParticle: public Particle{
 	public:
@@ -16,7 +17,7 @@ class MCParticle: public Particle{
 		MCParticle& operator=(MCParticle) = delete;
 		/*}*/
 
-		void init(double fx);
+		void init_Particle(double fx);
 		void move(Vector<double> const& bx_all);
 		void print() const;
 

@@ -1,19 +1,19 @@
-#ifndef DEF_PSOMONTECARLO
-#define DEF_PSOMONTECARLO
+#ifndef DEF_VMCPSO
+#define DEF_VMCPSO
 
 #include "MonteCarlo.hpp"
 #include "MCParticle.hpp"
 
-class PSOMonteCarlo: public Swarm<MCParticle>{
+class VMCPSO: public Swarm<MCParticle>{
 	public:
-		PSOMonteCarlo(Parseur* P);
+		VMCPSO(Parseur* P);
 		/*!Default destructor*/
-		virtual ~PSOMonteCarlo() = default;
+		virtual ~VMCPSO() = default;
 		/*{Forbids constructors*/
-		PSOMonteCarlo() = delete;
-		PSOMonteCarlo(PSOMonteCarlo const&) = delete;
-		PSOMonteCarlo(PSOMonteCarlo&&) = delete;
-		PSOMonteCarlo& operator=(PSOMonteCarlo) = delete;
+		VMCPSO() = delete;
+		VMCPSO(VMCPSO const&) = delete;
+		VMCPSO(VMCPSO&&) = delete;
+		VMCPSO& operator=(VMCPSO) = delete;
 		/*}*/
 
 		void refine(unsigned int const& Nrefine, double const& tol, unsigned int const& tmax);

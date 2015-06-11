@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
 					sim.run();
-					sim.complete_analysis(1e-5);
+					S->complete_analysis(1e-5);
 					std::cout<<S->get_energy()<<std::endl;
 					delete S;
 				}
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]){
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
 					sim.run();
-					sim.complete_analysis(1e-5);
+					S->complete_analysis(1e-5);
 					std::cout<<S->get_energy()<<std::endl;
 					IOFiles out("MCSystem.jdbin",true);
 					S->write(out);
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]){
 				MonteCarlo sim(S,tmax);
 				sim.thermalize(10);
 				sim.run();
-				sim.complete_analysis(1e-5);
+				S->complete_analysis(1e-5);
 				std::cout<<S->get_energy()<<std::endl;
 				delete S;
 			} break;

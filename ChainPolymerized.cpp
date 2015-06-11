@@ -91,7 +91,7 @@ void ChainPolymerized::save() const {
 	for(unsigned int i(0);i<t_.size()-1;i++){
 		t_string += my::tostring(t_(i))+",";
 	}
-	t_string += my::tostring(t_(t_.size()-1));
+	t_string += my::tostring(t_.back());
 	jd_write_->write("t ("+t_string+")",t_);
 }
 /*}*/
@@ -99,8 +99,6 @@ void ChainPolymerized::save() const {
 /*{method needed for checking*/
 void ChainPolymerized::check(){
 	compute_H();
-	std::cout<<J_<<std::endl;
-	std::cout<<H_<<std::endl;
 	plot_band_structure();
 }
 /*}*/
@@ -112,7 +110,7 @@ std::string ChainPolymerized::extract_level_7(){
 	for(unsigned int i(0);i<t_.size()-1;i++){
 		t_string += my::tostring(t_(i))+",";
 	}
-	t_string += my::tostring(t_(t_.size()-1))+")";
+	t_string += my::tostring(t_.back())+")";
 	std::string title("$N="+my::tostring(N_)+"$ $m="+my::tostring(m_)+"$ $n="+my::tostring(n_)+"$ bc="+my::tostring(bc_)+" $t_{ij}="+t_string+"$");
 
 	/*!extract jdbin*/
@@ -155,7 +153,7 @@ std::string ChainPolymerized::extract_level_7(){
 	poly_e /= nruns*n_*m_/N_;
 	poly_e.sort(std::less<double>());
 	/*}*/
-	/*!nearest neighbourg correlatons*/
+	/*!nearest neighbourg correlations*/
 	/*{*/
 	Gnuplot gp(analyse_+path_+dir_,filename_+"-corr");
 	gp+="set key center";
@@ -169,9 +167,9 @@ std::string ChainPolymerized::extract_level_7(){
 	gp+="     "+my::tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
 	gp.save_file();
 	//gp.create_image(true);
-	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlaton on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
+	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlation on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
 	/*}*/
-	/*!long range correlatons*/
+	/*!long range correlations*/
 	/*{*/
 	unsigned int xi;
 	unsigned int xf;
@@ -201,7 +199,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
 	gplr.save_file();
 	//gplr.create_image(true);
-	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlaton",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
+	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
 	/*}*/
 	/*!structure factor*/
 	/*{*/
@@ -240,12 +238,12 @@ std::string ChainPolymerized::extract_level_7(){
 	//gpsf.create_image(true);
 	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-structure-factor.png","Structure factor",analyse_+path_+dir_+filename_+"-structure-factor.gp",1000);
 	/*}*/
-	/*!save some additonnal values */
+	/*!save some additionnal values */
 	/*{*/
 	if(spuc_==4){jd_write_->write("t ("+my::tostring(t_(1))+","+my::tostring(t_(3))+")",t_);}
 	else{jd_write_->write("t ("+my::tostring(t_(spuc_-1))+")",t_);}
 	jd_write_->write("energy per site",E_);
-	jd_write_->write("polymerizaton strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
+	jd_write_->write("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
 	jd_write_->write("critical exponents",exponents);
 	/*}*/
 

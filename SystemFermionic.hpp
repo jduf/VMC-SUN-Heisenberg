@@ -155,7 +155,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 			Lapack<Type> inv(Ainv_[c],false,'G');
 			inv.inv();
 		}
-	} else { std::cerr<<"No initial state found after "<<TRY_MAX<<" trials"<<std::endl; }
+	} else { std::cerr<<"SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S) : No initial state found after "<<TRY_MAX<<" trials"<<std::endl; }
 
 	delete[] A;
 }

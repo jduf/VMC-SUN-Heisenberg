@@ -24,7 +24,7 @@ MCSim::MCSim(IOFiles& r):
 	}
 }
 
-unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem) {
+unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem){
 	for(unsigned int i(0);i<list.param_.size();i++){
 		if(list.param_(i) > new_elem.param_(i)){ return 0; }
 		if(list.param_(i) < new_elem.param_(i)){ return 1; }
@@ -32,8 +32,8 @@ unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem) {
 	return 2;
 }
 
-void MCSim::fuse(MCSim& list_elem, MCSim& new_elem) { 
-	list_elem.get_S().get()->get_energy().merge(new_elem.get_S().get()->get_energy());
+void MCSim::fuse(MCSim& list, MCSim& new_elem) { 
+	list.get_S()->get_energy().merge(new_elem.get_S()->get_energy());
 }
 
 void MCSim::create_S(Container* C, Vector<double> const* param){
@@ -57,6 +57,9 @@ void MCSim::create_S(Container* C, Vector<double> const* param){
 			}
 			ref_ = cs.get_ref();
 		}
+	}
+	if(!is_created()){
+		std::cerr<<"void MCSim::create_S(Container* C) : faulty parameters : "<<param_<<std::endl;
 	}
 }
 

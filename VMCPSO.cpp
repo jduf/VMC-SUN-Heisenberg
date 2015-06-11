@@ -1,6 +1,6 @@
-#include "PSOMonteCarlo.hpp"
+#include "VMCPSO.hpp"
 
-PSOMonteCarlo::PSOMonteCarlo(Parseur* P):
+VMCPSO::VMCPSO(Parseur* P):
 	Swarm<MCParticle>(P->get<unsigned int>("Nparticles"),P->get<unsigned int>("maxiter"),P->get<unsigned int>("Nfreedom"),P->get<double>("cg"),P->get<double>("cp")),
 	tmax_(P->get<unsigned int>("tmax"))
 {
@@ -11,8 +11,8 @@ PSOMonteCarlo::PSOMonteCarlo(Parseur* P):
 	system_param_.set("wf",P->get<std::string>("wf"));
 }
 
-bool PSOMonteCarlo::evaluate(unsigned int const& p){
-	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(p_[p]));
+bool VMCPSO::evaluate(unsigned int const& p){
+	std::shared_ptr<MCParticle> P(std::dynamic_pointer_cast<MCParticle>(particle_[p]));
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(P->get_x()));
 	bool tmp_test;
 #pragma omp critical(all_results_)
@@ -34,39 +34,39 @@ bool PSOMonteCarlo::evaluate(unsigned int const& p){
 #pragma omp critical(all_results_)
 		{
 			if(all_results_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
-				all_results_.fuse_with_free(sim,MCSim::fuse); 
+				all_results_.fuse_with_target(sim,MCSim::fuse); 
 				tmp_test = P->update(all_results_.get_ptr()); 
 			} else {
-				all_results_.add_after_free(sim); 
+				all_results_.add_after_target(sim); 
 				tmp_test = P->update(sim); 
 			}
 		}
 		return tmp_test;
 	} else {
-		std::cerr<<"bool PSOMonteCarlo::evaluate(unsigned int const& p) : not valid parameter : "<<p_[p]->get_x()<<std::endl;
+		std::cerr<<"bool VMCPSO::evaluate(unsigned int const& p) : not valid parameter : "<<particle_[p]->get_x()<<std::endl;
 		return false;
 	}
 }
 
-void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& tol, unsigned int const& tmax){
+void VMCPSO::refine(unsigned int const& Nrefine, double const& tol, unsigned int const& tmax){
 	auto sort = [](MCSim const& a, MCSim const& b){ 
 		return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
 	};
 
 	List<MCSim> best;
-	all_results_.set_free();
-	while(all_results_.go_to_next()){
+	all_results_.set_target();
+	while(all_results_.target_next()){
 		best.add_sort(all_results_.get_ptr(),sort);
 	}
 	unsigned int N(all_results_.size());
 	N  = (N<Nrefine?N:Nrefine);
-	best.set_free();
+	best.set_target();
 #pragma omp parallel for schedule(dynamic,1)
 	for(unsigned int i=0;i<N;i++){
 		std::shared_ptr<MCSim> sim;
 #pragma omp critical
 		{
-			best.go_to_next();
+			best.target_next();
 			sim = best.get_ptr();
 		}
 		MonteCarlo mc(sim->get_S().get(),tmax);
@@ -80,18 +80,18 @@ void PSOMonteCarlo::refine(unsigned int const& Nrefine, double const& tol, unsig
 		}
 	}
 	//best.set_free();
-	//while(best.go_to_next()){
+	//while(best.target_next()){
 	//std::cout<<best.get().get_S()->get_energy()<<std::endl;
 	//}
 }
 
-void PSOMonteCarlo::plot() const {
+void VMCPSO::plot() const {
 	IOFiles data("data.dat",true);
-	all_results_.set_free();
-	while(all_results_.go_to_next()){
+	all_results_.set_target();
+	while(all_results_.target_next()){
 		data<<all_results_.get().get_param()<<all_results_.get().get_S()->get_energy()<<IOFiles::endl;
 	}
-	all_results_.go_to_next();
+	all_results_.target_next();
 	Gnuplot gp("./","test");
 	unsigned int N(all_results_.get().get_param().size());
 	gp+="plot 'data.dat' u "+my::tostring(N+1)+":1:"+my::tostring(N+2)+" w xe"+(N==1?"":",\\"); 
@@ -102,52 +102,52 @@ void PSOMonteCarlo::plot() const {
 	gp.create_image(true);
 }
 
-void PSOMonteCarlo::print() const {
+void VMCPSO::print() const {
 	Swarm::print();
 	std::cout<<"Print whole history"<<std::endl;
-	all_results_.set_free();
-	while( all_results_.go_to_next() ){
+	all_results_.set_target();
+	while( all_results_.target_next() ){
 		std::cout<<all_results_.get_ptr()<<" ";
 		all_results_.get().print();
 		std::cout<<std::endl;
 	}
 }
 
-void PSOMonteCarlo::write(IOFiles& w) const {
+void VMCPSO::write(IOFiles& w) const {
 	w<<all_results_.size();
-	while(all_results_.go_to_next()){ all_results_.get().write(w); }
+	while(all_results_.target_next()){ all_results_.get().write(w); }
 }
 
-void PSOMonteCarlo::read(IOFiles& r, bool create_particle_history){
+void VMCPSO::read(IOFiles& r, bool create_particle_history){
 	unsigned int size;
 	r>>size;
 	while(size--){ all_results_.add_end(std::make_shared<MCSim>(r)); }
-	if(create_particle_history){
-		size = 0;
-		while(all_results_.go_to_next()){
-			if(Optimization::within_limit(all_results_.get().get_param())){ size++; }
-		}
-		unsigned int Npp(size/Nparticles_);
-		unsigned int s;
-		std::shared_ptr<MCParticle> P;
-		for(unsigned int p(0);p<Nparticles_;p++){
-			if(p==Nparticles_-size%Nparticles_){ Npp++; }
-			P = std::dynamic_pointer_cast<MCParticle>(p_[p]);
-			s = 0;
-			while( s!=Npp && all_results_.go_to_next()){
-				if(Optimization::within_limit(all_results_.get().get_param())){
-					s++;
-					P->add_to_history(all_results_.get_ptr());
-				}
-			}
-			P->select_new_best();
-		}
-	}
+	//if(create_particle_history){
+		//size = 0;
+		//while(all_results_.target_next()){
+			//if(Optimization::within_limit(all_results_.get().get_param())){ size++; }
+		//}
+		//unsigned int Npp(size/Nparticles_);
+		//unsigned int s;
+		//std::shared_ptr<MCParticle> P;
+		//for(unsigned int p(0);p<Nparticles_;p++){
+			//if(p==Nparticles_-size%Nparticles_){ Npp++; }
+			//P = std::dynamic_pointer_cast<MCParticle>(particle_[p]);
+			//s = 0;
+			//while( s!=Npp && all_results_.target_next()){
+				//if(Optimization::within_limit(all_results_.get().get_param())){
+					//s++;
+					//P->add_to_history(all_results_.get_ptr());
+				//}
+			//}
+			//P->select_new_best();
+		//}
+	//}
 }
 
-void PSOMonteCarlo::complete_analysis(double const& tol){
-	all_results_.set_free();
-	while ( all_results_.go_to_next() ){
+void VMCPSO::complete_analysis(double const& tol){
+	all_results_.set_target();
+	while ( all_results_.target_next() ){
 		all_results_.get().get_S()->complete_analysis(tol);
 	}
 }
