@@ -19,8 +19,8 @@ class MCSim {
 		MCSim& operator&=(MCSim) = delete;
 		/*}*/
 
-		static unsigned int cmp_for_fuse(MCSim const& list, MCSim const& new_elem);
-		static void fuse(MCSim& list, MCSim& new_elem);
+		static unsigned int cmp_for_merge(MCSim const& list, MCSim const& new_elem);
+		static void merge(MCSim& list, MCSim& new_elem);
 
 		Vector<double> const& get_param() const { return param_; }
 		std::unique_ptr<MCSystem> const& get_S() const { return S_; }

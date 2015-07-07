@@ -37,7 +37,7 @@ void SquareFreeReal::create(){
 					EVec_[c](i,j) = H_(i,j);
 				}
 			}
-			if(c!=N_-1){ status_++;}
+			if(c!=N_-1){ status_++; }
 		}
 	}
 }

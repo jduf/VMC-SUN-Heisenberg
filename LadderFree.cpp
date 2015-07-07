@@ -26,92 +26,100 @@ LadderFree::LadderFree(
 void LadderFree::compute_H(){
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
-	for(unsigned int i(0);i<n_;i++){
-		nb = get_neighbourg(i);
-		switch(i%spuc_){ 
-			case 0:
-				{
-					H_(i,nb(0,0)) = nb(0,1)*t_(0);
-					H_(i,nb(1,0)) = nb(1,1);
-				}break;
-			case 1:
-				{
-					H_(i,nb(0,0)) = nb(0,1)*t_(0);
-				}break;
-			case 2:
-				{
-					H_(i,nb(0,0)) = nb(0,1)*t_(1);
-					H_(i,nb(1,0)) = nb(1,1);
-				}break;
-			case 3:
-				{
-					H_(i,nb(0,0)) = nb(0,1)*t_(2);
-				}break; 
-			case 4:
-				{
-					H_(i,nb(0,0)) = nb(0,1)*t_(0);
-					H_(i,nb(1,0)) = nb(1,1);
-				}break;
-			case 5:
-				{
-					H_(i,nb(0,0)) = nb(0,1)*t_(0);
-				}break;
-			case 6:
-				{
-					H_(i,nb(0,0)) = nb(0,1)*t_(2);
-					H_(i,nb(1,0)) = nb(1,1);
-				}break;
-			case 7:
-				{
-					H_(i,nb(0,0)) = nb(0,1)*t_(1);
-				}break;
-			default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
-		}
+	switch(t_.size()){
+		case 2:
+			{
+				for(unsigned int i(0);i<n_;i++){
+					nb = get_neighbourg(i);
+					switch(i%spuc_){ 
+						case 0:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+								H_(i,nb(1,0)) = nb(1,1);
+							}break;
+						case 1:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+							}break;
+						case 2:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(1);
+								H_(i,nb(1,0)) = nb(1,1);
+							}break;
+						case 3:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+							}break; 
+						case 4:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+								H_(i,nb(1,0)) = nb(1,1);
+							}break;
+						case 5:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+							}break;
+						case 6:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+								H_(i,nb(1,0)) = nb(1,1);
+							}break;
+						case 7:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(1);
+							}break;
+						default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
+					}
+				}
+			}break;
+		case 3:
+			{
+				for(unsigned int i(0);i<n_;i++){
+					nb = get_neighbourg(i);
+					switch(i%spuc_){ 
+						case 0:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+								H_(i,nb(1,0)) = nb(1,1);
+							}break;
+						case 1:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+							}break;
+						case 2:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(1);
+								H_(i,nb(1,0)) = nb(1,1);
+							}break;
+						case 3:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(2);
+							}break; 
+						case 4:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+								H_(i,nb(1,0)) = nb(1,1);
+							}break;
+						case 5:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+							}break;
+						case 6:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(2);
+								H_(i,nb(1,0)) = nb(1,1);
+							}break;
+						case 7:
+							{
+								H_(i,nb(0,0)) = nb(0,1)*t_(1);
+							}break;
+						default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
+					}
+				}
+			}break;
+		default:{  std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : no wavefunction definded for "<<t_.size()-1<<" free parameters"<<std::endl; }
+				H_ += H_.transpose(); 
 	}
-	
-	//for(unsigned int i(0);i<n_;i++){
-		//nb = get_neighbourg(i);
-		//switch(i%spuc_){ 
-			//case 0:
-				//{
-					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
-					//H_(i,nb(1,0)) = nb(1,1);
-				//}break;
-			//case 1:
-				//{
-					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
-				//}break;
-			//case 2:
-				//{
-					//H_(i,nb(0,0)) = nb(0,1)*t_(1);
-					//H_(i,nb(1,0)) = nb(1,1);
-				//}break;
-			//case 3:
-				//{
-					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
-				//}break; 
-			//case 4:
-				//{
-					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
-					//H_(i,nb(1,0)) = nb(1,1);
-				//}break;
-			//case 5:
-				//{
-					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
-				//}break;
-			//case 6:
-				//{
-					//H_(i,nb(0,0)) = nb(0,1)*t_(0);
-					//H_(i,nb(1,0)) = nb(1,1);
-				//}break;
-			//case 7:
-				//{
-					//H_(i,nb(0,0)) = nb(0,1)*t_(1);
-				//}break;
-			//default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
-		//}
-	//}
-	H_ += H_.transpose(); 
 }
 
 void LadderFree::create(){

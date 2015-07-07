@@ -57,4 +57,3 @@ bool MonteCarlo::keepon(){
 	return true;
 }
 /*}*/
-

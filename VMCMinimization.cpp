@@ -21,7 +21,7 @@ VMCMinimization::VMCMinimization(VMCMinimization const& vmcm, std::string const&
 	m_(vmcm.m_)
 {}
 
-/*{Public methods*/
+/*{public methods*/
 void VMCMinimization::refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax){
 	if(m_->samples_list_.size()){
 		std::cout<<"#######################"<<std::endl;
@@ -91,30 +91,32 @@ void VMCMinimization::print() const {
 }
 /*}*/
 
-/*{Protected methods*/
+/*{protected methods*/
 std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 	bool tmp_test;
 #pragma omp critical(samples_list_)
 	{
-		if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
+		if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)){ 
 			tmp_test = true;
 			sim->copy_S(m_->samples_list_.get().get_S()); 
 		} else {
 			tmp_test = false;
 			sim->create_S(&m_->system_param_);
 		}
+		m_->samples_list_.set_target();
 	}
 	if(sim->is_created()){
 		sim->run(tmp_test?10:1e6,m_->tmax_);
 #pragma omp critical(samples_list_)
 		{
-			if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
-				m_->samples_list_.fuse_with_target(sim,MCSim::fuse); 
+			if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)){ 
+				m_->samples_list_.merge_with_target(sim,MCSim::merge); 
 				sim = m_->samples_list_.get_ptr();
 			} else {
 				m_->samples_list_.add_after_target(sim); 
 			}
+			m_->samples_list_.set_target();
 		}
 		return sim;
 	} else {
@@ -177,6 +179,7 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 }
 
 VMCMinimization::Minimization::~Minimization(){
+	std::cout<<pso_info_.get()<<std::endl;
 	if(ps_){ delete[] ps_; }
 }
 
@@ -195,7 +198,7 @@ void VMCMinimization::Minimization::save(IOFiles& out) const {
 	out.write("bc",bc_);
 	out.write("Nfreedom",Nfreedom_);
 	for(unsigned int i(0);i<Nfreedom_;i++){ out<<ps_[i]; }
-	out.write("#",samples_list_.size());
+	out.write("# samples",samples_list_.size());
 	out.add_header()->nl();
 	out.add_header()->comment("end_of_saved_variables");
 	out.add_header()->text(pso_info_.get());

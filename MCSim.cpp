@@ -24,7 +24,7 @@ MCSim::MCSim(IOFiles& r):
 	}
 }
 
-unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem){
+unsigned int MCSim::cmp_for_merge(MCSim const& list, MCSim const& new_elem){
 	for(unsigned int i(0);i<list.param_.size();i++){
 		if(list.param_(i) - new_elem.param_(i) > 0.01){ return 0; }
 		if(list.param_(i) - new_elem.param_(i) < -0.01){ return 1; }
@@ -32,7 +32,7 @@ unsigned int MCSim::cmp_for_fuse(MCSim const& list, MCSim const& new_elem){
 	return 2;
 }
 
-void MCSim::fuse(MCSim& list, MCSim& new_elem) { 
+void MCSim::merge(MCSim& list, MCSim& new_elem) { 
 	list.get_S()->get_energy().merge(new_elem.get_S()->get_energy());
 }
 
@@ -105,7 +105,7 @@ void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tm
 }
 
 bool MCSim::check_conv(double const& convergence_criterion){
-	S_->get_energy().compute_convergence(convergence_criterion);
+	S_->get_energy().complete_analysis(convergence_criterion);
 	return S_->get_energy().get_conv();
 }
 

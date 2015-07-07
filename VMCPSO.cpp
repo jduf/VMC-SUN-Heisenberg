@@ -9,24 +9,38 @@ VMCPSO::VMCPSO(Parseur& P, VMCMinimization const& vmcm):
 	}
 }
 
-/*{Public methods*/
+/*{public methods*/
 void VMCPSO::init(bool const& clear_particle_history, bool const& create_particle_history){
 	set_time();
 
 	std::cout<<"#######################"<<std::endl;
-	std::cout<<"#new VMCPSO"<<std::endl;
+	std::string msg("new VMCPSO");
+	std::cout<<"#"<<msg<<std::endl;
+	m_->pso_info_.title(msg,'-');
+
 	std::cout<<"#"<<get_filename()<<std::endl;
-	std::cout<<"#contains "<<m_->samples_list_.size()<<" samples"<<std::endl;
-	m_->pso_info_.title("New PSO run",'-');
 	m_->pso_info_.item(get_filename());
 
+	msg="contains "+my::tostring(m_->samples_list_.size())+" samples";
+	std::cout<<"#"<<msg<<std::endl;
+	m_->pso_info_.item(msg);
+
 	if(clear_particle_history){ 
-		m_->pso_info_.item("clear history");
+		msg="clear history";
+		m_->pso_info_.item(msg); 
+		std::cout<<"#"<<msg<<std::endl;
 		for(unsigned int p(0);p<Nparticles_;p++){
 			std::dynamic_pointer_cast<MCParticle>(particle_[p])->clear_history();
 		}
-	} else { m_->pso_info_.item("keep old history"); }
+	} else {
+		msg="keep old history";
+		m_->pso_info_.item(msg); 
+		std::cout<<"#"<<msg<<std::endl;
+	}
 
+	msg="initialize particles";
+	m_->pso_info_.item(msg); 
+	std::cout<<"#"<<msg<<std::endl;
 	std::shared_ptr<MCParticle> MCP;
 	for(unsigned int i(0);i<Nparticles_;i++){
 		MCP = std::dynamic_pointer_cast<MCParticle>(particle_[i]);
@@ -34,6 +48,9 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 	}
 	init_PSO(100); 
 	if(clear_particle_history && create_particle_history && m_->samples_list_.size()){
+		msg="create particle history";
+		std::cout<<"#"<<msg;
+
 		unsigned int size(0);
 		while(m_->samples_list_.target_next()){
 			if(m_->within_limit(m_->samples_list_.get().get_param())){ size++; }
@@ -53,14 +70,15 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 			}
 			MCP->select_new_best();
 		}
-		m_->pso_info_.item("set history");
-		m_->pso_info_.item("each particle knows "+my::tostring(Npp)+" samples");
+		std::string msg2(" (each particle knows "+my::tostring(Npp)+" samples)");
+		m_->pso_info_.item(msg+msg2);
+		std::cout<<msg2<<std::endl;
 	} else { m_->pso_info_.item("start with empty history"); }
 }
 
 void VMCPSO::run(){
 	std::string msg1("explore with "+my::tostring(Nparticles_)+" particles for "+my::tostring(maxiter_)+" steps");
-	msg1 += " estimated time "+my::tostring(Nparticles_*(maxiter_+1)/omp_get_max_threads())+"s";
+	msg1 += " estimated time "+my::tostring(Nparticles_*(maxiter_+1)*m_->tmax_/omp_get_max_threads())+"s";
 	std::cout<<"#"<<msg1<<std::flush;
 	Time chrono;
 
@@ -89,10 +107,10 @@ void VMCPSO::plot() const {
 }
 /*}*/
 
-/*{Private methods*/
+/*{private methods*/
 bool VMCPSO::evaluate(unsigned int const& p){
-	std::shared_ptr<MCParticle> MCP(std::dynamic_pointer_cast<MCParticle>(particle_[p]));
-	std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(MCP->get_param()));
-	return (sim.get()?MCP->update(sim):false);
+	std::shared_ptr<MCParticle> particle(std::dynamic_pointer_cast<MCParticle>(particle_[p]));
+	std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(particle->get_param()));
+	return (sim.get()?particle->update(sim):false);
 }
 /*}*/
