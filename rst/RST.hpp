@@ -26,6 +26,7 @@ class RST{
 		void hyperlink(std::string const& display, std::string const& link);
 		void figure(std::string const& image, std::string const& legend, unsigned int width=1000);
 		void link_figure(std::string const& image, std::string const& legend, std::string const& link, unsigned int width=1000);
+		void comment(std::string const& t);
 		void np();
 		void nl();
 

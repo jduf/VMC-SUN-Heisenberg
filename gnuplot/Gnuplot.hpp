@@ -17,6 +17,8 @@ class Gnuplot {
 		Gnuplot& operator=(Gnuplot);
 		/*}*/
 
+		void multiplot();
+
 		void title(std::string const& title);
 
 		void range(std::string const& axis, std::string const& a, std::string const& b);
@@ -40,5 +42,6 @@ class Gnuplot {
 		std::string path_;		//!< path of the .gp, .png and .pdf files
 		std::string filename_;	//!< filename (without the extension)
 		std::string plot_;		//!< text of the .gp file
+		bool multiplot_;
 };
 #endif

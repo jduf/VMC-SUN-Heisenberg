@@ -57,7 +57,7 @@ void check_troyer(){
 			H_right[n].set_x(1.0);
 			H_right.add_sample();
 			H_right[n].set_x(0.0);
-			if(!(iter % (M/10))){ H_right.compute_convergence(tol); }
+			if(!(iter % (M/10))){ H_right.complete_analysis(tol); }
 		}
 	} while (iter<M);
 	H_right.complete_analysis(tol);
@@ -121,7 +121,7 @@ void check_flip_coin(){
 			H.set_x(x);
 			H.add_sample(); 
 			xtot += x;
-			if(iter>1e4){ H.compute_convergence(tol); }
+			if(iter>1e4){ H.complete_analysis(tol); }
 		} while (!H.get_conv());
 		H.complete_analysis(tol);
 

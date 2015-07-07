@@ -1,9 +1,11 @@
 #include "Rand.hpp"
 #include "Vector.hpp"
+#include <chrono>
 #include <omp.h>
 
 void check_basic();
 void check_openmp_mt();
+void check_openmp_mt_time();
 
 void check_minimal_number_mt();
 void check_shuffle();
@@ -22,11 +24,12 @@ class TMP{
 int main(){
 	//check_basic();
 	//check_openmp_mt();
+	check_openmp_mt_time();
 	
 	//check_minimal_number_mt();
 	//check_shuffle();
 	
-	check_array();
+	//check_array();
 }
 
 void check_basic(){
@@ -60,7 +63,7 @@ void check_openmp_mt(){
 	}
 	std::cout<<m<<std::endl<<std::endl;
 
-	std::cout<<"one mt declared outside openmp (note the same value if #pragma critical is removed)"<<std::endl;
+	std::cout<<"one mt declared outside openmp (note the same value if #pragma critical is removed) : takes too long"<<std::endl;
 	Rand<double> rnd_out(0,1);
 #pragma omp parallel for num_threads(m.col())
 	for(unsigned int i=0;i<m.col();i++){ 
@@ -70,7 +73,79 @@ void check_openmp_mt(){
 			for(unsigned int j(0);j<m.row();j++){ m(j,thread)=rnd_out.get(); }
 		}
 	}
+	std::cout<<m<<std::endl<<std::endl;
+
+	std::cout<<"manual array of mt declared outside ompen, one mt for each thread"<<std::endl;
+	unsigned int N(omp_get_max_threads());
+	Rand<double>** rnd_array(new Rand<double>*[N]);
+	for(unsigned int i(0);i<N;i++){
+		rnd_array[i] = new Rand<double>(i,i+1);
+	}
+#pragma omp parallel for num_threads(m.col())
+	for(unsigned int i=0;i<m.col();i++){ 
+		unsigned int thread(omp_get_thread_num());
+		for(unsigned int j(0);j<m.row();j++){ m(j,thread)=rnd_array[thread]->get(); }
+	}
+	std::cout<<m<<std::endl<<std::endl;
+	for(unsigned int i(0);i<N;i++){ delete rnd_array[i]; }
+	delete[] rnd_array;
+	rnd_array = NULL;
+
+	std::cout<<"auto array of mt declared outside ompen, one mt for each thread"<<std::endl;
+	RandArray<double> rnd_array_class(N);
+	for(unsigned int i(0);i<N;i++){
+		rnd_array_class.set(i,i,i+1);
+	}
+#pragma omp parallel for num_threads(m.col())
+	for(unsigned int i=0;i<m.col();i++){ 
+		unsigned int thread(omp_get_thread_num());
+		for(unsigned int j(0);j<m.row();j++){ m(j,thread)=rnd_array_class.get(thread); }
+	}
 	std::cout<<m<<std::endl;
+}
+
+void check_openmp_mt_time(){
+	std::chrono::high_resolution_clock::time_point t1;
+	std::chrono::high_resolution_clock::time_point t2;
+	unsigned int duration;
+
+	unsigned iter(1e7);
+	unsigned int N(omp_get_max_threads());
+	std::cout<<"will run with "<<N<<" threads"<<std::endl;
+
+	RandArray<double> rnd_array_class(N);
+	for(unsigned int i(0);i<N;i++){ rnd_array_class.set(i,i,i+1); }
+	Rand<double>** rnd_array(new Rand<double>*[N]);
+	for(unsigned int i(0);i<N;i++){ rnd_array[i] = new Rand<double>(i,i+1); }
+
+	unsigned int d1(0);
+	unsigned int d2(0);
+	for(unsigned int k(0);k<80;k++){
+		t1 = std::chrono::high_resolution_clock::now();
+#pragma omp parallel for
+		for(unsigned int i=0;i<N;i++){ 
+			for(unsigned int j(0);j<iter;j++){ rnd_array[i]->get(); }
+		}
+		t2 = std::chrono::high_resolution_clock::now();
+		duration = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count();
+		d1+= duration;
+		std::cout<<"Rand**    : "<<duration<<std::endl;
+
+		t1 = std::chrono::high_resolution_clock::now();
+#pragma omp parallel for 
+		for(unsigned int i=0;i<N;i++){ 
+			for(unsigned int j(0);j<iter;j++){ rnd_array_class.get(i); }
+		}
+		t2 = std::chrono::high_resolution_clock::now();
+		duration = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count();
+		d2+= duration;
+		std::cout<<"RandArray : "<<duration<<std::endl;
+	}
+	std::cout<<"total time "<<d1<<" "<<d2<<std::endl;
+
+	for(unsigned int i(0);i<N;i++){ delete rnd_array[i]; }
+	delete[] rnd_array;
+	rnd_array = NULL;
 }
 
 void check_shuffle(){

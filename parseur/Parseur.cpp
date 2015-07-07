@@ -26,7 +26,7 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 									case 'i':{ set(name.substr(3),my::string2type<int>(val)); } break;
 									case 'u':{ set(name.substr(3),my::string2type<unsigned int>(val)); } break;
 									case 'd':{ set(name.substr(3),my::string2type<double>(val)); } break;
-									default: { locked_ = true; }
+									default: { lock(name); }
 								}
 							}break;
 						case 1:
@@ -35,7 +35,7 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 									case 'i':{set_vector_from_range<int>(name,val);} break;
 									case 'u':{set_vector_from_range<unsigned int>(name,val);} break;
 									case 'd':{set_vector_from_range<double>(name,val);} break;
-									default: { locked_ = true; }
+									default: { lock(name); }
 								}
 							}break;
 						case 2:
@@ -44,7 +44,7 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 									case 'i':{set_vector_from_list<int>(name,val);} break;
 									case 'u':{set_vector_from_list<unsigned int>(name,val);} break;
 									case 'd':{set_vector_from_list<double>(name,val);} break;
-									default: { locked_ = true; }
+									default: { lock(name); }
 								}
 							}break;
 					}
@@ -56,7 +56,6 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 		}
 	}
 	if(locked_){
-		std::cerr<<"Parseur::Parseur(unsigned int argc, char* argv[]) : wrong argument, should be '-[iuds]:name' or '-[uids].name'"<<std::endl; 
 	}
 }
 
@@ -78,3 +77,9 @@ bool Parseur::find(std::string const& pattern, unsigned int& i, bool iffail) con
 		}
 	} else { return false; }
 }
+
+void Parseur::lock(std::string const& arg){
+	locked_ = true;
+	std::cerr<<"Parseur::Parseur(unsigned int argc, char* argv[]) : wrong argument '"<<arg<<"' : should be '-[iuds]:name' or '-[uids].name' : "<<std::endl; 
+}
+

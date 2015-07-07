@@ -30,12 +30,17 @@ class Vector{
 		/*!Delete the static array*/
 		~Vector();
 
-		/*!Accesses the (i,j)th entry of the Vector*/
+		/*!Accesses the (i)th entry of the Vector*/
 		Type const& operator()(unsigned int const& i) const 
 		{ assert(i<size_); return vec_[i]; }
-		/*!Sets the (i,j)th entry of the Vector*/
+		/*!Sets the (i)th entry of the Vector*/
 		Type& operator()(unsigned int const& i) 
 		{ assert(i<size_); return vec_[i]; }
+		/*!Accesses the last entry of the Vector*/
+		Type const& back() const { return vec_[size_-1]; }
+		/*!Sets the last entry of the Vector*/
+		Type& back(){ return vec_[size_-1]; }
+
 
 		/*!Assignment (using Copy-And-Swap Idiom)*/
 		Vector<Type>& operator=(Vector<Type> vec); 
@@ -93,6 +98,8 @@ class Vector{
 
 		/*!Returns the sum over all the elements in vec_*/
 		Type sum() const;
+		/*!Returns the product of all the elements in vec_*/
+		Type prod() const;
 		/*!Returns the mean of the elements in vec_*/
 		Type mean() const;
 		/*!Returns the variance of the elements in vec_*/
@@ -103,6 +110,8 @@ class Vector{
 		Type min() const;
 		/*!Returns the norm squared of the vector (xx+yy+zz+...)*/
 		double norm_squared() const;
+
+		void swap(unsigned int i, unsigned int j);
 
 		/*!Returns the size of the Vector*/
 		unsigned int size() const {return size_;}
@@ -198,7 +207,7 @@ std::ostream& operator<<(std::ostream& flux, Vector<Type> const& v){
 		for(unsigned int i(0);i<s-1;i++){
 			flux<<v(i)<<" ";
 		}
-		flux<<v(v.size()-1);
+		flux<<v.back();
 	}
 	return flux;
 }
@@ -422,6 +431,13 @@ Type Vector<Type>::sum() const {
 }
 
 template<typename Type>
+Type Vector<Type>::prod() const {
+	Type s(1.0);
+	for(unsigned int i(0);i<size_;i++){ s *= vec_[i];}
+	return s;
+}
+
+template<typename Type>
 double Vector<Type>::norm_squared() const {
 	double ns(0);
 	for(unsigned int i(0);i<size_;i++){ ns += my::norm_squared(vec_[i]);}
@@ -470,6 +486,9 @@ Vector<Type> Vector<Type>::order(Vector<unsigned int> const& index) const{
 }
 /*}*/
 
+template<typename Type>
+void Vector<Type>::swap(unsigned int i, unsigned int j){ std::swap(vec_[i],vec_[j]); }
+
 namespace my {
 	template<typename Type>
 		bool are_equal(Vector<Type> const& x, Vector<Type> const& y, double abs_tol=1e-14, double rel_tol=1e-14){
@@ -481,5 +500,21 @@ namespace my {
 				return true;
 			}
 		}
+
+	template<typename Type>
+	Vector<Type> comb(unsigned int n, int unsigned k, Vector<Type> v){
+		Vector<Type> out(nCk(n,k));
+		std::vector<char> bitmask(k, 1);
+		bitmask.resize(n, 0);
+		unsigned int i(0);
+		unsigned int s;
+		do{
+			s = 1;
+			for(unsigned int j(0);j<n;j++){ if (bitmask[j]){ s *= v(j); } }
+			out(i) = s;
+			i++;
+		} while (std::prev_permutation(bitmask.begin(), bitmask.end()));
+		return out;
+	}
 }
 #endif

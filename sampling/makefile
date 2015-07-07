@@ -1,35 +1,37 @@
 EXEC=test
 
-test_SRCS=test.cpp Gnuplot.cpp IOFiles.cpp RST.cpp Header.cpp 
+test_SRCS=test.cpp RST.cpp Header.cpp IOFiles.cpp Gnuplot.cpp
 
 #-----------------------------------------------------------------
 
 CXX = g++ -std=c++11
 
-NOASSERT = #-DNDEBUG
 ERRORS = -Wall -Wextra -pedantic
-LAPACK = -llapack -lblas
-OPTION = -O3 -fopenmp
+OPTION = 
 
 BUILD=build
 
 CXXFLAGS = $(ERRORS) $(OPTION)
-LDFLAGS  = $(LAPACK) $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
 
 SRCS=$(wildcard *.cpp)
 
+all: OPTION += -O3 -DNDEBUG
 all:$(EXEC)
+
+debug: OPTION += -ggdb 
+debug:$(EXEC)
 
 .SECONDEXPANSION:
 $(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
 	@echo Links $(notdir $^)
-	$(CXX) -o $@ $^ $(LDFLAGS) $(NOASSERT)
+	$(CXX) -o $@ $^ $(LDFLAGS) 
 
 $(BUILD)/%.o:%.cpp
 	@echo Creates $(notdir $@)
-	$(CXX) -MD -c $(CXXFLAGS) $(NOASSERT)  $< -o $@
+	$(CXX) -MD -c $(CXXFLAGS) $< -o $@
 
 -include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
 
 clean:
-	rm -f $(BUILD)/* $(EXEC) *.dat *.jdbin log* plot*
+	rm -f $(BUILD)/* $(EXEC)

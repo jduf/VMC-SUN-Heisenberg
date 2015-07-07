@@ -40,6 +40,7 @@ class List{
 
 		void set();
 		void set_target() const { target_ = NULL; }
+		bool target_next() const;
 
 		void move(List<Type>& other);
 
@@ -63,14 +64,13 @@ class List{
 		void pop_range(unsigned int const& a, unsigned int const& b);
 
 		bool find_sorted(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp);
-		void fuse_with_target(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> fuse);
+		void merge_with_target(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> merge);
 
-		unsigned int size() const;
-		bool target_next() const;
 		void swap(unsigned int const& a, unsigned int const& b);
 		List<Type> sublist(unsigned int const& a, unsigned int const& b) const;
 
 		void header_rst(std::string const& s, RST& rst) const;
+		unsigned int const& size() const { return size_; }
 
 	private:
 		class Node{
@@ -89,10 +89,10 @@ class List{
 				Node* next_;
 		};
 
-	protected:
 		mutable Node* target_ = NULL;
 		Node* head_           = NULL;
 		Node* tail_           = NULL;
+		unsigned int size_    = 0;
 };
 
 /*constructors and destructor*/
@@ -105,6 +105,7 @@ List<Type>::List(List&& l){
 
 template<typename Type>
 void List<Type>::set(){
+	size_ = 0;
 	delete head_;
 	head_ = NULL;
 	tail_ = NULL;
@@ -137,6 +138,7 @@ List<Type>::Node::~Node(){
 template<typename Type>
 std::ostream& operator<<(std::ostream& flux, List<Type> const& l){
 	flux<<"("<<l.size()<<")"; 
+	l.set_target(); 
 	while(l.target_next()){ flux<<" "<<l.get(); }
 	return flux;
 }
@@ -161,8 +163,8 @@ void List<Type>::header_rst(std::string const& s, RST& rst) const {
 template<typename Type>
 IOFiles& operator<<(IOFiles& w, List<Type> const& l){
 	if(w.is_binary()){
-		l.set_target();
 		w<<l.size();
+		l.set_target();
 		while(l.target_next()){ w<<l.get(); }
 	} else { w.stream()<<l; }
 	return w;
@@ -192,6 +194,7 @@ void List<Type>::add_start(std::shared_ptr<Type> t){
 		head_ = new Node(t,NULL,NULL);
 		tail_ = head_;
 	}
+	size_++;
 }
 
 template<typename Type>
@@ -205,6 +208,7 @@ void List<Type>::add_end(std::shared_ptr<Type> t){
 		head_ = new Node(t,NULL,NULL);
 		tail_ = head_;
 	}
+	size_++;
 }
 
 template<typename Type>
@@ -219,6 +223,7 @@ void List<Type>::add(std::shared_ptr<Type> t, unsigned int const& idx){
 				target_->next_ = new Node(t,target_,target_->next_);
 				target_->next_->next_->prev_ = target_->next_;
 				target_ = NULL;
+				size_++;
 			} else { add_end(t); }
 		} else  {
 			std::cerr<<"void List<Type>::add(std::shared_ptr<Type> t, unsigned int const& idx) : try to add a element outside the list range"<<std::endl;
@@ -228,16 +233,14 @@ void List<Type>::add(std::shared_ptr<Type> t, unsigned int const& idx){
 
 template<typename Type>
 void List<Type>::add_after_target(std::shared_ptr<Type> t){
-	if(target_==NULL){ add_start(t); }
-	else {
+	if(target_){
 		if(target_->next_){
 			target_->next_ = new Node(t,target_,target_->next_);
 			target_->next_->next_->prev_ = target_->next_;
 			target_ = NULL;
-		} else {
-			add_end(t);
-		}
-	}
+			size_++;
+		} else { add_end(t); }
+	} else { add_start(t); }
 }
 
 template<typename Type>
@@ -265,18 +268,18 @@ void List<Type>::add_sort(std::shared_ptr<Type> t, std::function<bool (Type cons
 template<typename Type>
 void List<Type>::pop_start(){
 	if(head_){
-		if(head_){
-			target_ = head_->next_;
-			head_->next_ = NULL;
-			delete head_;
-			head_ = target_;
+		if(head_->next_){
+			target_ = head_;
+			head_ = head_->next_;
+			target_->next_ = NULL;
+			delete target_;
 			target_ = NULL;
 		} else {
 			delete head_;
 			head_ = NULL;
 			tail_ = NULL;
 		}
-		target_ = NULL;
+		size_--;
 	}
 }
 
@@ -284,16 +287,17 @@ template<typename Type>
 void List<Type>::pop_end(){
 	if(head_){
 		if(head_->next_){
-			tail_->prev_->next_ = NULL;
-			target_= tail_->prev_;
-			delete tail_;
-			tail_ = target_;
+			target_ = tail_;
+			tail_ = tail_->prev_;
+			tail_->next_ = NULL;
+			delete target_;
 			target_ = NULL;
 		} else {
 			delete head_;
 			head_ = NULL;
 			tail_ = NULL;
 		}
+		size_--;
 	}
 }
 
@@ -311,6 +315,7 @@ void List<Type>::pop(unsigned int const& idx){
 				target_->next_ = NULL;
 				delete target_;
 				target_ = NULL;
+				size_--;
 			} else {
 				pop_end();
 			}
@@ -334,6 +339,7 @@ void List<Type>::pop_range(unsigned int const& a, unsigned int const& b){
 			node_b->next_ = node_b->next_;
 			node_b->next_ = NULL;
 			delete tmp;
+			size_ -= b-a;
 		} else {
 			pop_range(a+1,b);
 			pop_start();
@@ -357,18 +363,20 @@ void List<Type>::swap(unsigned int const& a, unsigned int const& b){
 }
 
 template<typename Type>
-void List<Type>::fuse_with_target(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> fuse){
-	fuse(*target_->t_,*t);
+void List<Type>::merge_with_target(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> merge){
+	merge(*target_->t_,*t);
 }
 
 template<typename Type>
 void List<Type>::move(List<Type>& other){
 	head_ = other.head_;
 	tail_ = other.tail_;
+	size_ = other.size_;
 	target_ = NULL;
 	other.head_ = NULL;
 	other.tail_ = NULL;
 	other.target_ = NULL;
+	other.size_ = 0;
 }
 /*}*/
 
@@ -472,18 +480,6 @@ List<Type> List<Type>::sublist(unsigned int const& a, unsigned int const& b) con
 	}
 	target_ = NULL;
 	return tmp;
-}
-
-template<typename Type>
-unsigned int List<Type>::size() const{
-	unsigned int N(0);
-	target_ = head_;
-	while(target_){ 
-		N++;
-		target_ = target_->next_;
-	}
-	target_ = NULL;
-	return N;
 }
 /*}*/
 #endif

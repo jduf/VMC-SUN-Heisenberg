@@ -193,7 +193,7 @@ int main(){
 			tmp(0) = rnd.get();
 			tmp(1) = rnd.get();
 			tmp_shared = std::make_shared<Vector<int> >(tmp);
-			if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.fuse_with_target(tmp_shared,fuse); }
+			if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.merge_with_target(tmp_shared,fuse); }
 			else { a.add_after_target(tmp_shared); }
 
 			std::cout<<a<<std::endl;
@@ -203,7 +203,7 @@ int main(){
 		tmp = a.get();
 		std::cout<<tmp<<std::endl;
 		tmp_shared = std::make_shared<Vector<int> >(tmp);
-		if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.fuse_with_target(tmp_shared,fuse); }
+		if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.merge_with_target(tmp_shared,fuse); }
 		else { a.add_after_target(tmp_shared); }
 		std::cout<<a<<std::endl;
 

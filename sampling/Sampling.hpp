@@ -31,8 +31,6 @@ class Binning{
 
 		/*!Add sample to the bins*/
 		void add_sample(Type const& x);
-		/*!Compute the convergence*/
-		void compute_convergence(double const& convergence_criterion, Type& dx, bool& conv);
 		/*!Set x_ to the mean value, dx_ to the variance*/
 		void complete_analysis(double const& convergence_criterion, Type& x, Type& dx, bool& conv);
 		/*!Compute the mean value*/
@@ -82,7 +80,6 @@ class Data{
 		void add_sample();
 		void merge(Data const& d);
 
-		void compute_convergence(double const& convergence_criterion);
 		void complete_analysis(double const& convergence_criterion);
 		void complete_analysis();
 		void delete_binning();
@@ -147,7 +144,6 @@ class DataSet{
 		void add_sample();
 		void merge(DataSet<Type> const& ds);
 
-		void compute_convergence(double const& convergence_criterion);
 		void complete_analysis(double const& convergence_criterion);
 		void complete_analysis();
 		void delete_binning();
@@ -175,7 +171,7 @@ Binning<Type>::Binning(unsigned int const& B, unsigned int const& b):
 	B_(B),
 	b_(b),
 	bin_(new Vector<Type>[b])
-{set();}
+{ set(); }
 
 template<typename Type>
 Binning<Type>::Binning(Binning const& b):
@@ -203,9 +199,7 @@ Binning<Type>::Binning(Binning&& b):
 	m_bin_(std::move(b.m_bin_)),
 	bin_(b.bin_),
 	recompute_dx_usefull_(b.recompute_dx_usefull_)
-{
-	b.bin_ = NULL;
-}
+{ b.bin_ = NULL; }
 
 template<typename Type>
 Binning<Type>::Binning(IOFiles& r):
@@ -304,7 +298,7 @@ void Binning<Type>::merge(Binning const& other){
 }
 
 template<typename Type>
-void Binning<Type>::compute_convergence(double const& convergence_criterion, Type& dx, bool& conv){
+void Binning<Type>::complete_analysis(double const& convergence_criterion, Type& x, Type& dx, bool& conv){
 	if(recompute_dx_usefull_ && Ml_(b_-1)>=B_){
 		recompute_dx_usefull_ = false;
 		/*!Compute the variance for each bin*/
@@ -340,12 +334,6 @@ void Binning<Type>::compute_convergence(double const& convergence_criterion, Typ
 		if(std::abs(criteria)<convergence_criterion){ conv = true; }
 		else{ conv = false; }
 	}
-}
-
-template<typename Type>
-void Binning<Type>::complete_analysis(double const& convergence_criterion, Type& x, Type& dx, bool& conv){
-	recompute_dx_usefull_ = true;
-	compute_convergence(convergence_criterion,dx,conv);
 	/*{old way to set x*/
 	/*! x = m_bin_(0); */
 	/*}*/
@@ -593,12 +581,6 @@ void Data<Type>::merge(Data const& d){
 }
 
 template<typename Type>
-void Data<Type>::compute_convergence(double const& convergence_criterion) {
-	if(binning_){ binning_->compute_convergence(convergence_criterion,dx_,conv_);}
-	else { std::cerr<<"void Data<Type>::compute_convergence(double const& convergence_criterion) : no binning"<<std::endl; }
-}
-
-template<typename Type>
 void Data<Type>::complete_analysis(double const& convergence_criterion){
 	if(binning_){ binning_->complete_analysis(convergence_criterion,x_,dx_,conv_); }
 	else { std::cerr<<"void Data<Type>::complete_analysis(double const& convergence_criterion) : no Binning"<<std::endl; }
@@ -742,11 +724,6 @@ void DataSet<Type>::add_sample(){
 template<typename Type>
 void DataSet<Type>::merge(DataSet<Type> const& ds){
 	for(unsigned int i(0);i<size_;i++){ ds_[i].merge(ds[i]); }
-}
-
-template<typename Type>
-void DataSet<Type>::compute_convergence(double const& convergence_criterion){
-	for(unsigned int i(0);i<size_;i++){ ds_[i].compute_convergence(convergence_criterion); }
 }
 
 template<typename Type>

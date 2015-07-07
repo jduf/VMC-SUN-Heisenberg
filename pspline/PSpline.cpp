@@ -14,7 +14,6 @@ PSpline::PSpline(unsigned int const& k):
 		case 6: { phi_ = &PSpline::phi6; } break;
 		default: { std::cerr<<"PSpline::PSpline(unsigned int const& k) : unknown basis function"<<std::endl; } break;
 	}
-	std::cout<<"init spline" <<std::endl;
 }
 
 void PSpline::compute_weights(){
@@ -59,4 +58,19 @@ void PSpline::add_data(Vector<double> const& c, double const& y){
 	c_.push_back(c);
 	y_.push_back(y);
 	N_++;
+}
+
+void PSpline::add_data(unsigned int const& i, Vector<double> const& c, double const& y){
+	c_[i]=c;
+	y_[i]=y;
+}
+
+void PSpline::set(unsigned int const& N){ 
+	c_.clear();
+	y_.clear();
+	if(N){
+		c_.resize(N);
+		y_.resize(N);
+		N_=N;
+	} else { N_=0; }
 }

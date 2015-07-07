@@ -3,12 +3,18 @@
 Gnuplot::Gnuplot(std::string const& path, std::string const& filename):
 	path_(path),
 	filename_(filename),
-	plot_("")
+	plot_(""),
+	multiplot_(false)
 {
 	if(path_[0] != '/'){
 		Linux c;
 		path_ = c.pwd() + path_;
 	}
+}
+
+void Gnuplot::multiplot(){
+	plot_ += "set multiplot\n";
+	multiplot_ = true;
 }
 
 void Gnuplot::title(std::string const& title){plot_+="set title '"+title+"'\n";}
@@ -34,6 +40,7 @@ void Gnuplot::operator+=(std::string const& s){ plot_ += s + "\n"; }
 
 void Gnuplot::save_file(){
 	IOFiles w_gp(path_ + filename_+".gp",true);
+	if(multiplot_){ plot_ += "unset multiplot\n"; }
 	w_gp<<plot_<<IOFiles::endl;
 }
 

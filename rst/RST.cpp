@@ -71,6 +71,10 @@ void RST::link_figure(std::string const& image, std::string const& legend, std::
 	rst_ += "   " + legend + RST::np_;
 }
 
+void RST::comment(std::string const& t){
+	rst_ += ".. " + t + RST::np_;
+}
+
 void RST::np(){
 	rst_ += RST::np_; 
 }

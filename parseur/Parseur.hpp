@@ -34,6 +34,7 @@ class Parseur: public Container {
 			void set_vector_from_list(std::string const& name, std::string const& val);
 		template<typename Type>
 			void set_vector_from_range(std::string const& name, std::string const& val);
+		void lock(std::string const& arg);
 };
 
 template<typename Type>

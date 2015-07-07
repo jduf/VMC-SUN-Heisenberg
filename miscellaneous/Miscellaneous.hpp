@@ -7,6 +7,8 @@
 #include <complex>
 #include <cmath> 
 #include <vector> 
+#include <limits> 
+#include <algorithm> 
 
 namespace my{
 
@@ -87,5 +89,32 @@ namespace my{
 		return true;
 	}
 	/*}*/
+
+	inline unsigned long long gcd(unsigned long long x, unsigned long long y){
+		unsigned long long t;
+		while(y != 0){
+			t = x % y;
+			x = y;
+			y = t;
+		}
+		return x;
+	}
+
+	inline unsigned long long nCk(unsigned long long n, unsigned long long k){
+		if(k > n){ std::cerr<<"lbA2"<<std::endl; }
+		unsigned long long r(1);
+		unsigned long long g;
+		unsigned long long t;
+		for (unsigned long long d(1); d<=k;++d,--n){
+			g = gcd(r,d);
+			r /= g;
+			t = n / (d / g);
+			if(r > std::numeric_limits<unsigned long long>::max() / t){
+				std::cerr<<"lbA2"<<std::endl; 
+			}
+			r *= t;
+		}
+		return r;
+	}
 }
 #endif
