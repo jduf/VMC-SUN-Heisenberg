@@ -7,6 +7,7 @@ VMCMinimization::VMCMinimization(Parseur& P):
 	out_(NULL),
 	m_(std::make_shared<Minimization>(P))
 {
+	set_time();
 	basename_ += "-" + m_->wf_;
 	basename_ += "-N"  + my::tostring(m_->N_);
 	basename_ += "-m"  + my::tostring(m_->m_);
@@ -88,6 +89,23 @@ void VMCMinimization::print() const {
 		m_->samples_list_.get().print();
 		std::cout<<std::endl;
 	}
+}
+
+void VMCMinimization::plot() const {
+	std::string filename("PS"+get_filename());
+	IOFiles data(filename+".dat",true);
+	m_->samples_list_.set_target();
+	while(m_->samples_list_.target_next()){
+		data<<m_->samples_list_.get().get_param()<<" "<<m_->samples_list_.get().get_S()->get_energy()<<IOFiles::endl;
+	}
+	m_->samples_list_.target_next();
+	Gnuplot gp("./",filename);
+	unsigned int N(m_->samples_list_.get().get_param().size());
+	for(unsigned int i(0);i<N;i++){
+		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(N+1)+":"+my::tostring(i+1)+":"+my::tostring(N+2)+" w xe notitle"+(i==N-1?"":",\\");
+	}
+	gp.save_file();
+	gp.create_image(true);
 }
 /*}*/
 
@@ -179,7 +197,7 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 }
 
 VMCMinimization::Minimization::~Minimization(){
-	std::cout<<pso_info_.get()<<std::endl;
+	std::cerr<<pso_info_.get()<<std::endl;
 	if(ps_){ delete[] ps_; }
 }
 

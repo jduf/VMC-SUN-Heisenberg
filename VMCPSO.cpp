@@ -88,23 +88,6 @@ void VMCPSO::run(){
 	std::cout<<msg2<<std::endl;
 	m_->pso_info_.item(msg1+msg2);
 }
-
-void VMCPSO::plot() const {
-	std::string filename(get_filename());
-	IOFiles data(filename+".dat",true);
-	m_->samples_list_.set_target();
-	while(m_->samples_list_.target_next()){
-		data<<m_->samples_list_.get().get_param()<<m_->samples_list_.get().get_S()->get_energy()<<IOFiles::endl;
-	}
-	m_->samples_list_.target_next();
-	Gnuplot gp("./",filename);
-	unsigned int N(m_->samples_list_.get().get_param().size());
-	for(unsigned int i(0);i<N;i++){
-		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(N+1)+":"+my::tostring(i+1)+":"+my::tostring(N+2)+" w xe notitle"+(i==N-1?"":",\\");
-	}
-	gp.save_file();
-	gp.create_image(true);
-}
 /*}*/
 
 /*{private methods*/

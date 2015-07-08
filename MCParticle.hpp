@@ -33,6 +33,7 @@ class MCParticle: public Particle{
 		unsigned int Nupdate_ = 0;
 		Vector<double>* ps_ = NULL;
 
+		/*!sets Particle::bx_ to the correct index of ps_*/
 		void set_bx_via(Vector<double> const& param);
 };
 #endif

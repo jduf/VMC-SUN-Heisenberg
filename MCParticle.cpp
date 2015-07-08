@@ -6,6 +6,7 @@ void MCParticle::init_Particle(double fx){
 	if(s){
 		Rand<unsigned int> rnd(1,s);
 		s = rnd.get();
+		history_.set_target();
 		while(history_.target_next() && --s);
 		x_ = history_.get().get_param();
 	}
@@ -59,9 +60,7 @@ bool MCParticle::select_new_best(){
 	if(param.ptr()){
 		set_bx_via(param); 
 		return true;
-	} else {
-		return false;
-	}
+	} else { return false; }
 }
 
 void MCParticle::set_bx_via(Vector<double> const& param){
@@ -75,8 +74,10 @@ void MCParticle::set_bx_via(Vector<double> const& param){
 			}
 		}
 	}
+	if(!found){
+		std::cerr<<"void MCParticle::set_bx_via(Vector<double> const& param) : can't find a match"<<std::endl;
+	}
 	assert(found);
-	(void)(found);
 }
 
 Vector<double> MCParticle::get_param() const {

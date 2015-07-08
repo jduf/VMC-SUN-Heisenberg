@@ -21,6 +21,7 @@ class VMCMinimization{
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
 		void save_best(unsigned int const& nsave);
+		void plot() const;
 
 		virtual void print() const;
 
