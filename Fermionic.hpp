@@ -26,6 +26,7 @@ class Fermionic : public virtual System{
 		/*!Constructor*/
 		Fermionic();
 
+		bool same_wf_;		//!< true if the same wavefunction is used for all colors
 		Matrix<Type>* EVec_;//!< eigenvectors matrix (transfer matrix)
 
 		/*!compute the eigenvectors from the mean field Hamiltonian*/
@@ -37,21 +38,27 @@ class Fermionic : public virtual System{
 template<typename Type>
 Fermionic<Type>::Fermionic(Fermionic<Type> const& f):
 	System(f),
+	same_wf_(f.same_wf_),
 	EVec_(f.EVec_?new Matrix<Type>[f.N_]:NULL)
 {
-	for(unsigned int c(0);c<N_;c++){ EVec_[c] = f.EVec_[c]; }
+	if(same_wf_){ for(unsigned int c(0);c<N_;c++){ EVec_[c] = f.EVec_[0]; } }
+	else { for(unsigned int c(0);c<N_;c++){ EVec_[c] = f.EVec_[c]; } }
 }
 
 template<typename Type>
 Fermionic<Type>::Fermionic(IOFiles& r):
 	System(r),
+	same_wf_(r.read<bool>()),
 	EVec_(N_?new Matrix<Type>[N_]:NULL)
 {
-	for(unsigned int c(0);c<N_;c++){ r>>EVec_[c]; }
+	r>>EVec_[0];
+	if(same_wf_){ for(unsigned int c(1);c<N_;c++){ EVec_[c] = EVec_[0]; } } 
+	else { for(unsigned int c(1);c<N_;c++){ r>>EVec_[c]; } }
 }
 
 template<typename Type>
 Fermionic<Type>::Fermionic():
+	same_wf_(true),
 	EVec_(NULL)
 {}
 

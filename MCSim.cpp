@@ -112,3 +112,7 @@ bool MCSim::check_conv(double const& convergence_criterion){
 void MCSim::complete_analysis(double const& convergence_criterion){
 	S_->complete_analysis(convergence_criterion);
 }
+
+void MCSim::free_memory(){
+	S_->free_memory();
+}

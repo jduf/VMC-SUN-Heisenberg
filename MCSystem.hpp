@@ -37,6 +37,7 @@ class MCSystem: public virtual System{
 		void complete_analysis(double const& convergence_criterion);
 
 		virtual std::unique_ptr<MCSystem> clone() const = 0;
+		virtual void free_memory() = 0;
 		virtual void write(IOFiles& w) const;
 		
 	protected:

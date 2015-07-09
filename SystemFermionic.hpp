@@ -42,9 +42,10 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 		/*}*/
 		void update();
 
-		std::unique_ptr<MCSystem> clone() const {
-			return std::unique_ptr<SystemFermionic<Type> >(new SystemFermionic<Type>(*this));
-		}
+		/*!Returns a copy of this instance*/
+		std::unique_ptr<MCSystem> clone() const;
+		/*!Set to most of the matrices to NULL*/
+		void free_memory();
 
 		/*!Prints some info related to the system*/
 		void print();
@@ -77,7 +78,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	tmp_(new Matrix<Type>[N_])
 { 
 	/*!Initialized class variables*/
-	for(unsigned int c(0); c<N_; c++){ 
+	for(unsigned int c(0);c<N_;c++){ 
 		Ainv_[c].set(M_(c),M_(c)); 
 		tmp_[c].set(M_(c),M_(c));
 	}
@@ -85,10 +86,10 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
 	unsigned int c_tmp(0);
 	Vector<unsigned int> row_tmp(N_,0);
-	for(unsigned int s(0); s < n_; s++){
-		for(unsigned int p(0); p < m_; p++){
+	for(unsigned int s(0);s<n_;s++){
+		for(unsigned int p(0);p<m_;p++){
 			c_tmp = s_(s,p);
-			for(unsigned int j(0); j < M_(c_tmp); j++){
+			for(unsigned int j(0);j<M_(c_tmp);j++){
 				Ainv_[c_tmp](row_tmp(c_tmp),j) = this->EVec_[c_tmp](s,j);
 			}
 			row_(s,p) = row_tmp(c_tmp);
@@ -104,7 +105,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	A = new Matrix<Type>[N_];
 	Vector<Type> det_A(N_,1.0);
 	Vector<Type> det_Ainv(N_,1.0);
-	for(unsigned int c(0); c<N_; c++){
+	for(unsigned int c(0);c<N_;c++){
 		A[c] = Ainv_[c];
 		det_Ainv(c) = Lapack<Type>(Ainv_[c],true,'G').det();
 	}
@@ -169,8 +170,18 @@ SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
 	Ainv_(new Matrix<Type>[N_]),
 	tmp_(new Matrix<Type>[N_])
 {
-	for(unsigned int c(0); c<N_; c++){ 
-		Ainv_[c] = S.Ainv_[c]; 
+	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
+	unsigned int c(0);
+	for(unsigned int s(0);s<n_;s++){
+		for(unsigned int p(0);p<m_;p++){
+			c = s_(s,p);
+			for(unsigned int j(0);j<M_(c);j++){
+				Ainv_[c](row_(s,p),j) = this->EVec_[c](s,j);
+			}
+		}
+	}
+	for(unsigned int c(0);c<N_;c++){
+		Lapack<Type>(Ainv_[c],false,'G').inv();
 		tmp_[c].set(M_(c),M_(c));
 	}
 }
@@ -181,12 +192,22 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 	MCSystem(r),
 	Fermionic<Type>(r),
 	row_(r),
-	Ainv_(new Matrix<Type>[N_]),
-	tmp_(new Matrix<Type>[N_])
+	Ainv_(N_?new Matrix<Type>[N_]:NULL),
+	tmp_(N_?new Matrix<Type>[N_]:NULL)
 {
-	for(unsigned int c(0); c<N_; c++){
-		r>>Ainv_[c];
+	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
+	unsigned int c(0);
+	for(unsigned int s(0);s<n_;s++){
+		for(unsigned int p(0);p<m_;p++){
+			c = s_(s,p);
+			for(unsigned int j(0);j<M_(c);j++){
+				Ainv_[c](row_(s,p),j) = this->EVec_[c](s,j);
+			}
+		}
+	}
+	for(unsigned int c(0);c<N_;c++){
 		tmp_[c].set(M_(c),M_(c));
+		Lapack<Type>(Ainv_[c],false,'G').inv();
 	}
 }
 
@@ -194,6 +215,11 @@ template<typename Type>
 SystemFermionic<Type>::~SystemFermionic(){
 	delete[] Ainv_;
 	delete[] tmp_;
+}
+
+template<typename Type>
+std::unique_ptr<MCSystem> SystemFermionic<Type>::clone() const {
+	return std::unique_ptr<SystemFermionic<Type> >(new SystemFermionic<Type>(*this));
 }
 /*}*/
 
@@ -246,9 +272,21 @@ template<typename Type>
 void SystemFermionic<Type>::write(IOFiles& w) const{
 	System::write(w);
 	MCSystem::write(w);
-	for(unsigned int c(0);c<N_;c++){ w<<this->EVec_[c]; }
+	w<<this->same_wf_;
+	if(this->same_wf_){ w<<this->EVec_[0]; }
+	else { for(unsigned int c(0);c<N_;c++){ w<<this->EVec_[c]; } }
 	w<<row_;
-	for(unsigned int c(0);c<N_;c++){ w<<Ainv_[c]; }
+}
+
+template<typename Type>
+void SystemFermionic<Type>::free_memory(){
+	for(unsigned int c(1);c<N_;c++){
+		this->EVec_[c].set();
+	}
+	for(unsigned int c(0);c<N_;c++){
+		Ainv_[c].set();
+		tmp_[c].set();
+	}
 }
 /*}*/
 

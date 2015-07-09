@@ -34,8 +34,9 @@ class MCSim {
 		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
 		void complete_analysis(double const& convergence_criterion);
 		bool check_conv(double const& convergence_criterion);
+		void free_memory();
 
-		static bool compare(MCSim const& a, MCSim const& b){ 
+		static bool compare(MCSim const& a, MCSim const& b){
 			return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
 		};
 	private:

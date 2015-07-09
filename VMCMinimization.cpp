@@ -136,6 +136,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 			}
 			m_->samples_list_.set_target();
 		}
+		sim->free_memory();
 		return sim;
 	} else {
 		std::cerr<<"bool Minimization::evaluate(Vector<double> const& param) : not valid parameter : "<<param<<std::endl;

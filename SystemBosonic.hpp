@@ -20,19 +20,20 @@ class SystemBosonic : public MCSystem, public Bosonic<Type>{
 		SystemBosonic& operator=(SystemBosonic<Type>) = delete;
 		/*}*/
 
-		//{Description
-		/*!Computes the ratio of the two Jastrow factor related to the current
+		/*{Description
+		 * !Computes the ratio of the two Jastrow factor related to the current
 		 * and next configuration
 		 *
 		 * - when particle of the same color are exchanged a minus sign arises 
 		 *   to conserve the Marshall-Peierls sign rule
 		 * - when two different colors are exchanged, computes the ratio
-		 */ //}
+		 }*/
 		double ratio(bool const& squared);
 
-		std::unique_ptr<MCSystem> clone() const {
-			return std::unique_ptr<SystemBosonic<Type> >(new SystemBosonic<Type>(*this));
-		}
+		/*!Returns a copy of this instance*/
+		std::unique_ptr<MCSystem> clone() const;
+		/*!Set to most of the matrices to NULL*/
+		void free_memory();
 
 		void write(IOFiles& w) const;
 
@@ -71,6 +72,11 @@ SystemBosonic<Type>::SystemBosonic(SystemBosonic<Type> const& S):
 	std::cerr<<"works only for m=1"<<std::endl;
 	status_--;
 }
+
+template<typename Type>
+std::unique_ptr<MCSystem> SystemBosonic<Type>::clone() const {
+	return std::unique_ptr<SystemBosonic<Type> >(new SystemBosonic<Type>(*this));
+}
 /*}*/
 
 /*void methods*/
@@ -80,6 +86,11 @@ void SystemBosonic<Type>::write(IOFiles& w) const{
 	System::write(w);
 	MCSystem::write(w);
 	w<<this->sl_<<this->nn_<<this->cc_<<this->nu_<<this->omega_;
+}
+
+template<typename Type>
+void SystemBosonic<Type>::free_memory(){
+	std::cerr<<"void SystemBosonic<Type>::free_memory() : nothing to do"<<std::endl;
 }
 /*}*/
 
