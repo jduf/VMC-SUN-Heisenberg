@@ -99,7 +99,7 @@ Swarm<Type>::Swarm(unsigned int const& Nparticles, unsigned int const& maxiter, 
 /*{*/
 template<typename Type>
 void Swarm<Type>::init_PSO(double const& fx){
-#pragma omp parallel for schedule(dynamic,1)
+#pragma omp parallel for
 	for(unsigned int p=0;p<Nparticles_;p++){
 		particle_[p]->init_Particle(fx);
 		evaluate(p);

@@ -10,24 +10,26 @@ void test_212();
 
 int main(){
 	test_given_function();
-	test_211();
-	test_212();
+	//test_211();
+	//test_212();
 }
 
 void test_given_function(){
 	PSpline s(2);
 
-	Rand<double> rnd(-1,1);
+	double min(-1.0);
+	double dx(0.05);
+	Rand<unsigned int> rnd(0,40);
 	auto f = [](Vector<double> const& x){
 		return x(0)*x(1)+cos(x(1))*exp(x(0)*x(0));
 	};
+
 	IOFiles data("surf.dat",true);
 	Vector<double> c_tmp(2);
 	double y_tmp;
-
 	for(unsigned int i(0);i<100;i++){
-		c_tmp(0) = rnd.get();
-		c_tmp(1) = rnd.get();
+		c_tmp(0) = min+dx*rnd.get();
+		c_tmp(1) = min+dx*rnd.get();
 		y_tmp = f(c_tmp);
 		s.add_data(c_tmp,y_tmp);
 		data<<c_tmp<<" "<<y_tmp<<IOFiles::endl;
@@ -35,16 +37,13 @@ void test_given_function(){
 
 	s.compute_weights();
 	IOFiles out("spline.dat",true);
-	double min(-1.0);
-	double dx(0.04);
-	Vector<double> tmp(2);
-	for(unsigned int i(0);i<50;i++){
-		tmp(0) = min+i*dx;
-		for(unsigned int j(0);j<50;j++){
-			tmp(1) = min+j*dx;
-			out<<tmp<<" "<<s.extrapolate(tmp)<<IOFiles::endl;
+	for(unsigned int i(0);i<40;i++){
+		c_tmp(0) = min+i*dx;
+		for(unsigned int j(0);j<40;j++){
+			c_tmp(1) = min+j*dx;
+			out<<c_tmp<<" "<<s.extrapolate(c_tmp)<<IOFiles::endl;
 		}
-		out<<tmp<<IOFiles::endl;
+		out<<c_tmp<<IOFiles::endl;
 	}
 
 	Gnuplot plot("./","plot");
@@ -55,6 +54,7 @@ void test_given_function(){
 	plot+="      'spline.dat' u 1:2:3 notitle,\\";
 	plot+="      f(x,y)";
 	plot.save_file();
+	plot.create_image(true);
 }
 
 void test_211(){
@@ -88,6 +88,7 @@ void test_211(){
 	plot+="splot '211.dat' u 2:3:4 notitle,\\";
 	plot+="      'spline.dat' u 1:2:3 notitle";
 	plot.save_file();
+	plot.create_image(true);
 }
 
 void test_212(){
@@ -121,4 +122,5 @@ void test_212(){
 	plot+="splot '212.dat' u 2:3:4 notitle,\\";
 	plot+="      'spline.dat' u 1:2:3 notitle";
 	plot.save_file();
+	plot.create_image(true);
 }

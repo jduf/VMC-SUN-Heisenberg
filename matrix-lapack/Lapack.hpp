@@ -118,10 +118,10 @@ extern "C" void dsytri_( /*invert a general real matrix using a Bunch-Kaufman fa
 extern "C" void dgecon_(
 		char const& norm,
 		unsigned int const& n,
-		double const *m, 
-		unsigned int const& ldm,
-		double const& anorm, 
-		double& rcond, 
+		double const *m,
+		unsigned int const& lda,
+		double const& anorm,
+		double& rcond,
 		double *work,
 		int const *iwork,
 		int& info
@@ -129,12 +129,24 @@ extern "C" void dgecon_(
 extern "C" void zgecon_(
 		char const& norm,
 		unsigned int const& n,
-		std::complex<double> const *m, 
-		unsigned int const& ldm,
-		double const& anorm, 
-		double& rcond, 
+		std::complex<double> const *m,
+		unsigned int const& lda,
+		double const& anorm,
+		double& rcond,
 		std::complex<double> *work,
 		double *rwork,
+		int& info
+		);
+extern "C" void dsycon_(
+		char const& norm,
+		unsigned int const& n,
+		double const *m,
+		unsigned int const& lda,
+		int const *ipiv,
+		double const& anorm,
+		double& rcond,
+		double *work,
+		int const *iwork,
 		int& info
 		);
 
@@ -152,6 +164,14 @@ extern "C" double zlange_(
 		unsigned int const& col,
 		std::complex<double> const *m,
 		unsigned int const& ldm,
+		double *work
+		);
+extern "C" double dlansy_(
+		char const& norm,
+		char const& uplo,
+		unsigned int const& row,
+		double const *m,
+		unsigned int const& lda,
 		double *work
 		);
 
@@ -183,7 +203,7 @@ extern "C" void dorgqr_(
 
 /*{Description*/
 /*!Class that allows an easy use of the LAPACK routines
- * 
+ *
  * - compute determinant
  * - compute inverse
  * - compute eigensystem
@@ -238,7 +258,7 @@ class Lapack{
 		double norm();
 		/*!Checks if a matrix is singular, the smaller rcn is, the more the
 		 * matrix is ill-defined*/
-		Vector<int> is_singular(double& rcn=0.0);
+		Vector<int> is_singular(double& rcn);
 
 		void set_mat(Matrix<Type>& mat) const { mat = *mat_; }
 
@@ -274,21 +294,27 @@ class Lapack{
 		 * eigensystem of an hermitian complex matrix, if the eigenvectors are
 		 * required, they are stored in column in mat_, otherwise mat_ is
 		 * overwritten*/
-		void heev(Vector<double>& EVal, char job); 
+		void heev(Vector<double>& EVal, char job);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * eigensystem of a general matrix, if the eigenvectors are
 		 * required, they are stored in column in EVec, In any case, mat_ is
 		 * overwritten*/
 		void geev(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
-		 * norm of an general real matrix*/
-		double lange(); 
+		 * norm of an general real or complex matrix*/
+		double lange();
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
-		 * condition number of an general real matrix*/
-		double gecon(double anorm); 
+		 * norm of an symmetric real matrix*/
+		double lansy();
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * condition number of an general real or complex matrix*/
+		double gecon(double anorm);
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * condition number of an symmetric real matrix*/
+		double sycon(Vector<int> const& ipiv, double anorm);
 };
 
-/*Constructors and destructor*/
+/*constructors and destructor*/
 /*{*/
 template<typename Type>
 Lapack<Type>::Lapack(Matrix<Type>& mat, bool use_new_matrix, char matrix_type):
@@ -301,13 +327,13 @@ Lapack<Type>::Lapack(Matrix<Type>& mat, bool use_new_matrix, char matrix_type):
 
 template<typename Type>
 Lapack<Type>::~Lapack(){
-	if(use_new_matrix_){ delete mat_; } 
+	if(use_new_matrix_){ delete mat_; }
 }
 /*}*/
 
 /*methods used to call lapack*/
 /*{*/
-template<typename Type> 
+template<typename Type>
 Type Lapack<Type>::det(){
 	if (matrix_type_ != 'G'){
 		std::cerr<<"Lapack::det() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
@@ -332,19 +358,37 @@ Type Lapack<Type>::det(){
 
 template<typename Type>
 void Lapack<Type>::inv(Vector<int>& ipiv){
-	if (matrix_type_ != 'G'){
-		std::cerr<<"Lapack::inv(Vector<int>& ipiv) : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-		std::cerr<<"                                 the only matrix type implemented is G"<<std::endl;
+	if(ipiv.ptr()){
+		switch(matrix_type_){
+			case 'G':
+				{ getri(ipiv); }break;
+			case 'S':
+				{
+					sytri(ipiv);
+					if(ipiv.ptr()){
+						for(unsigned int i(0);i<mat_->row();i++){
+							for(unsigned int j(i+1);j<mat_->col();j++){
+								(*mat_)(j,i) = (*mat_)(i,j);
+							}
+						}
+					}
+				}break;
+			default:
+				{
+					std::cerr<<"Lapack<Type>::inv(Vector<int>& ipiv) : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
+					std::cerr<<"                                       choose between general (G) and symmetric (S)"<<std::endl;
+				}
+		}
+		if(!ipiv.ptr()){ std::cerr<<"Lapack::inv() : error"<<std::endl; }
 	} else {
-		if(ipiv.ptr()){ getri(ipiv); }
-		else { std::cerr<<"Lapack::inv(Vector<int>& ipiv) : the matrix is singular"<<std::endl;}
+		std::cerr<<"Lapack::inv(Vector<int>& ipiv) : the matrix is singular"<<std::endl;
 	}
 }
 
 template<typename Type>
 void Lapack<Type>::inv(){
 	if (mat_->row() != mat_->col()) {
-		std::cerr<<"void Lapack<Type>::inv() : no inverse for a rectangular matrix"<<std::endl;
+		std::cerr<<"Lapack<Type>::inv() : no inverse for a rectangular matrix"<<std::endl;
 	} else {
 		Vector<int> ipiv;
 		switch(matrix_type_){
@@ -359,7 +403,7 @@ void Lapack<Type>::inv(){
 					ipiv.set(mat_->col());
 					sytrf(ipiv);
 					if(ipiv.ptr()){
-						sytri(ipiv); 
+						sytri(ipiv);
 						if(ipiv.ptr()){
 							for(unsigned int i(0);i<mat_->row();i++){
 								for(unsigned int j(i+1);j<mat_->col();j++){
@@ -371,9 +415,9 @@ void Lapack<Type>::inv(){
 				}break;
 			default:
 				{
-					std::cerr<<"void Lapack<Type>::inv() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-					std::cerr<<"                           choose between general (G) and symmetric (S)"<<std::endl;
-				} 
+					std::cerr<<"Lapack<Type>::inv() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
+					std::cerr<<"                      choose between general (G) and symmetric (S)"<<std::endl;
+				}
 		}
 		if(!ipiv.ptr()){ std::cerr<<"Lapack::inv() : error"<<std::endl; }
 	}
@@ -440,9 +484,7 @@ void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation){
 					Q(i,j) = (*mat_)(i,j);
 				}
 			}
-		} else { 
-			Q = *mat_; 
-		}
+		} else { Q = *mat_; }
 
 		if(permutation){
 			mat_->set(mat_->col(),mat_->col(),0.0);
@@ -460,22 +502,37 @@ void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation){
 template<typename Type>
 Vector<int> Lapack<Type>::is_singular(double& rcn){
 	Vector<int> ipiv;
-	if (matrix_type_ != 'G'){
-		std::cerr<<"Lapack::is_singular(double& rcn) : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-		std::cerr<<"                                   the only matrix type implemented is G"<<std::endl;
-	} else if (mat_->row() != mat_->col()){
-		std::cerr<<"Lapack::is_singular(double& rcn) : need to be checked for rectangle matrix"<<std::endl;
+	if (mat_->row() != mat_->col()){
+		std::cerr<<"Lapack<Type>::is_singular(double& rcn) : need to be checked for rectangle matrix"<<std::endl;
 	} else {
-		ipiv.set(std::min(mat_->row(),mat_->col()));
-		double m_norm(lange());
-		getrf(ipiv);
-		rcn = gecon(m_norm);
-		if(rcn<1e-5){ ipiv.set(); }//!set the output matrix to NULL pointer 
+		switch(matrix_type_){
+			case 'G':
+				{
+					ipiv.set(mat_->row());
+					double m_norm(lange());
+					getrf(ipiv);
+					rcn = gecon(m_norm);
+					if(rcn<1e-5){ ipiv.set(); }//!set the output vector to NULL pointer
+				}break;
+			case 'S':
+				{
+					ipiv.set(mat_->row());
+					double m_norm(lansy());
+					sytrf(ipiv);
+					rcn = sycon(ipiv, m_norm);
+					if(rcn<1e-5){ ipiv.set(); }//!set the output vector to NULL pointer
+				}break;
+			default:
+				{
+					std::cerr<<"Lapack<Type>::is_singular() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
+					std::cerr<<"                              choose between general (G) and symmetric (S)"<<std::endl;
+				}
+		}
 	}
 	return ipiv;
 }
 
-template<typename Type> 
+template<typename Type>
 double Lapack<Type>::norm(){
 	if (matrix_type_ != 'G'){
 		std::cerr<<"Lapack::norm() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
@@ -510,7 +567,7 @@ void Lapack<Type>::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::
 	switch(matrix_type_){
 		case 'G':
 			{
-				geev(EVal,REVec,LEVec); 
+				geev(EVal,REVec,LEVec);
 				mat_->set();
 			} break;
 		default:

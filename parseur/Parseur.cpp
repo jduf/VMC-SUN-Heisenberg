@@ -10,7 +10,11 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 		name = argv[i];
 		used_.push_back(false);
 		if(name[0] == '-'){
-			val = argv[i+1];
+			if(i+1<argc){ val = argv[i+1]; }
+			else { 
+				val = "0"; 
+				std::cerr<<"Parseur::Parseur(unsigned int argc, char* argv[]) : dangerous argument '"<<argc<<"' (last argument given)"<<std::endl; 
+			}
 			/*check if the type is specified*/
 			if(name.find(":") != std::string::npos){
 				if(name[1] == 's'){
@@ -51,11 +55,9 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 				}
 			} else { set(name.substr(1),val); }
 		} else {
-			set(my::tostring(i-1),std::string(argv[i])); 
+			set(my::tostring(i-1),name); 
 			i--;
 		}
-	}
-	if(locked_){
 	}
 }
 
@@ -66,13 +68,13 @@ Parseur::~Parseur(){
 	if(locked_){ std::cerr<<"Parseur::~Parseur() : the parseur was locked"<<std::endl; }
 }
 
-bool Parseur::find(std::string const& pattern, unsigned int& i, bool iffail) const {
+bool Parseur::find(std::string const& pattern, unsigned int& i, bool lock_iffail) const {
 	if(!locked_){
 		if(Container::find(pattern,i)){
 			used_[i] = true;
 			return true;
 		} else {
-			locked_ = iffail;
+			locked_ = lock_iffail;
 			return false;
 		}
 	} else { return false; }

@@ -7,7 +7,7 @@ test_SRCS=test.cpp RST.cpp Header.cpp IOFiles.cpp PSpline.cpp Gnuplot.cpp Lapack
 CXX = g++ -std=c++11
 
 ERRORS = -Wall -Wextra -pedantic
-OPTION = 
+OPTION = -fopenmp
 LAPACK = -llapack -lblas
 
 BUILD=build

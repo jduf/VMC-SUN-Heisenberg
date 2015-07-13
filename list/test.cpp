@@ -227,6 +227,16 @@ int main(){
 		move_test.move(lint);
 		std::cout<<move_test<<std::endl;
 		std::cout<<lint<<std::endl;
+
+		Rand<unsigned int> r(move_test.size()-3,move_test.size());
+		unsigned int s;
+		for(unsigned int i(0);i<20;i++){
+			s=r.get();
+			std::cout<<s<<" ";
+			//move_test.set_target();
+			while(move_test.target_next() && --s);
+			std::cout<<move_test.get()<<std::endl;
+		}
 	}
 	std::cout<<"#(constructor calls)-#(destructor calls)="<<A::N_<<std::endl;
 }

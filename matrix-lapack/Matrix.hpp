@@ -5,7 +5,6 @@ template<typename Type>
 class Vector;
 
 #include <cassert>
-#include <algorithm>
 #include "IOFiles.hpp"
 
 /*{*/

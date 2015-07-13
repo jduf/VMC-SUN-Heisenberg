@@ -102,9 +102,6 @@ class Data{
 			if(!binning_){ dx_ /= sqrt(x); }
 		}
 
-		Binning<Type>* get_binning() const { return binning_; }
-		void set_binning(Binning<Type>* b) { binning_ = b; }
-
 		void write(IOFiles& w, std::string const& name="") const;
 
 		void header_rst(std::string const& s, RST& rst) const;

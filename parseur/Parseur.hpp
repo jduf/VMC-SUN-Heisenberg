@@ -22,7 +22,7 @@ class Parseur: public Container {
 		/*}*/
 
 		/*!Returns true if there is a var_[i]==patern and sets i*/
-		bool find(std::string const& pattern, unsigned int& i, bool iffail=true) const;
+		bool find(std::string const& pattern, unsigned int& i, bool lock_iffail=true) const;
 		/*!Returns locked_*/
 		bool status() const { return locked_; }
 

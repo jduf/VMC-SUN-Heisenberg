@@ -8,7 +8,7 @@ void Lapack<double>::getrf(Vector<int>& ipiv){
 	int info(1);
 	dgetrf_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), ipiv.ptr(), info);
 	if(info<0){
-		std::cerr<<"Lapack::getrf<double> : info="<<info<<std::endl;
+		std::cerr<<"Lapack<double>::getrf : info="<<info<<std::endl;
 		ipiv.set();
 	}
 }
@@ -18,7 +18,7 @@ void Lapack<std::complex<double> >::getrf(Vector<int>& ipiv){
 	int info(1);
 	zgetrf_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), ipiv.ptr(), info);
 	if(info<0){
-		std::cerr<<"Lapack::getrf<complex> : info="<<info<<std::endl;
+		std::cerr<<"Lapack<complex>::getrf : info="<<info<<std::endl;
 		ipiv.set();
 	}
 }
@@ -33,7 +33,7 @@ void Lapack<double>::geqp3(double* tau, int* jpvt){
 	double* work(new double[lwork]);
 	
 	dgeqp3_(mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), jpvt, tau, work, lwork, info);
-	if(info){std::cerr<<"Lapack::getrf<double> : info="<<info<<std::endl;}
+	if(info){std::cerr<<"Lapack<double>::getrf : info="<<info<<std::endl;}
 	delete[] work;
 }
 
@@ -48,21 +48,21 @@ void Lapack<double>::gqr(unsigned int k, double* tau){
 	if(col>row){ col=row; }
 	dorgqr_(row, col, k, mat_->ptr(), row, tau, work, lwork, info); 
 	delete[] work;
-	if(info){std::cerr<<"Lapack::gqr<complex> : info="<<info<<std::endl;}
+	if(info){std::cerr<<"Lapack<complex>::gqr : info="<<info<<std::endl;}
 }
 
 template<>
 void Lapack<std::complex<double> >::geqp3(double* tau, int* jpvt){
 	(void)(tau);
 	(void)(jpvt);
-	std::cerr<<"Lapack::geqp3 : not implemented for complex"<<std::endl;
+	std::cerr<<"Lapack<complex>::geqp3 : not implemented for complex"<<std::endl;
 }
 
 template<>
 void Lapack<std::complex<double> >::gqr(unsigned int k, double* tau){
 	(void)(k);
 	(void)(tau);
-	std::cerr<<"Lapack::gqr : not implemented complex"<<std::endl;
+	std::cerr<<"Lapack<complex>::gqr : not implemented complex"<<std::endl;
 }
 /*}*/
 /*}*/
@@ -77,7 +77,7 @@ void Lapack<double>::sytrf(Vector<int>& ipiv){
 
 	dsytrf_('U', mat_->col(), mat_->ptr(), mat_->row(), ipiv.ptr(), &wopt, lwork, info);
 	if(info){
-		std::cerr<<"Lapack::sytrf<double> : info="<<info<<std::endl; 
+		std::cerr<<"Lapack<double>::sytrf : info="<<info<<std::endl; 
 		ipiv.set();
 	} else {
 		lwork = int(wopt);
@@ -85,7 +85,7 @@ void Lapack<double>::sytrf(Vector<int>& ipiv){
 		dsytrf_('U', mat_->col(), mat_->ptr(), mat_->row(), ipiv.ptr(), work, lwork, info);
 
 		if(info<0){ 
-			std::cerr<<"Lapack::sytrf<double> : info="<<info<<std::endl; 
+			std::cerr<<"Lapack<double>::sytrf : info="<<info<<std::endl; 
 			ipiv.set();
 		}
 		delete[] work;
@@ -95,7 +95,7 @@ void Lapack<double>::sytrf(Vector<int>& ipiv){
 template<>
 void Lapack<std::complex<double> >::sytrf(Vector<int>& ipiv){
 	(void)(ipiv);
-	std::cerr<<"Lapack<double>::sytrf : not implemented for complex"<<std::endl;
+	std::cerr<<"Lapack<complex>::sytrf : not implemented for complex"<<std::endl;
 }
 /*}*/
 
@@ -108,7 +108,7 @@ void Lapack<double>::getri(Vector<int>& ipiv){
 	double* work(new double[lwork]);
 	int info(1);
 	dgetri_(N, mat_->ptr(), N, ipiv.ptr(), work, lwork, info);
-	if(info){std::cerr<<"Lapack::getri<double> : info="<<info<<std::endl;}
+	if(info){std::cerr<<"Lapack<double>::getri : info="<<info<<std::endl;}
 	delete[] work;
 }
 
@@ -120,7 +120,7 @@ void Lapack<std::complex<double> >::getri(Vector<int>& ipiv){
 	int info(1);
 	zgetri_(N, mat_->ptr(), N, ipiv.ptr(), work, lwork, info);
 
-	if(info){std::cerr<<"Lapack::getri<complex> : info="<<info<<std::endl;}
+	if(info){std::cerr<<"Lapack<complex>::getri : info="<<info<<std::endl;}
 	delete[] work;
 }
 /*}*/
@@ -135,7 +135,7 @@ void Lapack<double>::sytri(Vector<int>& ipiv){
 	dsytri_('U', N, mat_->ptr(), mat_->row(), ipiv.ptr(), work, info);
 
 	if(info){
-		std::cerr<<"Lapack::sytri<double> : info="<<info<<std::endl; 
+		std::cerr<<"Lapack<double>::sytri : info="<<info<<std::endl; 
 		ipiv.set();
 	}
 	delete[] work;
@@ -144,11 +144,11 @@ void Lapack<double>::sytri(Vector<int>& ipiv){
 template<>
 void Lapack<std::complex<double> >::sytri(Vector<int>& ipiv){
 	(void)(ipiv);
-	std::cerr<<"Lapack<double>::potri : not implemented for complex"<<std::endl;
+	std::cerr<<"Lapack<complex>::sytri : not implemented for complex"<<std::endl;
 }
 /*}*/
 
-/*compute the condition number : dgecon zgecon*/
+/*compute the condition number : dgecon zgecon sycon*/
 /*{*/
 template<>
 double Lapack<double>::gecon(double anorm){
@@ -161,7 +161,7 @@ double Lapack<double>::gecon(double anorm){
 	delete[] work;
 	delete[] iwork;
 	if(info){
-		std::cerr<<"Lapack::gecon<double> : info="<<info<<std::endl;
+		std::cerr<<"Lapack<double>::gecon : info="<<info<<std::endl;
 		return 0;
 	} else {
 		return rcond;
@@ -179,30 +179,67 @@ double Lapack<std::complex<double> >::gecon(double anorm){
 	delete[] work;
 	delete[] rwork;
 	if(info){
-		std::cerr<<"Lapack::gecon<double> : info="<<info<<std::endl;
+		std::cerr<<"Lapack<complex>::gecon : info="<<info<<std::endl;
 		return 0;
 	} else {
 		return rcond;
 	}
 }
+
+template<>
+double Lapack<double>::sycon(Vector<int> const& ipiv, double anorm){
+	unsigned int N(mat_->col());
+	int info(1);
+	double rcond(0);
+	double* work(new double[2*N]);
+	int* iwork(new int[N]);
+	dsycon_('U', N, mat_->ptr(), N, ipiv.ptr(), anorm, rcond, work, iwork, info);
+	delete[] work;
+	delete[] iwork;
+	if(info){
+		std::cerr<<"Lapack<double>::sycon : info="<<info<<std::endl;
+		return 0;
+	} else {
+		return rcond;
+	}
+}
+
+template<>
+double Lapack<std::complex<double> >::sycon(Vector<int> const& ipiv, double anorm){
+	(void)(anorm);
+	(void)(ipiv);
+	std::cerr<<"Lapack<complex>::sycon : not implemented for complex"<<std::endl;
+	return 0;
+}
 /*}*/
 
-/*compute the norm : dlange zlange*/
+/*compute the norm : dlange zlange dlansy*/
 /*{*/
 template<>
 double Lapack<double>::lange(){
-	double *work(new double[mat_->row()]);
-	double anorm(dlange_('1', mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), work));
+	double *work(NULL);
+	return dlange_('1', mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), work);
+}
+
+template<>
+double Lapack<std::complex<double> >::lange(){
+	double *work(NULL);
+	return zlange_('1', mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), work);
+}
+
+template<>
+double Lapack<double>::lansy(){
+	unsigned int N(mat_->row());
+	double *work(new double[N]);
+	double anorm(dlansy_('1', 'U', N, mat_->ptr(), N, work));
 	delete[] work;
 	return anorm;
 }
 
 template<>
-double Lapack<std::complex<double> >::lange(){
-	double *work(new double[mat_->row()]);
-	double anorm(zlange_('1', mat_->row(), mat_->col(), mat_->ptr(), mat_->row(), work));
-	delete[] work;
-	return anorm;
+double Lapack<std::complex<double> >::lansy(){
+	std::cerr<<"Lapack<complex>::lansy : not implemented for complex"<<std::endl;
+	return 0;
 }
 /*}*/
 
@@ -313,7 +350,7 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::compl
 		delete[] vr;
 	}
 	if(LEVec){
-		std::cerr<<"void Lapack<double>::geev : might be a proble because LU*RU != 1 but LU*A*RU = diag"<<std::endl; 
+		std::cerr<<"Lapack<double>::geev : might be a proble because LU*RU != 1 but LU*A*RU = diag"<<std::endl; 
 		LEVec->set(N,N);
 		for(unsigned int j(0);j<N;j++){
 			if(j==N-1 || !(wi[j]*wi[j+1]<0 && my::are_equal(wr[j],wr[j+1]))){
