@@ -11,6 +11,6 @@ $(DIRECTORY):
 
 ref:
 	@echo Create the documentation
-	@doxygen doxygen/Doxyfile
+	@doxygen doxygen/Doxyfile > doxygen/log 2> doxygen/err
 	@firefox doxygen/html/annotated.html &
 
