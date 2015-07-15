@@ -1,7 +1,7 @@
 /*! @file min.cpp */
 
 #include "VMCPSO.hpp"
-#include "VMCSpline.hpp"
+#include "VMCInterpolation.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
@@ -11,7 +11,7 @@ int main(int argc, char* argv[]){
 	VMCMinimization m(P);
 	if(loop){
 		VMCPSO m1(P,m);
-		VMCSpline m2(m);
+		VMCInterpolation m2(m);
 		if(!P.status()){
 			for(unsigned int i(0);i<loop;i++){
 				m1.init(true, false);
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]){
 		} else { std::cerr<<"min : some argument are not corretly set"<<std::endl; }
 	} else {
 		if(P.find("load",i,true)){
-			VMCSpline m1(m);
+			VMCInterpolation m1(m);
 
 			m1.init();
 			m1.run(0);

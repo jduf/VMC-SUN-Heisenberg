@@ -125,6 +125,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 		m_->samples_list_.set_target();
 	}
 	if(sim->is_created()){
+		sim->set_observable(0);
 		sim->run(tmp_test?10:1e6,m_->tmax_);
 #pragma omp critical(samples_list_)
 		{
@@ -156,15 +157,17 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 	unsigned int i(0);
 	IOFiles* in(P.find("load",i,false)?(new IOFiles(P.get<std::string>(i),false)):NULL);
 
-	wf_      =(in?in->read<std::string>() :P.get<std::string>("wf"));
-	N_       =(in?in->read<unsigned int>():P.get<unsigned int>("N"));
-	m_       =(in?in->read<unsigned int>():P.get<unsigned int>("m"));
-	n_       =(in?in->read<unsigned int>():P.get<unsigned int>("n"));
-	bc_      =(in?in->read<int>()         :P.get<int>("bc"));
-	Nfreedom_=(in?in->read<unsigned int>():P.get<unsigned int>("Nfreedom"));
+	wf_      = (in?in->read<std::string>() :P.get<std::string>("wf"));
+	N_       = (in?in->read<unsigned int>():P.get<unsigned int>("N"));
+	m_       = (in?in->read<unsigned int>():P.get<unsigned int>("m"));
+	n_       = (in?in->read<unsigned int>():P.get<unsigned int>("n"));
+	bc_      = (in?in->read<int>()         :P.get<int>("bc"));
+	Nfreedom_= (in?in->read<unsigned int>():P.get<unsigned int>("Nfreedom"));
 	ps_ = new Vector<double>[Nfreedom_];
+	ps_size_ = 1;
 	for(unsigned int i(0);i<Nfreedom_;i++){
 		ps_[i] = (in?in->read<Vector<double> >():P.get<std::vector<double> >("ps"+my::tostring(i))); 
+		ps_size_ *= ps_[i].size();
 	}
 	if(in){
 		std::string msg1("loading samples from "+in->get_filename());

@@ -1,11 +1,12 @@
 EXEC+=mc
 EXEC+=check
 EXEC+=min
+EXEC+=study
 
-mc_SRCS=    mc.cpp            MonteCarlo.cpp MCSystem.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeComplex.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp
-check_SRCS= check.cpp         MonteCarlo.cpp MCSystem.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeComplex.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp
-study_SRCS= study.cpp         MonteCarlo.cpp MCSystem.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeComplex.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp Directory.cpp Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseMagnetization.cpp AnalyseHoneycomb.cpp
-min_SRCS=   min.cpp           MonteCarlo.cpp MCSystem.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeComplex.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp MCSim.cpp VMCMinimization.cpp PSpline.cpp VMCSpline.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp 
+mc_SRCS=    mc.cpp    MonteCarlo.cpp MCSystem.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeComplex.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp
+min_SRCS=   min.cpp   MonteCarlo.cpp MCSystem.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeComplex.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp MCSim.cpp VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp 
+check_SRCS= check.cpp MonteCarlo.cpp MCSystem.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeComplex.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp
+study_SRCS= study.cpp MonteCarlo.cpp MCSystem.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeComplex.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp Directory.cpp Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseMagnetization.cpp AnalyseHoneycomb.cpp
 
 #-----------------------------------------------------------------
 
@@ -53,5 +54,5 @@ clean:
 
 ref:
 	@echo Create the documentation
-	@doxygen doxygen/Doxyfile
+	@doxygen doxygen/Doxyfile > doxygen/log
 	@firefox doxygen/html/files.html &

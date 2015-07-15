@@ -72,17 +72,33 @@ void MCSystem::update(){
 void MCSystem::measure_new_step(){
 	E_.set_x(0.0);
 	double r;
-	for(unsigned int i(0);i<links_.row();i++){
-		corr_[i].set_x(0.0);
-		for(unsigned int p0(0);p0<m_;p0++){
-			for(unsigned int p1(0);p1<m_;p1++){
-				swap(links_(i,0),links_(i,1),p0,p1);
-				/*!if the new state is forbidden, r=0 and therefore there is no
-				 * need to complete the else condition*/
-				if(!is_new_state_forbidden()){ 
-					r = ratio(false);
-					E_.add(r); 
-					corr_[i].add(r);
+	if(corr_.size()){
+		for(unsigned int i(0);i<links_.row();i++){
+			corr_[i].set_x(0.0);
+			for(unsigned int p0(0);p0<m_;p0++){
+				for(unsigned int p1(0);p1<m_;p1++){
+					swap(links_(i,0),links_(i,1),p0,p1);
+					/*!if the new state is forbidden, r=0 and therefore there is no
+					 * need to complete the else condition*/
+					if(!is_new_state_forbidden()){ 
+						r = ratio(false);
+						E_.add(r); 
+						corr_[i].add(r);
+					}
+				}
+			}
+		}
+	} else {
+		for(unsigned int i(0);i<links_.row();i++){
+			for(unsigned int p0(0);p0<m_;p0++){
+				for(unsigned int p1(0);p1<m_;p1++){
+					swap(links_(i,0),links_(i,1),p0,p1);
+					/*!if the new state is forbidden, r=0 and therefore there is no
+					 * need to complete the else condition*/
+					if(!is_new_state_forbidden()){ 
+						r = ratio(false);
+						E_.add(r); 
+					}
 				}
 			}
 		}

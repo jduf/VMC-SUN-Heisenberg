@@ -27,6 +27,7 @@ class System{
 
 		/*!Returns energy*/
 		Data<double> const& get_energy() const {return E_;}
+		/*!Returns a ref to E_ (needed for merging)*/
 		Data<double>& get_energy() {return E_;}
 		/*!Returns correlation*/
 		DataSet<double> const& get_corr() const {return corr_;}
@@ -35,18 +36,19 @@ class System{
 		/*!Returns the status of the system*/
 		unsigned int const& get_status(){return status_;}
 
-		/*!Set the observables to default (0) values and initilize binning*/
-		void set();
-
-		/*!Delete the binning for all observables*/
+		/*!Sets the observables to default (0) values and initilizes binning*/
+		void set_binning();
+		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
+		void set_observable(unsigned int const& what);
+		/*!Deletes the binning for all observables*/
 		void delete_binning();
 
 		virtual void write(IOFiles& w) const;
 
 	protected:
-		/*Copy constructor*/
+		/*!Copy constructor*/
 		System(System const&) = default;
-		/*Default constructor*/
+		/*!Default constructor*/
 		System():ref_(0),N_(0),m_(0),n_(0),bc_(0){std::cout<<"System::System() : should never be called"<<std::endl;}
 
 		Vector<unsigned int> const ref_;//!< type of system 

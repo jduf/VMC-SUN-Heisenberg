@@ -2,9 +2,6 @@
 
 template<>
 void SquareFermi<double>::create(){
-	E_.set(50,5,false);
-	corr_.set(links_.row(),50,5,false);
-
 	compute_H();
 	diagonalize(true);
 	if(status_==1){
@@ -21,9 +18,6 @@ void SquareFermi<double>::create(){
 template<>
 void SquareFermi<std::complex<double> >::create(){
 	std::cout<<"complex"<<std::endl;
-	E_.set(50,5,false);
-	corr_.set(links_.row(),50,5,false);
-
 	compute_H();
 	diagonalize(false);
 	select_eigenvectors();

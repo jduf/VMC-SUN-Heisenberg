@@ -25,8 +25,6 @@
  * - void MonteCarlo::run() : lunch the Monte-Carlo simulation.
  * - void MonteCarlo::complete_analysis(double tol) : make sure that the
  *   computed quantities are fully computed
- * - void delete_binning() : get rid of the Binning instance if they are not
- *   needed later
  }*/
 class MonteCarlo{
 	public:

@@ -1,5 +1,5 @@
-#ifndef DEF_MCSim
-#define DEF_MCSim
+#ifndef DEF_MCSIM
+#define DEF_MCSIM
 
 #include "CreateSystem.hpp"
 #include "MonteCarlo.hpp"
@@ -19,26 +19,31 @@ class MCSim {
 		MCSim& operator&=(MCSim) = delete;
 		/*}*/
 
-		static unsigned int cmp_for_merge(MCSim const& list, MCSim const& new_elem);
-		static void merge(MCSim& list, MCSim& new_elem);
+		/*!Sets S_ to a new MCSystem created via C*/
+		void create_S(Container* C);
+		/*!Sets S_ to a copy obtained via MCSystem::clone() run on S*/
+		void copy_S(std::unique_ptr<MCSystem> const& S);
 
 		Vector<double> const& get_param() const { return param_; }
 		std::unique_ptr<MCSystem> const& get_S() const { return S_; }
-		void create_S(Container* C);
-		void copy_S(std::unique_ptr<MCSystem> const& S);
 
-		void print() const { std::cout<<param_<<" "<<S_->get_energy(); }
-		void write(IOFiles& w) const;
-		bool is_created() const { return (S_.get() && !S_->get_status()); }
-		void save(Container* C) const;
-		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
-		void complete_analysis(double const& convergence_criterion);
-		bool check_conv(double const& convergence_criterion);
+		void set_observable(bool all);
 		void free_memory();
 
-		static bool compare(MCSim const& a, MCSim const& b){
-			return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
-		};
+		bool is_created() const { return (S_.get() && !S_->get_status()); }
+		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
+		bool check_conv(double const& convergence_criterion);
+		void complete_analysis(double const& convergence_criterion);
+
+		void write(IOFiles& w) const;
+		/*!Save the result in a single file (wavefunction parameters, observables)*/
+		void save(Container* C) const;
+		void print() const { std::cout<<param_<<" "<<S_->get_energy(); }
+
+		static bool compare(MCSim const& a, MCSim const& b);
+		static unsigned int cmp_for_merge(MCSim const& list, MCSim const& new_elem);
+		static void merge(MCSim& list, MCSim& new_elem);
+
 	private:
 		Vector<unsigned int> ref_;
 		Vector<double> param_;

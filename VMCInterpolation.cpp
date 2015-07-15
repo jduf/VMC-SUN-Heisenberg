@@ -1,18 +1,21 @@
-#include "VMCSpline.hpp"
+#include "VMCInterpolation.hpp"
 
-VMCSpline::VMCSpline(VMCMinimization const& m):
-	VMCMinimization(m,"PSpline"),
-	pspline_(2)
-{}
+VMCInterpolation::VMCInterpolation(VMCMinimization const& m):
+	VMCMinimization(m,"I"),
+	interp_(m_->Nfreedom_,pow(m_->ps_size_/m_->samples_list_.size(),1./m_->Nfreedom_))
+{
+	interp_.select_basis_function(7);
+	std::cerr<<"VMCInterpolation::VMCInterpolation(VMCMinimization const& m): no 'dx' set for Interpolation"<<std::endl;
+}
 
 /*{public methods*/
-void VMCSpline::init(){
+void VMCInterpolation::init(){
 	set_time();
-	pspline_.set();
+	interp_.set();
 	list_min_idx_.clear();
 
 	std::cout<<"#######################"<<std::endl;
-	std::string msg("new VMCSpline");
+	std::string msg("new VMCInterpolation");
 	std::cout<<"#"<<msg<<std::endl;
 	m_->pso_info_.title(msg,'-');
 
@@ -25,12 +28,12 @@ void VMCSpline::init(){
 
 	if(m_->samples_list_.size()){ search_minima(); }
 	else {
-		std::cerr<<"VMCSpline::run() : empty samples_list_"<<std::endl;
+		std::cerr<<"VMCInterpolation::run() : empty samples_list_"<<std::endl;
 		m_->pso_info_.item("error : empty samples_list_");
 	}
 }
 
-void VMCSpline::run(unsigned int const& explore_around_minima){
+void VMCInterpolation::run(unsigned int const& explore_around_minima){
 	unsigned int lmis(list_min_idx_.size());
 	if(lmis){
 		unsigned int nsim(pow(2*explore_around_minima+1,m_->Nfreedom_));
@@ -59,7 +62,7 @@ void VMCSpline::run(unsigned int const& explore_around_minima){
 				}
 
 				Vector<unsigned int> idx(m_->Nfreedom_,0);
-				while(go_through_parameter_space(local_x,idx,0,0,&VMCSpline::evaluate));
+				while(go_through_parameter_space(local_x,idx,0,0,&VMCInterpolation::evaluate));
 				delete[] local_x;
 				delete[] min_idx;
 			}
@@ -76,7 +79,7 @@ void VMCSpline::run(unsigned int const& explore_around_minima){
 	}
 }
 
-void VMCSpline::plot(){
+void VMCInterpolation::plot(){
 	if(m_->Nfreedom_<4){
 		out_ = new IOFiles(get_filename()+".dat",true);
 		m_->samples_list_.set_target();
@@ -89,7 +92,7 @@ void VMCSpline::plot(){
 
 		out_ = new IOFiles(get_filename()+"-spline.dat",true);
 		Vector<unsigned int> idx(m_->Nfreedom_,0);
-		while(go_through_parameter_space(m_->ps_,idx,0,0,&VMCSpline::save_spline_data));
+		while(go_through_parameter_space(m_->ps_,idx,0,0,&VMCInterpolation::save_interp_data));
 		delete out_;
 		out_ = NULL;
 
@@ -108,11 +111,11 @@ void VMCSpline::plot(){
 		}
 		plot.save_file();
 	} else {
-		std::cerr<<"void VMCSpline::plot() : how to plot "<<m_->Nfreedom_<<"-dimensional data ?"<<std::endl;
+		std::cerr<<"void VMCInterpolation::plot() : how to plot "<<m_->Nfreedom_<<"-dimensional data ?"<<std::endl;
 	}
 }
 
-void VMCSpline::print(){
+void VMCInterpolation::print(){
 	Vector<double> param(m_->Nfreedom_);
 #pragma omp parallel for firstprivate(param)
 	for(unsigned int i=0;i<list_min_idx_.size();i++){
@@ -120,34 +123,32 @@ void VMCSpline::print(){
 		std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
 		if(sim.get()){
 #pragma omp critical
-			std::cerr<<param<<" "<<pspline_.extrapolate(param)<<" "<<sim->get_S()->get_energy()<<std::endl;
+			std::cerr<<param<<" "<<interp_.extrapolate(param)<<" "<<sim->get_S()->get_energy()<<std::endl;
 		}
 	}
 }
 /*}*/
 
 /*{private methods*/
-void VMCSpline::search_minima(){
+void VMCInterpolation::search_minima(){
 	list_min_idx_.clear();
-	pspline_.set(m_->samples_list_.size());
+	interp_.set(m_->samples_list_.size());
 	unsigned int i(0);
 	while(m_->samples_list_.target_next()){
-		pspline_.add_data(i++,m_->samples_list_.get().get_param(),m_->samples_list_.get().get_S()->get_energy().get_x());
+		interp_.add_data(i++,m_->samples_list_.get().get_param(),m_->samples_list_.get().get_S()->get_energy().get_x());
 	}
 	Time chrono;
 	std::string msg1("computing the weights");
 	std::cout<<"#"<<msg1<<std::flush;
 
-	pspline_.compute_weights();
+	interp_.compute_weights();
 
 	std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
 	std::cout<<msg2<<std::endl;
 	m_->pso_info_.item(msg1+msg2);
 	chrono.set();
 	msg1="search for minima";
-	unsigned int volume(1);
-	for(unsigned int k(0);k<m_->Nfreedom_;k++){ volume *= m_->ps_[k].size(); }
-	if(volume < 1e5){
+	if(m_->ps_size_ < 1e5){
 		msg1="exhaustive "+msg1;
 		std::cout<<"#"<<msg1<<std::flush;
 #pragma omp parallel
@@ -156,7 +157,7 @@ void VMCSpline::search_minima(){
 			unsigned int max0((omp_get_thread_num()+1)*m_->ps_[0].size()/omp_get_num_threads());
 			Vector<unsigned int> idx(m_->Nfreedom_,0);
 			idx(0) = min0;
-			while(go_through_parameter_space(m_->ps_,idx,min0,max0,&VMCSpline::select_if_min));
+			while(go_through_parameter_space(m_->ps_,idx,min0,max0,&VMCInterpolation::select_if_min));
 		}
 	} else {
 		msg1="random "+msg1;
@@ -179,7 +180,7 @@ void VMCSpline::search_minima(){
 				param(j) = m_->ps_[j](pidx(j));
 			}
 
-			double tmp(pspline_.extrapolate(param));
+			double tmp(interp_.extrapolate(param));
 			double min(tmp);
 			unsigned int dir;
 			unsigned int const max_step(1e3);
@@ -188,7 +189,7 @@ void VMCSpline::search_minima(){
 				for(unsigned int k(0);k<m_->Nfreedom_;k++){
 					if(pidx(k)+1<m_->ps_[k].size()){
 						param(k) = m_->ps_[k](pidx(k)+1);
-						tmp = pspline_.extrapolate(param);
+						tmp = interp_.extrapolate(param);
 						if(!isnan(tmp) && tmp<min){
 							min = tmp;
 							dir = 2*k;
@@ -196,7 +197,7 @@ void VMCSpline::search_minima(){
 					}
 					if(pidx(k)>0){
 						param(k) = m_->ps_[k](pidx(k)-1);
-						tmp = pspline_.extrapolate(param);
+						tmp = interp_.extrapolate(param);
 						if(!isnan(tmp) && tmp<min){
 							min = tmp;
 							dir = 2*k+1;
@@ -232,7 +233,7 @@ void VMCSpline::search_minima(){
 	m_->pso_info_.item(msg1+msg2);
 }
 
-bool VMCSpline::go_through_parameter_space(Vector<double>* x, Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, void (VMCSpline::*f)(Vector<double>*, Vector<unsigned int> const&)){
+bool VMCInterpolation::go_through_parameter_space(Vector<double>* x, Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, void (VMCInterpolation::*f)(Vector<double>*, Vector<unsigned int> const&)){
 	(this->*f)(x,idx);
 
 	idx(0)++;
@@ -262,24 +263,24 @@ bool VMCSpline::go_through_parameter_space(Vector<double>* x, Vector<unsigned in
 	return go_through_parameter_space(x,idx,min0,max0,f);
 }
 
-void VMCSpline::select_if_min(Vector<double>* x, Vector<unsigned int> const& idx){
+void VMCInterpolation::select_if_min(Vector<double>* x, Vector<unsigned int> const& idx){
 	double f;
 	double f_tmp;
 	bool is_min(true);
 	Vector<double> param(m_->Nfreedom_);
 	for(unsigned int i(0); i<m_->Nfreedom_;i++){ param(i) = x[i](idx(i)); }
-	f = pspline_.extrapolate(param);
+	f = interp_.extrapolate(param);
 	if(!isnan(f)){
 		for(unsigned int j(0);j<m_->Nfreedom_;j++){
 			if(is_min){
 				if(idx(j)+1<m_->ps_[j].size()){
 					param(j) = x[j](idx(j)+1);
-					f_tmp = pspline_.extrapolate(param);
+					f_tmp = interp_.extrapolate(param);
 					if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
 				}
 				if(is_min && idx(j)>0){
 					param(j) = x[j](idx(j)-1);
-					f_tmp = pspline_.extrapolate(param);
+					f_tmp = interp_.extrapolate(param);
 					if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
 				}
 				param(j) = x[j](idx(j));
@@ -295,21 +296,21 @@ void VMCSpline::select_if_min(Vector<double>* x, Vector<unsigned int> const& idx
 	}
 }
 
-void VMCSpline::save_spline_data(Vector<double>* x, Vector<unsigned int> const& idx){
+void VMCInterpolation::save_interp_data(Vector<double>* x, Vector<unsigned int> const& idx){
 	Vector<double> param(m_->Nfreedom_);
 	for(unsigned int i(0); i<m_->Nfreedom_;i++){ param(i) = x[i](idx(i)); }
-	(*out_)<<param<<" "<<pspline_.extrapolate(param)<<IOFiles::endl;
+	(*out_)<<param<<" "<<interp_.extrapolate(param)<<IOFiles::endl;
 }
 
-void VMCSpline::evaluate(Vector<double>* x, Vector<unsigned int> const& idx){
+void VMCInterpolation::evaluate(Vector<double>* x, Vector<unsigned int> const& idx){
 	Vector<double> param(m_->Nfreedom_);
 	for(unsigned int i(0); i<m_->Nfreedom_;i++){ param(i) = x[i](idx(i)); }
 	std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
 	if(sim.get()){
 		sim->get_S()->get_energy().complete_analysis(1e-5);
-		if(std::abs(pspline_.extrapolate(param)-sim->get_S()->get_energy().get_x())<sim->get_S()->get_energy().get_dx()){
+		if(std::abs(interp_.extrapolate(param)-sim->get_S()->get_energy().get_x())<sim->get_S()->get_energy().get_dx()){
 #pragma omp critical
-			std::cerr<<param<<" : "<<pspline_.extrapolate(param)<<" <-> "<<sim->get_S()->get_energy()<<std::endl;
+			std::cerr<<param<<" : "<<interp_.extrapolate(param)<<" <-> "<<sim->get_S()->get_energy()<<std::endl;
 		}
 	}
 }

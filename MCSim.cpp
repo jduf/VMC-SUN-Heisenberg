@@ -1,5 +1,6 @@
 #include "MCSim.hpp"
 
+/*{constructors, destructors*/
 MCSim::MCSim(Vector<double> const& param):
 	param_(param)
 {}
@@ -23,18 +24,7 @@ MCSim::MCSim(IOFiles& r):
 			} break;
 	}
 }
-
-unsigned int MCSim::cmp_for_merge(MCSim const& list, MCSim const& new_elem){
-	for(unsigned int i(0);i<list.param_.size();i++){
-		if(list.param_(i) - new_elem.param_(i) > 0.01){ return 0; }
-		if(list.param_(i) - new_elem.param_(i) < -0.01){ return 1; }
-	}
-	return 2;
-}
-
-void MCSim::merge(MCSim& list, MCSim& new_elem) { 
-	list.get_S()->get_energy().merge(new_elem.get_S()->get_energy());
-}
+/*}*/
 
 void MCSim::create_S(Container* C){
 	CreateSystem cs(C,&param_);
@@ -65,7 +55,6 @@ void MCSim::create_S(Container* C){
 
 void MCSim::copy_S(std::unique_ptr<MCSystem> const& S){
 	S_ = S->clone();
-	S_->set(); //to clear the binning
 }
 
 void MCSim::write(IOFiles& w) const {
@@ -113,6 +102,28 @@ void MCSim::complete_analysis(double const& convergence_criterion){
 	S_->complete_analysis(convergence_criterion);
 }
 
+void MCSim::set_observable(bool all){
+	S_->set_observable(all);
+}
+
 void MCSim::free_memory(){
 	S_->free_memory();
 }
+
+/*{static methods*/
+bool MCSim::compare(MCSim const& a, MCSim const& b){
+	return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
+}
+
+unsigned int MCSim::cmp_for_merge(MCSim const& list, MCSim const& new_elem){
+	for(unsigned int i(0);i<list.param_.size();i++){
+		if(list.param_(i) - new_elem.param_(i) > 0.01){ return 0; }
+		if(list.param_(i) - new_elem.param_(i) < -0.01){ return 1; }
+	}
+	return 2;
+}
+
+void MCSim::merge(MCSim& list, MCSim& new_elem) { 
+	list.get_S()->get_energy().merge(new_elem.get_S()->get_energy());
+}
+/*}*/

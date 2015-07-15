@@ -339,7 +339,7 @@ template<typename Type>
 bool SystemFermionic<Type>::are_invertible(){
 	Vector<int> ipiv;
 	double rcn(0.0);
-	for(unsigned int c(0); c<N_; c++){
+	for(unsigned int c(0);c<N_;c++){
 		Lapack<Type> inv(Ainv_[c],true,'G');
 		ipiv = inv.is_singular(rcn);
 		if(!ipiv.ptr()){ return false; }

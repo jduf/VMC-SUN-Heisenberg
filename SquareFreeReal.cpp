@@ -25,9 +25,6 @@ SquareFreeReal::SquareFreeReal(
 
 /*{method needed for running*/
 void SquareFreeReal::create(){
-	E_.set(50,5,false);
-	corr_.set(links_.row(),50,5,false);
-
 	for(unsigned int c(0);c<N_;c++){
 		compute_H(c);
 		diagonalize(true);

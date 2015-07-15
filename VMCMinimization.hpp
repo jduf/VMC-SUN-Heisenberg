@@ -52,7 +52,8 @@ class VMCMinimization{
 				unsigned int n_        = 0;
 				int          bc_       = 0;
 				unsigned int Nfreedom_ = 0;
-				Vector<double>* ps_    = NULL; //<! parameter space
+				unsigned int ps_size_  = 0;   //!< parameter space size
+				Vector<double>* ps_    = NULL;//!< parameter space
 				List<MCSim> samples_list_;
 		};
 
