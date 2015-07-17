@@ -92,7 +92,7 @@ void VMCMinimization::print() const {
 }
 
 void VMCMinimization::plot() const {
-	std::string filename("PS"+get_filename());
+	std::string filename(get_filename());
 	IOFiles data(filename+".dat",true);
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
@@ -164,7 +164,7 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 	bc_      = (in?in->read<int>()         :P.get<int>("bc"));
 	Nfreedom_= (in?in->read<unsigned int>():P.get<unsigned int>("Nfreedom"));
 	ps_ = new Vector<double>[Nfreedom_];
-	ps_size_ = 1;
+	ps_size_ = 1.0;
 	for(unsigned int i(0);i<Nfreedom_;i++){
 		ps_[i] = (in?in->read<Vector<double> >():P.get<std::vector<double> >("ps"+my::tostring(i))); 
 		ps_size_ *= ps_[i].size();

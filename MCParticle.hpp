@@ -17,7 +17,7 @@ class MCParticle: public Particle{
 		MCParticle& operator=(MCParticle) = delete;
 		/*}*/
 
-		void init_Particle(double fx);
+		void move(Vector<double> const& bx_all);
 		void print() const;
 
 		bool update(std::shared_ptr<MCSim> const& new_elem);
