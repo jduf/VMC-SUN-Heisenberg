@@ -1,108 +1,80 @@
-#include "SquareFreeComplex.hpp"
+#include "SquareACSL.hpp"
 
-SquareFreeComplex::SquareFreeComplex(
+SquareACSL::SquareACSL(
 		Vector<unsigned int> const& ref, 
 		unsigned int const& N, 
 		unsigned int const& m, 
 		unsigned int const& n, 
 		Vector<unsigned int> const& M,  
 		int const& bc, 
-		Vector<double> const& t, 
-		Vector<double> const& mu, 
-		Vector<double> const& phi):
+		Vector<double> const& t):
 	System(ref,N,m,n,M,bc),
-	Square<std::complex<double> >(set_ab(),(N/m==2?2:0),"square-free-flux"),
-	t_(t),
-	mu_(mu),
-	phi_(phi)
+	Square<std::complex<double> >(set_ab(N/m),(N%m?0:N/m),"square-acsl"),
+	t_(t)
 {
 	if(status_==2){
 		init_fermionic();
 
-		system_info_.text("FreeComplex : all colors experience the same Hamiltonian");
+		system_info_.text("ACSL : all colors experience the same Hamiltonian");
 	}
 }
 
 /*{method needed for running*/
-void SquareFreeComplex::compute_H(unsigned int const& c){
+void SquareACSL::compute_H(){
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
 	unsigned int s(0);
+	double phi(2*M_PI*m_/N_);
 	for(unsigned int i(0);i<n_;i++){
 		s = get_site_in_ab(i);
-		if(c%2){ if( s==0 || s==3 ){ H_(i,i) = mu_(0)/2.0; } }
-		else { if( s==2 || s==1 ){ H_(i,i) = mu_(0)/2.0; } }
 		nb = get_neighbourg(i);
-		switch(s){ 
-			case 0:
-				{
-					H_(i,nb(0,0)) = std::polar(t_(0)*nb(0,1),phi_(0));
-					H_(i,nb(1,0)) = std::polar(t_(1)*nb(1,1),-phi_(0));
-				}break;
-			case 1:
-				{
-					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),-phi_(0));
-					H_(i,nb(1,0)) = std::polar(t_(1)*nb(1,1),phi_(0));
-				}break;
-			case 2:
-				{
-					H_(i,nb(0,0)) = std::polar(t_(0)*nb(0,1),-phi_(0));
-					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),phi_(0));
-				}break;
-			case 3:
-				{
-					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
-					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
-				}break;
-			default:{ std::cerr<<"void SquareFreeComplex::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
+		if(s){
+			H_(i,nb(0,0)) = t_(2*s-1)*nb(0,1);
+			H_(i,nb(1,0)) = std::polar(t_(2*s)*nb(1,1),s*phi);
+		} else {
+			H_(i,nb(0,0)) = nb(0,1);
+			H_(i,nb(1,0)) = std::polar(t_(0)*nb(1,1),s*phi);
 		}
 	}
 	H_ += H_.trans_conj(); 
 }
 
-void SquareFreeComplex::create(){
-	for(unsigned int c(0);c<N_;c++){
-		compute_H(c);
-		diagonalize(true);
-		if(status_==1){
+void SquareACSL::create(){
+	compute_H();
+	diagonalize(true);
+	if(status_==1){
+		for(unsigned int c(0);c<N_;c++){
 			for(unsigned int i(0);i<n_;i++){
 				for(unsigned int j(0);j<M_(c);j++){
 					EVec_[c](i,j) = H_(i,j);
 				}
 			}
-			if(c!=N_-1){ status_++;}
 		}
 	}
 }
 
-unsigned int SquareFreeComplex::match_pos_in_ab(Vector<double> const& x) const{
+unsigned int SquareACSL::match_pos_in_ab(Vector<double> const& x) const{
 	Vector<double> match(2,0);
-	if(my::are_equal(x,match)){ return 0; }
-	match(0) = 0.5;
-	match(1) = 0;
-	if(my::are_equal(x,match)){ return 1; }
-	match(0) = 0;
-	match(1) = 0.5;
-	if(my::are_equal(x,match)){ return 2; }
-	match(0) = 0.5;
-	match(1) = 0.5;
-	if(my::are_equal(x,match)){ return 3; }
-	return 4;
+	for(unsigned int i(0);i<spuc_;i++){
+		match(0) = 1.0/spuc_*i;
+		if(my::are_equal(x,match)){ return i; }
+	}
+	return spuc_;
 }
 
-Matrix<double> SquareFreeComplex::set_ab(){
+Matrix<double> SquareACSL::set_ab(unsigned int const& spuc){
 	Matrix<double> tmp(2,2);
-	tmp(0,0) = 2;
+	tmp(0,0) = spuc;
 	tmp(1,0) = 0;
 	tmp(0,1) = 0;
-	tmp(1,1) = 2;
+	tmp(1,1) = 1;
 	return tmp;
 }
 /*}*/
 
 /*{method needed for checking*/
-void SquareFreeComplex::lattice(){
-	compute_H(1);
+void SquareACSL::lattice(){
+	compute_H();
 	Matrix<int> nb;
 	std::string color("black");
 	std::string linestyle("solid");
@@ -134,8 +106,9 @@ void SquareFreeComplex::lattice(){
 			linestyle="dashed";
 		} else { linestyle="solid"; }
 
+		arrow = "-";
 		if(arg(H_(i,nb(0,0)))>0){ arrow = "->"; }
-		else { arrow = "<-"; }
+		if(arg(H_(i,nb(0,0)))<0){ arrow = "<-"; }
 		linewidth = my::tostring(std::abs(H_(i,nb(0,0))))+"pt";
 		/*x-link*/ ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 
@@ -151,8 +124,9 @@ void SquareFreeComplex::lattice(){
 			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
 			linestyle="dashed";
 		} else { linestyle="solid"; }
+		arrow = "-";
 		if(arg(H_(i,nb(1,0)))>0){ arrow = "->"; }
-		else { arrow = "<-"; }
+		if(arg(H_(i,nb(1,0)))<0){ arrow = "<-"; }
 		linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"pt";
 		/*y-link*/ ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 
@@ -189,7 +163,7 @@ void SquareFreeComplex::lattice(){
 	ps.save(true,true,true);
 }
 
-void SquareFreeComplex::check(){
+void SquareACSL::check(){
 	//Matrix<int> nb;
 	//for(unsigned int s(0);s<n_;s++){
 	//nb = get_neighbourg(s);

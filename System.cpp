@@ -30,7 +30,13 @@ System::System(IOFiles& r):
 {}
 /*}*/
 
-void System::set(){ 
+void System::set_observable(unsigned int const& what){
+	E_.set(50,5,false);
+	if(what>0){ corr_.set(links_.row(),50,5,false);}
+	if(what>1){ lr_corr_.set(links_.row(),50,5,false); }
+}
+
+void System::set_binning(){ 
 	E_.set(); 
 	corr_.set(); 
 	lr_corr_.set(); 

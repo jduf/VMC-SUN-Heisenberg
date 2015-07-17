@@ -69,9 +69,6 @@ void KagomeVBC::compute_H(){
 }
 
 void KagomeVBC::create(){
-	E_.set(50,5,false);
-	corr_.set(links_.row(),50,5,false);
-
 	compute_H();
 	diagonalize(false);
 	if(status_==2){

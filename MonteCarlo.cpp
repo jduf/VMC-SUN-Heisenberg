@@ -52,9 +52,8 @@ bool MonteCarlo::keepon(){
 	//}
 	if(std::abs(S_->get_energy().get_x())>1e2){ 
 		std::cerr<<"Simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
-		S_->set();
+		S_->set_binning();
 	}
 	return true;
 }
 /*}*/
-

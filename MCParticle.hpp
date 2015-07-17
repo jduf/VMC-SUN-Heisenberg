@@ -17,7 +17,7 @@ class MCParticle: public Particle{
 		MCParticle& operator=(MCParticle) = delete;
 		/*}*/
 
-		void init_Particle(double fx);
+		void move(Vector<double> const& bx_all);
 		void print() const;
 
 		bool update(std::shared_ptr<MCSim> const& new_elem);
@@ -33,6 +33,7 @@ class MCParticle: public Particle{
 		unsigned int Nupdate_ = 0;
 		Vector<double>* ps_ = NULL;
 
+		/*!sets Particle::bx_ to the correct index of ps_*/
 		void set_bx_via(Vector<double> const& param);
 };
 #endif

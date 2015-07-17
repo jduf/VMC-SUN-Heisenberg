@@ -2,10 +2,6 @@
 
 template<>
 void ChainFermi<double>::create(){
-	E_.set(50,5,false);
-	corr_.set(links_.row(),50,5,false);
-	lr_corr_.set(links_.row(),50,5,false);
-
 	compute_H();
 	diagonalize(true);
 	if(status_==1){
@@ -21,10 +17,6 @@ void ChainFermi<double>::create(){
 
 template<>
 void ChainFermi<std::complex<double> >::create(){
-	E_.set(50,5,false);
-	corr_.set(links_.row(),50,5,false);
-	lr_corr_.set(links_.row(),50,5,false);
-
 	compute_H();
 	diagonalize(false);
 	for(unsigned int c(0);c<N_;c++){

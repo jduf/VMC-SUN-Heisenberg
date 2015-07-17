@@ -7,6 +7,7 @@ VMCMinimization::VMCMinimization(Parseur& P):
 	out_(NULL),
 	m_(std::make_shared<Minimization>(P))
 {
+	set_time();
 	basename_ += "-" + m_->wf_;
 	basename_ += "-N"  + my::tostring(m_->N_);
 	basename_ += "-m"  + my::tostring(m_->m_);
@@ -21,7 +22,7 @@ VMCMinimization::VMCMinimization(VMCMinimization const& vmcm, std::string const&
 	m_(vmcm.m_)
 {}
 
-/*{Public methods*/
+/*{public methods*/
 void VMCMinimization::refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax){
 	if(m_->samples_list_.size()){
 		std::cout<<"#######################"<<std::endl;
@@ -89,33 +90,54 @@ void VMCMinimization::print() const {
 		std::cout<<std::endl;
 	}
 }
+
+void VMCMinimization::plot() const {
+	std::string filename(get_filename());
+	IOFiles data(filename+".dat",true);
+	m_->samples_list_.set_target();
+	while(m_->samples_list_.target_next()){
+		data<<m_->samples_list_.get().get_param()<<" "<<m_->samples_list_.get().get_S()->get_energy()<<IOFiles::endl;
+	}
+	m_->samples_list_.target_next();
+	Gnuplot gp("./",filename);
+	unsigned int N(m_->samples_list_.get().get_param().size());
+	for(unsigned int i(0);i<N;i++){
+		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(N+1)+":"+my::tostring(i+1)+":"+my::tostring(N+2)+" w xe notitle"+(i==N-1?"":",\\");
+	}
+	gp.save_file();
+	gp.create_image(true);
+}
 /*}*/
 
-/*{Protected methods*/
+/*{protected methods*/
 std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 	bool tmp_test;
 #pragma omp critical(samples_list_)
 	{
-		if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
+		if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)){ 
 			tmp_test = true;
 			sim->copy_S(m_->samples_list_.get().get_S()); 
 		} else {
 			tmp_test = false;
 			sim->create_S(&m_->system_param_);
 		}
+		m_->samples_list_.set_target();
 	}
 	if(sim->is_created()){
+		sim->set_observable(0);
 		sim->run(tmp_test?10:1e6,m_->tmax_);
 #pragma omp critical(samples_list_)
 		{
-			if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_fuse)){ 
-				m_->samples_list_.fuse_with_target(sim,MCSim::fuse); 
+			if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)){ 
+				m_->samples_list_.merge_with_target(sim,MCSim::merge); 
 				sim = m_->samples_list_.get_ptr();
 			} else {
 				m_->samples_list_.add_after_target(sim); 
 			}
+			m_->samples_list_.set_target();
 		}
+		sim->free_memory();
 		return sim;
 	} else {
 		std::cerr<<"bool Minimization::evaluate(Vector<double> const& param) : not valid parameter : "<<param<<std::endl;
@@ -135,15 +157,17 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 	unsigned int i(0);
 	IOFiles* in(P.find("load",i,false)?(new IOFiles(P.get<std::string>(i),false)):NULL);
 
-	wf_      =(in?in->read<std::string>() :P.get<std::string>("wf"));
-	N_       =(in?in->read<unsigned int>():P.get<unsigned int>("N"));
-	m_       =(in?in->read<unsigned int>():P.get<unsigned int>("m"));
-	n_       =(in?in->read<unsigned int>():P.get<unsigned int>("n"));
-	bc_      =(in?in->read<int>()         :P.get<int>("bc"));
-	Nfreedom_=(in?in->read<unsigned int>():P.get<unsigned int>("Nfreedom"));
+	wf_      = (in?in->read<std::string>() :P.get<std::string>("wf"));
+	N_       = (in?in->read<unsigned int>():P.get<unsigned int>("N"));
+	m_       = (in?in->read<unsigned int>():P.get<unsigned int>("m"));
+	n_       = (in?in->read<unsigned int>():P.get<unsigned int>("n"));
+	bc_      = (in?in->read<int>()         :P.get<int>("bc"));
+	Nfreedom_= (in?in->read<unsigned int>():P.get<unsigned int>("Nfreedom"));
 	ps_ = new Vector<double>[Nfreedom_];
+	ps_size_ = 1.0;
 	for(unsigned int i(0);i<Nfreedom_;i++){
 		ps_[i] = (in?in->read<Vector<double> >():P.get<std::vector<double> >("ps"+my::tostring(i))); 
+		ps_size_ *= ps_[i].size();
 	}
 	if(in){
 		std::string msg1("loading samples from "+in->get_filename());
@@ -177,6 +201,7 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 }
 
 VMCMinimization::Minimization::~Minimization(){
+	std::cerr<<pso_info_.get()<<std::endl;
 	if(ps_){ delete[] ps_; }
 }
 
@@ -195,7 +220,7 @@ void VMCMinimization::Minimization::save(IOFiles& out) const {
 	out.write("bc",bc_);
 	out.write("Nfreedom",Nfreedom_);
 	for(unsigned int i(0);i<Nfreedom_;i++){ out<<ps_[i]; }
-	out.write("#",samples_list_.size());
+	out.write("# samples",samples_list_.size());
 	out.add_header()->nl();
 	out.add_header()->comment("end_of_saved_variables");
 	out.add_header()->text(pso_info_.get());

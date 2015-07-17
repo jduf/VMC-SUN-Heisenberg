@@ -58,6 +58,7 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 		{ S = new SystemFermionic<Type>
 			(*dynamic_cast<const Fermionic<Type>*>(cs.get_system())); }
 
+		S->set_observable(2);
 		MonteCarlo sim(S,tmax);
 		sim.thermalize(1e6);
 		sim.run();

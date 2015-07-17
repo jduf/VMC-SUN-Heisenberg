@@ -14,11 +14,7 @@ SquareJastrow::SquareJastrow(Vector<unsigned int> const& ref, unsigned int const
 }
 
 /*{method needed for running*/
-void SquareJastrow::create(){
-	status_--;
-	E_.set(50,5,false);
-	corr_.set(links_.row(),50,5,false);
-}
+void SquareJastrow::create(){ status_--; }
 
 void SquareJastrow::compute_nn(){
 	Matrix<int> nb;

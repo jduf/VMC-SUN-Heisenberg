@@ -21,6 +21,7 @@ class VMCMinimization{
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
 		void save_best(unsigned int const& nsave);
+		void plot() const;
 
 		virtual void print() const;
 
@@ -51,7 +52,8 @@ class VMCMinimization{
 				unsigned int n_        = 0;
 				int          bc_       = 0;
 				unsigned int Nfreedom_ = 0;
-				Vector<double>* ps_    = NULL; //<! parameter space
+				double       ps_size_  = 0;   //!< parameter space size
+				Vector<double>* ps_    = NULL;//!< parameter space
 				List<MCSim> samples_list_;
 		};
 
@@ -60,7 +62,7 @@ class VMCMinimization{
 		std::shared_ptr<Minimization> m_;
 
 		void set_time(){ time_ = Time().date(); }
-		std::string get_filename() const { return basename_+"_"+time_; }
+		std::string get_filename() const { return time_+"_"+basename_; }
 
 		/*!Real call to GenericSystem+MonteCarlo*/
 		std::shared_ptr<MCSim> evaluate(Vector<double> const& param);
