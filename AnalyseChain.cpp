@@ -92,7 +92,6 @@ std::string AnalyseChain::extract_level_5(){
 	unsigned int n;
 	int bc;
 
-	jd_write_->add_header()->nl();
 	switch(nof_){
 		case 1:
 			{ 
@@ -101,29 +100,40 @@ std::string AnalyseChain::extract_level_5(){
 				Data<double> E;
 				Vector<double> ti;
 				(*read_)>>ref>>N>>m>>n>>M>>bc;
-				if(ref(2) == 1){ (*read_)>>ti; }
-				else{ ti.set(N/m,1); }
+				switch(ref(2)){
+					case 0:
+						{ ti.set(N/m,1); }break;
+					case 1:
+						{ (*read_)>>ti; }break;
+					default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
+				}
 				(*read_)>>E>>polymerization_strength>>exponents;
-				if(ref(2)==1){
-					ChainPolymerized chain(ref,N,m,n,M,bc,ti);
-					chain.set_IOSystem(this);
-					chain.save();
-				} else {
-					switch(ref(1)){
-						case 1:
-							{
-								ChainFermi<double> chain(ref,N,m,n,M,bc);
-								chain.set_IOSystem(this);
-								chain.save();
-							}break;
-						case 2:
-							{
-								ChainFermi<std::complex<double> > chain(ref,N,m,n,M,bc);
-								chain.set_IOSystem(this);
-								chain.save();
-							}break;
-						default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
-					}
+				switch(ref(2)){
+					case 0:
+						{
+							switch(ref(1)){
+								case 1:
+									{
+										ChainFermi<double> chain(ref,N,m,n,M,bc);
+										chain.set_IOSystem(this);
+										chain.save();
+									}break;
+								case 2:
+									{
+										ChainFermi<std::complex<double> > chain(ref,N,m,n,M,bc);
+										chain.set_IOSystem(this);
+										chain.save();
+									}break;
+								default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
+							}
+						}break;
+					case 1:
+						{
+							ChainPolymerized chain(ref,N,m,n,M,bc,ti);
+							chain.set_IOSystem(this);
+							chain.save();
+						}break;
+					default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
 				}
 				if(outfile_){
 					(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<ti<<" ";

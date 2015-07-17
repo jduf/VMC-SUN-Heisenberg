@@ -1,8 +1,8 @@
 #include "VMCInterpolation.hpp"
 
 VMCInterpolation::VMCInterpolation(VMCMinimization const& m):
-	VMCMinimization(m,"I"),
-	interp_(m_->Nfreedom_,pow(m_->ps_size_/m_->samples_list_.size(),1./m_->Nfreedom_))
+	VMCMinimization(m,"INT"),
+	interp_(m_->Nfreedom_)
 {
 	interp_.select_basis_function(7);
 	std::cerr<<"VMCInterpolation::VMCInterpolation(VMCMinimization const& m): no 'dx' set for Interpolation"<<std::endl;
@@ -11,7 +11,7 @@ VMCInterpolation::VMCInterpolation(VMCMinimization const& m):
 /*{public methods*/
 void VMCInterpolation::init(){
 	set_time();
-	interp_.set();
+	interp_.set_data();
 	list_min_idx_.clear();
 
 	std::cout<<"#######################"<<std::endl;
@@ -37,7 +37,7 @@ void VMCInterpolation::run(unsigned int const& explore_around_minima){
 	unsigned int lmis(list_min_idx_.size());
 	if(lmis){
 		unsigned int nsim(pow(2*explore_around_minima+1,m_->Nfreedom_));
-		std::string msg1("measuring "+my::tostring(nsim)+" samples per minima (time estimated "+my::tostring(lmis*m_->tmax_*nsim/omp_get_max_threads())+"s");
+		std::string msg1("measuring "+my::tostring(nsim)+" samples per minima (time estimated "+my::tostring(lmis*m_->effective_time_*nsim/omp_get_max_threads())+"s");
 		std::cout<<"#"<<msg1<<std::flush;
 		Time chrono;
 
@@ -131,106 +131,107 @@ void VMCInterpolation::print(){
 
 /*{private methods*/
 void VMCInterpolation::search_minima(){
-	list_min_idx_.clear();
-	interp_.set(m_->samples_list_.size());
-	unsigned int i(0);
+	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
-		interp_.add_data(i++,m_->samples_list_.get().get_param(),m_->samples_list_.get().get_S()->get_energy().get_x());
+		interp_.add_data(m_->samples_list_.get().get_param(),m_->samples_list_.get().get_S()->get_energy().get_x());
 	}
 	Time chrono;
 	std::string msg1("computing the weights");
 	std::cout<<"#"<<msg1<<std::flush;
-
-	interp_.compute_weights();
-
-	std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
-	std::cout<<msg2<<std::endl;
-	m_->pso_info_.item(msg1+msg2);
-	chrono.set();
-	msg1="search for minima";
-	if(m_->ps_size_ < 1e5){
-		msg1="exhaustive "+msg1;
-		std::cout<<"#"<<msg1<<std::flush;
+	if(interp_.compute_weights(0.05,pow(m_->ps_size_,1./m_->Nfreedom_))){
+		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
+		std::cout<<msg2<<std::endl;
+		m_->pso_info_.item(msg1+msg2);
+		chrono.set();
+		msg1="search for minima";
+		if(m_->ps_size_ < 1e5){
+			msg1="exhaustive "+msg1;
+			std::cout<<"#"<<msg1<<std::flush;
 #pragma omp parallel
-		{
-			unsigned int min0(omp_get_thread_num()*m_->ps_[0].size()/omp_get_num_threads());
-			unsigned int max0((omp_get_thread_num()+1)*m_->ps_[0].size()/omp_get_num_threads());
-			Vector<unsigned int> idx(m_->Nfreedom_,0);
-			idx(0) = min0;
-			while(go_through_parameter_space(m_->ps_,idx,min0,max0,&VMCInterpolation::select_if_min));
-		}
-	} else {
-		msg1="random "+msg1;
-		std::cout<<"#"<<msg1<<std::flush;
-		RandArray<unsigned int>* rnd(new RandArray<unsigned int>[m_->Nfreedom_]);
-		unsigned int max_threads(omp_get_max_threads());
-		for(unsigned int i(0);i<m_->Nfreedom_;i++){
-			rnd[i].set(max_threads);
-			for(unsigned int j(0);j<max_threads;j++){
-				rnd[i].set(j,0,m_->ps_[i].size()-1);
+			{
+				unsigned int min0(omp_get_thread_num()*m_->ps_[0].size()/omp_get_num_threads());
+				unsigned int max0((omp_get_thread_num()+1)*m_->ps_[0].size()/omp_get_num_threads());
+				Vector<unsigned int> idx(m_->Nfreedom_,0);
+				idx(0) = min0;
+				while(go_through_parameter_space(m_->ps_,idx,min0,max0,&VMCInterpolation::select_if_min));
 			}
-		}
-#pragma omp parallel for
-		for(unsigned int i=0;i<100;i++){
-			Vector<double> param(m_->Nfreedom_);
-			Vector<unsigned int> pidx(m_->Nfreedom_);
-			unsigned int thread(omp_get_thread_num());
-			for(unsigned int j(0);j<m_->Nfreedom_;j++){
-				pidx(j) = rnd[j].get(thread);
-				param(j) = m_->ps_[j](pidx(j));
-			}
-
-			double tmp(interp_.extrapolate(param));
-			double min(tmp);
-			unsigned int dir;
-			unsigned int const max_step(1e3);
-			for(unsigned int j(0);j<max_step;j++){
-				dir = 2*m_->Nfreedom_;
-				for(unsigned int k(0);k<m_->Nfreedom_;k++){
-					if(pidx(k)+1<m_->ps_[k].size()){
-						param(k) = m_->ps_[k](pidx(k)+1);
-						tmp = interp_.extrapolate(param);
-						if(!isnan(tmp) && tmp<min){
-							min = tmp;
-							dir = 2*k;
-						}
-					}
-					if(pidx(k)>0){
-						param(k) = m_->ps_[k](pidx(k)-1);
-						tmp = interp_.extrapolate(param);
-						if(!isnan(tmp) && tmp<min){
-							min = tmp;
-							dir = 2*k+1;
-						}
-					}
-					param(k) = m_->ps_[k](pidx(k));
+		} else {
+			msg1="random "+msg1;
+			std::cout<<"#"<<msg1<<std::flush;
+			RandArray<unsigned int>* rnd(new RandArray<unsigned int>[m_->Nfreedom_]);
+			unsigned int max_threads(omp_get_max_threads());
+			for(unsigned int i(0);i<m_->Nfreedom_;i++){
+				rnd[i].set(max_threads);
+				for(unsigned int j(0);j<max_threads;j++){
+					rnd[i].set(j,0,m_->ps_[i].size()-1);
 				}
-				if(dir != 2*m_->Nfreedom_){
-					pidx(dir/2) += (dir%2?-1:1);
-					param(dir/2) = m_->ps_[dir/2](pidx(dir/2));
-				} else {
-					j=max_step; 
-#pragma omp critical
-					{
-						bool add_to_list_min(true);
-						for(unsigned int k(0);k<list_min_idx_.size();k++){
-							if(my::are_equal(pidx,list_min_idx_[k])){
-								add_to_list_min = false;
-								k = list_min_idx_.size();
+			}
+#pragma omp parallel for
+			for(unsigned int i=0;i<100;i++){
+				Vector<double> param(m_->Nfreedom_);
+				Vector<unsigned int> pidx(m_->Nfreedom_);
+				unsigned int thread(omp_get_thread_num());
+				for(unsigned int j(0);j<m_->Nfreedom_;j++){
+					pidx(j) = rnd[j].get(thread);
+					param(j) = m_->ps_[j](pidx(j));
+				}
+
+				double tmp(interp_.extrapolate(param));
+				double min(tmp);
+				unsigned int dir;
+				unsigned int const max_step(1e3);
+				for(unsigned int j(0);j<max_step;j++){
+					dir = 2*m_->Nfreedom_;
+					for(unsigned int k(0);k<m_->Nfreedom_;k++){
+						if(pidx(k)+1<m_->ps_[k].size()){
+							param(k) = m_->ps_[k](pidx(k)+1);
+							tmp = interp_.extrapolate(param);
+							if(!isnan(tmp) && tmp<min){
+								min = tmp;
+								dir = 2*k;
 							}
 						}
-						if(add_to_list_min){ list_min_idx_.push_back(pidx); }
+						if(pidx(k)>0){
+							param(k) = m_->ps_[k](pidx(k)-1);
+							tmp = interp_.extrapolate(param);
+							if(!isnan(tmp) && tmp<min){
+								min = tmp;
+								dir = 2*k+1;
+							}
+						}
+						param(k) = m_->ps_[k](pidx(k));
+					}
+					if(dir != 2*m_->Nfreedom_){
+						pidx(dir/2) += (dir%2?-1:1);
+						param(dir/2) = m_->ps_[dir/2](pidx(dir/2));
+					} else {
+						j=max_step; 
+#pragma omp critical
+						{
+							bool add_to_list_min(true);
+							for(unsigned int k(0);k<list_min_idx_.size();k++){
+								if(my::are_equal(pidx,list_min_idx_[k])){
+									add_to_list_min = false;
+									k = list_min_idx_.size();
+								}
+							}
+							if(add_to_list_min){ list_min_idx_.push_back(pidx); }
+						}
 					}
 				}
 			}
+			delete[] rnd;
+			rnd = NULL;
 		}
-		delete[] rnd;
-		rnd = NULL;
-	}
 
-	msg2=" (found "+my::tostring(list_min_idx_.size())+" minimas in "+my::tostring(chrono.elapsed())+"s)";
-	std::cout<<msg2<<std::endl;
-	m_->pso_info_.item(msg1+msg2);
+		msg2=" (found "+my::tostring(list_min_idx_.size())+" minimas in "+my::tostring(chrono.elapsed())+"s)";
+		std::cout<<msg2<<std::endl;
+		m_->pso_info_.item(msg1+msg2);
+	} else {
+		std::string msg2(" FAIL ");
+		std::cout<<msg2<<std::endl;
+		m_->pso_info_.item(msg1+msg2);
+	}
 }
 
 bool VMCInterpolation::go_through_parameter_space(Vector<double>* x, Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, void (VMCInterpolation::*f)(Vector<double>*, Vector<unsigned int> const&)){

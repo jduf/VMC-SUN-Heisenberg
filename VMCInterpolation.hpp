@@ -26,7 +26,7 @@ class VMCInterpolation : public VMCMinimization{
 		Interpolation interp_;
 		std::vector<Vector<unsigned int> > list_min_idx_;
 
-		/*!Uses a PInterpolation to find all minima*/
+		/*!Uses interpolation to find some/all minima*/
 		void search_minima();
 		/*!Iterative method that goes through all parameter space*/
 		bool go_through_parameter_space(Vector<double>* x, Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, void (VMCInterpolation::*f)(Vector<double>*, Vector<unsigned int> const&));

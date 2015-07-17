@@ -5,7 +5,6 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 
-	
 	VMCMinimization m(P);
 	VMCPSO s(P,m);
 	std::cout<<"new independant run"<<std::endl;

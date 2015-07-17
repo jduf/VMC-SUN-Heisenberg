@@ -60,7 +60,7 @@ void VMCMinimization::complete_analysis(double const& convergence_criterion){
 	std::cout<<"#######################"<<std::endl;
 	std::cout<<"#complete_analysis called with convergence_criterion="<<convergence_criterion<<std::endl;
 	m_->samples_list_.set_target();
-	while ( m_->samples_list_.target_next() ){
+	while(m_->samples_list_.target_next()){
 		m_->samples_list_.get().complete_analysis(convergence_criterion);
 	}
 }
@@ -92,7 +92,7 @@ void VMCMinimization::print() const {
 }
 
 void VMCMinimization::plot() const {
-	std::string filename("PS"+get_filename());
+	std::string filename(get_filename());
 	IOFiles data(filename+".dat",true);
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
@@ -105,7 +105,6 @@ void VMCMinimization::plot() const {
 		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(N+1)+":"+my::tostring(i+1)+":"+my::tostring(N+2)+" w xe notitle"+(i==N-1?"":",\\");
 	}
 	gp.save_file();
-	gp.create_image(true);
 }
 /*}*/
 
@@ -164,7 +163,7 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 	bc_      = (in?in->read<int>()         :P.get<int>("bc"));
 	Nfreedom_= (in?in->read<unsigned int>():P.get<unsigned int>("Nfreedom"));
 	ps_ = new Vector<double>[Nfreedom_];
-	ps_size_ = 1;
+	ps_size_ = 1.0;
 	for(unsigned int i(0);i<Nfreedom_;i++){
 		ps_[i] = (in?in->read<Vector<double> >():P.get<std::vector<double> >("ps"+my::tostring(i))); 
 		ps_size_ *= ps_[i].size();
@@ -201,7 +200,7 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 }
 
 VMCMinimization::Minimization::~Minimization(){
-	std::cerr<<pso_info_.get()<<std::endl;
+	//std::cerr<<pso_info_.get()<<std::endl;
 	if(ps_){ delete[] ps_; }
 }
 

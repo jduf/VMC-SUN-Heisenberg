@@ -1,14 +1,12 @@
 #include "MCParticle.hpp"
 
-void MCParticle::init_Particle(double fx){
-	Particle::init_Particle(fx);
-	unsigned int s(history_.size());
-	if(s){
-		Rand<unsigned int> rnd(1,s);
-		s = rnd.get();
-		history_.set_target();
-		while(history_.target_next() && --s);
-		x_ = history_.get().get_param();
+void MCParticle::move(Vector<double> const& bx_all){
+	Particle::move(bx_all);
+	/*!move to different parameter set can be achieved if v>1, therefore if the
+	 * particle is static, it could be relaunched*/
+	if(v_.norm_squared()<0.25){ 
+		std::cerr<<"void MCParticle::move(Vector<double> const& bx_all) : init_Particle(100)"<<std::endl;
+		init_Particle(100); 
 	}
 }
 
@@ -83,6 +81,8 @@ void MCParticle::set_bx_via(Vector<double> const& param){
 Vector<double> MCParticle::get_param() const {
 	Vector<double> param(Nfreedom_);
 	for(unsigned int i(0);i<Nfreedom_;i++){
+		if(x_(i)<=min_(i) || x_(i)>=max_(i))
+			std::cerr<<"bug"<<x_<<" | "<<v_<<std::endl;
 		param(i) = ps_[i](floor(x_(i)));
 	}
 	return param;

@@ -19,11 +19,10 @@ int main(int argc, char* argv[]){
 				m1.save();
 
 				m2.init();
-				m2.run(0);
-				m2.plot();
-				m2.complete_analysis(1e-5);
+				m2.run(1);
 				m2.save();
 			}
+			m.complete_analysis(1e-5);
 		} else { std::cerr<<"min : some argument are not corretly set"<<std::endl; }
 	} else {
 		if(P.find("load",i,true)){
