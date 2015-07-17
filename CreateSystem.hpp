@@ -78,6 +78,12 @@ class CreateSystem{
 		}
 		/*!Calls GenericSystem::create() pure virtual method*/
 		void create(bool try_solve_degeneracy=false);
+		/*!Calls GenericSystem::compute_J(Vector<double> const& J) pure virtual method*/
+		Vector<double> compute_J(Vector<double> const& J) const {
+			if(RGL_){ return RGL_->compute_J(J); }
+			if(CGL_){ return RGL_->compute_J(J); }
+			return Vector<double>();
+		}
 		/*}*/
 
 		/*{Other class calls*/

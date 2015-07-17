@@ -26,7 +26,7 @@ MCSim::MCSim(IOFiles& r):
 }
 /*}*/
 
-void MCSim::create_S(Container* C){
+void MCSim::create_S(Container* C, Vector<double> const& J, bool need_compute_J){
 	CreateSystem cs(C,&param_);
 	cs.init();
 	if(cs.get_status()==2){
@@ -46,6 +46,7 @@ void MCSim::create_S(Container* C){
 				}
 			}
 			ref_ = cs.get_ref();
+			S_->set_J(need_compute_J?cs.compute_J(J):J);
 		}
 	}
 	if(!is_created()){

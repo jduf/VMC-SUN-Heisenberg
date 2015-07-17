@@ -24,6 +24,8 @@ class Ladder: public System1D<Type>{
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Ladder()=0;
 
+		Vector<double> compute_J(Vector<double> const& J) const;
+
 	protected:
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
@@ -40,16 +42,25 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 		l(0) = 2;
 		l(1) = 1;
 		this->compute_links(l);
-		this->J_.set(this->links_.row());
-		for (unsigned int i=0; i<this->links_.row() ; i++){
-			if (i%3==1){ this->J_(i) = 1; } //rungs (J⊥)
-			else{ this->J_(i) = 0.1; } //(J‖)
-		}
 	}
 }
 
 template<typename Type>
 Ladder<Type>::~Ladder() = default;
+
+template<typename Type>
+Vector<double> Ladder<Type>::compute_J(Vector<double> const& J) const {
+	Vector<double> tmp(this->links_.row());
+	if(J.size() == 2){
+		for (unsigned int i=0; i<this->links_.row() ; i++){
+			if (i%3==1){ tmp(i) = J(0); } //rungs (J⊥)
+			else{ tmp(i) = J(1); } //(J‖)
+		}
+	} else {
+		std::cerr<<"Vector<double> const& create_J(Vector<double> const& J) : need J.size() == 2"<<std::endl;
+	}
+	return tmp;
+}
 
 template<typename Type>
 Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {

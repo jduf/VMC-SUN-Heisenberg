@@ -6,8 +6,8 @@
 class ChainPolymerizedJJp: public Chain<double> {
 	public:
 		ChainPolymerizedJJp(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<double> const& t, Vector<double> const& JJp);
-		~ChainPolymerizedJJp(){}
-		
+		~ChainPolymerizedJJp() = default;
+
 		void create();
 		void save() const;
 		void check();

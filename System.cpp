@@ -42,14 +42,6 @@ void System::set_binning(){
 	lr_corr_.set(); 
 }
 
-void System::set_J(Vector<double> const& J) { 
-	if(J_.size()%J.size()){ std::cerr<<"bla"<<std::endl; }
-	else {
-		for(unsigned int i(0);i<J_.size();i++){ J_(i) = J(i%J.size()); }
-	}
-	std::cout<<J_<<std::endl;
-}
-
 void System::delete_binning(){ 
 	E_.delete_binning();
 	corr_.delete_binning();

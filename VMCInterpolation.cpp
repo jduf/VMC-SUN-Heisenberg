@@ -11,6 +11,7 @@ VMCInterpolation::VMCInterpolation(VMCMinimization const& m):
 /*{public methods*/
 void VMCInterpolation::init(){
 	set_time();
+	interp_.set_data();
 	list_min_idx_.clear();
 
 	std::cout<<"#######################"<<std::endl;
@@ -36,7 +37,7 @@ void VMCInterpolation::run(unsigned int const& explore_around_minima){
 	unsigned int lmis(list_min_idx_.size());
 	if(lmis){
 		unsigned int nsim(pow(2*explore_around_minima+1,m_->Nfreedom_));
-		std::string msg1("measuring "+my::tostring(nsim)+" samples per minima (time estimated "+my::tostring(lmis*m_->tmax_*nsim/omp_get_max_threads())+"s");
+		std::string msg1("measuring "+my::tostring(nsim)+" samples per minima (time estimated "+my::tostring(lmis*m_->effective_time_*nsim/omp_get_max_threads())+"s");
 		std::cout<<"#"<<msg1<<std::flush;
 		Time chrono;
 
@@ -130,6 +131,7 @@ void VMCInterpolation::print(){
 
 /*{private methods*/
 void VMCInterpolation::search_minima(){
+	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
 		interp_.add_data(m_->samples_list_.get().get_param(),m_->samples_list_.get().get_S()->get_energy().get_x());
 	}

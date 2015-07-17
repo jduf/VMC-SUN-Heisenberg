@@ -16,6 +16,8 @@ class Triangle: public System2D<Type>{
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Triangle()=0;
 
+		Vector<double> compute_J(Vector<double> const& J) const;
+
 	protected:
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
@@ -75,6 +77,15 @@ Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std
 
 template<typename Type>
 Triangle<Type>::~Triangle() = default;
+/*}*/
+
+/*{public methods*/
+template<typename Type>
+Vector<double> Triangle<Type>::compute_J(Vector<double> const& J) const {
+	Vector<double> tmp(this->links_.row(),1);
+	std::cerr<<"Vector<double> Triangle<Type>::create_J(Vector<double> const& J) : need to be defined "<<J<<std::endl;
+	return tmp;
+}
 /*}*/
 
 /*{protected methods*/

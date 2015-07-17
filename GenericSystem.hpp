@@ -35,6 +35,8 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void save() const;
 		virtual void create() = 0;
 		virtual void check() = 0;
+		/*!Creates J*/
+		virtual Vector<double> compute_J(Vector<double> const& J) const = 0;
 
 	protected:
 		unsigned int const spuc_;//!< site per unit cell
@@ -105,7 +107,6 @@ void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
 			}
 		}
 		this->links_.set(k,2);
-		this->J_.set(k,1.0);
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
 			nb = get_neighbourg(i);

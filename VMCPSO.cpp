@@ -46,7 +46,11 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 		MCP = std::dynamic_pointer_cast<MCParticle>(particle_[i]);
 		MCP->set_ps(m_->ps_);
 	}
+	
+	Time chrono;
 	init_PSO(100); 
+	m_->effective_time_ = chrono.elapsed()*omp_get_max_threads()/Nparticles_;
+
 	if(clear_particle_history && create_particle_history && m_->samples_list_.size()){
 		msg="create particle history";
 		std::cout<<"#"<<msg;
@@ -78,7 +82,7 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 
 void VMCPSO::run(){
 	std::string msg1("explore with "+my::tostring(Nparticles_)+" particles for "+my::tostring(maxiter_)+" steps");
-	msg1 += " estimated time "+my::tostring(Nparticles_*(maxiter_+1)*m_->tmax_/omp_get_max_threads())+"s";
+	msg1 += " estimated time "+my::tostring(1.5*Nparticles_*maxiter_*m_->effective_time_/omp_get_max_threads())+"s";
 	std::cout<<"#"<<msg1<<std::flush;
 	Time chrono;
 

@@ -20,7 +20,7 @@ class MCSim {
 		/*}*/
 
 		/*!Sets S_ to a new MCSystem created via C*/
-		void create_S(Container* C);
+		void create_S(Container* C, Vector<double> const& J, bool need_compute_J);
 		/*!Sets S_ to a copy obtained via MCSystem::clone() run on S*/
 		void copy_S(std::unique_ptr<MCSystem> const& S);
 
