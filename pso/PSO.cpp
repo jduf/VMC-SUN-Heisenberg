@@ -51,8 +51,8 @@ void Particle::move(Vector<double> const& bx_all){
 		if( x_(i)+v_(i) > max_(i)){ v_(i) = log(1.0+rnd_.get()*(exp(max_(i)-x_(i))-1.0)); }
 		if( x_(i)+v_(i) < min_(i)){ v_(i) =-log(1.0+rnd_.get()*(exp(x_(i)-min_(i))-1.0)); }
 		x_(i) += v_(i); 
-		assert( x_(i) < max_(i));
-		assert( x_(i) > min_(i));
+		assert( x_(i) <= max_(i));
+		assert( x_(i) >= min_(i));
 	}
 }
 

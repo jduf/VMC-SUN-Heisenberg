@@ -2,7 +2,11 @@
 
 FuncPSO::FuncPSO(unsigned int Nparticles, unsigned int maxiter, unsigned int Nfreedom, double cg, double cp):
 	Swarm<ParticleOnGrid>(Nparticles,maxiter,Nfreedom,cg,cp)
-{}
+{
+	for(unsigned int i(0);i<Nfreedom;i++){
+		Particle::set_limit(i,0,2);
+	}
+}
 
 double FuncPSO::f(Vector<double> const& x){
 	return (1-x(0)*x(0))*(1-x(0)*x(0))+(3-x(1)*x(1))*(3-x(1)*x(1));

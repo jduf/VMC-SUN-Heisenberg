@@ -15,16 +15,15 @@ int main(){
 }
 
 void test_given_function(){
-	unsigned int N(5000);
-	unsigned int Ngrid(100);
-	double min(-2.0);
-	double max(2.0);
-	double dx((max-min)/Ngrid);
+	unsigned int N(100);
+	unsigned int Nx(100);
+	double min(-1.0);
+	double max(1.0);
+	double dx((max-min)/Nx);
 
 	Interpolation s(2);
-	s.set(N,dx*Ngrid/sqrt(N));
 	s.select_basis_function(7);
-	Rand<unsigned int> rnd(0,Ngrid);
+	Rand<unsigned int> rnd(0,Nx);
 
 	auto f = [](Vector<double> const& x){
 		return x(0)*x(1)+cos(x(1))*exp(x(0)*x(0));
@@ -36,15 +35,15 @@ void test_given_function(){
 		c_tmp(0) = min+dx*rnd.get();
 		c_tmp(1) = min+dx*rnd.get();
 		y_tmp = f(c_tmp);
-		s.add_data(i,c_tmp,y_tmp);
+		s.add_data(c_tmp,y_tmp);
 		data<<c_tmp<<" "<<y_tmp<<IOFiles::endl;
 	}
-	s.compute_weights();
+	s.compute_weights(dx,Nx);
 
 	IOFiles out("spline.dat",true);
-	for(unsigned int i(0);i<Ngrid;i++){
+	for(unsigned int i(0);i<Nx;i++){
 		c_tmp(0) = min+i*dx;
-		for(unsigned int j(0);j<Ngrid;j++){
+		for(unsigned int j(0);j<Nx;j++){
 			c_tmp(1) = min+j*dx;
 			out<<c_tmp<<" "<<s.extrapolate(c_tmp)<<IOFiles::endl;
 		}
@@ -58,7 +57,7 @@ void test_given_function(){
 	plot+="      'spline.dat' u 1:2:3 notitle,\\";
 	plot+="      f(x,y)";
 	plot.save_file();
-	plot.create_image(true);
+	//plot.create_image(true);
 }
 
 void test_211(){
@@ -66,7 +65,6 @@ void test_211(){
 	Matrix<double> data(1055,8);//max = 1055
 	in>>data;
 	Interpolation s(2);
-	s.set(1055,0.1);
 	s.select_basis_function(7);
 	Vector<double> tmp(2);
 	for(unsigned int i(0);i<data.row();i++){
@@ -102,7 +100,6 @@ void test_212(){
 	Matrix<double> data(857,8);//max = 857
 	in>>data;
 	Interpolation s(2);
-	s.set(857,0.1);
 	s.select_basis_function(7);
 	Vector<double> tmp(2);
 	for(unsigned int i(0);i<data.row();i++){

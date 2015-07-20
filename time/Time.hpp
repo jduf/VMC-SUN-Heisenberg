@@ -2,6 +2,7 @@
 #define DEF_TIME
 
 #include <ctime> 
+#include <chrono> 
 #include <string> 
 
 class Time{
@@ -18,8 +19,9 @@ class Time{
 
 		/*!Set to present time*/
 		void set(){
-			rawtime_ = lastcall_ = time(0);
-			time_ = localtime(&rawtime_);
+			t0_ = std::chrono::steady_clock::now();
+			tt_ = std::chrono::system_clock::to_time_t ( std::chrono::system_clock::now() );
+			time_ = localtime(&tt_);
 		}
 
 		/*!Returns the current day*/
@@ -35,32 +37,24 @@ class Time{
 		/*!Returns the current sec*/
 		int sec() const { return time_->tm_sec;}
 		/*!Returns the date*/
-		std::string date(){ 
+		std::string date(std::string s){ 
 			char tmp[20];
 			//std::strftime(tmp,20,"%G-%m-%d_%H:%M:%S",localtime(&rawtime_));
-			std::strftime(tmp,20,"%F_%T",localtime(&rawtime_));
+			std::string format("%F_%H"+s+"%M"+s+"%S");
+			std::strftime(tmp,20,format.c_str(),localtime(&tt_));
 			return tmp;
 		}
 
 		/*!Returns true if time limit (in second) has been reached*/
 		bool limit_reached(time_t const& limit) const 
-		{ return time(0)>limit+rawtime_; }
-		/*!Returns true if time limit (in second) has been reached*/
-		bool progress(time_t const& every_s_seconds) {
-			if(time(0) > (every_s_seconds+lastcall_)){
-				lastcall_ = time(0); 
-				return true;
-			} else {
-				return false;
-			}
-		}
+		{ return time(0)>limit+tt_; }
 
 		/*!Returns the elapsed from the instantiation or last call of set*/
-		time_t elapsed() const { return time(0)-rawtime_; }
+		double elapsed() const { return (std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::steady_clock::now() - t0_)).count(); }
 
 	private:
-		time_t rawtime_; //!< return value of time(0)
-		time_t lastcall_;//!< last call to Time::progress(...)  
+		std::chrono::steady_clock::time_point t0_;
+		time_t tt_;      //!< return value of time(0)
 		struct tm* time_;//!< return value of localtime(time(0))
 };
 #endif

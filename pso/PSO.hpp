@@ -129,7 +129,7 @@ void Swarm<Type>::minimize(){
 				if(particle_[local_p]->is_free()){ particle_[local_p]->toggle_free(); }
 				else { local_p = Nparticles_; }
 			}
-			if(local_p<Nparticles_){ 
+			if(local_p<Nparticles_){
 				next_step(local_p); 
 				particle_[local_p]->toggle_free();
 			} else { i--; }

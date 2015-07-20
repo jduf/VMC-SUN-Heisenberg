@@ -38,6 +38,10 @@ void ParticleOnGrid::move(Vector<double> const& bx_all){
 			case 3:{ x_(j) = max_(j); }break;
 		}
 	}
+	if(v_.norm_squared()<dx*dx){
+		init_Particle(100);
+		std::cerr<<"restart "<<this<<std::endl;
+	}
 }
 
 void ParticleOnGrid::update(double fx){

@@ -1,28 +1,98 @@
 #include "Interpolation.hpp"
 
 Interpolation::Interpolation(unsigned int const& dim):
+	basis_(0),
 	dim_(dim),
 	N_(0),
 	support_(0),
 	phi_(NULL)
-{
-	std::cerr<<"eps "<<support_<<std::endl;
+{}
+
+void Interpolation::set_data(){
+	c_.clear();
+	y_.clear();
+	N_ = 0;
+}
+
+bool Interpolation::compute_weights(double const& dx, unsigned int const& n){
+	if(basis_>6){
+		Matrix<double> m(N_+dim_+1,N_+dim_+1);
+		Vector<int> ipiv;
+		unsigned int k;
+		double filling;
+		double rcn;
+
+		support_ = dx*n*pow(50*tgamma(dim_/2.+1)/pow(M_PI,dim_/2.)/N_,1./dim_);
+		do{
+			filling = 1;
+			double r;
+#pragma omp parallel for private(k,r)
+			for(unsigned int i=0;i<N_;i++){
+				for(unsigned int j(i);j<N_;j++){
+					r = sqrt((c_[i]-c_[j]).norm_squared())/support_;
+					if(r>=1){ m(i,j) = 0; }
+					else {
+						filling+=1;
+						m(i,j) = (this->*phi_)(r);
+					}
+				}
+				k=0;
+				for(unsigned int j(N_);j<N_+dim_;j++){ m(i,j) = c_[i](k++); }
+				m(i,N_+dim_) = 1.0;
+			}
+			for(unsigned int i(N_);i<N_+dim_+1;i++){
+				for(unsigned int j(i);j<N_+dim_+1;j++){
+					m(i,j) = 0.0;
+				}
+			}
+
+			filling *=2.0/(N_*(N_+1));
+			std::cout<<std::endl<<"filling "<<filling<<" "<<filling*N_<<std::endl;
+
+			Lapack<double> inv_m(m,false,'S');
+			ipiv = inv_m.is_singular(rcn);
+			if(ipiv.ptr()){
+				std::cout<<std::endl<<"YES ! "<<filling<<" "<<filling*N_<<std::endl;
+				
+
+				inv_m.inv(ipiv);
+				weights_.set(N_+dim_+1,0);
+#pragma omp parallel for
+				for(unsigned int i=0;i<N_+dim_+1;i++){
+					for(unsigned int j(0);j<N_;j++){
+						weights_(i) += m(i,j)*y_[j];
+					}
+				}
+
+				for(unsigned int i(0);i<5;i++){
+					std::cout<<y_[i]-extrapolate(c_[i])<<std::endl;
+				}
+				return true;
+			} else {
+				std::cout<<rcn<<"<-rcn FAIL support->"<<support_<<std::endl;
+				support_ *= 0.7;
+			}
+		} while(!ipiv.ptr() && filling*N_>30);
+		std::cout<<"void Interpolation::compute_weights() : can't invert, support : "<<support_<<" (rcn="<<rcn<<")"<<std::endl;
+	} else {
+		std::cout<<"void Interpolation::compute_weights() : not a CSBRF"<<std::endl;
+	}
+	return false;
 }
 
 void Interpolation::compute_weights(){
 	Vector<int> ipiv;
 	Matrix<double> m(N_+dim_+1,N_+dim_+1);
 	double rcn;
-	unsigned int k;
+	unsigned int k(0);
+	support_ = 1.0;
+#pragma omp parallel for private(k)
 	for(unsigned int i=0;i<N_;i++){
-		for(unsigned int j(i);j<N_;j++){
-			m(i,j) = (this->*phi_)(sqrt((c_[i]-c_[j]).norm_squared())/support_);
+		for(unsigned int j(i+1);j<N_;j++){
+			m(i,j) = (this->*phi_)(sqrt((c_[i]-c_[j]).norm_squared()));
 		}
 		k=0;
-		for(unsigned int j(N_);j<N_+dim_;j++){
-			m(i,j) = c_[i](k);
-			k++;
-		}
+		for(unsigned int j(N_);j<N_+dim_;j++){ m(i,j) = c_[i](k++); }
 		m(i,N_+dim_) = 1.0;
 	}
 	for(unsigned int i(N_);i<N_+dim_+1;i++){
@@ -35,7 +105,8 @@ void Interpolation::compute_weights(){
 	if(ipiv.ptr()){ 
 		inv_m.inv(ipiv);
 		weights_.set(N_+dim_+1,0);
-		for(unsigned int i(0);i<N_+dim_+1;i++){
+#pragma omp parallel for
+		for(unsigned int i=0;i<N_+dim_+1;i++){
 			for(unsigned int j(0);j<N_;j++){
 				weights_(i) += m(i,j)*y_[j];
 			}
@@ -73,42 +144,9 @@ void Interpolation::add_data(Vector<double> const& c, double const& y){
 	}
 }
 
-void Interpolation::check_matrix_filling(){
-	Rand<unsigned int> rnd(0,N_-1);
-	unsigned int idx;
-	unsigned int l;
-	for(unsigned int i(0);i<10;i++){
-		idx = rnd.get();
-		l = 0;
-		for(unsigned int j(0);j<N_;j++){
-			if(sqrt((c_[idx]-c_[j]).norm_squared())<support_){
-				l++;
-			}
-		}
-		std::cout<<idx<<" "<<l<<std::endl;
-	}
-}
-
-void Interpolation::add_data(unsigned int const& i, Vector<double> const& c, double const& y){
-	c_[i]=c;
-	y_[i]=y;
-}
-
-void Interpolation::set(unsigned int const& N, double const& linear_density){ 
-	c_.clear();
-	y_.clear();
-	if(N){
-		c_.resize(N);
-		y_.resize(N);
-		N_=N;
-	} else { N_=0; }
-
-	support_ = linear_density*pow(100*tgamma(dim_/2.+1)/pow(M_PI,dim_/2.),1./dim_);
-	std::cout<<support_<<" "<<linear_density<<std::endl;
-}
-
 bool Interpolation::select_basis_function(unsigned int const& basis){
-	switch(basis){
+	basis_ = basis;
+	switch(basis_){
 		case 1: { phi_ = &Interpolation::phi1; } break;
 		case 2: { phi_ = &Interpolation::phi2; } break;
 		case 3: { phi_ = &Interpolation::phi3; } break;

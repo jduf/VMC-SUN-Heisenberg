@@ -6,7 +6,7 @@
 
 class Measure{
 	public:
-		Measure(Vector<double> const& x, double const& fx):fx_(fx),x_(x),N_(0){};
+		Measure(Vector<double> const& x, double const& fx):fx_(fx),x_(x),N_(0){}
 
 		void print(std::ostream& flux) const
 		{ flux<<x_<<" : "<<fx_<<std::endl; }

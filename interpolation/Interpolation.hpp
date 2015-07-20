@@ -2,7 +2,6 @@
 #define DEF_INTERPOLATION
 
 #include "Lapack.hpp"
-#include "Rand.hpp"
 #include "omp.h"
 
 /*!If two data <c,y> are identical the matrix to invert won't be invertible*/
@@ -11,12 +10,12 @@ class Interpolation{
 		Interpolation(unsigned int const& dim);
 
 		bool select_basis_function(unsigned int const& basis);
-		void set(unsigned int const& N=0, double const& linear_density=0);
 		void add_data(Vector<double> const& ci, double const& yi);
 		void add_data(unsigned int const& i, Vector<double> const& c, double const& y);
 
-		void check_matrix_filling();
+		void set_data();
 		void compute_weights();
+		bool compute_weights(double const& dx, unsigned int const& n);
 
 		double extrapolate(Vector<double> const& x) const;
 
@@ -24,6 +23,7 @@ class Interpolation{
 		std::vector<Vector<double> > c_;
 		std::vector<double> y_;
 		Vector<double> weights_;
+		unsigned int basis_;
 		unsigned int dim_;
 		unsigned int N_;
 		double support_;
