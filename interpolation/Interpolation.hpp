@@ -3,6 +3,7 @@
 
 #include "Lapack.hpp"
 #include "omp.h"
+#include "Rand.hpp"
 
 /*!If two data <c,y> are identical the matrix to invert won't be invertible*/
 class Interpolation{
@@ -15,7 +16,7 @@ class Interpolation{
 
 		void set_data();
 		void compute_weights();
-		bool compute_weights(double const& dx, unsigned int const& n);
+		bool compute_weights(double const& dx, unsigned int const& n, unsigned int const& method);
 
 		double extrapolate(Vector<double> const& x) const;
 
@@ -23,6 +24,7 @@ class Interpolation{
 		std::vector<Vector<double> > c_;
 		std::vector<double> y_;
 		Vector<double> weights_;
+		unsigned int method_;
 		unsigned int basis_;
 		unsigned int dim_;
 		unsigned int N_;
@@ -38,5 +40,26 @@ class Interpolation{
 		double phi7(double const& r) const { return (r<1.0?(1-r)*(1-r):0.0); }
 		double phi8(double const& r) const { return (r<1.0?(1-r)*(1-r)*(1-r)*(1-r)*(4*r+1):0.0); }
 		double phi9(double const& r) const { return (r<1.0?(1-r)*(1-r)*(1-r)*(1-r)*(1-r)*(1-r)*(32*r*r*r+25*r*r+8*r+1):0.0); }
+
+		template<typename Type>
+			class SparseMatrix{
+				public:
+					SparseMatrix() = default;
+
+					void get_idx(unsigned int const& idx, unsigned int& r, unsigned int& c) const { r=r_[idx]; c=c_[idx]; }
+					void set_idx(unsigned int const& idx, unsigned int const& r, unsigned int const& c, Type const& v){ r_[idx]=r; c_[idx]=c; v_[idx]=v; }
+
+					void push_back(unsigned int const& r, unsigned int const& c, Type v){ r_.push_back(r); c_.push_back(c); v_.push_back(v); }
+
+					Type const& operator[](unsigned int const& idx) const { return v_[idx]; }
+					Type& operator[](unsigned int const& idx){ return v_[idx]; }
+
+					unsigned int size() const { return v_.size(); }
+
+				protected:
+					std::vector<Type> v_;
+					std::vector<unsigned int> r_;
+					std::vector<unsigned int> c_;
+			};
 };
 #endif

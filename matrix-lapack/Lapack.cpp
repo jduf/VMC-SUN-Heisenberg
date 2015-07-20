@@ -409,3 +409,20 @@ void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >& EVal, Ma
 	if(info){ std::cerr<<"Lapack::geev<complex> : info="<<info<<std::endl; }
 }
 /*}*/
+
+/*solve Ax=b : dposv*/
+/*{*/
+template<>
+void Lapack<double>::posv(Vector<double>& b){
+	unsigned int N(mat_->row());
+	int info(1);
+	dposv_('U',N,1,mat_->ptr(),N,b.ptr(),N,info);
+	if(info){ std::cerr<<"Lapack::posv<double> : info="<<info<<std::endl; }
+}
+
+template<>
+void Lapack<std::complex<double> >::posv(Vector<std::complex<double> >& b){
+	(void)(b);
+	std::cerr<<"Lapack<double>::syev : not implemented for complex"<<std::endl;
+}
+/*}*/
