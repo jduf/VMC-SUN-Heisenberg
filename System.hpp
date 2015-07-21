@@ -25,12 +25,8 @@ class System{
 		System& operator=(System) = delete;
 		/*}*/
 
-		/*!Sets J*/
-		void set_J(Vector<double> const& J){ J_ = J; }
 		/*!Returns ref*/
 		Vector<unsigned int> const& get_ref() const { return ref_; }
-		/*!Returns J*/
-		Vector<double> const& get_J() const { return J_; }
 		/*!Returns energy*/
 		Data<double> const& get_energy() const {return E_;}
 		/*!Returns a ref to E_ (needed for merging)*/

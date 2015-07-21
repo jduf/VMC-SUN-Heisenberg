@@ -24,34 +24,37 @@ class VMCMinimization{
 		void plot() const;
 
 		virtual void print() const;
+		bool ready(){ return m_->s_; }
 
 	private:
 		std::string time_;
 		std::string basename_;
+		std::string prefix_;
 
 		class Minimization{
 			public:
-				Minimization(Parseur& P);
+				Minimization()=default;
 				/*!Default destructor*/
 				virtual ~Minimization();
 				/*{Forbidden*/
-				Minimization() = delete;
 				Minimization(Minimization const&) = delete;
 				Minimization(Minimization&&) = delete;
 				Minimization& operator=(Minimization const&) = delete;
 				/*}*/
+				std::string set(Parseur& P);
+
 				bool within_limit(Vector<double> const& x);
 				void save(IOFiles& out) const;
 
 				List<MCSim> samples_list_;
 				Container system_param_;
 				RST pso_info_;
-				System* s_;
+				System* s_             = NULL;
+				unsigned int Nfreedom_ = 0;
+				Vector<double>* ps_    = NULL;//!< parameter space
+				double ps_size_        = 0;   //!< parameter space size
 				double effective_time_ = 0.0;
 				unsigned int tmax_     = 0;
-				unsigned int Nfreedom_ = 0;
-				double       ps_size_  = 0;   //!< parameter space size
-				Vector<double>* ps_    = NULL;//!< parameter space
 		};
 
 	protected:
@@ -59,7 +62,7 @@ class VMCMinimization{
 		std::shared_ptr<Minimization> m_;
 
 		void set_time(){ time_ = Time().date("-"); }
-		std::string get_filename() const { return time_+"_"+basename_; }
+		std::string get_filename() const { return time_+"_"+prefix_+basename_; }
 
 		/*!Real call to GenericSystem+MonteCarlo*/
 		std::shared_ptr<MCSim> evaluate(Vector<double> const& param);

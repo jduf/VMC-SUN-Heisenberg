@@ -45,7 +45,6 @@ class MCSim {
 		static void merge(MCSim& list, MCSim& new_elem);
 
 	private:
-		Vector<unsigned int> ref_;
 		Vector<double> param_;
 		std::unique_ptr<MCSystem> S_;
 };

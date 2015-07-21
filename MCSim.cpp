@@ -6,10 +6,10 @@ MCSim::MCSim(Vector<double> const& param):
 {}
 
 MCSim::MCSim(IOFiles& r):
-	ref_(r),
 	param_(r)
 {
-	switch(ref_(1)){
+	unsigned int ref_type_of_MCSystem(r.read<unsigned int>());
+	switch(ref_type_of_MCSystem){
 		case 0:
 			{
 				S_ = std::unique_ptr<SystemBosonic<double> >(new SystemBosonic<double>(r));
@@ -46,7 +46,6 @@ void MCSim::create_S(System* s){
 					S_.reset(new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())));
 				}
 			}
-			ref_ = s->get_ref();
 		}
 	}
 	if(!is_created()){
@@ -56,33 +55,6 @@ void MCSim::create_S(System* s){
 
 void MCSim::copy_S(std::unique_ptr<MCSystem> const& S){
 	S_ = S->clone();
-}
-
-void MCSim::write(IOFiles& w) const {
-	w<<ref_<<param_;
-	S_->write(w);
-}
-
-void MCSim::save(System* s) const {
-	CreateSystem cs(s);
-	cs.set_param(NULL,&param_);
-	cs.init();
-	if(cs.get_status()==2){
-		cs.create();
-		if(cs.get_status()==1){
-			Linux command;
-			command("/bin/mkdir -p " + cs.get_path());
-			IOFiles file_results(cs.get_path() + cs.get_filename()+".jdbin",true);
-			cs.init_output_file(file_results);
-			cs.save();
-			RST rst;
-			rst.title("Results",'-');
-			file_results.add_header()->add(rst.get());
-			file_results.write("energy per site",S_->get_energy());
-			file_results.write("correlation on links",S_->get_corr());
-			file_results.write("long range correlation",S_->get_lr_corr());
-		}
-	}
 }
 
 void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tmax){
@@ -129,3 +101,27 @@ void MCSim::merge(MCSim& list, MCSim& new_elem) {
 	list.get_S()->get_energy().merge(new_elem.get_S()->get_energy());
 }
 /*}*/
+
+void MCSim::write(IOFiles& w) const {
+	w<<param_<<S_->get_ref()(1);
+	S_->write(w);
+}
+
+void MCSim::save(System* s) const {
+	CreateSystem cs(s);
+	cs.set_param(NULL,&param_);
+	cs.init();
+	if(cs.get_status()==2){
+		Linux command;
+		command("/bin/mkdir -p " + cs.get_path());
+		IOFiles file_results(cs.get_path() + cs.get_filename()+".jdbin",true);
+		cs.init_output_file(file_results);
+		cs.save();
+		RST rst;
+		rst.title("Results",'-');
+		file_results.add_header()->add(rst.get());
+		file_results.write("energy per site",S_->get_energy());
+		file_results.write("correlation on links",S_->get_corr());
+		file_results.write("long range correlation",S_->get_lr_corr());
+	}
+}

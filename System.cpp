@@ -21,7 +21,6 @@ System::System(
 {
 	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<"System::System(ref,N,n,m,bc,M,J) : Bad initialization"<<std::endl; } 
 	else{status_--;}
-	std::cout<<J_<<std::endl;
 }
 
 System::System(IOFiles& r):
@@ -63,12 +62,11 @@ void System::write(IOFiles& w) const {
 }
 
 void System::save(IOFiles& w) const {
-	w.write("ref",ref_);
-	w.write("N", N_);
-	w.write("m", m_);
-	w.write("n", n_);
-	w.write("bc",bc_);
-	w.write("M", M_);
-	w.write("J", J_);
+	w.write("ref (type of wavefunction)",ref_);
+	w.write("N (N of SU(N))",N_);
+	w.write("m (# of particles per site)",m_);
+	w.write("n (# of site)",n_);
+	w.write("bc (boundary condition)",bc_);
+	w.write("M (# of particles of each color, "+my::tostring(M_(0))+")",M_);
+	w.write("J (energy of each bond)",J_);
 }
-

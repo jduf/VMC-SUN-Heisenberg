@@ -136,7 +136,7 @@ void MCSystem::complete_analysis(double const& convergence_criterion){
 	}
 }
 
-void MCSystem::write(IOFiles& w) const{
+void MCSystem::write(IOFiles& w) const {
 	w<<s_;
 }
 /*}*/

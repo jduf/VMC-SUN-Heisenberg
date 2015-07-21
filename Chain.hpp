@@ -70,12 +70,14 @@ template<typename Type>
 Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,2,filename)
 {
-	if(this->status_==2){ this->compute_links(Vector<unsigned int>(1,1)); }
-	if(this->J_.ptr()){ 
-		Vector<double> tmp(this->J_);
-		this->J_.set(this->links_.row());
-		for(unsigned int i(0);i<this->J_.size();i++){ this->J_(i) = tmp(i%tmp.size()); }
-	} else { this->J_.set(this->links_.row(),1); }
+	if(this->status_==2){
+		this->compute_links(Vector<unsigned int>(1,1)); 
+		if(this->J_.ptr()){ 
+			Vector<double> tmp(this->J_);
+			this->J_.set(this->links_.row());
+			for(unsigned int i(0);i<this->J_.size();i++){ this->J_(i) = tmp(i%tmp.size()); }
+		} else { this->J_.set(this->links_.row(),1); }
+	}
 }
 
 template<typename Type>

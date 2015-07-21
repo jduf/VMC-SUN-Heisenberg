@@ -2,7 +2,7 @@
 
 LadderFree::LadderFree(System const& s, Vector<double> const& t):
 	System(s),
-	Ladder<double>(8,"ladder-free-complex"),
+	Ladder<double>(8,"ladderfree"),
 	t_(t)
 {
 	if(status_==2){

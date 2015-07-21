@@ -28,9 +28,9 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*}*/
 
 		/*{Description*/
-		/*!Saves ref_, N_, m_, n_, M_ and bc_ in jd_write_. As the method is
-		 * virtual, a call on this method will call first child::save() const
-		 * if it exists*/
+		/*!Saves ref_, N_, m_, n_, M_ bc_ and J_ in jd_write_.
+		 * As the method is virtual, a call on this method
+		 * will call first child::save() const if it exists*/
 		/*}*/
 		virtual void save() const;
 		virtual void create() = 0;
@@ -128,13 +128,7 @@ void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
 template<typename Type>
 void GenericSystem<Type>::save() const {
 	jd_write_->add_header()->add(system_info_.get());
-	jd_write_->write("ref (type of wavefunction)",this->ref_);
-	jd_write_->write("N (N of SU(N))",this->N_);
-	jd_write_->write("m (# of particles per site)",this->m_);
-	jd_write_->write("n (# of site)",this->n_);
-	jd_write_->write("M (# of particles of each color, "+my::tostring(this->M_(0))+")",this->M_);
-	jd_write_->write("bc (boundary condition)",this->bc_);
-	jd_write_->write("J (pattern of J)",this->J_);
+	System::save(*jd_write_);
 }
 
 template<typename Type>
