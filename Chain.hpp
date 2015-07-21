@@ -48,7 +48,7 @@ class Chain: public System1D<Type>{
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Chain()=0;
 
-		Vector<double> compute_J(Vector<double> const& J) const ;
+		Vector<double> compute_J(Vector<double> const& Jp);
 
 	protected:
 		/*!Returns the neighbours of site i*/
@@ -77,10 +77,10 @@ template<typename Type>
 Chain<Type>::~Chain() = default;
 
 template<typename Type>
-Vector<double> Chain<Type>::compute_J(Vector<double> const& J) const {
-	Vector<double> tmp(this->links_.row(),1);
-	std::cerr<<"Vector<double> Chain<Type>::create_J(Vector<double> const& J) : need to be defined "<<J<<std::endl;
-	return tmp;
+Vector<double> Chain<Type>::compute_J(Vector<double> const& Jp){
+	this->Jp_ = Jp;
+	std::cerr<<"Vector<double> Chain<Type>::create_J(Vector<double> const& J) : need to be defined "<<this->J_<<std::endl;
+	return this->J_;
 }
 
 template<typename Type>

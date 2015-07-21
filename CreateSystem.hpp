@@ -3,7 +3,6 @@
 
 #include "ChainFermi.hpp"
 #include "ChainPolymerized.hpp"
-#include "ChainPolymerizedJJp.hpp"
 
 #include "LadderFermi.hpp"
 #include "LadderFree.hpp"
@@ -79,9 +78,9 @@ class CreateSystem{
 		/*!Calls GenericSystem::create() pure virtual method*/
 		void create(bool try_solve_degeneracy=false);
 		/*!Calls GenericSystem::compute_J(Vector<double> const& J) pure virtual method*/
-		Vector<double> compute_J(Vector<double> const& J) const {
-			if(RGL_){ return RGL_->compute_J(J); }
-			if(CGL_){ return RGL_->compute_J(J); }
+		Vector<double> compute_J(Vector<double> const& Jp) const {
+			if(RGL_){ return RGL_->compute_J(Jp); }
+			if(CGL_){ return RGL_->compute_J(Jp); }
 			return Vector<double>();
 		}
 		/*}*/

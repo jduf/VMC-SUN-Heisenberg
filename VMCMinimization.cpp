@@ -157,7 +157,7 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 	IOFiles* in(P.find("load",i,false)?(new IOFiles(P.get<std::string>(i),false)):NULL);
 
 	wf_      = (in?in->read<std::string>()    :P.get<std::string>("wf"));
-	J_       = (in?in->read<Vector<double> >():P.get<std::vector<double> >("J"));
+	J_       = (in?in->read<Vector<double> >():P.get<std::vector<double> >("Jp"));
 	N_       = (in?in->read<unsigned int>()   :P.get<unsigned int>("N"));
 	m_       = (in?in->read<unsigned int>()   :P.get<unsigned int>("m"));
 	n_       = (in?in->read<unsigned int>()   :P.get<unsigned int>("n"));

@@ -16,7 +16,7 @@ class Square: public System2D<Type>{
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Square()=0;
 
-		Vector<double> compute_J(Vector<double> const& J) const ;
+		Vector<double> compute_J(Vector<double> const& Jp);
 
 	protected:
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
@@ -68,10 +68,11 @@ Square<Type>::~Square() = default;
 
 /*{public methods*/
 template<typename Type>
-Vector<double> Square<Type>::compute_J(Vector<double> const& J) const {
+Vector<double> Square<Type>::compute_J(Vector<double> const& Jp){
+	this->Jp_ = Jp;
 	Vector<double> tmp(this->links_.row(),1);
-	std::cerr<<"Vector<double> Square<Type>::create_J(Vector<double> const& J) : need to be defined "<<J<<std::endl;
-	return tmp;
+	std::cerr<<"Vector<double> Square<Type>::create_J(Vector<double> const& J) : need to be defined "<<this->J_<<std::endl;
+	return this->J_;
 }
 /*}*/
 

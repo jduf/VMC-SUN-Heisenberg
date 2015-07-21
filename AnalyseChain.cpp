@@ -99,18 +99,13 @@ std::string AnalyseChain::extract_level_5(){
 				Vector<double> exponents;
 				Data<double> E;
 				Vector<double> ti;
-				Vector<double> JJp;
-				(*read_)>>ref>>N>>m>>n>>M>>bc;
+				Vector<double> Jp;
+				(*read_)>>ref>>N>>m>>n>>M>>bc>>Jp;
 				switch(ref(2)){
 					case 0:
 						{ ti.set(N/m,1); }break;
 					case 1:
-						{
-							(*read_)>>ti;
-							JJp.set(N/m,1);
-						}break;
-					case 2:
-						{ (*read_)>>ti>>JJp; }break;
+						{ (*read_)>>ti; }break;
 					default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
 				}
 				(*read_)>>E>>polymerization_strength>>exponents;
@@ -136,12 +131,6 @@ std::string AnalyseChain::extract_level_5(){
 					case 1:
 						{
 							ChainPolymerized chain(ref,N,m,n,M,bc,ti);
-							chain.set_IOSystem(this);
-							chain.save();
-						}break;
-					case 2:
-						{
-							ChainPolymerizedJJp chain(ref,N,m,n,M,bc,ti,JJp);
 							chain.set_IOSystem(this);
 							chain.save();
 						}break;

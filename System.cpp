@@ -26,7 +26,8 @@ System::System(IOFiles& r):
 	E_(r),
 	corr_(r),
 	lr_corr_(r),
-	links_(r)
+	links_(r),
+	J_(r)
 {}
 /*}*/
 
@@ -49,5 +50,5 @@ void System::delete_binning(){
 }
 
 void System::write(IOFiles& w) const {
-	w<<ref_<<N_<<m_<<n_<<M_<<bc_<<status_<<E_<<corr_<<lr_corr_<<links_;
+	w<<ref_<<N_<<m_<<n_<<M_<<bc_<<status_<<E_<<corr_<<lr_corr_<<links_<<J_;
 }

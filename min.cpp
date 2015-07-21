@@ -23,13 +23,10 @@ int main(int argc, char* argv[]){
 				m2.save();
 			}
 			m.complete_analysis(1e-5);
+			m.plot();
 		} else { std::cerr<<"min : some argument are not corretly set"<<std::endl; }
 	} else {
 		if(P.find("load",i,true)){
-			VMCInterpolation m1(m);
-
-			m1.init();
-			m1.run(0);
 			m.plot();
 		}
 	}

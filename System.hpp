@@ -53,7 +53,7 @@ class System{
 		/*!Copy constructor*/
 		System(System const&) = default;
 		/*!Default constructor*/
-		System():ref_(0),N_(0),m_(0),n_(0),bc_(0){std::cout<<"System::System() : should never be called"<<std::endl;}
+		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),status_(4){std::cout<<"System::System() : should never be called"<<std::endl;}
 
 		Vector<unsigned int> const ref_;//!< type of system 
 		unsigned int const N_;			//!< number of colors

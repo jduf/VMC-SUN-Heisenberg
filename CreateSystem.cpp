@@ -44,28 +44,10 @@ void CreateSystem::parse(Container* C, Vector<double> const* param){
 		if(N_/m_ == 4){
 			t(1) = param?(*param)(0):C->get<double>("t2");
 			t(3) = param?(*param)(1):C->get<double>("t4");
-		} else { 
+		} else {
 			t(N_/m_-1) = param?(*param)(0):C->get<double>("t2");
 		}
 		C_.set("t",t);
-	}
-	if( wf == "chainpolymerizedjjp" ){
-		if(N_/m_ == 2){
-			ref_(0) = 2;
-			ref_(1) = 1;
-			ref_(2) = 2;
-			Vector<double> t(N_/m_,0);
-			t(0) = C->get<double>("t");
-			t(1) = C->get<double>("tp");
-			Vector<double> J(2);
-			J(0) = C->get<double>("J");
-			J(1) = C->get<double>("Jp");
-
-			C_.set("t",t);
-			C_.set("J",J);
-		} else { 
-			std::cerr<<"chainpolymerizedjjp N/m!=2"<<std::endl;
-		}
 	}
 
 	if( wf == "ladderfermi"){
@@ -212,13 +194,8 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 									{ RGL_ = new ChainFermi<double>(ref_,N_,m_,n_,M_,bc_); }break;
 								case 1:
 									{
-										if(read){ RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,read->read<Vector<double> >()); } 
+										if(read){ RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,read->read<Vector<double> >()); }
 										else { RGL_ = new ChainPolymerized(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t")); }
-									}break;
-								case 2:
-									{
-										if(read){ RGL_ = new ChainPolymerizedJJp(ref_,N_,m_,n_,M_,bc_,read->read<Vector<double> >(),read->read<Vector<double> >()); } 
-										else { RGL_ = new ChainPolymerizedJJp(ref_,N_,m_,n_,M_,bc_,C_.get<Vector<double> >("t"),C_.get<Vector<double> >("J")); }
 									}break;
 								default: {error();}break;
 							}
@@ -365,7 +342,7 @@ void CreateSystem::init(IOFiles* read, IOSystem* ios){
 
 void CreateSystem::error() const {
 	std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;
-} 
+}
 
 void CreateSystem::create(bool try_solve_degeneracy){
 	if(RGL_){
@@ -387,4 +364,4 @@ void CreateSystem::create(bool try_solve_degeneracy){
 			std::cerr<<"void CreateSystem::create(bool try_solve_degeneracy) : behaviour undefined"<<std::endl;
 		}
 	}
-}  
+}
