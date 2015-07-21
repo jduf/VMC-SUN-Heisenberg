@@ -6,7 +6,8 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	std::cout<<"############# Init GenericSystem ##########"<<std::endl;
-	CreateSystem cs(&P);
+	System s(CreateSystem::get_ref(P.get<std::string>("wf")),P.get<unsigned int>("N"),P.get<unsigned int>("m"),P.get<unsigned int>("n"),P.get<int>("bc"),P.get<Vector<unsigned int> >("M"),P.get<Vector<double> >("Jp"));
+	CreateSystem cs(&s);
 	unsigned int i(0);
 	switch(P.find("what",i)?P.get<unsigned int>(i):0){
 		case 0:/*call CreateSystem::init*/

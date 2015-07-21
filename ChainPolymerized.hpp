@@ -11,7 +11,7 @@
 /*}*/
 class ChainPolymerized: public Chain<double> {
 	public:
-		ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<double> const& t);
+		ChainPolymerized(System const& s, Vector<double> const& t);
 		~ChainPolymerized() = default;
 
 		void create();

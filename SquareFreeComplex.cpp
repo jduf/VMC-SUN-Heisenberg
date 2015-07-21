@@ -1,17 +1,8 @@
 #include "SquareFreeComplex.hpp"
 
-SquareFreeComplex::SquareFreeComplex(
-		Vector<unsigned int> const& ref, 
-		unsigned int const& N, 
-		unsigned int const& m, 
-		unsigned int const& n, 
-		Vector<unsigned int> const& M,  
-		int const& bc, 
-		Vector<double> const& t, 
-		Vector<double> const& mu, 
-		Vector<double> const& phi):
-	System(ref,N,m,n,M,bc),
-	Square<std::complex<double> >(set_ab(),(N/m==2?2:0),"square-free-flux"),
+SquareFreeComplex::SquareFreeComplex(System const& s, Vector<double> const& t, Vector<double> const& mu, Vector<double> const& phi):
+	System(s),
+	Square<std::complex<double> >(set_ab(),(N_/m_==2?2:0),"square-free-flux"),
 	t_(t),
 	mu_(mu),
 	phi_(phi)

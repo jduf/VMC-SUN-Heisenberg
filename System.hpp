@@ -15,7 +15,7 @@
 class System{
 	public:
 		/*!Constructor*/
-		System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
+		System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, int const& bc, Vector<unsigned int> const& M, Vector<double> const& J);
 		/*!Constructor that reads from file*/
 		System(IOFiles& r);
 		/*!Default destructor*/
@@ -27,6 +27,8 @@ class System{
 
 		/*!Sets J*/
 		void set_J(Vector<double> const& J){ J_ = J; }
+		/*!Returns ref*/
+		Vector<unsigned int> const& get_ref() const { return ref_; }
 		/*!Returns J*/
 		Vector<double> const& get_J() const { return J_; }
 		/*!Returns energy*/
@@ -48,6 +50,7 @@ class System{
 		void delete_binning();
 
 		virtual void write(IOFiles& w) const;
+		void save(IOFiles& w) const;
 
 	protected:
 		/*!Copy constructor*/
@@ -59,15 +62,16 @@ class System{
 		unsigned int const N_;			//!< number of colors
 		unsigned int const m_;			//!< number of particles per site
 		unsigned int const n_;			//!< number of sites
-		Vector<unsigned int> const M_;	//!< number of particles of each color 
 		int const bc_;					//!< boundary condition
+		Vector<unsigned int> const M_;	//!< number of particles of each color 
+		Vector<double> J_;				//!< bond energy
+
 		unsigned int status_;			//!< status of the simulation
+		Matrix<unsigned int> links_;	//!< bond <i,j>
 
 		Data<double> E_; 				//!< energy of the system
 		DataSet<double> corr_;			//!< correlation between neighbours
 		DataSet<double> lr_corr_;		//!< long range correlation 
 
-		Matrix<unsigned int> links_;	//!< bonds <i,j> exchanged by H
-		Vector<double> J_;
 };
 #endif

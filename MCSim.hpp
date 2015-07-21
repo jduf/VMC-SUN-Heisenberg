@@ -20,7 +20,7 @@ class MCSim {
 		/*}*/
 
 		/*!Sets S_ to a new MCSystem created via C*/
-		void create_S(Container* C, Vector<double> const& J, bool need_compute_J);
+		void create_S(System* s);
 		/*!Sets S_ to a copy obtained via MCSystem::clone() run on S*/
 		void copy_S(std::unique_ptr<MCSystem> const& S);
 
@@ -37,7 +37,7 @@ class MCSim {
 
 		void write(IOFiles& w) const;
 		/*!Save the result in a single file (wavefunction parameters, observables)*/
-		void save(Container* C) const;
+		void save(System* s) const;
 		void print() const { std::cout<<param_<<" "<<S_->get_energy(); }
 
 		static bool compare(MCSim const& a, MCSim const& b);

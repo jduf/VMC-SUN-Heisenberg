@@ -79,15 +79,6 @@ template<typename Type>
 Triangle<Type>::~Triangle() = default;
 /*}*/
 
-/*{public methods*/
-template<typename Type>
-Vector<double> Triangle<Type>::compute_J(Vector<double> const& Jp){
-	this->Jp_ = Jp;
-	std::cerr<<"Vector<double> Triangle<Type>::create_J(Vector<double> const& J) : need to be defined "<<this->J_<<std::endl;
-	return this->J_;
-}
-/*}*/
-
 /*{protected methods*/
 template<typename Type>
 Vector<double> Triangle<Type>::get_pos_in_lattice(unsigned int const& i) const {

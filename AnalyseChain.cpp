@@ -70,7 +70,8 @@ void AnalyseChain::close_files(){
 std::string AnalyseChain::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	CreateSystem cs(read_);
+	System s(*read_);
+	CreateSystem cs(&s);
 	cs.init(read_,this);
 	std::string link_name(cs.analyse(level_));
 
@@ -101,6 +102,8 @@ std::string AnalyseChain::extract_level_5(){
 				Vector<double> ti;
 				Vector<double> Jp;
 				(*read_)>>ref>>N>>m>>n>>M>>bc>>Jp;
+				System s(ref,N,m,n,bc,M,Jp);
+
 				switch(ref(2)){
 					case 0:
 						{ ti.set(N/m,1); }break;
@@ -115,13 +118,13 @@ std::string AnalyseChain::extract_level_5(){
 							switch(ref(1)){
 								case 1:
 									{
-										ChainFermi<double> chain(ref,N,m,n,M,bc);
+										ChainFermi<double> chain(s);
 										chain.set_IOSystem(this);
 										chain.save();
 									}break;
 								case 2:
 									{
-										ChainFermi<std::complex<double> > chain(ref,N,m,n,M,bc);
+										ChainFermi<std::complex<double> > chain(s);
 										chain.set_IOSystem(this);
 										chain.save();
 									}break;
@@ -130,7 +133,7 @@ std::string AnalyseChain::extract_level_5(){
 						}break;
 					case 1:
 						{
-							ChainPolymerized chain(ref,N,m,n,M,bc,ti);
+							ChainPolymerized chain(s,ti);
 							chain.set_IOSystem(this);
 							chain.save();
 						}break;
@@ -151,17 +154,19 @@ std::string AnalyseChain::extract_level_5(){
 				Vector<double> exponents[2];
 				Data<double> E[2];
 				Vector<double> ti;
+				Vector<double> Jp;
 				for(unsigned int i(0);i<nof_;i++){
-					(*read_)>>ref>>N>>m>>n>>M>>bc;
+					(*read_)>>ref>>N>>m>>n>>M>>bc>>Jp;
 					if(ref(2) == 1){ (*read_)>>ti; }
 					else{ ti.set(N/m,1); }
 					(*read_)>>E[ref(2)]>>polymerization_strength[ref(2)]>>exponents[ref(2)];
 				}
+				System s(ref,N,m,n,bc,M,Jp);
 
 				if(!my::are_equal(ti,Vector<double>(N/m,1.0))){
 					ref(1) = 1;
 					ref(2) = 1;
-					ChainPolymerized chain(ref,N,m,n,M,bc,ti);
+					ChainPolymerized chain(s,ti);
 					chain.set_IOSystem(this);
 					chain.save();
 				} else {
@@ -169,13 +174,13 @@ std::string AnalyseChain::extract_level_5(){
 					switch(ref(1)){
 						case 1:
 							{
-								ChainFermi<double> chain(ref,N,m,n,M,bc);
+								ChainFermi<double> chain(s);
 								chain.set_IOSystem(this);
 								chain.save();
 							}break;
 						case 2:
 							{
-								ChainFermi<std::complex<double> > chain(ref,N,m,n,M,bc);
+								ChainFermi<std::complex<double> > chain(s);
 								chain.set_IOSystem(this);
 								chain.save();
 							}break;
@@ -210,7 +215,8 @@ std::string AnalyseChain::extract_level_4(){
 	Vector<double> exponents;
 	Data<double> E;
 	for(unsigned int i(0);i<nof_;i++){
-		CreateSystem cs(read_);
+		System s(*read_);
+		CreateSystem cs(&s);
 		cs.init(read_,this);
 		(*read_)>>E>>polymerization_strength>>exponents;
 
@@ -233,7 +239,8 @@ std::string AnalyseChain::extract_level_3(){
 	(*read_)>>nof_;
 
 	for(unsigned int i(0);i<nof_;i++){
-		CreateSystem cs(read_);
+		System s(*read_);
+		CreateSystem cs(&s);
 		cs.init(read_,this);
 		std::string link_name(cs.analyse(level_));
 

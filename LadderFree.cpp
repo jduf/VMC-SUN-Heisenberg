@@ -1,14 +1,7 @@
 #include "LadderFree.hpp"
 
-LadderFree::LadderFree(
-		Vector<unsigned int> const& ref, 
-		unsigned int const& N, 
-		unsigned int const& m, 
-		unsigned int const& n, 
-		Vector<unsigned int> const& M,  
-		int const& bc, 
-		Vector<double> const& t):
-	System(ref,N,m,n,M,bc),
+LadderFree::LadderFree(System const& s, Vector<double> const& t):
+	System(s),
 	Ladder<double>(8,"ladder-free-complex"),
 	t_(t)
 {

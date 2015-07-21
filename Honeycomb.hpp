@@ -29,8 +29,6 @@ class Honeycomb: public System2D<Type>{
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Honeycomb()=0;
 
-		Vector<double> compute_J(Vector<double> const& Jp);
-
 	protected:
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
@@ -84,15 +82,6 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 
 template<typename Type>
 Honeycomb<Type>::~Honeycomb() = default;
-/*}*/
-
-/*{public methods*/
-template<typename Type>
-Vector<double> Honeycomb<Type>::compute_J(Vector<double> const& Jp){
-	this->Jp_ = Jp;
-	std::cerr<<"Vector<double> Honeycomb<Type>::create_J(Vector<double> const& J) : need to be defined "<<this->J_<<std::endl;
-	return this->J_;
-}
 /*}*/
 
 /*{protected methods*/

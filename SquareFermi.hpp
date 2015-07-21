@@ -6,7 +6,7 @@
 template<typename Type>
 class SquareFermi: public Square<Type>{
 	public:
-		SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc);
+		SquareFermi(System const& s);
 		~SquareFermi() = default;
 
 		void create();
@@ -21,8 +21,8 @@ class SquareFermi: public Square<Type>{
 };
 
 template<typename Type>
-SquareFermi<Type>::SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
-	System(ref,N,m,n,M,bc),
+SquareFermi<Type>::SquareFermi(System const& s):
+	System(s),
 	Square<Type>(set_ab(),1,"square-fermi")
 {
 	if(this->status_==2){

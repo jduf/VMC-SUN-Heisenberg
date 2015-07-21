@@ -1,7 +1,7 @@
 #include "Honeycomb0pp.hpp"
 
-Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, double td):
-	System(ref,N,m,n,M,bc),
+Honeycomb0pp::Honeycomb0pp(System const& s, double td):
+	System(s),
 	Honeycomb<double>(set_ab(),6,"honeycomb0pp"),
 	td_(td)
 {

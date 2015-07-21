@@ -26,8 +26,7 @@
 
 class CreateSystem{
 	public:
-		CreateSystem(Container* C, Vector<double> const* param=NULL);
-		CreateSystem(IOFiles* r);
+		CreateSystem(System* s);
 		virtual ~CreateSystem();
 		/*{Forbidden*/
 		CreateSystem() = delete;
@@ -36,6 +35,7 @@ class CreateSystem{
 		CreateSystem& operator=(CreateSystem cs) = delete;
 		/*}*/
 
+		void set_param(Container* C, Vector<double> const* param = NULL);
 		void init(IOFiles* read=NULL, IOSystem* ios=NULL);
 
 		/*{IOSystem calls*/
@@ -77,12 +77,6 @@ class CreateSystem{
 		}
 		/*!Calls GenericSystem::create() pure virtual method*/
 		void create(bool try_solve_degeneracy=false);
-		/*!Calls GenericSystem::compute_J(Vector<double> const& J) pure virtual method*/
-		Vector<double> compute_J(Vector<double> const& Jp) const {
-			if(RGL_){ return RGL_->compute_J(Jp); }
-			if(CGL_){ return RGL_->compute_J(Jp); }
-			return Vector<double>();
-		}
 		/*}*/
 
 		/*{Other class calls*/
@@ -95,6 +89,7 @@ class CreateSystem{
 		/*}*/
 
 		/*!Returns ref*/
+		static Vector<unsigned int> get_ref(std::string const& wf);
 		Vector<unsigned int> const&  get_ref() const { return ref_; }
 		/*!Returns a pointer on the GenericSystem created*/
 		System const* get_system() const { 
@@ -114,19 +109,13 @@ class CreateSystem{
 		}
 
 	private:
-		Vector<unsigned int> ref_;
-		unsigned int const N_;
-		unsigned int const m_;
-		unsigned int const n_;
-		Vector<unsigned int> M_;
-		int const bc_;
-		unsigned int type_;
+		System* s_;
 		Container C_;
+		Vector<unsigned int> ref_;
 
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
 
-		void parse(Container* C, Vector<double> const* param);
 		void error() const;
 };
 #endif

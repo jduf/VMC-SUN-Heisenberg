@@ -1,8 +1,8 @@
 #include "SquarePiFlux.hpp"
 
-SquarePiFlux::SquarePiFlux(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc):
-	System(ref,N,m,n,M,bc),
-	Square<std::complex<double> >(set_ab(),(N/m==2?2:0),"square-csl")
+SquarePiFlux::SquarePiFlux(System const& s):
+	System(s),
+	Square<std::complex<double> >(set_ab(),(N_/m_==2?2:0),"square-csl")
 {
 	if(status_==2){
 		init_fermionic();

@@ -10,7 +10,9 @@ int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	unsigned int nruns(P.get<unsigned int>("nruns"));
 	unsigned int tmax(P.get<unsigned int>("tmax"));
-	CreateSystem cs(&P);
+	System s(CreateSystem::get_ref(P.get<std::string>("wf")),P.get<unsigned int>("N"),P.get<unsigned int>("m"),P.get<unsigned int>("n"),P.get<int>("bc"),P.get<std::vector<unsigned int> >("M"),P.get<std::vector<double> >("Jp"));
+	CreateSystem cs(&s);
+	cs.set_param(&P);
 	if(!P.status()){
 		cs.init();
 		if(cs.get_status()==2){
@@ -64,6 +66,7 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 		sim.run();
 		S->complete_analysis(1e-5);
 		S->delete_binning();
+		std::cout<<S->get_energy()<<std::endl;
 
 #pragma omp critical
 		{

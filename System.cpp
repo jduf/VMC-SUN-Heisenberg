@@ -2,17 +2,26 @@
 
 /*constructors and destructor*/
 /*{*/
-System::System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc):
+System::System(
+		Vector<unsigned int> const& ref,
+		unsigned int const& N, 
+		unsigned int const& m,
+		unsigned int const& n,
+		int const& bc, 
+		Vector<unsigned int> const& M,
+		Vector<double> const& J):
 	ref_(ref),
 	N_(N), 
 	m_(m),
 	n_(n),
-	M_(M),
 	bc_(bc),
+	M_(M),
+	J_(J),
 	status_(4)
 {
-	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<"System::System(N,n,m,M,bc,ref) : Bad initialization"<<std::endl; } 
+	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<"System::System(ref,N,n,m,bc,M,J) : Bad initialization"<<std::endl; } 
 	else{status_--;}
+	std::cout<<J_<<std::endl;
 }
 
 System::System(IOFiles& r):
@@ -20,14 +29,14 @@ System::System(IOFiles& r):
 	N_(r.read<unsigned int>()), 
 	m_(r.read<unsigned int>()),
 	n_(r.read<unsigned int>()),
-	M_(r),
 	bc_(r.read<int>()),
+	M_(r),
+	J_(r),
 	status_(r.read<unsigned int>()),
+	links_(r),
 	E_(r),
 	corr_(r),
-	lr_corr_(r),
-	links_(r),
-	J_(r)
+	lr_corr_(r)
 {}
 /*}*/
 
@@ -50,5 +59,16 @@ void System::delete_binning(){
 }
 
 void System::write(IOFiles& w) const {
-	w<<ref_<<N_<<m_<<n_<<M_<<bc_<<status_<<E_<<corr_<<lr_corr_<<links_<<J_;
+	w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<links_<<E_<<corr_<<lr_corr_;
 }
+
+void System::save(IOFiles& w) const {
+	w.write("ref",ref_);
+	w.write("N", N_);
+	w.write("m", m_);
+	w.write("n", n_);
+	w.write("bc",bc_);
+	w.write("M", M_);
+	w.write("J", J_);
+}
+

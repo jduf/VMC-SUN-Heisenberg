@@ -5,7 +5,7 @@
 
 class SquareFreeReal: public Square<double>{
 	public:
-		SquareFreeReal(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, Vector<double> const& t, Vector<double> const& mu);
+		SquareFreeReal(System const& s, Vector<double> const& t, Vector<double> const& mu);
 		~SquareFreeReal() = default;
 
 		void create();

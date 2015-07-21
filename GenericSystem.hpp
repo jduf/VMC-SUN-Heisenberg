@@ -35,13 +35,10 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void save() const;
 		virtual void create() = 0;
 		virtual void check() = 0;
-		/*!Creates J*/
-		virtual Vector<double> compute_J(Vector<double> const& J) = 0;
 
 	protected:
 		unsigned int const spuc_;//!< site per unit cell
 		unsigned int const z_;	 //!< coordination number
-		Vector<double> Jp_;		 //!< if set, gives the pattern of the J_
 		RST system_info_;		 //!< store information about the system
 
 
@@ -109,7 +106,6 @@ void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
 			}
 		}
 		this->links_.set(k,2);
-		this->J_.set(k,1.0);
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
 			nb = get_neighbourg(i);
@@ -138,7 +134,7 @@ void GenericSystem<Type>::save() const {
 	jd_write_->write("n (# of site)",this->n_);
 	jd_write_->write("M (# of particles of each color, "+my::tostring(this->M_(0))+")",this->M_);
 	jd_write_->write("bc (boundary condition)",this->bc_);
-	jd_write_->write("Jp (pattern of J)",Jp_);
+	jd_write_->write("J (pattern of J)",this->J_);
 }
 
 template<typename Type>

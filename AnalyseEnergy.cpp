@@ -45,7 +45,8 @@ std::string AnalyseEnergy::extract_level_4(){
 
 	Data<double> E;
 	for(unsigned int i(0);i<nof_;i++){
-		CreateSystem cs(read_);
+		System s(*read_);
+		CreateSystem cs(&s);
 		cs.init(read_,this);
 		(*read_)>>E;
 
@@ -65,7 +66,8 @@ std::string AnalyseEnergy::extract_level_3(){
 	(*read_)>>nof_;
 
 	for(unsigned int i(0);i<nof_;i++){
-		CreateSystem cs(read_);
+		System s(*read_);
+		CreateSystem cs(&s);
 		cs.init(read_,this);
 		std::string link_name(cs.analyse(level_));
 
@@ -103,7 +105,8 @@ std::string AnalyseEnergy::extract_default(){
 
 	jd_write_->add_header()->nl();
 	Data<double> E;
-	CreateSystem cs(read_);
+	System s(*read_);
+	CreateSystem cs(&s);
 	cs.init(read_,this);
 	if(level_ == 6){ (*read_)>>nof_; }
 	(*read_)>>E;

@@ -118,7 +118,8 @@ void Analyse::search_jdbin(){
 std::string Analyse::extract_level_7(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	CreateSystem cs(read_);
+	System s(*read_);
+	CreateSystem cs(&s);
 	cs.init(read_,this);
 	/*Only one call of cs.save() is needed*/
 	if(!all_link_names_.size()){ 

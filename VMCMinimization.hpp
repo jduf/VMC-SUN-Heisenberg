@@ -45,15 +45,10 @@ class VMCMinimization{
 
 				List<MCSim> samples_list_;
 				Container system_param_;
-				Vector<double> J_; 
 				RST pso_info_;
+				System* s_;
 				double effective_time_ = 0.0;
 				unsigned int tmax_     = 0;
-				std::string  wf_       ="";
-				unsigned int N_        = 0;
-				unsigned int m_        = 0;
-				unsigned int n_        = 0;
-				int          bc_       = 0;
 				unsigned int Nfreedom_ = 0;
 				double       ps_size_  = 0;   //!< parameter space size
 				Vector<double>* ps_    = NULL;//!< parameter space

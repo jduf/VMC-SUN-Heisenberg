@@ -13,7 +13,7 @@
 template<typename Type>
 class ChainFermi: public Chain<Type>{
 	public:
-		ChainFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc);
+		ChainFermi(System const& s);
 		~ChainFermi() = default;
 
 		void create();
@@ -26,8 +26,8 @@ class ChainFermi: public Chain<Type>{
 };
 
 template<typename Type>
-ChainFermi<Type>::ChainFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
-	System(ref,N,m,n,M,bc),
+ChainFermi<Type>::ChainFermi(System const& s):
+	System(s),
 	Chain<Type>(1,"chain-fermi")
 {
 	if(this->status_==2){

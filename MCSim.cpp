@@ -26,8 +26,9 @@ MCSim::MCSim(IOFiles& r):
 }
 /*}*/
 
-void MCSim::create_S(Container* C, Vector<double> const& J, bool need_compute_J){
-	CreateSystem cs(C,&param_);
+void MCSim::create_S(System* s){
+	CreateSystem cs(s);
+	cs.set_param(NULL,&param_);
 	cs.init();
 	if(cs.get_status()==2){
 		cs.create();
@@ -45,8 +46,7 @@ void MCSim::create_S(Container* C, Vector<double> const& J, bool need_compute_J)
 					S_.reset(new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())));
 				}
 			}
-			ref_ = cs.get_ref();
-			S_->set_J(need_compute_J?cs.compute_J(J):J);
+			ref_ = s->get_ref();
 		}
 	}
 	if(!is_created()){
@@ -63,8 +63,9 @@ void MCSim::write(IOFiles& w) const {
 	S_->write(w);
 }
 
-void MCSim::save(Container* C) const {
-	CreateSystem cs(C,&param_);
+void MCSim::save(System* s) const {
+	CreateSystem cs(s);
+	cs.set_param(NULL,&param_);
 	cs.init();
 	if(cs.get_status()==2){
 		cs.create();

@@ -8,11 +8,12 @@ VMCMinimization::VMCMinimization(Parseur& P):
 	m_(std::make_shared<Minimization>(P))
 {
 	set_time();
-	basename_ += "-" + m_->wf_;
-	basename_ += "-N"  + my::tostring(m_->N_);
-	basename_ += "-m"  + my::tostring(m_->m_);
-	basename_ += "-n"  + my::tostring(m_->n_);
-	basename_ += "-bc" + my::tostring(m_->bc_);
+	//basename_ += "-" + m_->wf_;
+	//basename_ += "-N"  + my::tostring(m_->N_);
+	//basename_ += "-m"  + my::tostring(m_->m_);
+	//basename_ += "-n"  + my::tostring(m_->n_);
+	//basename_ += "-bc" + my::tostring(m_->bc_);
+	basename_ += "need_to_set_basename";
 }
 
 VMCMinimization::VMCMinimization(VMCMinimization const& vmcm, std::string const& prefix):
@@ -76,7 +77,7 @@ void VMCMinimization::save_best(unsigned int const& nsave){
 		while(m_->samples_list_.target_next()){ best.add_sort(m_->samples_list_.get_ptr(),MCSim::compare); }
 		best.set_target();
 		unsigned int i(0);
-		while(best.target_next() && i++<nsave){ best.get().save(&m_->system_param_); }
+		while(best.target_next() && i++<nsave){ best.get().save(m_->s_); }
 	} else {
 		std::cerr<<"void VMCMinimization::save(unsigned int const& nsave) : there is no data"<<std::endl;
 	}
@@ -119,7 +120,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 			sim->copy_S(m_->samples_list_.get().get_S()); 
 		} else {
 			tmp_test = false;
-			sim->create_S(&m_->system_param_,m_->J_,false);
+			sim->create_S(m_->s_);
 		}
 		m_->samples_list_.set_target();
 	}
@@ -148,6 +149,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 
 /*{Minimization*/
 VMCMinimization::Minimization::Minimization(Parseur& P):
+	s_(NULL),
 	tmax_(P.get<unsigned int>("tmax"))
 {
 	std::cout<<"#######################"<<std::endl;
@@ -156,12 +158,14 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 	unsigned int i(0);
 	IOFiles* in(P.find("load",i,false)?(new IOFiles(P.get<std::string>(i),false)):NULL);
 
-	wf_      = (in?in->read<std::string>()    :P.get<std::string>("wf"));
-	J_       = (in?in->read<Vector<double> >():P.get<std::vector<double> >("Jp"));
-	N_       = (in?in->read<unsigned int>()   :P.get<unsigned int>("N"));
-	m_       = (in?in->read<unsigned int>()   :P.get<unsigned int>("m"));
-	n_       = (in?in->read<unsigned int>()   :P.get<unsigned int>("n"));
-	bc_      = (in?in->read<int>()            :P.get<int>("bc"));
+	Vector<unsigned int> ref(CreateSystem::get_ref(in?in->read<std::string>():P.get<std::string>("wf")));
+	Vector<double> J(in?in->read<Vector<double> >():P.get<std::vector<double> >("Jp"));
+	unsigned int N (in?in->read<unsigned int>()   :P.get<unsigned int>("N"));
+	unsigned int m (in?in->read<unsigned int>()   :P.get<unsigned int>("m"));
+	unsigned int n (in?in->read<unsigned int>()   :P.get<unsigned int>("n"));
+	unsigned int bc(in?in->read<int>()            :P.get<int>("bc"));
+	Vector<unsigned int> M(N,n*m/N);
+	s_ = new System(ref,N,m,n,bc,M,J);
 	Nfreedom_= (in?in->read<unsigned int>()   :P.get<unsigned int>("Nfreedom"));
 	ps_ = new Vector<double>[Nfreedom_];
 	ps_size_ = 1.0;
@@ -169,12 +173,6 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 		ps_[i] = (in?in->read<Vector<double> >():P.get<std::vector<double> >("ps"+my::tostring(i))); 
 		ps_size_ *= ps_[i].size();
 	}
-
-	system_param_.set("wf",wf_);
-	system_param_.set("N",N_);
-	system_param_.set("m",m_);
-	system_param_.set("n",n_);
-	system_param_.set("bc",bc_);
 
 	if(in){
 		std::string msg1("loading samples from "+in->get_filename());
@@ -194,20 +192,11 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 		delete in;
 		in = NULL;
 	} else {
-		Vector<double> tmp(Nfreedom_);
-		do {
-			for(unsigned int i(0);i<Nfreedom_;i++){
-				Rand<unsigned int> rnd(0,ps_[i].size()-1);
-				tmp(i) = ps_[i](rnd.get());
-			}
+		Vector<double> tmp(Nfreedom_,1);
 
-			MCSim sim(tmp);
-			sim.create_S(&system_param_,J_,true);
-			if( sim.is_created() ){ 
-				J_ = sim.get_S()->get_J(); 
-				tmp.set();
-			}
-		} while ( tmp.ptr() );
+		CreateSystem cs(s_);
+		cs.set_param(NULL,&tmp);
+		cs.init();
 
 		std::string msg("no samples loaded");
 		std::cout<<"#"+msg<<std::endl;
@@ -219,6 +208,7 @@ VMCMinimization::Minimization::Minimization(Parseur& P):
 VMCMinimization::Minimization::~Minimization(){
 	std::cerr<<pso_info_.get()<<std::endl;
 	if(ps_){ delete[] ps_; }
+	if(s_){ delete s_; }
 }
 
 bool VMCMinimization::Minimization::within_limit(Vector<double> const& x){
@@ -229,12 +219,7 @@ bool VMCMinimization::Minimization::within_limit(Vector<double> const& x){
 }
 
 void VMCMinimization::Minimization::save(IOFiles& out) const {
-	out.write("wf",wf_);
-	out.write("J", J_);
-	out.write("N", N_);
-	out.write("m", m_);
-	out.write("n", n_);
-	out.write("bc",bc_);
+	s_->save(out);
 	out.write("Nfreedom",Nfreedom_);
 	for(unsigned int i(0);i<Nfreedom_;i++){ out<<ps_[i]; }
 	out.write("# samples",samples_list_.size());

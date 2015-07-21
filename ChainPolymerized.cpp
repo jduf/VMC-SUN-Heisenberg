@@ -1,7 +1,7 @@
 #include "ChainPolymerized.hpp"
 
-ChainPolymerized::ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<double> const& t):
-	System(ref,N,m,n,M,bc),
+ChainPolymerized::ChainPolymerized(System const& s, Vector<double> const& t):
+	System(s),
 	Chain<double>((my::are_equal(t,Vector<double>(N_/m_,1.0))?1:N_/m_),"chain-polymerized"),
 	t_(t)
 {

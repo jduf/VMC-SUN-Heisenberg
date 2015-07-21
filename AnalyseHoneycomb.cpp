@@ -30,7 +30,8 @@ void AnalyseHoneycomb::close_files(){
 std::string AnalyseHoneycomb::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	CreateSystem cs(read_);
+	System s(*read_);
+	CreateSystem cs(&s);
 	cs.init(read_,this);
 	std::string link_name(cs.analyse(level_));
 

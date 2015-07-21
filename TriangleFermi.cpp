@@ -1,7 +1,7 @@
 #include "TriangleFermi.hpp"
 
-TriangleFermi::TriangleFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
-	System(ref,N,m,n,M,bc),
+TriangleFermi::TriangleFermi(System const& s):
+	System(s),
 	Triangle<double>(set_ab(),1,"triangle-fermi")
 {
 	if(status_==2){

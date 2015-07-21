@@ -13,7 +13,7 @@
 template<typename Type>
 class LadderFermi: public Ladder<Type>{
 	public:
-		LadderFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
+		LadderFermi(System const& s);
 		~LadderFermi(){}
 
 		void create();
@@ -28,8 +28,8 @@ class LadderFermi: public Ladder<Type>{
 };
 
 template<typename Type>
-LadderFermi<Type>::LadderFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
-	System(ref,N,m,n,M,bc),
+LadderFermi<Type>::LadderFermi(System const& s):
+	System(s),
 	Ladder<Type>(2,"ladder-fermi")
 {
 	if(this->status_==2){

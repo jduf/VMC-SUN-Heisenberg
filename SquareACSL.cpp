@@ -1,15 +1,8 @@
 #include "SquareACSL.hpp"
 
-SquareACSL::SquareACSL(
-		Vector<unsigned int> const& ref, 
-		unsigned int const& N, 
-		unsigned int const& m, 
-		unsigned int const& n, 
-		Vector<unsigned int> const& M,  
-		int const& bc, 
-		Vector<double> const& t):
-	System(ref,N,m,n,M,bc),
-	Square<std::complex<double> >(set_ab(N/m),(N%m?0:N/m),"square-acsl"),
+SquareACSL::SquareACSL(System const& s, Vector<double> const& t):
+	System(s),
+	Square<std::complex<double> >(set_ab(N_/m_),(N_%m_?0:N_/m_),"square-acsl"),
 	t_(t)
 {
 	if(status_==2){

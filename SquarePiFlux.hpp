@@ -5,7 +5,7 @@
 
 class SquarePiFlux: public Square<std::complex<double> >{
 	public:
-		SquarePiFlux(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
+		SquarePiFlux(System const& s);
 		~SquarePiFlux() = default;
 
 		void create();
