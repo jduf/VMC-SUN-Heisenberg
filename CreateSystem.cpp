@@ -1,6 +1,6 @@
 #include "CreateSystem.hpp"
 
-CreateSystem::CreateSystem(System* s):
+CreateSystem::CreateSystem(System const* const s):
 	s_(s),
 	ref_(s_->get_ref()),
 	RGL_(NULL),

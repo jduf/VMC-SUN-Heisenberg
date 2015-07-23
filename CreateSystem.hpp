@@ -26,7 +26,7 @@
 
 class CreateSystem{
 	public:
-		CreateSystem(System* s);
+		CreateSystem(System const* const s);
 		virtual ~CreateSystem();
 		/*{Forbidden*/
 		CreateSystem() = delete;
@@ -79,12 +79,17 @@ class CreateSystem{
 		void create(bool try_solve_degeneracy=false);
 		/*}*/
 
-		/*{Other class calls*/
+		/*{System calls*/
 		/*!Calls System::get_status() : see System.hpp*/
 		unsigned int get_status() const {
 			if(RGL_){return RGL_->get_status();}
 			if(CGL_){return CGL_->get_status();}
 			return 10;
+		}
+		/*!Calls System::get_status() : see System.hpp*/
+		void set_bonds(System* const s) const {
+			if(RGL_){ s->set_bonds(RGL_); }
+			if(CGL_){ s->set_bonds(CGL_); }
 		}
 		/*}*/
 
@@ -109,7 +114,7 @@ class CreateSystem{
 		}
 
 	private:
-		System* s_;
+		System const* s_;
 		Container C_;
 		Vector<unsigned int> ref_;
 

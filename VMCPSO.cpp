@@ -41,8 +41,9 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 	msg="initialize particles";
 	m_->pso_info_.item(msg); 
 	std::cout<<"#"<<msg<<std::endl;
-	std::shared_ptr<MCParticle> MCP;
-	for(unsigned int i(0);i<Nparticles_;i++){
+#pragma omp parallel for
+	for(unsigned int i=0;i<Nparticles_;i++){
+		std::shared_ptr<MCParticle> MCP;
 		MCP = std::dynamic_pointer_cast<MCParticle>(particle_[i]);
 		MCP->set_ps(m_->ps_);
 	}
@@ -53,9 +54,10 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 
 	if(clear_particle_history && create_particle_history && m_->samples_list_.size()){
 		msg="create particle history";
-		std::cout<<"#"<<msg;
+		std::cout<<"#"<<msg<<std::flush;
 
 		unsigned int size(0);
+		m_->samples_list_.set_target();
 		while(m_->samples_list_.target_next()){
 			if(m_->within_limit(m_->samples_list_.get().get_param())){ size++; }
 		}
@@ -76,13 +78,17 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 		}
 		std::string msg2(" (each particle knows "+my::tostring(Npp)+" samples)");
 		m_->pso_info_.item(msg+msg2);
-		std::cout<<msg2<<std::endl;
-	} else { m_->pso_info_.item("start with empty history"); }
+		std::cout<<msg2;
+	} else {
+		msg = "start with empty history";
+		m_->pso_info_.item(msg); 
+		std::cout<<"#"<<msg<<std::endl;
+	}
 }
 
 void VMCPSO::run(){
 	std::string msg1("explore with "+my::tostring(Nparticles_)+" particles for "+my::tostring(maxiter_)+" steps");
-	msg1 += " estimated time "+my::tostring(1.5*Nparticles_*maxiter_*m_->effective_time_/omp_get_max_threads())+"s";
+	msg1 += " estimated time "+my::tostring(1.1*Nparticles_*maxiter_*m_->effective_time_/omp_get_max_threads())+"s";
 	std::cout<<"#"<<msg1<<std::flush;
 	Time chrono;
 

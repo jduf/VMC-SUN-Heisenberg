@@ -16,7 +16,7 @@ int main(int argc, char* argv[]){
 
 		unsigned int what(P.get<unsigned int>("what"));
 		
-		if(!P.status() && what<4){
+		if(!P.locked() && what<4){
 			switch(what){
 				case 0: { AnalyseEnergy ana(path); }break;
 				case 1: { AnalyseChain ana(path); }break;

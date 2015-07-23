@@ -35,22 +35,30 @@ template<typename Type>
 Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,3,filename)
 {
-	if(this->status_==2){ 
-		Vector<unsigned int> l(2);
-		l(0) = 2;
-		l(1) = 1;
-		this->compute_links(l);
-
-		if(this->J_.size() == 2){
-			Vector<double> tmp(this->J_);
-			this->J_.set(this->links_.row());
-			for (unsigned int i=0; i<this->J_.size() ; i++){
-				if (i%3==1){ this->J_(i) = tmp(0); } //rungs (J⊥)
-				else{ this->J_(i) = tmp(1); } //(J‖)
+	/*!(*this) has been created via System(System const& s), this->J_ and
+	 * this->links_ are already a copy of s. therefore if s has correctly
+	 * defined J_ and links_, there is no need to recompute them for (*this).
+	 * if s has undefined links_ and if J_ is of size 2, then this->links_ and
+	 * this_->J_ should be computed*/
+	if(this->status_==2){
+		if(!this->links_.ptr()){
+			Vector<unsigned int> l(2);
+			l(0) = 2;
+			l(1) = 1;
+			this->compute_links(l);
+		}
+		if(this->links_.row() != this->J_.size()){
+			if(this->J_.size() == 2){
+				Vector<double> tmp(this->J_);
+				this->J_.set(this->links_.row());
+				for (unsigned int i=0; i<this->J_.size() ; i++){
+					if (i%3==1){ this->J_(i) = tmp(0); } //rungs (J⊥)
+					else{ this->J_(i) = tmp(1); } //(J‖)
+				}
+			} else {
+				this->J_.set(this->links_.row(),1);
+				std::cerr<<"Vector<double> const& create_J(Vector<double> const& J) : need J.size() == 2"<<std::endl;
 			}
-		} else {
-			this->J_.set(this->links_.row(),1);
-			std::cerr<<"Vector<double> const& create_J(Vector<double> const& J) : need J.size() == 2"<<std::endl;
 		}
 	}
 }

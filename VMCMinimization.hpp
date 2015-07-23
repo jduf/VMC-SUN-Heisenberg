@@ -17,14 +17,17 @@ class VMCMinimization{
 		VMCMinimization& operator=(VMCMinimization const&) = delete;
 		/*}*/
 
-		void refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax);
+		void set_phase_space(Parseur& P){ m_->set_phase_space(P); }
+
+		void refine();
+		void refine(double const& E, double const& dE);
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
 		void save_best(unsigned int const& nsave);
 		void plot() const;
 
 		virtual void print() const;
-		bool ready(){ return m_->s_; }
+		bool ready(){ return m_.get(); }
 
 	private:
 		std::string time_;
@@ -42,6 +45,7 @@ class VMCMinimization{
 				Minimization& operator=(Minimization const&) = delete;
 				/*}*/
 				std::string set(Parseur& P);
+				void set_phase_space(Parseur& P);
 
 				bool within_limit(Vector<double> const& x);
 				void save(IOFiles& out) const;

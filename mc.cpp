@@ -13,7 +13,7 @@ int main(int argc, char* argv[]){
 	System s(CreateSystem::get_ref(P.get<std::string>("wf")),P.get<unsigned int>("N"),P.get<unsigned int>("m"),P.get<unsigned int>("n"),P.get<int>("bc"),P.get<std::vector<unsigned int> >("M"),P.get<std::vector<double> >("Jp"));
 	CreateSystem cs(&s);
 	cs.set_param(&P);
-	if(!P.status()){
+	if(!P.locked()){
 		cs.init();
 		if(cs.get_status()==2){
 			cs.create();

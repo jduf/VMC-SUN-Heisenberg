@@ -26,7 +26,7 @@ MCSim::MCSim(IOFiles& r):
 }
 /*}*/
 
-void MCSim::create_S(System* s){
+void MCSim::create_S(System const* const s){
 	CreateSystem cs(s);
 	cs.set_param(NULL,&param_);
 	cs.init();
@@ -107,7 +107,7 @@ void MCSim::write(IOFiles& w) const {
 	S_->write(w);
 }
 
-void MCSim::save(System* s) const {
+void MCSim::save(System const* const s) const {
 	CreateSystem cs(s);
 	cs.set_param(NULL,&param_);
 	cs.init();

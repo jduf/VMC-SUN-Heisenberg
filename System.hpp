@@ -25,6 +25,11 @@ class System{
 		System& operator=(System) = delete;
 		/*}*/
 
+		void set_bonds(System const* const s){ 
+			J_ = s->J_; 
+			links_ = s->links_; 
+		}
+
 		/*!Returns ref*/
 		Vector<unsigned int> const& get_ref() const { return ref_; }
 		/*!Returns energy*/
