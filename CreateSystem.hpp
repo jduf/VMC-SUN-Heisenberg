@@ -26,6 +26,12 @@
 
 class CreateSystem{
 	public:
+		/*{Description*/
+		/*!Takes a pointer to an already existing System (better than to create
+		 * a System within this class because in VMCMinimization, many
+		 * GenericSystem will be created therefore if one can avoid the
+		 * re-creation of a System, it saves ressources) */
+		/*}*/
 		CreateSystem(System const* const s);
 		virtual ~CreateSystem();
 		/*{Forbidden*/
@@ -35,8 +41,14 @@ class CreateSystem{
 		CreateSystem& operator=(CreateSystem cs) = delete;
 		/*}*/
 
-		void set_param(Container* C, Vector<double> const* param = NULL);
-		void init(IOFiles* read=NULL, IOSystem* ios=NULL);
+		void set_param(Container* C, Vector<double> const* param);
+		/*{Description*/
+		/*!If read!=NULL, it will use parameters saved in IOFiles instead of
+		 * those stored in Container C_
+		 * If ios!=NULL, the attributes of IOSystem will be copied to
+		 * RGL_/CGL_.*/
+		/*}*/
+		void construct_GenericSystem(IOFiles* read, IOSystem* ios);
 
 		/*{IOSystem calls*/
 		/*!Calls IOSystem::analyse(unsigned int const& level)*/
@@ -94,7 +106,6 @@ class CreateSystem{
 		/*}*/
 
 		/*!Returns ref*/
-		static Vector<unsigned int> get_ref(std::string const& wf);
 		Vector<unsigned int> const&  get_ref() const { return ref_; }
 		/*!Returns a pointer on the GenericSystem created*/
 		System const* get_system() const { 

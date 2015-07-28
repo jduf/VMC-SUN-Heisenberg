@@ -52,8 +52,8 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 				Vector<double> tmp(this->J_);
 				this->J_.set(this->links_.row());
 				for (unsigned int i=0; i<this->J_.size() ; i++){
-					if (i%3==1){ this->J_(i) = tmp(0); } //rungs (J⊥)
-					else{ this->J_(i) = tmp(1); } //(J‖)
+					if (i%3==1){ this->J_(i) = tmp(0); } //rungs (J⊥) -> sin(theta)
+					else{ this->J_(i) = tmp(1); }        //legs  (J‖) -> cos(theta)
 				}
 			} else {
 				this->J_.set(this->links_.row(),1);

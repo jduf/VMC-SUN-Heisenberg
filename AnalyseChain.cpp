@@ -72,7 +72,7 @@ std::string AnalyseChain::extract_level_6(){
 
 	System s(*read_);
 	CreateSystem cs(&s);
-	cs.init(read_,this);
+	cs.construct_GenericSystem(read_,this);
 	std::string link_name(cs.analyse(level_));
 
 	delete read_;
@@ -101,8 +101,7 @@ std::string AnalyseChain::extract_level_5(){
 				Data<double> E;
 				Vector<double> ti;
 				Vector<double> Jp;
-				(*read_)>>ref>>N>>m>>n>>M>>bc>>Jp;
-				System s(ref,N,m,n,bc,M,Jp);
+				System s(*read_);
 
 				switch(ref(2)){
 					case 0:
@@ -155,18 +154,19 @@ std::string AnalyseChain::extract_level_5(){
 				Data<double> E[2];
 				Vector<double> ti;
 				Vector<double> Jp;
+				System* s;
 				for(unsigned int i(0);i<nof_;i++){
-					(*read_)>>ref>>N>>m>>n>>M>>bc>>Jp;
+					if(!i){ s = new System(*read_); }
+					else { System tmp(*read_); }
 					if(ref(2) == 1){ (*read_)>>ti; }
 					else{ ti.set(N/m,1); }
 					(*read_)>>E[ref(2)]>>polymerization_strength[ref(2)]>>exponents[ref(2)];
 				}
-				System s(ref,N,m,n,bc,M,Jp);
 
 				if(!my::are_equal(ti,Vector<double>(N/m,1.0))){
 					ref(1) = 1;
 					ref(2) = 1;
-					ChainPolymerized chain(s,ti);
+					ChainPolymerized chain(*s,ti);
 					chain.set_IOSystem(this);
 					chain.save();
 				} else {
@@ -174,18 +174,19 @@ std::string AnalyseChain::extract_level_5(){
 					switch(ref(1)){
 						case 1:
 							{
-								ChainFermi<double> chain(s);
+								ChainFermi<double> chain(*s);
 								chain.set_IOSystem(this);
 								chain.save();
 							}break;
 						case 2:
 							{
-								ChainFermi<std::complex<double> > chain(s);
+								ChainFermi<std::complex<double> > chain(*s);
 								chain.set_IOSystem(this);
 								chain.save();
 							}break;
 						default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
 					}
+					delete s;
 				}
 
 				/*As we know that SU(9) m=3 is gapless, it will save the correct critical exponent*/
@@ -217,7 +218,7 @@ std::string AnalyseChain::extract_level_4(){
 	for(unsigned int i(0);i<nof_;i++){
 		System s(*read_);
 		CreateSystem cs(&s);
-		cs.init(read_,this);
+		cs.construct_GenericSystem(read_,this);
 		(*read_)>>E>>polymerization_strength>>exponents;
 
 		jd_write_->add_header()->nl();
@@ -241,7 +242,7 @@ std::string AnalyseChain::extract_level_3(){
 	for(unsigned int i(0);i<nof_;i++){
 		System s(*read_);
 		CreateSystem cs(&s);
-		cs.init(read_,this);
+		cs.construct_GenericSystem(read_,this);
 		std::string link_name(cs.analyse(level_));
 
 		jd_write_->add_header()->nl();
@@ -299,7 +300,7 @@ std::string AnalyseChain::extract_level_2(){
 		gpenergy+="     f(x) lc 3 t sprintf('$E=%f$',E)";
 	}
 	gpenergy.save_file();
-	gpenergy.create_image(true);
+	gpenergy.create_image(true,true);
 
 	Gnuplot gpexp(analyse_+path_+dir_,filename_+"-exponents");
 	gpexp+="set multiplot";
@@ -321,7 +322,7 @@ std::string AnalyseChain::extract_level_2(){
 	gpexp+="     2.0 axes x1y2 lc 2 notitle";
 	gpexp+="unset multiplot";
 	gpexp.save_file();
-	gpexp.create_image(true);
+	gpexp.create_image(true,true);
 
 	Gnuplot gppolym(analyse_+path_+dir_,filename_+"-polymerization");
 	gppolym.label("x","$n^{-1}$");
@@ -332,7 +333,7 @@ std::string AnalyseChain::extract_level_2(){
 	gppolym+="plot '"+filename_+".dat' u (1/$4):($3==1?$9:1/0) t 'P',\\";
 	gppolym+="     '"+filename_+".dat' u (1/$4):($3==0?$9:1/0) t 'O'";
 	gppolym.save_file();
-	gppolym.create_image(true);
+	gppolym.create_image(true,true);
 
 	return filename_;
 }

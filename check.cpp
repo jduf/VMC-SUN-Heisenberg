@@ -6,30 +6,30 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	std::cout<<"############# Init System #################"<<std::endl;
-	System s(CreateSystem::get_ref(P.get<std::string>("wf")),P.get<unsigned int>("N"),P.get<unsigned int>("m"),P.get<unsigned int>("n"),P.get<int>("bc"),P.get<std::vector<unsigned int> >("M"),P.get<std::vector<double> >("Jp"));
+	System s(P);
 	std::cout<<"############# Init CreateSystem ###########"<<std::endl;
 	CreateSystem cs(&s);
 	unsigned int i(0);
 	switch(P.find("what",i)?P.get<unsigned int>(i):0){
 		case 0:/*call CreateSystem::init*/
 			{ 
-				cs.set_param(&P);
+				cs.set_param(&P,NULL);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
-				cs.init(); 
+				cs.construct_GenericSystem(NULL,NULL); 
 			} break;
 		case 1:/*call CreateSystem::init and check*/
 			{ 
-				cs.set_param(&P);
+				cs.set_param(&P,NULL);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
-				cs.init();
+				cs.construct_GenericSystem(NULL,NULL);
 				std::cout<<"############# Check #######################"<<std::endl;
 				if(cs.get_status()==2){ cs.check(); }
 			} break;
 		case 2:/*call CreateSystem::init create and check*/
 			{ 
-				cs.set_param(&P);
+				cs.set_param(&P,NULL);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
-				cs.init();
+				cs.construct_GenericSystem(NULL,NULL);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
 					cs.create();
@@ -40,9 +40,9 @@ int main(int argc, char* argv[]){
 		case 3:/*call CreateSystem::init create, MonteCarlo::run*/
 			{
 				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
-				cs.set_param(&P);
+				cs.set_param(&P,NULL);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
-				cs.init();
+				cs.construct_GenericSystem(NULL,NULL);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
 					cs.create();
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]){
 		case 4:/*call CreateSystem::(init,create), MonteCarlo::run and save*/
 			{
 				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
-				cs.init();
+				cs.construct_GenericSystem(NULL,NULL);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
 					cs.create();

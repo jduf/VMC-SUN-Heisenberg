@@ -2,11 +2,13 @@
 #define DEF_SYSTEM
 
 #include "Sampling.hpp"
+#include "Parseur.hpp"
 
 /*!{Class that contains the information on the state*/
 /*
- * status_ = 4 : System is initialized (in System)
- * status_ = 3 : System is allowed (in System)
+ * status_ = 5 : System is initialized (in System)
+ * status_ = 4 : System is allowed (in System)
+ * status_ = 3 : Boundary condition is allowed
  * status_ = 2 : Degenerated wavefunction
  * status_ = 1 : System*D is allowed (in System*D)
  * status_ = 0 : Found an initial state (in SystemFermionic)
@@ -15,7 +17,7 @@
 class System{
 	public:
 		/*!Constructor*/
-		System(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, int const& bc, Vector<unsigned int> const& M, Vector<double> const& J);
+		System(Parseur& P);
 		/*!Constructor that reads from file*/
 		System(IOFiles& r);
 		/*!Default destructor*/
@@ -25,10 +27,7 @@ class System{
 		System& operator=(System) = delete;
 		/*}*/
 
-		void set_bonds(System const* const s){ 
-			J_ = s->J_; 
-			links_ = s->links_; 
-		}
+		std::vector<std::string> names() const;
 
 		/*!Returns ref*/
 		Vector<unsigned int> const& get_ref() const { return ref_; }
@@ -43,6 +42,7 @@ class System{
 		/*!Returns the status of the system*/
 		unsigned int const& get_status(){return status_;}
 
+		void set_bonds(System const* const s);
 		/*!Sets the observables to default (0) values and initilizes binning*/
 		void set_binning();
 		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
@@ -74,5 +74,6 @@ class System{
 		DataSet<double> corr_;			//!< correlation between neighbours
 		DataSet<double> lr_corr_;		//!< long range correlation 
 
+		Vector<unsigned int> set_ref(Parseur& P);
 };
 #endif

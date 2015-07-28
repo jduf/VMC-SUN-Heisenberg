@@ -304,7 +304,7 @@ std::string ChainPolymerized::extract_level_6(){
 	}
 
 	gp.save_file();
-	gp.create_image(true);
+	gp.create_image(true,true);
 
 	return filename_;
 }

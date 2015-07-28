@@ -6,7 +6,7 @@
 
 class VMCMinimization{
 	public:
-		VMCMinimization(Parseur const& P);
+		VMCMinimization(Parseur& P);
 		VMCMinimization(VMCMinimization const& m, std::string const& prefix);
 		/*!Default destructor*/
 		virtual ~VMCMinimization() = default;
@@ -45,7 +45,7 @@ class VMCMinimization{
 				Minimization(Minimization&&) = delete;
 				Minimization& operator=(Minimization const&) = delete;
 				/*}*/
-				void set(Parseur const& P, std::string& path, std::string& basename);
+				void set(Parseur& P, std::string& path, std::string& basename);
 				void set_phase_space(Parseur const& P);
 
 				bool within_limit(Vector<double> const& x);

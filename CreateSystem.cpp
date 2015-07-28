@@ -12,121 +12,6 @@ CreateSystem::~CreateSystem(){
 	if(CGL_){delete CGL_;}
 }
 
-Vector<unsigned int> CreateSystem::get_ref(std::string const& wf){
-	Vector<unsigned int> ref(3,6);
-	if( wf == "chainfermi" ){
-		ref(0) = 1;
-		ref(1) = 1;
-		ref(2) = 0;
-	}
-	if( wf == "chainpolymerized" ){
-		ref(0) = 1;
-		ref(1) = 1;
-		ref(2) = 1;
-	}
-
-	if( wf == "ladderfermi"){
-		ref(0) = 2;
-		ref(1) = 1;
-		ref(2) = 0;
-	}
-	if( wf == "ladderfree"){
-		ref(0) = 2;
-		ref(1) = 1;
-		ref(2) = 4;
-	}
-
-	if( wf == "trianglefermi" ){
-		ref(0) = 3;
-		ref(1) = 1;
-		ref(2) = 0;
-	}
-	if( wf == "trianglemu" ){
-		ref(0) = 3;
-		ref(1) = 1;
-		ref(2) = 1;
-	}
-	if( wf == "trianglephi" ){
-		ref(0) = 3;
-		ref(1) = 2;
-		ref(2) = 2;
-	}
-	if( wf == "trianglejastrow" ){
-		ref(0) = 3;
-		ref(1) = 0;
-	}
-
-	if( wf == "squarefermi" ){
-		ref(0) = 4;
-		ref(1) = 1;
-		ref(2) = 0;
-	}
-	if( wf == "squaremu" ){
-		ref(0) = 4;
-		ref(1) = 1;
-		ref(2) = 1;
-	}
-	//if( wf == "squarefreereal" ){
-	//ref(0) = 4;
-	//ref(1) = 1;
-	//ref(2) = 3;
-	//C_.set("t",param?param->range(0,3):C->get<std::vector<double> >("t"));
-	//C_.set("mu",param?param->range(3,5):C->get<std::vector<double> >("mu"));
-	//}
-	if( wf == "squareacsl" ){
-		ref(0) = 4;
-		ref(1) = 2;
-		ref(2) = 3;
-	}
-	if( wf == "squarefreecomplex" ){
-		ref(0) = 4;
-		ref(1) = 2;
-		ref(2) = 4;
-	}
-	if( wf == "squarepiflux" ){
-		ref(0) = 4;
-		ref(1) = 2;
-		ref(2) = 2;
-	}
-	if( wf == "squarephi" ){
-		ref(0) = 4;
-		ref(1) = 2;
-		ref(2) = 3;
-	}
-	if( wf == "squarejastrow" ){
-		ref(0) = 4;
-		ref(1) = 0;
-	}
-
-	if( wf == "kagomefermi" ){
-		ref(0) = 5;
-		ref(1) = 1;
-		ref(2) = 0;
-	}
-	if( wf == "kagomedirac" ){
-		ref(0) = 5;
-		ref(1) = 1;
-		ref(2) = 1;
-	}
-	if( wf == "kagomevbc" ){
-		ref(0) = 5;
-		ref(1) = 2;
-		ref(2) = 2;
-	}
-
-	if( wf == "honeycomb0pp" ){
-		ref(0) = 6;
-		ref(1) = 1;
-		ref(2) = 0;
-	}
-	if( wf == "honeycombsu4" ){
-		ref(0) = 6;
-		ref(1) = 1;
-		ref(2) = 0;
-	}
-	return ref;
-}
-
 void CreateSystem::set_param(Container* C, Vector<double> const* param){
 	switch(ref_(0)){
 		case 1:
@@ -219,7 +104,7 @@ void CreateSystem::set_param(Container* C, Vector<double> const* param){
 	}
 }
 
-void CreateSystem::init(IOFiles* read, IOSystem* ios){
+void CreateSystem::construct_GenericSystem(IOFiles* read, IOSystem* ios){
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 	switch(ref_(0)){
@@ -391,7 +276,7 @@ void CreateSystem::create(bool try_solve_degeneracy){
 				delete RGL_;
 				RGL_=NULL;
 				ref_(1)=2;
-				init();
+				construct_GenericSystem(NULL,NULL);
 				if(CGL_){ CGL_->create(); }
 			} else {
 				std::cerr<<"void CreateSystem::create(bool try_solve_degeneracy) : giving up"<<std::endl;

@@ -350,7 +350,7 @@ std::string Honeycomb0pp::extract_level_6(){
 	gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
 	gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean'";
 	gp.save_file();
-	gp.create_image(true);
+	gp.create_image(true,true);
 
 	return filename_;
 }

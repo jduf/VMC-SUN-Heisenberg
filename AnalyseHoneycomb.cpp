@@ -32,7 +32,7 @@ std::string AnalyseHoneycomb::extract_level_6(){
 
 	System s(*read_);
 	CreateSystem cs(&s);
-	cs.init(read_,this);
+	cs.construct_GenericSystem(read_,this);
 	std::string link_name(cs.analyse(level_));
 
 	delete read_;

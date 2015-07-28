@@ -1,7 +1,6 @@
 #include "Analyse.hpp"
 
 Analyse::Analyse(std::string const& path):
-	IOSystem(""),
 	level_(0)
 {
 	if(path == ""){ study_=0; }
@@ -120,7 +119,7 @@ std::string Analyse::extract_level_7(){
 
 	System s(*read_);
 	CreateSystem cs(&s);
-	cs.init(read_,this);
+	cs.construct_GenericSystem(read_,this);
 	/*Only one call of cs.save() is needed*/
 	if(!all_link_names_.size()){ 
 		cs.save();

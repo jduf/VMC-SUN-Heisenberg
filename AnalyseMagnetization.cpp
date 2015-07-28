@@ -38,7 +38,7 @@ std::string AnalyseMagnetization::extract_level_6(){
 
 	System s(*read_);
 	CreateSystem cs(&s);
-	cs.init(read_,this);
+	cs.construct_GenericSystem(read_,this);
 	if(!all_link_names_.size()){ jd_write_->write("number of jdfiles",nof_); }
 	jd_write_->add_header()->nl();
 	std::string link_name(cs.analyse(level_));
@@ -61,7 +61,7 @@ std::string AnalyseMagnetization::extract_level_5(){
 	for(unsigned int i(0);i<nof_;i++){
 		System s(*read_);
 		CreateSystem cs(&s);
-		cs.init(read_,this);
+		cs.construct_GenericSystem(read_,this);
 		(*read_)>>E;
 		if(E.get_x()<min_E.get_x()){ 
 			idx = i;
@@ -78,7 +78,7 @@ std::string AnalyseMagnetization::extract_level_5(){
 	for(unsigned int i(0);i<nof_;i++){
 		System s(*read_);
 		CreateSystem cs(&s);
-		cs.init(read_,this);
+		cs.construct_GenericSystem(read_,this);
 		(*read_)>>E;
 		if(i==idx){
 			cs.save(); 
@@ -98,7 +98,7 @@ std::string AnalyseMagnetization::extract_level_4(){
 
 	System s(*read_);
 	CreateSystem cs(&s);
-	cs.init(read_,this);
+	cs.construct_GenericSystem(read_,this);
 	cs.save();
 	std::string link_name(cs.analyse(level_));
 	jd_write_->add_header()->nl();
@@ -120,7 +120,7 @@ std::string AnalyseMagnetization::extract_level_3(){
 	gp+="     '"+filename_+".dat' u 1:($4==511?$2:1/0):3 w e t 'Dirac',\\";
 	gp+="     '"+filename_+".dat' u 1:($4==520?$2:1/0):3 w e t 'VBC'";
 	gp.save_file();
-	gp.create_image(true);
+	gp.create_image(true,true);
 
 	Vector<unsigned int> ref;
 	Vector<unsigned int> M;
@@ -158,6 +158,6 @@ std::string AnalyseMagnetization::extract_level_2(){
 	gp+="plot '"+filename_+".dat' u 1:2 notitle,\\";
 	gp+="     1.0/3.0, 5.0/9.0, 7.0/9.0";
 	gp.save_file();
-	gp.create_image(true);
+	gp.create_image(true,true);
 	return filename_;
 }

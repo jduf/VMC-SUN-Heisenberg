@@ -10,11 +10,11 @@ int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	unsigned int nruns(P.get<unsigned int>("nruns"));
 	unsigned int tmax(P.get<unsigned int>("tmax"));
-	System s(CreateSystem::get_ref(P.get<std::string>("wf")),P.get<unsigned int>("N"),P.get<unsigned int>("m"),P.get<unsigned int>("n"),P.get<int>("bc"),P.get<std::vector<unsigned int> >("M"),P.get<std::vector<double> >("Jp"));
+	System s(P);
 	CreateSystem cs(&s);
-	cs.set_param(&P);
+	cs.set_param(&P,NULL);
 	if(!P.locked()){
-		cs.init();
+		cs.construct_GenericSystem(NULL,NULL);
 		if(cs.get_status()==2){
 			cs.create();
 			if(cs.get_status()==1){

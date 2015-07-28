@@ -47,7 +47,7 @@ std::string AnalyseEnergy::extract_level_4(){
 	for(unsigned int i(0);i<nof_;i++){
 		System s(*read_);
 		CreateSystem cs(&s);
-		cs.init(read_,this);
+		cs.construct_GenericSystem(read_,this);
 		(*read_)>>E;
 
 		jd_write_->add_header()->nl();
@@ -68,7 +68,7 @@ std::string AnalyseEnergy::extract_level_3(){
 	for(unsigned int i(0);i<nof_;i++){
 		System s(*read_);
 		CreateSystem cs(&s);
-		cs.init(read_,this);
+		cs.construct_GenericSystem(read_,this);
 		std::string link_name(cs.analyse(level_));
 
 		jd_write_->add_header()->nl();
@@ -96,7 +96,7 @@ std::string AnalyseEnergy::extract_level_2(){
 	gp+="     '"+filename_+".dat' u (1/$1):($6==0?$2:1/0):3 w e t '0',\\";
 	gp+="     f(x) t sprintf('$E=%f$',b)";
 	gp.save_file();
-	gp.create_image(true);
+	gp.create_image(true,true);
 	return filename_;
 }
 
@@ -107,7 +107,7 @@ std::string AnalyseEnergy::extract_default(){
 	Data<double> E;
 	System s(*read_);
 	CreateSystem cs(&s);
-	cs.init(read_,this);
+	cs.construct_GenericSystem(read_,this);
 	if(level_ == 6){ (*read_)>>nof_; }
 	(*read_)>>E;
 

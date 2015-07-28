@@ -1,7 +1,7 @@
 #include "VMCMinimization.hpp"
 
 /*{VMCMinimization*/
-VMCMinimization::VMCMinimization(Parseur const& P):
+VMCMinimization::VMCMinimization(Parseur& P):
 	time_(""),
 	path_(""),
 	basename_(""),
@@ -200,28 +200,21 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 /*}*/
 
 /*{Minimization*/
-void VMCMinimization::Minimization::set(Parseur const& P, std::string& path, std::string& basename){
+void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::string& basename){
 	tmax_ = P.get<unsigned int>("tmax");
 
 	unsigned int i(0);
 	IOFiles* in(P.find("load",i,false)?(new IOFiles(P.get<std::string>(i),false)):NULL);
-
-	Vector<unsigned int> ref(in?in->read<Vector<unsigned int> >():CreateSystem::get_ref(P.get<std::string>("wf")));
-	unsigned int         N  (in?in->read<unsigned int>()         :P.get<unsigned int>("N"));
-	unsigned int         m  (in?in->read<unsigned int>()         :P.get<unsigned int>("m"));
-	unsigned int         n  (in?in->read<unsigned int>()         :P.get<unsigned int>("n"));
-	unsigned int         bc (in?in->read<int>()                  :P.get<int>("bc"));
-	Vector<unsigned int> M  (in?in->read<Vector<unsigned int> >():P.get<std::vector<unsigned int>>("M"));
-	Vector<double>       J  (in?in->read<Vector<double> >()      :P.get<std::vector<double> >("Jp"));
-	dof_                  = (in?in->read<unsigned int>()         :P.get<unsigned int>("dof"));
-	s_ = new System(ref,N,m,n,bc,M,J);
+	if(in){ s_ = new System(*in); }
+	else  { s_ = new System(P); }
+	dof_ = (in?in->read<unsigned int>():P.get<unsigned int>("dof"));
 	ps_= new Vector<double>[dof_];
 
 	/*!the next block is required to compute the J setup*/
 	Vector<double> tmp;
 	CreateSystem cs(s_);
 	cs.set_param(NULL,&tmp);
-	cs.init();
+	cs.construct_GenericSystem(NULL,NULL);
 	cs.set_bonds(s_);
 
 	ps_size_ = 1;

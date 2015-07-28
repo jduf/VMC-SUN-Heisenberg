@@ -29,7 +29,7 @@ MCSim::MCSim(IOFiles& r):
 void MCSim::create_S(System const* const s){
 	CreateSystem cs(s);
 	cs.set_param(NULL,&param_);
-	cs.init();
+	cs.construct_GenericSystem(NULL,NULL);
 	if(cs.get_status()==2){
 		cs.create();
 		if(cs.get_status()==1){
@@ -110,7 +110,7 @@ void MCSim::write(IOFiles& w) const {
 void MCSim::save(System const* const s) const {
 	CreateSystem cs(s);
 	cs.set_param(NULL,&param_);
-	cs.init();
+	cs.construct_GenericSystem(NULL,NULL);
 	if(cs.get_status()==2){
 		Linux command;
 		command("/bin/mkdir -p " + cs.get_path());
