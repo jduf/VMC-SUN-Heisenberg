@@ -70,28 +70,34 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 		std::cerr<<"GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename) : the number of sites is not comensurate with the unit cell"<<std::endl;
 	}
 	filename_ += "-N" + my::tostring(this->N_);
-	path_ += "N" + my::tostring(this->N_);
+	path_     +=  "N" + my::tostring(this->N_);
 	filename_ += "-m" + my::tostring(this->m_);
-	path_ += "/m" + my::tostring(this->m_);
+	path_     += "/m" + my::tostring(this->m_);
 	filename_ += "-n" + my::tostring(this->n_);
-	path_ += "/n" + my::tostring(this->n_);
+	path_     += "/n" + my::tostring(this->n_);
 	filename_ += "-M";
-	path_ += "/M";
+	path_     += "/M";
 	for(unsigned int i(0);i<this->M_.size();i++){
-		filename_  += "-" + my::tostring(this->M_(i));
-		path_ +=  "-"+my::tostring(this->M_(i));
+		filename_  += "_" + my::tostring(this->M_(i));
+		path_      += "_" + my::tostring(this->M_(i));
 	}
 	switch(this->bc_){
-		case -1:{filename_ += "-A"; path_ += "/A/"; }break;
-		case 0: {filename_ += "-O"; path_ += "/O/"; }break;
-		case 1: {filename_ += "-P"; path_ += "/P/"; }break;
+		case -1:{filename_ += "-A"; path_ += "/A"; }break;
+		case 0: {filename_ += "-O"; path_ += "/O"; }break;
+		case 1: {filename_ += "-P"; path_ += "/P"; }break;
 		default:
 				{
 					this->status_++;
 					std::cerr<<"GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename) : unknown boundary condition"<<std::endl;
 				}
 	}
-	path_ += my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2))+"/";
+	filename_ += "-J";
+	path_     += "/J";
+	for(unsigned int i(0);i<this->J_.size();i++){
+		filename_  += (this->J_(i)>=0?"+":"") + my::tostring(this->J_(i));
+		path_      += (this->J_(i)>=0?"+":"") + my::tostring(this->J_(i));
+	}
+	path_ += "/"+my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2))+"/";
 }
 
 template<typename Type>

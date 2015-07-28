@@ -2,10 +2,10 @@
 
 LadderFree::LadderFree(System const& s, Vector<double> const& t):
 	System(s),
-	Ladder<double>(8,"ladderfree"),
+	Ladder<double>(set_spuc(t),"ladderfree"),
 	t_(t)
 {
-	if(status_==2){
+	if(status_==2 && t_.ptr()){
 		init_fermionic();
 		system_info_.text("LadderFree : all colors experience the same Hamiltonian");
 		filename_ += "-t";
@@ -20,44 +20,44 @@ void LadderFree::compute_H(){
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
 	switch(t_.size()){
+		case 1:
+			{
+				for(unsigned int i(0);i<n_;i++){
+					nb = get_neighbourg(i);
+					switch(i%spuc_){
+						case 0:
+							{
+								H_(i,nb(0,0)) = nb(0,1);
+								H_(i,nb(1,0)) = nb(1,1)*t_(0);
+							}break;
+						case 1:
+							{
+								H_(i,nb(0,0)) = nb(0,1);
+							}break;
+						default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
+					}
+				}
+			}break;
 		case 2:
 			{
 				for(unsigned int i(0);i<n_;i++){
 					nb = get_neighbourg(i);
-					switch(i%spuc_){ 
+					switch(i%spuc_){
 						case 0:
 							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-								H_(i,nb(1,0)) = nb(1,1);
+								H_(i,nb(0,0)) = nb(0,1);
+								H_(i,nb(1,0)) = nb(1,1)*t_(0);
 							}break;
 						case 1:
 							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+								H_(i,nb(0,0)) = nb(0,1);
 							}break;
 						case 2:
 							{
 								H_(i,nb(0,0)) = nb(0,1)*t_(1);
-								H_(i,nb(1,0)) = nb(1,1);
+								H_(i,nb(1,0)) = nb(1,1)*t_(0);
 							}break;
 						case 3:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-							}break; 
-						case 4:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-								H_(i,nb(1,0)) = nb(1,1);
-							}break;
-						case 5:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-							}break;
-						case 6:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-								H_(i,nb(1,0)) = nb(1,1);
-							}break;
-						case 7:
 							{
 								H_(i,nb(0,0)) = nb(0,1)*t_(1);
 							}break;
@@ -69,42 +69,24 @@ void LadderFree::compute_H(){
 			{
 				for(unsigned int i(0);i<n_;i++){
 					nb = get_neighbourg(i);
-					switch(i%spuc_){ 
+					switch(i%spuc_){
 						case 0:
 							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-								H_(i,nb(1,0)) = nb(1,1);
+								H_(i,nb(0,0)) = nb(0,1);
+								H_(i,nb(1,0)) = nb(1,1)*t_(0);
 							}break;
 						case 1:
 							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
+								H_(i,nb(0,0)) = nb(0,1);
 							}break;
 						case 2:
 							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(1);
-								H_(i,nb(1,0)) = nb(1,1);
+								H_(i,nb(0,0)) = nb(0,1)*t_(2);
+								H_(i,nb(1,0)) = nb(1,1)*t_(1);
 							}break;
 						case 3:
 							{
 								H_(i,nb(0,0)) = nb(0,1)*t_(2);
-							}break; 
-						case 4:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-								H_(i,nb(1,0)) = nb(1,1);
-							}break;
-						case 5:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-							}break;
-						case 6:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(2);
-								H_(i,nb(1,0)) = nb(1,1);
-							}break;
-						case 7:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(1);
 							}break;
 						default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
 					}
@@ -114,7 +96,7 @@ void LadderFree::compute_H(){
 			{
 				for(unsigned int i(0);i<n_;i++){
 					nb = get_neighbourg(i);
-					switch(i%spuc_){ 
+					switch(i%spuc_){
 						case 0:
 							{
 								H_(i,nb(0,0)) = nb(0,1)*t_(0);
@@ -132,7 +114,7 @@ void LadderFree::compute_H(){
 						case 3:
 							{
 								H_(i,nb(0,0)) = nb(0,1)*t_(2);
-							}break; 
+							}break;
 						case 4:
 							{
 								H_(i,nb(0,0)) = nb(0,1)*t_(0);
@@ -157,7 +139,7 @@ void LadderFree::compute_H(){
 			}break;
 		default:{  std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : no wavefunction definded for "<<t_.size()-1<<" free parameters"<<std::endl; }
 	}
-	H_ += H_.transpose(); 
+	H_ += H_.transpose();
 }
 
 void LadderFree::create(){
@@ -183,6 +165,20 @@ void LadderFree::save() const {
 	t_string += my::tostring(t_.back());
 	jd_write_->write("t ("+t_string+")",t_);
 }
+
+unsigned int LadderFree::set_spuc(Vector<double> const& t){
+	switch(t.size()){
+		case 1: { return 2; } break;
+		case 2: { return 4; } break;
+		case 3: { return 4; } break;
+		case 4: { return 4; } break;
+		case 8: { return 4; } break;
+		default:{
+					std::cerr<<"unsigned int LadderFree::set_spuc(Vector<double> const& t) : unvalid t size"<<std::endl;
+					return 1;
+				}
+	}
+}
 /*}*/
 
 /*{method needed for checking*/
@@ -195,7 +191,7 @@ void LadderFree::check(){
 		std::cout << "get_neighbourg. right - top/bot - left" << std::endl;
 		std::cout<<"i="<<i<<std::endl;
 		std::cout<<get_neighbourg(i)<<std::endl;// shows the links
-	} 
+	}
 	std::cout<<"Hamiltonien"<<std::endl;
 	std::cout<<H_<<std::endl;
 
@@ -219,11 +215,11 @@ void LadderFree::lattice(){
 		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
 		nb = get_neighbourg(i);
 
-		if(nb(0,1)<0){ color = "red"; } 
+		if(nb(0,1)<0){ color = "red"; }
 		else { color = "black"; }
 		xy1(0) = nb(0,0)/2;
 		xy1(1) = nb(0,0)%2;
-		if(xy1(0)<xy0(0)){ 
+		if(xy1(0)<xy0(0)){
 			xy1(0) = xy0(0)+1;
 			linestyle="dashed";
 		} else{ linestyle="solid"; }
@@ -231,7 +227,7 @@ void LadderFree::lattice(){
 		/*x-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		if(i%2){
 			color = "black";
-			linestyle="solid"; 
+			linestyle="solid";
 			xy1(0) = nb(1,0)/2;
 			xy1(1) = nb(1,0)%2;
 			linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"pt";

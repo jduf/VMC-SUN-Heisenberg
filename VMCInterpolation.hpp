@@ -17,7 +17,7 @@ class VMCInterpolation : public VMCMinimization{
 		/*}*/
 
 		void init();
-		void run(unsigned int const& explore_around_minima);
+		void run(bool const& explore_around_minima);
 
 		void plot();
 		void print();
@@ -37,5 +37,7 @@ class VMCInterpolation : public VMCMinimization{
 
 		/*!Creates param via x and idx then call VMCMinimization::evaluate(param)*/
 		void evaluate(Vector<double>* x, Vector<unsigned int> const& idx);
+		/*!Same as other but set E and dE and Ee*/
+		void evaluate(Vector<double>* x, Vector<unsigned int> const& idx, double& E, double& dE, double& Ee);
 };
 #endif

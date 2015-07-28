@@ -6,7 +6,7 @@
 
 class VMCMinimization{
 	public:
-		VMCMinimization(Parseur& P);
+		VMCMinimization(Parseur const& P);
 		VMCMinimization(VMCMinimization const& m, std::string const& prefix);
 		/*!Default destructor*/
 		virtual ~VMCMinimization() = default;
@@ -17,7 +17,7 @@ class VMCMinimization{
 		VMCMinimization& operator=(VMCMinimization const&) = delete;
 		/*}*/
 
-		void set_phase_space(Parseur& P){ m_->set_phase_space(P); }
+		void set_phase_space(Parseur const& P){ m_->set_phase_space(P); }
 
 		void refine();
 		void refine(double const& E, double const& dE);
@@ -31,6 +31,7 @@ class VMCMinimization{
 
 	private:
 		std::string time_;
+		std::string path_;
 		std::string basename_;
 		std::string prefix_;
 
@@ -44,8 +45,8 @@ class VMCMinimization{
 				Minimization(Minimization&&) = delete;
 				Minimization& operator=(Minimization const&) = delete;
 				/*}*/
-				std::string set(Parseur& P);
-				void set_phase_space(Parseur& P);
+				void set(Parseur const& P, std::string& path, std::string& basename);
+				void set_phase_space(Parseur const& P);
 
 				bool within_limit(Vector<double> const& x);
 				void save(IOFiles& out) const;
@@ -54,7 +55,7 @@ class VMCMinimization{
 				Container system_param_;
 				RST pso_info_;
 				System* s_             = NULL;
-				unsigned int Nfreedom_ = 0;
+				unsigned int dof_ 	   = 0;
 				Vector<double>* ps_    = NULL;//!< parameter space
 				double ps_size_        = 0;   //!< parameter space size
 				double effective_time_ = 0.0;
@@ -66,6 +67,7 @@ class VMCMinimization{
 		std::shared_ptr<Minimization> m_;
 
 		void set_time(){ time_ = Time().date("-"); }
+		std::string const& get_path() const { return path_; }
 		std::string get_filename() const { return time_+"_"+prefix_+basename_; }
 
 		/*!Real call to GenericSystem+MonteCarlo*/

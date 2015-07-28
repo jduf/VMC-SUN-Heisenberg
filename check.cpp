@@ -5,30 +5,43 @@
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	std::cout<<"############# Init GenericSystem ##########"<<std::endl;
-	System s(CreateSystem::get_ref(P.get<std::string>("wf")),P.get<unsigned int>("N"),P.get<unsigned int>("m"),P.get<unsigned int>("n"),P.get<int>("bc"),P.get<Vector<unsigned int> >("M"),P.get<Vector<double> >("Jp"));
+	std::cout<<"############# Init System #################"<<std::endl;
+	System s(CreateSystem::get_ref(P.get<std::string>("wf")),P.get<unsigned int>("N"),P.get<unsigned int>("m"),P.get<unsigned int>("n"),P.get<int>("bc"),P.get<std::vector<unsigned int> >("M"),P.get<std::vector<double> >("Jp"));
+	std::cout<<"############# Init CreateSystem ###########"<<std::endl;
 	CreateSystem cs(&s);
 	unsigned int i(0);
 	switch(P.find("what",i)?P.get<unsigned int>(i):0){
 		case 0:/*call CreateSystem::init*/
-			{ cs.init(); } break;
+			{ 
+				cs.set_param(&P);
+				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
+				cs.init(); 
+			} break;
 		case 1:/*call CreateSystem::init and check*/
 			{ 
+				cs.set_param(&P);
+				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init();
+				std::cout<<"############# Check #######################"<<std::endl;
 				if(cs.get_status()==2){ cs.check(); }
 			} break;
 		case 2:/*call CreateSystem::init create and check*/
 			{ 
+				cs.set_param(&P);
+				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init();
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
 					cs.create();
+					std::cout<<"############# Check #######################"<<std::endl;
 					cs.check();
 				}
 			} break;
 		case 3:/*call CreateSystem::init create, MonteCarlo::run*/
 			{
 				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
+				cs.set_param(&P);
+				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init();
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;

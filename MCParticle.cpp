@@ -63,7 +63,7 @@ bool MCParticle::select_new_best(){
 
 void MCParticle::set_bx_via(Vector<double> const& param){
 	bool found(false);
-	for(unsigned int i(0);i<Nfreedom_;i++){
+	for(unsigned int i(0);i<dof_;i++){
 		for(unsigned int j(0);j<ps_[i].size();j++){
 			if( my::are_equal(ps_[i](j),param(i)) ){
 				bx_(i) = j;
@@ -79,8 +79,8 @@ void MCParticle::set_bx_via(Vector<double> const& param){
 }
 
 Vector<double> MCParticle::get_param() const {
-	Vector<double> param(Nfreedom_);
-	for(unsigned int i(0);i<Nfreedom_;i++){
+	Vector<double> param(dof_);
+	for(unsigned int i(0);i<dof_;i++){
 		if(x_(i)<=min_(i) || x_(i)>=max_(i))
 			std::cerr<<"bug"<<x_<<" | "<<v_<<std::endl;
 		param(i) = ps_[i](floor(x_(i)));

@@ -16,5 +16,7 @@ class LadderFree: public Ladder<double>{
 		void compute_H();
 		void lattice();
 		Vector<double> const t_;
+
+		unsigned int set_spuc(Vector<double> const& t);
 };
 #endif

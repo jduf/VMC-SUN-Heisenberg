@@ -21,13 +21,14 @@ int main(int argc, char* argv[]){
 							m1.save();
 
 							m2.init();
-							m2.run(1);
+							m2.run(true);
 							m2.save();
 						}
-						m.refine();
+						//m.refine();
 						m.complete_analysis(1e-5);
 						m.save();
 						m.plot();
+						m2.plot();
 					} else { std::cerr<<"min : some argument are not corretly set"<<std::endl; }
 				} break;
 			case 1:
@@ -36,8 +37,8 @@ int main(int argc, char* argv[]){
 					unsigned int j(0);
 					if(P.find("E",i,false),P.find("dE",j,false)){ m.refine(P.get<double>(i),P.get<double>(j)); }
 					else { m.refine(); }
-					m.plot();
 					m.save();
+					m.plot();
 				}break;
 			case 2:
 				{ 
@@ -45,7 +46,14 @@ int main(int argc, char* argv[]){
 					m.save();
 				} break;
 			case 3:
-				{ m.plot(); } break;
+				{ 
+					m.plot();
+				} break;
+			case 4:
+				{ 
+					VMCPSO m1(P,m);
+					VMCInterpolation m2(m);
+				} break;
 			default:
 				{ std::cerr<<"min : unknown what"<<std::endl; }
 		}

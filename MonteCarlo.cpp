@@ -15,7 +15,8 @@ void MonteCarlo::thermalize(unsigned int const& thermalization_steps){
 	if(!S_->get_status()){
 		for(unsigned int i(0);i<thermalization_steps;i++){
 			S_->swap();
-			if( S_->ratio(true) > rnd_.get() ){ S_->update(); }
+			ratio_ = S_->ratio(true);
+			if( ratio_ > 1.0 || ratio_ > rnd_.get() ){ S_->update(); }
 		}
 		S_->measure_new_step();
 	}
@@ -34,7 +35,8 @@ void MonteCarlo::run(){
 /*{*/
 void MonteCarlo::next_step(){
 	S_->swap();
-	if( S_->ratio(true) > rnd_.get() ){
+	ratio_ = S_->ratio(true);
+	if( ratio_ > 1.0 || ratio_ > rnd_.get() ){
 		S_->update();
 		S_->measure_new_step();
 	}

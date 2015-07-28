@@ -1,10 +1,10 @@
 #include "VMCPSO.hpp"
 
-VMCPSO::VMCPSO(Parseur& P, VMCMinimization const& vmcm):
+VMCPSO::VMCPSO(Parseur const& P, VMCMinimization const& vmcm):
 	VMCMinimization(vmcm,"PSO"),
-	Swarm<MCParticle>(P.get<unsigned int>("Nparticles"),P.get<unsigned int>("maxiter"),m_->Nfreedom_,P.get<double>("cg"),P.get<double>("cp"))
+	Swarm<MCParticle>(P.get<unsigned int>("Nparticles"),P.get<unsigned int>("maxiter"),m_->dof_,P.get<double>("cg"),P.get<double>("cp"))
 {
-	for(unsigned int i(0);i<m_->Nfreedom_;i++){
+	for(unsigned int i(0);i<m_->dof_;i++){
 		Particle::set_limit(i,0,m_->ps_[i].size());
 	}
 }
@@ -78,7 +78,7 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 		}
 		std::string msg2(" (each particle knows "+my::tostring(Npp)+" samples)");
 		m_->pso_info_.item(msg+msg2);
-		std::cout<<msg2;
+		std::cout<<msg2<<std::endl;
 	} else {
 		msg = "start with empty history";
 		m_->pso_info_.item(msg); 

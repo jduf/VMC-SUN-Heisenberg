@@ -97,7 +97,7 @@ unsigned int MCSim::cmp_for_merge(MCSim const& list, MCSim const& new_elem){
 	return 2;
 }
 
-void MCSim::merge(MCSim& list, MCSim& new_elem) { 
+void MCSim::merge(MCSim& list, MCSim& new_elem){
 	list.get_S()->get_energy().merge(new_elem.get_S()->get_energy());
 }
 /*}*/
