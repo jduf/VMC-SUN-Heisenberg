@@ -28,16 +28,16 @@ class Particle{
 		Vector<double> const& get_v() const { return v_; }
 
 		static void set_limit(unsigned int const& param, double const& min, double const& max);
-		static void set(unsigned int const& Nfreedom, double const& cg, double const& cp);
+		static void set(unsigned int const& dof, double const& cg, double const& cp);
 		
 	protected:
 		double fbx_;		//!< value at the best position
 		Vector<double> x_;	//!< position
 		Vector<double> v_;	//!< velocity
 		Vector<double> bx_;	//!< best position 
-		static Vector<double> min_;    //!< min_(c) minimum value of the cth coordinate
-		static Vector<double> max_;    //!< max(c) minimum value of the cth coordinate
-		static unsigned int Nfreedom_; //!< number of degrees of freedom
+		static Vector<double> min_;//!< min_(c) minimum value of the cth coordinate
+		static Vector<double> max_;//!< max(c) minimum value of the cth coordinate
+		static unsigned int dof_;  //!< number of degrees of freedom
 
 	private:
 		Rand<double> rnd_;
@@ -51,7 +51,7 @@ class Particle{
 template<typename Type>
 class Swarm{
 	public:
-		Swarm(unsigned int const& Nparticles, unsigned int const& maxiter, unsigned int const& Nfreedom, double const& cg, double const& cp);
+		Swarm(unsigned int const& Nparticles, unsigned int const& maxiter, unsigned int const& dof, double const& cg, double const& cp);
 		~Swarm() = default;
 		/*{Forbidden*/
 		Swarm() = delete;
@@ -84,14 +84,14 @@ class Swarm{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-Swarm<Type>::Swarm(unsigned int const& Nparticles, unsigned int const& maxiter, unsigned int const& Nfreedom, double const& cg, double const& cp):
+Swarm<Type>::Swarm(unsigned int const& Nparticles, unsigned int const& maxiter, unsigned int const& dof, double const& cg, double const& cp):
 	Nparticles_(Nparticles),
 	maxiter_(maxiter),
 	particle_(Nparticles),
 	bparticle_(0)
 {
 	for(unsigned int i(0);i<Nparticles_;i++){ particle_[i] = std::make_shared<Type>();	}
-	Particle::set(Nfreedom,cg,cp);
+	Particle::set(dof,cg,cp);
 }
 /*}*/
 

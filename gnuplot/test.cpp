@@ -31,5 +31,5 @@ int main(){
 	gp += "set view 80,40";
 	gp += "splot 'data.dat'";
 	gp.save_file();
-	gp.create_image(false);
+	gp.create_image(false,true);
 }

@@ -15,7 +15,7 @@ int main(){
 }
 
 void test_given_function(){
-	unsigned int N(1000);
+	unsigned int N(100);
 	unsigned int Nx(100);
 	double min(-1.0);
 	double max(1.0);
@@ -38,7 +38,7 @@ void test_given_function(){
 		s.add_data(c_tmp,y_tmp);
 		data<<c_tmp<<" "<<y_tmp<<IOFiles::endl;
 	}
-	s.compute_weights(dx,Nx,3);
+	s.compute_weights(dx,Nx);
 
 	IOFiles out("spline.dat",true);
 	for(unsigned int i(0);i<Nx;i++){

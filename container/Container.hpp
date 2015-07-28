@@ -47,10 +47,10 @@ class GenericVariable : public Variable{
 		GenericVariable& operator=(GenericVariable) = delete;
 		/*}*/
 		/*!Returns a copy of*/
-		GenericVariable<Type>* clone() const { return new GenericVariable<Type>(*this);}
+		GenericVariable<Type>* clone() const { return new GenericVariable<Type>(*this); }
 
 		/*!Returns the value of the data*/
-		Type const& get_val() const {return t_;}
+		Type const& get_val() const { return t_; }
 		/*!Set the value*/
 		void set(Type const& t){ t_=t; }
 

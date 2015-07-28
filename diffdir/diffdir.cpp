@@ -16,7 +16,7 @@ int main(int argc, char* argv[]){
 	std::string keyword(P.find("k",i,false)?P.get<std::string>(i):"");
 	std::string scp(P.find("scp",i,false)?P.get<std::string>(i):"");
 
-	if(!P.status()){
+	if(!P.locked()){
 		Linux command;
 		std::string answer("");
 

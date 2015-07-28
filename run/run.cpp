@@ -13,7 +13,7 @@ int main(int argc,char* argv[]){
 
 	unsigned int max_proc(P.get<unsigned int>("t"));
 
-	if(!P.status()){
+	if(!P.locked()){
 		Directory D;
 		Linux L;
 		std::string save_in("sim-info/");

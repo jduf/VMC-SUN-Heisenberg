@@ -113,11 +113,8 @@ void IOFiles::precision(unsigned int const& N){
 }
 
 std::string IOFiles::get_header() const { 
-	if(header_ && open_){
-		return header_->get();
-	} else {
-		std::cerr<<"IOFiles::get_header() : can't read from "<<filename_<<std::endl;
-		return 0;
-	}
+	if(header_ && open_){ return header_->get(); }
+	std::cerr<<"IOFiles::get_header() : can't read from "<<filename_<<std::endl;
+	return 0;
 }
 /*}*/

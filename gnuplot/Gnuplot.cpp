@@ -19,11 +19,33 @@ void Gnuplot::multiplot(){
 
 void Gnuplot::title(std::string const& title){plot_+="set title '"+title+"'\n";}
 
-void Gnuplot::range(std::string const& axis, std::string const& a, std::string const& b){plot_+="set "+axis+"range ["+a+":"+b+"]\n";}
-void Gnuplot::range(std::string const& axis, double const& a, double const& b){range(axis,my::tostring(a),my::tostring(b));}
-void Gnuplot::range(std::string const& axis, double const& a, std::string const& b){range(axis,my::tostring(a),b);}
-void Gnuplot::range(std::string const& axis, std::string const& a, double const& b){range(axis,a,my::tostring(b));}
-void Gnuplot::range(std::string const& axis){plot_ += "unset "+axis+"range\n"; }
+void Gnuplot::range(std::string const& axis, std::string const& a, std::string const& b){
+	plot_+="set "+axis+"range ["+a+":"+b+"]\n";
+}
+void Gnuplot::range(std::string const& axis, double const& a, double const& b){
+	range(axis,my::tostring(a),my::tostring(b));
+}
+void Gnuplot::range(std::string const& axis, double const& a, std::string const& b){
+	range(axis,my::tostring(a),b);
+}
+void Gnuplot::range(std::string const& axis, std::string const& a, double const& b){
+	range(axis,a,my::tostring(b));
+}
+void Gnuplot::range(std::string const& axis, std::string const& s){
+	plot_ += "set "+axis+"range "+s+"\n";
+}
+void Gnuplot::range(std::string const& axis){
+	plot_ += "unset "+axis+"range\n";
+}
+
+void Gnuplot::tics(std::string const& axis, std::string const& t){
+	plot_+="set "+axis+"tics "+t+"\n";
+}
+void Gnuplot::tics(std::string const& axis, double const& t){ 
+	tics(axis,my::tostring(t));
+}
+void Gnuplot::tics(std::string const& axis){
+	plot_ += "unset "+axis+"tics\n"; }
 
 void Gnuplot::margin(std::string const& l, std::string const& r, std::string const& t, std::string const& b){
 	plot_ += "set lmargin at screen "+l+"\n";
@@ -44,7 +66,7 @@ void Gnuplot::save_file(){
 	w_gp<<plot_<<IOFiles::endl;
 }
 
-void Gnuplot::create_image(bool silent){
+void Gnuplot::create_image(bool silent, bool png){
 	std::string texfile(filename_);
 	size_t pos(texfile.find("."));
 	while (pos != std::string::npos) {
@@ -56,7 +78,7 @@ void Gnuplot::create_image(bool silent){
 	command(Linux::gp2latex("/tmp/"+texfile,path_,filename_));
 	if(!command.status()){
 		command(Linux::pdflatex("/tmp/",texfile),silent);
-		command(Linux::pdf2png("/tmp/" + texfile, path_ + filename_));
+		if(png){ command(Linux::pdf2png("/tmp/" + texfile, path_ + filename_)); }
 		command("mv /tmp/" + texfile + ".pdf " + path_ + filename_ + ".pdf");
 		command("rm /tmp/" + texfile + "*");
 	} else {

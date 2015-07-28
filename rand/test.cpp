@@ -180,7 +180,6 @@ void check_minimal_number_mt(){
 		tmp = dist(mt); 
 		i++;
 		if(tmp<min){ min = tmp; }
-		if(t.progress(1)){ std::cout<<i<<" "<<min<<std::endl; }
 	}
 }
 

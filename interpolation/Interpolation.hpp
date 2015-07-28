@@ -15,8 +15,8 @@ class Interpolation{
 		void add_data(unsigned int const& i, Vector<double> const& c, double const& y);
 
 		void set_data();
-		void compute_weights();
-		bool compute_weights(double const& dx, unsigned int const& n, unsigned int const& method);
+		bool compute_weights();
+		bool compute_weights(double const& dx, unsigned int const& n);
 
 		double extrapolate(Vector<double> const& x) const;
 
@@ -24,7 +24,6 @@ class Interpolation{
 		std::vector<Vector<double> > c_;
 		std::vector<double> y_;
 		Vector<double> weights_;
-		unsigned int method_;
 		unsigned int basis_;
 		unsigned int dim_;
 		unsigned int N_;

@@ -6,7 +6,7 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	std::string filename(P.get<std::string>("0"));
-	if(!P.status()){
+	if(!P.locked()){
 		IOFiles file(filename,false);
 		std::string s("");
 		file>>s;

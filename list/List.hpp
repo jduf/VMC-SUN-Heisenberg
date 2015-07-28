@@ -457,16 +457,11 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 template<typename Type>
 bool List<Type>::target_next() const { 
 	if(target_ == NULL ){
-		target_ = head_;
-		if(target_){ return true; }
-		else {
-			target_ = NULL;
-			return false;
-		}
+		if(head_){ target_ = head_; }
+		return target_;
 	}
 	target_ = target_->next_; 
-	if(target_){ return true; }
-	else { return false; }
+	return target_;
 }
 
 template<typename Type>

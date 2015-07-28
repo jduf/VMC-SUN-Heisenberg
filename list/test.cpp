@@ -233,7 +233,7 @@ int main(){
 		for(unsigned int i(0);i<20;i++){
 			s=r.get();
 			std::cout<<s<<" ";
-			//move_test.set_target();
+			move_test.set_target();
 			while(move_test.target_next() && --s);
 			std::cout<<move_test.get()<<std::endl;
 		}

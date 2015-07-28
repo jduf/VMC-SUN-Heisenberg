@@ -13,11 +13,11 @@ template<typename Type>
 class Binning{
 	public:
 		/*!Constructor*/
-		Binning(unsigned int const& B, unsigned int const& b); 
+		Binning(unsigned int const& B, unsigned int const& b);
 		/*!Copy constructor*/
-		Binning(Binning const& b); 
+		Binning(Binning const& b);
 		/*!Move constructor*/
-		Binning(Binning&& b); 
+		Binning(Binning&& b);
 		/*!Constructor that reads from file*/
 		Binning(IOFiles& r);
 		/*!Destructor*/
@@ -43,9 +43,9 @@ class Binning{
 	private:
 		unsigned int const B_;//!< minimum number of biggest bins needed to compute variance
 		unsigned int const b_;//!< l_+b_ rank of the biggest bin (b !> 30)
-		unsigned int l_;	//!< rank of the "smallest" bin 
-		unsigned int DPL_;	//!< 2^l_ maximum number of element in each bin of rank l_
-		unsigned int dpl_;	//!< current number of element in each bin of rank l_
+		unsigned int l_;	 //!< rank of the "smallest" bin
+		unsigned int DPL_;	 //!< 2^l_ maximum number of element in each bin of rank l_
+		unsigned int dpl_;	 //!< current number of element in each bin of rank l_
 
 		Vector<unsigned int> Ml_;//!<number bins of rank l : Ml = M0/2^l
 		Vector<Type> m_bin_;	//!< mean of the Binnings
@@ -84,25 +84,24 @@ class Data{
 		void complete_analysis();
 		void delete_binning();
 
-		Type const& get_x() const { return binning_?binning_->get_x():x_; } 
-		Type const& get_dx() const { return dx_; } 
-		bool const& get_conv() const { return conv_; } 
+		Type const& get_x() const { return binning_?binning_->get_x():x_; }
+		Type const& get_dx() const { return dx_; }
+		bool const& get_conv() const { return conv_; }
 		unsigned int const& get_N() const { return N_; }
+		Binning<Type> const* get_binning() const { return binning_; }
 
 		void set_x(Type const& x){x_ = x;}
 
 		void add(Type const& x){x_ += x;}
 		void substract(Type const& x){ x_ -= x; }
-		void multiply(Type const& x){ 
+		void multiply(Type const& x){
 			x_ *= x;
 			if(!binning_){ dx_ *= sqrt(x); }
 		}
-		void divide(Type const& x){ 
-			x_ /= x; 
+		void divide(Type const& x){
+			x_ /= x;
 			if(!binning_){ dx_ /= sqrt(x); }
 		}
-
-		void write(IOFiles& w, std::string const& name="") const;
 
 		void header_rst(std::string const& s, RST& rst) const;
 
@@ -110,7 +109,7 @@ class Data{
 		Type x_;
 		Type dx_;
 		unsigned int N_;
-		bool conv_; 
+		bool conv_;
 		Binning<Type>* binning_;
 
 		void swap_to_assign(Data<Type>& d1, Data<Type>& d2);
@@ -149,10 +148,10 @@ class DataSet{
 
 		unsigned int size() const { return size_;}
 
-		Data<Type> const& operator[](unsigned int const& i) const 
-		{assert(i<size_); return ds_[i];} 
-		Data<Type>& operator[](unsigned int const& i) 
-		{assert(i<size_); return ds_[i];} 
+		Data<Type> const& operator[](unsigned int const& i) const
+		{assert(i<size_); return ds_[i];}
+		Data<Type>& operator[](unsigned int const& i)
+		{assert(i<size_); return ds_[i];}
 
 	private:
 		unsigned int size_;
@@ -326,7 +325,7 @@ void Binning<Type>::complete_analysis(double const& convergence_criterion, Type&
 			den += (x(i)-xb)*(x(i)-xb);
 		}
 		dx = yb;
-		if(num/den>0.0){ dx += num/den * xb; } 
+		if(num/den>0.0){ dx += num/den * xb; }
 		Type criteria(num/den*m_bin_(0));
 		if(std::abs(criteria)<convergence_criterion){ conv = true; }
 		else{ conv = false; }
@@ -494,7 +493,7 @@ void Data<Type>::swap_to_assign(Data<Type>& d1, Data<Type>& d2){
 /*{*/
 template<typename Type>
 std::ostream& operator<<(std::ostream& flux, Data<Type> const& d){
-	flux<<d.get_x()<<" "<<d.get_dx()<<" "<<d.get_N()<<" "<<d.get_conv(); 
+	flux<<d.get_x()<<" "<<d.get_dx()<<" "<<d.get_N()<<" "<<d.get_conv();
 	return flux;
 }
 
@@ -511,13 +510,18 @@ std::istream& operator>>(std::istream& flux, Data<Type>& d){
 
 template<typename Type>
 void Data<Type>::header_rst(std::string const& s, RST& rst) const {
-	if(conv_){ rst.def(s,my::tostring(get_x())+" ("+my::tostring(get_dx())+")"); }
-	else{ rst.def(s,"nc:"+my::tostring(get_x())+" ("+my::tostring(get_dx())+")"); }
+	rst.def(s,(conv_?"":"nc:")+my::tostring(get_x())+" ("+my::tostring(get_dx())+")");
 }
 
 template<typename Type>
 IOFiles& operator<<(IOFiles& w, Data<Type> const& d){
-	if(w.is_binary()){ d.write(w); }
+	if(w.is_binary()){
+		w<<d.get_x()<<d.get_dx()<<d.get_N()<<d.get_conv();
+		if(d.get_binning()){
+			w<<true;
+			d.get_binning()->write(w);
+		} else { w<<false; }
+	}
 	else { w.stream()<<d; }
 	return w;
 }
@@ -527,18 +531,6 @@ IOFiles& operator>>(IOFiles& r, Data<Type>& d){
 	if(r.is_binary()){ d = std::move(Data<Type>(r)); }
 	else { r.stream()>>d; }
 	return r;
-}
-
-template<typename Type>
-void Data<Type>::write(IOFiles& w, std::string const& name) const {
-	if(name != ""){
-		w.add_header()->def(name,(conv_?"":"nc:")+my::tostring(get_x())+" ("+my::tostring(get_dx())+")"); 
-	}
-	w<<get_x()<<dx_<<N_<<conv_; 
-	if(binning_){ 
-		w<<true; 
-		binning_->write(w);
-	} else { w<<false; }
 }
 /*}*/
 
@@ -696,7 +688,7 @@ IOFiles& operator>>(IOFiles& r, DataSet<Type>& ds){
 	if(r.is_binary()){
 		unsigned int size(0);
 		r>>size;
-		if(size != ds.size()){ ds.set(size); } 
+		if(size != ds.size()){ ds.set(size); }
 		for(unsigned int i(0);i<ds.size();i++){ r>>ds[i]; }
 	} else {
 		for(unsigned int i(0);i<ds.size();i++){ r.stream()>>ds[i]; }

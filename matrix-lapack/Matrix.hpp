@@ -28,7 +28,7 @@ class Matrix{
 		/*!Constructor that reads from file*/
 		Matrix<Type>(IOFiles& r);
 		/*!Delete the static array*/
-		~Matrix();
+		virtual ~Matrix();
 
 		/*!Accesses the (i,j)th entry of the matrix*/
 		Type const& operator()(unsigned int const& i, unsigned int const& j) const 
@@ -104,7 +104,7 @@ class Matrix{
 
 		void header_rst(std::string const& s, RST& rst) const;
 
-	private:
+	protected:
 		unsigned int row_ = 0; //!< number of rows
 		unsigned int col_ = 0; //!< number of columns
 		unsigned int size_= 0; //!< size of the array
@@ -209,7 +209,7 @@ std::istream& operator>>(std::istream& flux, Matrix<Type>& m){
 
 template<typename Type>
 void Matrix<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,"Matrix("+my::tostring(row_)+RST::math("\times")+my::tostring(col_)+")"); 
+	rst.def(s,"Matrix("+RST::math(my::tostring(row_)+"\\times"+my::tostring(col_))+")"); 
 }
 
 template<typename Type>

@@ -22,9 +22,9 @@ class Parseur: public Container {
 		/*}*/
 
 		/*!Returns true if there is a var_[i]==patern and sets i*/
-		bool find(std::string const& pattern, unsigned int& i, bool lock_iffail=true) const;
+		bool find(std::string const& pattern, unsigned int& i, bool lock_iffail) const;
 		/*!Returns locked_*/
-		bool status() const { return locked_; }
+		bool locked() const { return locked_; }
 
 	private:
 		mutable std::vector<bool> used_;
@@ -56,7 +56,7 @@ void Parseur::set_vector_from_range(std::string const& name, std::string const& 
 		for(unsigned int j(0);j<v.size();j++){ v[j] = min+j*dx; }
 		set(name.substr(3,name.size()-3),v);
 	} else {
-		std::cerr<<"void Parseur::set_vector_from_range(std::string const& name, std::string const& val) : -t:name min:dx:max"<<std::endl;
+		std::cerr<<"void Parseur::set_vector_from_range(std::string const& name, std::string const& val) : -t:name min:dx:max : "<<name<<std::endl;
 	}
 }
 #endif

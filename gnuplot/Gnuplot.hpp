@@ -25,9 +25,14 @@ class Gnuplot {
 		void range(std::string const& axis, double const& a, double const& b);
 		void range(std::string const& axis, double const& a, std::string const& b);
 		void range(std::string const& axis, std::string const& a, double const& b);
+		void range(std::string const& axis, std::string const& s);
 		void range(std::string const& axis);
 
 		void margin(std::string const& l, std::string const& r, std::string const& t, std::string const& b);
+
+		void tics(std::string const& axis, std::string const& t);
+		void tics(std::string const& axis, double const& t);
+		void tics(std::string const& axis);
 
 		void label(std::string const& axis, std::string const& l, std::string const& options="");
 		void label(std::string const& axis);
@@ -36,7 +41,7 @@ class Gnuplot {
 		void operator+=(std::string const& s);
 
 		void save_file();
-		void create_image(bool silent);
+		void create_image(bool silent, bool png);
 
 	private:
 		std::string path_;		//!< path of the .gp, .png and .pdf files
