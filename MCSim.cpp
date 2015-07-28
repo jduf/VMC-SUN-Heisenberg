@@ -116,12 +116,10 @@ void MCSim::save(System const* const s) const {
 		command("/bin/mkdir -p " + cs.get_path());
 		IOFiles file_results(cs.get_path() + cs.get_filename()+".jdbin",true);
 		cs.init_output_file(file_results);
-		cs.save();
+		cs.save_input();
 		RST rst;
 		rst.title("Results",'-');
 		file_results.add_header()->add(rst.get());
-		file_results.write("energy per site",S_->get_energy());
-		file_results.write("correlation on links",S_->get_corr());
-		file_results.write("long range correlation",S_->get_lr_corr());
+		S_->save_output(file_results);
 	}
 }

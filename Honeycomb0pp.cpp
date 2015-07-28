@@ -62,7 +62,7 @@ void Honeycomb0pp::create(){
 }
 
 void Honeycomb0pp::save() const{
-	GenericSystem<double>::save();
+	GenericSystem<double>::save_input();
 	jd_write_->write("td/th (ratio of the hopping parameters)",td_);
 }
 

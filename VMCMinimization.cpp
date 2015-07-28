@@ -101,7 +101,7 @@ void VMCMinimization::save() const {
 	out<<path_<<basename_;
 }
 
-void VMCMinimization::save_best(unsigned int const& nsave){
+void VMCMinimization::save_best(unsigned int const& nsave) const {
 	if(m_->samples_list_.size()){
 		List<MCSim> best;
 		while(m_->samples_list_.target_next()){ best.add_sort(m_->samples_list_.get_ptr(),MCSim::compare); }
@@ -146,17 +146,17 @@ void VMCMinimization::plot() const {
 	unsigned int N(m_->samples_list_.get().get_param().size());
 
 	Gnuplot gp(path_,filename);
-	gp+="Em=-0.54";
+	gp+="Em=-0";
 	gp.multiplot();
-	gp.margin("0.1","0.9","0.9","0.55");
-	gp.range("x","","Em");
+	gp.range("x","[:Em] writeback");
+	gp.margin("0.1","0.9","0.5","0.10");
+	gp+="plot '"+filename+".dat' u "+my::tostring(N+2)+":"+my::tostring(N+1)+":"+my::tostring(N+3)+" w xe notitle";
+	gp.margin("0.1","0.9","0.9","0.50");
+	gp.tics("x");
+	gp.range("x","restore");
 	for(unsigned int i(0);i<N;i++){
 		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(N+2)+":"+my::tostring(i+1)+":"+my::tostring(N+3)+" w xe notitle"+(i==N-1?"":",\\");
 	}
-	gp.margin("0.1","0.9","0.5","0.10");
-	gp+="unset xrange";
-	gp.range("y","","Em");
-	gp+="plot '"+filename+".dat' u "+my::tostring(N+1)+":"+my::tostring(N+2)+":"+my::tostring(N+3)+" w e notitle";
 	gp.save_file();
 }
 /*}*/
@@ -259,7 +259,7 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 
 void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 	unsigned int size;
-	if(P.find("PS",size)){
+	if(P.find("PS",size,true)){
 		IOFiles load(P.get<std::string>(size),false);
 		std::string PS;
 		load>>PS;
@@ -297,7 +297,7 @@ void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 				delete[] vec;
 			}
 
-			std::string msg("phase space with "+my::tostring(ps_size_)+" elements");
+			std::string msg("phase space contains "+my::tostring(ps_size_)+" values");
 			std::cout<<"#"+msg<<std::endl;
 			pso_info_.item(msg);
 			pso_info_.nl();
@@ -335,7 +335,12 @@ bool VMCMinimization::Minimization::within_limit(Vector<double> const& x){
 }
 
 void VMCMinimization::Minimization::save(IOFiles& out) const {
-	s_->save(out);
+	s_->save_input(out);
+	/*{Description*/
+	/*!will save "empty" E_,corr_,lr_corr_ but it is required if one want to
+	 * create a System by calling System(IOFiles& r) later*/
+	/*}*/
+	s_->save_output(out);
 
 	out.write("dof",dof_);
 	for(unsigned int i(0);i<dof_;i++){ out<<ps_[i]; }

@@ -22,8 +22,6 @@
 
 #include "Honeycomb0pp.hpp"
 
-#include "Parseur.hpp"
-
 class CreateSystem{
 	public:
 		/*{Description*/
@@ -77,10 +75,10 @@ class CreateSystem{
 		/*}*/
 
 		/*{GenericSystem calls*/
-		/*!Calls GenericSystem::save() virtual method*/
-		void save() const {
-			if(RGL_){RGL_->save();}
-			if(CGL_){CGL_->save();}
+		/*!Calls GenericSystem::save_input() virtual method*/
+		void save_input() const {
+			if(RGL_){RGL_->save_input();}
+			if(CGL_){CGL_->save_input();}
 		}
 		/*!Calls GenericSystem::check() pure virtual method*/
 		void check() const {

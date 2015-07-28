@@ -61,7 +61,7 @@ void System::write(IOFiles& w) const {
 	w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<links_<<E_<<corr_<<lr_corr_;
 }
 
-void System::save(IOFiles& w) const {
+void System::save_input(IOFiles& w) const {
 	w.write("ref (type of wavefunction)",ref_);
 	w.write("N (N of SU(N))",N_);
 	w.write("m (# of particles per site)",m_);
@@ -69,6 +69,14 @@ void System::save(IOFiles& w) const {
 	w.write("bc (boundary condition)",bc_);
 	w.write("M (# of particles of each color, "+my::tostring(M_(0))+")",M_);
 	w.write("J (energy of each bond)",J_);
+}
+
+void System::save_output(IOFiles& w) const {
+	w.write("status",status_);
+	w.write("links",links_);
+	w.write("energy per site",E_);
+	w.write("correlation on links",corr_);
+	w.write("long range correlation",lr_corr_);
 }
 
 Vector<unsigned int> System::set_ref(Parseur& P){

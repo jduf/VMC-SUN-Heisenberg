@@ -137,7 +137,7 @@ void LadderFree::compute_H(){
 					}
 				}
 			}break;
-		default:{  std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : no wavefunction definded for "<<t_.size()-1<<" free parameters"<<std::endl; }
+		default:{  std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : no wavefunction definded for "<<t_.size()<<" free parameters"<<std::endl; }
 	}
 	H_ += H_.transpose();
 }
@@ -157,7 +157,7 @@ void LadderFree::create(){
 }
 
 void LadderFree::save() const {
-	GenericSystem<double>::save();
+	GenericSystem<double>::save_input();
 	std::string t_string("");
 	for(unsigned int i(0);i<t_.size()-1;i++){
 		t_string += my::tostring(t_(i))+",";

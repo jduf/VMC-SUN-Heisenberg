@@ -72,7 +72,7 @@ void SquareJastrow::compute_omega_cc(){
 }
 
 void SquareJastrow::save() const {
-	GenericSystem<double>::save();
+	GenericSystem<double>::save_input();
 	jd_write_->write("nn (nearst neighbours)",nn_);
 	jd_write_->write("cc (to match nu and x)",cc_);
 	jd_write_->write("sl (sublattice)",sl_);

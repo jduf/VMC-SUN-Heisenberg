@@ -118,18 +118,20 @@ void VMCInterpolation::plot(){
 			plot+="     '"+get_filename()+".dat'        u 1:2:3 lt 7 lc 2 notitle";
 		} else {
 			plot.range("y",m_->ps_[1](0),m_->ps_[1].back());
-			plot.range("z","-1","");
 			plot.label("x","x");
 			plot.label("y","y");
+			plot.label("z","z");
 			plot+="set ticslevel 0";
 		}
 		if(m_->dof_==2){
+			plot.range("z","-1","");
 			plot+="splot '"+get_filename()+"-spline.dat' u 1:2:3 lt 7 lc 1 t 'spline',\\";
 			plot+="      '"+get_filename()+".dat'        u 1:2:3 lt 7 lc 2 notitle";
 		}
 		if(m_->dof_==3){
-			plot+="splot '"+get_filename()+"-spline.dat' u 1:2:3:($4>-0.93?0:exp("+my::tostring(min)+"-$4)) w p lt 7 lc 1 ps variable t 'spline',\\";
-			plot+="      '"+get_filename()+".dat'        u 1:2:3:($4>-0.93?0:exp("+my::tostring(min)+"-$4)) w p lt 7 lc 2 ps variable notitle";
+			plot.range("z",m_->ps_[2](0),m_->ps_[2].back());
+			plot+="splot '"+get_filename()+"-spline.dat' u 1:2:3:($4>"+my::tostring(min*0.8)+"?0:exp("+my::tostring(min)+"-$4)) w p lt 7 lc 1 ps variable t 'spline',\\";
+			plot+="      '"+get_filename()+".dat'        u 1:2:3:($4>"+my::tostring(min*0.8)+"?0:exp("+my::tostring(min)+"-$4)) w p lt 7 lc 2 ps variable notitle";
 		}
 		plot.save_file();
 	} else {
@@ -155,8 +157,6 @@ void VMCInterpolation::plot(){
 		plot+="plot '"+get_filename()+".dat' u 1:2:3 t 'cut'";
 		plot.save_file();
 	}
-
-	std::cerr<<"void VMCInterpolation::plot() : how to plot "<<m_->dof_<<"-dimensional data ?"<<std::endl;
 }
 
 void VMCInterpolation::print(){

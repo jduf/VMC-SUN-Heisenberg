@@ -122,7 +122,7 @@ std::string Analyse::extract_level_7(){
 	cs.construct_GenericSystem(read_,this);
 	/*Only one call of cs.save() is needed*/
 	if(!all_link_names_.size()){ 
-		cs.save();
+		cs.save_input();
 		jd_write_->add_header()->nl();
 		jd_write_->write("number of jdfiles",nof_);
 		jd_write_->add_header()->title("System's parameters",'-');

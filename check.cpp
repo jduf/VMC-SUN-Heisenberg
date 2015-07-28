@@ -10,7 +10,7 @@ int main(int argc, char* argv[]){
 	std::cout<<"############# Init CreateSystem ###########"<<std::endl;
 	CreateSystem cs(&s);
 	unsigned int i(0);
-	switch(P.find("what",i)?P.get<unsigned int>(i):0){
+	switch(P.find("what",i,true)?P.get<unsigned int>(i):0){
 		case 0:/*call CreateSystem::init*/
 			{ 
 				cs.set_param(&P,NULL);

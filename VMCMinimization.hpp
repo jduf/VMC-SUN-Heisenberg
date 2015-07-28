@@ -23,7 +23,7 @@ class VMCMinimization{
 		void refine(double const& E, double const& dE);
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
-		void save_best(unsigned int const& nsave);
+		void save_best(unsigned int const& nsave) const;
 		void plot() const;
 
 		virtual void print() const;
@@ -70,7 +70,7 @@ class VMCMinimization{
 		std::string const& get_path() const { return path_; }
 		std::string get_filename() const { return time_+"_"+prefix_+basename_; }
 
-		/*!Real call to GenericSystem+MonteCarlo*/
+		/*!Real call to the MonteCarlo evaluation via MCSim*/
 		std::shared_ptr<MCSim> evaluate(Vector<double> const& param);
 };
 #endif

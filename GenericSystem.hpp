@@ -32,7 +32,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		 * As the method is virtual, a call on this method
 		 * will call first child::save() const if it exists*/
 		/*}*/
-		virtual void save() const;
+		virtual void save_input() const;
 		virtual void create() = 0;
 		virtual void check() = 0;
 
@@ -40,7 +40,6 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		unsigned int const spuc_;//!< site per unit cell
 		unsigned int const z_;	 //!< coordination number
 		RST system_info_;		 //!< store information about the system
-
 
 		/*{Description*/
 		/*!Returns the neighbours of site i. 
@@ -103,9 +102,9 @@ void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
 }
 
 template<typename Type>
-void GenericSystem<Type>::save() const {
+void GenericSystem<Type>::save_input() const {
 	jd_write_->add_header()->add(system_info_.get());
-	System::save(*jd_write_);
+	System::save_input(*jd_write_);
 }
 
 template<typename Type>

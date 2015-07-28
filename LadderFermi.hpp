@@ -269,7 +269,7 @@ std::string LadderFermi<Type>::extract_level_6(){
 	(*this->read_)>>nof>>this->E_;
 
 	this->jd_write_->add_header()->nl();
-	this->save();
+	this->save_input();
 	this->jd_write_->write("energy per site",this->E_);
 
 	return this->filename_;

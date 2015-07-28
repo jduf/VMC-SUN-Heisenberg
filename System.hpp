@@ -51,7 +51,8 @@ class System{
 		void delete_binning();
 
 		virtual void write(IOFiles& w) const;
-		void save(IOFiles& w) const;
+		void save_input(IOFiles& w) const;
+		void save_output(IOFiles& w) const;
 
 	protected:
 		/*!Copy constructor*/

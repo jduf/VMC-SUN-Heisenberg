@@ -32,7 +32,7 @@ void run(CreateSystem const& cs, unsigned int const& nruns, unsigned int const& 
 	command("/bin/mkdir -p " + cs.get_path());
 	IOFiles file_results(cs.get_path() + cs.get_filename()+".jdbin",true);
 	cs.init_output_file(file_results);
-	cs.save();
+	cs.save_input();
 
 	RST rst;
 	rst.title("Simulation's parameters",'-');

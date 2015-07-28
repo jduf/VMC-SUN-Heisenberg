@@ -2,8 +2,8 @@
 
 void MCParticle::move(Vector<double> const& bx_all){
 	Particle::move(bx_all);
-	/*!move to different parameter set can be achieved if v>1, therefore if the
-	 * particle is static, it could be relaunched*/
+	/*!move to different parameter set can be achieved if v>1, therefore if
+	 * the particle is static, it could be relaunched*/
 	if(v_.norm_squared()<0.25){ 
 		std::cerr<<"void MCParticle::move(Vector<double> const& bx_all) : init_Particle(100)"<<std::endl;
 		init_Particle(100); 
