@@ -87,6 +87,10 @@ class CreateSystem{
 		}
 		/*!Calls GenericSystem::create() pure virtual method*/
 		void create(bool try_solve_degeneracy=false);
+		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
+			if(RGL_){ RGL_->get_wf_symmetries(sym); }
+			if(CGL_){ CGL_->get_wf_symmetries(sym); }
+		}
 		/*}*/
 
 		/*{System calls*/
@@ -123,8 +127,8 @@ class CreateSystem{
 		}
 
 	private:
-		System const* s_;
 		Container C_;
+		System const* s_;
 		Vector<unsigned int> ref_;
 
 		GenericSystem<double>* RGL_;

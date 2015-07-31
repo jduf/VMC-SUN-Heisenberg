@@ -10,7 +10,7 @@ int main(int argc, char* argv[]){
 	std::cout<<"############# Init CreateSystem ###########"<<std::endl;
 	CreateSystem cs(&s);
 	unsigned int i(0);
-	switch(P.find("what",i,true)?P.get<unsigned int>(i):0){
+	switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
 		case 0:/*call CreateSystem::init*/
 			{ 
 				cs.set_param(&P,NULL);
@@ -54,6 +54,7 @@ int main(int argc, char* argv[]){
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())); 
 					}
 					std::cout<<"############# Init Monte Carlo ############"<<std::endl;
+					S->set_observable(1);
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
 					std::cout<<"############# Run Monte Carlo #############"<<std::endl;
@@ -133,6 +134,27 @@ int main(int argc, char* argv[]){
 				S->write(out);
 				delete S;
 			} break;
+		case 7:/*call CreateSystem::(init,create), MonteCarlo::run and save*/
+			{
+				Vector<double> t_ref(P.get<std::vector<double> >("t"));
+				cs.set_param(&P,NULL);
+				cs.construct_GenericSystem(NULL,NULL);
+				std::vector<Matrix<int> > all_sym;
+				cs.get_wf_symmetries(all_sym);
+				for(unsigned int j(0);j<all_sym.size();j++){
+					Vector<double> t(t_ref);
+					Matrix<int> sym(all_sym[j]);
+					for(unsigned int i(0);i<sym.row();i++){
+						if(sym(i,1)<0){
+							t(sym(i,0)) = sym(i,2)*0.1;
+						} else {
+							t(sym(i,0)) = sym(i,2)*t(sym(i,1));
+						}
+					}
+					//std::cout<<sym<<std::endl<<std::endl;
+					std::cout<<"sim["<<j<<"]"<<" "<<i<<" -> "<<t<<std::endl;
+				}
+			} break;
 		default:
 			{
 				std::cerr<<"check : unknown option 'what', options are :"<<std::endl;
@@ -143,6 +165,7 @@ int main(int argc, char* argv[]){
 				std::cerr<<"      - init + create + run + write : 4"<<std::endl;
 				std::cerr<<"      - load + run                  : 5"<<std::endl;
 				std::cerr<<"      - load + run + rewrite        : 6"<<std::endl;
+				std::cerr<<"      - load + check_symmetries     : 7"<<std::endl;
 			}
 	}
 }

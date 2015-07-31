@@ -64,21 +64,30 @@ void VMCMinimization::refine(double const& E, double const& dE){
 		std::cout<<"#"<<msg<<std::endl;
 		m_->pso_info_.item(msg);
 
-		/*because there is no default MCSim constructor*/
-		Vector<double> tmp(m_->dof_);
 #pragma omp parallel for schedule(dynamic,10)
 		for(unsigned int i=0;i<N;i++){
-			MCSim sim(tmp);
+			std::shared_ptr<MCSim> sim;
 #pragma omp critical
 			{
 				best.target_next();
+				sim = std::make_shared<MCSim>(best.get().get_param());
 				/*need to do call copy_S because best.get().get_S() has an
 				 * undefined Ainv_, EVec_[i>0] ... due to the free_memory()
 				 * call*/
-				sim.copy_S(best.get().get_S());
+				sim->copy_S(best.get().get_S());
 			}
-			while(!sim.check_conv(1e-5) || sim.get_S()->get_energy().get_dx()>dE) { sim.run(0,m_->tmax_); }
-			sim.complete_analysis(dE);
+			while(!sim->check_conv(1e-5) || sim->get_S()->get_energy().get_dx()>dE) { sim->run(0,m_->tmax_); }
+			/*Merge this new evaluation*/
+#pragma omp critical(samples_list_)
+			{
+				m_->samples_list_.set_target();
+				if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)){ 
+					m_->samples_list_.merge_with_target(sim,MCSim::merge); 
+					m_->samples_list_.get().get_S()->get_energy().complete_analysis(1e-5);
+				} else {
+					std::cerr<<"void VMCMinimization::refine(double const& E, double const& dE) : can't find sim in m_->samples_list_"<<std::endl;
+				}
+			}
 		}
 	} else {
 		std::cerr<<"void VMCMinimization::refine(unsigned int const& Nrefine, double const& converged_criterion, unsigned int const& tmax) : there is no data"<<std::endl;
@@ -154,8 +163,9 @@ void VMCMinimization::plot() const {
 	gp.margin("0.1","0.9","0.9","0.50");
 	gp.tics("x");
 	gp.range("x","restore");
+	gp.key("left Left");
 	for(unsigned int i(0);i<N;i++){
-		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(N+2)+":"+my::tostring(i+1)+":"+my::tostring(N+3)+" w xe notitle"+(i==N-1?"":",\\");
+		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(N+2)+":"+my::tostring(i+1)+":"+my::tostring(N+3)+" w xe t '$"+my::tostring(i)+"$'"+(i==N-1?"":",\\");
 	}
 	gp.save_file();
 }
@@ -248,12 +258,12 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 		pso_info_.item(msg);
 
 		set_phase_space(P);
-		
+
 		Linux command;
 		path = cs.get_path();
 		path+= my::tostring(dof_)+"dof/";
 		basename = "-" + cs.get_filename();
-		command("/bin/mkdir -p " + path);
+		command.mkdir(path);
 	}
 }
 
@@ -303,7 +313,7 @@ void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 			pso_info_.nl();
 			pso_info_.lineblock(PS);
 		} else {
-			std::cerr<<"void VMCMinimization::Minimization::set_phase_space(Parseur const& P) : provide dof_ ranges and remove any blank space and EOL at the EOF"<<std::endl;
+			std::cerr<<"void VMCMinimization::Minimization::set_phase_space(Parseur const& P) : provide "<<dof_<<" ranges and remove any blank space and EOL at the EOF"<<std::endl;
 		}
 	} else {
 		std::cerr<<"void VMCMinimization::Minimization::set_phase_space(Parseur const& P) : need to provide a file containing the phase space"<<std::endl;

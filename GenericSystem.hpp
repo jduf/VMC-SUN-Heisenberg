@@ -35,6 +35,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void save_input() const;
 		virtual void create() = 0;
 		virtual void check() = 0;
+		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
 	protected:
 		unsigned int const spuc_;//!< site per unit cell

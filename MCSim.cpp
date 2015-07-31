@@ -91,8 +91,8 @@ bool MCSim::compare(MCSim const& a, MCSim const& b){
 
 unsigned int MCSim::cmp_for_merge(MCSim const& list, MCSim const& new_elem){
 	for(unsigned int i(0);i<list.param_.size();i++){
-		if(list.param_(i) - new_elem.param_(i) > 0.01){ return 0; }
-		if(list.param_(i) - new_elem.param_(i) < -0.01){ return 1; }
+		if(list.param_(i) - new_elem.param_(i) > 0.0001){ return 0; }
+		if(list.param_(i) - new_elem.param_(i) <-0.0001){ return 1; }
 	}
 	return 2;
 }
@@ -113,7 +113,7 @@ void MCSim::save(System const* const s) const {
 	cs.construct_GenericSystem(NULL,NULL);
 	if(cs.get_status()==2){
 		Linux command;
-		command("/bin/mkdir -p " + cs.get_path());
+		command.mkdir(cs.get_path());
 		IOFiles file_results(cs.get_path() + cs.get_filename()+".jdbin",true);
 		cs.init_output_file(file_results);
 		cs.save_input();

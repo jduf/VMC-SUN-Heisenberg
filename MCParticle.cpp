@@ -2,6 +2,18 @@
 
 void MCParticle::move(Vector<double> const& bx_all){
 	Particle::move(bx_all);
+	/*!if a symmetry of the wavefunction has been defined for this particle,
+	 * it is now applied on x and v, it still needs to be applied in
+	 * MCParticle::get_param() to set the correct sign to param.*/
+	for(unsigned int i(0);i<sym_.row();i++){
+		if(sym_(i,1)<0){
+			x_(sym_(i,0)) = 0.1;/*if set to zero will bug but maybe only because of the bug, see header file*/
+			v_(sym_(i,0)) = 0.0;
+		} else {
+			x_(sym_(i,0)) = x_(sym_(i,1));
+			v_(sym_(i,0)) = v_(sym_(i,1));
+		}
+	}
 	/*!move to different parameter set can be achieved if v>1, therefore if
 	 * the particle is static, it could be relaunched*/
 	if(v_.norm_squared()<0.25){ 
@@ -41,10 +53,6 @@ bool MCParticle::update(std::shared_ptr<MCSim> const& new_elem){
 	}
 }
 
-void MCParticle::add_to_history(std::shared_ptr<MCSim> const& new_elem){
-	history_.add_end(new_elem);
-}
-
 bool MCParticle::select_new_best(){
 	double tmp;
 	Vector<double> param;
@@ -62,28 +70,43 @@ bool MCParticle::select_new_best(){
 }
 
 void MCParticle::set_bx_via(Vector<double> const& param){
-	bool found(false);
+	bool found;
 	for(unsigned int i(0);i<dof_;i++){
+		found = false;
 		for(unsigned int j(0);j<ps_[i].size();j++){
-			if( my::are_equal(ps_[i](j),param(i)) ){
+			/*the absolute value is required because even if m_->ps_[i]>0, some
+			 * pi-flux configuration need negative parameters*/
+			if( my::are_equal(ps_[i](j),std::abs(param(i))) ){
 				bx_(i) = j;
 				j = ps_[i].size();
 				found = true;
 			}
 		}
+		if(!found){
+			std::cerr<<"void MCParticle::set_bx_via(Vector<double> const& param) : can't find a match for dof "<<i<<" for param "<<param<<std::endl;
+		}
+		assert(found);
 	}
-	if(!found){
-		std::cerr<<"void MCParticle::set_bx_via(Vector<double> const& param) : can't find a match"<<std::endl;
-	}
-	assert(found);
 }
 
 Vector<double> MCParticle::get_param() const {
 	Vector<double> param(dof_);
 	for(unsigned int i(0);i<dof_;i++){
 		if(x_(i)<=min_(i) || x_(i)>=max_(i))
-			std::cerr<<"bug"<<x_<<" | "<<v_<<std::endl;
+		{
+#pragma omp critical
+			std::cerr<<"bug "<<x_<<" | "<<min_<<" | "<<max_<<std::endl;
+			for(unsigned int j(0);j<dof_;j++){
+				std::cout<<ps_[j]<<std::endl;
+			}
+		}
 		param(i) = ps_[i](floor(x_(i)));
+	}
+	/*!if a symmetry of the wavefunction has been defined for this particle,
+	 * it is now applied to param*/
+	for(unsigned int i(0);i<sym_.row();i++){
+		if(sym_(i,1)<0){ param(sym_(i,0)) = sym_(i,2)*1.0; }
+		else           { param(sym_(i,0)) = sym_(i,2)*param(sym_(i,1)); }
 	}
 	return param;
 }

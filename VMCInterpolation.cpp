@@ -5,7 +5,6 @@ VMCInterpolation::VMCInterpolation(VMCMinimization const& m):
 	interp_(m_->dof_)
 {
 	interp_.select_basis_function(7);
-	std::cerr<<"VMCInterpolation::VMCInterpolation(VMCMinimization const& m): no 'dx' set for Interpolation"<<std::endl;
 }
 
 /*{public methods*/
@@ -143,7 +142,7 @@ void VMCInterpolation::plot(){
 			}
 			std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 			(*out_)<<param.norm_squared()<<" "<<interp_.extrapolate(param)<<" ";
-			if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)==2){
+			if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)){
 				(*out_)<<m_->samples_list_.get().get_S()->get_energy().get_x()<<" "<<m_->samples_list_.get().get_S()->get_energy().get_dx()<<IOFiles::endl;
 			} else {
 				(*out_)<<0<<" "<<0<<IOFiles::endl;
@@ -175,15 +174,27 @@ void VMCInterpolation::print(){
 
 /*{private methods*/
 void VMCInterpolation::search_minima(){
+	Time chrono;
+	std::string msg1("computing the weights");
+	std::cout<<"#"<<msg1<<std::flush;
+
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
 		interp_.add_data(m_->samples_list_.get().get_param(),m_->samples_list_.get().get_S()->get_energy().get_x());
 	}
-	Time chrono;
-	std::string msg1("computing the weights");
-	std::cout<<"#"<<msg1<<std::flush;
-	if(interp_.compute_weights(0.1,pow(m_->ps_size_,1./m_->dof_))){
-		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
+
+	double dx(0.0);
+	for(unsigned int i(0);i<m_->dof_;i++){
+		double tmp(0);
+		for(unsigned int j(1);j<m_->ps_[i].size();j++){
+			tmp += m_->ps_[i](j)-m_->ps_[i](j-1);
+		}
+		dx += tmp/(m_->ps_[i].size()-1);
+	}
+	dx /= m_->dof_;
+
+	if(interp_.compute_weights(dx,pow(m_->ps_size_,1./m_->dof_))){
+		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s"+(dx>1e-14?" error : "+my::tostring(dx)+")":")"));
 		std::cout<<msg2<<std::endl;
 		m_->pso_info_.item(msg1+msg2);
 		chrono.set();
@@ -210,9 +221,8 @@ void VMCInterpolation::search_minima(){
 					rnd[i].set(j,0,m_->ps_[i].size()-1);
 				}
 			}
-			tmp = pow(4,m_->dof_);
 #pragma omp parallel for
-			for(unsigned int i=0;i<tmp;i++){
+			for(unsigned int i=0;i<m_->dof_*100;i++){
 				Vector<double> param(m_->dof_);
 				Vector<unsigned int> pidx(m_->dof_);
 				unsigned int thread(omp_get_thread_num());

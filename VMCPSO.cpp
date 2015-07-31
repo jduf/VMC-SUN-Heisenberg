@@ -7,6 +7,20 @@ VMCPSO::VMCPSO(Parseur const& P, VMCMinimization const& vmcm):
 	for(unsigned int i(0);i<m_->dof_;i++){
 		Particle::set_limit(i,0,m_->ps_[i].size());
 	}
+	Vector<double> tmp(m_->dof_);
+	CreateSystem cs(m_->s_);
+	cs.set_param(NULL,&tmp);
+	cs.construct_GenericSystem(NULL,NULL);
+	std::vector<Matrix<int> > sym;
+	cs.get_wf_symmetries(sym);
+	for(unsigned int i(0);i<Nparticles_;i++){
+		std::shared_ptr<MCParticle> MCP;
+		MCP = std::dynamic_pointer_cast<MCParticle>(particle_[i]);
+		MCP->set_symmetry(sym[i%sym.size()]);
+	}
+	if(Nparticles_<sym.size()){
+		std::cerr<<"VMCPSO::VMCPSO(Parseur const& P, VMCMinimization const& vmcm) : not enough particles with respect to the number of symmetries : "<<sym.size()<<std::endl;
+	}
 }
 
 /*{public methods*/
@@ -47,7 +61,7 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 		MCP = std::dynamic_pointer_cast<MCParticle>(particle_[i]);
 		MCP->set_ps(m_->ps_);
 	}
-	
+
 	Time chrono;
 	init_PSO(100); 
 	m_->effective_time_ = chrono.elapsed()*omp_get_max_threads()/Nparticles_;

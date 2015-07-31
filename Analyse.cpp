@@ -90,8 +90,8 @@ void Analyse::search_jdbin(){
 		d.sort();
 
 		Linux command;
-		command("mkdir -p " + info_+path_+dir_);
-		command("mkdir -p " + analyse_+path_+dir_);
+		command.mkdir(info_+path_+dir_);
+		command.mkdir(analyse_+path_+dir_);
 		open_files();
 
 		std::cout<<"lev "<<level_<<" : "<<path_+dir_<<std::endl;

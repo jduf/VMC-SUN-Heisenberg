@@ -19,125 +19,29 @@ LadderFree::LadderFree(System const& s, Vector<double> const& t):
 void LadderFree::compute_H(){
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
-	switch(t_.size()){
-		case 1:
-			{
-				for(unsigned int i(0);i<n_;i++){
-					nb = get_neighbourg(i);
-					switch(i%spuc_){
-						case 0:
-							{
-								H_(i,nb(0,0)) = nb(0,1);
-								H_(i,nb(1,0)) = nb(1,1)*t_(0);
-							}break;
-						case 1:
-							{
-								H_(i,nb(0,0)) = nb(0,1);
-							}break;
-						default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
-					}
-				}
-			}break;
-		case 2:
-			{
-				for(unsigned int i(0);i<n_;i++){
-					nb = get_neighbourg(i);
-					switch(i%spuc_){
-						case 0:
-							{
-								H_(i,nb(0,0)) = nb(0,1);
-								H_(i,nb(1,0)) = nb(1,1)*t_(0);
-							}break;
-						case 1:
-							{
-								H_(i,nb(0,0)) = nb(0,1);
-							}break;
-						case 2:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(1);
-								H_(i,nb(1,0)) = nb(1,1)*t_(0);
-							}break;
-						case 3:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(1);
-							}break;
-						default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
-					}
-				}
-			}break;
-		case 3:
-			{
-				for(unsigned int i(0);i<n_;i++){
-					nb = get_neighbourg(i);
-					switch(i%spuc_){
-						case 0:
-							{
-								H_(i,nb(0,0)) = nb(0,1);
-								H_(i,nb(1,0)) = nb(1,1)*t_(0);
-							}break;
-						case 1:
-							{
-								H_(i,nb(0,0)) = nb(0,1);
-							}break;
-						case 2:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(2);
-								H_(i,nb(1,0)) = nb(1,1)*t_(1);
-							}break;
-						case 3:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(2);
-							}break;
-						default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
-					}
-				}
-			}break;
-		case 5:
-			{
-				for(unsigned int i(0);i<n_;i++){
-					nb = get_neighbourg(i);
-					switch(i%spuc_){
-						case 0:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-								H_(i,nb(1,0)) = nb(1,1);
-							}break;
-						case 1:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-							}break;
-						case 2:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(1);
-								H_(i,nb(1,0)) = nb(1,1);
-							}break;
-						case 3:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(2);
-							}break;
-						case 4:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-								H_(i,nb(1,0)) = nb(1,1);
-							}break;
-						case 5:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(0);
-							}break;
-						case 6:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(3);
-								H_(i,nb(1,0)) = nb(1,1);
-							}break;
-						case 7:
-							{
-								H_(i,nb(0,0)) = nb(0,1)*t_(4);
-							}break;
-						default:{ std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
-					}
-				}
-			}break;
-		default:{  std::cerr<<"void LadderFree::compute_H(unsigned int const& c) : no wavefunction definded for "<<t_.size()<<" free parameters"<<std::endl; }
+	unsigned int k(0);
+
+	for(unsigned int i(0);i<n_;i++){
+		nb = get_neighbourg(i);
+		if(i%spuc_){
+			if(i%2){
+				H_(i,nb(0,0)) = nb(0,1)*t_(k++);
+			} else {
+				H_(i,nb(0,0)) = nb(0,1)*t_(k++);
+				H_(i,nb(1,0)) = nb(1,1)*t_(k++);
+			}
+		} else {
+			if(J_(0)>J_(1)){
+				/*!decoupled chains in the limit J⊥=J_(1)->0, therefore, in
+				 * that case the variational parameter is t⊥ (t‖ is set to 1)*/
+				H_(i,nb(0,0)) = nb(0,1);
+				H_(i,nb(1,0)) = nb(1,1)*t_(k++);
+			} else {
+				H_(i,nb(0,0)) = nb(0,1)*t_(k++);
+				H_(i,nb(1,0)) = nb(1,1);
+			}
+		}
+		k = k%t_.size();
 	}
 	H_ += H_.transpose();
 }
@@ -168,15 +72,715 @@ void LadderFree::save() const {
 
 unsigned int LadderFree::set_spuc(Vector<double> const& t){
 	switch(t.size()){
-		case 1: { return 2; } break;
-		case 2: { return 4; } break;
-		case 3: { return 4; } break;
-		case 4: { return 4; } break;
-		case 8: { return 4; } break;
+		case 0: { return 1; } break;
+		case 2: { return 2; } break;
+		case 5: { return 4; } break;
+		case 8: { return 6; } break;
+		case 11:{ return 8; } break;
 		default:{
-					std::cerr<<"unsigned int LadderFree::set_spuc(Vector<double> const& t) : unvalid t size"<<std::endl;
+					std::cerr<<"unsigned int LadderFree::set_spuc(Vector<double> const& t) : invalid t size"<<std::endl;
 					return 1;
 				}
+	}
+}
+
+void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
+	int A(J_(0)>J_(1)?0:-1); //link between sites 0-1 (rung)
+	int B(J_(0)>J_(1)?-1:0); //link between sites 0-2 (leg)
+	switch(spuc_){
+		case 2:
+			{
+				Matrix<int> tmp(1,3,1);
+				tmp(0,1) = B;
+				sym.push_back(tmp);
+			}break;
+		case 4:
+			{
+				Matrix<int> tmp;
+				/*no symmetry breaking*/
+				/*0,0*/
+				sym.push_back(tmp);
+				tmp.set(1,3);
+				/*pi,0*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi*/
+				tmp(0,0) = 4;
+				tmp(0,1) = 4;
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+
+				tmp.set(3,3);
+				/*facing dimerization*/
+				tmp(0,0) = 1;
+				tmp(0,1) = B;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 3;
+				tmp(1,1) = A;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 4;
+				tmp(2,1) = 2;
+				tmp(2,2) = 1;
+				/*0,0*/
+				sym.push_back(tmp);
+				/*pi,0*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi*/
+				tmp(0,2) = 1;
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+
+				/*shifted dimerization*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 2;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 4;
+				tmp(1,1) = B;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 3;
+				tmp(2,1) = A;
+				tmp(2,2) = 1;
+				/*0,0*/
+				sym.push_back(tmp);
+				/*pi,0*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi*/
+				tmp(0,2) = 1;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+			}break;
+		case 6:
+			{
+				Matrix<int> tmp;
+				/*no symmetry breaking*/
+				/*0,0,0*/
+				sym.push_back(tmp);
+				/*{ 1 pi-flux*/
+				tmp.set(1,3);
+				/*pi,0,0*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,0*/
+				tmp(0,0) = 4;
+				tmp(0,1) = 4;
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,pi*/
+				tmp(0,0) = 7;
+				tmp(0,1) = 7;
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{ 2 pi-flux*/
+				tmp.set(2,3);
+				/*pi,pi,0*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				tmp(1,0) = 4;
+				tmp(1,1) = 4;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*pi,0,pi*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				tmp(1,0) = 7;
+				tmp(1,1) = 7;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,pi*/
+				tmp(0,0) = 4;
+				tmp(0,1) = 4;
+				tmp(0,2) = -1;
+				tmp(1,0) = 7;
+				tmp(1,1) = 7;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+
+				tmp.set(6,3);
+				/*{facing trimerization*/
+				tmp(0,0) = 1;
+				tmp(0,1) = B;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 2;
+				tmp(1,1) = B;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 3;
+				tmp(2,1) = A;
+				tmp(2,2) = 1;
+
+				tmp(3,0) = 4;
+				tmp(3,1) = B;
+				tmp(3,2) = 1;
+
+				tmp(4,0) = 6;
+				tmp(4,1) = A;
+				tmp(4,2) = 1;
+
+				tmp(5,0) = 7;
+				tmp(5,1) = 5;
+				tmp(5,2) = 1;
+				/*0,0,0*/
+				sym.push_back(tmp);
+				/*pi,0,0*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,0*/
+				tmp(3,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,0*/
+				tmp(0,2) = 1;
+				sym.push_back(tmp);
+				/*0,pi,pi*/
+				tmp(5,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,pi*/
+				tmp(3,2) = 1;
+				sym.push_back(tmp);
+				/*pi,0,pi*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{shifted trimerization*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 2;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 3;
+				tmp(1,1) = A;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 4;
+				tmp(2,1) = 2;
+				tmp(2,2) = 1;
+
+				tmp(3,0) = 5;
+				tmp(3,1) = 2;
+				tmp(3,2) = 1;
+
+				tmp(4,0) = 6;
+				tmp(4,1) = A;
+				tmp(4,2) = 1;
+
+				tmp(5,0) = 7;
+				tmp(5,1) = B;
+				tmp(5,2) = 1;
+				/*0,0,0*/
+				sym.push_back(tmp);
+				/*pi,0,0*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,0*/
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,0*/
+				tmp(0,2) = 1;
+				sym.push_back(tmp);
+				/*0,pi,pi*/
+				tmp(5,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,pi*/
+				tmp(2,2) = 1;
+				sym.push_back(tmp);
+				/*pi,0,pi*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{dimer and box*/
+				tmp.set(4,3);
+				tmp(0,0) = 1;
+				tmp(0,1) = B;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 3;
+				tmp(1,1) = 6;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 4;
+				tmp(2,1) = 2;
+				tmp(2,2) = 1;
+
+				tmp(3,0) = 7;
+				tmp(3,1) = 5;
+				tmp(3,2) = 1;
+				/*0,0,0*/
+				sym.push_back(tmp);
+				/*pi,0,0*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,0*/
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,0*/
+				tmp(0,2) = 1;
+				sym.push_back(tmp);
+				/*0,pi,pi*/
+				tmp(3,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,pi*/
+				tmp(2,2) = 1;
+				sym.push_back(tmp);
+				/*pi,0,pi*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+			}break;
+		case 8:
+			{
+				Matrix<int> tmp;
+				/*no symmetry breaking*/
+				/*0,0,0,0*/
+				sym.push_back(tmp);
+				/*{ 1 pi-flux*/
+				tmp.set(1,3);
+				/*pi,0,0,0*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,0,0*/
+				tmp(0,0) = 4;
+				tmp(0,1) = 4;
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,pi,0*/
+				tmp(0,0) = 7;
+				tmp(0,1) = 7;
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,0,pi*/
+				tmp(0,0) = 10;
+				tmp(0,1) = 10;
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{ 2 pi-flux*/
+				tmp.set(2,3);
+				/*pi,pi,0,0*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				tmp(1,0) = 4;
+				tmp(1,1) = 4;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*pi,0,pi,0*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				tmp(1,0) = 7;
+				tmp(1,1) = 7;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,0,pi*/
+				tmp(0,0) = 4;
+				tmp(0,1) = 4;
+				tmp(0,2) = -1;
+				tmp(1,0) = 10;
+				tmp(1,1) = 10;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,pi,0*/
+				tmp(0,0) = 4;
+				tmp(0,1) = 4;
+				tmp(0,2) = -1;
+				tmp(1,0) = 7;
+				tmp(1,1) = 7;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,pi,pi*/
+				tmp(0,0) = 7;
+				tmp(0,1) = 7;
+				tmp(0,2) = -1;
+				tmp(1,0) = 10;
+				tmp(1,1) = 10;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*pi,0,0,pi*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				tmp(1,0) = 10;
+				tmp(1,1) = 10;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{ 3 pi-flux*/
+				tmp.set(3,3);
+				/*pi,pi,pi,0*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				tmp(1,0) = 4;
+				tmp(1,1) = 4;
+				tmp(1,2) = -1;
+				tmp(1,0) = 7;
+				tmp(1,1) = 7;
+				tmp(1,2) = -1;
+				/*pi,pi,0,pi*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				tmp(1,0) = 4;
+				tmp(1,1) = 4;
+				tmp(1,2) = -1;
+				tmp(1,0) = 10;
+				tmp(1,1) = 10;
+				tmp(1,2) = -1;
+				/*pi,0,pi,pi*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				tmp(1,0) = 7;
+				tmp(1,1) = 7;
+				tmp(1,2) = -1;
+				tmp(1,0) = 10;
+				tmp(1,1) = 10;
+				tmp(1,2) = -1;
+				/*0,pi,pi,pi*/
+				tmp(0,0) = 4;
+				tmp(0,1) = 4;
+				tmp(0,2) = -1;
+				tmp(1,0) = 7;
+				tmp(1,1) = 7;
+				tmp(1,2) = -1;
+				tmp(1,0) = 10;
+				tmp(1,1) = 10;
+				tmp(1,2) = -1;
+				/*}*/
+
+				/*{facing tetramerization*/
+				tmp.set(7,3);
+				tmp(0,0) = 1;
+				tmp(0,1) = B;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 4;
+				tmp(1,1) = 2;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 5;
+				tmp(2,1) = B;
+				tmp(2,2) = 1;
+
+				tmp(3,0) = 6;
+				tmp(3,1) = 3;
+				tmp(3,2) = 1;
+
+				tmp(4,0) = 7;
+				tmp(4,1) = B;
+				tmp(4,2) = 1;
+
+				tmp(5,0) = 9;
+				tmp(5,1) = A;
+				tmp(5,2) = 1;
+
+				tmp(6,0) = 10;
+				tmp(6,1) = 8;
+				tmp(6,2) = 1;
+				/*0,0,0*/
+				sym.push_back(tmp);
+				/*pi,0,0,0*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,0,0*/
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,0,0*/
+				tmp(0,2) = 1;
+				sym.push_back(tmp);
+				/*0,pi,pi,0*/
+				tmp(4,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,pi,0*/
+				tmp(1,2) = 1;
+				sym.push_back(tmp);
+				/*0,0,pi,pi*/
+				tmp(6,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,0,pi*/
+				tmp(4,2) = 1;
+				sym.push_back(tmp);
+				/*0,pi,0,pi*/
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*pi,0,pi,0*/
+				tmp(0,2) = -1;
+				tmp(1,2) = 1;
+				tmp(4,2) = -1;
+				tmp(6,2) = 1;
+				sym.push_back(tmp);
+				/*pi,pi,pi,0*/
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,0,pi*/
+				tmp(4,2) = 1;
+				tmp(6,2) = -1;
+				sym.push_back(tmp);
+				/*pi,0,pi,pi*/
+				tmp(1,2) = 1;
+				tmp(4,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,pi,pi*/
+				tmp(0,2) = 1;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{shifted by one tetramerization*/
+				tmp.set(6,3);
+				tmp(0,0) = 1;
+				tmp(0,1) = 2;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 4;
+				tmp(1,1) = 5;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 7;
+				tmp(2,1) = 2;
+				tmp(2,2) = 1;
+
+				tmp(3,0) = 8;
+				tmp(3,1) = 2;
+				tmp(3,2) = 1;
+
+				tmp(4,0) = 9;
+				tmp(4,1) = 3;
+				tmp(4,2) = 1;
+
+				tmp(5,0) = 10;
+				tmp(5,1) = B;
+				tmp(5,2) = 1;
+				/*0,0,0,0*/
+				sym.push_back(tmp);
+				/*pi,0,0,0*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,0,0*/
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,0,0*/
+				tmp(0,2) = 1;
+				sym.push_back(tmp);
+				/*0,pi,pi,0*/
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,pi,0*/
+				tmp(1,2) = 1;
+				sym.push_back(tmp);
+				/*0,0,pi,pi*/
+				tmp(5,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,0,pi*/
+				tmp(2,2) = 1;
+				sym.push_back(tmp);
+				/*0,pi,0,pi*/
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*pi,0,pi,0*/
+				tmp(0,2) = -1;
+				tmp(1,2) = 1;
+				tmp(2,2) = -1;
+				tmp(5,2) = 1;
+				sym.push_back(tmp);
+				/*pi,pi,pi,0*/
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,0,pi*/
+				tmp(2,2) = 1;
+				tmp(5,2) = -1;
+				sym.push_back(tmp);
+				/*pi,0,pi,pi*/
+				tmp(1,2) = 1;
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,pi,pi*/
+				tmp(0,2) = 1;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{shifted by two tetramerization*/
+				tmp.set(8,3);
+				tmp(0,0) = 1;
+				tmp(0,1) = B;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 3;
+				tmp(1,1) = A;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 4;
+				tmp(2,1) = 8;
+				tmp(2,2) = 1;
+
+				tmp(3,0) = 5;
+				tmp(3,1) = B;
+				tmp(3,2) = 1;
+
+				tmp(4,0) = 6;
+				tmp(4,1) = A;
+				tmp(4,2) = 1;
+
+				tmp(5,0) = 7;
+				tmp(5,1) = B;
+				tmp(5,2) = 1;
+
+				tmp(6,0) = 9;
+				tmp(6,1) = A;
+				tmp(6,2) = 1;
+
+				tmp(7,0) = 10;
+				tmp(7,1) = 2;
+				tmp(7,2) = 1;
+				/*0,0,0,0*/
+				sym.push_back(tmp);
+				/*pi,0,0,0*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,0,0*/
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,0,0*/
+				tmp(0,2) = 1;
+				sym.push_back(tmp);
+				/*0,pi,pi,0*/
+				tmp(5,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,pi,0*/
+				tmp(2,2) = 1;
+				sym.push_back(tmp);
+				/*0,0,pi,pi*/
+				tmp(7,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,0,pi*/
+				tmp(5,2) = 1;
+				sym.push_back(tmp);
+				/*0,pi,0,pi*/
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*pi,0,pi,0*/
+				tmp(0,2) = -1;
+				tmp(2,2) = 1;
+				tmp(5,2) = -1;
+				tmp(7,2) = 1;
+				sym.push_back(tmp);
+				/*pi,pi,pi,0*/
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,0,pi*/
+				tmp(5,2) = 1;
+				tmp(7,2) = -1;
+				sym.push_back(tmp);
+				/*pi,0,pi,pi*/
+				tmp(2,2) = 1;
+				tmp(5,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,pi,pi*/
+				tmp(0,2) = 1;
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{double dimerization*/
+				tmp.set(7,3);
+				tmp(0,0) = 1;
+				tmp(0,1) = B;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 2;
+				tmp(1,1) = B;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 4;
+				tmp(2,1) = B;
+				tmp(2,2) = 1;
+
+				tmp(3,0) = 6;
+				tmp(3,1) = A;
+				tmp(3,2) = 1;
+
+				tmp(4,0) = 7;
+				tmp(4,1) = 5;
+				tmp(4,2) = 1;
+
+				tmp(5,0) = 8;
+				tmp(5,1) = 5;
+				tmp(5,2) = 1;
+
+				tmp(6,0) = 10;
+				tmp(6,1) = 5;
+				tmp(6,2) = 1;
+				/*0,0,0,0*/
+				sym.push_back(tmp);
+				/*pi,0,0,0*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,0,0*/
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,0,0*/
+				tmp(0,2) = 1;
+				sym.push_back(tmp);
+				/*0,pi,pi,0*/
+				tmp(4,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,pi,0*/
+				tmp(2,2) = 1;
+				sym.push_back(tmp);
+				/*0,0,pi,pi*/
+				tmp(6,2) = -1;
+				sym.push_back(tmp);
+				/*0,0,0,pi*/
+				tmp(4,2) = 1;
+				sym.push_back(tmp);
+				/*0,pi,0,pi*/
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*pi,0,pi,0*/
+				tmp(0,2) = -1;
+				tmp(2,2) = 1;
+				tmp(4,2) = -1;
+				tmp(6,2) = 1;
+				sym.push_back(tmp);
+				/*pi,pi,pi,0*/
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,0,pi*/
+				tmp(4,2) = 1;
+				tmp(6,2) = -1;
+				sym.push_back(tmp);
+				/*pi,0,pi,pi*/
+				tmp(2,2) = 1;
+				tmp(4,2) = -1;
+				sym.push_back(tmp);
+				/*0,pi,pi,pi*/
+				tmp(0,2) = 1;
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+			}break;
+		default:{  std::cerr<<"void LadderFree:: bla"<<std::endl; }
 	}
 }
 /*}*/

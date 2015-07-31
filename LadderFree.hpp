@@ -11,6 +11,7 @@ class LadderFree: public Ladder<double>{
 		void create();
 		void save() const;
 		void check();
+		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const;
 
 	protected:
 		void compute_H();
