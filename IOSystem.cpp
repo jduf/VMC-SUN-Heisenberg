@@ -41,6 +41,8 @@ std::string IOSystem::analyse(unsigned int const& level){
 		case 5:{ return extract_level_5(); }break;
 		case 6:{ return extract_level_6(); }break;
 		case 7:{ return extract_level_7(); }break;
+		case 8:{ return extract_level_8(); }break;
+		case 9:{ return extract_level_9(); }break;
 		default:
 			   {
 				   std::cerr<<"IOSystem::analyse(unsigned int const& level) : level="<<level<<" undefined"<<std::endl;

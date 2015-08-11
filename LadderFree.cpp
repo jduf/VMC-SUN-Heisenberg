@@ -864,3 +864,17 @@ void LadderFree::lattice(){
 	ps.save(true,true,true);
 }
 /*}*/
+
+/*{method needed for analysing*/
+std::string LadderFree::extract_level_9(){
+	save();
+
+	return filename_;
+}
+
+std::string LadderFree::extract_level_6(){
+	(*data_write_)<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<asin(J_(1))<<" "<<E_<<IOFiles::endl;
+
+	return filename_;
+}
+/*}*/

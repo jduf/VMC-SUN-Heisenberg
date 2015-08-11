@@ -29,6 +29,17 @@ VMCMinimization::VMCMinimization(VMCMinimization const& vmcm, std::string const&
 	m_(vmcm.m_)
 {}
 
+VMCMinimization::VMCMinimization(std::string const& filename):
+	time_(""),
+	path_(""),
+	basename_(""),
+	prefix_(""),
+	out_(NULL),
+	m_(std::make_shared<Minimization>())
+{
+	m_->load(filename,path_,basename_);
+}
+
 /*{public methods*/
 void VMCMinimization::refine(){
 	double E;
@@ -110,13 +121,13 @@ void VMCMinimization::save() const {
 	out<<path_<<basename_;
 }
 
-void VMCMinimization::save_best(unsigned int const& nsave) const {
+void VMCMinimization::save_best(unsigned int const& nsave, IOFiles& w) const {
 	if(m_->samples_list_.size()){
 		List<MCSim> best;
 		while(m_->samples_list_.target_next()){ best.add_sort(m_->samples_list_.get_ptr(),MCSim::compare); }
 		best.set_target();
 		unsigned int i(0);
-		while(best.target_next() && i++<nsave){ best.get().save(m_->s_); }
+		while(best.target_next() && i++<nsave){ best.get().save(m_->s_, w); }
 	} else {
 		std::cerr<<"void VMCMinimization::save(unsigned int const& nsave) : there is no data"<<std::endl;
 	}
@@ -210,14 +221,114 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 /*}*/
 
 /*{Minimization*/
+//void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::string& basename){
+	//tmax_ = P.get<unsigned int>("tmax");
+//
+	//unsigned int i(0);
+	//IOFiles* in(P.find("load",i,false)?(new IOFiles(P.get<std::string>(i),false)):NULL);
+	//if(in){ s_ = new System(*in); }
+	//else  { s_ = new System(P); }
+	//dof_ = (in?in->read<unsigned int>():P.get<unsigned int>("dof"));
+	//ps_= new Vector<double>[dof_];
+//
+	///*!the next block is required to compute the J setup*/
+	//Vector<double> tmp;
+	//CreateSystem cs(s_);
+	//cs.set_param(NULL,&tmp);
+	//cs.construct_GenericSystem(NULL,NULL);
+	//cs.set_bonds(s_);
+//
+	//ps_size_ = 1;
+	//if(in){
+		//for(unsigned int i(0);i<dof_;i++){
+			//ps_[i] = in->read<Vector<double> >(); 
+			//ps_size_ *= ps_[i].size();
+		//}
+//
+		//std::string msg("loading samples from "+in->get_filename());
+		//std::cout<<"#"+msg<<std::flush;
+		//Time chrono;
+		//unsigned int size(in->read<int>());
+		//while(size--){ samples_list_.add_end(std::make_shared<MCSim>(*in)); }
+		//(*in)>>path>>basename;
+//
+		//std::string msg_end(" ("+my::tostring(samples_list_.size())+" samples loaded in "+my::tostring(chrono.elapsed())+"s)");
+		//std::string header(in->get_header());
+		//header.erase(0,header.find(".. end_of_saved_variables\n",0)+28);
+		//pso_info_.text(header);
+		//pso_info_.title("Minimization",'>');
+		//pso_info_.item(msg+msg_end);
+		//std::cout<<msg_end<<std::endl;
+//
+		//delete in;
+		//in = NULL;
+	//} else {
+		//std::string msg("no samples loaded");
+		//std::cout<<"#"+msg<<std::endl;
+		//pso_info_.title("Minimization",'>');
+		//pso_info_.item(msg);
+//
+		//set_phase_space(P);
+//
+		//Linux command;
+		//path = cs.get_path();
+		//path+= my::tostring(dof_)+"dof/";
+		//basename = "-" + cs.get_filename();
+		//command.mkdir(path);
+	//}
+//}
 void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::string& basename){
 	tmax_ = P.get<unsigned int>("tmax");
 
 	unsigned int i(0);
-	IOFiles* in(P.find("load",i,false)?(new IOFiles(P.get<std::string>(i),false)):NULL);
-	if(in){ s_ = new System(*in); }
-	else  { s_ = new System(P); }
-	dof_ = (in?in->read<unsigned int>():P.get<unsigned int>("dof"));
+	if(P.find("load",i,false)){
+		Time chrono;
+		std::string filename(P.get<std::string>(i));
+		std::string msg("loading samples from "+filename);
+		std::cout<<"#"+msg<<std::flush;
+
+		std::string n_samples(load(filename,path,basename));
+
+		pso_info_.title("Minimization",'>');
+		std::string msg_end(" ("+n_samples+" samples loaded in "+my::tostring(chrono.elapsed())+"s)");
+		pso_info_.item(msg+msg_end);
+		std::cout<<msg_end<<std::endl;
+	} else {
+		create(P,path,basename);
+	}
+}
+
+void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::string& basename){
+	tmax_ = P.get<unsigned int>("tmax");
+	s_ = new System(P);
+	dof_ = P.get<unsigned int>("dof");
+	ps_= new Vector<double>[dof_];
+
+	/*!the next block is required to compute the J setup*/
+	Vector<double> tmp;
+	CreateSystem cs(s_);
+	cs.set_param(NULL,&tmp);
+	cs.construct_GenericSystem(NULL,NULL);
+	cs.set_bonds(s_);
+
+	std::string msg("no samples loaded");
+	std::cout<<"#"+msg<<std::endl;
+	pso_info_.title("Minimization",'>');
+	pso_info_.item(msg);
+
+	set_phase_space(P);
+
+	Linux command;
+	path = cs.get_path();
+	path+= my::tostring(dof_)+"dof/";
+	basename = "-" + cs.get_filename();
+	command.mkdir(path);
+}
+
+std::string VMCMinimization::Minimization::load(std::string const& filename, std::string& path, std::string& basename){
+	IOFiles in(filename,false);
+	s_ = new System(in); 
+	dof_ = in.read<unsigned int>();
 	ps_= new Vector<double>[dof_];
 
 	/*!the next block is required to compute the J setup*/
@@ -228,43 +339,19 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 	cs.set_bonds(s_);
 
 	ps_size_ = 1;
-	if(in){
-		for(unsigned int i(0);i<dof_;i++){
-			ps_[i] = in->read<Vector<double> >(); 
-			ps_size_ *= ps_[i].size();
-		}
-
-		std::string msg("loading samples from "+in->get_filename());
-		std::cout<<"#"+msg<<std::flush;
-		Time chrono;
-		unsigned int size(in->read<int>());
-		while(size--){ samples_list_.add_end(std::make_shared<MCSim>(*in)); }
-		(*in)>>path>>basename;
-
-		std::string msg_end(" ("+my::tostring(samples_list_.size())+" samples loaded in "+my::tostring(chrono.elapsed())+"s)");
-		std::string header(in->get_header());
-		header.erase(0,header.find(".. end_of_saved_variables\n",0)+28);
-		pso_info_.text(header);
-		pso_info_.title("Minimization",'>');
-		pso_info_.item(msg+msg_end);
-		std::cout<<msg_end<<std::endl;
-
-		delete in;
-		in = NULL;
-	} else {
-		std::string msg("no samples loaded");
-		std::cout<<"#"+msg<<std::endl;
-		pso_info_.title("Minimization",'>');
-		pso_info_.item(msg);
-
-		set_phase_space(P);
-
-		Linux command;
-		path = cs.get_path();
-		path+= my::tostring(dof_)+"dof/";
-		basename = "-" + cs.get_filename();
-		command.mkdir(path);
+	for(unsigned int i(0);i<dof_;i++){
+		ps_[i] = in.read<Vector<double> >(); 
+		ps_size_ *= ps_[i].size();
 	}
+
+	unsigned int n_samples(in.read<int>());
+	while(n_samples--){ samples_list_.add_end(std::make_shared<MCSim>(in)); }
+	in>>path>>basename;
+
+	std::string header(in.get_header());
+	header.erase(0,header.find(".. end_of_saved_variables\n",0)+28);
+	pso_info_.text(header);
+	return my::tostring(samples_list_.size());
 }
 
 void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
@@ -274,6 +361,7 @@ void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 		std::string PS;
 		load>>PS;
 
+		ps_size_ = 1;
 		std::vector<std::string> ps(my::string_split(PS,'\n'));
 		if(ps.size() == dof_){
 			unsigned int k;
@@ -321,7 +409,6 @@ void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 }
 
 VMCMinimization::Minimization::~Minimization(){
-	std::cerr<<pso_info_.get()<<std::endl;
 	if(ps_){ delete[] ps_; }
 	if(s_){ delete s_; }
 }

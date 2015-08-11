@@ -47,5 +47,7 @@ class IOSystem{
 		virtual std::string extract_level_5(){ return filename_; }
 		virtual std::string extract_level_6(){ return filename_; }
 		virtual std::string extract_level_7(){ return filename_; }
+		virtual std::string extract_level_8(){ return filename_; }
+		virtual std::string extract_level_9(){ return filename_; }
 };
 #endif

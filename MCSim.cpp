@@ -107,19 +107,16 @@ void MCSim::write(IOFiles& w) const {
 	S_->write(w);
 }
 
-void MCSim::save(System const* const s) const {
+void MCSim::save(System const* const s, IOFiles& w) const {
 	CreateSystem cs(s);
 	cs.set_param(NULL,&param_);
 	cs.construct_GenericSystem(NULL,NULL);
 	if(cs.get_status()==2){
-		Linux command;
-		command.mkdir(cs.get_path());
-		IOFiles file_results(cs.get_path() + cs.get_filename()+".jdbin",true);
-		cs.init_output_file(file_results);
+		cs.init_output_file(w);
 		cs.save_input();
 		RST rst;
 		rst.title("Results",'-');
-		file_results.add_header()->add(rst.get());
-		S_->save_output(file_results);
+		w.add_header()->add(rst.get());
+		S_->save_output(w);
 	}
 }

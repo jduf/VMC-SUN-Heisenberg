@@ -216,7 +216,7 @@ std::vector<std::string> System::names() const {
 		case 1: { names.push_back("P"); }break;
 	}
 	if(my::are_equal(ref_(0),2) && my::are_equal(ref_(1),1) && my::are_equal(ref_(2),4)){
-		tmp = "theta"+my::tostring(asin(J_(0)));
+		tmp = "theta"+my::tostring(asin(J_(1)));
 	} else { 
 		tmp = "J"; 
 		for(unsigned int i(0);i<this->J_.size();i++){

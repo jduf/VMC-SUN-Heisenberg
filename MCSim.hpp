@@ -37,7 +37,7 @@ class MCSim {
 
 		void write(IOFiles& w) const;
 		/*!Save the result in a single file (wavefunction parameters, observables)*/
-		void save(System const* const s) const;
+		void save(System const* const s, IOFiles& w) const;
 		void print() const { std::cout<<param_<<" "<<S_->get_energy(); }
 
 		static bool compare(MCSim const& a, MCSim const& b);

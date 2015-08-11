@@ -23,7 +23,8 @@ AnalyseChain::~AnalyseChain(){
 }
 
 void AnalyseChain::open_files(){
-	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); 
+	if(level_>1){ 
+		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); 
 		if(level_==6){ 
 			jd_write_->write("number of different wavefunction",nof_); 
 			jd_write_->add_header()->np();
