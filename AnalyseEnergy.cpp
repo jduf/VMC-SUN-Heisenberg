@@ -51,7 +51,7 @@ std::string AnalyseEnergy::extract_level_4(){
 		(*read_)>>E;
 
 		jd_write_->add_header()->nl();
-		cs.save_input(); 
+		s.save_input(*jd_write_); 
 		jd_write_->write("energy per site",E);
 	}
 
@@ -72,7 +72,7 @@ std::string AnalyseEnergy::extract_level_3(){
 		std::string link_name(cs.analyse(level_));
 
 		jd_write_->add_header()->nl();
-		cs.save_input();
+		s.save_input(*jd_write_);
 	}
 
 	delete read_;
@@ -111,7 +111,7 @@ std::string AnalyseEnergy::extract_default(){
 	if(level_ == 6){ (*read_)>>nof_; }
 	(*read_)>>E;
 
-	cs.save_input();
+	s.save_input(*jd_write_);
 	jd_write_->write("energy per site",E);
 
 	delete read_;

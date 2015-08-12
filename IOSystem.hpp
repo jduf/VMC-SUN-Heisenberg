@@ -16,8 +16,6 @@ class IOSystem{
 
 		/*!Set this to the value contained in t*/
 		void set_IOSystem(IOSystem const* const t);
-		/*!Set .jdbin output file and initialize its header*/
-		void init_output_file(IOFiles& output);
 
 		/*!Returns the filename (only usefull for mc via CreateSystem)*/
 		std::string const& get_filename() const { return filename_; };
@@ -28,17 +26,17 @@ class IOSystem{
 		std::string analyse(unsigned int const& level);
 
 	protected:
+		IOFiles* read_			= NULL;//!< binary file from which data are extracted
+		IOFiles* jd_write_		= NULL;//!< binary file in which data are written in sim_/path_
+		IOFiles* data_write_	= NULL;//!< textfile in which data are written saved in analyse_/path_
+		RSTFile* rst_file_		= NULL;//!< rst file saved in info_/path_/dir_
+
 		std::string sim_		= "sim/";	 //!< sim directory name
 		std::string info_		= "info/";	 //!< directory name where the .rst and .html files will be saved
 		std::string analyse_	= "analyse/";//!< directory name where the .gp dat .dat files will be saved 
 		std::string path_		= "";		 //!< temporary variable of the path leading to dir_
 		std::string dir_		= "";		 //!< temporary variable containing filename_
 		std::string filename_	= "";	 	 //!< whole filename of the .jdbin file
-
-		IOFiles* read_			= NULL;//!< binary file from which data are extracted
-		IOFiles* jd_write_		= NULL;//!< binary file in which data are written in sim_/path_
-		IOFiles* data_write_	= NULL;//!< textfile in which data are written saved in analyse_/path_
-		RSTFile* rst_file_		= NULL;//!< rst file saved in info_/path_/dir_
 
 		virtual std::string extract_level_1(){ return filename_; }
 		virtual std::string extract_level_2(){ return filename_; }

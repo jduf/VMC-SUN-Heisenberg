@@ -1,7 +1,7 @@
 #include "Honeycomb0pp.hpp"
 
 Honeycomb0pp::Honeycomb0pp(System const& s, double td):
-	System(s),
+	System(s,3),
 	Honeycomb<double>(set_ab(),6,"honeycomb0pp"),
 	td_(td)
 {
@@ -61,9 +61,8 @@ void Honeycomb0pp::create(){
 	}
 }
 
-void Honeycomb0pp::save() const{
-	GenericSystem<double>::save_input();
-	jd_write_->write("td/th (ratio of the hopping parameters)",td_);
+void Honeycomb0pp::save_param(IOFiles& w) const{
+	w.write("td/th (ratio of the hopping parameters)",td_);
 }
 
 unsigned int Honeycomb0pp::match_pos_in_ab(Vector<double> const& x) const{
@@ -341,7 +340,7 @@ std::string Honeycomb0pp::extract_level_6(){
 	}
 
 	jd_write_->add_header()->nl();
-	save();
+	save_input(*jd_write_);
 	jd_write_->write("energy per site",E_);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);

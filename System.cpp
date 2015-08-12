@@ -9,11 +9,10 @@ System::System(Parseur& P):
 	n_(P.get<unsigned int>("n")),
 	bc_(P.get<int>("bc")),
 	M_(P.get<std::vector<unsigned int>>("M")),
-	J_(P.get<std::vector<double> >("Jp")),
-	status_(5)
+	J_(P.get<std::vector<double> >("Jp"))
 {
 	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<"System::System(Parseur& P) : Bad initialization"<<std::endl; } 
-	else{status_--;}
+	else{ status_--; }
 	if(bc_ != -1 && bc_ != 0 && bc_ != 1){ std::cerr<<"System::System(Parseur& P) : unknown boundary condition"<<std::endl; } 
 	else { status_--; }
 }
@@ -31,6 +30,21 @@ System::System(IOFiles& r):
 	E_(r),
 	corr_(r),
 	lr_corr_(r)
+{}
+
+System::System(System const& s, unsigned int const& status):
+	ref_(s.ref_),
+	N_(s.N_),
+	m_(s.m_),
+	n_(s.n_),
+	bc_(s.bc_),
+	M_(s.M_),
+	J_(s.J_),
+	status_(status),
+	links_(s.links_),
+	E_(s.E_),
+	corr_(s.corr_),
+	lr_corr_(s.lr_corr_)
 {}
 /*}*/
 
@@ -62,6 +76,10 @@ void System::write(IOFiles& w) const {
 }
 
 void System::save_input(IOFiles& w) const {
+	RST rst;
+	rst.title("Input",'-');
+	w.add_header()->add(rst.get());
+
 	w.write("ref (type of wavefunction)",ref_);
 	w.write("N (N of SU(N))",N_);
 	w.write("m (# of particles per site)",m_);
@@ -72,6 +90,10 @@ void System::save_input(IOFiles& w) const {
 }
 
 void System::save_output(IOFiles& w) const {
+	RST rst;
+	rst.title("Results",'-');
+	w.add_header()->add(rst.get());
+
 	w.write("status",status_);
 	w.write("links",links_);
 	w.write("energy per site",E_);

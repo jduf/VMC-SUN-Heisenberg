@@ -120,13 +120,13 @@ std::string AnalyseChain::extract_level_5(){
 									{
 										ChainFermi<double> chain(s);
 										chain.set_IOSystem(this);
-										chain.save_input();
+										chain.save_input(*jd_write_);
 									}break;
 								case 2:
 									{
 										ChainFermi<std::complex<double> > chain(s);
 										chain.set_IOSystem(this);
-										chain.save_input();
+										chain.save_input(*jd_write_);
 									}break;
 								default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
 							}
@@ -135,7 +135,7 @@ std::string AnalyseChain::extract_level_5(){
 						{
 							ChainPolymerized chain(s,ti);
 							chain.set_IOSystem(this);
-							chain.save_input();
+							chain.save_input(*jd_write_);
 						}break;
 					default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
 				}
@@ -169,7 +169,7 @@ std::string AnalyseChain::extract_level_5(){
 					ref(2) = 1;
 					ChainPolymerized chain(*s,ti);
 					chain.set_IOSystem(this);
-					chain.save_input();
+					chain.save_input(*jd_write_);
 				} else {
 					ref(2) = 0;
 					switch(ref(1)){
@@ -177,13 +177,13 @@ std::string AnalyseChain::extract_level_5(){
 							{
 								ChainFermi<double> chain(*s);
 								chain.set_IOSystem(this);
-								chain.save_input();
+								chain.save_input(*jd_write_);
 							}break;
 						case 2:
 							{
 								ChainFermi<std::complex<double> > chain(*s);
 								chain.set_IOSystem(this);
-								chain.save_input();
+								chain.save_input(*jd_write_);
 							}break;
 						default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
 					}
@@ -223,7 +223,7 @@ std::string AnalyseChain::extract_level_4(){
 		(*read_)>>E>>polymerization_strength>>exponents;
 
 		jd_write_->add_header()->nl();
-		cs.save_input(); 
+		s.save_input(*jd_write_); 
 		jd_write_->write("energy per site",E);
 		jd_write_->write("polymerization strength",polymerization_strength);
 		jd_write_->write("critical exponents",exponents);
@@ -247,7 +247,7 @@ std::string AnalyseChain::extract_level_3(){
 		std::string link_name(cs.analyse(level_));
 
 		jd_write_->add_header()->nl();
-		cs.save_input();
+		s.save_input(*jd_write_);
 	}
 
 	delete read_;

@@ -107,16 +107,13 @@ void MCSim::write(IOFiles& w) const {
 	S_->write(w);
 }
 
-void MCSim::save(System const* const s, IOFiles& w) const {
-	CreateSystem cs(s);
+void MCSim::save(IOFiles& w) const {
+	CreateSystem cs(S_.get());
 	cs.set_param(NULL,&param_);
 	cs.construct_GenericSystem(NULL,NULL);
 	if(cs.get_status()==2){
-		cs.init_output_file(w);
-		cs.save_input();
-		RST rst;
-		rst.title("Results",'-');
-		w.add_header()->add(rst.get());
+		S_->save_input(w);
 		S_->save_output(w);
+		cs.save_param(w);
 	}
 }

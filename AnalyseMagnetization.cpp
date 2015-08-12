@@ -81,7 +81,7 @@ std::string AnalyseMagnetization::extract_level_5(){
 		cs.construct_GenericSystem(read_,this);
 		(*read_)>>E;
 		if(i==idx){
-			cs.save_input(); 
+			s.save_input(*jd_write_); 
 			jd_write_->write("energy per site",E);
 		}
 	}
@@ -99,7 +99,7 @@ std::string AnalyseMagnetization::extract_level_4(){
 	System s(*read_);
 	CreateSystem cs(&s);
 	cs.construct_GenericSystem(read_,this);
-	cs.save_input();
+	s.save_input(*jd_write_);
 	std::string link_name(cs.analyse(level_));
 	jd_write_->add_header()->nl();
 

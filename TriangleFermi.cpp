@@ -1,7 +1,7 @@
 #include "TriangleFermi.hpp"
 
 TriangleFermi::TriangleFermi(System const& s):
-	System(s),
+	System(s,3),
 	Triangle<double>(set_ab(),1,"triangle-fermi")
 {
 	if(status_==2){

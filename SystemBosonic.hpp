@@ -46,7 +46,7 @@ class SystemBosonic : public MCSystem, public Bosonic<Type>{
 /*{*/
 template<typename Type>
 SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S):
-	System(S),
+	System(S,0),
 	MCSystem(S),
 	Bosonic<Type>(S)
 {
@@ -64,7 +64,7 @@ SystemBosonic<Type>:: SystemBosonic(IOFiles& r):
 
 template<typename Type>
 SystemBosonic<Type>::SystemBosonic(SystemBosonic<Type> const& S):
-	System(S),
+	System(S,0),
 	MCSystem(S),
 	Bosonic<Type>(S)
 {

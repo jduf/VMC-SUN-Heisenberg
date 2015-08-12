@@ -1,6 +1,7 @@
 #include "Analyse.hpp"
 
 Analyse::Analyse(std::string const& path):
+	rel_level_(""),
 	level_(0)
 {
 	if(path == ""){ study_=0; }
@@ -65,6 +66,7 @@ void Analyse::recursive_search(){
 	d.list_dir(sim_+path_+dir_);
 	if(d.size()>0){ d.sort(); }
 	level_++;
+	if(level_>1){ rel_level_ += "../"; }
 	for(unsigned int i(0);i<d.size();i++){
 		rst_file_.add_end(std::make_shared<RSTFile>(info_+path_+dir_,d.get_name(i)));
 
@@ -81,6 +83,7 @@ void Analyse::recursive_search(){
 	}
 	search_jdbin();
 	level_--;
+	rel_level_.erase(0,3);
 }
 
 void Analyse::search_jdbin(){
@@ -126,7 +129,7 @@ std::string Analyse::extract_level_7(){
 	cs.construct_GenericSystem(read_,this);
 	/*Only one call of cs.save() is needed*/
 	if(!all_link_names_.size()){ 
-		cs.save_input();
+		s.save_input(*jd_write_);
 		jd_write_->add_header()->nl();
 		jd_write_->write("number of jdfiles",nof_);
 		jd_write_->add_header()->title("System's parameters",'-');

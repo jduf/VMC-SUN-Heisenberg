@@ -22,7 +22,7 @@ class SquareFermi: public Square<Type>{
 
 template<typename Type>
 SquareFermi<Type>::SquareFermi(System const& s):
-	System(s),
+	System(s,3),
 	Square<Type>(set_ab(),1,"square-fermi")
 {
 	if(this->status_==2){

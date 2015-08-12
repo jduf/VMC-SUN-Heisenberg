@@ -70,7 +70,7 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 /*{*/
 template<typename Type>
 SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
-	System(S),
+	System(S,0),
 	MCSystem(S),
 	Fermionic<Type>(S),
 	row_(n_,m_),
@@ -163,7 +163,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 
 template<typename Type>
 SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
-	System(S),
+	System(S,0),
 	MCSystem(S),
 	Fermionic<Type>(S),
 	row_(S.row_),

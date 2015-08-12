@@ -1,7 +1,7 @@
 #include "LadderFree.hpp"
 
 LadderFree::LadderFree(System const& s, Vector<double> const& t):
-	System(s),
+	System(s,3),
 	Ladder<double>(set_spuc(t),"ladderfree"),
 	t_(t)
 {
@@ -60,14 +60,14 @@ void LadderFree::create(){
 	}
 }
 
-void LadderFree::save() const {
-	GenericSystem<double>::save_input();
+void LadderFree::save_param(IOFiles& w) const {
+	GenericSystem<double>::save_param(w);
 	std::string t_string("");
 	for(unsigned int i(0);i<t_.size()-1;i++){
 		t_string += my::tostring(t_(i))+",";
 	}
 	t_string += my::tostring(t_.back());
-	jd_write_->write("t ("+t_string+")",t_);
+	w.write("t ("+t_string+")",t_);
 }
 
 unsigned int LadderFree::set_spuc(Vector<double> const& t){
@@ -78,7 +78,7 @@ unsigned int LadderFree::set_spuc(Vector<double> const& t){
 		case 8: { return 6; } break;
 		case 11:{ return 8; } break;
 		default:{
-					std::cerr<<"unsigned int LadderFree::set_spuc(Vector<double> const& t) : invalid t size"<<std::endl;
+					std::cerr<<"unsigned int LadderFree::set_spuc(Vector<double> const& t) : invalid t size : "<<t.size()<<std::endl;
 					return 1;
 				}
 	}
@@ -866,12 +866,6 @@ void LadderFree::lattice(){
 /*}*/
 
 /*{method needed for analysing*/
-std::string LadderFree::extract_level_9(){
-	save();
-
-	return filename_;
-}
-
 std::string LadderFree::extract_level_6(){
 	(*data_write_)<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<asin(J_(1))<<" "<<E_<<IOFiles::endl;
 

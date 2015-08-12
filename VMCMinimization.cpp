@@ -127,7 +127,7 @@ void VMCMinimization::save_best(unsigned int const& nsave, IOFiles& w) const {
 		while(m_->samples_list_.target_next()){ best.add_sort(m_->samples_list_.get_ptr(),MCSim::compare); }
 		best.set_target();
 		unsigned int i(0);
-		while(best.target_next() && i++<nsave){ best.get().save(m_->s_, w); }
+		while(best.target_next() && i++<nsave){ best.get().save(w); }
 	} else {
 		std::cerr<<"void VMCMinimization::save(unsigned int const& nsave) : there is no data"<<std::endl;
 	}
@@ -299,9 +299,9 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 }
 
 void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::string& basename){
-	tmax_ = P.get<unsigned int>("tmax");
-	s_ = new System(P);
+	tmax_= P.get<unsigned int>("tmax");
 	dof_ = P.get<unsigned int>("dof");
+	s_ = new System(P);
 	ps_= new Vector<double>[dof_];
 
 	/*!the next block is required to compute the J setup*/
@@ -432,11 +432,12 @@ bool VMCMinimization::Minimization::within_limit(Vector<double> const& x){
 }
 
 void VMCMinimization::Minimization::save(IOFiles& out) const {
-	s_->save_input(out);
 	/*{Description*/
 	/*!will save "empty" E_,corr_,lr_corr_ but it is required if one want to
-	 * create a System by calling System(IOFiles& r) later*/
+	 * create a System by calling System(IOFiles& r) later. Note that as s_ is
+	 * an instance of System, save_input will not save any parameter*/
 	/*}*/
+	s_->save_input(out);
 	s_->save_output(out);
 
 	out.write("dof",dof_);

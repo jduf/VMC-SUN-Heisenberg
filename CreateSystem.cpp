@@ -144,7 +144,10 @@ void CreateSystem::construct_GenericSystem(IOFiles* read, IOSystem* ios){
 								case 0:
 									{ RGL_ = new LadderFermi<double>(*s_); }break;
 								case 4:
-									{ RGL_ = new LadderFree(*s_,C_.get<Vector<double> >("t")); }break;
+									{
+										if(read){ RGL_ = new LadderFree(*s_,read->read<Vector<double> >()); }
+										else    { RGL_ = new LadderFree(*s_,C_.get<Vector<double> >("t")); }
+									}break;
 								default: {error();}break;
 							}
 						}break;

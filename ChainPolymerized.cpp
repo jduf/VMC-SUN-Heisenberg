@@ -1,7 +1,7 @@
 #include "ChainPolymerized.hpp"
 
 ChainPolymerized::ChainPolymerized(System const& s, Vector<double> const& t):
-	System(s),
+	System(s,3),
 	Chain<double>((my::are_equal(t,Vector<double>(N_/m_,1.0))?1:N_/m_),"chain-polymerized"),
 	t_(t)
 {
@@ -81,14 +81,13 @@ void ChainPolymerized::create(){
 	}
 }
 
-void ChainPolymerized::save() const {
-	GenericSystem<double>::save_input();
+void ChainPolymerized::save_param(IOFiles& w) const {
 	std::string t_string("");
 	for(unsigned int i(0);i<t_.size()-1;i++){
 		t_string += my::tostring(t_(i))+",";
 	}
 	t_string += my::tostring(t_.back());
-	jd_write_->write("t ("+t_string+")",t_);
+	w.write("t ("+t_string+")",t_);
 }
 /*}*/
 
@@ -272,7 +271,8 @@ std::string ChainPolymerized::extract_level_6(){
 		}
 	}
 
-	save();
+	save_input(*jd_write_);
+	save_param(*jd_write_);
 	jd_write_->write("energy per site",E_);
 	jd_write_->write("polymerization strength",polymerization_strength);
 	jd_write_->write("critical exponents",exponents);

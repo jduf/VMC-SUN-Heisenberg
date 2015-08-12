@@ -37,7 +37,7 @@ class Fermionic : public virtual System{
 /*{*/
 template<typename Type>
 Fermionic<Type>::Fermionic(Fermionic<Type> const& f):
-	System(f),
+	System(f,0),
 	same_wf_(f.same_wf_),
 	EVec_(f.EVec_?new Matrix<Type>[f.N_]:NULL)
 {

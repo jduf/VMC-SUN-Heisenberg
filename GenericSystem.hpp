@@ -27,12 +27,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		GenericSystem& operator=(GenericSystem<Type> const&) = delete;
 		/*}*/
 
-		/*{Description*/
-		/*!Saves ref_, N_, m_, n_, M_ bc_ and J_ in jd_write_.
-		 * As the method is virtual, a call on this method
-		 * will call first child::save() const if it exists*/
-		/*}*/
-		virtual void save_input() const;
+		virtual void save_param(IOFiles& w) const;
 		virtual void create() = 0;
 		virtual void check() = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
@@ -72,6 +67,11 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 }
 
 template<typename Type>
+void GenericSystem<Type>::save_param(IOFiles& w) const {
+	w.add_header()->add(system_info_.get());
+}
+
+template<typename Type>
 void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
 	if(2*l.sum()==l.size()*z_){
 		unsigned int k(0);
@@ -100,12 +100,6 @@ void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
 	if(this->bc_==0){
 		std::cerr<<"void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l) : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl;
 	}
-}
-
-template<typename Type>
-void GenericSystem<Type>::save_input() const {
-	jd_write_->add_header()->add(system_info_.get());
-	System::save_input(*jd_write_);
 }
 
 template<typename Type>

@@ -71,7 +71,6 @@ Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std
 		this->dir_nn_LxLy_(5,1) = dir(1);
 
 		//this->compute_links(); 
-		std::cout<<"ok"<<std::endl;
 	}
 }
 

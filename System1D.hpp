@@ -56,7 +56,7 @@ System1D<Type>::System1D(unsigned int const& spuc, unsigned int const& z, std::s
 	GenericSystem<Type>(spuc,z,filename),
 	L_(this->n_/spuc)
 {
-	if(this->N_%this->m_){std::cout<<"System1D : maybe problematric, m doesn't devide N, so check everywhere in the code where N/m appears"<<std::endl;}
+	if(this->N_%this->m_){ std::cout<<"System1D : maybe problematric, m doesn't devide N, so check everywhere in the code where N/m appears"<<std::endl; }
 	this->status_--;
 }
 

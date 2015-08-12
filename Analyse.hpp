@@ -22,12 +22,13 @@ class Analyse: public IOSystem{
 		List<std::string> all_link_files_;
 		List<RSTFile> rst_file_;
 
+		std::string rel_level_;
 		unsigned int level_;
 		unsigned int nof_;
 
 		void do_analyse();
-		virtual void open_files()=0;
-		virtual void close_files()=0;
+		virtual void open_files()  = 0;
+		virtual void close_files() = 0;
 		std::string extract_level_7();
 
 	private:

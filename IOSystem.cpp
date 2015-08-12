@@ -22,16 +22,6 @@ void IOSystem::set_IOSystem(IOSystem const* const t){
 	data_write_ = t->data_write_;
 }
 
-void IOSystem::init_output_file(IOFiles& output){ 
-	if(jd_write_){ std::cerr<<"void IOSystem::init_output_file(IOFiles& output) : a jd_write_ has alrady been declared"<<std::endl; }
-	else{
-		jd_write_ = &output; 
-		RST rst;
-		rst.title("Input",'-');
-		jd_write_->add_header()->add(rst.get());
-	}
-}
-
 std::string IOSystem::analyse(unsigned int const& level){
 	switch(level){
 		case 1:{ return extract_level_1(); }break;

@@ -17,5 +17,6 @@ class AnalyseLadder : public Analyse{
 		std::string extract_level_8();
 		std::string extract_level_7();
 		std::string extract_level_6();
+		std::string extract_level_5();
 };
 #endif

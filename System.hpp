@@ -23,6 +23,7 @@ class System{
 		/*!Default destructor*/
 		virtual ~System() = default;
 		/*{Forbidden*/
+		System(System const&) = delete;
 		System(System&&) = delete;
 		System& operator=(System) = delete;
 		/*}*/
@@ -51,14 +52,20 @@ class System{
 		void delete_binning();
 
 		virtual void write(IOFiles& w) const;
-		void save_input(IOFiles& w) const;
+		/*{Description*/
+		/*!Saves ref_, N_, m_, n_, M_ bc_ and J_ in w. The file will contain a
+		 * brief description for each variable and eventually a header. As the
+		 * method is virtual, a call on this method will call first
+		 * child::save() const if it exists*/
+		/*}*/
+		virtual void save_input(IOFiles& w) const;
 		void save_output(IOFiles& w) const;
 
 	protected:
-		/*!Copy constructor*/
-		System(System const&) = default;
+		/*!Almost Copy constructor*/
+		System(System const& s, unsigned int const& status);
 		/*!Default constructor*/
-		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),status_(4){std::cout<<"System::System() : should never be called"<<std::endl;}
+		System():ref_(0),N_(0),m_(0),n_(0),bc_(0){ std::cout<<"System::System() : should never be called"<<std::endl; }
 
 		Vector<unsigned int> const ref_;//!< type of system 
 		unsigned int const N_;			//!< number of colors
@@ -68,7 +75,7 @@ class System{
 		Vector<unsigned int> const M_;	//!< number of particles of each color 
 		Vector<double> J_;				//!< bond energy
 
-		unsigned int status_;			//!< status of the simulation
+		unsigned int status_		= 5;//!< status of the simulation
 		Matrix<unsigned int> links_;	//!< bond <i,j>
 
 		Data<double> E_; 				//!< energy of the system

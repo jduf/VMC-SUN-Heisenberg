@@ -41,7 +41,7 @@ class Bosonic : public virtual System{
 /*{*/
 template<typename Type>
 Bosonic<Type>::Bosonic(Bosonic<Type> const& b):
-	System(b),
+	System(b,0),
 	sl_(b.sl_),
 	nn_(b.nn_),
 	cc_(b.cc_),

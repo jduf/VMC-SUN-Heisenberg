@@ -27,7 +27,7 @@ class ChainFermi: public Chain<Type>{
 
 template<typename Type>
 ChainFermi<Type>::ChainFermi(System const& s):
-	System(s),
+	System(s,3),
 	Chain<Type>(1,"chain-fermi")
 {
 	if(this->status_==2){
@@ -204,7 +204,7 @@ std::string ChainFermi<Type>::extract_level_6(){
 	(*this->read_)>>nof>>this->E_>>polymerization_strength>>exponents;
 
 	this->jd_write_->add_header()->nl();
-	this->save_input();
+	this->save_input(*this->jd_write_);
 	this->jd_write_->write("energy per site",this->E_);
 	this->jd_write_->write("polymerization strength",polymerization_strength);
 	this->jd_write_->write("critical exponents",exponents);

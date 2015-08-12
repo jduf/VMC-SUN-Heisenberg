@@ -1,7 +1,7 @@
 #include "SquareFreeComplex.hpp"
 
 SquareFreeComplex::SquareFreeComplex(System const& s, Vector<double> const& t, Vector<double> const& mu, Vector<double> const& phi):
-	System(s),
+	System(s,3),
 	Square<std::complex<double> >(set_ab(),(N_/m_==2?2:0),"square-free-flux"),
 	t_(t),
 	mu_(mu),

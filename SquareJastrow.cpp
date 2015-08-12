@@ -1,7 +1,7 @@
 #include "SquareJastrow.hpp"
 
 SquareJastrow::SquareJastrow(System const& s, Matrix<double> const& nu):
-	System(s),
+	System(s,3),
 	Square<double>(set_ab(),2,"square-jastrow")
 {
 	init_bosonic(z_,nu);
@@ -71,12 +71,12 @@ void SquareJastrow::compute_omega_cc(){
 	//}
 }
 
-void SquareJastrow::save() const {
-	GenericSystem<double>::save_input();
-	jd_write_->write("nn (nearst neighbours)",nn_);
-	jd_write_->write("cc (to match nu and x)",cc_);
-	jd_write_->write("sl (sublattice)",sl_);
-	jd_write_->write("omega (omega)",omega_);
+void SquareJastrow::save_input(IOFiles& w) const {
+	GenericSystem<double>::save_input(w);
+	w.write("nn (nearst neighbours)",nn_);
+	w.write("cc (to match nu and x)",cc_);
+	w.write("sl (sublattice)",sl_);
+	w.write("omega (omega)",omega_);
 }
 
 unsigned int SquareJastrow::match_pos_in_ab(Vector<double> const& x) const { 

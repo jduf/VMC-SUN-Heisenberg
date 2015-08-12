@@ -29,7 +29,7 @@ class LadderFermi: public Ladder<Type>{
 
 template<typename Type>
 LadderFermi<Type>::LadderFermi(System const& s):
-	System(s),
+	System(s,3),
 	Ladder<Type>(2,"ladder-fermi")
 {
 	if(this->status_==2){
@@ -269,7 +269,7 @@ std::string LadderFermi<Type>::extract_level_6(){
 	(*this->read_)>>nof>>this->E_;
 
 	this->jd_write_->add_header()->nl();
-	this->save_input();
+	this->save_input(*this->jd_write_);
 	this->jd_write_->write("energy per site",this->E_);
 
 	return this->filename_;

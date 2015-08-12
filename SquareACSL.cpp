@@ -1,7 +1,7 @@
 #include "SquareACSL.hpp"
 
 SquareACSL::SquareACSL(System const& s, Vector<double> const& t):
-	System(s),
+	System(s,3),
 	Square<std::complex<double> >(set_ab(N_/m_),(N_%m_?0:N_/m_),"square-acsl"),
 	t_(t)
 {
