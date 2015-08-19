@@ -126,7 +126,9 @@ std::string Analyse::extract_level_7(){
 
 	System s(*read_);
 	CreateSystem cs(&s);
-	cs.construct_GenericSystem(read_,this);
+	Vector<double> tmp(read_->read<Vector<double> >());
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
 	/*Only one call of cs.save() is needed*/
 	if(!all_link_names_.size()){ 
 		s.save_input(*jd_write_);

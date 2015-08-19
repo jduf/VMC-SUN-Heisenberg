@@ -30,6 +30,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void save_param(IOFiles& w) const;
 		virtual void create() = 0;
 		virtual void check() = 0;
+		virtual void lattice(std::string const& path) = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
 	protected:

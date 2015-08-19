@@ -16,9 +16,9 @@
 #include "SquareACSL.hpp"
 #include "SquareFreeComplex.hpp"
 
-//#include "KagomeFermi.hpp"
-//#include "KagomeDirac.hpp"
-//#include "KagomeVBC.hpp"
+#include "KagomeFermi.hpp"
+#include "KagomeDirac.hpp"
+#include "KagomeVBC.hpp"
 
 #include "Honeycomb0pp.hpp"
 
@@ -39,16 +39,18 @@ class CreateSystem{
 		CreateSystem& operator=(CreateSystem cs) = delete;
 		/*}*/
 
-		void set_param(Container* C, Vector<double> const* param);
 		/*{Description*/
 		/*!If read!=NULL, it will use parameters saved in IOFiles instead of
-		 * those stored in Container C_
-		 * If ios!=NULL, the attributes of IOSystem will be copied to
-		 * RGL_/CGL_.*/
+		 * those stored in Container C_*/
 		/*}*/
-		void construct_GenericSystem(IOFiles* read, IOSystem* ios);
+		void init(Vector<double> const* const param, Container* C);
 
 		/*{IOSystem calls*/
+		/*!The attributes of IOSystem will be copied to RGL_/CGL_*/
+		void set_IOSystem(IOSystem const* const ios){
+			if(RGL_){ RGL_->set_IOSystem(ios); }
+			if(CGL_){ CGL_->set_IOSystem(ios); }
+		}
 		/*!Calls IOSystem::analyse(unsigned int const& level)*/
 		std::string analyse(unsigned int const& level) {
 			if(RGL_){ return RGL_->analyse(level); }
@@ -85,6 +87,10 @@ class CreateSystem{
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 			if(RGL_){ RGL_->get_wf_symmetries(sym); }
 			if(CGL_){ CGL_->get_wf_symmetries(sym); }
+		}
+		void lattice(std::string const& path) const {
+			if(RGL_){ RGL_->lattice(path); }
+			if(CGL_){ CGL_->lattice(path); }
 		}
 		/*}*/
 

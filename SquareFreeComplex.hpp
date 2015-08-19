@@ -13,7 +13,7 @@ class SquareFreeComplex: public Square<std::complex<double> >{
 
 	protected:
 		void compute_H(unsigned int const& c);
-		void lattice();
+		void lattice(std::string const& path);
 		Vector<double> const t_;
 		Vector<double> const mu_;
 		Vector<double> const phi_;

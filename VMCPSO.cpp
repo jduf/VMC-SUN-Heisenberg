@@ -9,8 +9,7 @@ VMCPSO::VMCPSO(Parseur const& P, VMCMinimization const& vmcm):
 	}
 	Vector<double> tmp(m_->dof_);
 	CreateSystem cs(m_->s_);
-	cs.set_param(NULL,&tmp);
-	cs.construct_GenericSystem(NULL,NULL);
+	cs.init(&tmp,NULL);
 	std::vector<Matrix<int> > sym;
 	cs.get_wf_symmetries(sym);
 	for(unsigned int i(0);i<Nparticles_;i++){

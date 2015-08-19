@@ -221,62 +221,6 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 /*}*/
 
 /*{Minimization*/
-//void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::string& basename){
-	//tmax_ = P.get<unsigned int>("tmax");
-//
-	//unsigned int i(0);
-	//IOFiles* in(P.find("load",i,false)?(new IOFiles(P.get<std::string>(i),false)):NULL);
-	//if(in){ s_ = new System(*in); }
-	//else  { s_ = new System(P); }
-	//dof_ = (in?in->read<unsigned int>():P.get<unsigned int>("dof"));
-	//ps_= new Vector<double>[dof_];
-//
-	///*!the next block is required to compute the J setup*/
-	//Vector<double> tmp;
-	//CreateSystem cs(s_);
-	//cs.set_param(NULL,&tmp);
-	//cs.construct_GenericSystem(NULL,NULL);
-	//cs.set_bonds(s_);
-//
-	//ps_size_ = 1;
-	//if(in){
-		//for(unsigned int i(0);i<dof_;i++){
-			//ps_[i] = in->read<Vector<double> >(); 
-			//ps_size_ *= ps_[i].size();
-		//}
-//
-		//std::string msg("loading samples from "+in->get_filename());
-		//std::cout<<"#"+msg<<std::flush;
-		//Time chrono;
-		//unsigned int size(in->read<int>());
-		//while(size--){ samples_list_.add_end(std::make_shared<MCSim>(*in)); }
-		//(*in)>>path>>basename;
-//
-		//std::string msg_end(" ("+my::tostring(samples_list_.size())+" samples loaded in "+my::tostring(chrono.elapsed())+"s)");
-		//std::string header(in->get_header());
-		//header.erase(0,header.find(".. end_of_saved_variables\n",0)+28);
-		//pso_info_.text(header);
-		//pso_info_.title("Minimization",'>');
-		//pso_info_.item(msg+msg_end);
-		//std::cout<<msg_end<<std::endl;
-//
-		//delete in;
-		//in = NULL;
-	//} else {
-		//std::string msg("no samples loaded");
-		//std::cout<<"#"+msg<<std::endl;
-		//pso_info_.title("Minimization",'>');
-		//pso_info_.item(msg);
-//
-		//set_phase_space(P);
-//
-		//Linux command;
-		//path = cs.get_path();
-		//path+= my::tostring(dof_)+"dof/";
-		//basename = "-" + cs.get_filename();
-		//command.mkdir(path);
-	//}
-//}
 void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::string& basename){
 	tmax_ = P.get<unsigned int>("tmax");
 
@@ -307,8 +251,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	/*!the next block is required to compute the J setup*/
 	Vector<double> tmp;
 	CreateSystem cs(s_);
-	cs.set_param(NULL,&tmp);
-	cs.construct_GenericSystem(NULL,NULL);
+	cs.init(&tmp,NULL);
 	cs.set_bonds(s_);
 
 	std::string msg("no samples loaded");
@@ -334,8 +277,7 @@ std::string VMCMinimization::Minimization::load(std::string const& filename, std
 	/*!the next block is required to compute the J setup*/
 	Vector<double> tmp;
 	CreateSystem cs(s_);
-	cs.set_param(NULL,&tmp);
-	cs.construct_GenericSystem(NULL,NULL);
+	cs.init(&tmp,NULL);
 	cs.set_bonds(s_);
 
 	ps_size_ = 1;

@@ -73,7 +73,7 @@ Matrix<double> SquarePiFlux::set_ab(){
 /*}*/
 
 /*{method needed for checking*/
-void SquarePiFlux::lattice(){
+void SquarePiFlux::lattice(std::string const& path){
 	compute_H();
 	Matrix<int> nb;
 	std::string color("black");
@@ -81,7 +81,7 @@ void SquarePiFlux::lattice(){
 	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps("./","lattice");
+	PSTricks ps(path,"lattice");
 	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+filename_);
 	for(unsigned int i(0);i<n_;i++) {
 		xy0 = get_pos_in_lattice(i);
@@ -167,7 +167,7 @@ void SquarePiFlux::check(){
 	//std::cout<<s<<" "<<nb(i,0)<<" "<<nb(i,1)<<std::endl;
 	//}
 	//}
-	lattice();
+	lattice("./");
 }
 /*}*/
 

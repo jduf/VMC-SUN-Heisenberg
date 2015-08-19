@@ -38,7 +38,9 @@ std::string AnalyseMagnetization::extract_level_6(){
 
 	System s(*read_);
 	CreateSystem cs(&s);
-	cs.construct_GenericSystem(read_,this);
+	Vector<double> tmp(read_->read<Vector<double> >());
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
 	if(!all_link_names_.size()){ jd_write_->write("number of jdfiles",nof_); }
 	jd_write_->add_header()->nl();
 	std::string link_name(cs.analyse(level_));
@@ -61,7 +63,9 @@ std::string AnalyseMagnetization::extract_level_5(){
 	for(unsigned int i(0);i<nof_;i++){
 		System s(*read_);
 		CreateSystem cs(&s);
-		cs.construct_GenericSystem(read_,this);
+		Vector<double> tmp(read_->read<Vector<double> >());
+		cs.init(&tmp,NULL);
+		cs.set_IOSystem(this);
 		(*read_)>>E;
 		if(E.get_x()<min_E.get_x()){ 
 			idx = i;
@@ -78,7 +82,9 @@ std::string AnalyseMagnetization::extract_level_5(){
 	for(unsigned int i(0);i<nof_;i++){
 		System s(*read_);
 		CreateSystem cs(&s);
-		cs.construct_GenericSystem(read_,this);
+		Vector<double> tmp(read_->read<Vector<double> >());
+		cs.init(&tmp,NULL);
+		cs.set_IOSystem(this);
 		(*read_)>>E;
 		if(i==idx){
 			s.save_input(*jd_write_); 
@@ -96,9 +102,11 @@ std::string AnalyseMagnetization::extract_level_4(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
 
+	Vector<double> tmp(read_->read<Vector<double> >());
 	System s(*read_);
 	CreateSystem cs(&s);
-	cs.construct_GenericSystem(read_,this);
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
 	s.save_input(*jd_write_);
 	std::string link_name(cs.analyse(level_));
 	jd_write_->add_header()->nl();

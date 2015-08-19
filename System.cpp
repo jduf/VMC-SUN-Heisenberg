@@ -126,8 +126,8 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(2) = 4;
 		std::vector<double> Jp(2);
 		double theta(P.get<double>("theta"));
-		Jp[0] = sin(theta); //rungs (J⊥)
-		Jp[1] = cos(theta); //legs  (J‖)
+		Jp[0] = cos(theta); //legs  (J‖)
+		Jp[1] = sin(theta); //rungs (J⊥)
 		P.set("Jp",Jp);
 	}
 
@@ -238,7 +238,11 @@ std::vector<std::string> System::names() const {
 		case 1: { names.push_back("P"); }break;
 	}
 	if(my::are_equal(ref_(0),2) && my::are_equal(ref_(1),1) && my::are_equal(ref_(2),4)){
-		tmp = "theta"+my::tostring(asin(J_(1)));
+		if(J_.size()==links_.row() || J_.size()==2){
+			tmp = "theta"+my::tostring(acos(J_(0)));
+		} else {
+			std::cerr<<"std::vector<std::string> System::names() const : J_ has a strange size"<<std::endl;
+		}
 	} else { 
 		tmp = "J"; 
 		for(unsigned int i(0);i<this->J_.size();i++){

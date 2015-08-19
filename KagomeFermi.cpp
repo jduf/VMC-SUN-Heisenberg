@@ -30,7 +30,7 @@ void KagomeFermi<std::complex<double> >::create(){
 			EVec_[c].set(n_,M_(c));
 			for(unsigned int i(0);i<n_;i++){
 				for(unsigned int j(0);j<M_(c);j++){
-					EVec_[c](i,j) = evec_(i,select_[c](j));
+					EVec_[c](i,j) = evec_(i,j);
 				}
 			}
 		}

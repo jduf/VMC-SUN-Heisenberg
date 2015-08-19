@@ -28,8 +28,7 @@ MCSim::MCSim(IOFiles& r):
 
 void MCSim::create_S(System const* const s){
 	CreateSystem cs(s);
-	cs.set_param(NULL,&param_);
-	cs.construct_GenericSystem(NULL,NULL);
+	cs.init(&param_,NULL);
 	if(cs.get_status()==2){
 		cs.create();
 		if(cs.get_status()==1){
@@ -109,11 +108,10 @@ void MCSim::write(IOFiles& w) const {
 
 void MCSim::save(IOFiles& w) const {
 	CreateSystem cs(S_.get());
-	cs.set_param(NULL,&param_);
-	cs.construct_GenericSystem(NULL,NULL);
+	cs.init(&param_,NULL);
 	if(cs.get_status()==2){
+		cs.save_param(w);
 		S_->save_input(w);
 		S_->save_output(w);
-		cs.save_param(w);
 	}
 }

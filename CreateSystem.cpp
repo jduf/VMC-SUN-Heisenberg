@@ -12,99 +12,7 @@ CreateSystem::~CreateSystem(){
 	if(CGL_){delete CGL_;}
 }
 
-void CreateSystem::set_param(Container* C, Vector<double> const* param){
-	switch(ref_(0)){
-		case 1:
-			{
-				switch(ref_(1)){
-					case 1:
-						{
-							switch(ref_(2)){
-								case 1:
-									{ C_.set("t",param?(*param):C->get<double>("t")); }break;
-								default: {error();}break;
-							}
-						}break;
-					default:{error();}break;
-				}
-			}break;
-		case 2:	
-			{
-				switch(ref_(1)){
-					case 1:
-						{
-							switch(ref_(2)){
-								case 4:
-									{ C_.set("t",param?(*param):C->get<std::vector<double> >("t")); }break;
-								default: {error();}break;
-							}
-						}break;
-					default: {error();}break;
-				}
-			}break;
-		case 4:
-			{
-				switch(ref_(1)){
-					case 0:
-						{
-							Vector<double> tmp(C->get<Vector<double> >("nu"));
-							Matrix<double> nu(4,2);
-							for(unsigned int i(0);i<4;i++){
-								nu(i,0) = tmp(0);
-								nu(i,1) = tmp(1);
-							}
-							C_.set("nu",nu);
-						}break;
-					case 2:
-						{
-							switch(ref_(2)){
-								case 3:
-									{ C_.set("t",param?*param:C->get<std::vector<double> >("t")); }break;
-								case 4:
-									{
-										/*3 free parameters*/
-										C_.set("mu",param?param->range(0,0):C->get<std::vector<double> >("mu"));
-										C_.set("t",param?param->range(1,2):C->get<std::vector<double> >("t"));
-										C_.set("phi",Vector<double>(1,M_PI/4.0));
-
-										/*1 free parameter, box*/
-										//C_.set("mu",Vector<double>(1,0));
-										//C_.set("t",param?Vector<double>(2,(*param)(0)):C->get<std::vector<double> >("t"));
-										//C_.set("phi",Vector<double>(1,M_PI/4.0));
-
-										/*1 free parameter, dimer*/
-										//Vector<double> t(2);
-										//t(0) = (*param)(0);
-										//t(1) = 1;
-										//C_.set("mu",Vector<double>(1,0));
-										//C_.set("t",param?t:C->get<std::vector<double> >("t"));
-										//C_.set("phi",Vector<double>(1,M_PI/4.0));
-									}break;
-								default:{error();}break;
-							}
-						}break;
-					default:{error();}break;
-				}
-			}break;
-		case 6:
-			{
-				switch(ref_(1)){
-					case 1:
-						{
-							switch(ref_(2)){
-								case 0:
-									{ C_.set("td",param?(*param)(0):C->get<double>("td")); }break;
-								default:{error();}break;
-							}
-						}break;
-					default:{error();}break;
-				}
-			}break;
-		default:{error();}break;
-	}
-}
-
-void CreateSystem::construct_GenericSystem(IOFiles* read, IOSystem* ios){
+void CreateSystem::init(Vector<double> const* const param, Container* C){
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 	switch(ref_(0)){
@@ -114,22 +22,22 @@ void CreateSystem::construct_GenericSystem(IOFiles* read, IOSystem* ios){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:
-									{ RGL_ = new ChainFermi<double>(*s_); }break;
+								case 0: { RGL_ = new ChainFermi<double>(*s_); }break;
 								case 1:
 									{
-										if(read){ RGL_ = new ChainPolymerized(*s_,read->read<Vector<double> >()); }
-										else    { RGL_ = new ChainPolymerized(*s_,C_.get<Vector<double> >("t")); }
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C)    { t = C->get<double>("t"); }
+										if(t.ptr()){ RGL_ = new ChainPolymerized(*s_,t); }
 									}break;
-								default: {error();}break;
+								default:{error();}break;
 							}
 						}break;
 					case 2:
 						{
 							switch(ref_(2)){
-								case 0:
-									{ CGL_ = new ChainFermi<std::complex<double> >(*s_); }break;
-								default: {error();}break;
+								case 0: { CGL_ = new ChainFermi<std::complex<double> >(*s_); }break;
+								default:{error();}break;
 							}
 						}break;
 					default:{error();}break;
@@ -144,51 +52,55 @@ void CreateSystem::construct_GenericSystem(IOFiles* read, IOSystem* ios){
 								case 0:
 									{ RGL_ = new LadderFermi<double>(*s_); }break;
 								case 4:
-									{
-										if(read){ RGL_ = new LadderFree(*s_,read->read<Vector<double> >()); }
-										else    { RGL_ = new LadderFree(*s_,C_.get<Vector<double> >("t")); }
+									{ 
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C)    { t = C->get<std::vector<double> >("t"); }
+										if(t.ptr()){ RGL_ = new LadderFree(*s_,t); }
 									}break;
-								default: {error();}break;
+								default:{error();}break;
 							}
 						}break;
 					case 2:
 						{
 							switch(ref_(2)){
-								case 0:
-									{ CGL_ = new LadderFermi<std::complex<double> >(*s_); }break;
-								default: {error();}break;
+								case 0: { CGL_ = new LadderFermi<std::complex<double> >(*s_); }break;
+								default:{error();}break;
 							}
 						}break;
-					default: {error();}break;
+					default:{error();}break;
 				}
 			}break;
 		case 3:
 			{
 				switch(ref_(1)){
-					//case 0:{return TriangleJastrow(N,n,m);}break;
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0:{RGL_ = new TriangleFermi(*s_);}break;
-									   //   //   case 1:{return TriangleMu(N,n,m);}break;
+								case 0: { RGL_ = new TriangleFermi(*s_); }break;
 								default:{error();}break;
 							}
 						}break;
-						////case 2:
-						////   {
-						////   switch(ref_(2)){
-						////   case 4:{return TrianglePhi(N,n,m);}break;
-						////   default:{error();}break;
-						////   }
-						////   }break;
-						////default:{error();}break;
+					default:{error();}break;
 				}
 			}break;
 		case 4:
 			{
 				switch(ref_(1)){
 					case 0:
-						{RGL_ = new SquareJastrow(*s_,C_.get<Matrix<double> >("nu"));}break;
+						{
+							Vector<double> tmp;
+							Matrix<double> nu;
+							if(C){
+								tmp = C->get<std::vector<double> >("nu");
+								nu.set(4,2);
+								for(unsigned int i(0);i<4;i++){
+									nu(i,0) = tmp(0);
+									nu(i,1) = tmp(1);
+								}
+							}
+							if(nu.ptr()){ RGL_ = new SquareJastrow(*s_,nu); }
+						}break;
 					case 1:
 						{
 							switch(ref_(2)){
@@ -203,44 +115,58 @@ void CreateSystem::construct_GenericSystem(IOFiles* read, IOSystem* ios){
 								case 2:
 									{ CGL_ = new SquarePiFlux(*s_); }break;
 								case 3:
-									{ CGL_ = new SquareACSL(*s_,C_.get<Vector<double> >("t")); }break;
+									{ 
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C)    { t = C->get<std::vector<double> >("t"); }
+										if(t.ptr()){ CGL_ = new SquareACSL(*s_,t); }
+									}break;
 								case 4:
-									{ CGL_ = new SquareFreeComplex(*s_,C_.get<Vector<double> >("t"),C_.get<Vector<double> >("mu"),C_.get<Vector<double> >("phi")); }break;
+									{ 
+										Vector<double> t;
+										Vector<double> mu;
+										Vector<double> phi;
+										if(param){
+											t = param->range(0,0);
+											mu= param->range(1,2);
+											phi.set(1,M_PI/4.0);
+										} 
+										if(C){
+											t = C->get<std::vector<double> >("t");
+											mu= C->get<std::vector<double> >("mu");
+											phi=Vector<double>(1,M_PI/4.0);
+										}
+										if(mu.ptr() && mu.ptr() && t.ptr()){
+											CGL_ = new SquareFreeComplex(*s_,t,mu,phi); 
+										}
+									}break;
 								default:{error();}break;
 							}
 						}break;
 					default:{error();}break;
 				}
 			}break;
-			//case 5:
-			//{
-			//switch(ref_(1)){
-			//case 1:
-			//{
-			//switch(ref_(2)){
-			//case 0:{
-			//   std::cerr<<"KagomeFermi<double>(*s_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
-			//   //   RGL_ = new KagomeFermi<double>(*s_,sel0_,sel1_);
-			//   }break;
-			//case 1:{RGL_ = new KagomeDirac<double>(*s_);}break;
-			//default:{error();}break;
-			//}
-			//} break;
-			//case 2:
-			//{
-			//switch(ref_(2)){
-			//case 0:{
-			//   std::cerr<<"KagomeFermi<std::complex<double> >(*s_,Vector<unsigned int>,Vector<unsigned int>) not fully defined"<<std::endl;
-			//   //   CGL_ = new KagomeFermi<std::complex<double> >(*s_,sel0_,sel1_);
-			//   }break;
-			//case 1:{CGL_ = new KagomeDirac<std::complex<double> >(*s_);}break;
-			//case 2:{CGL_ = new KagomeVBC(ref_,N_,m_,n_,M_,bc_);}break;
-			//default:{error();}break;
-			//}
-			//}break;
-			//default:{error();}break;
-			//}
-			//}break;
+		case 5:
+			{
+				switch(ref_(1)){
+					case 1:
+						{
+							switch(ref_(2)){
+								case 1: { RGL_ = new KagomeDirac<double>(*s_); }break;
+								default:{error();}break;
+							}
+						} break;
+					case 2:
+						{
+							switch(ref_(2)){
+								case 1: {CGL_ = new KagomeDirac<std::complex<double> >(*s_); }break;
+								case 2: {CGL_ = new KagomeVBC(*s_); }break;
+								default:{error();}break;
+							}
+						}break;
+					default:{error();}break;
+				}
+			}break;
 		case 6:
 			{
 				switch(ref_(1)){
@@ -249,8 +175,10 @@ void CreateSystem::construct_GenericSystem(IOFiles* read, IOSystem* ios){
 							switch(ref_(2)){
 								case 0:
 									{
-										if(read){ RGL_ = new Honeycomb0pp(*s_,read->read<double>()) ; }
-										else    { RGL_ = new Honeycomb0pp(*s_,C_.get<double>("td")); }
+										double t;
+										if(param){ t = (*param)(0); }
+										if(C)    { t = C->get<double>("td"); }
+										if(param || C){ RGL_ = new Honeycomb0pp(*s_,t); }
 									}break;
 									////case 1:{return HoneycombSU4(N,n,m);}break;
 								default:{error();}break;
@@ -260,10 +188,6 @@ void CreateSystem::construct_GenericSystem(IOFiles* read, IOSystem* ios){
 				}
 			}break;
 		default:{error();}break;
-	}
-	if(ios){
-		if(RGL_){ RGL_->set_IOSystem(ios); }
-		if(CGL_){ CGL_->set_IOSystem(ios); }
 	}
 }
 
@@ -279,7 +203,8 @@ void CreateSystem::create(bool try_solve_degeneracy){
 				delete RGL_;
 				RGL_=NULL;
 				ref_(1)=2;
-				construct_GenericSystem(NULL,NULL);
+				//init(NULL,NULL);
+				std::cerr<<"can't recreate CGL"<<std::endl; 
 				if(CGL_){ CGL_->create(); }
 			} else {
 				std::cerr<<"void CreateSystem::create(bool try_solve_degeneracy) : giving up"<<std::endl;

@@ -1,4 +1,4 @@
-/*!  @file check.cpp */
+/*!@file check.cpp */
 
 #include "MonteCarlo.hpp"
 #include "CreateSystem.hpp"
@@ -13,23 +13,20 @@ int main(int argc, char* argv[]){
 	switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
 		case 0:/*call CreateSystem::init*/
 			{ 
-				cs.set_param(&P,NULL);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
-				cs.construct_GenericSystem(NULL,NULL); 
+				cs.init(NULL,&P);
 			} break;
 		case 1:/*call CreateSystem::init and check*/
 			{ 
-				cs.set_param(&P,NULL);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
-				cs.construct_GenericSystem(NULL,NULL);
+				cs.init(NULL,&P);
 				std::cout<<"############# Check #######################"<<std::endl;
 				if(cs.get_status()==2){ cs.check(); }
 			} break;
 		case 2:/*call CreateSystem::init create and check*/
 			{ 
-				cs.set_param(&P,NULL);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
-				cs.construct_GenericSystem(NULL,NULL);
+				cs.init(NULL,&P);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
 					cs.create();
@@ -40,9 +37,8 @@ int main(int argc, char* argv[]){
 		case 3:/*call CreateSystem::init create, MonteCarlo::run*/
 			{
 				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
-				cs.set_param(&P,NULL);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
-				cs.construct_GenericSystem(NULL,NULL);
+				cs.init(NULL,&P);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
 					cs.create();
@@ -67,7 +63,8 @@ int main(int argc, char* argv[]){
 		case 4:/*call CreateSystem::(init,create), MonteCarlo::run and save*/
 			{
 				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
-				cs.construct_GenericSystem(NULL,NULL);
+				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
+				cs.init(NULL,&P);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
 					cs.create();
@@ -137,8 +134,7 @@ int main(int argc, char* argv[]){
 		case 7:/*call CreateSystem::(init,create), MonteCarlo::run and save*/
 			{
 				Vector<double> t_ref(P.get<std::vector<double> >("t"));
-				cs.set_param(&P,NULL);
-				cs.construct_GenericSystem(NULL,NULL);
+				cs.init(NULL,&P);
 				std::vector<Matrix<int> > all_sym;
 				cs.get_wf_symmetries(all_sym);
 				for(unsigned int j(0);j<all_sym.size();j++){

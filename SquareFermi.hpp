@@ -14,7 +14,7 @@ class SquareFermi: public Square<Type>{
 
 	protected:
 		void compute_H();
-		void lattice();
+		void lattice(std::string const& path);
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0;};
 		Matrix<double> set_ab();
@@ -59,12 +59,12 @@ Matrix<double> SquareFermi<Type>::set_ab(){
 
 /*{method needed for checking*/
 template<typename Type>
-void SquareFermi<Type>::lattice(){
+void SquareFermi<Type>::lattice(std::string const& path){
 	Matrix<int> nb;
 	std::string color("black");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps("./","lattice");
+	PSTricks ps(path,"lattice");
 	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+this->filename_);
 	for(unsigned int i(0);i<this->n_;i++) {
 		xy0 = this->get_pos_in_lattice(i);
@@ -130,7 +130,7 @@ void SquareFermi<Type>::lattice(){
 
 template<typename Type>
 void SquareFermi<Type>::check(){
-	lattice();
+	lattice("./");
 	Matrix<int> nb;
 	//Vector<int> dir(4,0);
 	//Rand<unsigned int> rnd(0,3);

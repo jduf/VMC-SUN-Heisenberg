@@ -99,7 +99,8 @@ Matrix<double> SquareJastrow::set_ab(){
 /*}*/
 
 /*{method needed for checking*/
-void SquareJastrow::lattice(){ 
+void SquareJastrow::lattice(std::string const& path){ 
+	(void)(path);
 	//PSTricks ps("./",filename_+"-lattice");
 	//ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
 	//Matrix<int> nb;

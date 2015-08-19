@@ -13,7 +13,7 @@ class SquarePiFlux: public Square<std::complex<double> >{
 
 	protected:
 		void compute_H();
-		void lattice();
+		void lattice(std::string const& path);
 
 		std::string extract_level_7();
 		std::string extract_level_3();

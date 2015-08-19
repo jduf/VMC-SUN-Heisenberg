@@ -41,10 +41,10 @@ void AnalyseLadder::close_files(){
 }
 
 std::string AnalyseLadder::extract_level_9(){
-	VMCMinimization min(sim_+path_+dir_+filename_+".jdbin");
-	nof_ = 5;
-	jd_write_->write("number of compared simulations",nof_);
-	min.save_best(nof_,*jd_write_);
+	//VMCMinimization min(sim_+path_+dir_+filename_+".jdbin");
+	//nof_ = 5;
+	//jd_write_->write("number of compared simulations",nof_);
+	//min.save_best(nof_,*jd_write_);
 	/*will also plot the E(param)*/
 
 	return filename_;
@@ -54,15 +54,19 @@ std::string AnalyseLadder::extract_level_8(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
 
+	Vector<double> tmp;
 	for(unsigned int i(0);i<nof_;i++){
+		(*read_)>>tmp;
 		System s(*read_);
 		CreateSystem cs(&s);
-		cs.construct_GenericSystem(read_,this);
+		cs.init(&tmp,NULL);
+		cs.set_IOSystem(this);
+		cs.lattice(info_+path_+dir_);
 
 		if(!i){
+			cs.save_param(*jd_write_);
 			s.save_input(*jd_write_);
 			s.save_output(*jd_write_);
-			cs.save_param(*jd_write_);
 		}
 	}
 
@@ -78,10 +82,13 @@ std::string AnalyseLadder::extract_level_7(){
 
 	double E_tmp(0);
 	unsigned int idx(0);
+	Vector<double> tmp;
 	for(unsigned int i(0);i<nof_;i++){
+		(*read_)>>tmp;
 		System s(*read_);
 		CreateSystem cs(&s);
-		cs.construct_GenericSystem(read_,this);
+		cs.init(&tmp,NULL);
+		cs.set_IOSystem(this);
 
 		if(E_tmp>s.get_energy().get_x()){
 			E_tmp = s.get_energy().get_x();
@@ -95,13 +102,15 @@ std::string AnalyseLadder::extract_level_7(){
 	Data<double> E;
 	(*read_)>>nof_;
 	for(unsigned int i(0);i<nof_;i++){
+		(*read_)>>tmp;
 		System s(*read_);
 		CreateSystem cs(&s);
-		cs.construct_GenericSystem(read_,this);
+		cs.init(&tmp,NULL);
+		cs.set_IOSystem(this);
 		if(i==idx){
+			cs.save_param(*jd_write_);
 			s.save_input(*jd_write_);
 			s.save_output(*jd_write_);
-			cs.save_param(*jd_write_);
 			i=nof_;
 		}
 	}
@@ -115,9 +124,11 @@ std::string AnalyseLadder::extract_level_7(){
 std::string AnalyseLadder::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
+	Vector<double> tmp(read_->read<Vector<double> >());
 	System s(*read_);
 	CreateSystem cs(&s);
-	cs.construct_GenericSystem(read_,this);
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
 	std::string link_name(cs.analyse(level_));
 
 	delete read_;
@@ -131,6 +142,7 @@ std::string AnalyseLadder::extract_level_5(){
 	gp.range("x","0","pi/2");
 	gp.label("x","$\\theta$");
 	gp.label("y2","$\\dfrac{E}{n}$","rotate by 0");
+	gp.key("left Left");
 	gp+="plot '"+filename_+".dat' u 5:6";
 	gp.save_file();
 	gp.create_image(true,true);

@@ -61,13 +61,14 @@ void LadderFree::create(){
 }
 
 void LadderFree::save_param(IOFiles& w) const {
-	GenericSystem<double>::save_param(w);
 	std::string t_string("");
 	for(unsigned int i(0);i<t_.size()-1;i++){
 		t_string += my::tostring(t_(i))+",";
 	}
 	t_string += my::tostring(t_.back());
-	w.write("t ("+t_string+")",t_);
+	w.add_header()->title("t=("+t_string+")",'<');
+	w<<t_;
+	GenericSystem<double>::save_param(w);
 }
 
 unsigned int LadderFree::set_spuc(Vector<double> const& t){
@@ -787,23 +788,23 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 
 /*{method needed for checking*/
 void LadderFree::check(){
-	compute_H();
-	std::cout<<"liens :"<<std::endl;
-	std::cout<<links_<<std::endl;
+	//compute_H();
+	//std::cout<<"liens :"<<std::endl;
+	//std::cout<<links_<<std::endl;
+//
+	//for(unsigned int i(0);i<n_;i++){
+		//std::cout << "get_neighbourg. right - top/bot - left" << std::endl;
+		//std::cout<<"i="<<i<<std::endl;
+		//std::cout<<get_neighbourg(i)<<std::endl;// shows the links
+	//}
+	//std::cout<<"Hamiltonien"<<std::endl;
+	//std::cout<<H_<<std::endl;
 
-	for(unsigned int i(0);i<n_;i++){
-		std::cout << "get_neighbourg. right - top/bot - left" << std::endl;
-		std::cout<<"i="<<i<<std::endl;
-		std::cout<<get_neighbourg(i)<<std::endl;// shows the links
-	}
-	std::cout<<"Hamiltonien"<<std::endl;
-	std::cout<<H_<<std::endl;
-
-	lattice();
-	plot_band_structure();
+	lattice("./");
+	//plot_band_structure();
 }
 
-void LadderFree::lattice(){
+void LadderFree::lattice(std::string const& path){
 	compute_H();
 	Matrix<int> nb;
 	std::string color("black");
@@ -811,9 +812,11 @@ void LadderFree::lattice(){
 	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps("./","lattice");
+	PSTricks ps(path,filename_+"-lattice");
 	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+filename_);
-	for(unsigned int i(0);i<n_;i++) {
+
+	unsigned int n_plot(2*spuc_);
+	for(unsigned int i(0);i<n_plot;i++) {
 		xy0(0) = i/2;
 		xy0(1) = i%2;
 		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
@@ -826,8 +829,10 @@ void LadderFree::lattice(){
 		if(xy1(0)<xy0(0)){
 			xy1(0) = xy0(0)+1;
 			linestyle="dashed";
-		} else{ linestyle="solid"; }
+		} else { linestyle="solid"; }
 		linewidth = my::tostring(std::abs(H_(i,nb(0,0))))+"pt";
+		if( H_(i,nb(0,0)) < 0){ color = "red"; }
+		else { color = "black"; }
 		/*x-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		if(i%2){
 			color = "black";
@@ -835,6 +840,8 @@ void LadderFree::lattice(){
 			xy1(0) = nb(1,0)/2;
 			xy1(1) = nb(1,0)%2;
 			linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"pt";
+			if( H_(i,nb(1,0)) < 0){ color = "red"; }
+			else { color = "black"; }
 			/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 	}
@@ -842,9 +849,9 @@ void LadderFree::lattice(){
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=-0.1;
 	polygon(0,1)=-0.1;
-	polygon(1,0)=n_/2-0.1;
+	polygon(1,0)=n_plot/2-0.1;
 	polygon(1,1)=-0.1;
-	polygon(2,0)=n_/2-0.1;
+	polygon(2,0)=n_plot/2-0.1;
 	polygon(2,1)=1.1;
 	polygon(3,0)=-0.1;
 	polygon(3,1)=1.1;
@@ -852,9 +859,9 @@ void LadderFree::lattice(){
 
 	polygon(0,0)=-0.1;
 	polygon(0,1)=-0.1;
-	polygon(1,0)=0.9;
+	polygon(1,0)=spuc_/2-0.1;
 	polygon(1,1)=-0.1;
-	polygon(2,0)=0.9;
+	polygon(2,0)=spuc_/2-0.1;
 	polygon(2,1)=1.1;
 	polygon(3,0)=-0.1;
 	polygon(3,1)=1.1;
