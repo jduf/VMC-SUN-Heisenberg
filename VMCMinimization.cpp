@@ -149,20 +149,81 @@ void VMCMinimization::plot(std::string path, std::string filename) const {
 	IOFiles data(path+filename+".dat",true);
 
 	double E(0);
-	double tmp(0);
+	double tmp;
 	Vector<double> param;
+
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
 		tmp = m_->samples_list_.get().get_S()->get_energy().get_x();
-		if(tmp<E){ 
+		if(tmp<E){
 			E=tmp;
 			param = m_->samples_list_.get().get_param();
 		}
 	}
 
 	m_->samples_list_.set_target();
+	List<std::pair<double,double> > r;
+	std::shared_ptr<std::pair<double,double> > r_tmp;
+
+	auto sort_by_r = [](std::pair<double,double> const& a, std::pair<double,double> const& b){
+		if(my::are_equal(a.first,b.first)){ return 2; }
+		if(a.first>b.first){ return 0; }
+		if(a.first<b.first){ return 1; }
+		return 2;
+	};
+	auto replace_E = [](std::pair<double,double>& a, std::pair<double,double>& b){ a.second = b.second; };
+
 	while(m_->samples_list_.target_next()){
-		data<<m_->samples_list_.get().get_param()<<" "<<(param-m_->samples_list_.get().get_param()).norm_squared()<<" "<<m_->samples_list_.get().get_S()->get_energy()<<IOFiles::endl;
+		r_tmp=std::make_shared<std::pair<double, double> >((param-m_->samples_list_.get().get_param()).norm_squared(),m_->samples_list_.get().get_S()->get_energy().get_x());
+		data<<m_->samples_list_.get().get_param()<<" "<<r_tmp->first<<" "<<m_->samples_list_.get().get_S()->get_energy()<<IOFiles::endl;
+		if(r.find_sorted(r_tmp,sort_by_r)){
+			if(r.get().second > r_tmp->second){ r.merge_with_target(r_tmp,replace_E); }
+		} else { r.add_after_target(r_tmp); }
+	}
+
+	List<std::pair<double,double> > r_cpy;
+	bool keep_r;
+	unsigned int ao(50);
+	Interpolation interp_Er(1);
+	interp_Er.select_basis_function(7);
+	for(unsigned int i(0);i<r.size();i++){
+		tmp = r[i].first;
+		E = r.get().second;
+		keep_r = true;
+		for(unsigned int j(i>ao?i-ao:1);j<i+ao && j<r.size();j++){
+			if(r[j].second<E){
+				keep_r = false; 
+				j = r.size();
+			}
+		}
+		if(keep_r){
+			r_cpy.add_end(std::make_shared<std::pair<double, double> >(tmp,E)); 
+			interp_Er.add_data(tmp,E);
+		}
+	}
+	double dx(1);
+	interp_Er.compute_weights(dx,r_cpy.size());
+	std::cout<<"ok "<<dx<<std::endl;
+
+	IOFiles data_Er(path+filename+"-Er.dat",true);
+	r_cpy.set_target();
+	while(r_cpy.target_next()){
+		data_Er<<r_cpy.get().first<<" "<<r_cpy.get().second<<IOFiles::endl;
+	}
+
+	Vector<double> range(0,18,0.05);
+	Vector<double> Er(range.size());
+	for(unsigned int i(0);i<range.size();i++){
+		Er(i) = interp_Er(Vector<double>(1,range(i)));
+	}
+
+	for(unsigned int i(1);i<Er.size()-1;i++){
+		if( Er(i-1)>Er(i) && Er(i)<Er(i+1) && Er(i) < -0.693) { std::cout<<range(i)<<std::endl; }
+	}
+
+	IOFiles data_interp(path+filename+"-interp.dat",true);
+	for(unsigned int i(0);i<range.size();i++){
+		data_interp<<range(i)<<" "<<Er(i)<<IOFiles::endl;
 	}
 
 	m_->samples_list_.target_next();
@@ -173,7 +234,9 @@ void VMCMinimization::plot(std::string path, std::string filename) const {
 	gp.multiplot();
 	gp.range("x","[:Em] writeback");
 	gp.margin("0.1","0.9","0.5","0.10");
-	gp+="plot '"+filename+".dat' u "+my::tostring(N+2)+":"+my::tostring(N+1)+":"+my::tostring(N+3)+" w xe notitle";
+	gp+="plot '"+filename+".dat' u "+my::tostring(N+2)+":"+my::tostring(N+1)+":"+my::tostring(N+3)+" w xe notitle,\\";
+	gp+="     '"+filename+"-Er.dat' u 2:1 notitle,\\";
+	gp+="     '"+filename+"-interp.dat' u 2:1 w l  notitle";
 	gp.margin("0.1","0.9","0.9","0.50");
 	gp.tics("x");
 	gp.range("x","restore");

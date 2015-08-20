@@ -3,6 +3,7 @@
 
 #include "List.hpp"
 #include "MCSim.hpp"
+#include "Interpolation.hpp"
 
 class VMCMinimization{
 	public:

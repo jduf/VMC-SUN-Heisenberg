@@ -141,7 +141,7 @@ void VMCInterpolation::plot(){
 				param(j) = m_->ps_[j](0)-m_->ps_[j](k);
 			}
 			std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
-			(*out_)<<param.norm_squared()<<" "<<interp_.extrapolate(param)<<" ";
+			(*out_)<<param.norm_squared()<<" "<<interp_(param)<<" ";
 			if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)){
 				(*out_)<<m_->samples_list_.get().get_S()->get_energy().get_x()<<" "<<m_->samples_list_.get().get_S()->get_energy().get_dx()<<IOFiles::endl;
 			} else {
@@ -166,7 +166,7 @@ void VMCInterpolation::print(){
 		std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
 		if(sim.get()){
 #pragma omp critical
-			std::cerr<<param<<" "<<interp_.extrapolate(param)<<" "<<sim->get_S()->get_energy()<<std::endl;
+			std::cerr<<param<<" "<<interp_(param)<<" "<<sim->get_S()->get_energy()<<std::endl;
 		}
 	}
 }
@@ -231,7 +231,7 @@ void VMCInterpolation::search_minima(){
 					param(j) = m_->ps_[j](pidx(j));
 				}
 
-				double tmp(interp_.extrapolate(param));
+				double tmp(interp_(param));
 				double min(tmp);
 				unsigned int dir;
 				unsigned int const max_step(1e3);
@@ -240,7 +240,7 @@ void VMCInterpolation::search_minima(){
 					for(unsigned int k(0);k<m_->dof_;k++){
 						if(pidx(k)+1<m_->ps_[k].size()){
 							param(k) = m_->ps_[k](pidx(k)+1);
-							tmp = interp_.extrapolate(param);
+							tmp = interp_(param);
 							if(!isnan(tmp) && tmp<min){
 								min = tmp;
 								dir = 2*k;
@@ -248,7 +248,7 @@ void VMCInterpolation::search_minima(){
 						}
 						if(pidx(k)>0){
 							param(k) = m_->ps_[k](pidx(k)-1);
-							tmp = interp_.extrapolate(param);
+							tmp = interp_(param);
 							if(!isnan(tmp) && tmp<min){
 								min = tmp;
 								dir = 2*k+1;
@@ -325,18 +325,18 @@ void VMCInterpolation::select_if_min(Vector<double>* x, Vector<unsigned int> con
 	bool is_min(true);
 	Vector<double> param(m_->dof_);
 	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
-	f = interp_.extrapolate(param);
+	f = interp_(param);
 	if(!isnan(f)){
 		for(unsigned int j(0);j<m_->dof_;j++){
 			if(is_min){
 				if(idx(j)+1<m_->ps_[j].size()){
 					param(j) = x[j](idx(j)+1);
-					f_tmp = interp_.extrapolate(param);
+					f_tmp = interp_(param);
 					if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
 				}
 				if(is_min && idx(j)>0){
 					param(j) = x[j](idx(j)-1);
-					f_tmp = interp_.extrapolate(param);
+					f_tmp = interp_(param);
 					if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
 				}
 				param(j) = x[j](idx(j));
@@ -355,7 +355,7 @@ void VMCInterpolation::select_if_min(Vector<double>* x, Vector<unsigned int> con
 void VMCInterpolation::save_interp_data(Vector<double>* x, Vector<unsigned int> const& idx){
 	Vector<double> param(m_->dof_);
 	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
-	(*out_)<<param<<" "<<interp_.extrapolate(param)<<IOFiles::endl;
+	(*out_)<<param<<" "<<interp_(param)<<IOFiles::endl;
 }
 
 void VMCInterpolation::evaluate(Vector<double>* x, Vector<unsigned int> const& idx, double& E, double& dE, double& Ee){
@@ -366,7 +366,7 @@ void VMCInterpolation::evaluate(Vector<double>* x, Vector<unsigned int> const& i
 		sim->get_S()->get_energy().complete_analysis(1e-5);
 		E = sim->get_S()->get_energy().get_x();
 		dE= sim->get_S()->get_energy().get_dx();
-		Ee= interp_.extrapolate(param);
+		Ee= interp_(param);
 	} else {
 		E = 0.0;
 		dE= 0.0;
