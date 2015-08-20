@@ -92,7 +92,7 @@ Matrix<double> SquareFreeComplex::set_ab(){
 /*}*/
 
 /*{method needed for checking*/
-void SquareFreeComplex::lattice(std::string const& path){
+void SquareFreeComplex::lattice(std::string const& path, std::string const& filename){
 	compute_H(1);
 	Matrix<int> nb;
 	std::string color("black");
@@ -101,8 +101,8 @@ void SquareFreeComplex::lattice(std::string const& path){
 	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps(path,"lattice");
-	ps.add("\\begin{pspicture}(-20,-20)(20,20)%"+filename_);
+	PSTricks ps(path,filename);
+	ps.begin(-20,-20,20,20,filename_);
 	for(unsigned int i(0);i<n_;i++) {
 		xy0 = get_pos_in_lattice(i);
 		set_pos_LxLy(xy0);
@@ -176,8 +176,7 @@ void SquareFreeComplex::lattice(std::string const& path){
 	}
 	ps.polygon(polygon,"linecolor=blue");
 
-	ps.add("\\end{pspicture}");
-	ps.save(true,true,true);
+	ps.end(true,true,true);
 }
 
 void SquareFreeComplex::check(){
@@ -188,6 +187,6 @@ void SquareFreeComplex::check(){
 	//std::cout<<s<<" "<<nb(i,0)<<" "<<nb(i,1)<<std::endl;
 	//}
 	//}
-	lattice("./");
+	lattice("./","lattice");
 }
 /*}*/

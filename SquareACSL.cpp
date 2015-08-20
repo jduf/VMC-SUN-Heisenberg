@@ -66,7 +66,7 @@ Matrix<double> SquareACSL::set_ab(unsigned int const& spuc){
 /*}*/
 
 /*{method needed for checking*/
-void SquareACSL::lattice(std::string const& path){
+void SquareACSL::lattice(std::string const& path, std::string const& filename){
 	compute_H();
 	Matrix<int> nb;
 	std::string color("black");
@@ -75,8 +75,8 @@ void SquareACSL::lattice(std::string const& path){
 	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps(path,"lattice");
-	ps.add("\\begin{pspicture}(-20,-20)(20,20)%"+filename_);
+	PSTricks ps(path,filename);
+	ps.begin(-20,-20,20,20,filename_);
 	for(unsigned int i(0);i<n_;i++) {
 		xy0 = get_pos_in_lattice(i);
 		set_pos_LxLy(xy0);
@@ -152,8 +152,7 @@ void SquareACSL::lattice(std::string const& path){
 	}
 	ps.polygon(polygon,"linecolor=blue");
 
-	ps.add("\\end{pspicture}");
-	ps.save(true,true,true);
+	ps.end(true,true,true);
 }
 
 void SquareACSL::check(){
@@ -164,6 +163,6 @@ void SquareACSL::check(){
 	//std::cout<<s<<" "<<nb(i,0)<<" "<<nb(i,1)<<std::endl;
 	//}
 	//}
-	lattice("./");
+	lattice("./","lattice");
 }
 /*}*/

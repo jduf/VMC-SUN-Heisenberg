@@ -1,7 +1,7 @@
 #include "AnalyseLadder.hpp"
 
-AnalyseLadder::AnalyseLadder(std::string const& path):
-	Analyse(path)
+AnalyseLadder::AnalyseLadder(std::string const& path, unsigned int const& max_level):
+	Analyse(path,max_level)
 {
 	do_analyse();
 }
@@ -24,9 +24,13 @@ void AnalyseLadder::open_files(){
 
 void AnalyseLadder::close_files(){
 	switch(level_){
+		case 9:
+			{
+				rst_file_.last().figure(rel_level_+analyse_+path_+dir_+filename_+".png","Parameter sets",RST::target(rel_level_+analyse_+path_+dir_+filename_+".gp")+RST::width("1000")); 
+			} break;
 		case 6:
 			{
-				rst_file_.last().link_figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","allks",rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); 
+				rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); 
 			} break;
 	}
 	if(jd_write_){ 
@@ -41,11 +45,17 @@ void AnalyseLadder::close_files(){
 }
 
 std::string AnalyseLadder::extract_level_9(){
-	//VMCMinimization min(sim_+path_+dir_+filename_+".jdbin");
-	//nof_ = 5;
-	//jd_write_->write("number of compared simulations",nof_);
-	//min.save_best(nof_,*jd_write_);
-	/*will also plot the E(param)*/
+	IOFiles in(sim_+path_+dir_+filename_+".jdbin",false);
+
+	RSTFile rst(info_+path_+dir_,filename_);
+	rst.text(in.get_header()); 
+	rst.save(false,true); 
+
+	VMCMinimization min(in);
+	nof_ = 5;
+	jd_write_->write("number of compared simulations",nof_);
+	min.save_best(nof_,*jd_write_);
+	min.plot(analyse_+path_+dir_,filename_);
 
 	return filename_;
 }
@@ -61,7 +71,8 @@ std::string AnalyseLadder::extract_level_8(){
 		CreateSystem cs(&s);
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
-		cs.lattice(info_+path_+dir_);
+		cs.lattice(info_+path_+dir_,filename_+"-"+my::tostring(i));
+		rst_file_.last().figure(dir_+filename_+"-"+my::tostring(i)+".png",my::tostring(i),RST::target(dir_+filename_+"-"+my::tostring(i)+".tex")+RST::scale("150")); 
 
 		if(!i){
 			cs.save_param(*jd_write_);

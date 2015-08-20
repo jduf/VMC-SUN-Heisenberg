@@ -1,7 +1,7 @@
 #include "AnalyseChain.hpp"
 
-AnalyseChain::AnalyseChain(std::string const& path):
-	Analyse(path),
+AnalyseChain::AnalyseChain(std::string const& path, unsigned int const& max_level):
+	Analyse(path,max_level),
 	outfile_(NULL)
 {
 	std::cout<<"Will proceed to the analyse SU(N) chains. It will consist "
@@ -47,14 +47,14 @@ void AnalyseChain::close_files(){
 			case 7:
 				{
 					if(nof_>1){/*if there is only one E data, there is no need to make a plot*/
-						rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); 
+						rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); 
 					}
 				} break;
 			case 3:
 				{
-					rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp",1000); 
-					rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp",1000); 
-					rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp",1000); 
+					rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp")+RST::width("1000")); 
+					rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp")+RST::width("1000")); 
+					rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp")+RST::width("1000")); 
 				} break;
 		}
 		rst_file_.last().text(jd_write_->get_header());

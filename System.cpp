@@ -9,7 +9,8 @@ System::System(Parseur& P):
 	n_(P.get<unsigned int>("n")),
 	bc_(P.get<int>("bc")),
 	M_(P.get<std::vector<unsigned int>>("M")),
-	J_(P.get<std::vector<double> >("Jp"))
+	J_(P.get<std::vector<double> >("Jp")),
+	status_(5)
 {
 	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<"System::System(Parseur& P) : Bad initialization"<<std::endl; } 
 	else{ status_--; }

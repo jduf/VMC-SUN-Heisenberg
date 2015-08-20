@@ -62,10 +62,10 @@ class System{
 		void save_output(IOFiles& w) const;
 
 	protected:
-		/*!Almost Copy constructor*/
+		/*!Almost copy constructor*/
 		System(System const& s, unsigned int const& status);
 		/*!Default constructor*/
-		System():ref_(0),N_(0),m_(0),n_(0),bc_(0){ std::cout<<"System::System() : should never be called"<<std::endl; }
+		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),status_(5){ std::cout<<"System::System() : should never be called"<<std::endl; }
 
 		Vector<unsigned int> const ref_;//!< type of system 
 		unsigned int const N_;			//!< number of colors
@@ -75,7 +75,7 @@ class System{
 		Vector<unsigned int> const M_;	//!< number of particles of each color 
 		Vector<double> J_;				//!< bond energy
 
-		unsigned int status_		= 5;//!< status of the simulation
+		unsigned int status_;			//!< status of the simulation
 		Matrix<unsigned int> links_;	//!< bond <i,j>
 
 		Data<double> E_; 				//!< energy of the system

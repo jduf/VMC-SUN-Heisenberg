@@ -29,7 +29,7 @@ VMCMinimization::VMCMinimization(VMCMinimization const& vmcm, std::string const&
 	m_(vmcm.m_)
 {}
 
-VMCMinimization::VMCMinimization(std::string const& filename):
+VMCMinimization::VMCMinimization(IOFiles& in):
 	time_(""),
 	path_(""),
 	basename_(""),
@@ -37,7 +37,7 @@ VMCMinimization::VMCMinimization(std::string const& filename):
 	out_(NULL),
 	m_(std::make_shared<Minimization>())
 {
-	m_->load(filename,path_,basename_);
+	m_->load(in,path_,basename_);
 }
 
 /*{public methods*/
@@ -142,9 +142,11 @@ void VMCMinimization::print() const {
 	}
 }
 
-void VMCMinimization::plot() const {
-	std::string filename(get_filename());
-	IOFiles data(path_+filename+".dat",true);
+void VMCMinimization::plot(std::string path, std::string filename) const {
+	if(path==""){ path = path_; }
+	if(filename==""){ filename =  get_filename(); }
+
+	IOFiles data(path+filename+".dat",true);
 
 	double E(0);
 	double tmp(0);
@@ -154,9 +156,10 @@ void VMCMinimization::plot() const {
 		tmp = m_->samples_list_.get().get_S()->get_energy().get_x();
 		if(tmp<E){ 
 			E=tmp;
-			param =m_->samples_list_.get().get_param();
+			param = m_->samples_list_.get().get_param();
 		}
 	}
+
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
 		data<<m_->samples_list_.get().get_param()<<" "<<(param-m_->samples_list_.get().get_param()).norm_squared()<<" "<<m_->samples_list_.get().get_S()->get_energy()<<IOFiles::endl;
@@ -165,8 +168,8 @@ void VMCMinimization::plot() const {
 	m_->samples_list_.target_next();
 	unsigned int N(m_->samples_list_.get().get_param().size());
 
-	Gnuplot gp(path_,filename);
-	gp+="Em=-0";
+	Gnuplot gp(path,filename);
+	gp+="Em="+my::tostring(E*0.99);
 	gp.multiplot();
 	gp.range("x","[:Em] writeback");
 	gp.margin("0.1","0.9","0.5","0.10");
@@ -179,6 +182,7 @@ void VMCMinimization::plot() const {
 		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(N+2)+":"+my::tostring(i+1)+":"+my::tostring(N+3)+" w xe t '$"+my::tostring(i)+"$'"+(i==N-1?"":",\\");
 	}
 	gp.save_file();
+	gp.create_image(true,true);
 }
 /*}*/
 
@@ -222,16 +226,23 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 
 /*{Minimization*/
 void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::string& basename){
-	tmax_ = P.get<unsigned int>("tmax");
-
 	unsigned int i(0);
+	if(P.find("tmax",i,false)){ tmax_ = P.get<unsigned int>("tmax"); }
+	else { 
+		tmax_ = 1;
+		std::string msg("assume tmax=1s");
+		std::cout<<"#"+msg<<std::endl;
+		pso_info_.item(msg);
+	}
+
 	if(P.find("load",i,false)){
 		Time chrono;
 		std::string filename(P.get<std::string>(i));
 		std::string msg("loading samples from "+filename);
 		std::cout<<"#"+msg<<std::flush;
 
-		std::string n_samples(load(filename,path,basename));
+		IOFiles in(filename,false);
+		std::string n_samples(load(in,path,basename));
 
 		pso_info_.title("Minimization",'>');
 		std::string msg_end(" ("+n_samples+" samples loaded in "+my::tostring(chrono.elapsed())+"s)");
@@ -268,8 +279,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	command.mkdir(path);
 }
 
-std::string VMCMinimization::Minimization::load(std::string const& filename, std::string& path, std::string& basename){
-	IOFiles in(filename,false);
+std::string VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::string& basename){
 	s_ = new System(in); 
 	dof_ = in.read<unsigned int>();
 	ps_= new Vector<double>[dof_];

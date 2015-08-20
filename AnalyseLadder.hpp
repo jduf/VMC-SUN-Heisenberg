@@ -6,7 +6,7 @@
 
 class AnalyseLadder : public Analyse{
 	public:
-		AnalyseLadder(std::string const& path);
+		AnalyseLadder(std::string const& path, unsigned int const& max_level);
 		~AnalyseLadder() = default;
 
 	protected:

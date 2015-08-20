@@ -15,7 +15,7 @@ class KagomeFermi: public Kagome<Type>{
 
 	protected:
 		void compute_H();
-		void lattice(std::string const& path);
+		void lattice(std::string const& path, std::string const& filename);
 		std::string extract_level_7();
 		std::string extract_level_6();
 		std::string extract_level_4();
@@ -67,7 +67,7 @@ void KagomeFermi<Type>::compute_H(){
 
 /*{method needed for checking*/
 template<typename Type>
-void KagomeFermi<Type>::lattice(std::string const& path){
+void KagomeFermi<Type>::lattice(std::string const& path, std::string const& filename){
 	Matrix<int> nb;
 	double x0;
 	double x1;
@@ -79,8 +79,8 @@ void KagomeFermi<Type>::lattice(std::string const& path){
 	double ey(2.0*ll*sin(2.0*M_PI/6.0));
 	std::string color("black");
 
-	PSTricks ps(path,"lattice");
-	ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+this->filename_);
+	PSTricks ps(path,filename);
+	ps.begin(-1,-1,16,10,this->filename_);
 	Matrix<double> cell(4,2);
 	cell(0,0) = 0.0;
 	cell(0,1) = 0.0;
@@ -153,8 +153,8 @@ void KagomeFermi<Type>::lattice(std::string const& path){
 			/*2-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 		}
 	}
-	ps.add("\\end{pspicture}");
-	ps.save(true,true,true);
+
+	ps.end(true,true,true);
 }
 
 template<typename Type>

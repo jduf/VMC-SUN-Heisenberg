@@ -8,7 +8,8 @@ int main(int argc, char* argv[]){
 	
 	VMCMinimization m(P);
 	if(m.ready()){
-		switch(P.get<unsigned int>("what")){
+		unsigned int i;
+		switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
 			case 0:
 				{
 					VMCPSO m1(P,m);
@@ -55,7 +56,14 @@ int main(int argc, char* argv[]){
 					VMCInterpolation m2(m);
 				} break;
 			default:
-				{ std::cerr<<"min : unknown what"<<std::endl; }
+				{
+					std::cerr<<"min : unknown option 'what', options are :"<<std::endl;
+					std::cerr<<"    - complete run                       : 0"<<std::endl;
+					std::cerr<<"    - refine + save + plot               : 1"<<std::endl;
+					std::cerr<<"    - redefine phase space + save        : 2"<<std::endl;
+					std::cerr<<"    - plot                               : 3"<<std::endl;
+					std::cerr<<"    - load VMCPSO and VMCInterpolation   : 4"<<std::endl;
+				}
 		}
 	}
 }

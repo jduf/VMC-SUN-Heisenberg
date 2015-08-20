@@ -86,8 +86,9 @@ void KagomeVBC::create(){
 /*}*/
 
 /*{method needed for checking*/
-void KagomeVBC::lattice(std::string const& path){
+void KagomeVBC::lattice(std::string const& path, std::string const& filename){
 	(void)(path);
+	(void)(filename);
 	//Matrix<int> nb;
 	//double x0;
 	//double x1;
@@ -357,7 +358,7 @@ std::string KagomeVBC::extract_level_7(){
 	jd_write_->write("energy per site",E_);
 
 	rst_file_->text(read_->get_header());
-	rst_file_->save(false);
+	rst_file_->save(false,true);
 	delete rst_file_;
 	rst_file_ = NULL;
 

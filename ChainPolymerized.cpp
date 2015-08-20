@@ -162,7 +162,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gp+="     "+my::tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
 	gp.save_file();
 	//gp.create_image(true);
-	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-corr.png","Correlation on links",analyse_+path_+dir_+filename_+"-corr.gp",1000);
+	rst_file_->figure(analyse_+path_+dir_+filename_+"-corr.png","Correlation on links",RST::target(analyse_+path_+dir_+filename_+"-corr.gp")+RST::width("1000"));
 	/*}*/
 	/*!long range correlations*/
 	/*{*/
@@ -194,7 +194,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
 	gplr.save_file();
 	//gplr.create_image(true);
-	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",analyse_+path_+dir_+filename_+"-long-range-corr.gp",1000);
+	rst_file_->figure(analyse_+path_+dir_+filename_+"-long-range-corr.png","Long range correlation",RST::target(analyse_+path_+dir_+filename_+"-long-range--corr.gp")+RST::width("1000"));
 	/*}*/
 	/*!structure factor*/
 	/*{*/
@@ -231,7 +231,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gpsf+="     '"+filename_+"-structure-factor.dat' u 1:3 lt 1 lc 7 t 'imag'";
 	gpsf.save_file();
 	//gpsf.create_image(true);
-	rst_file_->link_figure(analyse_+path_+dir_+filename_+"-structure-factor.png","Structure factor",analyse_+path_+dir_+filename_+"-structure-factor.gp",1000);
+	rst_file_->figure(analyse_+path_+dir_+filename_+"-structure-factor.png","Structure factor",RST::target(analyse_+path_+dir_+filename_+"-structure-factor.gp")+RST::width("1000"));
 	/*}*/
 	/*!save some additionnal values */
 	/*{*/
@@ -243,7 +243,7 @@ std::string ChainPolymerized::extract_level_7(){
 	/*}*/
 
 	rst_file_->text(read_->get_header());
-	rst_file_->save(false);
+	rst_file_->save(false,true);
 	delete rst_file_;
 	rst_file_ = NULL;
 

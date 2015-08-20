@@ -7,7 +7,7 @@
 
 class Analyse: public IOSystem{
 	public:
-		Analyse(std::string const& path);
+		Analyse(std::string const& path, unsigned int const& max_level);
 		/*Default destructor*/
 		virtual ~Analyse() = default;
 		/*{Forbidden*/
@@ -23,6 +23,7 @@ class Analyse: public IOSystem{
 		List<RSTFile> rst_file_;
 
 		std::string rel_level_;
+		unsigned int const max_level_;
 		unsigned int level_;
 		unsigned int nof_;
 

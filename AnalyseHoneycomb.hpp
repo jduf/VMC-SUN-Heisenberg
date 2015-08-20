@@ -5,7 +5,7 @@
 
 class AnalyseHoneycomb : public Analyse{
 	public:
-		AnalyseHoneycomb(std::string const& sim);
+		AnalyseHoneycomb(std::string const& sim, unsigned int const& max_level);
 		/*!Default destructor*/
 		~AnalyseHoneycomb() = default;
 		/*{Forbidden*/

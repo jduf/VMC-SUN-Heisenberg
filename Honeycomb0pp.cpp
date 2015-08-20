@@ -97,7 +97,7 @@ Matrix<double> Honeycomb0pp::set_ab(){
 /*}*/
 
 /*{method needed for checking*/
-void Honeycomb0pp::lattice(std::string const& path){
+void Honeycomb0pp::lattice(std::string const& path, std::string const& filename){
 	compute_H();
 	Matrix<double> e(2,2);
 	e(0,0) = 1.0/3.0;
@@ -116,8 +116,8 @@ void Honeycomb0pp::lattice(std::string const& path){
 	std::string linestyle("solid");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps(path,"lattice");
-	ps.add("\\begin{pspicture}(-4,-10)(20,10)%"+filename_);
+	PSTricks ps(path,filename);
+	ps.begin(-4,-10,20,10,filename_);
 	for(unsigned int i(0);i<n_;i+=2) {
 		xy0 = get_pos_in_lattice(i);
 		set_pos_LxLy(xy0);
@@ -230,8 +230,7 @@ void Honeycomb0pp::lattice(std::string const& path){
 	for(unsigned int i(0);i<polygon.row();i++){ polygon(i,0) -= 1; }
 	ps.polygon(polygon,"linecolor=blue");
 
-	ps.add("\\end{pspicture}");
-	ps.save(true,true,true);
+	ps.end(true,true,true);
 }
 
 void Honeycomb0pp::check(){
@@ -295,7 +294,7 @@ void Honeycomb0pp::check(){
 	std::cout<<12<<" "<<get_site_in_ab(12)<<std::endl;
 	std::cout<<9<<" "<<get_site_in_ab(9)<<std::endl;
 	std::cout<<3<<" "<<get_site_in_ab(3)<<std::endl;
-	lattice("./");
+	lattice("./","lattice");
 }
 /*}*/
 
@@ -318,7 +317,7 @@ std::string Honeycomb0pp::extract_level_7(){
 	jd_write_->write("E",E_);
 
 	rst_file_->text(read_->get_header());
-	rst_file_->save(false);
+	rst_file_->save(false,true);
 	delete rst_file_;
 	rst_file_ = NULL;
 

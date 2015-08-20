@@ -1,7 +1,7 @@
 #include "AnalyseMagnetization.hpp"
 
-AnalyseMagnetization::AnalyseMagnetization(std::string const& sim):
-	Analyse(sim)
+AnalyseMagnetization::AnalyseMagnetization(std::string const& sim, unsigned int const& max_level):
+	Analyse(sim,max_level)
 {}
 
 void AnalyseMagnetization::open_files(){
@@ -20,8 +20,8 @@ void AnalyseMagnetization::open_files(){
 void AnalyseMagnetization::close_files(){
 	if(jd_write_){ 
 		switch(level_){
-			case 4:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
-			case 3:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
+			case 4:{ rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); } break;
+			case 3:{ rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); } break;
 		}
 		rst_file_.last().text(jd_write_->get_header());
 		delete jd_write_;

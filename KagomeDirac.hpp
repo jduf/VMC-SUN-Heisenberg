@@ -14,7 +14,7 @@ class KagomeDirac: public Kagome<Type>{
 
 	protected:
 		void compute_H();
-		void lattice(std::string const& path);
+		void lattice(std::string const& path, std::string const& filename);
 
 		std::string extract_level_7();
 		std::string extract_level_6();
@@ -86,8 +86,9 @@ void KagomeDirac<Type>::compute_H(){
 
 /*{method needed for checking*/
 template<typename Type>
-void KagomeDirac<Type>::lattice(std::string const& path){
+void KagomeDirac<Type>::lattice(std::string const& path, std::string const& filename){
 	(void)(path);
+	(void)(filename);
 	//Matrix<int> nb;
 	//double x0;
 	//double x1;
@@ -295,7 +296,7 @@ std::string KagomeDirac<Type>::extract_level_7(){
 	this->jd_write_->write("energy per site",this->E_);
 
 	this->rst_file_->text(this->read_->get_header());
-	this->rst_file_->save(false);
+	this->rst_file_->save(false,true);
 	delete this->rst_file_;
 	this->rst_file_ = NULL;
 

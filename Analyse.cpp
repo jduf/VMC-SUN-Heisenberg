@@ -1,7 +1,8 @@
 #include "Analyse.hpp"
 
-Analyse::Analyse(std::string const& path):
+Analyse::Analyse(std::string const& path, unsigned int const& max_level):
 	rel_level_(""),
+	max_level_(max_level),
 	level_(0)
 {
 	if(path == ""){ study_=0; }
@@ -20,7 +21,7 @@ void Analyse::do_analyse(){
 				r>>h;
 				rst_file_.first().text(h);
 				recursive_search();
-				rst_file_.first().save(false);
+				rst_file_.first().save(false,false);
 			}break; 
 		case 1: /*update only the README file*/
 			{
@@ -36,7 +37,7 @@ void Analyse::do_analyse(){
 				for(unsigned int j(0);j<d.size();j++){
 					rst.hyperlink(d.get_name(j),info_+d.get_name(j)+".html");
 				}
-				rst.save(false);
+				rst.save(false,true);
 				std::cout<<std::endl<<rst.get()<<std::endl;
 			}break;
 		case 2: /*treat the directory given as argument*/
@@ -75,7 +76,7 @@ void Analyse::recursive_search(){
 		path_ += dir_;
 		dir_ = d.get_name(i) + "/";
 
-		recursive_search();
+		if(level_<max_level_){ recursive_search(); }
 
 		path_ = tmp_path;
 		dir_ = tmp_dir;
@@ -117,7 +118,7 @@ void Analyse::search_jdbin(){
 		close_files();
 		all_link_names_.set();
 		all_link_files_.set();
-		rst_file_.last().save(false);
+		rst_file_.last().save(false,true);
 	}
 }
 

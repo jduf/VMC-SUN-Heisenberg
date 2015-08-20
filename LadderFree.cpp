@@ -800,11 +800,11 @@ void LadderFree::check(){
 	//std::cout<<"Hamiltonien"<<std::endl;
 	//std::cout<<H_<<std::endl;
 
-	lattice("./");
+	lattice("./","lattice");
 	//plot_band_structure();
 }
 
-void LadderFree::lattice(std::string const& path){
+void LadderFree::lattice(std::string const& path, std::string const& filename){
 	compute_H();
 	Matrix<int> nb;
 	std::string color("black");
@@ -812,63 +812,76 @@ void LadderFree::lattice(std::string const& path){
 	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps(path,filename_+"-lattice");
-	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+filename_);
+	PSTricks ps(path,filename);
+	ps.begin(-9,-2,16,2,filename);
 
-	unsigned int n_plot(2*spuc_);
+	unsigned int n_plot((n_<32?n_:spuc_));
 	for(unsigned int i(0);i<n_plot;i++) {
 		xy0(0) = i/2;
 		xy0(1) = i%2;
-		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
+		ps.put(xy0(0),xy0(1)+(i%2?0.2:-0.2),"\\tiny{"+my::tostring(i)+"}");
 		nb = get_neighbourg(i);
 
-		if(nb(0,1)<0){ color = "red"; }
-		else { color = "black"; }
-		xy1(0) = nb(0,0)/2;
-		xy1(1) = nb(0,0)%2;
-		if(xy1(0)<xy0(0)){
-			xy1(0) = xy0(0)+1;
-			linestyle="dashed";
-		} else { linestyle="solid"; }
-		linewidth = my::tostring(std::abs(H_(i,nb(0,0))))+"pt";
-		if( H_(i,nb(0,0)) < 0){ color = "red"; }
-		else { color = "black"; }
-		/*x-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-		if(i%2){
-			color = "black";
-			linestyle="solid";
+		if(H_(i,nb(0,0))){/*x-link*/
+			xy1(0) = nb(0,0)/2;
+			xy1(1) = nb(0,0)%2;
+
+			if( H_(i,nb(0,0)) < 0){ color = "red"; }
+			else { color = "black"; }
+
+			if(xy1(0)<xy0(0)){
+				xy1(0) = xy0(0)+1;
+				linestyle="dashed";
+			} else { linestyle="solid"; }
+
+			linewidth = my::tostring(std::abs(H_(i,nb(0,0))))+"mm";
+
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)-(i%2?0.2:-0.2),"\\tiny{"+my::tostring(H_(i,nb(0,0)))+"}");
+		}
+		if(i%2 && H_(i,nb(1,0))){/*y-link*/
 			xy1(0) = nb(1,0)/2;
 			xy1(1) = nb(1,0)%2;
-			linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"pt";
+
 			if( H_(i,nb(1,0)) < 0){ color = "red"; }
 			else { color = "black"; }
-			/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+
+			linestyle="solid";
+
+			linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"mm";
+
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+			ps.put(xy0(0)+0.2,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(H_(i,nb(1,0)))+"}");
 		}
 	}
 
-	Matrix<double> polygon(4,2);
-	polygon(0,0)=-0.1;
-	polygon(0,1)=-0.1;
-	polygon(1,0)=n_plot/2-0.1;
-	polygon(1,1)=-0.1;
-	polygon(2,0)=n_plot/2-0.1;
-	polygon(2,1)=1.1;
-	polygon(3,0)=-0.1;
-	polygon(3,1)=1.1;
-	ps.polygon(polygon,"linecolor=green");
+	if(n_plot>spuc_){
+		if(n_plot==n_){
+			Matrix<double> polygon(4,2);
+			polygon(0,0)=-0.3;
+			polygon(0,1)=-0.3;
+			polygon(1,0)=n_/2-0.1;
+			polygon(1,1)=-0.3;
+			polygon(2,0)=n_/2-0.1;
+			polygon(2,1)=1.3;
+			polygon(3,0)=-0.3;
+			polygon(3,1)=1.3;
+			ps.polygon(polygon,"linecolor=green");
+		}
 
-	polygon(0,0)=-0.1;
-	polygon(0,1)=-0.1;
-	polygon(1,0)=spuc_/2-0.1;
-	polygon(1,1)=-0.1;
-	polygon(2,0)=spuc_/2-0.1;
-	polygon(2,1)=1.1;
-	polygon(3,0)=-0.1;
-	polygon(3,1)=1.1;
-	ps.polygon(polygon,"linecolor=blue");
+		Matrix<double> polygon(4,2);
+		polygon(0,0)=-0.3;
+		polygon(0,1)=-0.3;
+		polygon(1,0)=spuc_/2-0.1;
+		polygon(1,1)=-0.3;
+		polygon(2,0)=spuc_/2-0.1;
+		polygon(2,1)=1.3;
+		polygon(3,0)=-0.3;
+		polygon(3,1)=1.3;
+		ps.polygon(polygon,"linecolor=blue");
+	}
 
-	ps.add("\\end{pspicture}");
-	ps.save(true,true,true);
+	ps.end(true,true,true);
 }
 /*}*/
 

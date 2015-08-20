@@ -1,7 +1,7 @@
 #include "AnalyseEnergy.hpp"
 
-AnalyseEnergy::AnalyseEnergy(std::string const& path):
-	Analyse(path)
+AnalyseEnergy::AnalyseEnergy(std::string const& path, unsigned int const& max_level):
+	Analyse(path,max_level)
 {
 	do_analyse();
 }
@@ -18,8 +18,8 @@ void AnalyseEnergy::open_files(){
 
 void AnalyseEnergy::close_files(){
 	if(jd_write_){ 
-		if(level_==7){ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); }
-		if(level_==3){ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); }
+		if(level_==7){ rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
+		if(level_==3){ rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
 		rst_file_.last().text(jd_write_->get_header());
 		delete jd_write_;
 		jd_write_ = NULL;

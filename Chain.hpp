@@ -57,7 +57,7 @@ class Chain: public System1D<Type>{
 		std::string extract_level_3();
 		/*!Find the best range to compute the critcal exponents*/
 		bool compute_critical_exponents(Vector<double> const& lrc, unsigned int& xi, unsigned int& xf, Vector<double>& p);
-		void lattice(std::string const& path){(void)(path);};
+		void lattice(std::string const& path, std::string const& filename){(void)(path);(void)(filename);};
 
 	private:
 		/*{Description*/

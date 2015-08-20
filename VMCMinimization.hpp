@@ -8,7 +8,7 @@ class VMCMinimization{
 	public:
 		VMCMinimization(Parseur& P);
 		VMCMinimization(VMCMinimization const& m, std::string const& prefix);
-		VMCMinimization(std::string const& filename);
+		VMCMinimization(IOFiles& in);
 		/*!Default destructor*/
 		virtual ~VMCMinimization() = default;
 		/*{Forbidden*/
@@ -25,7 +25,7 @@ class VMCMinimization{
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
 		void save_best(unsigned int const& nsave, IOFiles& w) const;
-		void plot() const;
+		void plot(std::string path="", std::string filename="") const;
 
 		virtual void print() const;
 		bool ready(){ return m_.get(); }
@@ -49,7 +49,7 @@ class VMCMinimization{
 				void set(Parseur& P, std::string& path, std::string& basename);
 
 				void create(Parseur& P, std::string& path, std::string& basename);
-				std::string load(std::string const& filename, std::string& path, std::string& basename);
+				std::string load(IOFiles& in, std::string& path, std::string& basename);
 				void set_phase_space(Parseur const& P);
 
 				bool within_limit(Vector<double> const& x);
