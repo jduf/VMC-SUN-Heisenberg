@@ -22,7 +22,7 @@ class VMCInterpolation : public VMCMinimization{
 		void print();
 
 	private:
-		Interpolation interp_;
+		Interpolation<Vector<double> > interp_;
 		std::vector<Vector<unsigned int> > list_min_idx_;
 
 		/*!Uses interpolation to find some/all minima*/

@@ -92,7 +92,7 @@ void VMCMinimization::refine(double const& E, double const& dE){
 #pragma omp critical(samples_list_)
 			{
 				m_->samples_list_.set_target();
-				if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)){ 
+				if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){ 
 					m_->samples_list_.merge_with_target(sim,MCSim::merge); 
 					m_->samples_list_.get().get_S()->get_energy().complete_analysis(1e-5);
 				} else {
@@ -124,7 +124,7 @@ void VMCMinimization::save() const {
 void VMCMinimization::save_best(unsigned int const& nsave, IOFiles& w) const {
 	if(m_->samples_list_.size()){
 		List<MCSim> best;
-		while(m_->samples_list_.target_next()){ best.add_sort(m_->samples_list_.get_ptr(),MCSim::compare); }
+		while(m_->samples_list_.target_next()){ best.add_sort(m_->samples_list_.get_ptr(),MCSim::sort_by_E); }
 		best.set_target();
 		unsigned int i(0);
 		while(best.target_next() && i++<nsave){ best.get().save(w); }
@@ -146,11 +146,18 @@ void VMCMinimization::plot(std::string path, std::string filename) const {
 	if(path==""){ path = path_; }
 	if(filename==""){ filename =  get_filename(); }
 
-	IOFiles data(path+filename+".dat",true);
-
 	double E(0);
 	double tmp;
 	Vector<double> param;
+
+	auto sort_by_r = [&](MCSim const& a, MCSim const& b){
+		double tmp_a((a.get_param()-param).norm_squared());
+		double tmp_b((b.get_param()-param).norm_squared());
+		if(my::are_equal(tmp_a,tmp_b)){ return 2; }
+		if(tmp_a>tmp_b){ return 0; }
+		if(tmp_a<tmp_b){ return 1; }
+		return 2;
+	};
 
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
@@ -160,89 +167,93 @@ void VMCMinimization::plot(std::string path, std::string filename) const {
 			param = m_->samples_list_.get().get_param();
 		}
 	}
+	double xrange(E*0.99);
 
+	List<MCSim> list_sorted_r;
+	IOFiles data(path+filename+".dat",true);
 	m_->samples_list_.set_target();
-	List<std::pair<double,double> > r;
-	std::shared_ptr<std::pair<double,double> > r_tmp;
-
-	auto sort_by_r = [](std::pair<double,double> const& a, std::pair<double,double> const& b){
-		if(my::are_equal(a.first,b.first)){ return 2; }
-		if(a.first>b.first){ return 0; }
-		if(a.first<b.first){ return 1; }
-		return 2;
-	};
-	auto replace_E = [](std::pair<double,double>& a, std::pair<double,double>& b){ a.second = b.second; };
-
 	while(m_->samples_list_.target_next()){
-		r_tmp=std::make_shared<std::pair<double, double> >((param-m_->samples_list_.get().get_param()).norm_squared(),m_->samples_list_.get().get_S()->get_energy().get_x());
-		data<<m_->samples_list_.get().get_param()<<" "<<r_tmp->first<<" "<<m_->samples_list_.get().get_S()->get_energy()<<IOFiles::endl;
-		if(r.find_sorted(r_tmp,sort_by_r)){
-			if(r.get().second > r_tmp->second){ r.merge_with_target(r_tmp,replace_E); }
-		} else { r.add_after_target(r_tmp); }
+		E=m_->samples_list_.get().get_S()->get_energy().get_x();
+		if(E<xrange){
+			if(list_sorted_r.find_sorted(m_->samples_list_.get_ptr(),sort_by_r)){
+				if(list_sorted_r.get().get_S()->get_energy().get_x() > E){ list_sorted_r.get_ptr() = m_->samples_list_.get_ptr(); }
+			} else { list_sorted_r.add_after_target(m_->samples_list_.get_ptr()); }
+		}
+
+		data<<m_->samples_list_.get().get_param()<<" "<<(param-m_->samples_list_.get().get_param()).norm_squared()<<" "<<m_->samples_list_.get().get_S()->get_energy()<<IOFiles::endl;
 	}
 
-	List<std::pair<double,double> > r_cpy;
-	bool keep_r;
-	unsigned int ao(50);
-	Interpolation interp_Er(1);
+	unsigned int ao(1);
+	List<MCSim> list_min;
+	Interpolation<double> interp_Er(1);
 	interp_Er.select_basis_function(7);
-	for(unsigned int i(0);i<r.size();i++){
-		tmp = r[i].first;
-		E = r.get().second;
-		keep_r = true;
-		for(unsigned int j(i>ao?i-ao:1);j<i+ao && j<r.size();j++){
-			if(r[j].second<E){
-				keep_r = false; 
-				j = r.size();
+	do{
+		ao *= 2;
+		list_min.set();
+		interp_Er.set_data();
+
+		bool keep;
+		List<MCSim> list_tmp;
+		std::vector<double> E_tmp;
+		for(unsigned int i(0);i<list_sorted_r.size();i++){
+			tmp = (param-list_sorted_r[i].get_param()).norm_squared();
+			E = list_sorted_r.get().get_S()->get_energy().get_x();
+			list_tmp.add_end(list_sorted_r.get_ptr());
+			keep = true;
+			for(unsigned int j(i>ao?i-ao:1);j<i+ao && j<list_sorted_r.size();j++){
+				if(list_sorted_r[j].get_S()->get_energy().get_x()<E){
+					j = list_sorted_r.size();
+					keep = false;
+				}
+			}
+			if(keep){
+				interp_Er.add_data(tmp,E); 
+				E_tmp.push_back(E);
+			} else {
+				list_tmp.pop_end();
 			}
 		}
-		if(keep_r){
-			r_cpy.add_end(std::make_shared<std::pair<double, double> >(tmp,E)); 
-			interp_Er.add_data(tmp,E);
+		double dx(0.3);
+		interp_Er.compute_weights(dx,interp_Er.get_N());
+		std::cout<<"fit error : "+my::tostring(dx)<<std::endl;
+
+		unsigned int i(1);
+		list_tmp.set_target();
+		list_tmp.target_next();
+		list_min.add_start(list_tmp.get_ptr());
+		while(i<E_tmp.size()-1 && list_tmp.target_next()){
+			if( E_tmp[i-1]>E_tmp[i] && E_tmp[i]<E_tmp[i+1] ){ list_min.add_sort(list_tmp.get_ptr(),MCSim::sort_by_E); }
+			i++;
 		}
-	}
-	double dx(1);
-	interp_Er.compute_weights(dx,r_cpy.size());
-	std::cout<<"ok "<<dx<<std::endl;
+	} while ( list_min.size()>10 );
+
 
 	IOFiles data_Er(path+filename+"-Er.dat",true);
-	r_cpy.set_target();
-	while(r_cpy.target_next()){
-		data_Er<<r_cpy.get().first<<" "<<r_cpy.get().second<<IOFiles::endl;
-	}
-
-	Vector<double> range(0,18,0.05);
-	Vector<double> Er(range.size());
-	for(unsigned int i(0);i<range.size();i++){
-		Er(i) = interp_Er(Vector<double>(1,range(i)));
-	}
-
-	for(unsigned int i(1);i<Er.size()-1;i++){
-		if( Er(i-1)>Er(i) && Er(i)<Er(i+1) && Er(i) < -0.693) { std::cout<<range(i)<<std::endl; }
+	list_min.set_target();
+	while(list_min.target_next()){
+		data_Er<<(param-list_min.get().get_param()).norm_squared()<<" "<<list_min.get().get_S()->get_energy().get_x()<<IOFiles::endl;
 	}
 
 	IOFiles data_interp(path+filename+"-interp.dat",true);
+	Vector<double> range(0,(param-list_sorted_r.last().get_param()).norm_squared(),0.05);
 	for(unsigned int i(0);i<range.size();i++){
-		data_interp<<range(i)<<" "<<Er(i)<<IOFiles::endl;
+		data_interp<<range(i)<<" "<<interp_Er(range(i))<<IOFiles::endl;
 	}
 
-	m_->samples_list_.target_next();
-	unsigned int N(m_->samples_list_.get().get_param().size());
-
 	Gnuplot gp(path,filename);
-	gp+="Em="+my::tostring(E*0.99);
+	gp+="Em="+my::tostring(xrange);
 	gp.multiplot();
 	gp.range("x","[:Em] writeback");
 	gp.margin("0.1","0.9","0.5","0.10");
-	gp+="plot '"+filename+".dat' u "+my::tostring(N+2)+":"+my::tostring(N+1)+":"+my::tostring(N+3)+" w xe notitle,\\";
-	gp+="     '"+filename+"-Er.dat' u 2:1 notitle,\\";
-	gp+="     '"+filename+"-interp.dat' u 2:1 w l  notitle";
+	gp+="plot '"+filename+".dat'        u "+my::tostring(m_->dof_+2)+":"+my::tostring(m_->dof_+1)+":"+my::tostring(m_->dof_+3)+" w xe           notitle,\\";
+	gp+="     '"+filename+"-interp.dat' u 2:1   w l            notitle,\\";
+	gp+="     '"+filename+"-Er.dat'     u 2:1   lc 4 ps 2 pt 7 t 'selected minima'";
 	gp.margin("0.1","0.9","0.9","0.50");
 	gp.tics("x");
 	gp.range("x","restore");
 	gp.key("left Left");
-	for(unsigned int i(0);i<N;i++){
-		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(N+2)+":"+my::tostring(i+1)+":"+my::tostring(N+3)+" w xe t '$"+my::tostring(i)+"$'"+(i==N-1?"":",\\");
+	for(unsigned int i(0);i<m_->dof_;i++){
+		gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(m_->dof_+2)+":"+my::tostring(i+1)+":"+my::tostring(m_->dof_+3)+" w xe t '$"+my::tostring(i)+"$'"+(i==m_->dof_-1?"":",\\");
 	}
 	gp.save_file();
 	gp.create_image(true,true);
@@ -255,7 +266,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 	bool tmp_test;
 #pragma omp critical(samples_list_)
 	{
-		if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)){ 
+		if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){ 
 			tmp_test = true;
 			sim->copy_S(m_->samples_list_.get().get_S()); 
 		} else {
@@ -269,7 +280,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param){
 		sim->run(tmp_test?10:1e6,m_->tmax_);
 #pragma omp critical(samples_list_)
 		{
-			if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)){ 
+			if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){ 
 				m_->samples_list_.merge_with_target(sim,MCSim::merge); 
 				sim = m_->samples_list_.get_ptr();
 			} else {

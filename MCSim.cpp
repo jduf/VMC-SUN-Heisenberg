@@ -84,11 +84,11 @@ void MCSim::free_memory(){
 }
 
 /*{static methods*/
-bool MCSim::compare(MCSim const& a, MCSim const& b){
+bool MCSim::sort_by_E(MCSim const& a, MCSim const& b){
 	return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
 }
 
-unsigned int MCSim::cmp_for_merge(MCSim const& list, MCSim const& new_elem){
+unsigned int MCSim::sort_by_param_for_merge(MCSim const& list, MCSim const& new_elem){
 	for(unsigned int i(0);i<list.param_.size();i++){
 		if(list.param_(i) - new_elem.param_(i) > 0.0001){ return 0; }
 		if(list.param_(i) - new_elem.param_(i) <-0.0001){ return 1; }

@@ -142,7 +142,7 @@ void VMCInterpolation::plot(){
 			}
 			std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 			(*out_)<<param.norm_squared()<<" "<<interp_(param)<<" ";
-			if(m_->samples_list_.find_sorted(sim,MCSim::cmp_for_merge)){
+			if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){
 				(*out_)<<m_->samples_list_.get().get_S()->get_energy().get_x()<<" "<<m_->samples_list_.get().get_S()->get_energy().get_dx()<<IOFiles::endl;
 			} else {
 				(*out_)<<0<<" "<<0<<IOFiles::endl;
