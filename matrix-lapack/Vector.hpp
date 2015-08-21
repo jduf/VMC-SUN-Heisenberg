@@ -484,10 +484,10 @@ Vector<Type> Vector<Type>::order(Vector<unsigned int> const& index) const{
 	for(unsigned int i(0);i<size_;i++){ out(i) = vec_[index(i)]; }
 	return out;
 }
-/*}*/
 
 template<typename Type>
 void Vector<Type>::swap(unsigned int i, unsigned int j){ std::swap(vec_[i],vec_[j]); }
+/*}*/
 
 namespace my {
 	template<typename Type>

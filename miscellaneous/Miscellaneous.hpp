@@ -37,6 +37,7 @@ namespace my{
 	inline std::vector<std::string> string_split(const std::string &s, char delim){
 		std::vector<std::string> elems;
 		string_split(s, delim, elems);
+		if(elems.back()==""){ elems.pop_back(); }
 		return elems;
 	}
 

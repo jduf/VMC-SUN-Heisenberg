@@ -57,6 +57,8 @@ void Gnuplot::margin(std::string const& l, std::string const& r, std::string con
 void Gnuplot::label(std::string const& axis, std::string const& l, std::string const& options){ plot_ += "set "+axis+"label '"+l+"' "+options+"\n"; }
 void Gnuplot::label(std::string const& axis){ plot_ += "unset "+axis+"label\n"; }
 
+void Gnuplot::key(std::string const& option){ plot_ += "set key "+option+"\n"; }
+
 void Gnuplot::operator=(std::string const& s){ plot_ = s + "\n"; }
 void Gnuplot::operator+=(std::string const& s){ plot_ += s + "\n"; }
 
@@ -75,12 +77,12 @@ void Gnuplot::create_image(bool silent, bool png){
 	}
 
 	Linux command;
-	command(Linux::gp2latex("/tmp/"+texfile,path_,filename_));
+	command(Linux::gp2latex("/tmp/"+texfile,path_,filename_),silent);
 	if(!command.status()){
 		command(Linux::pdflatex("/tmp/",texfile),silent);
-		if(png){ command(Linux::pdf2png("/tmp/" + texfile, path_ + filename_)); }
-		command("mv /tmp/" + texfile + ".pdf " + path_ + filename_ + ".pdf");
-		command("rm /tmp/" + texfile + "*");
+		if(png){ command(Linux::pdf2png("/tmp/" + texfile, path_ + filename_),silent); }
+		command("mv /tmp/" + texfile + ".pdf " + path_ + filename_ + ".pdf",silent);
+		command("rm /tmp/" + texfile + "*",silent);
 	} else {
 		std::cerr<<"Gnuplot::create_image : can't create a plot"<<std::endl;
 	}

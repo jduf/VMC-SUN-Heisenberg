@@ -90,7 +90,7 @@ Swarm<Type>::Swarm(unsigned int const& Nparticles, unsigned int const& maxiter, 
 	particle_(Nparticles),
 	bparticle_(0)
 {
-	for(unsigned int i(0);i<Nparticles_;i++){ particle_[i] = std::make_shared<Type>();	}
+	for(unsigned int i(0);i<Nparticles_;i++){ particle_[i] = std::make_shared<Type>(); }
 	Particle::set(dof,cg,cp);
 }
 /*}*/

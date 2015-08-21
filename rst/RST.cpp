@@ -5,14 +5,15 @@ std::string const RST::nl_ = "\n";
 std::string const RST::np_ = "\n\n";
 std::string const RST::item_ = "+ ";
 
-std::string RST::math(std::string const& t){ return ":math:`" + t + "`"; }
 std::string RST::textit(std::string const& t){ return "*" + t + "*"; }
 std::string RST::textbf(std::string const& t){ return "**" + t + "**"; }
+std::string RST::math(std::string const& t)  { return ":math:`" + t + "`"; }
+std::string RST::width(std::string const& t) { return "   :width: " + t + RST::nl_; }
+std::string RST::scale(std::string const& t) { return "   :scale: " + t + RST::nl_; }
+std::string RST::target(std::string const& t){ return "   :target: "+ t + RST::nl_; }
 /*}*/
 
-RST::RST(std::string const& rst):
-	rst_(rst)
-{}
+RST::RST(std::string const& rst): rst_(rst) {}
 
 void RST::title(std::string const& t, char const& symb){
 	rst_ += RST::np_ + t + RST::nl_;
@@ -24,7 +25,7 @@ void RST::text(std::string const& t){
 	rst_ += t + RST::nl_;
 }
 
-void RST::math_centered(std::string const& t){
+void RST::math_paragraph(std::string const& t){
 	rst_ += RST::nl_;
 	rst_ += ".. math::" + RST::nl_;
 	rst_ += " " + t + RST::np_;
@@ -54,20 +55,11 @@ void RST::hyperlink(std::string const& display, std::string const& link){
 	rst_ += "`" + display + " <" + link + ">`_ " + RST::nl_;
 }
 
-void RST::figure(std::string const& image, std::string const& legend, unsigned int width){
+void RST::figure(std::string const& image, std::string const& legend, std::string const& option){
 	rst_ += RST::nl_;
 	rst_ += ".. figure:: " + image + RST::nl_;
-	rst_ += "   :width: " + my::tostring(width)  + RST::nl_;
+	rst_ += option;
 	rst_ += "   :align: center" + RST::np_;
-	rst_ += "   " + legend + RST::np_;
-}
-
-void RST::link_figure(std::string const& image, std::string const& legend, std::string const& link, unsigned int width){
-	rst_ += RST::nl_;
-	rst_ += ".. figure:: " + image + RST::nl_;
-	rst_ += "   :width: " + my::tostring(width)  + RST::nl_;
-	rst_ += "   :align: center" + RST::nl_;
-	rst_ += "   :target: " + link + RST::np_;
 	rst_ += "   " + legend + RST::np_;
 }
 

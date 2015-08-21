@@ -26,7 +26,7 @@ void ParticleOnGrid::move(Vector<double> const& bx_all){
 	Particle::move(bx_all);
 	unsigned int n;
 	double dx(0.01);
-	for(unsigned int j(0);j<Nfreedom_;j++){
+	for(unsigned int j(0);j<dof_;j++){
 		n=0;
 		if(std::abs(x_(j))<dx/2){ n=1; }
 		if(std::abs(x_(j)-min_(j))<dx/2){ n=2; }

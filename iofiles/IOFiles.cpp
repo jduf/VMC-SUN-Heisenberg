@@ -11,11 +11,11 @@ IOFiles::IOFiles(std::string filename, bool write):
 	header_(NULL)
 {
 	test_ext();
-	if(binary_){open_binary();}
-	else{open_txt();}
+	if(binary_){ open_binary(); }
+	else { open_txt(); }
 	if(binary_ && open_){
-		if(write_){header_->init(filename_);}
-		else{read_header();}
+		if(write_){ header_->init(filename_); }
+		else { read_header(); }
 	}
 }
 
@@ -36,23 +36,23 @@ void IOFiles::test_ext(){
 	std::string ext("bin");
 	if(filename_.find(ext, (filename_.size() - ext.size())) != std::string::npos){ 
 		ext = ".jd" + ext;
-		if(filename_.find(ext, (filename_.size() - ext.size())) != std::string::npos){header_ = new Header;}
+		if(filename_.find(ext, (filename_.size() - ext.size())) != std::string::npos){ header_ = new Header; }
 		binary_ = true;
 	}
 }
 
 void IOFiles::open_binary(){
-	if(write_){file_.open(filename_.c_str(),std::ios::out | std::ios::binary);}
-	else {file_.open(filename_.c_str(),std::ios::in | std::ios::binary);}
-	if(file_.is_open()){open_ = true;}
-	else {std::cerr<<"IOFiles::open_binary() : failed to open "<< filename_<<std::endl;}
+	if(write_){ file_.open(filename_.c_str(),std::ios::out | std::ios::binary); }
+	else { file_.open( filename_.c_str(),std::ios::in | std::ios::binary); }
+	if(file_.is_open()){ open_ = true;}
+	else { std::cerr<<"IOFiles::open_binary() : failed to open "<< filename_<<std::endl; }
 }
 
 void IOFiles::open_txt(){
-	if(write_){file_.open(filename_.c_str(),std::ios::out);}
-	else {file_.open(filename_.c_str(),std::ios::in);}
-	if(file_.is_open()){open_ = true;}
-	else{std::cerr<<"IOFiles::open_txt() : failed to open "<< filename_<<std::endl;} 
+	if(write_){ file_.open(filename_.c_str(),std::ios::out); }
+	else { file_.open(filename_.c_str(),std::ios::in); }
+	if(file_.is_open()){ open_ = true; }
+	else { std::cerr<<"IOFiles::open_txt() : failed to open "<< filename_<<std::endl; }
 }
 
 void IOFiles::read_header(){

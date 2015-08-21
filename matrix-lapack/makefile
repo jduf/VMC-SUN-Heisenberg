@@ -1,6 +1,6 @@
 EXEC=test
 
-test_SRCS=test.cpp Lapack.cpp RST.cpp Header.cpp IOFiles.cpp
+test_SRCS=test.cpp Lapack.cpp RST.cpp Header.cpp IOFiles.cpp SymetricMatrix.cpp
 
 #-----------------------------------------------------------------
 

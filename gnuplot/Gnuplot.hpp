@@ -37,6 +37,8 @@ class Gnuplot {
 		void label(std::string const& axis, std::string const& l, std::string const& options="");
 		void label(std::string const& axis);
 
+		void key(std::string const& option);
+
 		void operator=(std::string const& s);
 		void operator+=(std::string const& s);
 

@@ -16,15 +16,17 @@ class PSTricks {
 		PSTricks operator=(PSTricks) = delete;
 		/*}*/
 
-		void add(std::string s);
-		void line(std::string linetype, double x0, double y0, double x1, double y1, std::string options);
-		void frame(double x0, double y0, double x1, double y1, std::string options="");
-		void put(double x, double y, std::string s, std::string options="");
-		void pie(Vector<double> const& x, double r, std::string options="");
-		void circle(Vector<double> const& x, double r, std::string options="");
-		void polygon(Matrix<double> const& x, std::string options="");
+		void begin(double const& xbl, double const& ybl, double const& xtr, double const& ytr, std::string const& imagename);
+		void end(bool const& silent, bool const& pdf, bool const& crop);
 
-		void save(bool silent, bool pdf, bool crop);
+		void add(std::string const& s);
+		void line(std::string const& linetype, double const& x0, double const& y0, double const& x1, double const& y1, std::string const& options);
+		void frame(double const& x0, double const& y0, double const& x1, double const& y1, std::string const& options="");
+		void put(double const& x, double const& y, std::string const& s, std::string const& options="");
+		void pie(Vector<double> const& x, double const& r, std::string const& options="");
+		void circle(Vector<double> const& x, double const& r, std::string const& options="");
+		void polygon(Matrix<double> const& x, std::string const& options="");
+
 
 	private:
 		std::string path_;
@@ -32,5 +34,6 @@ class PSTricks {
 		std::string s_;
 		bool pdf_;
 		bool silent_;
+		bool begin_end_;
 };
 #endif

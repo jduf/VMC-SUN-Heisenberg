@@ -18,7 +18,7 @@ int main(){
 		w<<r.get_header();
 
 		file = d.get_name(i);
-		command("rst2html " + save_in + file + ".rst " + save_in + file + ".html");
+		command("rst2html " + save_in + file + ".rst " + save_in + file + ".html",false);
 	}
 
 	RSTFile rst("./","index");
@@ -36,11 +36,12 @@ int main(){
 	rst.title("List of all the files",'<');
 
 	std::string file_link;
-	rst.link_figure("output/bla.png","sin","/home/jdufour/travail/cpp-dev/rst/output/bla.gp");
+	rst.figure("output/bla.png","sin",RST::target("/home/jdufour/travail/cpp-dev/rst/output/bla.gp"));
 	for(unsigned int i(0);i<d.size();i++){
 		file_link = save_in + d.get_name(i) + ".html";
 		file = d.get_path(i) + "/" + d.get_name(i);
 		rst.hyperlink(file,file_link);
 		rst.np();
 	}
+	rst.save(false,true);
 }

@@ -9,10 +9,10 @@ int main(int argc, char* argv[]){
 		name = name.substr(name.find_last_of('/'),name.size()-6);
 		RSTFile html("/tmp/",name);
 		html.text(r.get_header());
-		html.save(false);
+		html.save(false,false);
 		Linux command;
-		command("firefox /tmp/"+name+".html");
-		command("rm /tmp/"+name+"*");
+		command("firefox /tmp/"+name+".html",false);
+		command("rm /tmp/"+name+"*",false);
 	} else {
 		std::cerr<<"jdhtml : takes exactly one input argument : ./jdhtml filename"<<std::endl;
 	}

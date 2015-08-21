@@ -83,7 +83,7 @@ void check_troyer(){
 	gp+="     'hist_right.dat' u 1:($4==0?$2:1/0):3 w errorbars t 'correct not converged',\\";
 	gp+="     'hist_wrong.dat' w errorbars  t 'wrong'";
 	gp.save_file();
-	gp.create_image(true);
+	gp.create_image(true,false);
 }
 
 void check_flip_coin(){

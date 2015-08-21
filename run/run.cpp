@@ -17,7 +17,7 @@ int main(int argc,char* argv[]){
 		Directory D;
 		Linux L;
 		std::string save_in("sim-info/");
-		L("mkdir " + save_in);
+		L("mkdir " + save_in,false);
 
 		D.search_file_ext(ext,L.pwd(),false,false);
 		D.sort();
@@ -36,13 +36,13 @@ int main(int argc,char* argv[]){
 #pragma omp parallel for num_threads(max_proc) 
 		for(unsigned int i=0;i<D.size();i++) {
 			std::cout<<command<<D.get_name(i)<<D.get_ext(i)<<std::endl;
-			L(command + D.get_name(i) + D.get_ext(i) + "> " + D.get_name(i) + "_" + fname + "_" + my::tostring(i)+".log 2> " + D.get_name(i) + "_" + fname + "_" + my::tostring(i)+".err.log");
+			L(command + D.get_name(i) + D.get_ext(i) + "> " + D.get_name(i) + "_" + fname + "_" + my::tostring(i)+".log 2> " + D.get_name(i) + "_" + fname + "_" + my::tostring(i)+".err.log",false);
 		}
 
 		RSTFile rst("./","SIM");
 		rst.title("bla",'=');
 
-		L("firefox SIM.html");
+		L("firefox SIM.html",false);
 	}
 }
 

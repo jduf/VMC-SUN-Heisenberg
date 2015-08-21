@@ -31,7 +31,7 @@ class Myclass{
 			gp+="plot 'data.dat' u 1:2 notitle,\\";
 			gp+="     'data.dat' u 1:3 notitle";
 			gp.save_file();
-			gp.create_image(true);
+			gp.create_image(true,false);
 			std::cout<<p<<std::endl;
 		}
 
@@ -65,7 +65,7 @@ class Myclass{
 			gp+="plot 'data.dat' u 1:2 notitle,\\";
 			gp+="     'data.dat' u 1:3 notitle";
 			gp.save_file();
-			gp.create_image(true);
+			gp.create_image(true,false);
 			std::cout<<p<<std::endl;
 		}
 

@@ -14,7 +14,6 @@ int main(int argc, char* argv[]){
 	unsigned int i(0);
 	std::string ext(P.find("e",i,false)?P.get<std::string>(i):"");
 	std::string keyword(P.find("k",i,false)?P.get<std::string>(i):"");
-	std::string scp(P.find("scp",i,false)?P.get<std::string>(i):"");
 
 	if(!P.locked()){
 		Linux command;
@@ -45,24 +44,13 @@ int main(int argc, char* argv[]){
 				for(unsigned int k(old_j+1); k<j; k++){
 					std::cout<<"     B : "<< d2.get_name(k) << d2.get_ext(k)<<std::endl;
 				}
-				if(scp == ""){ 
-					command("diff -q " + d1[i] + " " + d2[j] + " >> /tmp/diff.txt");
-					if(command.status()){
-						std::cout<<"A != B : "<< d1.get_name(i) << d1.get_ext(i) << " ? [y/N] ";
-						std::getline(std::cin,answer);
-						if(answer=="y"){ command("vimdiff " + d1[i] + " " + d2[j]); }
-					} else {
-						std::cout<<"A == B : "<<d1.get_name(i)<<d1.get_ext(i)<<std::endl;
-					}
-				} else { 
-					command("ssh "+ scp +" 'cat " + d2[j] + "' | diff -q - " + d1[i] + " >> /tmp/diff.txt");
-					if(command.status()){
-						std::cout<<"A != B : "<< d1.get_name(i) << d1.get_ext(i) << " ? [y/N] ";
-						std::getline(std::cin,answer);
-						if(answer=="y"){ command("vimdiff " + d1[i] + " scp://"+scp+"/"+ d2[j]);  }
-					} else {
-						std::cout<<"A == B : "<<d1.get_name(i)<<d1.get_ext(i)<<std::endl;
-					}
+				command("diff -q " + d1[i] + " " + d2[j] + " >> /tmp/diff.txt",false);
+				if(command.status()){
+					std::cout<<"A != B : "<< d1.get_name(i) << d1.get_ext(i) << " ? [y/N] ";
+					std::getline(std::cin,answer);
+					if(answer=="y"){ command("vimdiff " + d1[i] + " " + d2[j],false); }
+				} else {
+					std::cout<<"A == B : "<<d1.get_name(i)<<d1.get_ext(i)<<std::endl;
 				}
 				old_j = j;
 				i++;

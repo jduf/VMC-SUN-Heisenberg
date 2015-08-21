@@ -19,13 +19,12 @@ class RST{
 
 		void title(std::string const& t, char const& symb);
 		void text(std::string const& t);
-		void math_centered(std::string const& t);
+		void math_paragraph(std::string const& t);
 		void item(std::string const& t);
 		void lineblock(std::string const& t);
 		void def(std::string const& t, std::string const& def);
 		void hyperlink(std::string const& display, std::string const& link);
-		void figure(std::string const& image, std::string const& legend, unsigned int width=1000);
-		void link_figure(std::string const& image, std::string const& legend, std::string const& link, unsigned int width=1000);
+		void figure(std::string const& image, std::string const& legend, std::string const& option="");
 		void comment(std::string const& t);
 		void np();
 		void nl();
@@ -33,6 +32,9 @@ class RST{
 		static std::string textit(std::string const& t);
 		static std::string textbf(std::string const& t);
 		static std::string math(std::string const& t);
+		static std::string width(std::string const& t);
+		static std::string target(std::string const& t);
+		static std::string scale(std::string const& t);
 
 		std::string const& get() const { return rst_;};
 		void set(std::string const& s="") { rst_ = s; };

@@ -44,17 +44,36 @@ class List{
 
 		void move(List<Type>& other);
 
+		Type& operator[](unsigned int i){ 
+			target_ = NULL;
+			target_next();
+			while(i--){ target_next(); }
+			return (*target_->t_);
+		}
+		Type const& operator[](unsigned int i) const { 
+			target_ = NULL;
+			target_next();
+			while(i--){ target_next(); }
+			return (*target_->t_);
+		}
+
+		std::shared_ptr<Type>& get_ptr(){ return target_->t_; }
+		std::shared_ptr<Type> const& get_ptr() const { return target_->t_; }
+
 		Type& get() { return (*target_->t_); }
 		Type const& get() const { return (*target_->t_); }
-		std::shared_ptr<Type> const& get_ptr() const { return target_->t_; }
+
 		Type& first(){ return *head_->t_; }
 		Type const& first() const { return *head_->t_; }
+
 		Type& last() { return (*tail_->t_); }
 		Type const& last() const { return (*tail_->t_); }
 
 		void add_start(std::shared_ptr<Type> t);
 		void add_end(std::shared_ptr<Type> t);
 		void add(std::shared_ptr<Type> t, unsigned int const& idx);
+		/*!Add t to the list at the correct place. If an entry t', such that
+		 * t=t', is already contained in the list, it will add t anyway.*/
 		void add_sort(std::shared_ptr<Type> t,  std::function<bool (Type const&, Type const&)> cmp);
 		void add_after_target(std::shared_ptr<Type> t);
 
@@ -63,7 +82,15 @@ class List{
 		void pop(unsigned int const& idx);
 		void pop_range(unsigned int const& a, unsigned int const& b);
 
+		/*!In a correctly sorted list, returns true if the list contains a t'
+		 * such that cmp(t',t)=2 . In that case, targets_ point the that entry
+		 * in the list. It returns false if the condition is not satisfied and
+		 * targets_ points to the place where t should be added with
+		 * add_after_target(t) to keep a correct sorting*/
 		bool find_sorted(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp);
+		/*!If find_sorted returns true, one can merge the two identical (in the
+		 * sense of cmp(t,t')=2) t and t'. The merging method is given by
+		 * merge.*/
 		void merge_with_target(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> merge);
 
 		void swap(unsigned int const& a, unsigned int const& b);

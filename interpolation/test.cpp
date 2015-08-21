@@ -21,7 +21,7 @@ void test_given_function(){
 	double max(1.0);
 	double dx((max-min)/Nx);
 
-	Interpolation s(2);
+	Interpolation<Vector<double> > s(2);
 	s.select_basis_function(7);
 	Rand<unsigned int> rnd(0,Nx);
 
@@ -45,7 +45,7 @@ void test_given_function(){
 		c_tmp(0) = min+i*dx;
 		for(unsigned int j(0);j<Nx;j++){
 			c_tmp(1) = min+j*dx;
-			out<<c_tmp<<" "<<s.extrapolate(c_tmp)<<IOFiles::endl;
+			out<<c_tmp<<" "<<s(c_tmp)<<IOFiles::endl;
 		}
 	}
 
@@ -64,7 +64,7 @@ void test_211(){
 	IOFiles in("211.dat",false);
 	Matrix<double> data(1055,8);//max = 1055
 	in>>data;
-	Interpolation s(2);
+	Interpolation<Vector<double> > s(2);
 	s.select_basis_function(7);
 	Vector<double> tmp(2);
 	for(unsigned int i(0);i<data.row();i++){
@@ -81,7 +81,7 @@ void test_211(){
 		tmp(0) = min+i*dx;
 		for(unsigned int j(0);j<80;j++){
 			tmp(1) = min+j*dx;
-			out<<tmp<<" "<<s.extrapolate(tmp)<<IOFiles::endl;
+			out<<tmp<<" "<<s(tmp)<<IOFiles::endl;
 		}
 		out<<tmp<<IOFiles::endl;
 	}
@@ -92,14 +92,14 @@ void test_211(){
 	plot+="splot '211.dat' u 2:3:4 notitle,\\";
 	plot+="      'spline.dat' u 1:2:3 notitle";
 	plot.save_file();
-	plot.create_image(true);
+	plot.create_image(true,false);
 }
 
 void test_212(){
 	IOFiles in("212.dat",false);
 	Matrix<double> data(857,8);//max = 857
 	in>>data;
-	Interpolation s(2);
+	Interpolation<Vector<double> > s(2);
 	s.select_basis_function(7);
 	Vector<double> tmp(2);
 	for(unsigned int i(0);i<data.row();i++){
@@ -116,7 +116,7 @@ void test_212(){
 		tmp(0) = min+i*dx;
 		for(unsigned int j(0);j<80;j++){
 			tmp(1) = min+j*dx;
-			out<<tmp<<" "<<s.extrapolate(tmp)<<IOFiles::endl;
+			out<<tmp<<" "<<s(tmp)<<IOFiles::endl;
 		}
 		out<<tmp<<IOFiles::endl;
 	}
@@ -127,5 +127,5 @@ void test_212(){
 	plot+="splot '212.dat' u 2:3:4 notitle,\\";
 	plot+="      'spline.dat' u 1:2:3 notitle";
 	plot.save_file();
-	plot.create_image(true);
+	plot.create_image(true,false);
 }

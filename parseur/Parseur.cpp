@@ -55,8 +55,9 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 				}
 			} else { set(name.substr(1),val); }
 		} else {
-			set(my::tostring(i-1),name); 
 			i--;
+			set(my::tostring(i),name); 
+			used_[i] = true;
 		}
 	}
 }

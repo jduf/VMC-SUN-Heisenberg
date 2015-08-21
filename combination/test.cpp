@@ -2,15 +2,29 @@
 #include "Combination.hpp"
 
 int main(){
-	Vector<unsigned int> comb;
-	Combination generate;
-	generate.set(2,6,comb);
+	//Vector<unsigned int> comb;
+	//Combination generate;
+	//generate.set(3,6,comb);
 
-	unsigned int i(0);
-	do{ std::cout<<comb<<std::endl; i++; }
-	while(generate.next());
+	Vector<int> v(7);
+	v(0) = 1;
+	v(1) = 2;
+	v(2) = 3;
+	v(3) = 4;
+	v(4) = 5;
+	v(5) = 6;
+	v(6) = 7;
+//
+	//unsigned int i(0);
+	//do{
+		//std::cout<<v(comb(0))<<" "<<v(comb(1))<<" "<<v(comb(2))<<std::endl;
+		//i++; 
+	//} while(generate.next());
+//
+	//std::cout<<i<<" "<<generate.number()<<std::endl;
 
-	std::cout<<i<<" "<<generate.number()<<std::endl;
+	Vector<int> b(my::comb(6,2,v));
+	std::cout<<b<<std::endl;
 }
 /*}*/
 
