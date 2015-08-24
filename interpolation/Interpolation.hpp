@@ -187,7 +187,7 @@ bool Interpolation<Type>::compute_weights(double& dx, unsigned int const& n){
 		}
 		dx /= n_err;
 		if(dx>1e-14){
-			std::cerr<<"void Interpolation::compute_weights(double const& dx, unsigned int const& n) : warning error : "<<dx<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : warning error : "<<dx<<std::endl;
 		}
 		return true;
 	} else {
@@ -239,11 +239,11 @@ bool Interpolation<Type>::compute_weights(){
 			}
 			err /= n_err;
 			if(err>1e-14){
-				std::cerr<<"void Interpolation::compute_weights() : warning error : "<<err<<std::endl;
+				std::cerr<<__PRETTY_FUNCTION__<<" : warning error : "<<err<<std::endl;
 			}
 			return true;
-		} else { std::cout<<"void Interpolation::compute_weights() : can't invert (rcn="<<rcn<<")"<<std::endl; }
-	} else { std::cout<<"void Interpolation::compute_weights() : not a BRF, needs a support"<<std::endl; }
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : can't invert (rcn="<<rcn<<")"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<": not a BRF, needs a support"<<std::endl; }
 	return false;
 }
 
@@ -261,7 +261,7 @@ bool Interpolation<Type>::select_basis_function(unsigned int const& basis){
 		case 8: { phi_ = &Interpolation::phi8; } break;
 		case 9: { phi_ = &Interpolation::phi9; } break;
 		default: {
-					 std::cerr<<"Interpolation::Interpolation(unsigned int const& k) : unknown basis function"<<std::endl;
+					 std::cerr<<__PRETTY_FUNCTION__<<" : unknown basis function"<<std::endl;
 					 return false;
 				 } break;
 	}

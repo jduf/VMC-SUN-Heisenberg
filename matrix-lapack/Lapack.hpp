@@ -341,7 +341,7 @@ Lapack<Type>::Lapack(Matrix<Type>& mat, bool use_new_matrix, char matrix_type):
 	use_new_matrix_(use_new_matrix),
 	mat_(use_new_matrix_?new Matrix<Type>(mat):&mat)
 {
-	if(matrix_type_ == 'S' && mat_->row() != mat_->col()){ std::cerr<<"Lapack::constructor() : the matix is not symmetric"<<std::endl; }
+	if(matrix_type_ == 'S' && mat_->row() != mat_->col()){ std::cerr<<__PRETTY_FUNCTION__<<" : the matix is not symmetric"<<std::endl; }
 }
 
 template<typename Type>
@@ -355,8 +355,7 @@ Lapack<Type>::~Lapack(){
 template<typename Type>
 Type Lapack<Type>::det(){
 	if (matrix_type_ != 'G'){
-		std::cerr<<"Lapack::det() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-		std::cerr<<"                the only matrix type implemented is G"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl;
 		return 0;
 	} else {
 		/*! \warning the determinant needs to be rewritten for rectangles matrices */
@@ -394,20 +393,19 @@ void Lapack<Type>::inv(Vector<int>& ipiv){
 				}break;
 			default:
 				{
-					std::cerr<<"Lapack<Type>::inv(Vector<int>& ipiv) : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-					std::cerr<<"                                       choose between general (G) and symmetric (S)"<<std::endl;
+					std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose G or S)"<<std::endl;
 				}
 		}
-		if(!ipiv.ptr()){ std::cerr<<"Lapack::inv() : error"<<std::endl; }
+		if(!ipiv.ptr()){ std::cerr<<__PRETTY_FUNCTION__<<" : error"<<std::endl; }
 	} else {
-		std::cerr<<"Lapack::inv(Vector<int>& ipiv) : the matrix is singular"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : the matrix is singular"<<std::endl;
 	}
 }
 
 template<typename Type>
 void Lapack<Type>::inv(){
 	if (mat_->row() != mat_->col()) {
-		std::cerr<<"Lapack<Type>::inv() : no inverse for a rectangular matrix"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : no inverse for a rectangular matrix"<<std::endl;
 	} else {
 		Vector<int> ipiv;
 		switch(matrix_type_){
@@ -434,24 +432,22 @@ void Lapack<Type>::inv(){
 				}break;
 			default:
 				{
-					std::cerr<<"Lapack<Type>::inv() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-					std::cerr<<"                      choose between general (G) and symmetric (S)"<<std::endl;
+					std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose G or S)"<<std::endl;
 				}
 		}
-		if(!ipiv.ptr()){ std::cerr<<"Lapack::inv() : error"<<std::endl; }
+		if(!ipiv.ptr()){ std::cerr<<__PRETTY_FUNCTION__<<" : error"<<std::endl; }
 	}
 }
 
 template<typename Type>
 void Lapack<Type>::lu(Matrix<Type>& L, Matrix<Type>& U){
 	if (matrix_type_ != 'G'){
-		std::cerr<<"Lapack::lu(Matrix<Type>& L, Matrix<Type>& U) : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-		std::cerr<<"                                               the only matrix type implemented is G"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl;
 	} else {
 		if (mat_->row()!=mat_->col()){
-			std::cerr<<"Lapack::lu(Matrix<Type>& L, Matrix<Type>& U) : need to be implemented for rectangle matrix"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : need to be implemented for rectangle matrix"<<std::endl;
 		} else {
-			std::cerr<<"Lapack::lu(Matrix<Type>& L, Matrix<Type>& U) : could return P instead of having a void method"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : could return P instead of having a void method"<<std::endl;
 			unsigned int N(mat_->row());
 			L=Matrix<Type>(N,N);
 			U=Matrix<Type>(N,N);
@@ -472,8 +468,7 @@ void Lapack<Type>::lu(Matrix<Type>& L, Matrix<Type>& U){
 template<typename Type>
 void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation){
 	if (matrix_type_ != 'G'){
-		std::cerr<<"Lapack::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation) : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-		std::cerr<<"                                                               : the only matrix type implemented is G"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl;
 	} else {
 		unsigned int k(std::min(mat_->row(),mat_->col()));
 		double *tau(new double[k]);
@@ -514,7 +509,7 @@ void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation){
 
 		delete[] tau;
 		delete[] jpvt;
-		std::cerr<<"Lapack::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation) : delete jpvt may cause trouble"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : delete jpvt may cause trouble"<<std::endl;
 	}
 }
 
@@ -522,7 +517,7 @@ template<typename Type>
 Vector<int> Lapack<Type>::is_singular(double& rcn){
 	Vector<int> ipiv;
 	if (mat_->row() != mat_->col()){
-		std::cerr<<"Lapack<Type>::is_singular(double& rcn) : need to be checked for rectangle matrix"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : need to be checked for rectangle matrix"<<std::endl;
 	} else {
 		switch(matrix_type_){
 			case 'G':
@@ -543,8 +538,7 @@ Vector<int> Lapack<Type>::is_singular(double& rcn){
 				}break;
 			default:
 				{
-					std::cerr<<"Lapack<Type>::is_singular() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-					std::cerr<<"                              choose between general (G) and symmetric (S)"<<std::endl;
+					std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose G or S)"<<std::endl;
 				}
 		}
 	}
@@ -554,8 +548,7 @@ Vector<int> Lapack<Type>::is_singular(double& rcn){
 template<typename Type>
 double Lapack<Type>::norm(){
 	if (matrix_type_ != 'G'){
-		std::cerr<<"Lapack::norm() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-		std::cerr<<"                 the only matrix type implemented is G"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl;
 		return 0;
 	} else {
 		return lange();
@@ -564,7 +557,7 @@ double Lapack<Type>::norm(){
 
 template<typename Type>
 void Lapack<Type>::eigensystem(Vector<double>& EVal, bool compute_EVec){
-	if(mat_->row() != mat_->col()){std::cerr<<"Lapack::eigensystem(Vector<double>& EVal, bool compute_EVec) : matrix is not square"<<std::endl;}
+	if(mat_->row() != mat_->col()){ std::cerr<<__PRETTY_FUNCTION__<<" : matrix is not square"<<std::endl; }
 	char jobvr('N');
 	if(compute_EVec){jobvr = 'V';}
 	switch(matrix_type_){
@@ -574,15 +567,14 @@ void Lapack<Type>::eigensystem(Vector<double>& EVal, bool compute_EVec){
 			{ heev(EVal,jobvr); } break;
 		default:
 			{
-				std::cerr<<"Lapack::eigensystem<double>(Vector<double>& EVal, bool compute_EVec) : Matrix type "<<matrix_type_<<" not implemented for real matrix"<<std::endl;
-				std::cerr<<"                                                                       the only matrix type implemented are G,S"<<std::endl;
+					std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose H or S)"<<std::endl;
 			} break;
 	}
 }
 
 template<typename Type>
 void Lapack<Type>::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec){
-	if(mat_->row() != mat_->col()){std::cerr<<"Lapack::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec) : matrix is not square"<<std::endl;}
+	if(mat_->row() != mat_->col()){ std::cerr<<__PRETTY_FUNCTION__<<" : matrix is not square"<<std::endl;}
 	switch(matrix_type_){
 		case 'G':
 			{
@@ -591,18 +583,16 @@ void Lapack<Type>::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::
 			} break;
 		default:
 			{
-				std::cerr<<"Lapack<Type>::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* EVec)() : Matrix type "<<matrix_type_<<" not implemented for real matrix"<<std::endl;
-				std::cerr<<"                                                                                                   () : the only matrix type implemented are G"<<std::endl;
+				std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl;
 			} break;
 	}
 }
 
 template<typename Type>
 void Lapack<Type>::solve(Vector<Type>& b){
-	std::cerr<<"void Lapack<Type>::solve(Vector<Type>& b) need to make sure that it works"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" need to make sure that it works"<<std::endl;
 	if (matrix_type_ != 'S'){
-		std::cerr<<"Lapack::norm() : Matrix type "<<matrix_type_<<" not implemented"<<std::endl;
-		std::cerr<<"                 the only matrix type implemented is S"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is S)"<<std::endl;
 	} else {
 		posv(b);
 	}

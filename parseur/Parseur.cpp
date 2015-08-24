@@ -13,7 +13,7 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 			if(i+1<argc){ val = argv[i+1]; }
 			else { 
 				val = "0"; 
-				std::cerr<<"Parseur::Parseur(unsigned int argc, char* argv[]) : dangerous argument '"<<argc<<"' (last argument given)"<<std::endl; 
+				std::cerr<<__PRETTY_FUNCTION__<<" : dangerous argument '"<<argc<<"' (last argument given)"<<std::endl; 
 			}
 			/*check if the type is specified*/
 			if(name.find(":") != std::string::npos){
@@ -64,9 +64,9 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 
 Parseur::~Parseur(){
 	for(unsigned int i(0);i<data_.size();i++){
-		if(!used_[i]){ std::cerr<<"Parseur : variable "<<data_[i]->get_name()<<" was given as input but not used"<<std::endl;}
+		if(!used_[i]){ std::cerr<<__PRETTY_FUNCTION__<<" : variable "<<data_[i]->get_name()<<" was given as input but not used"<<std::endl;}
 	}
-	if(locked_){ std::cerr<<"Parseur::~Parseur() : the parseur was locked"<<std::endl; }
+	if(locked_){ std::cerr<<__PRETTY_FUNCTION__<<" : the parseur was locked"<<std::endl; }
 }
 
 bool Parseur::find(std::string const& pattern, unsigned int& i, bool lock_iffail) const {
@@ -83,6 +83,6 @@ bool Parseur::find(std::string const& pattern, unsigned int& i, bool lock_iffail
 
 void Parseur::lock(std::string const& arg){
 	locked_ = true;
-	std::cerr<<"Parseur::Parseur(unsigned int argc, char* argv[]) : wrong argument '"<<arg<<"' : should be '-[iuds]:name' or '-[uids].name' : "<<std::endl; 
+	std::cerr<<__PRETTY_FUNCTION__<<" : wrong argument '"<<arg<<"' : should be '-[iuds]:name' or '-[uids].name' : "<<std::endl; 
 }
 

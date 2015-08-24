@@ -127,7 +127,7 @@ class List{
 template<typename Type>
 List<Type>::List(List&& l){
 	(void)(l);
-	std::cerr<<"need to implement move constructor"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : need to implement move constructor"<<std::endl;
 }
 
 template<typename Type>
@@ -253,7 +253,7 @@ void List<Type>::add(std::shared_ptr<Type> t, unsigned int const& idx){
 				size_++;
 			} else { add_end(t); }
 		} else  {
-			std::cerr<<"void List<Type>::add(std::shared_ptr<Type> t, unsigned int const& idx) : try to add a element outside the list range"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : try to add a element outside the list range"<<std::endl;
 		}
 	}
 }
@@ -347,7 +347,7 @@ void List<Type>::pop(unsigned int const& idx){
 				pop_end();
 			}
 		} else {
-			std::cerr<<"void List<Type>::pop(unsigned int const& idx): try to remove an element outside the list range"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : try to remove an element outside the list range"<<std::endl;
 		}
 	}
 }
@@ -473,7 +473,7 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 					} break;
 			}
 		}
-		std::cerr<<"bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp) : unexpected value returned from cmp"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : unexpected value returned from cmp"<<std::endl;
 		return false;
 	} else {
 		target_ = NULL;

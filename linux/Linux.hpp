@@ -86,7 +86,6 @@ class Linux {
 		/*!Using a simple gnuplot file (with extension .gp) creates and .eps
 		 * picture and .tex file which can be used to create .pdf files via
 		 * Linux::pdflatex
-		 *
 		 * A default size size is set such that its ratio equals the golden
 		 * number and when reduced by 70%, fits perfectly in one column in
 		 * revtex-4.1 articles
@@ -102,7 +101,7 @@ class Linux {
 			std::string size;
 			if(file.is_open() && std::getline(file,size) && size.find("#latex_size") != std::string::npos){ 
 				size = size.substr(12); 
-				std::cerr<<"static std::string gp2latex(std::string const& texfile, std::string const& path, std::string const& gpfile) : set size "<<size<<std::endl;
+				std::cerr<<__PRETTY_FUNCTION__<<" : set size "<<size<<std::endl;
 			} else { size = "12.15cm,7.54"; } 
 			cmd+= " -e \"set terminal epslatex color size "+size+" standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'" + texfile + ".tex\'\" ";
 			cmd+= path + gpfile + ".gp";

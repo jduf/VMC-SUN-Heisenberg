@@ -16,7 +16,7 @@ void Particle::set(unsigned int const& dof, double const& cg, double const& cp){
 		cg_ = cg;
 		cp_ = cp;
 	} else {
-		std::cerr<<"Particle::set(unsigned int dof, double cg, double cp) : cg+cp<4 => chi=nan. Keep definition cg=cp=2.05, chi=0.729844"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : cg+cp<4 => chi=nan. Keep definition cg=cp=2.05, chi=0.729844"<<std::endl;
 	}
 	chi_ = 2.0/(cp_+cg_-2.0+sqrt((cp_+cg_)*(cp_+cg_)-4*(cp_+cg_)));
 }

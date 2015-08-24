@@ -86,7 +86,7 @@ void Directory::sort(){
 			}
 		}
 	} else {
-		std::cerr<<"Directory::sort() : the file list is empty"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : the file list is empty"<<std::endl;
 	}
 }
 

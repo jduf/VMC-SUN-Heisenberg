@@ -15,7 +15,7 @@ Fit::Fit(Vector<double> const& x, Vector<double> const& y, Vector<double> const&
 		double tol(sqrt(dpmpar(1)));
 		lmdif1(eval, this, m_, n_, p.ptr(), fvec_, tol, iwa_, wa_, lwa_);
 	} else {
-		std::cerr<<"Fit::Fit(Vector<double> const& x, Vector<double> const& y, Vector<double> const& p, std::function<double (double, const double*)> f) : the number of measures must be bigger than the number of parameters."<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : the number of measures must be bigger than the number of parameters."<<std::endl;
 	}
 }
 

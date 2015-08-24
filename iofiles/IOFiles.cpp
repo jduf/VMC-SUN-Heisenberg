@@ -2,7 +2,7 @@
 
 /*constructors and destructor*/
 /*{*/
-IOFiles::IOFiles(std::string filename, bool write):
+IOFiles::IOFiles(std::string const& filename, bool const& write):
 	filename_(filename),
 	write_(write),
 	binary_(false),
@@ -45,14 +45,14 @@ void IOFiles::open_binary(){
 	if(write_){ file_.open(filename_.c_str(),std::ios::out | std::ios::binary); }
 	else { file_.open( filename_.c_str(),std::ios::in | std::ios::binary); }
 	if(file_.is_open()){ open_ = true;}
-	else { std::cerr<<"IOFiles::open_binary() : failed to open "<< filename_<<std::endl; }
+	else { std::cerr<<__PRETTY_FUNCTION__<<" : failed to open "<< filename_<<std::endl; }
 }
 
 void IOFiles::open_txt(){
 	if(write_){ file_.open(filename_.c_str(),std::ios::out); }
 	else { file_.open(filename_.c_str(),std::ios::in); }
 	if(file_.is_open()){ open_ = true; }
-	else { std::cerr<<"IOFiles::open_txt() : failed to open "<< filename_<<std::endl; }
+	else { std::cerr<<__PRETTY_FUNCTION__<<" : failed to open "<< filename_<<std::endl; }
 }
 
 void IOFiles::read_header(){
@@ -89,7 +89,7 @@ void IOFiles::read_string(std::string& t){
 			}
 		}
 	} else {
-		std::cerr<<"IOFiles::read_basic_type(string) : can't read from "<<filename_<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : can't read from "<<filename_<<std::endl;
 	}
 }
 
@@ -100,7 +100,7 @@ void IOFiles::write_string(const char* t, unsigned int const& N){
 			file_.write(t,N);
 		} else { file_<<t<<std::flush; }
 	} else {
-		std::cerr<<"IOFiles::write_basic_type(string) : can't write in "<<filename_<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : can't write in "<<filename_<<std::endl;
 	}
 }
 /*}*/
@@ -108,13 +108,13 @@ void IOFiles::write_string(const char* t, unsigned int const& N){
 /*public methods*/
 /*{*/
 void IOFiles::precision(unsigned int const& N){ 
-	if(binary_){ std::cerr<<"IOFiles::setprecision(unsigned int const& N) : has no effect on a binary file"; }
+	if(binary_){ std::cerr<<__PRETTY_FUNCTION__<<" : has no effect on a binary file"; }
 	else{ file_.precision(N); }
 }
 
 std::string IOFiles::get_header() const { 
 	if(header_ && open_){ return header_->get(); }
-	std::cerr<<"IOFiles::get_header() : can't read from "<<filename_<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : can't read from "<<filename_<<std::endl;
 	return 0;
 }
 /*}*/

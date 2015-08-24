@@ -130,7 +130,7 @@ Type Container::get(std::string const& name) const {
 	unsigned int i(0);
 	if(find(name,i)){ return static_cast< GenericVariable<Type> *>(data_[i])->get_val(); }
 	else {
-		std::cerr<<"Container : get(string name) : no data with name "<<name<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : no data with name "<<name<<std::endl;
 		return Type();
 	}
 }
@@ -139,13 +139,13 @@ template<typename Type>
 void Container::get(std::string const& name, Type& t) const {
 	unsigned int i(0);
 	if(find(name,i)){ t = static_cast< GenericVariable<Type> *>(data_[i])->get_val(); }
-	else { std::cerr<<"Container : get(string name) : no data with name '"<<name<<"' thus the value is unchanged : "<< t <<std::endl; }
+	else { std::cerr<<__PRETTY_FUNCTION__<<" : no data with name '"<<name<<"' thus the value is unchanged : "<< t <<std::endl; }
 }
 
 template<typename Type>
 void Container::get(unsigned int i, Type &t) const {
 	if(i<data_.size()){ t = static_cast< GenericVariable<Type> *>(data_[i])->get_val(); }
-	else { std::cerr<<"Container : "<<i<<"<"<< data_.size()<<"?" <<std::endl; }
+	else { std::cerr<<__PRETTY_FUNCTION__<<" : "<<i<<"<"<< data_.size()<<"?" <<std::endl; }
 }
 
 template<typename Type>
@@ -153,7 +153,7 @@ Type Container::get(unsigned int i) const {
 	if(i<data_.size()){
 		return static_cast< GenericVariable<Type> *>(data_[i])->get_val();
 	} else {
-		std::cerr<<"Container : "<<i<<"<"<< data_.size()<<"?" <<std::endl; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : "<<i<<"<"<< data_.size()<<"?" <<std::endl; 
 		return Type();
 	}
 }

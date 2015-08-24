@@ -22,7 +22,7 @@ class IOFiles{
 		/*!Opens a file named filename_ and deduces from filename_ if the file
 		 * is a binary or a text file*/
 		/*}*/
-		IOFiles(std::string filename, bool write);
+		IOFiles(std::string const& filename, bool const& write);
 		/*!Destructor that closes the file*/
 		~IOFiles();
 		/*{Forbidden*/
@@ -111,7 +111,7 @@ void IOFiles::read(Type* t, unsigned int const& N, size_t const& type_size){
 		if (binary_){ file_.read((char*)(t),N*type_size); }
 		else { file_>>*t; }
 	} else {
-		std::cerr<<"IOFiles::read(Type*,unsigned int,size_t) : can't read from "<<filename_<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : can't read from "<<filename_<<std::endl;
 	}
 }
 
@@ -121,7 +121,7 @@ void IOFiles::write(Type* t, unsigned int const& N, size_t const& type_size){
 		if (binary_){ file_.write((char*)(t),N*type_size); }
 		else { file_<<*t; }
 	} else {
-		std::cerr<<"IOFiles::write(Type*,unsigned int,size_t) : can't write in "<<filename_<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : can't write in "<<filename_<<std::endl;
 	}
 }
 
@@ -138,7 +138,7 @@ void IOFiles::write(std::string const& var, Type const& val){
 		(*this)<<val;
 		header_->add(var,val);
 	} else {
-		std::cerr<<"void IOFiles::write(string,val) : can't write in "<<filename_<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : can't write in "<<filename_<<std::endl;
 	}	
 }
 #endif

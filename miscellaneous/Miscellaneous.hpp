@@ -102,7 +102,7 @@ namespace my{
 	}
 
 	inline unsigned long long nCk(unsigned long long n, unsigned long long k){
-		if(k > n){ std::cerr<<"lbA2"<<std::endl; }
+		if(k > n){ std::cerr<<__PRETTY_FUNCTION__<<" : k > n"<<std::endl; }
 		unsigned long long r(1);
 		unsigned long long g;
 		unsigned long long t;
@@ -111,7 +111,7 @@ namespace my{
 			r /= g;
 			t = n / (d / g);
 			if(r > std::numeric_limits<unsigned long long>::max() / t){
-				std::cerr<<"lbA2"<<std::endl; 
+				std::cerr<<__PRETTY_FUNCTION__<<" : other bug"<<std::endl; 
 			}
 			r *= t;
 		}

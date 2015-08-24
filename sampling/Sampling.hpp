@@ -128,13 +128,10 @@ class DataSet{
 		DataSet<Type>(IOFiles& r);
 		/*!Destructor*/
 		~DataSet();
-		/*{Forbidden*/
-		DataSet<Type>& operator=(DataSet<Type>) = delete;
-		/*}*/
-
-		void set();
-		void set(unsigned int const& N);
 		void set(unsigned int const& N, unsigned int const& B, unsigned int const& b, bool const& conv);
+		void set(unsigned int const& N);
+		void set();
+		DataSet<Type>& operator=(DataSet<Type> d);
 
 		void add_sample(DataSet<Type> const& ds);
 		void add_sample();
@@ -156,6 +153,8 @@ class DataSet{
 	private:
 		unsigned int size_;
 		Data<Type>* ds_;
+
+		void swap_to_assign(DataSet<Type>& ds1, DataSet<Type>& ds2);
 };
 
 /*Binning*/
@@ -289,7 +288,7 @@ void Binning<Type>::merge(Binning const& other){
 			do_merge(tmp_bin,tmp_dpl,tmp_DPL,tmp_Ml);
 		}
 	} else {
-		std::cerr<<"void Binning<Type>::merge(Binning const& b) : B_ != b.B_ || b_ != b.b_ "<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : B_ != b.B_ || b_ != b.b_ "<<std::endl;
 	}
 }
 
@@ -558,7 +557,7 @@ void Data<Type>::add_sample(Data<Type> const& d){
 template<typename Type>
 void Data<Type>::add_sample(){
 	if(binning_){ binning_->add_sample(x_); }
-	else { std::cerr<<"void Data<Type>::add_sample() : no binning"<<std::endl; }
+	else { std::cerr<<__PRETTY_FUNCTION__<<" : no binning"<<std::endl; }
 }
 
 template<typename Type>
@@ -566,13 +565,13 @@ void Data<Type>::merge(Data const& d){
 	if(binning_ && d.binning_){
 		binning_->merge(*d.binning_);
 		N_++;
-	} else { std::cerr<<"void Data<Type>::merge(Data const& d) : no binning"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no binning"<<std::endl; }
 }
 
 template<typename Type>
 void Data<Type>::complete_analysis(double const& convergence_criterion){
 	if(binning_){ binning_->complete_analysis(convergence_criterion,x_,dx_,conv_); }
-	else { std::cerr<<"void Data<Type>::complete_analysis(double const& convergence_criterion) : no Binning"<<std::endl; }
+	else { std::cerr<<__PRETTY_FUNCTION__<<" : no binning"<<std::endl; }
 }
 
 template<typename Type>
@@ -637,19 +636,25 @@ void DataSet<Type>::set(unsigned int const& N){
 }
 
 template<typename Type>
-void DataSet<Type>::set(){
-	for(unsigned int i(0);i<size_;i++){ ds_[i].set(); }
-}
-
-template<typename Type>
 void DataSet<Type>::set(unsigned int const& N, unsigned int const& B, unsigned int const& b, bool const& conv){
 	set(N);
 	for(unsigned int i(0);i<size_;i++){ ds_[i].set(B,b,conv); }
 }
 
 template<typename Type>
+void DataSet<Type>::set(){
+	for(unsigned int i(0);i<size_;i++){ ds_[i].set(); }
+}
+
+template<typename Type>
 DataSet<Type>::~DataSet(){
 	if(ds_){ delete[] ds_; }
+}
+
+template<typename Type>
+void DataSet<Type>::swap_to_assign(DataSet<Type>& ds1, DataSet<Type>& ds2){
+	std::swap(ds1.size_,ds2.size_);
+	std::swap(ds1.ds_,ds2.ds_);
 }
 /*}*/
 
@@ -663,7 +668,7 @@ std::ostream& operator<<(std::ostream& flux, DataSet<Type> const& ds){
 
 template<typename Type>
 std::istream& operator>>(std::istream& flux, DataSet<Type> const& ds){
-	std::cerr<<" std::istream& operator>>(std::istream& flux, DataSet<Type> const& v) not defined"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" :  not defined"<<std::endl;
 	return flux;
 }
 
@@ -697,6 +702,15 @@ IOFiles& operator>>(IOFiles& r, DataSet<Type>& ds){
 }
 /*}*/
 
+/*operator*/
+/*{*/
+template<typename Type>
+DataSet<Type>& DataSet<Type>::operator=(DataSet<Type> ds){
+	swap_to_assign(*this,ds);
+	return (*this);
+}
+
+/*}*/
 /*public methods that modify the class*/
 /*{*/
 template<typename Type>

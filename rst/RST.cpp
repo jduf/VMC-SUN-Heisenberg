@@ -13,7 +13,9 @@ std::string RST::scale(std::string const& t) { return "   :scale: " + t + RST::n
 std::string RST::target(std::string const& t){ return "   :target: "+ t + RST::nl_; }
 /*}*/
 
-RST::RST(std::string const& rst): rst_(rst) {}
+RST::RST(std::string const& rst):
+	rst_(rst)
+{}
 
 void RST::title(std::string const& t, char const& symb){
 	rst_ += RST::np_ + t + RST::nl_;
@@ -47,7 +49,6 @@ void RST::lineblock(std::string const& t){
 }
 
 void RST::def(std::string const& t, std::string const& def){
-	//if(def.size()>25){std::cerr<<"RST : def(t,def) : def.size>25"<<std::endl;}
 	rst_ += ":" + t + ":" + " " + def + RST::nl_;
 }
 

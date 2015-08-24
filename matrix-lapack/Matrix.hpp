@@ -442,15 +442,17 @@ inline Matrix<std::complex<double> > Matrix<std::complex<double> >::trans_conj()
 
 template<>
 inline Matrix<double> Matrix<double>::trans_conj() const {
-	std::cerr<<"Matrix : conj_trans : not defined for real matrices"<<std::endl;
-	std::cerr<<"Matrix : conj_trans : replace by transpose()"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : not defined for real matrices, replaced by transpose()"<<std::endl;
 	return (*this).transpose();
 }
 
 template<typename Type>
 Vector<Type> Matrix<Type>::diag() const{
 	unsigned int N(0);
-	if(row_ < col_){N=col_; std::cerr<<"Matrix : diag : to check"<<std::endl; }
+	if(row_ < col_){
+		N=col_;
+		std::cerr<<__PRETTY_FUNCTION__<<" : to check"<<std::endl; 
+	}
 	else{N=row_;}
 	Vector<Type> v(N);
 	for(unsigned int i(0);i<N;i++){
@@ -501,7 +503,7 @@ template<typename Type>
 Type Matrix<Type>::trace() const {
 	unsigned int k(std::min(row_,col_));
 	Type t(0.0);
-	std::cerr<<"Matrix : trace : need to be checked"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : need to be checked"<<std::endl;
 	for(unsigned int i(0);i<k;i++){
 		t += mat_[i*(row_+1)];
 	}
