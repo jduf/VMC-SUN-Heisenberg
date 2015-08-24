@@ -63,7 +63,7 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 {
 	if(this->n_%this->spuc_){
 		this->status_++;
-		std::cerr<<"GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename) : the number of sites is not comensurate with the unit cell"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : the number of sites is not comensurate with the unit cell"<<std::endl;
 	}
 }
 
@@ -96,10 +96,10 @@ void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
 			}
 		}
 	} else {
-		std::cerr<<"void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l) : incoherent number of link";
+		std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link";
 	}
 	if(this->bc_==0){
-		std::cerr<<"void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l) : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl;
 	}
 }
 
@@ -136,7 +136,7 @@ void GenericSystem<Type>::check_lattice(){
 		}
 		if(p0 != p1){ 
 			this->status_++; 
-			std::cerr<<"void GenericSystem<Type>::check_lattice() const : no consistent enumeration"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : no consistent enumeration"<<std::endl;
 		}
 	}
 }

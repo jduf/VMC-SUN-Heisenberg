@@ -35,7 +35,7 @@ std::string IOSystem::analyse(unsigned int const& level){
 		case 9:{ return extract_level_9(); }break;
 		default:
 			   {
-				   std::cerr<<"IOSystem::analyse(unsigned int const& level) : level="<<level<<" undefined"<<std::endl;
+				   std::cerr<<__PRETTY_FUNCTION__<<" : level="<<level<<" undefined"<<std::endl;
 				   return "";
 			   }
 	}

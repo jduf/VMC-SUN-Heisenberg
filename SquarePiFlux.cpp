@@ -31,12 +31,12 @@ void SquarePiFlux::compute_H(){
 					H_(i,nb(0,0)) = std::polar(double(nb(0,1)),-phi);
 					H_(i,nb(1,0)) = std::polar(double(nb(1,1)),phi);
 				}break;
-			default:{ std::cerr<<"void SquarePiFlux::compute_H() : undefined site in unit cell"<<std::endl; }break;
+			default:{ std::cerr<<__PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
-	std::cerr<<"SquarePiFlux : compute_EVec : new use of polar, check that it is correct"<<std::endl;
-	std::cerr<<"                            : modified the flux disposition..."<<std::endl;
-	std::cerr<<"it seems that std::polar is not very stable for std::polar(1,-pi)=(0,1e-6)"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : new use of polar, check that it is correct"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : modified the flux disposition..."<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : it seems that std::polar is not very stable for std::polar(1,-pi)=(0,1e-6)"<<std::endl;
 	H_ += H_.trans_conj(); 
 }
 

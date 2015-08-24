@@ -153,15 +153,15 @@ int main(int argc, char* argv[]){
 			} break;
 		default:
 			{
-				std::cerr<<"check : unknown option 'what', options are :"<<std::endl;
-				std::cerr<<"      - init                        : 0"<<std::endl;
-				std::cerr<<"      - init + check                : 1"<<std::endl;
-				std::cerr<<"      - init + create + check       : 2"<<std::endl;
-				std::cerr<<"      - init + create + run         : 3"<<std::endl;
-				std::cerr<<"      - init + create + run + write : 4"<<std::endl;
-				std::cerr<<"      - load + run                  : 5"<<std::endl;
-				std::cerr<<"      - load + run + rewrite        : 6"<<std::endl;
-				std::cerr<<"      - load + check_symmetries     : 7"<<std::endl;
+				std::cerr<<__PRETTY_FUNCTION__<<" : unknown option 'what', options are :"<<std::endl;
+				std::cerr<<"    - init                        : 0"<<std::endl;
+				std::cerr<<"    - init + check                : 1"<<std::endl;
+				std::cerr<<"    - init + create + check       : 2"<<std::endl;
+				std::cerr<<"    - init + create + run         : 3"<<std::endl;
+				std::cerr<<"    - init + create + run + write : 4"<<std::endl;
+				std::cerr<<"    - load + run                  : 5"<<std::endl;
+				std::cerr<<"    - load + run + rewrite        : 6"<<std::endl;
+				std::cerr<<"    - load + check_symmetries     : 7"<<std::endl;
 			}
 	}
 }

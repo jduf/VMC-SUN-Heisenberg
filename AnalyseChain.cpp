@@ -111,7 +111,7 @@ std::string AnalyseChain::extract_level_5(){
 						{ ti.set(N/m,1); }break;
 					case 1:
 						{ (*read_)>>ti; }break;
-					default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
+					default:{ std::cerr<<__PRETTY_FUNCTION__<<" : ref undefined"<<std::endl; }
 				}
 				(*read_)>>E>>polymerization_strength>>exponents;
 				switch(ref(2)){
@@ -130,7 +130,7 @@ std::string AnalyseChain::extract_level_5(){
 										chain.set_IOSystem(this);
 										chain.save_input(*jd_write_);
 									}break;
-								default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
+								default:{ std::cerr<<__PRETTY_FUNCTION__<<" : ref undefined"<<std::endl; }
 							}
 						}break;
 					case 1:
@@ -139,7 +139,7 @@ std::string AnalyseChain::extract_level_5(){
 							chain.set_IOSystem(this);
 							chain.save_input(*jd_write_);
 						}break;
-					default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
+					default:{ std::cerr<<__PRETTY_FUNCTION__<<" : ref undefined"<<std::endl; }
 				}
 				if(outfile_){
 					(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<ti<<" ";
@@ -148,7 +148,7 @@ std::string AnalyseChain::extract_level_5(){
 				jd_write_->write("energy per site",E);
 				jd_write_->write("polymerization strength",polymerization_strength);
 				jd_write_->write("critical exponents",exponents);
-				std::cerr<<"only one wf for "<<N<<" "<<m<<" "<<n<<" "<<bc<<std::endl; 
+				std::cerr<<__PRETTY_FUNCTION__<<" only one wf for "<<N<<" "<<m<<" "<<n<<" "<<bc<<std::endl; 
 			}break;
 		case 2:
 			{ 
@@ -187,7 +187,7 @@ std::string AnalyseChain::extract_level_5(){
 								chain.set_IOSystem(this);
 								chain.save_input(*jd_write_);
 							}break;
-						default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
+						default:{ std::cerr<<__PRETTY_FUNCTION__<<" : ref undefined"<<std::endl; }
 					}
 					delete s;
 				}
@@ -202,7 +202,7 @@ std::string AnalyseChain::extract_level_5(){
 				jd_write_->write("polymerization strength",polymerization_strength[ref(2)]);
 				jd_write_->write("critical exponents",exponents[eta_idx]);
 			}break;
-		default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : too many wavefunctions"<<std::endl; }
+		default:{ std::cerr<<__PRETTY_FUNCTION__<<" : too many wavefunctions"<<std::endl; }
 	}
 	return filename_;
 }

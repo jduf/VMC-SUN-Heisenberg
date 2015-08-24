@@ -48,7 +48,7 @@ void MCSim::create_S(System const* const s){
 		}
 	}
 	if(!is_created()){
-		std::cerr<<"void MCSim::create_S(Container* C) : faulty parameters : "<<param_<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : faulty parameters : "<<param_<<std::endl;
 	}
 }
 
@@ -62,7 +62,7 @@ void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tm
 		mc.thermalize(thermalization_steps);
 		mc.run();
 	} else {
-		std::cerr<<"void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tmax) : faulty parameters : "<<param_<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : faulty parameters : "<<param_<<std::endl;
 	}
 }
 
@@ -98,6 +98,16 @@ unsigned int MCSim::sort_by_param_for_merge(MCSim const& list, MCSim const& new_
 
 void MCSim::merge(MCSim& list, MCSim& new_elem){
 	list.get_S()->get_energy().merge(new_elem.get_S()->get_energy());
+	if(new_elem.get_S()->get_corr().size() != list.get_S()->get_corr().size() ){
+		list.get_S()->get_corr()=new_elem.get_S()->get_corr();
+	} else {
+		list.get_S()->get_corr().merge(new_elem.get_S()->get_corr());
+	}
+	if(new_elem.get_S()->get_lr_corr().size() != list.get_S()->get_lr_corr().size() ){
+		list.get_S()->get_lr_corr()=new_elem.get_S()->get_lr_corr();
+	} else {
+		list.get_S()->get_lr_corr().merge(new_elem.get_S()->get_lr_corr());
+	}
 }
 /*}*/
 

@@ -79,7 +79,7 @@ unsigned int LadderFree::set_spuc(Vector<double> const& t){
 		case 8: { return 6; } break;
 		case 11:{ return 8; } break;
 		default:{
-					std::cerr<<"unsigned int LadderFree::set_spuc(Vector<double> const& t) : invalid t size : "<<t.size()<<std::endl;
+					std::cerr<<__PRETTY_FUNCTION__<<" : invalid t size : "<<t.size()<<std::endl;
 					return 1;
 				}
 	}
@@ -781,7 +781,7 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				sym.push_back(tmp);
 				/*}*/
 			}break;
-		default:{  std::cerr<<"void LadderFree:: bla"<<std::endl; }
+		default:{  std::cerr<<__PRETTY_FUNCTION__<<" bla"<<std::endl; }
 	}
 }
 /*}*/
@@ -812,20 +812,51 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps(path,filename);
-	ps.begin(-9,-2,16,2,filename);
+	unsigned int n_plot((n_<30?n_:spuc_));
+	unsigned int k(0);
+	double y_shift(2);
 
-	unsigned int n_plot((n_<32?n_:spuc_));
-	for(unsigned int i(0);i<n_plot;i++) {
+	PSTricks ps(path,filename);
+	ps.begin(-1,-3,n_plot,2,filename);
+	for(unsigned int i(0);i<n_plot;i++){
 		xy0(0) = i/2;
 		xy0(1) = i%2;
 		ps.put(xy0(0),xy0(1)+(i%2?0.2:-0.2),"\\tiny{"+my::tostring(i)+"}");
 		nb = get_neighbourg(i);
 
-		if(H_(i,nb(0,0))){/*x-link*/
-			xy1(0) = nb(0,0)/2;
-			xy1(1) = nb(0,0)%2;
+		/*y-link*/
+		if(i%2){
+			xy1(0) = nb(1,0)/2;
+			xy1(1) = nb(1,0)%2;
 
+			if(H_(i,nb(1,0))){
+				if( H_(i,nb(1,0)) < 0){ color = "red"; }
+				else { color = "black"; }
+
+				linestyle="solid";
+
+				linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"mm";
+
+				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+				ps.put(xy0(0)+0.2,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(H_(i,nb(1,0)))+"}");
+			}
+
+			if(corr_.size()){
+				if(corr_[k].get_x()<0){ color = "red"; }
+				else { color = "black"; }
+
+				linewidth = my::tostring(std::abs(corr_[k].get_x()))+"mm";
+
+				ps.line("-",xy0(0),xy0(1)-y_shift,xy1(0),xy1(1)-y_shift, "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+				k++;
+			}
+		}
+
+		/*x-link*/
+		xy1(0) = nb(0,0)/2;
+		xy1(1) = nb(0,0)%2;
+
+		if(H_(i,nb(0,0))){
 			if( H_(i,nb(0,0)) < 0){ color = "red"; }
 			else { color = "black"; }
 
@@ -839,19 +870,20 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)-(i%2?0.2:-0.2),"\\tiny{"+my::tostring(H_(i,nb(0,0)))+"}");
 		}
-		if(i%2 && H_(i,nb(1,0))){/*y-link*/
-			xy1(0) = nb(1,0)/2;
-			xy1(1) = nb(1,0)%2;
 
-			if( H_(i,nb(1,0)) < 0){ color = "red"; }
+		if(corr_.size()){
+			if(corr_[k].get_x()<0){ color = "red"; }
 			else { color = "black"; }
 
-			linestyle="solid";
+			if(xy1(0)<xy0(0)){
+				xy1(0) = xy0(0)+1;
+				linestyle="dashed";
+			} else { linestyle="solid"; }
 
-			linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"mm";
+			linewidth = my::tostring(std::abs(corr_[k].get_x()))+"mm";
 
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-			ps.put(xy0(0)+0.2,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(H_(i,nb(1,0)))+"}");
+			ps.line("-",xy0(0),xy0(1)-y_shift,xy1(0),xy1(1)-y_shift, "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+			k++;
 		}
 	}
 
@@ -892,3 +924,4 @@ std::string LadderFree::extract_level_6(){
 	return filename_;
 }
 /*}*/
+

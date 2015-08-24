@@ -50,8 +50,7 @@ SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S):
 	MCSystem(S),
 	Bosonic<Type>(S)
 {
-	std::cerr<<"SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S) : check everything"<<std::endl;
-	std::cerr<<"works only for m=1"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : check everything, works only for m=1"<<std::endl;
 	status_--;
 }
 
@@ -68,8 +67,7 @@ SystemBosonic<Type>::SystemBosonic(SystemBosonic<Type> const& S):
 	MCSystem(S),
 	Bosonic<Type>(S)
 {
-	std::cerr<<"SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S) : check everything"<<std::endl;
-	std::cerr<<"works only for m=1"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : check everything, works only for m=1"<<std::endl;
 	status_--;
 }
 
@@ -90,7 +88,7 @@ void SystemBosonic<Type>::write(IOFiles& w) const{
 
 template<typename Type>
 void SystemBosonic<Type>::free_memory(){
-	std::cerr<<"void SystemBosonic<Type>::free_memory() : nothing to do"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : nothing to do"<<std::endl;
 }
 /*}*/
 

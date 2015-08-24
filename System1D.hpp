@@ -84,7 +84,7 @@ void System1D<Type>::plot_band_structure(){
 		gp+="plot 'spectrum.dat' u 1:2 w p ps 1.5 lt 3 lc 7";
 		gp.save_file();
 	} else {
-		std::cerr<<"void System1D<Type>::plot_band_structure() : diagonalization failed, the band structure can't be computed"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : diagonalization failed, the band structure can't be computed"<<std::endl;
 	}
 }
 /*}*/
@@ -110,8 +110,7 @@ bool System1D<Type>::simple_diagonalization(){
 	Lapack<Type>(H_,false,(this->ref_(1)==1?'S':'H')).eigensystem(eval,true);
 	for(unsigned int c(0);c<this->N_;c++){
 		if(my::are_equal(eval(this->M_(c)),eval(this->M_(c)-1),1e-12)){
-			std::cerr<<"bool System1D<Type>::simple_diagonalization() : "
-				"degenerate at the Fermi level"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : degenerate at the Fermi level"<<std::endl;
 			return false;
 		}
 	}
@@ -129,8 +128,7 @@ bool System1D<Type>::full_diagonalization(){
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(i+1);j<this->n_;j++){
 			if(my::are_equal(eval(i),eval(j),1e-10,1e-10)){
-				std::cerr<<"bool System1D<Type>::full_diagonalization() : "
-					"eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
+				std::cerr<<__PRETTY_FUNCTION__<<" : eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
 				return false;
 			}
 		}

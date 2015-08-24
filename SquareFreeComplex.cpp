@@ -45,7 +45,7 @@ void SquareFreeComplex::compute_H(unsigned int const& c){
 					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
 					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
 				}break;
-			default:{ std::cerr<<"void SquareFreeComplex::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
+			default:{ std::cerr<<__PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
 	H_ += H_.trans_conj(); 

@@ -18,7 +18,7 @@ VMCPSO::VMCPSO(Parseur const& P, VMCMinimization const& vmcm):
 		MCP->set_symmetry(sym[i%sym.size()]);
 	}
 	if(Nparticles_<sym.size()){
-		std::cerr<<"VMCPSO::VMCPSO(Parseur const& P, VMCMinimization const& vmcm) : not enough particles with respect to the number of symmetries : "<<sym.size()<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : not enough particles with respect to the number of symmetries : "<<sym.size()<<std::endl;
 	}
 }
 

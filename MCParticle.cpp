@@ -16,9 +16,9 @@ void MCParticle::move(Vector<double> const& bx_all){
 	}
 	/*!move to different parameter set can be achieved if v>1, therefore if
 	 * the particle is static, it could be relaunched*/
-	if(v_.norm_squared()<0.25){ 
-		std::cerr<<"void MCParticle::move(Vector<double> const& bx_all) : init_Particle(100)"<<std::endl;
-		init_Particle(100); 
+	if(v_.norm_squared()<0.25){
+		std::cerr<<__PRETTY_FUNCTION__<<" : init_Particle(100)"<<std::endl;
+		init_Particle(100);
 	}
 }
 
@@ -64,7 +64,7 @@ bool MCParticle::select_new_best(){
 		}
 	}
 	if(param.ptr()){
-		set_bx_via(param); 
+		set_bx_via(param);
 		return true;
 	} else { return false; }
 }
@@ -83,7 +83,7 @@ void MCParticle::set_bx_via(Vector<double> const& param){
 			}
 		}
 		if(!found){
-			std::cerr<<"void MCParticle::set_bx_via(Vector<double> const& param) : can't find a match for dof "<<i<<" for param "<<param<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : can't find a match for dof "<<i<<" for param "<<param<<std::endl;
 		}
 		assert(found);
 	}
@@ -95,7 +95,7 @@ Vector<double> MCParticle::get_param() const {
 		if(x_(i)<=min_(i) || x_(i)>=max_(i))
 		{
 #pragma omp critical
-			std::cerr<<"bug "<<x_<<" | "<<min_<<" | "<<max_<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : bug "<<x_<<" | "<<min_<<" | "<<max_<<std::endl;
 			for(unsigned int j(0);j<dof_;j++){
 				std::cout<<ps_[j]<<std::endl;
 			}

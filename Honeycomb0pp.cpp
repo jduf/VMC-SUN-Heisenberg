@@ -43,7 +43,7 @@ void Honeycomb0pp::compute_H(){
 					H_(i,nb(1,0))= nb(1,1)*td_;
 					H_(i,nb(2,0))= nb(2,1)*th;
 				}break;
-			default:{ std::cerr<<"void Honeycomb0pp::compute_H() : undefined site in unit cell"<<std::endl; }break;
+			default:{ std::cerr<< __PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
 	H_ += H_.transpose();

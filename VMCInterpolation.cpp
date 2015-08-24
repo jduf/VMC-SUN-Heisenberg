@@ -27,7 +27,7 @@ void VMCInterpolation::init(){
 
 	if(m_->samples_list_.size()){ search_minima(); }
 	else {
-		std::cerr<<"VMCInterpolation::run() : empty samples_list_"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : empty samples_list_"<<std::endl;
 		m_->pso_info_.item("error : empty samples_list_");
 	}
 }
@@ -166,7 +166,7 @@ void VMCInterpolation::print(){
 		std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
 		if(sim.get()){
 #pragma omp critical
-			std::cerr<<param<<" "<<interp_(param)<<" "<<sim->get_S()->get_energy()<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : "<<param<<" "<<interp_(param)<<" "<<sim->get_S()->get_energy()<<std::endl;
 		}
 	}
 }

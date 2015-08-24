@@ -12,9 +12,9 @@ System::System(Parseur& P):
 	J_(P.get<std::vector<double> >("Jp")),
 	status_(5)
 {
-	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<"System::System(Parseur& P) : Bad initialization"<<std::endl; } 
+	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : Bad initialization"<<std::endl; } 
 	else{ status_--; }
-	if(bc_ != -1 && bc_ != 0 && bc_ != 1){ std::cerr<<"System::System(Parseur& P) : unknown boundary condition"<<std::endl; } 
+	if(bc_ != -1 && bc_ != 0 && bc_ != 1){ std::cerr<<__PRETTY_FUNCTION__<<" : unknown boundary condition"<<std::endl; } 
 	else { status_--; }
 }
 
@@ -242,7 +242,7 @@ std::vector<std::string> System::names() const {
 		if(J_.size()==links_.row() || J_.size()==2){
 			tmp = "theta"+my::tostring(acos(J_(0)));
 		} else {
-			std::cerr<<"std::vector<std::string> System::names() const : J_ has a strange size"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : J_ has an incoherent size"<<std::endl;
 		}
 	} else { 
 		tmp = "J"; 

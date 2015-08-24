@@ -32,16 +32,20 @@ class System{
 
 		/*!Returns the reference to the type of wavefunction*/
 		Vector<unsigned int> const& get_ref() const { return ref_; }
+		/*!Returns the status of the system*/
+		unsigned int const& get_status() const { return status_; }
 		/*!Returns the energy*/
 		Data<double> const& get_energy() const { return E_; }
 		/*!Returns a ref to E_ (needed for merging)*/
 		Data<double>& get_energy(){ return E_; }
 		/*!Returns the correlations*/
 		DataSet<double> const& get_corr() const { return corr_; }
+		/*!Returns a ref to corr_ (needed for merging)*/
+		DataSet<double>& get_corr(){ return corr_; }
 		/*!Returns the long range correlations*/
 		DataSet<double> const& get_lr_corr() const { return lr_corr_; }
-		/*!Returns the status of the system*/
-		unsigned int const& get_status() const { return status_; }
+		/*!Returns a ref to lr_corr_ (needed for merging)*/
+		DataSet<double>& get_lr_corr(){ return lr_corr_; }
 
 		void set_bonds(System const* const s);
 		/*!Sets the observables to default (0) values and initilizes binning*/

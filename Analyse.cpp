@@ -15,6 +15,7 @@ void Analyse::do_analyse(){
 	switch(study_){
 		case 0: /*treat everything*/
 			{
+				std::cout<<"analysing the whole "<<sim_<<" directory"<<std::endl;
 				rst_file_.add_end(std::make_shared<RSTFile>("./","README"));
 				IOFiles r("README",false);
 				std::string h;
@@ -25,7 +26,7 @@ void Analyse::do_analyse(){
 			}break; 
 		case 1: /*update only the README file*/
 			{
-				std::cout<<"updating only README file"<<std::endl;
+				std::cout<<"analysing only README file"<<std::endl;
 				RSTFile rst("./","README");
 				IOFiles r("README",false);
 				std::string h;
@@ -42,6 +43,7 @@ void Analyse::do_analyse(){
 			}break;
 		case 2: /*treat the directory given as argument*/
 			{
+				std::cout<<"analysing only directories below "<<path_<<std::endl;
 				if(path_[path_.size()-1] != '/'){ path_ += '/'; }
 				std::vector<std::string> tmp(my::string_split(path_,'/'));
 				path_ = "";
@@ -49,6 +51,7 @@ void Analyse::do_analyse(){
 				for(unsigned int i(1);i<tmp.size()-1;i++){ 
 					path_ += tmp[i]+'/'; 
 					level_++;
+					rel_level_ += "../";
 				}
 				dir_ = tmp[tmp.size()-1]+'/';
 
@@ -56,9 +59,7 @@ void Analyse::do_analyse(){
 				recursive_search();
 			}break;
 		case 3:
-			{
-				std::cerr<<"Analyse::do_analyse() : can't analyse a *.jdbin file"<<std::endl;
-			}break;
+			{ std::cerr<<__PRETTY_FUNCTION__<<" : can't analyse a *.jdbin file"<<std::endl; }break;
 	}
 }
 
@@ -89,7 +90,7 @@ void Analyse::recursive_search(){
 
 void Analyse::search_jdbin(){
 	Directory d;
-	d.search_file_ext(".jdbin",sim_+path_+dir_,false,false);
+	d.search_file_ext(".jdbin",sim_+path_+dir_,true,false);
 	nof_ = d.size();
 	if(d.size()>0){ 
 		d.sort();

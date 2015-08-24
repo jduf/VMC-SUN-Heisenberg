@@ -45,15 +45,8 @@ void MonteCarlo::next_step(){
 
 bool MonteCarlo::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
-	//if(time_.progress(tmax_/21)){
-		//if(!omp_get_thread_num()){
-			//S_->get_energy().compute_convergence(1e-5);
-			//std::cerr<<"E="<<S_->get_energy().get_x()<<" ("<<S_->get_energy().get_dx()<<") after "<<100.0*time_.elapsed()/tmax_<<"%"<<std::endl;
-			////S_->set();
-		//}
-	//}
 	if(std::abs(S_->get_energy().get_x())>1e2){ 
-		std::cerr<<"Simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
 		S_->set_binning();
 	}
 	return true;

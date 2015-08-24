@@ -57,7 +57,7 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 				}
 			} else {
 				this->J_.set(this->links_.row(),1);
-				std::cerr<<"Vector<double> const& create_J(Vector<double> const& J) : need J.size() == 2"<<std::endl;
+				std::cerr<<__PRETTY_FUNCTION__<<" : need J.size() == 2"<<std::endl;
 			}
 		}
 	}

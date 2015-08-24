@@ -192,7 +192,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 }
 
 void CreateSystem::error() const {
-	std::cerr<<"ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;
 }
 
 void CreateSystem::create(bool try_solve_degeneracy){
@@ -204,16 +204,16 @@ void CreateSystem::create(bool try_solve_degeneracy){
 				RGL_=NULL;
 				ref_(1)=2;
 				//init(NULL,NULL);
-				std::cerr<<"can't recreate CGL"<<std::endl; 
+				std::cerr<<__PRETTY_FUNCTION__<<" : can't recreate CGL"<<std::endl; 
 				if(CGL_){ CGL_->create(); }
 			} else {
-				std::cerr<<"void CreateSystem::create(bool try_solve_degeneracy) : giving up"<<std::endl;
+				std::cerr<<__PRETTY_FUNCTION__<<" : giving up"<<std::endl;
 			}
 		}
 	} else {
 		if(CGL_){ CGL_->create(); }
 		if(CGL_ && get_status()!=1){
-			std::cerr<<"void CreateSystem::create(bool try_solve_degeneracy) : behaviour undefined"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : behaviour undefined"<<std::endl;
 		}
 	}
 }

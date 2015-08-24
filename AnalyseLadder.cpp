@@ -52,10 +52,7 @@ std::string AnalyseLadder::extract_level_9(){
 	rst.save(false,true); 
 
 	VMCMinimization min(in);
-	nof_ = 5;
-	jd_write_->write("number of compared simulations",nof_);
-	min.save_best(nof_,*jd_write_);
-	min.plot(analyse_+path_+dir_,filename_);
+	min.find_save_and_plot_minima(10,*jd_write_,analyse_+path_+dir_,filename_);
 
 	return filename_;
 }
@@ -71,14 +68,19 @@ std::string AnalyseLadder::extract_level_8(){
 		CreateSystem cs(&s);
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
-		cs.lattice(info_+path_+dir_,filename_+"-"+my::tostring(i));
-		rst_file_.last().figure(dir_+filename_+"-"+my::tostring(i)+".png",my::tostring(i),RST::target(dir_+filename_+"-"+my::tostring(i)+".tex")+RST::scale("150")); 
 
-		if(!i){
+		//cs.analyse(level_);
+
+		/*!Draw the lattice with the witdth related to t_*/
+		cs.lattice(info_+path_+dir_,filename_+"-"+my::tostring(i));
+		rst_file_.last().figure(dir_+filename_+"-"+my::tostring(i)+".png",RST::math("E="+my::tostring(s.get_energy().get_x())+"\\pm"+my::tostring(s.get_energy().get_dx())),RST::target(dir_+filename_+"-"+my::tostring(i)+".tex")+RST::scale("200")); 
+
+		//if(!i){
 			cs.save_param(*jd_write_);
 			s.save_input(*jd_write_);
 			s.save_output(*jd_write_);
-		}
+		//}
+
 	}
 
 	delete read_;

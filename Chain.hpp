@@ -152,10 +152,7 @@ bool Chain<Type>::compute_critical_exponents(Vector<double> const& lrc, unsigned
 			xf = lrc.size()-dx;
 			do_fit(lrc, xi, xf, p, R_squared, d_squared);
 
-			std::cerr<<"void Chain<Type>::compute_critical_exponents(unsigned int& xi,"<<std::endl;
-			std::cerr<<"unsigned int& xf, Vector<double>& exponents, Vector<double> lrc) :"<<std::endl;
-			std::cerr<< "    No fit found for : SU("<<this->N_<<") m="<<this->m_<<" n="<<this->n_;
-			std::cerr<< " (fitting range assumed)"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : No fit found for : SU("<<this->N_<<") m="<<this->m_<<" n="<<this->n_<<" (fitting range assumed)"<<std::endl;
 			return false;
 		}
 	} else {

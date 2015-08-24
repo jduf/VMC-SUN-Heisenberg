@@ -25,8 +25,9 @@ class VMCMinimization{
 		void refine(double const& E, double const& dE);
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
-		void save_best(unsigned int const& nsave, IOFiles& w) const;
-		void plot(std::string path="", std::string filename="") const;
+		void find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& param, double& E_range, Interpolation<double>* interp_Er=NULL) const;
+		void find_and_run_minima(unsigned int const& max_n_minima);
+		void find_save_and_plot_minima(unsigned int const& max_n_minima, IOFiles& w, std::string path="", std::string filename="") const;
 
 		virtual void print() const;
 		bool ready(){ return m_.get(); }
@@ -76,6 +77,6 @@ class VMCMinimization{
 		std::string get_filename() const { return time_+"_"+prefix_+basename_; }
 
 		/*!Real call to the MonteCarlo evaluation via MCSim*/
-		std::shared_ptr<MCSim> evaluate(Vector<double> const& param);
+		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, unsigned int const& obs=0);
 };
 #endif
