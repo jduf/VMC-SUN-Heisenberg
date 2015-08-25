@@ -90,7 +90,7 @@ void Analyse::recursive_search(){
 
 void Analyse::search_jdbin(){
 	Directory d;
-	d.search_file_ext(".jdbin",sim_+path_+dir_,true,false);
+	d.search_file_ext(".jdbin",sim_+path_+dir_,false,false);
 	nof_ = d.size();
 	if(d.size()>0){ 
 		d.sort();

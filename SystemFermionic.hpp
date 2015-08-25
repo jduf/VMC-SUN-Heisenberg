@@ -56,13 +56,13 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 		SystemFermionic(SystemFermionic<Type> const& S);
 
 		Matrix<unsigned int> row_;//!< row of the matrix A that is modified
-		Matrix<Type>* Ainv_;	//!< inverse of A
-		Matrix<Type>* tmp_;		//!< temporary matrix used during the update 
-		Type w_[2];				//!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0;0,w22)
-		unsigned int new_r_[2];	//!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
-		unsigned int new_ev_[2];//!< newly selected rows of the EVec matrix
+		Matrix<Type>* Ainv_;	  //!< inverse of A
+		Matrix<Type>* tmp_;		  //!< temporary matrix used during the update 
+		Type w_[2];				  //!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0;0,w22)
+		unsigned int new_r_[2];	  //!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
+		unsigned int new_ev_[2];  //!< newly selected rows of the EVec matrix
 
-		/*!returns true is Ainv_ matrices are invertibles*/
+		/*!Returns true is Ainv_ matrices are invertibles*/
 		bool are_invertible();
 };
 
@@ -70,7 +70,7 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 /*{*/
 template<typename Type>
 SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
-	System(S,0),
+	System(S,S.get_status()),
 	MCSystem(S),
 	Fermionic<Type>(S),
 	row_(n_,m_),

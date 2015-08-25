@@ -51,7 +51,7 @@ class System{
 		/*!Sets the observables to default (0) values and initilizes binning*/
 		void set_binning();
 		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
-		void set_observable(unsigned int const& what);
+		void set_observable(unsigned int const& which);
 		/*!Deletes the binning for all observables*/
 		void delete_binning();
 

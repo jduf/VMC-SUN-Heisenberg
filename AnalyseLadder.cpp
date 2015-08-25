@@ -69,18 +69,15 @@ std::string AnalyseLadder::extract_level_8(){
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
 
-		//cs.analyse(level_);
-
 		/*!Draw the lattice with the witdth related to t_*/
 		cs.lattice(info_+path_+dir_,filename_+"-"+my::tostring(i));
-		rst_file_.last().figure(dir_+filename_+"-"+my::tostring(i)+".png",RST::math("E="+my::tostring(s.get_energy().get_x())+"\\pm"+my::tostring(s.get_energy().get_dx())),RST::target(dir_+filename_+"-"+my::tostring(i)+".tex")+RST::scale("200")); 
+		rst_file_.last().figure(dir_+filename_+"-"+my::tostring(i)+".png",RST::math("E="+my::tostring(s.get_energy().get_x())+"\\pm"+my::tostring(s.get_energy().get_dx())),RST::target(dir_+filename_+"-"+my::tostring(i)+".pdf")+RST::scale("200")); 
 
 		//if(!i){
 			cs.save_param(*jd_write_);
 			s.save_input(*jd_write_);
 			s.save_output(*jd_write_);
 		//}
-
 	}
 
 	delete read_;

@@ -187,7 +187,6 @@ void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>&
 		if(interp_Er){
 			double dx(0.3);
 			interp_Er->compute_weights(dx,interp_Er->get_N());
-			std::cout<<"fit error : "+my::tostring(dx)<<std::endl;
 		}
 
 		unsigned int i(1);
@@ -274,9 +273,16 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima){
 		double E_range;
 
 		find_minima(max_n_minima,list_min,param,E_range);
+		std::cout<<"#######################"<<std::endl;
+		std::string msg("found "+my::tostring(list_min.size())+" local minima");
+		std::cout<<"#"<<msg<<std::endl;
+		m_->pso_info_.item(msg);
 
 		list_min.set_target();
-		while(list_min.target_next()){ evaluate(list_min.get().get_param(),2); }
+		while(list_min.target_next()){ 
+			evaluate(list_min.get().get_param(),2);
+			list_min.get().complete_analysis(1e-5);
+		}
 	} else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl;
 	}
@@ -293,7 +299,7 @@ void VMCMinimization::print() const {
 /*}*/
 
 /*{protected methods*/
-std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, unsigned int const& obs){
+std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, unsigned int const& which){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 	bool tmp_test;
 #pragma omp critical(samples_list_)
@@ -308,7 +314,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, un
 		m_->samples_list_.set_target();
 	}
 	if(sim->is_created()){
-		sim->set_observable(obs);
+		sim->set_observable(which);
 		sim->run(tmp_test?10:1e6,m_->tmax_);
 #pragma omp critical(samples_list_)
 		{

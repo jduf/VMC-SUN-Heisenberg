@@ -75,8 +75,8 @@ void MCSim::complete_analysis(double const& convergence_criterion){
 	S_->complete_analysis(convergence_criterion);
 }
 
-void MCSim::set_observable(bool all){
-	S_->set_observable(all);
+void MCSim::set_observable(unsigned int const& which){
+	S_->set_observable(which);
 }
 
 void MCSim::free_memory(){

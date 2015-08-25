@@ -54,10 +54,10 @@ void System::set_bonds(System const* const s){
 	links_ = s->links_; 
 }
 
-void System::set_observable(unsigned int const& what){
+void System::set_observable(unsigned int const& which){
 	E_.set(50,5,false);
-	if(what>0){ corr_.set(links_.row(),50,5,false);}
-	if(what>1){ lr_corr_.set(links_.row(),50,5,false); }
+	if(which>0){ corr_.set(links_.row(),50,5,false); }
+	if(which>1){ lr_corr_.set(links_.row(),50,5,false); }
 }
 
 void System::set_binning(){ 
@@ -78,7 +78,7 @@ void System::write(IOFiles& w) const {
 
 void System::save_input(IOFiles& w) const {
 	RST rst;
-	rst.title("Input",'-');
+	rst.title("Input",'+');
 	w.add_header()->add(rst.get());
 
 	w.write("ref (type of wavefunction)",ref_);
@@ -92,7 +92,7 @@ void System::save_input(IOFiles& w) const {
 
 void System::save_output(IOFiles& w) const {
 	RST rst;
-	rst.title("Results",'-');
+	rst.title("Results",'+');
 	w.add_header()->add(rst.get());
 
 	w.write("status",status_);

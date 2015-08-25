@@ -35,6 +35,7 @@ template<typename Type>
 Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,3,filename)
 {
+	if(this->spuc_ == 1){ this->status_++; }
 	/*!(*this) has been created via System(System const& s), this->J_ and
 	 * this->links_ are already a copy of s. therefore if s has correctly
 	 * defined J_ and links_, there is no need to recompute them for (*this).
@@ -60,6 +61,8 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 				std::cerr<<__PRETTY_FUNCTION__<<" : need J.size() == 2"<<std::endl;
 			}
 		}
+	} else {
+		std::cerr<<__PRETTY_FUNCTION__<<" creation is problematic"<<std::endl;
 	}
 }
 

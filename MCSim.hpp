@@ -27,7 +27,7 @@ class MCSim {
 		Vector<double> const& get_param() const { return param_; }
 		std::unique_ptr<MCSystem> const& get_S() const { return S_; }
 
-		void set_observable(bool all);
+		void set_observable(unsigned int const& which);
 		void free_memory();
 
 		bool is_created() const { return (S_.get() && !S_->get_status()); }

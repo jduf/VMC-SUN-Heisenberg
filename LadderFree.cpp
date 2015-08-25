@@ -73,7 +73,6 @@ void LadderFree::save_param(IOFiles& w) const {
 
 unsigned int LadderFree::set_spuc(Vector<double> const& t){
 	switch(t.size()){
-		case 0: { return 1; } break;
 		case 2: { return 2; } break;
 		case 5: { return 4; } break;
 		case 8: { return 6; } break;
@@ -817,7 +816,7 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 	double y_shift(2);
 
 	PSTricks ps(path,filename);
-	ps.begin(-1,-3,n_plot,2,filename);
+	ps.begin(-1,-5,n_plot,2,filename);
 	for(unsigned int i(0);i<n_plot;i++){
 		xy0(0) = i/2;
 		xy0(1) = i%2;
@@ -831,19 +830,19 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 
 			if(H_(i,nb(1,0))){
 				if( H_(i,nb(1,0)) < 0){ color = "red"; }
-				else { color = "black"; }
+				else { color = "blue"; }
 
 				linestyle="solid";
 
 				linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"mm";
 
-				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 				ps.put(xy0(0)+0.2,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(H_(i,nb(1,0)))+"}");
 			}
 
 			if(corr_.size()){
 				if(corr_[k].get_x()<0){ color = "red"; }
-				else { color = "black"; }
+				else { color = "blue"; }
 
 				linewidth = my::tostring(std::abs(corr_[k].get_x()))+"mm";
 
@@ -858,7 +857,7 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 
 		if(H_(i,nb(0,0))){
 			if( H_(i,nb(0,0)) < 0){ color = "red"; }
-			else { color = "black"; }
+			else { color = "blue"; }
 
 			if(xy1(0)<xy0(0)){
 				xy1(0) = xy0(0)+1;
@@ -873,7 +872,7 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 
 		if(corr_.size()){
 			if(corr_[k].get_x()<0){ color = "red"; }
-			else { color = "black"; }
+			else { color = "blue"; }
 
 			if(xy1(0)<xy0(0)){
 				xy1(0) = xy0(0)+1;
@@ -882,9 +881,22 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 
 			linewidth = my::tostring(std::abs(corr_[k].get_x()))+"mm";
 
-			ps.line("-",xy0(0),xy0(1)-y_shift,xy1(0),xy1(1)-y_shift, "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+			ps.line("-",xy0(0),xy0(1)-y_shift,xy1(0),xy1(1)-y_shift,"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			k++;
 		}
+
+		if(lr_corr_.size() && std::abs(lr_corr_[i].get_x())>1e-4){
+			if(i){
+				if(lr_corr_[i].get_x()<0){ color = "red"; }
+				else { color = "blue"; }
+			} else {
+				color = "black";
+			}
+
+			xy0(1) -= 2*y_shift;
+			ps.circle(xy0,std::abs(lr_corr_[i].get_x()),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+		}
+		std::cout<<lr_corr_[i]<<std::endl;
 	}
 
 	if(n_plot>spuc_){
@@ -910,7 +922,7 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 		polygon(2,1)=1.3;
 		polygon(3,0)=-0.3;
 		polygon(3,1)=1.3;
-		ps.polygon(polygon,"linecolor=blue");
+		ps.polygon(polygon,"linecolor=black");
 	}
 
 	ps.end(true,true,true);
