@@ -97,9 +97,10 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 		case 4:
 			{
 				Matrix<int> tmp;
-				/*no symmetry breaking*/
+				/*{no symmetry breaking*/
 				/*0,0*/
 				sym.push_back(tmp);
+				/*{ 1 pi-flux*/
 				tmp.set(1,3);
 				/*pi,0*/
 				tmp(0,0) = 1;
@@ -111,9 +112,22 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(0,1) = 4;
 				tmp(0,2) = -1;
 				sym.push_back(tmp);
+				/*}*/
 
+				/*{ 2 pi-flux*/
+				tmp.set(2,3);
+				/*pi,pi*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				tmp(1,0) = 4;
+				tmp(1,1) = 4;
+				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{facing dimerization*/
 				tmp.set(3,3);
-				/*facing dimerization*/
 				tmp(0,0) = 1;
 				tmp(0,1) = B;
 				tmp(0,2) = 1;
@@ -134,8 +148,13 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(0,2) = 1;
 				tmp(2,2) = -1;
 				sym.push_back(tmp);
+				/*pi,pi*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+				/*}*/
 
-				/*shifted dimerization*/
+				/*{shifted dimerization*/
 				tmp(0,0) = 1;
 				tmp(0,1) = 2;
 				tmp(0,2) = 1;
@@ -156,11 +175,15 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(0,2) = 1;
 				tmp(1,2) = -1;
 				sym.push_back(tmp);
+				/*0,pi*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
 			}break;
 		case 6:
 			{
 				Matrix<int> tmp;
-				/*no symmetry breaking*/
+				/*{no symmetry breaking*/
 				/*0,0,0*/
 				sym.push_back(tmp);
 				/*{ 1 pi-flux*/
@@ -209,9 +232,25 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(1,2) = -1;
 				sym.push_back(tmp);
 				/*}*/
+				
+				/*{ 3 pi-flux*/
+				tmp.set(3,3);
+				/*pi,pi,pi*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				tmp(1,0) = 4;
+				tmp(1,1) = 4;
+				tmp(1,2) = -1;
+				tmp(2,0) = 7;
+				tmp(2,1) = 7;
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+				/*}*/
 
-				tmp.set(6,3);
 				/*{facing trimerization*/
+				tmp.set(6,3);
 				tmp(0,0) = 1;
 				tmp(0,1) = B;
 				tmp(0,2) = 1;
@@ -254,6 +293,9 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				sym.push_back(tmp);
 				/*pi,0,pi*/
 				tmp(0,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,pi*/
+				tmp(3,2) = -1;
 				sym.push_back(tmp);
 				/*}*/
 
@@ -301,6 +343,9 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				/*pi,0,pi*/
 				tmp(0,2) = -1;
 				sym.push_back(tmp);
+				/*pi,pi,pi*/
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
 				/*}*/
 
 				/*{dimer and box*/
@@ -340,12 +385,15 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				/*pi,0,pi*/
 				tmp(0,2) = -1;
 				sym.push_back(tmp);
+				/*pi,pi,pi*/
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
 				/*}*/
 			}break;
 		case 8:
 			{
 				Matrix<int> tmp;
-				/*no symmetry breaking*/
+				/*{no symmetry breaking*/
 				/*0,0,0,0*/
 				sym.push_back(tmp);
 				/*{ 1 pi-flux*/
@@ -433,9 +481,10 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(1,0) = 4;
 				tmp(1,1) = 4;
 				tmp(1,2) = -1;
-				tmp(1,0) = 7;
-				tmp(1,1) = 7;
-				tmp(1,2) = -1;
+				tmp(2,0) = 7;
+				tmp(2,1) = 7;
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
 				/*pi,pi,0,pi*/
 				tmp(0,0) = 1;
 				tmp(0,1) = 1;
@@ -443,9 +492,10 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(1,0) = 4;
 				tmp(1,1) = 4;
 				tmp(1,2) = -1;
-				tmp(1,0) = 10;
-				tmp(1,1) = 10;
-				tmp(1,2) = -1;
+				tmp(2,0) = 10;
+				tmp(2,1) = 10;
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
 				/*pi,0,pi,pi*/
 				tmp(0,0) = 1;
 				tmp(0,1) = 1;
@@ -453,9 +503,10 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(1,0) = 7;
 				tmp(1,1) = 7;
 				tmp(1,2) = -1;
-				tmp(1,0) = 10;
-				tmp(1,1) = 10;
-				tmp(1,2) = -1;
+				tmp(2,0) = 10;
+				tmp(2,1) = 10;
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
 				/*0,pi,pi,pi*/
 				tmp(0,0) = 4;
 				tmp(0,1) = 4;
@@ -463,9 +514,29 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(1,0) = 7;
 				tmp(1,1) = 7;
 				tmp(1,2) = -1;
-				tmp(1,0) = 10;
-				tmp(1,1) = 10;
+				tmp(2,0) = 10;
+				tmp(2,1) = 10;
+				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{ 4 pi-flux*/
+				tmp.set(4,3);
+				/*pi,pi,pi,pi*/
+				tmp(0,0) = 1;
+				tmp(0,1) = 1;
+				tmp(0,2) = -1;
+				tmp(1,0) = 4;
+				tmp(1,1) = 4;
 				tmp(1,2) = -1;
+				tmp(2,0) = 7;
+				tmp(2,1) = 7;
+				tmp(2,2) = -1;
+				tmp(3,0) = 10;
+				tmp(3,1) = 10;
+				tmp(3,2) = -1;
+				sym.push_back(tmp);
+				/*}*/
 				/*}*/
 
 				/*{facing tetramerization*/
@@ -497,7 +568,7 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(6,0) = 10;
 				tmp(6,1) = 8;
 				tmp(6,2) = 1;
-				/*0,0,0*/
+				/*0,0,0,0*/
 				sym.push_back(tmp);
 				/*pi,0,0,0*/
 				tmp(0,2) = -1;
@@ -529,8 +600,14 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(4,2) = -1;
 				tmp(6,2) = 1;
 				sym.push_back(tmp);
+				/*pi,0,0,pi*/
+				tmp(4,2) = 1;
+				tmp(6,2) = -1;
+				sym.push_back(tmp);
 				/*pi,pi,pi,0*/
 				tmp(1,2) = -1;
+				tmp(4,2) = -1;
+				tmp(6,2) = 1;
 				sym.push_back(tmp);
 				/*pi,pi,0,pi*/
 				tmp(4,2) = 1;
@@ -543,6 +620,9 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				/*0,pi,pi,pi*/
 				tmp(0,2) = 1;
 				tmp(1,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,pi,pi*/
+				tmp(0,2) = -1;
 				sym.push_back(tmp);
 				/*}*/
 
@@ -618,6 +698,9 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(0,2) = 1;
 				tmp(1,2) = -1;
 				sym.push_back(tmp);
+				/*0,pi,pi,pi*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
 				/*}*/
 
 				/*{shifted by two tetramerization*/
@@ -685,8 +768,14 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(5,2) = -1;
 				tmp(7,2) = 1;
 				sym.push_back(tmp);
+				/*pi,0,0,pi*/
+				tmp(5,2) = 1;
+				tmp(7,2) = -1;
+				sym.push_back(tmp);
 				/*pi,pi,pi,0*/
 				tmp(2,2) = -1;
+				tmp(5,2) = -1;
+				tmp(7,2) = 1;
 				sym.push_back(tmp);
 				/*pi,pi,0,pi*/
 				tmp(5,2) = 1;
@@ -699,6 +788,9 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				/*0,pi,pi,pi*/
 				tmp(0,2) = 1;
 				tmp(2,2) = -1;
+				sym.push_back(tmp);
+				/*pi,pi,pi,pi*/
+				tmp(0,2) = -1;
 				sym.push_back(tmp);
 				/*}*/
 
@@ -778,6 +870,9 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(0,2) = 1;
 				tmp(2,2) = -1;
 				sym.push_back(tmp);
+				/*pi,pi,pi,pi*/
+				tmp(0,2) = -1;
+				sym.push_back(tmp);
 				/*}*/
 			}break;
 		default:{  std::cerr<<__PRETTY_FUNCTION__<<" bla"<<std::endl; }
@@ -805,98 +900,76 @@ void LadderFree::check(){
 
 void LadderFree::lattice(std::string const& path, std::string const& filename){
 	compute_H();
-	Matrix<int> nb;
 	std::string color("black");
 	std::string linestyle("solid");
 	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	unsigned int n_plot((n_<30?n_:spuc_));
-	unsigned int k(0);
 	double y_shift(2);
 
 	PSTricks ps(path,filename);
 	ps.begin(-1,-5,n_plot,2,filename);
-	for(unsigned int i(0);i<n_plot;i++){
-		xy0(0) = i/2;
-		xy0(1) = i%2;
-		ps.put(xy0(0),xy0(1)+(i%2?0.2:-0.2),"\\tiny{"+my::tostring(i)+"}");
-		nb = get_neighbourg(i);
+	double t;
+	double corr;
+	for(unsigned int i(0);i<links_.row();i++){
+		xy0(0) = links_(i,0)/2;
+		xy0(1) = links_(i,0)%2;
+		xy1(0) = links_(i,1)/2;
+		xy1(1) = links_(i,1)%2;
 
-		/*y-link*/
-		if(i%2){
-			xy1(0) = nb(1,0)/2;
-			xy1(1) = nb(1,0)%2;
+		if(xy1(0)<xy0(0)){
+			xy1(0) = xy0(0)+1;
+			linestyle="dashed";
+		} else { linestyle="solid"; }
 
-			if(H_(i,nb(1,0))){
-				if( H_(i,nb(1,0)) < 0){ color = "red"; }
-				else { color = "blue"; }
+		if(i%3==0){ ps.put(xy0(0),xy0(1)-0.2,"\\tiny{"+my::tostring(links_(i,0))+"}"); }
+		if(i%3==1){ ps.put(xy1(0),xy1(1)+0.2,"\\tiny{"+my::tostring(links_(i,1))+"}"); }
 
-				linestyle="solid";
+		t=H_(links_(i,0),links_(i,1));
+		if(std::abs(t)>1e-4){
+			if(t<0){ color = "red"; }
+			else { color = "blue"; }
 
-				linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"mm";
+			linewidth = my::tostring(std::abs(t))+"mm";
 
-				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-				ps.put(xy0(0)+0.2,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(H_(i,nb(1,0)))+"}");
-			}
-
-			if(corr_.size()){
-				if(corr_[k].get_x()<0){ color = "red"; }
-				else { color = "blue"; }
-
-				linewidth = my::tostring(std::abs(corr_[k].get_x()))+"mm";
-
-				ps.line("-",xy0(0),xy0(1)-y_shift,xy1(0),xy1(1)-y_shift, "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-				k++;
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+			switch(i%3){
+				case 0: { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.2,"\\tiny{"+my::tostring(t)+"}"); }break;
+				case 1: { ps.put(xy0(0)+0.2,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(t)+"}"); }break;
+				case 2: { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)-0.2,"\\tiny{"+my::tostring(t)+"}"); }break;
 			}
 		}
 
-		/*x-link*/
-		xy1(0) = nb(0,0)/2;
-		xy1(1) = nb(0,0)%2;
+		corr = corr_[i].get_x();
+		if(std::abs(corr)>1e-4){
 
-		if(H_(i,nb(0,0))){
-			if( H_(i,nb(0,0)) < 0){ color = "red"; }
+			if(corr<0){ color = "red"; }
 			else { color = "blue"; }
 
-			if(xy1(0)<xy0(0)){
-				xy1(0) = xy0(0)+1;
-				linestyle="dashed";
-			} else { linestyle="solid"; }
+			linewidth = my::tostring(std::abs(corr))+"mm";
 
-			linewidth = my::tostring(std::abs(H_(i,nb(0,0))))+"mm";
-
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)-(i%2?0.2:-0.2),"\\tiny{"+my::tostring(H_(i,nb(0,0)))+"}");
+			ps.line("-",xy0(0),xy0(1)-y_shift,xy1(0),xy1(1)-y_shift, "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
+	}
+	double lr_corr;
+	for(unsigned int i(0);i<lr_corr_.size();i++){
+		lr_corr = lr_corr_[i].get_x();
+		if(std::abs(lr_corr)>1e-4){
+			xy0(0) = i/2;
+			xy0(1) = i%2-2*y_shift;
+			xy1(0) = i/2;
+			xy1(1) = i%2-2*y_shift;
 
-		if(corr_.size()){
-			if(corr_[k].get_x()<0){ color = "red"; }
-			else { color = "blue"; }
-
-			if(xy1(0)<xy0(0)){
-				xy1(0) = xy0(0)+1;
-				linestyle="dashed";
-			} else { linestyle="solid"; }
-
-			linewidth = my::tostring(std::abs(corr_[k].get_x()))+"mm";
-
-			ps.line("-",xy0(0),xy0(1)-y_shift,xy1(0),xy1(1)-y_shift,"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-			k++;
-		}
-
-		if(lr_corr_.size() && std::abs(lr_corr_[i].get_x())>1e-4){
 			if(i){
-				if(lr_corr_[i].get_x()<0){ color = "red"; }
+				if(lr_corr<0){ color = "red"; }
 				else { color = "blue"; }
 			} else {
 				color = "black";
 			}
 
-			xy0(1) -= 2*y_shift;
-			ps.circle(xy0,std::abs(lr_corr_[i].get_x()),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			ps.circle(xy0,std::abs(lr_corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 		}
-		std::cout<<lr_corr_[i]<<std::endl;
 	}
 
 	if(n_plot>spuc_){

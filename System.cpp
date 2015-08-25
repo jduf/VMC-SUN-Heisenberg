@@ -57,7 +57,7 @@ void System::set_bonds(System const* const s){
 void System::set_observable(unsigned int const& which){
 	E_.set(50,5,false);
 	if(which>0){ corr_.set(links_.row(),50,5,false); }
-	if(which>1){ lr_corr_.set(links_.row(),50,5,false); }
+	if(which>1){ lr_corr_.set(n_,50,5,false); }
 }
 
 void System::set_binning(){ 

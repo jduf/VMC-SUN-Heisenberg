@@ -72,7 +72,23 @@ void MCSystem::update(){
 void MCSystem::measure_new_step(){
 	E_.set_x(0.0);
 	double r;
-	if(corr_.size()){
+	if(!corr_.size()){
+		/*!compute energy*/
+		for(unsigned int i(0);i<links_.row();i++){
+			for(unsigned int p0(0);p0<m_;p0++){
+				for(unsigned int p1(0);p1<m_;p1++){
+					swap(links_(i,0),links_(i,1),p0,p1);
+					/*!if the new state is forbidden, r=0 and therefore there is no
+					 * need to complete the else condition*/
+					if(!is_new_state_forbidden()){ 
+						r = ratio(false);
+						E_.add(J_(i)*r); 
+					}
+				}
+			}
+		}
+	} else {
+		/*!compute energy and the correlation*/
 		for(unsigned int i(0);i<links_.row();i++){
 			corr_[i].set_x(0.0);
 			for(unsigned int p0(0);p0<m_;p0++){
@@ -88,32 +104,17 @@ void MCSystem::measure_new_step(){
 				}
 			}
 		}
-	} else {
-		for(unsigned int i(0);i<links_.row();i++){
-			for(unsigned int p0(0);p0<m_;p0++){
-				for(unsigned int p1(0);p1<m_;p1++){
-					swap(links_(i,0),links_(i,1),p0,p1);
-					/*!if the new state is forbidden, r=0 and therefore there is no
-					 * need to complete the else condition*/
-					if(!is_new_state_forbidden()){ 
-						r = ratio(false);
-						E_.add(J_(i)*r); 
-					}
-				}
-			}
-		}
 	}
 	E_.divide(n_);
 
+	/*!compute the long range correlation*/
 	if(lr_corr_.size()){
-		for(unsigned int i(0);i<lr_corr_.size();i++){
+		for(unsigned int i(0);i<n_;i++){
 			lr_corr_[i].set_x(0.0);
-			for(unsigned int s(0);s<n_;s++){
-				for(unsigned int p0(0); p0<m_; p0++){
-					for(unsigned int p1(0); p1<m_; p1++){
-						swap(s,(i+s)%n_,p0,p1);
-						if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ lr_corr_[i].add(1.0/n_); }
-					}
+			for(unsigned int p0(0);p0<m_;p0++){
+				for(unsigned int p1(0);p1<m_;p1++){
+					swap(0,i%n_,p0,p1);
+					if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ lr_corr_[i].add(1.0); }
 				}
 			}
 		}

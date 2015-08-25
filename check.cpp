@@ -131,7 +131,7 @@ int main(int argc, char* argv[]){
 				S->write(out);
 				delete S;
 			} break;
-		case 7:/*call CreateSystem::(init,create), MonteCarlo::run and save*/
+		case 7:/*check symmetries*/
 			{
 				Vector<double> t_ref(P.get<std::vector<double> >("t"));
 				cs.init(NULL,&P);
