@@ -8,67 +8,166 @@ void Directory::set(){
 }
 
 void Directory::search_file(std::string const& keyword, std::string curr_dir, bool follow_link, bool recursive){
+	///*{old version*/
+	//DIR* dir_point(opendir(curr_dir.c_str()));
+	//dirent* entry(readdir(dir_point));
+	//while(entry){
+		//if(entry->d_type == DT_DIR){
+			//std::string dir(entry->d_name);
+			//if(dir != "." && dir != ".." && recursive){
+				//search_file(keyword,curr_dir+dir+"/",follow_link,recursive);
+			//}
+		//}
+		//else if(entry->d_type == DT_REG || (follow_link && entry->d_type==DT_LNK) ){
+			//std::string f(entry->d_name);
+			//if(f.find(keyword) != std::string::npos){
+				//path_.push_back(curr_dir);
+				//split_ext(f);
+			//}
+		//}
+		//entry = readdir(dir_point);
+	//}
+	//closedir(dir_point);
+	///*}*/
+	/*{new version*/
 	DIR* dir_point(opendir(curr_dir.c_str()));
-	dirent* entry(readdir(dir_point));
-	while (entry){
-		if (entry->d_type == DT_DIR){
-			std::string dir(entry->d_name);
-			if (dir != "." && dir != ".." && recursive){
-				search_file(keyword,curr_dir+dir+"/",follow_link,recursive);
+	dirent* entry((readdir(dir_point)));
+	struct stat st;
+	while(entry){
+		std::string name(entry->d_name);
+		if(!stat((curr_dir+name).c_str(),&st)){
+			switch (st.st_mode & S_IFMT) {
+				case S_IFDIR:
+					{
+						if(recursive && name != "." && name != ".."){
+							search_file(keyword,curr_dir+name+"/",follow_link,recursive);
+						}
+					}break;
+				case S_IFREG:
+					{
+						if(name.find(keyword) != std::string::npos){
+							path_.push_back(curr_dir);
+							split_ext(name);
+						}
+					}break;
+				case S_IFLNK:
+					{
+						std::cerr<<__PRETTY_FUNCTION__<<" : behaviour undefined for link '"<<name<<"'"<<std::endl;
+					}break;
+				default:
+					{
+						std::cerr<<__PRETTY_FUNCTION__<<" : '"<<name<< "' has unkown type"<<std::endl;
+					}break;
 			}
-		}
-		else if (entry->d_type == DT_REG || (follow_link && entry->d_type==DT_LNK) ){
-			std::string f(entry->d_name);
-			if (f.find(keyword) != std::string::npos){
-				path_.push_back(curr_dir);
-				split_ext(f);
-			}
+		} else {
+			std::cerr<<__PRETTY_FUNCTION__<<" : can't obtain information on the file '"<<name<<"'"<<std::endl;
 		}
 		entry = readdir(dir_point);
 	}
 	closedir(dir_point);
+	/*}*/
 }
 
 void Directory::search_file_ext(std::string const& extension, std::string curr_dir, bool follow_link, bool recursive){
+	///*{old version*/
+	//DIR* dir_point(opendir(curr_dir.c_str()));
+	//dirent* entry((readdir(dir_point)));
+	//while(entry){
+	//if(entry->d_type == DT_DIR){
+	//std::string dir(entry->d_name);
+	//if(dir != "." && dir != ".." && recursive){
+	//search_file_ext(extension,curr_dir+dir+"/",follow_link,recursive);
+	//}
+	//} else {
+	//if(entry->d_type == DT_REG || (follow_link && entry->d_type==DT_LNK) ){
+	//std::string f(entry->d_name);
+	//if(f.find(extension,f.size()-extension.size()) != std::string::npos){
+	//if(f.find(".") != std::string::npos){
+	//path_.push_back(curr_dir);
+	//split_ext(f);
+	//}
+	//}
+	//}
+	//}
+	//entry = readdir(dir_point);
+	//}
+	//closedir(dir_point);
+	///*}*/
+	/*{new version*/
 	DIR* dir_point(opendir(curr_dir.c_str()));
 	dirent* entry((readdir(dir_point)));
-	while (entry){
-		if (entry->d_type == DT_DIR){
-			std::string dir(entry->d_name);
-			if (dir != "." && dir != ".." && recursive){
-				search_file_ext(extension,curr_dir+dir+"/",follow_link,recursive);
+	struct stat st;
+	while(entry){
+		std::string name(entry->d_name);
+		if(!stat((curr_dir+name).c_str(),&st)){
+			switch (st.st_mode & S_IFMT) {
+				case S_IFDIR:
+					{
+						if(recursive && name != "." && name != ".."){
+							search_file_ext(extension,curr_dir+name+"/",follow_link,recursive);
+						}
+					}break;
+				case S_IFREG:
+					{
+						if(name.find(extension,name.size()-extension.size()) != std::string::npos){
+							path_.push_back(curr_dir);
+							split_ext(name);
+						}
+					}break;
+				case S_IFLNK:
+					{
+						std::cerr<<__PRETTY_FUNCTION__<<" : behaviour undefined for link '"<<name<<"'"<<std::endl;
+					}break;
+				default:
+					{
+						std::cerr<<__PRETTY_FUNCTION__<<" : '"<<name<< "' has unkown type"<<std::endl;
+					}break;
 			}
 		} else {
-			if (entry->d_type == DT_REG || (follow_link && entry->d_type==DT_LNK) ){
-				std::string f(entry->d_name);
-				if (f.find(extension,f.size()-extension.size()) != std::string::npos){
-					if(f.find(".") != std::string::npos){
-						path_.push_back(curr_dir);
-						split_ext(f);
-					}
-				}
-			}
+			std::cerr<<__PRETTY_FUNCTION__<<" : can't obtain information on the file '"<<name<<"'"<<std::endl;
 		}
 		entry = readdir(dir_point);
 	}
 	closedir(dir_point);
+	/*}*/
 }
 
 void Directory::list_dir(std::string curr_dir){
+	///*{old version*/
+	//DIR* dir_point = opendir(curr_dir.c_str());
+	//dirent* entry = readdir(dir_point);
+	//while(entry){
+	//std::cout<<entry<<" "<<entry->d_type<<" "<<DT_DIR<<" "<<entry->d_name<<std::endl;
+	//if(entry->d_type == DT_DIR){
+	//std::string dir(entry->d_name);
+	//if(dir != "." && dir != ".."){
+	//path_.push_back(curr_dir);
+	//filename_.push_back(dir);
+	//ext_.push_back("/");
+	//} 
+	//}
+	//entry = readdir(dir_point);
+	//}
+	//closedir(dir_point);
+	///*}*/
+
+	/*{new version*/
 	DIR* dir_point = opendir(curr_dir.c_str());
 	dirent* entry = readdir(dir_point);
-	while (entry){
-		if (entry->d_type == DT_DIR){
-			std::string dir(entry->d_name);
-			if (dir != "." && dir != ".."){
+	struct stat st;
+	while(entry){
+		std::string dir(entry->d_name);
+		if(dir != "." && dir != ".." && !stat((curr_dir+dir).c_str(),&st)){
+			if(S_ISDIR(st.st_mode)){
 				path_.push_back(curr_dir);
 				filename_.push_back(dir);
 				ext_.push_back("/");
-			} 
+			}
 		}
 		entry = readdir(dir_point);
 	}
 	closedir(dir_point);
+	/*}*/
 }
 
 void Directory::sort(){

@@ -2,6 +2,7 @@
 #define DEF_DIRECTORY
 
 #include<dirent.h>
+#include<sys/stat.h>
 #include<iostream>
 #include<vector>
 

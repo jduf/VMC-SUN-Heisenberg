@@ -32,9 +32,11 @@ class Binning{
 		/*!Add sample to the bins*/
 		void add_sample(Type const& x);
 		/*!Set x_ to the mean value, dx_ to the variance*/
-		void complete_analysis(double const& convergence_criterion, Type& x, Type& dx, bool& conv);
+		void complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv);
 		/*!Compute the mean value*/
 		Type const& get_x() const { return m_bin_(0); }
+		/*!Compute the number of samples*/
+		double get_N() const { return 1.0*Ml_(0)*DPL_+dpl_; }
 		/*!Merge this with b*/
 		void merge(Binning const& b);
 
@@ -43,13 +45,13 @@ class Binning{
 	private:
 		unsigned int const B_;//!< minimum number of biggest bins needed to compute variance
 		unsigned int const b_;//!< l_+b_ rank of the biggest bin (b !> 30)
-		unsigned int l_;	 //!< rank of the "smallest" bin
-		unsigned int DPL_;	 //!< 2^l_ maximum number of element in each bin of rank l_
-		unsigned int dpl_;	 //!< current number of element in each bin of rank l_
+		unsigned int l_;	  //!< rank of the "smallest" bin
+		unsigned int DPL_;	  //!< 2^l_ maximum number of element in the smallest bin l_
+		unsigned int dpl_;	  //!< current number of element in each bin of rank l_
 
-		Vector<unsigned int> Ml_;//!<number bins of rank l : Ml = M0/2^l
-		Vector<Type> m_bin_;	//!< mean of the Binnings
-		Vector<Type>*  bin_;	//!< Binnings
+		Vector<unsigned int> Ml_;//!< number filled (or partially filled) bins of rank l : Ml_(l) = Ml_(0)/2^l
+		Vector<Type> m_bin_;	 //!< mean of the Binnings
+		Vector<Type>*  bin_;	 //!< binnings
 
 		bool recompute_dx_usefull_;	//!< true if dx should be recomputed
 
@@ -71,44 +73,34 @@ class Data{
 		Data<Type>(IOFiles& r);
 		/*!Destructor*/
 		~Data();
-		void set(Type const& x, Type const& dx, unsigned int const& N, bool const& conv);
+		void set(Type const& x, Type const& dx, double const& N, bool const& conv);
 		void set(unsigned int const& B, unsigned int const& b, bool const& conv);
 		void set();
 		Data<Type>& operator=(Data<Type> d);
 
-		void add_sample(Data<Type> const& d);
 		void add_sample();
 		void merge(Data const& d);
 
 		void complete_analysis(double const& convergence_criterion);
-		void complete_analysis();
 		void delete_binning();
 
+		double get_N() const { return binning_?binning_->get_N():N_; }
 		Type const& get_x() const { return binning_?binning_->get_x():x_; }
 		Type const& get_dx() const { return dx_; }
 		bool const& get_conv() const { return conv_; }
-		unsigned int const& get_N() const { return N_; }
 		Binning<Type> const* get_binning() const { return binning_; }
 
 		void set_x(Type const& x){x_ = x;}
 
 		void add(Type const& x){x_ += x;}
-		void substract(Type const& x){ x_ -= x; }
-		void multiply(Type const& x){
-			x_ *= x;
-			if(!binning_){ dx_ *= sqrt(x); }
-		}
-		void divide(Type const& x){
-			x_ /= x;
-			if(!binning_){ dx_ /= sqrt(x); }
-		}
+		void divide(Type const& x){ x_ /= x; }
 
 		void header_rst(std::string const& s, RST& rst) const;
 
 	private:
 		Type x_;
 		Type dx_;
-		unsigned int N_;
+		double N_;
 		bool conv_;
 		Binning<Type>* binning_;
 
@@ -128,17 +120,15 @@ class DataSet{
 		DataSet<Type>(IOFiles& r);
 		/*!Destructor*/
 		~DataSet();
-		void set(unsigned int const& N, unsigned int const& B, unsigned int const& b, bool const& conv);
-		void set(unsigned int const& N);
+		void set(unsigned int const& size, unsigned int const& B, unsigned int const& b, bool const& conv);
+		void set(unsigned int const& size);
 		void set();
 		DataSet<Type>& operator=(DataSet<Type> d);
 
-		void add_sample(DataSet<Type> const& ds);
 		void add_sample();
 		void merge(DataSet<Type> const& ds);
 
 		void complete_analysis(double const& convergence_criterion);
-		void complete_analysis();
 		void delete_binning();
 
 		void header_rst(std::string const& s, RST& rst) const;
@@ -293,10 +283,11 @@ void Binning<Type>::merge(Binning const& other){
 }
 
 template<typename Type>
-void Binning<Type>::complete_analysis(double const& convergence_criterion, Type& x, Type& dx, bool& conv){
+void Binning<Type>::complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv){
+	if(l_>30){ std::cerr<<__PRETTY_FUNCTION__<<" : possibility of 'unsigned int' overflow : l_="<<l_<<std::endl; }
 	if(recompute_dx_usefull_ && Ml_(b_-1)>=B_){
 		recompute_dx_usefull_ = false;
-		/*!Compute the variance for each bin*/
+		/*!compute the variance for each bin*/
 		Vector<Type> var_bin(b_,0.0);
 		for(unsigned int l(0);l<b_;l++){
 			for(unsigned int j(0);j<Ml_(l);j++){
@@ -305,7 +296,7 @@ void Binning<Type>::complete_analysis(double const& convergence_criterion, Type&
 			var_bin(l) = sqrt(var_bin(l) / (Ml_(l)*(Ml_(l)-1)));
 		}
 
-		/*!Do a linear regression and if the slope is almost flat, the system
+		/*!do a linear regression and if the slope is almost flat, the system
 		 * is believed to be converged*/
 		Vector<Type> x(b_);
 		Type xb(0);
@@ -333,6 +324,7 @@ void Binning<Type>::complete_analysis(double const& convergence_criterion, Type&
 	/*! x = m_bin_(0); */
 	/*}*/
 	x = (m_bin_(0)*Ml_(0)*DPL_+bin_[0](Ml_(0)))/(Ml_(0)*DPL_+dpl_);
+	N = get_N();
 	/*{Description*/
 	/*!
 	  std::cout<<"given x"<<x<<std::endl;
@@ -434,21 +426,19 @@ Data<Type>::Data(Data<Type>&& d):
 	N_(d.N_),
 	conv_(d.conv_),
 	binning_(d.binning_)
-{
-	d.binning_ = NULL;
-}
+{ d.binning_ = NULL; }
 
 template<typename Type>
 Data<Type>::Data(IOFiles& r):
 	x_(r.read<Type>()),
 	dx_(r.read<Type>()),
-	N_(r.read<unsigned int>()),
+	N_(r.read<double>()),
 	conv_(r.read<bool>()),
 	binning_(r.read<bool>()?new Binning<Type>(r):NULL)
 {}
 
 template<typename Type>
-void Data<Type>::set(Type const& x, Type const& dx, unsigned int const& N, bool const& conv){
+void Data<Type>::set(Type const& x, Type const& dx, double const& N, bool const& conv){
 	x_ = x;
 	dx_ = dx;
 	N_ = N;
@@ -462,7 +452,7 @@ void Data<Type>::set(unsigned int const& B, unsigned int const& b, bool const& c
 	conv_ = conv;
 	x_ = 0.0;
 	dx_ = 0.0;
-	N_ = 1;
+	N_ = 0.0;
 }
 
 template<typename Type>
@@ -470,7 +460,7 @@ void Data<Type>::set(){
 	binning_->set();
 	x_ = 0.0;
 	dx_ = 0.0;
-	N_ = 1;
+	N_ = 0.0;
 }
 
 template<typename Type>
@@ -500,7 +490,7 @@ template<typename Type>
 std::istream& operator>>(std::istream& flux, Data<Type>& d){
 	Type x(0.0);
 	Type dx(0.0);
-	unsigned int N(0);
+	double N(0.0);
 	bool conv(false);
 	flux>>x>>dx>>N>>conv;
 	d.set(x,dx,N,conv);
@@ -520,8 +510,7 @@ IOFiles& operator<<(IOFiles& w, Data<Type> const& d){
 			w<<true;
 			d.get_binning()->write(w);
 		} else { w<<false; }
-	}
-	else { w.stream()<<d; }
+	} else { w.stream()<<d; }
 	return w;
 }
 
@@ -545,16 +534,6 @@ Data<Type>& Data<Type>::operator=(Data<Type> d){
 /*public methods that modify the class*/
 /*{*/
 template<typename Type>
-void Data<Type>::add_sample(Data<Type> const& d){
-	if(d.conv_){
-		x_ += d.x_;
-		dx_+= d.dx_;
-		N_ += d.N_;
-		conv_ = true;
-	}
-}
-
-template<typename Type>
 void Data<Type>::add_sample(){
 	if(binning_){ binning_->add_sample(x_); }
 	else { std::cerr<<__PRETTY_FUNCTION__<<" : no binning"<<std::endl; }
@@ -564,20 +543,13 @@ template<typename Type>
 void Data<Type>::merge(Data const& d){
 	if(binning_ && d.binning_){
 		binning_->merge(*d.binning_);
-		N_++;
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no binning"<<std::endl; }
 }
 
 template<typename Type>
 void Data<Type>::complete_analysis(double const& convergence_criterion){
-	if(binning_){ binning_->complete_analysis(convergence_criterion,x_,dx_,conv_); }
+	if(binning_){ binning_->complete_analysis(convergence_criterion,x_,dx_,N_,conv_); }
 	else { std::cerr<<__PRETTY_FUNCTION__<<" : no binning"<<std::endl; }
-}
-
-template<typename Type>
-void Data<Type>::complete_analysis(){
-	x_ = x_/N_;
-	dx_ = dx_/(N_*sqrt(N_));
 }
 
 template<typename Type>
@@ -614,9 +586,7 @@ template<typename Type>
 DataSet<Type>::DataSet(DataSet<Type>&& ds):
 	size_(ds.size_),
 	ds_(ds.ds_)
-{
-	ds.ds_ = NULL;
-}
+{ ds.ds_ = NULL; }
 
 template<typename Type>
 DataSet<Type>::DataSet(IOFiles& r):
@@ -629,15 +599,15 @@ DataSet<Type>::DataSet(IOFiles& r):
 }
 
 template<typename Type>
-void DataSet<Type>::set(unsigned int const& N){
+void DataSet<Type>::set(unsigned int const& size){
 	if(ds_){ delete[] ds_; }
-	ds_ = new Data<Type>[N];
-	size_ = N;
+	ds_ = new Data<Type>[size];
+	size_ = size;
 }
 
 template<typename Type>
-void DataSet<Type>::set(unsigned int const& N, unsigned int const& B, unsigned int const& b, bool const& conv){
-	set(N);
+void DataSet<Type>::set(unsigned int const& size, unsigned int const& B, unsigned int const& b, bool const& conv){
+	set(size);
 	for(unsigned int i(0);i<size_;i++){ ds_[i].set(B,b,conv); }
 }
 
@@ -714,12 +684,6 @@ DataSet<Type>& DataSet<Type>::operator=(DataSet<Type> ds){
 /*public methods that modify the class*/
 /*{*/
 template<typename Type>
-void DataSet<Type>::add_sample(DataSet<Type> const& ds){
-	assert(size_ == ds.size());
-	for(unsigned int i(0);i<size_;i++){ ds_[i].add_sample(ds[i]); }
-}
-
-template<typename Type>
 void DataSet<Type>::add_sample(){
 	for(unsigned int i(0);i<size_;i++){ ds_[i].add_sample(); }
 }
@@ -732,11 +696,6 @@ void DataSet<Type>::merge(DataSet<Type> const& ds){
 template<typename Type>
 void DataSet<Type>::complete_analysis(double const& convergence_criterion){
 	for(unsigned int i(0);i<size_;i++){ ds_[i].complete_analysis(convergence_criterion); }
-}
-
-template<typename Type>
-void DataSet<Type>::complete_analysis(){
-	for(unsigned int i(0);i<size_;i++){ ds_[i].complete_analysis(); }
 }
 
 template<typename Type>
