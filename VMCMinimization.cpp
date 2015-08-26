@@ -44,6 +44,7 @@ VMCMinimization::VMCMinimization(IOFiles& in):
 
 /*{public methods*/
 void VMCMinimization::refine(){
+	m_->tmax_ = 5;
 	double E;
 	double dE(0.1);
 	while(dE>5e-5){
@@ -77,30 +78,20 @@ void VMCMinimization::refine(double const& E, double const& dE){
 		std::cout<<"#"<<msg<<std::endl;
 		m_->pso_info_.item(msg);
 
-#pragma omp parallel for schedule(dynamic,10)
-		for(unsigned int i=0;i<N;i++){
-			std::shared_ptr<MCSim> sim;
-#pragma omp critical
-			{
-				best.target_next();
-				sim = std::make_shared<MCSim>(best.get().get_param());
-				/*need to do call copy_S because best.get().get_S() has an
-				 * undefined Ainv_, EVec_[i>0] ... due to the free_memory()
-				 * call*/
-				sim->copy_S(best.get().get_S());
+		if(best.size()>5){
+			unsigned int iter;
+			best.set_target();
+			while(best.target_next()){
+				iter = 0;
+				do {
+#pragma omp parallel
+					{ evaluate(best.get().get_param()); }
+				} while( iter++<10 && ( !best.get().check_conv(1e-5) ||  best.get().get_S()->get_energy().get_dx()>dE ) );
 			}
-			while(!sim->check_conv(1e-5) || sim->get_S()->get_energy().get_dx()>dE) { sim->run(0,m_->tmax_); }
-			/*Merge this new evaluation*/
-#pragma omp critical(samples_list_)
-			{
-				m_->samples_list_.set_target();
-				if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){
-					m_->samples_list_.merge_with_target(sim,MCSim::merge);
-					m_->samples_list_.get().get_S()->get_energy().complete_analysis(1e-5);
-				} else {
-					std::cerr<<__PRETTY_FUNCTION__<<" : can't find sim in m_->samples_list_"<<std::endl;
-				}
-			}
+		} else {
+			msg = "not enough data to be usefull, skip the evaluation";
+			std::cout<<"#"<<msg<<std::endl;
+			m_->pso_info_.item(msg);
 		}
 	} else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl;
@@ -201,22 +192,28 @@ void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>&
 		}
 		if(E_tmp[i-1]>E_tmp[i]){ list_min.add_sort(list_tmp.get_ptr(),MCSim::sort_by_E); }
 	} while ( list_min.size()>max_n_minima );
+	std::string msg("found "+my::tostring(list_min.size())+" local minima");
+	std::cout<<"#"<<msg<<std::endl;
+	m_->pso_info_.item(msg);
 }
 
 void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima, IOFiles& w, std::string path, std::string filename) const {
 	/*acually it computes r^2 and not r...*/
 	if(m_->samples_list_.size()){
+		std::cout<<"#######################"<<std::endl;
+		std::string msg("extract minima and plot the whole sampling");
+		std::cout<<"#"<<msg<<std::endl;
+		m_->pso_info_.item(msg);
+
 		if(path==""){ path = path_; }
 		if(filename==""){ filename =  get_filename(); }
 
 		List<MCSim> list_min;
 		Vector<double> param;
 		double E_range;
-
 		//will certainly get rid of this interpolation...
 		Interpolation<double> interp_Er(1);
 		interp_Er.select_basis_function(7);
-
 		find_minima(max_n_minima,list_min,param,E_range,&interp_Er);
 
 		IOFiles data(path+filename+".dat",true);
@@ -268,19 +265,20 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima
 
 void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima){
 	if(m_->samples_list_.size()){
-		List<MCSim> list_min;
-		Vector<double> param;
-		double E_range;
-
-		find_minima(max_n_minima,list_min,param,E_range);
 		std::cout<<"#######################"<<std::endl;
-		std::string msg("found "+my::tostring(list_min.size())+" local minima");
+		std::string msg("compute correlation and long range correlation for minima");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->pso_info_.item(msg);
 
+		List<MCSim> list_min;
+		Vector<double> param;
+		double E_range;
+		find_minima(max_n_minima,list_min,param,E_range);
+
 		list_min.set_target();
 		while(list_min.target_next()){ 
-			evaluate(list_min.get().get_param(),2);
+#pragma omp parallel
+			{ evaluate(list_min.get().get_param(),2); }
 			list_min.get().complete_analysis(1e-5);
 		}
 	} else {

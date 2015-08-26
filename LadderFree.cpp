@@ -31,9 +31,10 @@ void LadderFree::compute_H(){
 				H_(i,nb(1,0)) = nb(1,1)*t_(k++);
 			}
 		} else {
+			/*!decoupled chains in the limit J⊥(0)=J_(1)->0, therefore, in
+			 * that case the variational parameter is t⊥ (t‖ is set to 1),
+			 * otherwise the inverse is done*/
 			if(J_(0)>J_(1)){
-				/*!decoupled chains in the limit J⊥=J_(1)->0, therefore, in
-				 * that case the variational parameter is t⊥ (t‖ is set to 1)*/
 				H_(i,nb(0,0)) = nb(0,1);
 				H_(i,nb(1,0)) = nb(1,1)*t_(k++);
 			} else {
@@ -73,6 +74,7 @@ void LadderFree::save_param(IOFiles& w) const {
 
 unsigned int LadderFree::set_spuc(Vector<double> const& t){
 	switch(t.size()){
+		case 0: { return 1; } break;//!to allow a silent construction in case of undefined t
 		case 2: { return 2; } break;
 		case 5: { return 4; } break;
 		case 8: { return 6; } break;
@@ -232,7 +234,7 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(1,2) = -1;
 				sym.push_back(tmp);
 				/*}*/
-				
+
 				/*{ 3 pi-flux*/
 				tmp.set(3,3);
 				/*pi,pi,pi*/
@@ -882,20 +884,7 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 
 /*{method needed for checking*/
 void LadderFree::check(){
-	//compute_H();
-	//std::cout<<"liens :"<<std::endl;
-	//std::cout<<links_<<std::endl;
-//
-	//for(unsigned int i(0);i<n_;i++){
-		//std::cout << "get_neighbourg. right - top/bot - left" << std::endl;
-		//std::cout<<"i="<<i<<std::endl;
-		//std::cout<<get_neighbourg(i)<<std::endl;// shows the links
-	//}
-	//std::cout<<"Hamiltonien"<<std::endl;
-	//std::cout<<H_<<std::endl;
-
 	lattice("./","lattice");
-	//plot_band_structure();
 }
 
 void LadderFree::lattice(std::string const& path, std::string const& filename){
@@ -941,15 +930,17 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 			}
 		}
 
-		corr = corr_[i].get_x();
-		if(std::abs(corr)>1e-4){
+		if(i<corr_.size()){
+			corr = corr_[i].get_x();
+			if(std::abs(corr)>1e-4){
 
-			if(corr<0){ color = "red"; }
-			else { color = "blue"; }
+				if(corr<0){ color = "red"; }
+				else { color = "blue"; }
 
-			linewidth = my::tostring(std::abs(corr))+"mm";
+				linewidth = my::tostring(std::abs(corr))+"mm";
 
-			ps.line("-",xy0(0),xy0(1)-y_shift,xy1(0),xy1(1)-y_shift, "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+				ps.line("-",xy0(0),xy0(1)-y_shift,xy1(0),xy1(1)-y_shift, "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+			}
 		}
 	}
 	double lr_corr;
@@ -1009,4 +1000,3 @@ std::string LadderFree::extract_level_6(){
 	return filename_;
 }
 /*}*/
-

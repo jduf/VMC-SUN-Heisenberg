@@ -56,7 +56,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										Vector<double> t;
 										if(param){ t = *param; }
 										if(C)    { t = C->get<std::vector<double> >("t"); }
-										if(t.ptr()){ RGL_ = new LadderFree(*s_,t); }
+										RGL_ = new LadderFree(*s_,t);
 									}break;
 								default:{error();}break;
 							}

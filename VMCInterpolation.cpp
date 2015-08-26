@@ -194,7 +194,7 @@ void VMCInterpolation::search_minima(){
 	dx /= m_->dof_;
 
 	if(interp_.compute_weights(dx,pow(m_->ps_size_,1./m_->dof_))){
-		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s"+(dx>1e-14?" error : "+my::tostring(dx)+")":")"));
+		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s"+(dx>1e-14?", error : "+my::tostring(dx)+")":")"));
 		std::cout<<msg2<<std::endl;
 		m_->pso_info_.item(msg1+msg2);
 		chrono.set();

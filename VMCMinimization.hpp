@@ -20,6 +20,8 @@ class VMCMinimization{
 		/*}*/
 
 		void set_phase_space(Parseur const& P){ m_->set_phase_space(P); }
+		void set_tmax(unsigned int const& tmax){ m_->tmax_ = tmax; };
+		void set_time(){ time_ = Time().date("-"); }
 
 		void refine();
 		void refine(double const& E, double const& dE);
@@ -72,7 +74,6 @@ class VMCMinimization{
 		IOFiles* out_;
 		std::shared_ptr<Minimization> m_;
 
-		void set_time(){ time_ = Time().date("-"); }
 		std::string const& get_path() const { return path_; }
 		std::string get_filename() const { return time_+"_"+prefix_+basename_; }
 

@@ -35,7 +35,6 @@ template<typename Type>
 Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,3,filename)
 {
-	if(this->spuc_ == 1){ this->status_++; }
 	/*!(*this) has been created via System(System const& s), this->J_ and
 	 * this->links_ are already a copy of s. therefore if s has correctly
 	 * defined J_ and links_, there is no need to recompute them for (*this).
@@ -62,7 +61,11 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 			}
 		}
 	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" creation is problematic"<<std::endl;
+		/*!if the ladder has a spuc_ equal to one, the creation is impossible
+		 * but the construction should be silent*/
+		if(this->spuc_!=1){
+			std::cerr<<__PRETTY_FUNCTION__<<" creation is problematic"<<std::endl;
+		}
 	}
 }
 
@@ -72,27 +75,27 @@ Ladder<Type>::~Ladder() = default;
 template<typename Type>
 Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {
 	Matrix<int> nb(this->z_,2,1);
-	if(i%2){// odd number => upper part. 0:right, 1:down, 2:left
+	if(i%2){//!odd number => upper part. 0:right, 1:down, 2:left
 		if(i+1 != this->n_){nb(0,0) = i+2;}
-		else {
+		else{
 			nb(0,0) = 1;
 			nb(0,1) = this ->bc_;
 		}
 		nb(1,0)=i-1;
 		if(i != 1){nb(2,0)=i-2;}
-		else {
+		else{
 			nb(2,0) = this-> n_-1;
 			nb(2,1) = this-> bc_;
 		}
-	} else {// even number => lower part. 0:right, 1:up, 2:left
+	} else {//!even number => lower part. 0:right, 1:up, 2:left
 		if(i+2 != this->n_){nb(0,0) = i+2;}
-		else {
+		else{
 			nb(0,0) = 0;
 			nb(0,1) = this ->bc_;
 		}
 		nb(1,0)=i+1;
 		if(i){nb(2,0)=i-2;}
-		else {
+		else{
 			nb(2,0) = this-> n_-2;
 			nb(2,1) = this-> bc_;
 		}

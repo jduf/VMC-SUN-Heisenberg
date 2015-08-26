@@ -73,11 +73,11 @@ std::string AnalyseLadder::extract_level_8(){
 		cs.lattice(info_+path_+dir_,filename_+"-"+my::tostring(i));
 		rst_file_.last().figure(dir_+filename_+"-"+my::tostring(i)+".png",RST::math("E="+my::tostring(s.get_energy().get_x())+"\\pm"+my::tostring(s.get_energy().get_dx())),RST::target(dir_+filename_+"-"+my::tostring(i)+".pdf")+RST::scale("200")); 
 
-		//if(!i){
+		if(!i){/*only the best set of parameter is kept*/
 			cs.save_param(*jd_write_);
 			s.save_input(*jd_write_);
 			s.save_output(*jd_write_);
-		//}
+		}
 	}
 
 	delete read_;
