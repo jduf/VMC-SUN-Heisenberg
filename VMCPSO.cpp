@@ -27,32 +27,32 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 	set_time();
 
 	std::cout<<"#######################"<<std::endl;
-	std::string msg("new VMCPSO");
+	std::string msg("VMCPSO");
 	std::cout<<"#"<<msg<<std::endl;
-	m_->pso_info_.title(msg,'-');
+	m_->info_.title(msg,'-');
 
 	std::cout<<"#"<<get_filename()<<std::endl;
-	m_->pso_info_.item(get_filename());
+	m_->info_.item(get_filename());
 
 	msg="contains "+my::tostring(m_->samples_list_.size())+" samples";
 	std::cout<<"#"<<msg<<std::endl;
-	m_->pso_info_.item(msg);
+	m_->info_.item(msg);
 
 	if(clear_particle_history){ 
 		msg="clear history";
-		m_->pso_info_.item(msg); 
+		m_->info_.item(msg); 
 		std::cout<<"#"<<msg<<std::endl;
 		for(unsigned int p(0);p<Nparticles_;p++){
 			std::dynamic_pointer_cast<MCParticle>(particle_[p])->clear_history();
 		}
 	} else {
 		msg="keep old history";
-		m_->pso_info_.item(msg); 
+		m_->info_.item(msg); 
 		std::cout<<"#"<<msg<<std::endl;
 	}
 
 	msg="initialize particles";
-	m_->pso_info_.item(msg); 
+	m_->info_.item(msg); 
 	std::cout<<"#"<<msg<<std::endl;
 #pragma omp parallel for
 	for(unsigned int i=0;i<Nparticles_;i++){
@@ -90,11 +90,11 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 			MCP->select_new_best();
 		}
 		std::string msg2(" (each particle knows "+my::tostring(Npp)+" samples)");
-		m_->pso_info_.item(msg+msg2);
+		m_->info_.item(msg+msg2);
 		std::cout<<msg2<<std::endl;
 	} else {
 		msg = "start with empty history";
-		m_->pso_info_.item(msg); 
+		m_->info_.item(msg); 
 		std::cout<<"#"<<msg<<std::endl;
 	}
 }
@@ -109,7 +109,7 @@ void VMCPSO::run(){
 
 	std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
 	std::cout<<msg2<<std::endl;
-	m_->pso_info_.item(msg1+msg2);
+	m_->info_.item(msg1+msg2);
 }
 /*}*/
 

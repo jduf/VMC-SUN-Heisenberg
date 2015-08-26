@@ -25,14 +25,14 @@ int main(int argc, char* argv[]){
 							m2.run(true);
 							m2.save();
 						}
+
+						m.get_header().title("Minimization",'>');
 						m.complete_analysis(1e-5);
 						m.save();
 
-						m.set_time();
 						m.refine();
 						m.save();
 
-						m.set_time();
 						m.set_tmax(20);
 						m.find_and_run_minima(10);
 						m.save();

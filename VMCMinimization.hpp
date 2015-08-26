@@ -21,7 +21,6 @@ class VMCMinimization{
 
 		void set_phase_space(Parseur const& P){ m_->set_phase_space(P); }
 		void set_tmax(unsigned int const& tmax){ m_->tmax_ = tmax; };
-		void set_time(){ time_ = Time().date("-"); }
 
 		void refine();
 		void refine(double const& E, double const& dE);
@@ -33,9 +32,10 @@ class VMCMinimization{
 
 		virtual void print() const;
 		bool ready(){ return m_.get(); }
+		RST& get_header(){ return m_->info_; }
 
 	private:
-		std::string time_;
+		mutable std::string time_;
 		std::string path_;
 		std::string basename_;
 		std::string prefix_;
@@ -61,7 +61,7 @@ class VMCMinimization{
 
 				List<MCSim> samples_list_;
 				Container system_param_;
-				RST pso_info_;
+				RST info_;
 				System* s_             = NULL;
 				unsigned int dof_ 	   = 0;
 				Vector<double>* ps_    = NULL;//!< parameter space
@@ -76,6 +76,7 @@ class VMCMinimization{
 
 		std::string const& get_path() const { return path_; }
 		std::string get_filename() const { return time_+"_"+prefix_+basename_; }
+		void set_time() const { time_ = Time().date("-"); }
 
 		/*!Real call to the MonteCarlo evaluation via MCSim*/
 		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, unsigned int const& obs=0);

@@ -13,7 +13,6 @@ VMCMinimization::VMCMinimization(Parseur& P):
 	std::cout<<"#######################"<<std::endl;
 	std::cout<<"#creating VMCMinimization"<<std::endl;
 	m_->set(P,path_,basename_);
-	set_time();
 	if(m_->s_->get_status() != 3 || P.locked()){
 		std::cout<<m_->s_->get_status()<<std::endl;
 		m_.reset();
@@ -44,6 +43,7 @@ VMCMinimization::VMCMinimization(IOFiles& in):
 
 /*{public methods*/
 void VMCMinimization::refine(){
+	std::cout<<"#######################"<<std::endl;
 	m_->tmax_ = 5;
 	double E;
 	double dE(0.1);
@@ -73,10 +73,9 @@ void VMCMinimization::refine(double const& E, double const& dE){
 		}
 		unsigned int N(best.size());
 
-		std::cout<<"#######################"<<std::endl;
 		std::string msg("refine "+my::tostring(N)+" samples ("+my::tostring(E)+","+my::tostring(dE)+","+my::tostring(m_->tmax_)+")");
 		std::cout<<"#"<<msg<<std::endl;
-		m_->pso_info_.item(msg);
+		m_->info_.item(msg);
 
 		if(best.size()>5){
 			unsigned int iter;
@@ -91,7 +90,7 @@ void VMCMinimization::refine(double const& E, double const& dE){
 		} else {
 			msg = "not enough data to be usefull, skip the evaluation";
 			std::cout<<"#"<<msg<<std::endl;
-			m_->pso_info_.item(msg);
+			m_->info_.item(msg);
 		}
 	} else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl;
@@ -99,9 +98,11 @@ void VMCMinimization::refine(double const& E, double const& dE){
 }
 
 void VMCMinimization::complete_analysis(double const& convergence_criterion){
-	set_time();
 	std::cout<<"#######################"<<std::endl;
-	std::cout<<"#complete_analysis called with convergence_criterion="<<convergence_criterion<<std::endl;
+	std::string msg("complete_analysis called with convergence_criterion="+my::tostring(convergence_criterion));
+	std::cout<<"#"<<msg<<std::endl;
+	m_->info_.item(msg);
+
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
 		m_->samples_list_.get().complete_analysis(convergence_criterion);
@@ -109,6 +110,7 @@ void VMCMinimization::complete_analysis(double const& convergence_criterion){
 }
 
 void VMCMinimization::save() const {
+	set_time();
 	IOFiles out(path_+get_filename()+".jdbin",true);
 	m_->save(out);
 	out<<path_<<basename_;
@@ -192,19 +194,11 @@ void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>&
 		}
 		if(E_tmp[i-1]>E_tmp[i]){ list_min.add_sort(list_tmp.get_ptr(),MCSim::sort_by_E); }
 	} while ( list_min.size()>max_n_minima );
-	std::string msg("found "+my::tostring(list_min.size())+" local minima");
-	std::cout<<"#"<<msg<<std::endl;
-	m_->pso_info_.item(msg);
 }
 
 void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima, IOFiles& w, std::string path, std::string filename) const {
 	/*acually it computes r^2 and not r...*/
 	if(m_->samples_list_.size()){
-		std::cout<<"#######################"<<std::endl;
-		std::string msg("extract minima and plot the whole sampling");
-		std::cout<<"#"<<msg<<std::endl;
-		m_->pso_info_.item(msg);
-
 		if(path==""){ path = path_; }
 		if(filename==""){ filename =  get_filename(); }
 
@@ -268,12 +262,15 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima){
 		std::cout<<"#######################"<<std::endl;
 		std::string msg("compute correlation and long range correlation for minima");
 		std::cout<<"#"<<msg<<std::endl;
-		m_->pso_info_.item(msg);
-
+		m_->info_.item(msg);
 		List<MCSim> list_min;
 		Vector<double> param;
 		double E_range;
 		find_minima(max_n_minima,list_min,param,E_range);
+
+		msg = "found "+my::tostring(list_min.size())+" local minima";
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
 
 		list_min.set_target();
 		while(list_min.target_next()){ 
@@ -342,7 +339,7 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 		tmax_ = 1;
 		std::string msg("assume tmax=1s");
 		std::cout<<"#"+msg<<std::endl;
-		pso_info_.item(msg);
+		info_.item(msg);
 	}
 
 	if(P.find("load",i,false)){
@@ -354,9 +351,9 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 		IOFiles in(filename,false);
 		std::string n_samples(load(in,path,basename));
 
-		pso_info_.title("Minimization",'>');
+		info_.title("Minimization",'>');
 		std::string msg_end(" ("+n_samples+" samples loaded in "+my::tostring(chrono.elapsed())+"s)");
-		pso_info_.item(msg+msg_end);
+		info_.item(msg+msg_end);
 		std::cout<<msg_end<<std::endl;
 	} else {
 		create(P,path,basename);
@@ -377,8 +374,8 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 
 	std::string msg("no samples loaded");
 	std::cout<<"#"+msg<<std::endl;
-	pso_info_.title("Minimization",'>');
-	pso_info_.item(msg);
+	info_.title("Minimization",'>');
+	info_.item(msg);
 
 	set_phase_space(P);
 
@@ -412,7 +409,7 @@ std::string VMCMinimization::Minimization::load(IOFiles& in, std::string& path, 
 
 	std::string header(in.get_header());
 	header.erase(0,header.find(".. end_of_saved_variables\n",0)+28);
-	pso_info_.text(header);
+	info_.text(header);
 	return my::tostring(samples_list_.size());
 }
 
@@ -459,9 +456,9 @@ void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 
 			std::string msg("phase space contains "+my::tostring(ps_size_)+" values");
 			std::cout<<"#"+msg<<std::endl;
-			pso_info_.item(msg);
-			pso_info_.nl();
-			pso_info_.lineblock(PS);
+			info_.item(msg);
+			info_.nl();
+			info_.lineblock(PS);
 		} else {
 			std::cerr<<__PRETTY_FUNCTION__<<" : provide "<<dof_<<" ranges and remove any blank space and EOL at the EOF"<<std::endl;
 		}
@@ -507,7 +504,7 @@ void VMCMinimization::Minimization::save(IOFiles& out) const {
 	out.write("# samples",samples_list_.size());
 	out.add_header()->nl();
 	out.add_header()->comment("end_of_saved_variables");
-	out.add_header()->text(pso_info_.get());
+	out.add_header()->text(info_.get());
 
 	samples_list_.set_target();
 	while(samples_list_.target_next()){ samples_list_.get().write(out); }

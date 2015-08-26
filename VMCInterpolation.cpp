@@ -14,21 +14,21 @@ void VMCInterpolation::init(){
 	list_min_idx_.clear();
 
 	std::cout<<"#######################"<<std::endl;
-	std::string msg("new VMCInterpolation");
+	std::string msg("VMCInterpolation");
 	std::cout<<"#"<<msg<<std::endl;
-	m_->pso_info_.title(msg,'-');
+	m_->info_.title(msg,'-');
 
 	std::cout<<"#"<<get_filename()<<std::endl;
-	m_->pso_info_.item(get_filename());
+	m_->info_.item(get_filename());
 
 	msg="contains "+my::tostring(m_->samples_list_.size())+" samples";
 	std::cout<<"#"<<msg<<std::endl;
-	m_->pso_info_.item(msg);
+	m_->info_.item(msg);
 
 	if(m_->samples_list_.size()){ search_minima(); }
 	else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : empty samples_list_"<<std::endl;
-		m_->pso_info_.item("error : empty samples_list_");
+		m_->info_.item("error : empty samples_list_");
 	}
 }
 
@@ -87,9 +87,9 @@ void VMCInterpolation::run(bool const& explore_around_minima){
 			}
 		}
 
-		std::string msg2("(done in "+my::tostring(chrono.elapsed())+"s)");
+		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
 		std::cout<<msg2<<std::endl;
-		m_->pso_info_.item(msg1+msg2);
+		m_->info_.item(msg1+msg2);
 	}
 }
 
@@ -196,7 +196,7 @@ void VMCInterpolation::search_minima(){
 	if(interp_.compute_weights(dx,pow(m_->ps_size_,1./m_->dof_))){
 		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s"+(dx>1e-14?", error : "+my::tostring(dx)+")":")"));
 		std::cout<<msg2<<std::endl;
-		m_->pso_info_.item(msg1+msg2);
+		m_->info_.item(msg1+msg2);
 		chrono.set();
 		msg1="search for minima";
 		if(m_->ps_size_ < 1e5){
@@ -281,11 +281,11 @@ void VMCInterpolation::search_minima(){
 
 		msg2=" (found "+my::tostring(list_min_idx_.size())+" minimas in "+my::tostring(chrono.elapsed())+"s)";
 		std::cout<<msg2<<std::endl;
-		m_->pso_info_.item(msg1+msg2);
+		m_->info_.item(msg1+msg2);
 	} else {
 		std::string msg2(" FAIL ");
 		std::cout<<msg2<<std::endl;
-		m_->pso_info_.item(msg1+msg2);
+		m_->info_.item(msg1+msg2);
 	}
 }
 
