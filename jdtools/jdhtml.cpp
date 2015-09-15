@@ -11,7 +11,7 @@ int main(int argc, char* argv[]){
 		html.text(r.get_header());
 		html.save(false,false);
 		Linux command;
-		command("firefox /tmp/"+name+".html",false);
+		command.html_browser("/tmp/"+name+".html");
 		command("rm /tmp/"+name+"*",false);
 	} else {
 		std::cerr<<"jdhtml : takes exactly one input argument : ./jdhtml filename"<<std::endl;

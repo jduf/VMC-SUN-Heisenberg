@@ -15,6 +15,7 @@
 #define MY_BIN_PDFCROP "pdfcrop"
 #define MY_BIN_PDF2PNG "convert"
 #define MY_BIN_MKDIR "/bin/mkdir"
+#define MY_BIN_HTMLBROWSER "/usr/bin/firefox"
 
 #include <cstdlib> 
 #include <string>
@@ -38,6 +39,7 @@ class Linux {
 		void operator()(std::string cmd, bool silent){ ev_=system((cmd+(silent?" > /dev/null 2> /dev/null":"")).c_str()); }
 		/*!Returns exit value of the last command*/
 		int status(){return ev_;}
+
 		/*!Returns a string containing the current path*/
 		std::string pwd(){ return std::string(get_current_dir_name()) + '/'; }
 
@@ -45,6 +47,11 @@ class Linux {
 		void mkdir(std::string const& directory){ 
 			std::string cmd(MY_BIN_MKDIR);
 			(*this)(cmd + " -p " + directory, true); 
+		}
+		/*!open a html page into browser*/
+		void html_browser(std::string const& html){
+			std::string cmd(MY_BIN_HTMLBROWSER);
+			(*this)(cmd + " " + html, true); 
 		}
 
 		static std::string latex(std::string const& path, std::string const& filename){

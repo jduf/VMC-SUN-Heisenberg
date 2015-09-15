@@ -34,7 +34,7 @@ class Binning{
 		/*!Set x_ to the mean value, dx_ to the variance*/
 		void complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv);
 		/*!Compute the mean value*/
-		Type const& get_x() const { return m_bin_(0); }
+		Type get_x() const { return (m_bin_(0)*Ml_(0)*DPL_+bin_[0](Ml_(0)))/(1.0*Ml_(0)*DPL_+dpl_); }
 		/*!Compute the number of samples*/
 		double get_N() const { return 1.0*Ml_(0)*DPL_+dpl_; }
 		/*!Merge this with b*/
@@ -85,7 +85,7 @@ class Data{
 		void delete_binning();
 
 		double get_N() const { return binning_?binning_->get_N():N_; }
-		Type const& get_x() const { return binning_?binning_->get_x():x_; }
+		Type get_x() const { return binning_?binning_->get_x():x_; }
 		Type const& get_dx() const { return dx_; }
 		bool const& get_conv() const { return conv_; }
 		Binning<Type> const* get_binning() const { return binning_; }
@@ -272,8 +272,10 @@ void Binning<Type>::merge(Binning const& other){
 			unsigned int tmp_DPL(DPL_);
 			for(unsigned int i(0);i<b_;i++){ bin_[i] = other.bin_[i]; }
 			Ml_ = other.Ml_;
-			DPL_ = other.DPL_;
-			l_ = other.l_;
+			dpl_= other.dpl_;
+			DPL_= other.DPL_;
+			l_  = other.l_;
+			m_bin_ = other.m_bin_;
 			recompute_dx_usefull_ = other.recompute_dx_usefull_;
 			do_merge(tmp_bin,tmp_dpl,tmp_DPL,tmp_Ml);
 		}
@@ -284,6 +286,8 @@ void Binning<Type>::merge(Binning const& other){
 
 template<typename Type>
 void Binning<Type>::complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv){
+	x = get_x();
+	N = get_N();
 	if(l_>30){ std::cerr<<__PRETTY_FUNCTION__<<" : possibility of 'unsigned int' overflow : l_="<<l_<<std::endl; }
 	if(recompute_dx_usefull_ && Ml_(b_-1)>=B_){
 		recompute_dx_usefull_ = false;
@@ -298,44 +302,32 @@ void Binning<Type>::complete_analysis(double const& convergence_criterion, Type&
 
 		/*!do a linear regression and if the slope is almost flat, the system
 		 * is believed to be converged*/
-		Vector<Type> x(b_);
-		Type xb(0);
-		Type yb(0);
+		Vector<Type> vx(b_);
+		Type xb(0); //mean of x
+		Type yb(0); //mean of y
 		Type num(0);
 		Type den(0);
 		for(unsigned int i(0);i<b_;i++){
-			x(i) = l_+i;
-			xb += x(i);
+			vx(i) = l_+i;
+			xb += vx(i);
 			yb += var_bin(i);
 		}
 		xb /= b_;
 		yb /= b_;
 		for(unsigned int i(0);i<b_;i++){
-			num += (x(i)-xb)*(var_bin(i)-yb);
-			den += (x(i)-xb)*(x(i)-xb);
+			num += (vx(i)-xb)*(var_bin(i)-yb);
+			den += (vx(i)-xb)*(vx(i)-xb);
 		}
-		dx = yb;
-		if(num/den>0.0){ dx += num/den * xb; }
-		Type criteria(num/den*m_bin_(0));
-		if(std::abs(criteria)<convergence_criterion){ conv = true; }
+
+		/*!set the incertitude over x as the mean over all bins of the variance
+		 * if the slope is positive increase the incertitude */
+		dx = yb; 
+		if(num/den>0.0){ dx += num/den * xb; } 
+
+		/*!if the slope is flat enough, the convergence is reached*/
+		if(std::abs(num/(den*x))<convergence_criterion){ conv = true; }
 		else{ conv = false; }
 	}
-	/*{old way to set x*/
-	/*! x = m_bin_(0); */
-	/*}*/
-	x = (m_bin_(0)*Ml_(0)*DPL_+bin_[0](Ml_(0)))/(Ml_(0)*DPL_+dpl_);
-	N = get_N();
-	/*{Description*/
-	/*!
-	  std::cout<<"given x"<<x<<std::endl;
-	  std::cout<<l_<<"leftover "<<bin_[0](Ml_(0))<<" with "<<dpl_<<" therefore "<<(x*Ml_(0)*DPL_+bin_[0](Ml_(0)))/(Ml_(0)*DPL_+dpl_)<<std::endl;
-	  Type tmp(0);
-	  for(unsigned int i(0);i<Ml_(0);i++){
-	  tmp += bin_[0](i);
-	  }
-	  std::cout<<tmp<<" "<<tmp/Ml_(0)<<" "<<Ml_(0)<<std::endl;
-	  */
-	/*}*/
 }
 
 template<typename Type>
@@ -361,21 +353,6 @@ template<typename Type>
 void Binning<Type>::do_merge(Vector<Type> const& bin, unsigned int const& dpl, unsigned int const& DPL, unsigned int const& Ml){
 	Type old_last_bin(bin_[0](Ml_(0)));
 	unsigned int old_dpl(dpl_);
-	/*{Description*/
-	/*
-	   std::cout<<"sould be an integer "<<1.0*DPL_/(1.0*DPL)<<std::endl;
-	   std::cout<<"CURRENT"<<std::endl;
-	   std::cout<<"x    = "<<old_last_bin<<std::endl;
-	   std::cout<<"dpl_ = "<<old_dpl<<std::endl;
-	   std::cout<<"DPL_ = "<<DPL_<<std::endl;
-	   std::cout<<"last = "<<Ml_(0)<<std::endl;
-	   std::cout<<"OTHER"<<std::endl;
-	   std::cout<<"x    = "<<bin(Ml)<<std::endl;
-	   std::cout<<"dpl_ = "<<dpl<<std::endl;
-	   std::cout<<"DPL_ = "<<DPL<<std::endl;
-	   std::cout<<"last = "<<Ml<<std::endl;
-	   */
-	/*}*/
 	bin_[0](Ml_(0)) = 0;
 	dpl_ = 0;
 	for(unsigned int i(0);i<Ml;i++){
@@ -384,15 +361,6 @@ void Binning<Type>::do_merge(Vector<Type> const& bin, unsigned int const& dpl, u
 	}
 	Type tmp((bin(Ml)+old_last_bin)/(dpl+old_dpl));
 	for(unsigned int i(0);i<dpl+old_dpl;i++){ add_sample(tmp); }
-	/*{Description*/
-	/*
-	   std::cout<<"FINAL"<<std::endl;
-	   std::cout<<"x    = "<<bin_[0](Ml_(0))<<std::endl;
-	   std::cout<<"dpl_ = "<<dpl_<<std::endl;
-	   std::cout<<"DPL_ = "<<DPL_<<std::endl;
-	   std::cout<<"last = "<<Ml_(0)<<std::endl;
-	   */
-	/*}*/
 }
 /*}*/
 /*}*/
@@ -541,8 +509,9 @@ void Data<Type>::add_sample(){
 
 template<typename Type>
 void Data<Type>::merge(Data const& d){
-	if(binning_ && d.binning_){
-		binning_->merge(*d.binning_);
+	if(d.binning_){ 
+		if(!binning_){ binning_ = new Binning<Type>(*d.binning_); }
+		else { binning_->merge(*d.binning_); }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no binning"<<std::endl; }
 }
 
@@ -681,6 +650,7 @@ DataSet<Type>& DataSet<Type>::operator=(DataSet<Type> ds){
 }
 
 /*}*/
+
 /*public methods that modify the class*/
 /*{*/
 template<typename Type>
@@ -690,6 +660,7 @@ void DataSet<Type>::add_sample(){
 
 template<typename Type>
 void DataSet<Type>::merge(DataSet<Type> const& ds){
+	if(size_ != ds.size_){ set(ds.size_); }
 	for(unsigned int i(0);i<size_;i++){ ds_[i].merge(ds[i]); }
 }
 

@@ -8,80 +8,64 @@ void check_troyer();
 void check_flip_coin();
 void read_output_files();
 void merge_two_sim();
+void merge_two_sim_rnd();
 
 int main(){
-	//check_troyer();
+	check_troyer();
 	//check_flip_coin();
 	//read_output_files();
-	merge_two_sim();
+	//merge_two_sim();
+	//merge_two_sim_rnd();
 }
 
 void check_troyer(){
 	std::cout<<"tiré de Mathias Troyer"<<std::endl<<std::endl;
-	std::cout<<"+ il faut que le graphe log.pdf montre une convergence (pente null)";
-	std::cout<<"pour M=100000, mais pas pour M=10000 si p=24"<<std::endl;
 	std::cout<<"+ les barre d'erreur de plot.pdf doivent contenir P(x)"<<std::endl;
-	std::cout<<"+ avec M=1e4 devrait reproduire fig 4 de son article"<<std::endl<<std::endl;
+	std::cout<<"+ avec M=1e5 devrait reproduire fig 6 de son article"<<std::endl<<std::endl;
 
-
-	unsigned int const M(1e4);
+	unsigned int const M(1e5);
 	unsigned int const N(50);
 	unsigned int iter(0);
 	unsigned int n(0);
 	unsigned int r;
-	double tol(5e-4);
-	Rand<double> rnd(0,N);
-	do{
-		r = rnd.get();
-		if(r < n){n--;}
-		if(r > n){n++;}
-		if(r != n){ iter++; }
-	} while (iter<M/5);
+	double tol(1e-3);
+	Rand<unsigned int> rnd(1,N);
 
 	unsigned int B(50);
 	unsigned int b(5);
 
-	Vector<double> H_wrong(N+1,0);
-	DataSet<double> H_right;
-	H_right.set(N+1,B,b,true);
-	iter=0;
-
+	DataSet<double> H_correct;
+	H_correct.set(N+1,B,b,true);
 	do{
 		r = rnd.get();
-		if(r < n){n--;}
-		if(r > n){n++;}
-		if(r != n){
-			iter++;
-			H_wrong(n) +=1.0;
+		if(r <= n){n--;}
+		else{n++;}
 
-			H_right[n].set_x(1.0);
-			H_right.add_sample();
-			H_right[n].set_x(0.0);
-			if(!(iter % (M/10))){ H_right.complete_analysis(tol); }
+		if(iter>M/5){
+			H_correct[n].set_x(1.0);
+			H_correct.add_sample();
+			H_correct[n].set_x(0.0);
 		}
-	} while (iter<M);
-	H_right.complete_analysis(tol);
+	} while (iter++<M);
+	H_correct.complete_analysis(tol);
 
-	IOFiles hist_right("hist_right.dat",true);
+	IOFiles hist_correct("hist_correct.dat",true);
 	for(unsigned int i(0);i<N+1;i++){ 
-		hist_right<<i<<" "<<H_right[i].get_x()<<" "<<H_right[i].get_dx()<<" "<<H_right[i].get_conv()<<IOFiles::endl;
-	}
-	IOFiles hist_wrong("hist_wrong.dat",true);
-	for(unsigned int i(0);i<N+1;i++){ 
-		hist_wrong<<i<<" "<<H_wrong(i)/M<<" "<<sqrt((H_wrong(i)/M)*(1-H_wrong(i)/M)/(iter-1))<<IOFiles::endl;
+		hist_correct<<i<<" "<<H_correct[i].get_x()<<" "<<H_correct[i].get_dx()<<" "<<H_correct[i].get_conv()<<IOFiles::endl;
 	}
 
 	Gnuplot gp("./","plot");
-	gp.range("x",10,40);
-	gp.range("y",0,0.12);
+	unsigned int min(10);
+	unsigned int max(40);
+	gp.range("x",min,max);
+	gp.range("y","0","");
 	gp+="N = "+my::tostring(N);
 	gp+="fac(x) = (int(x)==0) ? 1.0 : int(x) * fac(int(x)-1.0)";
 	gp+="P(x) = fac(N)/(2**N*fac(x)*fac(N-x))";
-	gp+="set sample 31";
+	gp+="set sample "+my::tostring(max-min+1);
 	gp+="plot P(x) w l t '$P(x)$',\\";
-	gp+="     'hist_right.dat' u 1:($4==1?$2:1/0):3 w errorbars t 'correct converged',\\";
-	gp+="     'hist_right.dat' u 1:($4==0?$2:1/0):3 w errorbars t 'correct not converged',\\";
-	gp+="     'hist_wrong.dat' w errorbars  t 'wrong'";
+	gp+="     'hist_correct.dat' u 1:($4==1?$2:1/0):3 w errorbars t 'correct converged',\\";
+	gp+="     'hist_correct.dat' u 1:($4==0?$2:1/0):3 w errorbars t 'correct not converged'";
 	gp.save_file();
 	gp.create_image(true,false);
 }
@@ -177,9 +161,9 @@ void read_output_files(){
 }
 
 void merge_two_sim(){
-	Rand<double> rnd1(0,1);
-	Rand<double> rnd2(0,0.5);
 	unsigned int iter(0);
+	unsigned int N2(345);
+	unsigned int N1(123);
 
 	unsigned int B(5);
 	unsigned int b(2);
@@ -191,26 +175,89 @@ void merge_two_sim(){
 	H1.set(B,b,conv);
 	Data<double> H2;
 	H2.set(B,b,conv);
+	Data<double> H3;
+	H3.set(B,b,conv);
 	do{ 
 		iter++;
-		H1.set_x(rnd1.get());
+		H1.set_x(iter);
 		H1.add_sample(); 
-	} while (iter<60);
+
+		H3.set_x(iter);
+		H3.add_sample(); 
+	} while (iter<N1);
 	iter = 0;
 	do{ 
 		iter++;
-		H2.set_x(rnd2.get());
+		H2.set_x(iter);
 		H2.add_sample(); 
-	} while (iter<600);
 
-	H1.complete_analysis(tol);
-	H2.complete_analysis(tol);
+		H3.set_x(iter);
+		H3.add_sample(); 
+	} while (iter<N2);
 
 	std::cout<<H2<<std::endl;
 	std::cout<<H1<<std::endl;
 
 	H2.merge(H1);
 	H2.complete_analysis(tol);
+	H2.delete_binning();
 
 	std::cout<<H2<<std::endl;
+
+	H3.complete_analysis(tol);
+	H3.delete_binning();
+	std::cout<<H3<<std::endl;
+}
+
+void merge_two_sim_rnd(){
+	unsigned int iter(0);
+	Rand<double> rnd(0.,1.);
+	double tmp;
+	unsigned int N2(3456789);
+	unsigned int N1(1234567);
+
+	unsigned int B(5);
+	unsigned int b(2);
+
+	double tol(5e-5);
+	double conv(0.0);
+
+	Data<double> H1;
+	H1.set(B,b,conv);
+	Data<double> H2;
+	H2.set(B,b,conv);
+	Data<double> H3;
+	H3.set(B,b,conv);
+	do{ 
+		tmp = rnd.get();
+		iter++;
+		H1.set_x(tmp);
+		H1.add_sample(); 
+
+		H3.set_x(tmp);
+		H3.add_sample(); 
+	} while (iter<N1);
+	iter = 0;
+	do{ 
+		tmp = rnd.get();
+		iter++;
+		H2.set_x(tmp);
+		H2.add_sample(); 
+
+		H3.set_x(tmp);
+		H3.add_sample(); 
+	} while (iter<N2);
+
+	std::cout<<H2<<std::endl;
+	std::cout<<H1<<std::endl;
+
+	H2.merge(H1);
+	H2.complete_analysis(tol);
+	H2.delete_binning();
+
+	std::cout<<H2<<std::endl;
+
+	H3.complete_analysis(tol);
+	H3.delete_binning();
+	std::cout<<H3<<std::endl;
 }

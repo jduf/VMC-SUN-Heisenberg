@@ -20,12 +20,41 @@ namespace my{
 		}
 
 	template<typename Type>
-		Type string2type(std::string const& s){
-			Type out;
+		bool string2type(std::string const& s, Type& out){
 			std::stringstream ss(s);
-			ss>>out;
-			return out;
+			if( ss>>out ){ return true; }
+			else {
+				std::cerr<<__PRETTY_FUNCTION__<<" incoherent types"<<std::endl; 
+				return false; 
+			}
 		}
+
+	template<typename Type>
+		Type string2type(std::string const& s){
+			Type t;
+			my::string2type(s,t);
+			return t;
+		}
+
+	inline double get_double(std::string const& msg){
+		std::string token;
+		double in;
+		do{
+			std::cout<<msg<<" [double] ";
+			std::getline(std::cin,token);
+		} while ( !(token.find(' ') == std::string::npos && my::string2type<double>(token,in)));
+		return in;
+	}
+
+	inline bool get_yn(std::string const& msg){
+		std::string token;
+		do{
+			std::cout<<msg<<" [y/n] ";
+			std::getline(std::cin,token); 
+			if(token == "y"){ return true; }
+			if(token == "n"){ return false; }
+		} while(1);
+	}
 
 	inline std::vector<std::string> &string_split(const std::string &s, char delim, std::vector<std::string> &elems){
 		std::stringstream ss(s);
@@ -57,9 +86,9 @@ namespace my{
 
 	/*double norm_squared(T)*/
 	/*{*/
-	inline double norm_squared(double x){ return x*x; }
+	inline double norm_squared(double const& x){ return x*x; }
 
-	inline double norm_squared(std::complex<double> x){ return std::norm(x); }
+	inline double norm_squared(std::complex<double> const& x){ return std::norm(x); }
 	/*}*/
 
 	/*double chop(T)*/
