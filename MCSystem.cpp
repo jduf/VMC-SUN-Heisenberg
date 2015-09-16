@@ -124,12 +124,6 @@ void MCSystem::add_sample(){
 	lr_corr_.add_sample();
 }
 
-void MCSystem::complete_analysis(double const& convergence_criterion){ 
-	E_.complete_analysis(convergence_criterion); 
-	corr_.complete_analysis(convergence_criterion); 
-	lr_corr_.complete_analysis(convergence_criterion); 
-}
-
 void MCSystem::write(IOFiles& w) const {
 	w<<s_;
 }

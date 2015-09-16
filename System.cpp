@@ -254,3 +254,15 @@ std::vector<std::string> System::names() const {
 	names.push_back(my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2)));
 	return names;
 }
+
+void System::complete_analysis(double const& convergence_criterion){ 
+	E_.complete_analysis(convergence_criterion); 
+	corr_.complete_analysis(convergence_criterion); 
+	lr_corr_.complete_analysis(convergence_criterion); 
+}
+
+void System::merge(System* s){ 
+	E_.merge(s->E_);
+	corr_.merge(s->corr_);
+	lr_corr_.merge(s->lr_corr_);
+}

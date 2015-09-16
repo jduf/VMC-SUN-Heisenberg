@@ -1,4 +1,4 @@
-/*! @file min.cpp */
+/*! @file load.cpp */
 
 #include "MonteCarlo.hpp"
 #include "CreateSystem.hpp"

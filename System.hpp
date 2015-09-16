@@ -54,6 +54,11 @@ class System{
 		void set_observable(unsigned int const& which);
 		/*!Deletes the binning for all observables*/
 		void delete_binning();
+		/*!Calls complete_analysis of the sampled datas*/
+		void complete_analysis(double const& convergence_criterion);
+
+		/*merge*/
+		void merge(System* s);
 
 		virtual void write(IOFiles& w) const;
 		/*{Description*/

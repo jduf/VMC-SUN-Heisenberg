@@ -110,7 +110,7 @@ class CreateSystem{
 		/*!Returns ref*/
 		Vector<unsigned int> const&  get_ref() const { return ref_; }
 		/*!Returns a pointer on the GenericSystem created*/
-		System const* get_system() const {
+		System const* get_GS() const {
 			if(RGL_){ return RGL_; }
 			if(CGL_){ return CGL_; }
 			return NULL;

@@ -34,15 +34,15 @@ void MCSim::create_S(System const* const s){
 		if(cs.get_status()==1){
 			if( cs.use_complex()){
 				if(cs.is_bosonic()){
-					S_.reset(new SystemBosonic<std::complex<double> >(*dynamic_cast<const Bosonic<std::complex<double> >*>(cs.get_system())));
+					S_.reset(new SystemBosonic<std::complex<double> >(*dynamic_cast<const Bosonic<std::complex<double> >*>(cs.get_GS())));
 				} else {
-					S_.reset(new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_system())));
+					S_.reset(new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_GS())));
 				}
 			} else {
 				if(cs.is_bosonic()){
-					S_.reset(new SystemBosonic<double>(*dynamic_cast<const Bosonic<double>*>(cs.get_system())));
+					S_.reset(new SystemBosonic<double>(*dynamic_cast<const Bosonic<double>*>(cs.get_GS())));
 				} else {
-					S_.reset(new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_system())));
+					S_.reset(new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())));
 				}
 			}
 		}
@@ -97,17 +97,7 @@ unsigned int MCSim::sort_by_param_for_merge(MCSim const& list, MCSim const& new_
 }
 
 void MCSim::merge(MCSim& list, MCSim& new_elem){
-	list.get_S()->get_energy().merge(new_elem.get_S()->get_energy());
-	if(new_elem.get_S()->get_corr().size() != list.get_S()->get_corr().size() ){
-		list.get_S()->get_corr()=new_elem.get_S()->get_corr();
-	} else {
-		list.get_S()->get_corr().merge(new_elem.get_S()->get_corr());
-	}
-	if(new_elem.get_S()->get_lr_corr().size() != list.get_S()->get_lr_corr().size() ){
-		list.get_S()->get_lr_corr()=new_elem.get_S()->get_lr_corr();
-	} else {
-		list.get_S()->get_lr_corr().merge(new_elem.get_S()->get_lr_corr());
-	}
+	list.get_S()->merge(new_elem.get_S().get());
 }
 /*}*/
 

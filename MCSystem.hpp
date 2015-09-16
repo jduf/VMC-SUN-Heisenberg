@@ -33,8 +33,6 @@ class MCSystem: public virtual System{
 		void measure_new_step();
 		/*!Add the sample to the statistic*/
 		void add_sample();
-		/*!Calls complete_analysis of the sampled datas*/
-		void complete_analysis(double const& convergence_criterion);
 
 		virtual std::unique_ptr<MCSystem> clone() const = 0;
 		virtual void free_memory() = 0;
