@@ -47,7 +47,7 @@ bool MonteCarlo::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
 	if(std::abs(S_->get_energy().get_x())>1e2){ 
 		std::cerr<<__PRETTY_FUNCTION__<<" : simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
-		S_->set_binning();
+		S_->set_observables();
 	}
 	return true;
 }

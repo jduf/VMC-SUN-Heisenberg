@@ -2,6 +2,7 @@
 
 #include "MonteCarlo.hpp"
 #include "CreateSystem.hpp"
+#include <omp.h>
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
@@ -15,7 +16,7 @@ int main(int argc, char* argv[]){
 			cs.create();
 			if(cs.get_status()==1){
 				sys.set_bonds(cs.get_GS());
-				sys.set_observable(2);
+				sys.set_observables(2);
 #pragma omp parallel for
 				for(unsigned int i=0;i<nruns;i++){
 					MCSystem* mcsys(NULL);
@@ -32,7 +33,7 @@ int main(int argc, char* argv[]){
 							mcsys = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS()));
 						}
 					}
-					mcsys->set_observable(2);
+					mcsys->set_observables(2);
 
 					MonteCarlo sim(mcsys,tmax);
 					sim.thermalize(1e6);

@@ -49,18 +49,15 @@ System::System(System const& s, unsigned int const& status):
 {}
 /*}*/
 
-void System::set_bonds(System const* const s){
-	J_ = s->J_; 
-	links_ = s->links_; 
-}
-
-void System::set_observable(unsigned int const& which){
+/*handles class attributes*/
+/*{*/
+void System::set_observables(unsigned int const& which){
 	E_.set(50,5,false);
 	if(which>0){ corr_.set(links_.row(),50,5,false); }
 	if(which>1){ lr_corr_.set(n_,50,5,false); }
 }
 
-void System::set_binning(){ 
+void System::set_observables(){ 
 	E_.set(); 
 	corr_.set(); 
 	lr_corr_.set(); 
@@ -72,6 +69,31 @@ void System::delete_binning(){
 	lr_corr_.delete_binning();
 }
 
+void System::complete_analysis(double const& convergence_criterion){ 
+	E_.complete_analysis(convergence_criterion); 
+	corr_.complete_analysis(convergence_criterion); 
+	lr_corr_.complete_analysis(convergence_criterion); 
+}
+
+bool System::check_conv(double const& convergence_criterion){
+	E_.complete_analysis(convergence_criterion);
+	return E_.get_conv();
+}
+
+void System::merge(System* s){ 
+	E_.merge(s->E_);
+	corr_.merge(s->corr_);
+	lr_corr_.merge(s->lr_corr_);
+}
+
+void System::set_bonds(System const* const s){
+	J_ = s->J_; 
+	links_ = s->links_; 
+}
+/*}*/
+
+/*write in IOFiles methods*/
+/*{*/
 void System::write(IOFiles& w) const {
 	w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<links_<<E_<<corr_<<lr_corr_;
 }
@@ -101,6 +123,7 @@ void System::save_output(IOFiles& w) const {
 	w.write("correlation on links",corr_);
 	w.write("long range correlation",lr_corr_);
 }
+/*}*/
 
 Vector<unsigned int> System::set_ref(Parseur& P){
 	std::string const& wf(P.get<std::string>("wf"));
@@ -221,48 +244,4 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(2) = 0;
 	}
 	return ref;
-}
-
-std::vector<std::string> System::names() const {
-	std::vector<std::string> names;
-	names.push_back("N" + my::tostring(N_));
-	names.push_back("m" + my::tostring(m_));
-	names.push_back("n" + my::tostring(n_));
-	std::string tmp("M");
-	for(unsigned int i(0);i<this->M_.size();i++){
-		tmp  += "_" + my::tostring(M_(i));
-	}
-	names.push_back(tmp);
-	switch(bc_){
-		case -1:{ names.push_back("A"); }break;
-		case 0: { names.push_back("O"); }break;
-		case 1: { names.push_back("P"); }break;
-	}
-	if(my::are_equal(ref_(0),2) && my::are_equal(ref_(1),1) && my::are_equal(ref_(2),4)){
-		if(J_.size()==links_.row() || J_.size()==2){
-			tmp = "theta"+my::tostring(acos(J_(0)));
-		} else {
-			std::cerr<<__PRETTY_FUNCTION__<<" : J_ has an incoherent size"<<std::endl;
-		}
-	} else { 
-		tmp = "J"; 
-		for(unsigned int i(0);i<this->J_.size();i++){
-			tmp  += (this->J_(i)>=0?"+":"") + my::tostring(this->J_(i));
-		}
-	}
-	names.push_back(tmp);
-	names.push_back(my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2)));
-	return names;
-}
-
-void System::complete_analysis(double const& convergence_criterion){ 
-	E_.complete_analysis(convergence_criterion); 
-	corr_.complete_analysis(convergence_criterion); 
-	lr_corr_.complete_analysis(convergence_criterion); 
-}
-
-void System::merge(System* s){ 
-	E_.merge(s->E_);
-	corr_.merge(s->corr_);
-	lr_corr_.merge(s->lr_corr_);
 }

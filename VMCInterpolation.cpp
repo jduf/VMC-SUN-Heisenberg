@@ -363,7 +363,7 @@ void VMCInterpolation::evaluate(Vector<double>* x, Vector<unsigned int> const& i
 	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
 	std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
 	if(sim.get()){
-		sim->get_S()->get_energy().complete_analysis(1e-5);
+		sim->check_conv(1e-5);
 		E = sim->get_S()->get_energy().get_x();
 		dE= sim->get_S()->get_energy().get_dx();
 		Ee= interp_(param);

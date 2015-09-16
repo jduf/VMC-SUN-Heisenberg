@@ -53,11 +53,14 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*}*/
 		void compute_links(Vector<unsigned int> const& l);
 		void check_lattice();
+
+	private:
+		std::vector<std::string> generate_names() const;
 };
 
 template<typename Type>
 GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename): 
-	IOSystem(filename,this->names()),
+	IOSystem(filename,generate_names()),
 	spuc_(spuc),
 	z_(z)
 {
@@ -139,5 +142,26 @@ void GenericSystem<Type>::check_lattice(){
 			std::cerr<<__PRETTY_FUNCTION__<<" : no consistent enumeration"<<std::endl;
 		}
 	}
+}
+
+template<typename Type>
+std::vector<std::string> GenericSystem<Type>::generate_names() const {
+	std::vector<std::string> parameter_names;
+	parameter_names.push_back("N" + my::tostring(this->N_));
+	parameter_names.push_back("m" + my::tostring(this->m_));
+	parameter_names.push_back("n" + my::tostring(this->n_));
+	std::string tmp("M");
+	for(unsigned int i(0);i<this->M_.size();i++){
+		tmp  += "_" + my::tostring(this->M_(i));
+	}
+	parameter_names.push_back(tmp);
+	switch(this->bc_){
+		case -1:{ parameter_names.push_back("A"); }break;
+		case 0: { parameter_names.push_back("O"); }break;
+		case 1: { parameter_names.push_back("P"); }break;
+	}
+	parameter_names.push_back("Juniform");
+	parameter_names.push_back(my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2)));
+	return parameter_names;
 }
 #endif

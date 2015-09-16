@@ -50,7 +50,7 @@ int main(int argc, char* argv[]){
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())); 
 					}
 					std::cout<<"############# Init Monte Carlo ############"<<std::endl;
-					S->set_observable(1);
+					S->set_observables(1);
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
 					std::cout<<"############# Run Monte Carlo #############"<<std::endl;

@@ -41,24 +41,31 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 	 * if s has undefined links_ and if J_ is of size 2, then this->links_ and
 	 * this_->J_ should be computed*/
 	if(this->status_==2){
+		/*!create the links if necessary*/
 		if(!this->links_.ptr()){
 			Vector<unsigned int> l(2);
 			l(0) = 2;
 			l(1) = 1;
 			this->compute_links(l);
 		}
-		if(this->links_.row() != this->J_.size()){
-			if(this->J_.size() == 2){
-				Vector<double> tmp(this->J_);
-				this->J_.set(this->links_.row());
-				for (unsigned int i=0; i<this->J_.size() ; i++){
-					if (i%3==1){ this->J_(i) = tmp(1); } //rungs (J⊥) -> sin(theta)
-					else{ this->J_(i) = tmp(0); }        //legs  (J‖) -> cos(theta)
-				}
-			} else {
-				this->J_.set(this->links_.row(),1);
-				std::cerr<<__PRETTY_FUNCTION__<<" : need J.size() == 2"<<std::endl;
+
+		/*!sets the bond energy if it has not been set yet*/
+		if(this->links_.row() != this->J_.size() && this->J_.size() == 2){
+			Vector<double> tmp(this->J_);
+			this->J_.set(this->links_.row());
+			for (unsigned int i=0; i<this->J_.size() ; i++){
+				if (i%3==1){ this->J_(i) = tmp(1); } //rungs (J⊥) -> sin(theta)
+				else{ this->J_(i) = tmp(0); }        //legs  (J‖) -> cos(theta)
 			}
+		}
+
+		/*!fix the names for the bond energy*/
+		if(this->J_.size()==this->links_.row()){
+			std::string tmp("theta"+my::tostring(acos(this->J_(0))));
+			this->filename_.replace(this->filename_.find("Juniform"),8,tmp);
+			this->path_.replace(this->path_.find("Juniform"),8,tmp);
+		} else {
+			std::cerr<<__PRETTY_FUNCTION__<<" : J_ has an incoherent size"<<std::endl;
 		}
 	} else {
 		/*!if the ladder has a spuc_ equal to one, the creation is impossible

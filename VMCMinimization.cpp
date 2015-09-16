@@ -14,9 +14,8 @@ VMCMinimization::VMCMinimization(Parseur& P):
 	std::cout<<"#creating VMCMinimization"<<std::endl;
 	m_->set(P,path_,basename_);
 	if(m_->s_->get_status() != 3 || P.locked()){
-		std::cout<<m_->s_->get_status()<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : something went wrong, status="<<m_->s_->get_status()<<std::endl;
 		m_.reset();
-		std::cerr<<__PRETTY_FUNCTION__<<" : something went wrong"<<std::endl;
 	}
 }
 
@@ -77,7 +76,7 @@ void VMCMinimization::refine(double const& E, double const& dE){
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
-		if(best.size()>5){
+		if(N>5 && N<700){
 			unsigned int iter;
 			best.set_target();
 			while(best.target_next()){
@@ -85,10 +84,11 @@ void VMCMinimization::refine(double const& E, double const& dE){
 				do {
 #pragma omp parallel
 					{ evaluate(best.get().get_param()); }
-				} while( iter++<10 && ( !best.get().check_conv(1e-5) ||  best.get().get_S()->get_energy().get_dx()>dE ) );
+				} while( iter++<10 && ( !best.get().check_conv(1e-5) || best.get().get_S()->get_energy().get_dx()>dE ) );
 			}
 		} else {
-			msg = "not enough data to be usefull, skip the evaluation";
+			if(N<700){ msg = "not enough data to be usefull, skip the evaluation"; }
+			else { msg = "too many data, would take too much time, skip the evaluation"; }
 			std::cout<<"#"<<msg<<std::endl;
 			m_->info_.item(msg);
 		}
@@ -116,7 +116,7 @@ void VMCMinimization::save() const {
 	out<<path_<<basename_;
 }
 
-void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& param, double& E_range, Interpolation<double>* interp_Er) const {
+void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& param, double& E_range) const {
 	double E(666);
 	double tmp;
 
@@ -154,7 +154,6 @@ void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>&
 	do{
 		ao *= 2;
 		list_min.set();
-		if(interp_Er){ interp_Er->set_data(); }
 
 		bool keep;
 		List<MCSim> list_tmp;
@@ -170,16 +169,8 @@ void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>&
 					keep = false;
 				}
 			}
-			if(keep){
-				if(interp_Er){ interp_Er->add_data(tmp,E); }
-				E_tmp.push_back(E);
-			} else {
-				list_tmp.pop_end();
-			}
-		}
-		if(interp_Er){
-			double dx(0.3);
-			interp_Er->compute_weights(dx,interp_Er->get_N());
+			if(keep){ E_tmp.push_back(E); }
+			else { list_tmp.pop_end(); }
 		}
 
 		unsigned int i(1);
@@ -205,14 +196,10 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima
 		List<MCSim> list_min;
 		Vector<double> param;
 		double E_range;
-		//will certainly get rid of this interpolation...
-		Interpolation<double> interp_Er(1);
-		interp_Er.select_basis_function(7);
-		find_minima(max_n_minima,list_min,param,E_range,&interp_Er);
+		find_minima(max_n_minima,list_min,param,E_range);
 
 		IOFiles data(path+filename+".dat",true);
 		IOFiles data_Er(path+filename+"-Er.dat",true);
-		IOFiles data_interp(path+filename+"-interp.dat",true);
 		w.write("number of minima",list_min.size());
 
 		m_->samples_list_.set_target();
@@ -230,18 +217,12 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima
 			if(r_max<tmp){ r_max=tmp; }
 		}
 
-		Vector<double> range(0,r_max,0.05);
-		for(unsigned int i(0);i<range.size();i++){
-			data_interp<<range(i)<<" "<<interp_Er(range(i))<<IOFiles::endl;
-		}
-
 		Gnuplot gp(path,filename);
 		gp+="E_range="+my::tostring(E_range);
 		gp.multiplot();
 		gp.range("x","[:E_range] writeback");
 		gp.margin("0.1","0.9","0.5","0.10");
 		gp+="plot '"+filename+".dat'        u "+my::tostring(m_->dof_+2)+":"+my::tostring(m_->dof_+1)+":"+my::tostring(m_->dof_+3)+" w xe           notitle,\\";
-		gp+="     '"+filename+"-interp.dat' u 2:1   w l            notitle,\\";
 		gp+="     '"+filename+"-Er.dat'     u 2:1   lc 4 ps 2 pt 7 t 'selected minima'";
 		gp.margin("0.1","0.9","0.9","0.50");
 		gp.tics("x");
@@ -260,7 +241,7 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima
 void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima){
 	if(m_->samples_list_.size()){
 		std::cout<<"#######################"<<std::endl;
-		std::string msg("compute correlation and long range correlation for minima");
+		std::string msg("compute correlations and long range correlations for minima");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 		List<MCSim> list_min;
@@ -309,7 +290,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, un
 		m_->samples_list_.set_target();
 	}
 	if(sim->is_created()){
-		sim->set_observable(which);
+		sim->set_observables(which);
 		sim->run(tmp_test?10:1e6,m_->tmax_);
 #pragma omp critical(samples_list_)
 		{
@@ -366,7 +347,8 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	s_ = new System(P);
 	ps_= new Vector<double>[dof_];
 
-	/*!the next block is required to compute the J setup*/
+	/*!the next block is required to configure J correctly so that path and
+	 * filename are correct*/
 	Vector<double> tmp;
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);

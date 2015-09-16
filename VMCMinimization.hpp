@@ -3,12 +3,10 @@
 
 #include "List.hpp"
 #include "MCSim.hpp"
-#include "Interpolation.hpp"
 
 class VMCMinimization{
 	public:
 		VMCMinimization(Parseur& P);
-		VMCMinimization(VMCMinimization const& m, std::string const& prefix);
 		VMCMinimization(IOFiles& in);
 		/*!Default destructor*/
 		virtual ~VMCMinimization() = default;
@@ -26,7 +24,7 @@ class VMCMinimization{
 		void refine(double const& E, double const& dE);
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
-		void find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& param, double& E_range, Interpolation<double>* interp_Er=NULL) const;
+		void find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& param, double& E_range) const;
 		void find_and_run_minima(unsigned int const& max_n_minima);
 		void find_save_and_plot_minima(unsigned int const& max_n_minima, IOFiles& w, std::string path="", std::string filename="") const;
 
@@ -71,6 +69,8 @@ class VMCMinimization{
 		};
 
 	protected:
+		VMCMinimization(VMCMinimization const& m, std::string const& prefix);
+
 		IOFiles* out_;
 		std::shared_ptr<Minimization> m_;
 

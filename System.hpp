@@ -28,7 +28,6 @@ class System{
 		System& operator=(System) = delete;
 		/*}*/
 
-		std::vector<std::string> names() const;
 
 		/*!Returns the reference to the type of wavefunction*/
 		Vector<unsigned int> const& get_ref() const { return ref_; }
@@ -36,29 +35,21 @@ class System{
 		unsigned int const& get_status() const { return status_; }
 		/*!Returns the energy*/
 		Data<double> const& get_energy() const { return E_; }
-		/*!Returns a ref to E_ (needed for merging)*/
-		Data<double>& get_energy(){ return E_; }
-		/*!Returns the correlations*/
-		DataSet<double> const& get_corr() const { return corr_; }
-		/*!Returns a ref to corr_ (needed for merging)*/
-		DataSet<double>& get_corr(){ return corr_; }
-		/*!Returns the long range correlations*/
-		DataSet<double> const& get_lr_corr() const { return lr_corr_; }
-		/*!Returns a ref to lr_corr_ (needed for merging)*/
-		DataSet<double>& get_lr_corr(){ return lr_corr_; }
 
-		void set_bonds(System const* const s);
 		/*!Sets the observables to default (0) values and initilizes binning*/
-		void set_binning();
+		void set_observables();
 		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
-		void set_observable(unsigned int const& which);
+		void set_observables(unsigned int const& which);
 		/*!Deletes the binning for all observables*/
 		void delete_binning();
 		/*!Calls complete_analysis of the sampled datas*/
 		void complete_analysis(double const& convergence_criterion);
-
-		/*merge*/
+		/*!Checks if the energy has converged to a stable value*/
+		bool check_conv(double const& convergence_criterion);
+		/*!Merge the binning of all observables of s into (*this)*/
 		void merge(System* s);
+		/*!Sets (*this) J_ and links_ to be those of s*/
+		void set_bonds(System const* const s);
 
 		virtual void write(IOFiles& w) const;
 		/*{Description*/

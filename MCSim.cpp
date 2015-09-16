@@ -67,16 +67,15 @@ void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tm
 }
 
 bool MCSim::check_conv(double const& convergence_criterion){
-	S_->get_energy().complete_analysis(convergence_criterion);
-	return S_->get_energy().get_conv();
+	return S_->check_conv(convergence_criterion);
 }
 
 void MCSim::complete_analysis(double const& convergence_criterion){
 	S_->complete_analysis(convergence_criterion);
 }
 
-void MCSim::set_observable(unsigned int const& which){
-	S_->set_observable(which);
+void MCSim::set_observables(unsigned int const& which){
+	S_->set_observables(which);
 }
 
 void MCSim::free_memory(){

@@ -280,10 +280,10 @@ void SystemFermionic<Type>::write(IOFiles& w) const{
 
 template<typename Type>
 void SystemFermionic<Type>::free_memory(){
+	Ainv_[0].set();
+	tmp_[0].set();
 	for(unsigned int c(1);c<N_;c++){
 		this->EVec_[c].set();
-	}
-	for(unsigned int c(0);c<N_;c++){
 		Ainv_[c].set();
 		tmp_[c].set();
 	}

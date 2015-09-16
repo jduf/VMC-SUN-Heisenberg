@@ -944,8 +944,9 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 		}
 	}
 	double lr_corr;
+	double lr_corr_max(lr_corr_[0].get_x());
 	for(unsigned int i(0);i<lr_corr_.size();i++){
-		lr_corr = lr_corr_[i].get_x();
+		lr_corr = lr_corr_[i].get_x()/lr_corr_max*0.75;
 		if(std::abs(lr_corr)>1e-4){
 			xy0(0) = i/2;
 			xy0(1) = i%2-2*y_shift;

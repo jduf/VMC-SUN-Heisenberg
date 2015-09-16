@@ -2,6 +2,7 @@
 #define DEF_VMCINTERPOLATION
 
 #include "VMCMinimization.hpp"
+#include "Interpolation.hpp"
 
 class VMCInterpolation : public VMCMinimization{
 	public:

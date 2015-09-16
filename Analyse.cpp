@@ -100,14 +100,21 @@ void Analyse::search_jdbin(){
 		command.mkdir(analyse_+path_+dir_);
 		open_files();
 
-		std::cout<<"lev "<<level_<<" : "<<path_+dir_<<std::endl;
-		for(unsigned int i(0); i<d.size();i++){
-			for(unsigned int j(0);j<6+path_.size()+dir_.size();j++){ std::cout<<" "; }
-			std::cout<<"|->"<<d.get_name(i)<<std::endl;
+		if(level_==9){
+			std::cout<<std::string(6+path_.size()+dir_.size(),' ')<<"|->"<<d.get_name(d.size()-1)<<std::endl;
 
-			filename_ = d.get_name(i);
+			filename_ = d.get_name(d.size()-1);
 			all_link_names_.add_end(std::make_shared<std::string>(analyse(level_)));
 			all_link_files_.add_end(std::make_shared<std::string>((level_==1?info_:dir_)+filename_+".html"));
+		} else {
+			std::cout<<"lev "<<level_<<" : "<<path_+dir_<<std::endl;
+			for(unsigned int i(0); i<d.size();i++){
+				std::cout<<std::string(6+path_.size()+dir_.size(),' ')<<"|->"<<d.get_name(i)<<std::endl;
+
+				filename_ = d.get_name(i);
+				all_link_names_.add_end(std::make_shared<std::string>(analyse(level_)));
+				all_link_files_.add_end(std::make_shared<std::string>((level_==1?info_:dir_)+filename_+".html"));
+			}
 		}
 
 		all_link_names_.set_target();
