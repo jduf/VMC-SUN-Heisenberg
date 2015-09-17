@@ -225,11 +225,12 @@ std::string ChainPolymerized::extract_level_8(){
 	//gpsf.create_image(true);
 	rst_file_->figure(basename+"-structure-factor.png","Structure factor",RST::target(basename+"-structure-factor.gp")+RST::width("1000"));
 	/*}*/
-	/*!save some additionnal values */
+	/*!save*/
 	/*{*/
-	if(spuc_==4){jd_write_->write("t ("+my::tostring(t_(1))+","+my::tostring(t_(3))+")",t_);}
-	else{jd_write_->write("t ("+my::tostring(t_(spuc_-1))+")",t_);}
-	jd_write_->write("energy per site",E_);
+	jd_write_->add_header()->title("System's parameters",'-');
+	save_param(*jd_write_);
+	save_input(*jd_write_);
+	save_output(*jd_write_);
 	jd_write_->write("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
 	jd_write_->write("critical exponents",exponents);
 	/*}*/
@@ -243,32 +244,6 @@ std::string ChainPolymerized::extract_level_8(){
 }
 
 std::string ChainPolymerized::extract_level_7(){
-	Data<double> tmp_E;
-	E_.set_x(1e33);
-	Vector<double> exponents;
-	Vector<double> tmp_exponents;
-	double polymerization_strength;
-	double tmp_polymerization_strength;
-	Vector<double> tmp_t;
-	unsigned int nof(0);
-	(*read_)>>nof;
-
-	for(unsigned int i(0);i<nof;i++){
-		(*read_)>>tmp_t>>tmp_E>>tmp_polymerization_strength>>tmp_exponents;
-		if(tmp_E.get_x()<E_.get_x()){ 
-			E_ = tmp_E;
-			t_ = tmp_t;
-			polymerization_strength = tmp_polymerization_strength;
-			exponents = tmp_exponents;
-		}
-	}
-
-	save_input(*jd_write_);
-	save_param(*jd_write_);
-	jd_write_->write("energy per site",E_);
-	jd_write_->write("polymerization strength",polymerization_strength);
-	jd_write_->write("critical exponents",exponents);
-
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp.title("$N="+my::tostring(N_)+"$ $m="+my::tostring(m_)+"$ $n="+my::tostring(n_)+"$ bc=$"+my::tostring(bc_)+"$");
 	if(N_/m_!=4){
@@ -281,22 +256,28 @@ std::string ChainPolymerized::extract_level_7(){
 		gp+="c=1";
 		gp+="set fit quiet";
 		gp+="fit f(x) '"+filename_+".dat' u "+my::tostring(N_/m_)+":($" +my::tostring(N_/m_+5)+"==0?$"                              +my::tostring(N_/m_+1)+":1/0):"+my::tostring(N_/m_+2)+" zerror via a,b,c";
-		gp+="plot '"+filename_+".dat' u "    +my::tostring(N_/m_)+":(($"+my::tostring(N_/m_+4)+"==0 && $"+my::tostring(N_/m_+5)+"==1)?$"+my::tostring(N_/m_+1)+":1/0):"+my::tostring(N_/m_+2)+" lc 5 w e t 'Not Converged',\\";
-		gp+="     '"+filename_+".dat' u "    +my::tostring(N_/m_)+":(($"+my::tostring(N_/m_+4)+"==1 && $"+my::tostring(N_/m_+5)+"==1)?$"+my::tostring(N_/m_+1)+":1/0):"+my::tostring(N_/m_+2)+" lc 6 w e t 'Converged',\\";
-		gp+="     '"+filename_+".dat' u "    +my::tostring(N_/m_)+":($" +my::tostring(N_/m_+5)+"==0?$"                              +my::tostring(N_/m_+1)+":1/0):"+my::tostring(N_/m_+2)+" lc 7 w e t 'Mean',\\";
+		gp+="plot '"+filename_+".dat' u "    +my::tostring(N_/m_)+":($" +my::tostring(N_/m_+5)+"==0?$"                              +my::tostring(N_/m_+1)+":1/0):"+my::tostring(N_/m_+2)+" lc 7 w e notitle";
 		gp+="     f(x) lc 7 lw 0.5 "+std::string(my::are_equal(t_(N_/m_-1),0)?"notitle":"t sprintf('min %3.4f',c)");
 	} else {
 		gp.label("x","$t_2$");
 		gp.label("y","$t_4$");
 		gp.label("z","$\\dfrac{E}{n}$","rotate by 0");
 		gp+="set xyplane 0";
-		gp+="splot '"+filename_+".dat' u 2:4:(($8==0 && $9==1)?$5:1/0) lc 5 t 'Not Converged',\\";
-		gp+="      '"+filename_+".dat' u 2:4:(($8==1 && $9==1)?$5:1/0) lc 6 t 'Converged',\\";
-		gp+="      '"+filename_+".dat' u 2:4:($9==0?$5:1/0) lc 7 t 'Mean'";
+		gp+="splot  '"+filename_+".dat' u 2:4:($9==0?$5:1/0) lc 7 notitle";
 	}
 
 	gp.save_file();
 	gp.create_image(true,true);
+
+	/*!save*/
+	/*{*/
+	jd_write_->add_header()->title("System's parameters",'-');
+	save_param(*jd_write_);
+	save_input(*jd_write_);
+	save_output(*jd_write_);
+	jd_write_->write("polymerization strength",read_->read<double>());
+	jd_write_->write("critical exponents",read_->read<Vector<double> >());
+	/*}*/
 
 	return filename_;
 }

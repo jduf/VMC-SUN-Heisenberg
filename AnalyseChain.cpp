@@ -67,7 +67,9 @@ void AnalyseChain::close_files(){
 	}
 }
 
-
+/*{Description*/
+/*!extracts the results and plots the correlations, long range correlations and structure factor*/
+/*}*/
 std::string AnalyseChain::extract_level_8(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
@@ -76,12 +78,10 @@ std::string AnalyseChain::extract_level_8(){
 	CreateSystem cs(&s);
 	cs.init(&tmp,NULL);
 	cs.set_IOSystem(this);
-	/*Only one call of cs.save() is needed*/
+
 	if(!all_link_names_.size()){ 
-		s.save_input(*jd_write_);
-		jd_write_->add_header()->nl();
+		jd_write_->add_header()->title("Simulations",'<');
 		jd_write_->write("number of jdfiles",nof_);
-		jd_write_->add_header()->title("System's parameters",'-');
 	}
 	std::string link_name(cs.analyse(level_));
 
@@ -95,12 +95,44 @@ std::string AnalyseChain::extract_level_8(){
 std::string AnalyseChain::extract_level_7(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	System s(*read_);
-	CreateSystem cs(&s);
-	Vector<double> tmp(read_->read<Vector<double> >());
-	cs.init(&tmp,NULL);
-	cs.set_IOSystem(this);
-	std::string link_name(cs.analyse(level_));
+	unsigned int idx(0);
+	std::string link_name(filename_);
+
+	double E(666);
+	Vector<double> t;
+
+	double d_tmp;
+	Vector<double> vd_tmp;
+
+	(*read_)>>nof_;
+	for(unsigned int i(0);i<nof_;i++){
+		(*read_)>>t;
+		System s(*read_);
+		(*read_)>>d_tmp>>vd_tmp;
+
+		if(s.get_energy().get_x()<E){ 
+			E = s.get_energy().get_x();
+			idx = i;
+		}
+	}
+
+	delete read_;
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
+	(*read_)>>nof_;
+	for(unsigned int i(0);i<idx+1;i++){
+		(*read_)>>t;
+		System s(*read_);
+
+		if(i==idx){ 
+			CreateSystem cs(&s);
+			cs.init(&t,NULL);
+			cs.set_IOSystem(this);
+			link_name = cs.analyse(level_);
+		} else {
+			(*read_)>>d_tmp>>vd_tmp;
+		}
+	}
 
 	delete read_;
 	read_ = NULL;
