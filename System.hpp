@@ -28,7 +28,6 @@ class System{
 		System& operator=(System) = delete;
 		/*}*/
 
-
 		/*!Returns the reference to the type of wavefunction*/
 		Vector<unsigned int> const& get_ref() const { return ref_; }
 		/*!Returns the status of the system*/

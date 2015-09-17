@@ -95,7 +95,11 @@ void System::set_bonds(System const* const s){
 /*write in IOFiles methods*/
 /*{*/
 void System::write(IOFiles& w) const {
-	w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<links_<<E_<<corr_<<lr_corr_;
+	if(w.is_binary()){
+		w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<links_<<E_<<corr_<<lr_corr_;
+	} else {
+		w<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<M_<<" "<<E_<<IOFiles::endl;
+	}
 }
 
 void System::save_input(IOFiles& w) const {

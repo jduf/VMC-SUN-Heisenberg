@@ -104,7 +104,7 @@ template<typename Type>
 std::string Chain<Type>::extract_level_3(){
 	double polymerization_strength;
 	Vector<double> exponents;
-	(*this->read_)>>this->E_>>polymerization_strength>>exponents;
+	(*this->read_)>>polymerization_strength>>exponents;
 	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<" "<<exponents<<IOFiles::endl;
 
 	return this->filename_;

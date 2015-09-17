@@ -128,17 +128,16 @@ std::string ChainPolymerized::extract_level_8(){
 	Vector<double> lr_corr_v(lr_corr_.size());
 	Vector<double> poly_e(N_/m_,0);
 
-	(*data_write_)<<"% t E dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
-	/*!the +1 is the average over all runs */
-	(*data_write_)<<t_<<" "<<E_<<" "<<IOFiles::endl;
+
+	(*data_write_)<<t_<<" "<<E_<<IOFiles::endl;
 	for(unsigned int i(0);i<corr_.size();i++){
-		corr_file<<i+0.5<<" "<<corr_[i]<<" "<<IOFiles::endl;
+		corr_file<<i+0.5<<" "<<corr_[i]<<IOFiles::endl;
 		poly_e(i%(N_/m_)) += corr_[i].get_x(); 
 	}
 	for(unsigned int i(0);i<lr_corr_.size();i++){
-		lr_corr_file<<i<<" "<<lr_corr_[i]<<" "<<IOFiles::endl;
+		lr_corr_file<<i<<" "<<lr_corr_[i]<<IOFiles::endl;
 		lr_corr_v(i) = lr_corr_[i].get_x();
 	}
 	poly_e /= n_*m_/N_;
@@ -269,15 +268,12 @@ std::string ChainPolymerized::extract_level_7(){
 	gp.save_file();
 	gp.create_image(true,true);
 
-	/*!save*/
-	/*{*/
 	jd_write_->add_header()->title("System's parameters",'-');
 	save_param(*jd_write_);
 	save_input(*jd_write_);
 	save_output(*jd_write_);
 	jd_write_->write("polymerization strength",read_->read<double>());
 	jd_write_->write("critical exponents",read_->read<Vector<double> >());
-	/*}*/
 
 	return filename_;
 }
