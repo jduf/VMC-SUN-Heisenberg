@@ -30,7 +30,6 @@ class Analyse: public IOSystem{
 		void do_analyse();
 		virtual void open_files()  = 0;
 		virtual void close_files() = 0;
-		std::string extract_level_7();
 
 	private:
 		unsigned int study_;

@@ -33,7 +33,7 @@ void AnalyseChain::open_files(){
 			jd_write_->write("number of different boundary condition",nof_); 
 			jd_write_->add_header()->np();
 		}
-		if(level_==3 || level_==7){
+		if(level_==3 || level_==8){
 			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); 
 			data_write_->precision(10);
 		}
@@ -44,17 +44,17 @@ void AnalyseChain::open_files(){
 void AnalyseChain::close_files(){
 	if(jd_write_){ 
 		switch(level_){
-			case 7:
+			case 8:
 				{
 					if(nof_>1){/*if there is only one E data, there is no need to make a plot*/
-						rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); 
+						rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); 
 					}
 				} break;
 			case 3:
 				{
-					rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp")+RST::width("1000")); 
-					rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp")+RST::width("1000")); 
-					rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp")+RST::width("1000")); 
+					rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp")+RST::width("1000")); 
+					rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp")+RST::width("1000")); 
+					rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp")+RST::width("1000")); 
 				} break;
 		}
 		rst_file_.last().text(jd_write_->get_header());
@@ -67,8 +67,32 @@ void AnalyseChain::close_files(){
 	}
 }
 
+
+std::string AnalyseChain::extract_level_8(){
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
+	Vector<double> tmp(read_->read<Vector<double> >());
+	System s(*read_);
+	CreateSystem cs(&s);
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
+	/*Only one call of cs.save() is needed*/
+	if(!all_link_names_.size()){ 
+		s.save_input(*jd_write_);
+		jd_write_->add_header()->nl();
+		jd_write_->write("number of jdfiles",nof_);
+		jd_write_->add_header()->title("System's parameters",'-');
+	}
+	std::string link_name(cs.analyse(level_));
+
+	delete read_;
+	read_ = NULL;
+
+	return link_name;
+}
+
 /*calls cs.analyse(level) to plot E(ti)*/
-std::string AnalyseChain::extract_level_6(){
+std::string AnalyseChain::extract_level_7(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
 	System s(*read_);
@@ -85,7 +109,7 @@ std::string AnalyseChain::extract_level_6(){
 }
 
 /*different wavefunction*/
-std::string AnalyseChain::extract_level_5(){
+std::string AnalyseChain::extract_level_6(){
 	std::string link_name;
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
@@ -208,7 +232,7 @@ std::string AnalyseChain::extract_level_5(){
 }
 
 /*different boundary condition*/
-std::string AnalyseChain::extract_level_4(){
+std::string AnalyseChain::extract_level_5(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
 	/*!must save now nof_ because it doesn't refer to the number of file in the
@@ -236,6 +260,9 @@ std::string AnalyseChain::extract_level_4(){
 	delete read_;
 	read_ = NULL;
 
+	return filename_;
+}
+std::string AnalyseChain::extract_level_4(){
 	return filename_;
 }
 

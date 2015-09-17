@@ -22,7 +22,10 @@ class ChainPolymerized: public Chain<double> {
 		Vector<double> t_;//!< polymerization parameter 
 
 		void compute_H();
+		std::string extract_level_8();
 		std::string extract_level_7();
-		std::string extract_level_6();
+
+	private:
+		unsigned int set_spuc(Vector<double> const& t, unsigned int const& spuc);
 };
 #endif

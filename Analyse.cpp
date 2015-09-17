@@ -23,7 +23,7 @@ void Analyse::do_analyse(){
 				rst_file_.first().text(h);
 				recursive_search();
 				rst_file_.first().save(false,false);
-			}break; 
+			}break;
 		case 1: /*update only the README file*/
 			{
 				std::cout<<"analysing only README file"<<std::endl;
@@ -48,8 +48,8 @@ void Analyse::do_analyse(){
 				std::vector<std::string> tmp(my::string_split(path_,'/'));
 				path_ = "";
 				level_+=1;
-				for(unsigned int i(1);i<tmp.size()-1;i++){ 
-					path_ += tmp[i]+'/'; 
+				for(unsigned int i(1);i<tmp.size()-1;i++){
+					path_ += tmp[i]+'/';
 					level_++;
 					rel_level_ += "../";
 				}
@@ -92,7 +92,7 @@ void Analyse::search_jdbin(){
 	Directory d;
 	d.search_file_ext(".jdbin",sim_+path_+dir_,false,false);
 	nof_ = d.size();
-	if(d.size()>0){ 
+	if(d.size()>0){
 		d.sort();
 
 		Linux command;
@@ -120,7 +120,7 @@ void Analyse::search_jdbin(){
 		all_link_names_.set_target();
 		all_link_files_.set_target();
 		while ( all_link_names_.target_next() && all_link_files_.target_next() ) {
-			rst_file_.last().hyperlink(all_link_names_.get(),all_link_files_.get()); 
+			rst_file_.last().hyperlink(all_link_names_.get(),all_link_files_.get());
 		}
 
 		close_files();
@@ -128,27 +128,4 @@ void Analyse::search_jdbin(){
 		all_link_files_.set();
 		rst_file_.last().save(false,true);
 	}
-}
-
-std::string Analyse::extract_level_7(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
-
-	System s(*read_);
-	CreateSystem cs(&s);
-	Vector<double> tmp(read_->read<Vector<double> >());
-	cs.init(&tmp,NULL);
-	cs.set_IOSystem(this);
-	/*Only one call of cs.save() is needed*/
-	if(!all_link_names_.size()){ 
-		s.save_input(*jd_write_);
-		jd_write_->add_header()->nl();
-		jd_write_->write("number of jdfiles",nof_);
-		jd_write_->add_header()->title("System's parameters",'-');
-	}
-	std::string link_name(cs.analyse(level_));
-
-	delete read_;
-	read_ = NULL;
-
-	return link_name;
 }

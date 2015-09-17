@@ -43,6 +43,7 @@ class CreateSystem{
 		 * those stored in Container C_*/
 		/*}*/
 		void init(Vector<double> const* const param, Container* C);
+		void create(bool const& try_solve_degeneracy=false);
 
 		/*{IOSystem calls*/
 		/*!The attributes of IOSystem will be copied to RGL_/CGL_*/
@@ -82,7 +83,6 @@ class CreateSystem{
 			if(CGL_){ return CGL_->check(); }
 		}
 		/*!Calls GenericSystem::create() pure virtual method*/
-		void create(bool try_solve_degeneracy=false);
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 			if(RGL_){ RGL_->get_wf_symmetries(sym); }
 			if(CGL_){ CGL_->get_wf_symmetries(sym); }

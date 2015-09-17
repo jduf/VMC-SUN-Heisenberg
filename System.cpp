@@ -137,6 +137,9 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(0) = 1;
 		ref(1) = 1;
 		ref(2) = 1;
+
+		std::vector<double> Jp(1,1);
+		P.set("Jp",Jp);
 	}
 
 	if( wf == "ladderfermi"){

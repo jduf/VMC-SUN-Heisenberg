@@ -27,7 +27,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 									{
 										Vector<double> t;
 										if(param){ t = *param; }
-										if(C)    { t = C->get<double>("t"); }
+										if(C)    { t = C->get<std::vector<double> >("t"); }
 										if(t.ptr()){ RGL_ = new ChainPolymerized(*s_,t); }
 									}break;
 								default:{error();}break;
@@ -195,7 +195,7 @@ void CreateSystem::error() const {
 	std::cerr<<__PRETTY_FUNCTION__<<" : ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;
 }
 
-void CreateSystem::create(bool try_solve_degeneracy){
+void CreateSystem::create(bool const& try_solve_degeneracy){
 	if(RGL_){
 		RGL_->create();
 		if(get_status()!=1){
