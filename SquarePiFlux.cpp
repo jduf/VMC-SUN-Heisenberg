@@ -1,7 +1,7 @@
 #include "SquarePiFlux.hpp"
 
 SquarePiFlux::SquarePiFlux(System const& s):
-	System(s,3),
+	System(s),
 	Square<std::complex<double> >(set_ab(),(N_/m_==2?2:0),"square-csl")
 {
 	if(status_==2){

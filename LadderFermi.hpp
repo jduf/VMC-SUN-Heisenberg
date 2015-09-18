@@ -29,7 +29,7 @@ class LadderFermi: public Ladder<Type>{
 
 template<typename Type>
 LadderFermi<Type>::LadderFermi(System const& s):
-	System(s,3),
+	System(s),
 	Ladder<Type>(2,"ladder-fermi")
 {
 	if(this->status_==2){

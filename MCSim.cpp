@@ -1,6 +1,7 @@
 #include "MCSim.hpp"
 
-/*{constructors, destructors*/
+/*constructors, destructors*/
+/*{*/
 MCSim::MCSim(Vector<double> const& param):
 	param_(param)
 {}
@@ -12,20 +13,22 @@ MCSim::MCSim(IOFiles& r):
 	switch(ref_type_of_MCSystem){
 		case 0:
 			{
-				S_ = std::unique_ptr<SystemBosonic<double> >(new SystemBosonic<double>(r));
+				MCS_ = std::unique_ptr<SystemBosonic<double> >(new SystemBosonic<double>(r));
 			} break;
 		case 1:
 			{
-				S_ = std::unique_ptr<SystemFermionic<double> >(new SystemFermionic<double>(r));
+				MCS_ = std::unique_ptr<SystemFermionic<double> >(new SystemFermionic<double>(r));
 			} break;
 		case 2:
 			{
-				S_ = std::unique_ptr<SystemFermionic<std::complex<double> > >(new SystemFermionic<std::complex<double> >(r));
+				MCS_ = std::unique_ptr<SystemFermionic<std::complex<double> > >(new SystemFermionic<std::complex<double> >(r));
 			} break;
 	}
 }
 /*}*/
 
+/*core methods*/
+/*{*/
 void MCSim::create_S(System const* const s){
 	CreateSystem cs(s);
 	cs.init(&param_,NULL);
@@ -34,15 +37,15 @@ void MCSim::create_S(System const* const s){
 		if(cs.get_status()==1){
 			if( cs.use_complex()){
 				if(cs.is_bosonic()){
-					S_.reset(new SystemBosonic<std::complex<double> >(*dynamic_cast<const Bosonic<std::complex<double> >*>(cs.get_GS())));
+					MCS_.reset(new SystemBosonic<std::complex<double> >(*dynamic_cast<const Bosonic<std::complex<double> >*>(cs.get_GS())));
 				} else {
-					S_.reset(new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_GS())));
+					MCS_.reset(new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_GS())));
 				}
 			} else {
 				if(cs.is_bosonic()){
-					S_.reset(new SystemBosonic<double>(*dynamic_cast<const Bosonic<double>*>(cs.get_GS())));
+					MCS_.reset(new SystemBosonic<double>(*dynamic_cast<const Bosonic<double>*>(cs.get_GS())));
 				} else {
-					S_.reset(new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())));
+					MCS_.reset(new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())));
 				}
 			}
 		}
@@ -53,38 +56,44 @@ void MCSim::create_S(System const* const s){
 }
 
 void MCSim::copy_S(std::unique_ptr<MCSystem> const& S){
-	S_ = S->clone();
+	MCS_ = S->clone();
 }
 
 void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tmax){
 	if(is_created()){
-		MonteCarlo mc(S_.get(),tmax);
+		MonteCarlo mc(MCS_.get(),tmax);
 		mc.thermalize(thermalization_steps);
 		mc.run();
 	} else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : faulty parameters : "<<param_<<std::endl;
 	}
 }
+/*}*/
 
-bool MCSim::check_conv(double const& convergence_criterion){
-	return S_->check_conv(convergence_criterion);
+/*write in IOFiles methods*/
+/*{*/
+void MCSim::write(IOFiles& w) const {
+	w<<param_<<MCS_->get_ref()(1);
+	MCS_->write(w);
 }
 
-void MCSim::complete_analysis(double const& convergence_criterion){
-	S_->complete_analysis(convergence_criterion);
+void MCSim::save(IOFiles& w) const {
+	CreateSystem cs(MCS_.get());
+	cs.init(&param_,NULL);
+	if(cs.get_status()==2){
+		cs.save_param(w);
+		MCS_->save_input(w);
+		MCS_->save_output(w);
+	} else {
+		std::cerr<<__PRETTY_FUNCTION__<<" : status="<<cs.get_status()<<std::endl;
+	}
 }
+/*}*/
 
-void MCSim::set_observables(unsigned int const& which){
-	S_->set_observables(which);
-}
-
-void MCSim::free_memory(){
-	S_->free_memory();
-}
-
-/*{static methods*/
+/*static methods*/
+/*{*/
 bool MCSim::sort_by_E(MCSim const& a, MCSim const& b){
-	return a.get_S()->get_energy().get_x()<b.get_S()->get_energy().get_x();
+	return a.get_MCS()->get_energy().get_x()<b.get_MCS()->get_energy().get_x();
 }
 
 unsigned int MCSim::sort_by_param_for_merge(MCSim const& list, MCSim const& new_elem){
@@ -96,21 +105,6 @@ unsigned int MCSim::sort_by_param_for_merge(MCSim const& list, MCSim const& new_
 }
 
 void MCSim::merge(MCSim& list, MCSim& new_elem){
-	list.get_S()->merge(new_elem.get_S().get());
+	list.get_MCS()->merge(new_elem.get_MCS().get());
 }
 /*}*/
-
-void MCSim::write(IOFiles& w) const {
-	w<<param_<<S_->get_ref()(1);
-	S_->write(w);
-}
-
-void MCSim::save(IOFiles& w) const {
-	CreateSystem cs(S_.get());
-	cs.init(&param_,NULL);
-	if(cs.get_status()==2){
-		cs.save_param(w);
-		S_->save_input(w);
-		S_->save_output(w);
-	}
-}

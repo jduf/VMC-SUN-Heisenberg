@@ -23,7 +23,7 @@ class KagomeDirac: public Kagome<Type>{
 
 template<typename Type>
 KagomeDirac<Type>::KagomeDirac(System const& s):
-	System(s,3),
+	System(s),
 	Kagome<Type>(2,3,6,"kagome-dirac")
 {
 	if(this->status_==2){

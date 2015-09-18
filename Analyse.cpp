@@ -101,6 +101,7 @@ void Analyse::search_jdbin(){
 		open_files();
 
 		if(level_==9){
+			std::cout<<"lev "<<level_<<" : "<<path_+dir_<<std::endl;
 			std::cout<<std::string(6+path_.size()+dir_.size(),' ')<<"|->"<<d.get_name(d.size()-1)<<std::endl;
 
 			filename_ = d.get_name(d.size()-1);

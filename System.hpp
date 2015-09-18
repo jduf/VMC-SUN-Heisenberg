@@ -23,33 +23,28 @@ class System{
 		/*!Default destructor*/
 		virtual ~System() = default;
 		/*{Forbidden*/
-		System(System const&) = delete;
 		System(System&&) = delete;
 		System& operator=(System) = delete;
 		/*}*/
 
-		/*!Returns the reference to the type of wavefunction*/
-		Vector<unsigned int> const& get_ref() const { return ref_; }
-		/*!Returns the status of the system*/
-		unsigned int const& get_status() const { return status_; }
-		/*!Returns the energy*/
-		Data<double> const& get_energy() const { return E_; }
-
-		/*!Sets the observables to default (0) values and initilizes binning*/
-		void set_observables();
-		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
-		void set_observables(unsigned int const& which);
-		/*!Deletes the binning for all observables*/
-		void delete_binning();
-		/*!Calls complete_analysis of the sampled datas*/
-		void complete_analysis(double const& convergence_criterion);
-		/*!Checks if the energy has converged to a stable value*/
-		bool check_conv(double const& convergence_criterion);
-		/*!Merge the binning of all observables of s into (*this)*/
-		void merge(System* s);
+		/*{Handles class attributes*/
 		/*!Sets (*this) J_ and links_ to be those of s*/
 		void set_bonds(System const* const s);
+		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
+		void set_observables(unsigned int const& which);
+		/*!Sets the observables to default (0) values and initilizes binning*/
+		void set_observables();
+		/*!Checks if the energy has converged to a stable value*/
+		bool check_conv(double const& convergence_criterion);
+		/*!Calls complete_analysis of the sampled datas*/
+		void complete_analysis(double const& convergence_criterion);
+		/*!Merge the binning of all observables of s into (*this)*/
+		void merge(System* s);
+		/*!Deletes the binning for all observables*/
+		void delete_binning();
+		/*}*/
 
+		/*{Write in IOFiles methods*/
 		virtual void write(IOFiles& w) const;
 		/*{Description*/
 		/*!Saves ref_, N_, m_, n_, M_ bc_ and J_ in w. The file will contain a
@@ -59,12 +54,22 @@ class System{
 		/*}*/
 		virtual void save_input(IOFiles& w) const;
 		void save_output(IOFiles& w) const;
+		/*}*/
+
+		/*{Simple value return*/
+		/*!Returns the reference to the type of wavefunction*/
+		Vector<unsigned int> const& get_ref() const { return ref_; }
+		/*!Returns the status of the system*/
+		unsigned int const& get_status() const { return status_; }
+		/*!Returns the energy*/
+		Data<double> const& get_energy() const { return E_; }
+		/*}*/
 
 	protected:
-		/*!Almost copy constructor*/
-		System(System const& s, unsigned int const& status);
+		/*!Copy constructor*/
+		System(System const& s) = default;
 		/*!Default constructor*/
-		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),status_(5){ std::cout<<"System::System() : should never be called"<<std::endl; }
+		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),status_(5){ std::cout<<__PRETTY_FUNCTION__<<" : should never be called"<<std::endl; }
 
 		Vector<unsigned int> const ref_;//!< type of system 
 		unsigned int const N_;			//!< number of colors

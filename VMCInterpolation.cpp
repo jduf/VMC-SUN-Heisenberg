@@ -99,8 +99,8 @@ void VMCInterpolation::plot(){
 		m_->samples_list_.set_target();
 		double min(0);
 		while(m_->samples_list_.target_next()){
-			if(m_->samples_list_.get().get_S()->get_energy().get_x()<min){ min = m_->samples_list_.get().get_S()->get_energy().get_x(); }
-			(*out_)<<m_->samples_list_.get().get_param()<<" "<<m_->samples_list_.get().get_S()->get_energy()<<IOFiles::endl;
+			if(m_->samples_list_.get().get_MCS()->get_energy().get_x()<min){ min = m_->samples_list_.get().get_MCS()->get_energy().get_x(); }
+			(*out_)<<m_->samples_list_.get().get_param()<<" "<<m_->samples_list_.get().get_MCS()->get_energy()<<IOFiles::endl;
 		}
 		delete out_;
 
@@ -143,7 +143,7 @@ void VMCInterpolation::plot(){
 			std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 			(*out_)<<param.norm_squared()<<" "<<interp_(param)<<" ";
 			if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){
-				(*out_)<<m_->samples_list_.get().get_S()->get_energy().get_x()<<" "<<m_->samples_list_.get().get_S()->get_energy().get_dx()<<IOFiles::endl;
+				(*out_)<<m_->samples_list_.get().get_MCS()->get_energy().get_x()<<" "<<m_->samples_list_.get().get_MCS()->get_energy().get_dx()<<IOFiles::endl;
 			} else {
 				(*out_)<<0<<" "<<0<<IOFiles::endl;
 			}
@@ -166,7 +166,7 @@ void VMCInterpolation::print(){
 		std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
 		if(sim.get()){
 #pragma omp critical
-			std::cerr<<__PRETTY_FUNCTION__<<" : "<<param<<" "<<interp_(param)<<" "<<sim->get_S()->get_energy()<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : "<<param<<" "<<interp_(param)<<" "<<sim->get_MCS()->get_energy()<<std::endl;
 		}
 	}
 }
@@ -180,7 +180,7 @@ void VMCInterpolation::search_minima(){
 
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
-		interp_.add_data(m_->samples_list_.get().get_param(),m_->samples_list_.get().get_S()->get_energy().get_x());
+		interp_.add_data(m_->samples_list_.get().get_param(),m_->samples_list_.get().get_MCS()->get_energy().get_x());
 	}
 
 	double dx(0.0);
@@ -361,11 +361,11 @@ void VMCInterpolation::save_interp_data(Vector<double>* x, Vector<unsigned int> 
 void VMCInterpolation::evaluate(Vector<double>* x, Vector<unsigned int> const& idx, double& E, double& dE, double& Ee){
 	Vector<double> param(m_->dof_);
 	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
-	std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
-	if(sim.get()){
-		sim->check_conv(1e-5);
-		E = sim->get_S()->get_energy().get_x();
-		dE= sim->get_S()->get_energy().get_dx();
+	std::shared_ptr<MCSim> mcsim(VMCMinimization::evaluate(param));
+	if(mcsim.get()){
+		mcsim->check_conv(1e-5);
+		E = mcsim->get_MCS()->get_energy().get_x();
+		dE= mcsim->get_MCS()->get_energy().get_dx();
 		Ee= interp_(param);
 	} else {
 		E = 0.0;

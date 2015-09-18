@@ -31,12 +31,12 @@ class IOSystem{
 		IOFiles* data_write_   = NULL;//!< textfile in which data are written saved in analyse_/path_
 		RSTFile* rst_file_	   = NULL;//!< rst file saved in info_/path_/dir_
 
-		std::string sim_	   = "sim/";	 //!< sim directory name
-		std::string info_	   = "info/";	 //!< directory name where the .rst and .html files will be saved
+		std::string sim_	   = "sim/";	//!< sim directory name
+		std::string info_	   = "info/";	//!< directory name where the .rst and .html files will be saved
 		std::string analyse_   = "analyse/";//!< directory name where the .gp dat .dat files will be saved 
-		std::string path_	   = "";		 //!< temporary variable of the path leading to dir_
-		std::string dir_	   = "";		 //!< temporary variable containing filename_
-		std::string filename_  = "";	 	 //!< whole filename of the .jdbin file
+		std::string path_	   = "";		//!< temporary variable of the path leading to dir_
+		std::string dir_	   = "";		//!< temporary variable containing filename_
+		std::string filename_  = "";	 	//!< whole filename of the .jdbin file
 
 		virtual std::string extract_level_1(){ return filename_; }
 		virtual std::string extract_level_2(){ return filename_; }

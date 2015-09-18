@@ -12,8 +12,8 @@ class Analyse: public IOSystem{
 		virtual ~Analyse() = default;
 		/*{Forbidden*/
 		Analyse() = delete;
-		Analyse(Analyse const& a) = delete;
-		Analyse(Analyse&& a) = delete;
+		Analyse(Analyse const&) = delete;
+		Analyse(Analyse&&) = delete;
 		Analyse& operator=(Analyse const&) = delete;
 		/*}*/
 

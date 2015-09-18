@@ -70,13 +70,13 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 /*{*/
 template<typename Type>
 SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
-	System(S,S.get_status()),
+	System(S),
 	MCSystem(S),
 	Fermionic<Type>(S),
 	row_(n_,m_),
 	Ainv_(new Matrix<Type>[N_]),
 	tmp_(new Matrix<Type>[N_])
-{ 
+{
 	/*!Initialized class variables*/
 	for(unsigned int c(0);c<N_;c++){ 
 		Ainv_[c].set(M_(c),M_(c)); 
@@ -163,7 +163,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 
 template<typename Type>
 SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
-	System(S,0),
+	System(S),
 	MCSystem(S),
 	Fermionic<Type>(S),
 	row_(S.row_),

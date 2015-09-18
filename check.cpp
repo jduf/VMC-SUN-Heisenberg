@@ -2,6 +2,7 @@
 
 #include "MonteCarlo.hpp"
 #include "CreateSystem.hpp"
+#include "MCSim.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
@@ -76,6 +77,7 @@ int main(int argc, char* argv[]){
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())); 
 					}
 					std::cout<<"############# Init Monte Carlo ############"<<std::endl;
+					S->set_observables(1);
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
 					std::cout<<"############# Run Monte Carlo #############"<<std::endl;
@@ -83,7 +85,7 @@ int main(int argc, char* argv[]){
 					S->complete_analysis(1e-5);
 					std::cout<<S->get_energy()<<std::endl;
 					std::cout<<"############# Save MCSystem ###############"<<std::endl;
-					IOFiles out("MCSystem.jdbin",true);
+					IOFiles out("check.jdbin",true);
 					S->write(out);
 					delete S;
 				}
@@ -93,7 +95,7 @@ int main(int argc, char* argv[]){
 				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
 				MCSystem* S(NULL);
 				std::cout<<"############# Load MCSystem ###############"<<std::endl;
-				IOFiles in("MCSystem.jdbin",false);
+				IOFiles in("check.jdbin",false);
 				if(cs.use_complex()){
 					S = new SystemFermionic<std::complex<double> >(in); 
 				} else {
@@ -113,7 +115,7 @@ int main(int argc, char* argv[]){
 				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
 				MCSystem* S(NULL);
 				std::cout<<"############# Load MCSystem ###############"<<std::endl;
-				IOFiles in("MCSystem.jdbin",false);
+				IOFiles in("check.jdbin",false);
 				if(cs.use_complex()){
 					S = new SystemFermionic<std::complex<double> >(in); 
 				} else {
@@ -127,7 +129,7 @@ int main(int argc, char* argv[]){
 				S->complete_analysis(1e-5);
 				std::cout<<S->get_energy()<<std::endl;
 				std::cout<<"############# Save MCSystem ###############"<<std::endl;
-				IOFiles out("MCSystem.jdbin",true);
+				IOFiles out("check.jdbin",true);
 				S->write(out);
 				delete S;
 			} break;
@@ -147,9 +149,28 @@ int main(int argc, char* argv[]){
 							t(sym(i,0)) = sym(i,2)*t(sym(i,1));
 						}
 					}
-					//std::cout<<sym<<std::endl<<std::endl;
 					std::cout<<"sim["<<j<<"]"<<" "<<i<<" -> "<<t<<std::endl;
 				}
+			} break;
+		case 8:/*use MCSim to run two sim then, merge them*/
+			{
+				MCSim mcsim(P.get<std::vector<double> >("t"));
+				System s(P);
+				s.set_observables(1);
+				mcsim.create_S(&s);
+				mcsim.run(1e6,2);
+				mcsim.complete_analysis(1e-5);
+
+				MCSim mcsim2(P.get<std::vector<double> >("t"));
+				mcsim2.copy_S(mcsim.get_MCS());
+				mcsim2.run(1e6,4);
+				mcsim2.complete_analysis(1e-5);
+
+				std::cout<<mcsim.get_MCS()->get_energy()<<std::endl;
+				std::cout<<mcsim2.get_MCS()->get_energy()<<std::endl;
+				MCSim::merge(mcsim,mcsim2);
+				mcsim.complete_analysis(1e-5);
+				std::cout<<mcsim.get_MCS()->get_energy()<<std::endl;
 			} break;
 		default:
 			{
@@ -162,6 +183,7 @@ int main(int argc, char* argv[]){
 				std::cerr<<"    - load + run                  : 5"<<std::endl;
 				std::cerr<<"    - load + run + rewrite        : 6"<<std::endl;
 				std::cerr<<"    - load + check_symmetries     : 7"<<std::endl;
+				std::cerr<<"    - MCSim                       : 8"<<std::endl;
 			}
 	}
 }

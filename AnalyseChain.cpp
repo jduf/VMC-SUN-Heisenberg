@@ -269,10 +269,10 @@ std::string AnalyseChain::extract_level_3(){
 
 		s.save_input(*jd_write_);
 	}
-	
+
 	delete read_;
 	read_ = NULL;
-	
+
 	return filename_;
 }
 

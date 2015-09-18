@@ -38,12 +38,10 @@ class CreateSystem{
 		CreateSystem& operator=(CreateSystem cs) = delete;
 		/*}*/
 
-		/*{Description*/
-		/*!If read!=NULL, it will use parameters saved in IOFiles instead of
-		 * those stored in Container C_*/
-		/*}*/
+		/*{Core methods*/
 		void init(Vector<double> const* const param, Container* C);
 		void create(bool const& try_solve_degeneracy=false);
+		/*}*/
 
 		/*{IOSystem calls*/
 		/*!The attributes of IOSystem will be copied to RGL_/CGL_*/
@@ -107,6 +105,7 @@ class CreateSystem{
 		}
 		/*}*/
 
+		/*{Simple value return*/
 		/*!Returns ref*/
 		Vector<unsigned int> const&  get_ref() const { return ref_; }
 		/*!Returns a pointer on the GenericSystem created*/
@@ -125,15 +124,18 @@ class CreateSystem{
 			if(ref_(1) == 0){ return true; }
 			else { return false; }
 		}
+		/*}*/
 
 	private:
-		Container C_;
+		Container* C_;
 		System const* s_;
 		Vector<unsigned int> ref_;
 
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
 
-		void error() const;
+		void error() const {
+			std::cerr<<__PRETTY_FUNCTION__<<" : ref_ = ["<<ref_<<"] unknown"<<std::endl;
+		}
 };
 #endif

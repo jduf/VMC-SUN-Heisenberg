@@ -1,7 +1,7 @@
 #include "KagomeVBC.hpp"
 
 KagomeVBC::KagomeVBC(System const& s):
-	System(s,3),
+	System(s),
 	Kagome<std::complex<double> >(1,1,9,"kagome-vbc")
 {
 	if(status_==2){

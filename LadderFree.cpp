@@ -1,7 +1,7 @@
 #include "LadderFree.hpp"
 
 LadderFree::LadderFree(System const& s, Vector<double> const& t):
-	System(s,3),
+	System(s),
 	Ladder<double>(set_spuc(t),"ladderfree"),
 	t_(t)
 {
@@ -50,6 +50,7 @@ void LadderFree::compute_H(){
 void LadderFree::create(){
 	compute_H();
 	diagonalize(true);
+
 	if(status_==1){
 		for(unsigned int c(0);c<N_;c++){
 			for(unsigned int i(0);i<n_;i++){
@@ -944,9 +945,9 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 		}
 	}
 	double lr_corr;
-	double lr_corr_max(lr_corr_[0].get_x());
+	double rescale(lr_corr_.size()?1.0/(lr_corr_[0].get_x()*0.75):0);
 	for(unsigned int i(0);i<lr_corr_.size();i++){
-		lr_corr = lr_corr_[i].get_x()/lr_corr_max*0.75;
+		lr_corr = lr_corr_[i].get_x()*rescale;
 		if(std::abs(lr_corr)>1e-4){
 			xy0(0) = i/2;
 			xy0(1) = i%2-2*y_shift;

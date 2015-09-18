@@ -1,7 +1,7 @@
 #include "Honeycomb0pp.hpp"
 
 Honeycomb0pp::Honeycomb0pp(System const& s, double td):
-	System(s,3),
+	System(s),
 	Honeycomb<double>(set_ab(),6,"honeycomb0pp"),
 	td_(td)
 {

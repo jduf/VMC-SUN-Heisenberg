@@ -1,5 +1,7 @@
 #include "CreateSystem.hpp"
 
+/*constructors, destructors*/
+/*{*/
 CreateSystem::CreateSystem(System const* const s):
 	s_(s),
 	ref_(s_->get_ref()),
@@ -11,8 +13,12 @@ CreateSystem::~CreateSystem(){
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 }
+/*}*/
 
+/*core methods*/
+/*{*/
 void CreateSystem::init(Vector<double> const* const param, Container* C){
+	if(C){ C_ = C; }
 	if(RGL_){delete RGL_;}
 	if(CGL_){delete CGL_;}
 	switch(ref_(0)){
@@ -52,7 +58,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 0:
 									{ RGL_ = new LadderFermi<double>(*s_); }break;
 								case 4:
-									{ 
+									{
 										Vector<double> t;
 										if(param){ t = *param; }
 										if(C)    { t = C->get<std::vector<double> >("t"); }
@@ -115,14 +121,14 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 2:
 									{ CGL_ = new SquarePiFlux(*s_); }break;
 								case 3:
-									{ 
+									{
 										Vector<double> t;
 										if(param){ t = *param; }
 										if(C)    { t = C->get<std::vector<double> >("t"); }
 										if(t.ptr()){ CGL_ = new SquareACSL(*s_,t); }
 									}break;
 								case 4:
-									{ 
+									{
 										Vector<double> t;
 										Vector<double> mu;
 										Vector<double> phi;
@@ -130,14 +136,14 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 											t = param->range(0,0);
 											mu= param->range(1,2);
 											phi.set(1,M_PI/4.0);
-										} 
+										}
 										if(C){
 											t = C->get<std::vector<double> >("t");
 											mu= C->get<std::vector<double> >("mu");
 											phi=Vector<double>(1,M_PI/4.0);
 										}
 										if(mu.ptr() && mu.ptr() && t.ptr()){
-											CGL_ = new SquareFreeComplex(*s_,t,mu,phi); 
+											CGL_ = new SquareFreeComplex(*s_,t,mu,phi);
 										}
 									}break;
 								default:{error();}break;
@@ -191,20 +197,14 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 	}
 }
 
-void CreateSystem::error() const {
-	std::cerr<<__PRETTY_FUNCTION__<<" : ref_ = ["<<ref_(0)<<ref_(1)<<ref_(2)<<"] unknown"<<std::endl;
-}
-
 void CreateSystem::create(bool const& try_solve_degeneracy){
 	if(RGL_){
 		RGL_->create();
-		if(get_status()!=1){
+		if(RGL_->get_status()!=1){
 			if(try_solve_degeneracy){
-				delete RGL_;
-				RGL_=NULL;
 				ref_(1)=2;
-				//init(NULL,NULL);
-				std::cerr<<__PRETTY_FUNCTION__<<" : can't recreate CGL"<<std::endl; 
+				init(NULL,C_);
+				std::cerr<<__PRETTY_FUNCTION__<<" : need to check if this works"<<std::endl;
 				if(CGL_){ CGL_->create(); }
 			} else {
 				std::cerr<<__PRETTY_FUNCTION__<<" : giving up"<<std::endl;
@@ -217,3 +217,4 @@ void CreateSystem::create(bool const& try_solve_degeneracy){
 		}
 	}
 }
+/*}*/

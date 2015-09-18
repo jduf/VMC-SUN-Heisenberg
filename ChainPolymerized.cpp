@@ -1,7 +1,7 @@
 #include "ChainPolymerized.hpp"
 
 ChainPolymerized::ChainPolymerized(System const& s, Vector<double> const& t):
-	System(s,3),
+	System(s),
 	Chain<double>(set_spuc(t,N_/m_),"chain-polymerized"),
 	t_(t)
 {

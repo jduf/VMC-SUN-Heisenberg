@@ -50,8 +50,8 @@ void VMCMinimization::refine(){
 		E=0;
 		m_->samples_list_.set_target();
 		while(m_->samples_list_.target_next()){
-			if(m_->samples_list_.get().get_S()->get_energy().get_x()<E){
-				E = m_->samples_list_.get().get_S()->get_energy().get_x();
+			if(m_->samples_list_.get().get_MCS()->get_energy().get_x()<E){
+				E = m_->samples_list_.get().get_MCS()->get_energy().get_x();
 			}
 		}
 		E += 1.5*dE;
@@ -66,7 +66,7 @@ void VMCMinimization::refine(double const& E, double const& dE){
 		List<MCSim> best;
 		m_->samples_list_.set_target();
 		while(m_->samples_list_.target_next()){
-			if(m_->samples_list_.get().get_S()->get_energy().get_x()<E){
+			if(m_->samples_list_.get().get_MCS()->get_energy().get_x()<E){
 				best.add_end(m_->samples_list_.get_ptr());
 			}
 		}
@@ -84,7 +84,7 @@ void VMCMinimization::refine(double const& E, double const& dE){
 				do {
 #pragma omp parallel
 					{ evaluate(best.get().get_param()); }
-				} while( iter++<10 && ( !best.get().check_conv(1e-5) || best.get().get_S()->get_energy().get_dx()>dE ) );
+				} while( iter++<10 && ( !best.get().check_conv(1e-5) || best.get().get_MCS()->get_energy().get_dx()>dE ) );
 			}
 		} else {
 			if(N<700){ msg = "not enough data to be usefull, skip the evaluation"; }
@@ -116,13 +116,13 @@ void VMCMinimization::save() const {
 	out<<path_<<basename_;
 }
 
-void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& param, double& E_range) const {
+void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& best_param, double& E_range) const {
 	double E(666);
 	double tmp;
 
 	auto sort_by_r = [&](MCSim const& a, MCSim const& b){
-		double tmp_a((a.get_param()-param).norm_squared());
-		double tmp_b((b.get_param()-param).norm_squared());
+		double tmp_a((a.get_param()-best_param).norm_squared());
+		double tmp_b((b.get_param()-best_param).norm_squared());
 		if(my::are_equal(tmp_a,tmp_b)){ return 2; }
 		if(tmp_a>tmp_b){ return 0; }
 		if(tmp_a<tmp_b){ return 1; }
@@ -131,10 +131,10 @@ void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>&
 
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
-		tmp = m_->samples_list_.get().get_S()->get_energy().get_x();
+		tmp = m_->samples_list_.get().get_MCS()->get_energy().get_x();
 		if(tmp<E){
 			E=tmp;
-			param = m_->samples_list_.get().get_param();
+			best_param = m_->samples_list_.get().get_param();
 		}
 	}
 	E_range = E*0.99;
@@ -142,10 +142,10 @@ void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>&
 	List<MCSim> list_sorted_r;
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
-		E=m_->samples_list_.get().get_S()->get_energy().get_x();
+		E=m_->samples_list_.get().get_MCS()->get_energy().get_x();
 		if(E<E_range){
 			if(list_sorted_r.find_sorted(m_->samples_list_.get_ptr(),sort_by_r)){
-				if(list_sorted_r.get().get_S()->get_energy().get_x() > E){ list_sorted_r.get_ptr() = m_->samples_list_.get_ptr(); }
+				if(list_sorted_r.get().get_MCS()->get_energy().get_x() > E){ list_sorted_r.get_ptr() = m_->samples_list_.get_ptr(); }
 			} else { list_sorted_r.add_after_target(m_->samples_list_.get_ptr()); }
 		}
 	}
@@ -159,12 +159,12 @@ void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>&
 		List<MCSim> list_tmp;
 		std::vector<double> E_tmp;
 		for(unsigned int i(0);i<list_sorted_r.size();i++){
-			tmp = (param-list_sorted_r[i].get_param()).norm_squared();
-			E = list_sorted_r.get().get_S()->get_energy().get_x();
+			tmp = (best_param-list_sorted_r[i].get_param()).norm_squared();
+			E = list_sorted_r.get().get_MCS()->get_energy().get_x();
 			list_tmp.add_end(list_sorted_r.get_ptr());
 			keep = true;
 			for(unsigned int j(i>ao?i-ao:1);j<i+ao && j<list_sorted_r.size();j++){
-				if(list_sorted_r[j].get_S()->get_energy().get_x()<E){
+				if(list_sorted_r[j].get_MCS()->get_energy().get_x()<E){
 					j = list_sorted_r.size();
 					keep = false;
 				}
@@ -194,9 +194,9 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima
 		if(filename==""){ filename =  get_filename(); }
 
 		List<MCSim> list_min;
-		Vector<double> param;
+		Vector<double> best_param;
 		double E_range;
-		find_minima(max_n_minima,list_min,param,E_range);
+		find_minima(max_n_minima,list_min,best_param,E_range);
 
 		IOFiles data(path+filename+".dat",true);
 		IOFiles data_Er(path+filename+"-Er.dat",true);
@@ -204,17 +204,13 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima
 
 		m_->samples_list_.set_target();
 		while(m_->samples_list_.target_next()){
-			data<<m_->samples_list_.get().get_param()<<" "<<(param-m_->samples_list_.get().get_param()).norm_squared()<<" "<<m_->samples_list_.get().get_S()->get_energy()<<IOFiles::endl;
+			data<<m_->samples_list_.get().get_param()<<" "<<(best_param-m_->samples_list_.get().get_param()).norm_squared()<<" "<<m_->samples_list_.get().get_MCS()->get_energy()<<IOFiles::endl;
 		}
 
 		list_min.set_target();
-		double tmp;
-		double r_max(0);
 		while(list_min.target_next()){
-			tmp = (param-list_min.get().get_param()).norm_squared();
-			data_Er<<tmp<<" "<<list_min.get().get_S()->get_energy().get_x()<<IOFiles::endl;
+			data_Er<<(best_param-list_min.get().get_param()).norm_squared()<<" "<<list_min.get().get_MCS()->get_energy().get_x()<<IOFiles::endl;
 			list_min.get().save(w);
-			if(r_max<tmp){ r_max=tmp; }
 		}
 
 		Gnuplot gp(path,filename);
@@ -245,16 +241,16 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima){
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 		List<MCSim> list_min;
-		Vector<double> param;
+		Vector<double> best_param;
 		double E_range;
-		find_minima(max_n_minima,list_min,param,E_range);
+		find_minima(max_n_minima,list_min,best_param,E_range);
 
 		msg = "found "+my::tostring(list_min.size())+" local minima";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
 		list_min.set_target();
-		while(list_min.target_next()){ 
+		while(list_min.target_next()){
 #pragma omp parallel
 			{ evaluate(list_min.get().get_param(),2); }
 			list_min.get().complete_analysis(1e-5);
@@ -267,9 +263,7 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima){
 void VMCMinimization::print() const {
 	std::cout<<"Print whole history ("<< m_->samples_list_.size()<<")"<<std::endl;
 	while( m_->samples_list_.target_next() ){
-		std::cout<<m_->samples_list_.get_ptr()<<" ";
-		m_->samples_list_.get().print();
-		std::cout<<std::endl;
+		std::cout<<m_->samples_list_.get_ptr()<<" "<<m_->samples_list_.get().get_param()<<" "<<m_->samples_list_.get().get_MCS()->get_energy()<<std::endl;
 	}
 }
 /*}*/
@@ -282,7 +276,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, un
 	{
 		if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){
 			tmp_test = true;
-			sim->copy_S(m_->samples_list_.get().get_S());
+			sim->copy_S(m_->samples_list_.get().get_MCS());
 		} else {
 			tmp_test = false;
 			sim->create_S(m_->s_);
@@ -295,7 +289,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, un
 #pragma omp critical(samples_list_)
 		{
 			if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){
-				m_->samples_list_.merge_with_target(sim,MCSim::merge);
+				m_->samples_list_.handle_twin(sim,MCSim::merge);
 				sim = m_->samples_list_.get_ptr();
 			} else {
 				m_->samples_list_.add_after_target(sim);
@@ -315,14 +309,6 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, un
 /*{Minimization*/
 void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::string& basename){
 	unsigned int i(0);
-	if(P.find("tmax",i,false)){ tmax_ = P.get<unsigned int>("tmax"); }
-	else {
-		tmax_ = 1;
-		std::string msg("assume tmax=1s");
-		std::cout<<"#"+msg<<std::endl;
-		info_.item(msg);
-	}
-
 	if(P.find("load",i,false)){
 		Time chrono;
 		std::string filename(P.get<std::string>(i));
@@ -338,6 +324,14 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 		std::cout<<msg_end<<std::endl;
 	} else {
 		create(P,path,basename);
+	}
+
+	if(P.find("tmax",i,false)){ tmax_ = P.get<unsigned int>("tmax"); }
+	else {
+		tmax_ = 1;
+		std::string msg("assume tmax=1s");
+		std::cout<<"#"+msg<<std::endl;
+		info_.item(msg);
 	}
 }
 

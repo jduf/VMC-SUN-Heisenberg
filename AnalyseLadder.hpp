@@ -10,6 +10,8 @@ class AnalyseLadder : public Analyse{
 		~AnalyseLadder() = default;
 
 	protected:
+		IOFiles complete_jobs_;
+
 		void open_files();
 		void close_files();
 

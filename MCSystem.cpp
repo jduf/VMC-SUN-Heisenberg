@@ -3,7 +3,7 @@
 /*constructors and destructor*/
 /*{*/
 MCSystem::MCSystem(System const& S):
-	System(S,0),
+	System(S),
 	s_(n_,m_),
 	n_rnd_(0,n_-1),
 	m_rnd_(0,m_-1)
@@ -28,7 +28,7 @@ MCSystem::MCSystem(System const& S):
 }
 
 MCSystem::MCSystem(MCSystem const& mcsim):
-	System(mcsim,0),
+	System(mcsim),
 	s_(mcsim.s_),
 	n_rnd_(0,n_-1),
 	m_rnd_(0,m_-1)

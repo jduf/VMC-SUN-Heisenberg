@@ -32,25 +32,15 @@ System::System(IOFiles& r):
 	corr_(r),
 	lr_corr_(r)
 {}
-
-System::System(System const& s, unsigned int const& status):
-	ref_(s.ref_),
-	N_(s.N_),
-	m_(s.m_),
-	n_(s.n_),
-	bc_(s.bc_),
-	M_(s.M_),
-	J_(s.J_),
-	status_(status),
-	links_(s.links_),
-	E_(s.E_),
-	corr_(s.corr_),
-	lr_corr_(s.lr_corr_)
-{}
 /*}*/
 
 /*handles class attributes*/
 /*{*/
+void System::set_bonds(System const* const s){
+	J_ = s->J_; 
+	links_ = s->links_; 
+}
+
 void System::set_observables(unsigned int const& which){
 	E_.set(50,5,false);
 	if(which>0){ corr_.set(links_.row(),50,5,false); }
@@ -63,10 +53,9 @@ void System::set_observables(){
 	lr_corr_.set(); 
 }
 
-void System::delete_binning(){ 
-	E_.delete_binning();
-	corr_.delete_binning();
-	lr_corr_.delete_binning();
+bool System::check_conv(double const& convergence_criterion){
+	E_.complete_analysis(convergence_criterion);
+	return E_.get_conv();
 }
 
 void System::complete_analysis(double const& convergence_criterion){ 
@@ -75,20 +64,16 @@ void System::complete_analysis(double const& convergence_criterion){
 	lr_corr_.complete_analysis(convergence_criterion); 
 }
 
-bool System::check_conv(double const& convergence_criterion){
-	E_.complete_analysis(convergence_criterion);
-	return E_.get_conv();
-}
-
 void System::merge(System* s){ 
 	E_.merge(s->E_);
 	corr_.merge(s->corr_);
 	lr_corr_.merge(s->lr_corr_);
 }
 
-void System::set_bonds(System const* const s){
-	J_ = s->J_; 
-	links_ = s->links_; 
+void System::delete_binning(){ 
+	E_.delete_binning();
+	corr_.delete_binning();
+	lr_corr_.delete_binning();
 }
 /*}*/
 
@@ -136,6 +121,9 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(0) = 1;
 		ref(1) = 1;
 		ref(2) = 0;
+
+		std::vector<double> Jp(1,1);
+		P.set("Jp",Jp);
 	}
 	if( wf == "chainpolymerized" ){
 		ref(0) = 1;

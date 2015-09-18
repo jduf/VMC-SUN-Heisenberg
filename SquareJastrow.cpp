@@ -1,7 +1,7 @@
 #include "SquareJastrow.hpp"
 
 SquareJastrow::SquareJastrow(System const& s, Matrix<double> const& nu):
-	System(s,3),
+	System(s),
 	Square<double>(set_ab(),2,"square-jastrow")
 {
 	init_bosonic(z_,nu);

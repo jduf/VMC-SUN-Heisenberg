@@ -65,8 +65,14 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 	z_(z)
 {
 	if(this->n_%this->spuc_){
-		this->status_++;
-		std::cerr<<__PRETTY_FUNCTION__<<" : the number of sites is not comensurate with the unit cell"<<std::endl;
+		this->status_= 4;
+		std::cerr<<__PRETTY_FUNCTION__<<" : the number of sites is not commensurate with the unit cell"<<std::endl;
+	} else {
+		/*!Need to redefine the value of status to be 3 because in MCSim::save,
+		 * CreateSystem uses a MCSystem in the constructor. As
+		 * MCSystem::stats_=0 for successful simulation, the created System
+		 * will also have System::status_=0 which will be problematic.*/
+		this->status_=3;
 	}
 }
 
