@@ -6,20 +6,20 @@ class A{
 	public:
 		A(double a):a_(a){
 			N_++;
-			std::cout<<"normal"<<std::endl;
+			std::cout<<"normal A"<<std::endl;
 		}
 
 		A(A const& a):a_(a.a_){
 			N_++;
-			std::cout<<"copy"<<std::endl;
+			std::cout<<"copy A"<<std::endl;
 		}
 
 		A(A&& a):a_(a.a_){
-			std::cout<<"move"<<std::endl;
+			std::cout<<"move A"<<std::endl;
 		}
 
 		~A(){ 
-			std::cout<<"destroyed"<<std::endl;
+			std::cout<<"destroyed A"<<std::endl;
 			N_--; 
 		}
 
@@ -27,7 +27,6 @@ class A{
 			a_ *= x;
 			return (*this);
 		}
-
 
 		void print(std::ostream& flux) const { flux<<a_; }
 
@@ -135,8 +134,6 @@ int main(){
 		std::cout<<"will add at the last entry with add_end()"<<std::endl;
 		b.add_end(std::make_shared<A>(9));
 		std::cout<<b<<std::endl;
-
-
 	}
 	{
 		std::cout<<"#### test add_sort with int ####"<<std::endl;
@@ -193,7 +190,7 @@ int main(){
 			tmp(0) = rnd.get();
 			tmp(1) = rnd.get();
 			tmp_shared = std::make_shared<Vector<int> >(tmp);
-			if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.merge_with_target(tmp_shared,fuse); }
+			if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.handle_twin(tmp_shared,fuse); }
 			else { a.add_after_target(tmp_shared); }
 
 			std::cout<<a<<std::endl;
@@ -203,7 +200,7 @@ int main(){
 		tmp = a.get();
 		std::cout<<tmp<<std::endl;
 		tmp_shared = std::make_shared<Vector<int> >(tmp);
-		if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.merge_with_target(tmp_shared,fuse); }
+		if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.handle_twin(tmp_shared,fuse); }
 		else { a.add_after_target(tmp_shared); }
 		std::cout<<a<<std::endl;
 
@@ -223,19 +220,18 @@ int main(){
 		std::cout<<lint<<std::endl;
 
 		std::cout<<"#### move list ####"<<std::endl;
-		List<int> move_test;
-		move_test.move(lint);
-		std::cout<<move_test<<std::endl;
+		List<int> move(std::move(lint));
 		std::cout<<lint<<std::endl;
+		std::cout<<move<<std::endl;
 
-		Rand<unsigned int> r(move_test.size()-3,move_test.size());
+		Rand<unsigned int> r(move.size()-3,move.size());
 		unsigned int s;
 		for(unsigned int i(0);i<20;i++){
 			s=r.get();
 			std::cout<<s<<" ";
-			move_test.set_target();
-			while(move_test.target_next() && --s);
-			std::cout<<move_test.get()<<std::endl;
+			move.set_target();
+			while(move.target_next() && --s);
+			std::cout<<move.get()<<std::endl;
 		}
 	}
 	std::cout<<"#(constructor calls)-#(destructor calls)="<<A::N_<<std::endl;

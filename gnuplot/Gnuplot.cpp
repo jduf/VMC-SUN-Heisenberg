@@ -82,7 +82,7 @@ void Gnuplot::create_image(bool silent, bool png){
 		command(Linux::pdflatex("/tmp/",texfile),silent);
 		if(png){ command(Linux::pdf2png("/tmp/" + texfile, path_ + filename_),silent); }
 		command("mv /tmp/" + texfile + ".pdf " + path_ + filename_ + ".pdf",silent);
-		command("rm /tmp/" + texfile + "*",silent);
+		command("rm /tmp/" + texfile + ".*",silent);
 	} else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : can't create a plot"<<std::endl;
 	}

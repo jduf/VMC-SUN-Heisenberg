@@ -187,10 +187,8 @@ void Matrix<Type>::swap_to_assign(Matrix<Type>& m1,Matrix<Type>& m2){
 template<typename Type>
 std::ostream& operator<<(std::ostream& flux, Matrix<Type> const& m){
 	for(unsigned int i(0);i<m.row();i++){
-		for(unsigned int j(0);j<m.col();j++){
-			flux<<m(i,j)<<" "; 
-		}
-		if(i+1 != m.row()){flux<<std::endl; }
+		for(unsigned int j(0);j<m.col();j++){ flux<<m(i,j)<<" "; }
+		if(i+1 != m.row()){ flux<<std::endl; }
 	}
 	return flux;
 }
@@ -217,9 +215,7 @@ IOFiles& operator<<(IOFiles& w, Matrix<Type> const& m){
 	if(w.is_binary()){
 		w<<m.row()<<m.col();
 		w.write(m.ptr(),m.size(),sizeof(Type));
-	} else {
-		w.stream()<<m;
-	}
+	} else { w.stream()<<m; }
 	return w;
 }
 

@@ -27,7 +27,7 @@ class Variable{
 		/*!Default copy constructor*/
 		Variable(Variable const&) = default;
 		
-		std::string name_;//!< Name of the (Generic)Variable 
+		std::string name_;//!< Name of the (Generic)Variable
 };
 /*}*/
 
@@ -69,7 +69,7 @@ class Container{
 		/*!Default constructor*/
 		Container() = default;
 		/*!Copy constructor*/
-		Container(Container const& c){ 
+		Container(Container const& c){
 			for(unsigned int i(0);i<c.data_.size();i++){
 				data_.push_back((c.data_[i])->clone());
 			}
@@ -110,7 +110,7 @@ class Container{
 			(void)(iffail);
 			i=0;
 			while(i<data_.size()){
-				if(data_[i]->get_name()==pattern){ return true; } 
+				if(data_[i]->get_name()==pattern){ return true; }
 				else { i++; }
 			}
 			return false;
@@ -153,7 +153,7 @@ Type Container::get(unsigned int i) const {
 	if(i<data_.size()){
 		return static_cast< GenericVariable<Type> *>(data_[i])->get_val();
 	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : "<<i<<"<"<< data_.size()<<"?" <<std::endl; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : "<<i<<"<"<< data_.size()<<"?" <<std::endl;
 		return Type();
 	}
 }

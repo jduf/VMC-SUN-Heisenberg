@@ -8,28 +8,6 @@ void Directory::set(){
 }
 
 void Directory::search_file(std::string const& keyword, std::string curr_dir, bool follow_link, bool recursive){
-	///*{old version*/
-	//DIR* dir_point(opendir(curr_dir.c_str()));
-	//dirent* entry(readdir(dir_point));
-	//while(entry){
-		//if(entry->d_type == DT_DIR){
-			//std::string dir(entry->d_name);
-			//if(dir != "." && dir != ".." && recursive){
-				//search_file(keyword,curr_dir+dir+"/",follow_link,recursive);
-			//}
-		//}
-		//else if(entry->d_type == DT_REG || (follow_link && entry->d_type==DT_LNK) ){
-			//std::string f(entry->d_name);
-			//if(f.find(keyword) != std::string::npos){
-				//path_.push_back(curr_dir);
-				//split_ext(f);
-			//}
-		//}
-		//entry = readdir(dir_point);
-	//}
-	//closedir(dir_point);
-	///*}*/
-	/*{new version*/
 	DIR* dir_point(opendir(curr_dir.c_str()));
 	if(dir_point){
 		dirent* entry(readdir(dir_point));
@@ -69,35 +47,9 @@ void Directory::search_file(std::string const& keyword, std::string curr_dir, bo
 		std::cerr<<__PRETTY_FUNCTION__<<" : can't open directory '"<<curr_dir<<"'"<<std::endl;
 	}
 	closedir(dir_point);
-	/*}*/
 }
 
 void Directory::search_file_ext(std::string const& extension, std::string curr_dir, bool follow_link, bool recursive){
-	///*{old version*/
-	//DIR* dir_point(opendir(curr_dir.c_str()));
-	//dirent* entry(readdir(dir_point));
-	//while(entry){
-	//if(entry->d_type == DT_DIR){
-	//std::string dir(entry->d_name);
-	//if(dir != "." && dir != ".." && recursive){
-	//search_file_ext(extension,curr_dir+dir+"/",follow_link,recursive);
-	//}
-	//} else {
-	//if(entry->d_type == DT_REG || (follow_link && entry->d_type==DT_LNK) ){
-	//std::string f(entry->d_name);
-	//if(f.find(extension,f.size()-extension.size()) != std::string::npos){
-	//if(f.find(".") != std::string::npos){
-	//path_.push_back(curr_dir);
-	//split_ext(f);
-	//}
-	//}
-	//}
-	//}
-	//entry = readdir(dir_point);
-	//}
-	//closedir(dir_point);
-	///*}*/
-	/*{new version*/
 	DIR* dir_point(opendir(curr_dir.c_str()));
 	if(dir_point){
 		dirent* entry(readdir(dir_point));
@@ -137,29 +89,9 @@ void Directory::search_file_ext(std::string const& extension, std::string curr_d
 		std::cerr<<__PRETTY_FUNCTION__<<" : can't open directory '"<<curr_dir<<"'"<<std::endl;
 	}
 	closedir(dir_point);
-	/*}*/
 }
 
 void Directory::list_dir(std::string curr_dir){
-	///*{old version*/
-	//DIR* dir_point = opendir(curr_dir.c_str());
-	//dirent* entry = readdir(dir_point);
-	//while(entry){
-	//std::cout<<entry<<" "<<entry->d_type<<" "<<DT_DIR<<" "<<entry->d_name<<std::endl;
-	//if(entry->d_type == DT_DIR){
-	//std::string dir(entry->d_name);
-	//if(dir != "." && dir != ".."){
-	//path_.push_back(curr_dir);
-	//filename_.push_back(dir);
-	//ext_.push_back("/");
-	//} 
-	//}
-	//entry = readdir(dir_point);
-	//}
-	//closedir(dir_point);
-	///*}*/
-
-	/*{new version*/
 	DIR* dir_point = opendir(curr_dir.c_str());
 	dirent* entry(readdir(dir_point));
 	struct stat st;
@@ -175,7 +107,6 @@ void Directory::list_dir(std::string curr_dir){
 		entry = readdir(dir_point);
 	}
 	closedir(dir_point);
-	/*}*/
 }
 
 void Directory::sort(){
@@ -183,8 +114,8 @@ void Directory::sort(){
 		bool sort(true);
 		while(sort){
 			sort=false;
-			for(unsigned int i(0); i<path_.size()-1;i++){
-				if(path_[i]+filename_[i]+ext_[i] > path_[i+1]+filename_[i+1]+ext_[i+1]) { 
+			for(unsigned int i(0);i<path_.size()-1;i++){
+				if(path_[i]+filename_[i]+ext_[i] > path_[i+1]+filename_[i+1]+ext_[i+1]) {
 					sort= true;
 					std::swap(path_[i],path_[i+1]);
 					std::swap(filename_[i],filename_[i+1]);

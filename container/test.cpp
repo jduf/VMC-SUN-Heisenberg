@@ -1,4 +1,4 @@
-#include "Matrix.hpp"
+#include "Vector.hpp"
 #include "Container.hpp"
 
 int main(){
@@ -11,4 +11,6 @@ int main(){
 	double d;
 	c.get("double",d);
 	std::cout<<d<<std::endl;
+	Vector<double> vec(3,2.1);
+	c.set("vec",vec);
 }

@@ -1,4 +1,4 @@
-#include"Parseur.hpp"
+#include "Parseur.hpp"
 
 Parseur::Parseur(unsigned int const& argc, char* argv[]):
 	locked_(false)
@@ -12,8 +12,8 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 			used_.push_back(false);
 			/*check if the type is specified*/
 			if(name.find(":") != std::string::npos){
-				if(i+1<argc){ 
-					val = argv[i+1]; 
+				if(i+1<argc){
+					val = argv[i+1];
 					if(name[1] == 's'){
 						set(name.substr(3),val);
 					} else{
@@ -52,7 +52,7 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 					}
 					i++;
 				} else {
-					val = "NULL"; 
+					val = "NULL";
 					set(name.substr(3),val);
 				}
 			} else {
@@ -68,28 +68,28 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 							/*!if the next argument has also a ':' the current
 							 * argument can be accepted as a linux like
 							 * argument*/
-							set(name.substr(1),name.substr(1)); 
+							set(name.substr(1),name.substr(1));
 						} else {
 							/*!this is problematic because there is no way to
 							 * know if it is a an value related to the current
 							 * argument or a new argument*/
 							std::cerr<<__PRETTY_FUNCTION__<<" : problematic argument (impossible to know if '"
-								<<tmp<<"' an option related to '"<<name<<"' or a new argument)"<<std::endl; 
+								<<tmp<<"' an option related to '"<<name<<"' or a new argument)"<<std::endl;
 							locked_ = true;
 						}
 					} else {
 						/*!in that case the next argument is considered to be
 						 * an option related to the current argument*/
-						set(name.substr(1),tmp); 
+						set(name.substr(1),tmp);
 						i++;
 					}
 				} else {
-					val = "NULL"; 
+					val = "NULL";
 					set(name.substr(1),val);
 				}
 			}
 		} else {
-			set(my::tostring(i),name); 
+			set(my::tostring(i),name);
 			used_.push_back(true);
 		}
 	}
@@ -116,5 +116,5 @@ bool Parseur::find(std::string const& pattern, unsigned int& i, bool lock_iffail
 
 void Parseur::lock(std::string const& arg){
 	locked_ = true;
-	std::cerr<<__PRETTY_FUNCTION__<<" : wrong argument '"<<arg<<"' : should be '-[iuds]:name' or '-[uids].name' : "<<std::endl; 
+	std::cerr<<__PRETTY_FUNCTION__<<" : wrong argument '"<<arg<<"' : should be '-[iuds]:name' or '-[uids].name' : "<<std::endl;
 }

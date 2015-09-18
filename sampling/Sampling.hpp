@@ -184,7 +184,9 @@ Binning<Type>::Binning(Binning&& b):
 	m_bin_(std::move(b.m_bin_)),
 	bin_(b.bin_),
 	recompute_dx_usefull_(b.recompute_dx_usefull_)
-{ b.bin_ = NULL; }
+{ b.bin_ = NULL; 
+	std::cout<<"Binning move constructor"<<std::endl;
+}
 
 template<typename Type>
 Binning<Type>::Binning(IOFiles& r):

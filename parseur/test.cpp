@@ -1,5 +1,5 @@
-#include "Parseur.hpp"
 #include "Vector.hpp"
+#include "Parseur.hpp"
 
 int main(int argc,char* argv[]){
 	Parseur P(argc,argv);
@@ -13,7 +13,6 @@ int main(int argc,char* argv[]){
 	std::cout<<"a="<<a<<std::endl;
 	std::cout<<"b="<<b<<std::endl;
 	std::cout<<"c="<<c<<std::endl;
-	Vector<double> vec;
-	vec = P.get<std::vector<double> >("vec");
-	std::cout<<vec<<std::endl;
+	std::cout<<Vector<double>(P.get<std::vector<double> >("s_vec"))<<std::endl;
+	std::cout<<P.get<Vector<double> >("vec")<<std::endl;
 }

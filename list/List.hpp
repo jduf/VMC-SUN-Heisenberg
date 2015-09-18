@@ -7,31 +7,36 @@
 /*{Description*/
 /*! The list is constructed according this scheme
 \verbatim
-    _______________________
-   |   *t_  *t_  *t_  *t_  |
-   |    ↑    ↑    ↑    ↑   |
-   | o─→o←──→o←──→o←──→o─→x|
-   | │  │              ↑   |
-   | │  └──────────────┘   |
-   | └──"target pointer"   |
-   |_______________________|
+    ________________________
+   |   *t_  *t_  *t_  *t_   |
+   |    ↑    ↑    ↑    ↑    |
+   | x─→o←──→o←──→o←──→o─→> |
+   | │       ^            | |
+   | NULL              NULL |
+   |                        |
+   | o = Node               |
+   | x = Node head_         |
+   | > = Node tail_         |
+   | ^ = Node target_       |
+   |________________________|
 \endverbatim
+ * The list contains 3 Nodes.  
  *
- * The first element is particular because t_=NULL and the next_ pointer points
- * to the first element of the list. The target_ pointer is free to point
- * anywhere. This construction allows the "target pointer" to point to any
- * element of the list and can therefore access quickly to the next or previous
- * element.
+ * + head_ that has is such that head_::prev_=NULL. 
+ * + tail_ that has is such that tail_::next_=NULL. 
+ * + target_ that can point to any Node
  *
- * The size() method should not be called too often because it needs to count
- * the number of element by moving trough the whole chain.
+ * Between head_ and tail_ there could be an many node as one wants. Each node
+ * is only aware of the previous and next one.
+ * 
+ * A node points to a given instance of Type.
  */
 /*}*/
 template<typename Type>
 class List{
 	public:
 		List() = default;
-		List(List&&);
+		List(List&& l);
 		~List();
 		/*{Forbidden*/
 		List(List<Type> const& l) = delete;
@@ -41,8 +46,6 @@ class List{
 		void set();
 		void set_target() const { target_ = NULL; }
 		bool target_next() const;
-
-		void move(List<Type>& other);
 
 		Type& operator[](unsigned int i){ 
 			target_ = NULL;
@@ -88,10 +91,10 @@ class List{
 		 * targets_ points to the place where t should be added with
 		 * add_after_target(t) to keep a correct sorting*/
 		bool find_sorted(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp);
-		/*!If find_sorted returns true, one can merge the two identical (in the
-		 * sense of cmp(t,t')=2) t and t'. The merging method is given by
-		 * merge.*/
-		void merge_with_target(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> merge);
+		/*!If find_sorted returns true, one can deal with the two identical (in the
+		 * sense of cmp(t,t')=2) t and t'. The way to deal with the twin is is
+		 * given by handling_function.*/
+		void handle_twin(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> handling_function);
 
 		void swap(unsigned int const& a, unsigned int const& b);
 		List<Type> sublist(unsigned int const& a, unsigned int const& b) const;
@@ -125,9 +128,16 @@ class List{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-List<Type>::List(List&& l){
-	(void)(l);
-	std::cerr<<__PRETTY_FUNCTION__<<" : need to implement move constructor"<<std::endl;
+List<Type>::List(List&& l):
+	target_(NULL),
+	head_(l.head_),
+	tail_(l.tail_),
+	size_(l.size_)
+{
+	l.target_=NULL;
+	l.head_ = NULL;
+	l.tail_ = NULL;
+	l.size_ = 0;
 }
 
 template<typename Type>
@@ -390,20 +400,8 @@ void List<Type>::swap(unsigned int const& a, unsigned int const& b){
 }
 
 template<typename Type>
-void List<Type>::merge_with_target(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> merge){
-	merge(*target_->t_,*t);
-}
-
-template<typename Type>
-void List<Type>::move(List<Type>& other){
-	head_ = other.head_;
-	tail_ = other.tail_;
-	size_ = other.size_;
-	target_ = NULL;
-	other.head_ = NULL;
-	other.tail_ = NULL;
-	other.target_ = NULL;
-	other.size_ = 0;
+void List<Type>::handle_twin(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> handling_function){
+	handling_function(*target_->t_,*t);
 }
 /*}*/
 

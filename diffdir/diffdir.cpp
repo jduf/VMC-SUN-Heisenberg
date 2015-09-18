@@ -14,6 +14,8 @@ int main(int argc, char* argv[]){
 	unsigned int i(0);
 	std::string ext(P.find("e",i,false)?P.get<std::string>(i):"");
 	std::string keyword(P.find("k",i,false)?P.get<std::string>(i):"");
+	std::string dft_answer(P.find("y",i,false)?"y":"n");
+	std::string dft_string(dft_answer=="y"?" ? [Y/n]:":" ? [y/N]:");
 
 	if(!P.locked()){
 		Linux command;
@@ -39,15 +41,16 @@ int main(int argc, char* argv[]){
 		unsigned int i(0);
 		unsigned int j(0);
 		unsigned int old_j(0);
-		while (i<d1.size()) {
+		while(i<d1.size()){
 			if(d1.get_name(i) == d2.get_name(j)){
 				for(unsigned int k(old_j+1); k<j; k++){
 					std::cout<<"     B : "<< d2.get_name(k) << d2.get_ext(k)<<std::endl;
 				}
 				command("diff -q " + d1[i] + " " + d2[j] + " >> /tmp/diff.txt",false);
 				if(command.status()){
-					std::cout<<"A != B : "<< d1.get_name(i) << d1.get_ext(i) << " ? [y/N] ";
+					std::cout<<"A != B : "<< d1.get_name(i) << d1.get_ext(i) << dft_string;
 					std::getline(std::cin,answer);
+					if(answer==""){ answer = dft_answer; }
 					if(answer=="y"){ command("vimdiff " + d1[i] + " " + d2[j],false); }
 				} else {
 					std::cout<<"A == B : "<<d1.get_name(i)<<d1.get_ext(i)<<std::endl;
