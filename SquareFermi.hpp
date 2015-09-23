@@ -6,7 +6,7 @@
 template<typename Type>
 class SquareFermi: public Square<Type>{
 	public:
-		SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc);
+		SquareFermi(System const& s);
 		~SquareFermi() = default;
 
 		void create();
@@ -14,15 +14,15 @@ class SquareFermi: public Square<Type>{
 
 	protected:
 		void compute_H();
-		void lattice();
+		void lattice(std::string const& path, std::string const& filename);
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0;};
 		Matrix<double> set_ab();
 };
 
 template<typename Type>
-SquareFermi<Type>::SquareFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc):
-	System(ref,N,m,n,M,bc),
+SquareFermi<Type>::SquareFermi(System const& s):
+	System(s),
 	Square<Type>(set_ab(),1,"square-fermi")
 {
 	if(this->status_==2){
@@ -59,13 +59,13 @@ Matrix<double> SquareFermi<Type>::set_ab(){
 
 /*{method needed for checking*/
 template<typename Type>
-void SquareFermi<Type>::lattice(){
+void SquareFermi<Type>::lattice(std::string const& path, std::string const& filename){
 	Matrix<int> nb;
 	std::string color("black");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps("./","lattice");
-	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+this->filename_);
+	PSTricks ps(path,filename);
+	ps.begin(-9,-10,16,10,this->filename_);
 	for(unsigned int i(0);i<this->n_;i++) {
 		xy0 = this->get_pos_in_lattice(i);
 		this->set_pos_LxLy(xy0);
@@ -124,13 +124,12 @@ void SquareFermi<Type>::lattice(){
 	polygon(3,1)=0;
 	ps.polygon(polygon,"linecolor=blue");
 
-	ps.add("\\end{pspicture}");
-	ps.save(true,true,true);
+	ps.end(true,true,true);
 }
 
 template<typename Type>
 void SquareFermi<Type>::check(){
-	lattice();
+	lattice("./","lattice");
 	Matrix<int> nb;
 	//Vector<int> dir(4,0);
 	//Rand<unsigned int> rnd(0,3);

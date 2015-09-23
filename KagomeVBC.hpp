@@ -5,7 +5,7 @@
 
 class KagomeVBC: public Kagome<std::complex<double> >{
 	public:
-		KagomeVBC(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc);
+		KagomeVBC(System const& s);
 		~KagomeVBC() = default;
 
 		void create();
@@ -13,7 +13,7 @@ class KagomeVBC: public Kagome<std::complex<double> >{
 
 	protected:
 		void compute_H();
-		void lattice();
+		void lattice(std::string const& path, std::string const& filename);
 		std::string extract_level_7();
 		std::string extract_level_6();
 		std::string extract_level_4();

@@ -15,7 +15,8 @@ void MonteCarlo::thermalize(unsigned int const& thermalization_steps){
 	if(!S_->get_status()){
 		for(unsigned int i(0);i<thermalization_steps;i++){
 			S_->swap();
-			if( S_->ratio(true) > rnd_.get() ){ S_->update(); }
+			ratio_ = S_->ratio(true);
+			if( ratio_ > 1.0 || ratio_ > rnd_.get() ){ S_->update(); }
 		}
 		S_->measure_new_step();
 	}
@@ -34,7 +35,8 @@ void MonteCarlo::run(){
 /*{*/
 void MonteCarlo::next_step(){
 	S_->swap();
-	if( S_->ratio(true) > rnd_.get() ){
+	ratio_ = S_->ratio(true);
+	if( ratio_ > 1.0 || ratio_ > rnd_.get() ){
 		S_->update();
 		S_->measure_new_step();
 	}
@@ -43,16 +45,9 @@ void MonteCarlo::next_step(){
 
 bool MonteCarlo::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
-	//if(time_.progress(tmax_/21)){
-		//if(!omp_get_thread_num()){
-			//S_->get_energy().compute_convergence(1e-5);
-			//std::cerr<<"E="<<S_->get_energy().get_x()<<" ("<<S_->get_energy().get_dx()<<") after "<<100.0*time_.elapsed()/tmax_<<"%"<<std::endl;
-			////S_->set();
-		//}
-	//}
 	if(std::abs(S_->get_energy().get_x())>1e2){ 
-		std::cerr<<"Simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
-		S_->set_binning();
+		std::cerr<<__PRETTY_FUNCTION__<<" : simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
+		S_->set_observables();
 	}
 	return true;
 }

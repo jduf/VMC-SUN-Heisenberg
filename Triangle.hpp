@@ -16,6 +16,8 @@ class Triangle: public System2D<Type>{
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Triangle()=0;
 
+		Vector<double> compute_J(Vector<double> const& Jp);
+
 	protected:
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
@@ -69,7 +71,6 @@ Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std
 		this->dir_nn_LxLy_(5,1) = dir(1);
 
 		//this->compute_links(); 
-		std::cout<<"ok"<<std::endl;
 	}
 }
 

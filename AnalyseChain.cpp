@@ -1,7 +1,7 @@
 #include "AnalyseChain.hpp"
 
-AnalyseChain::AnalyseChain(std::string const& path):
-	Analyse(path),
+AnalyseChain::AnalyseChain(std::string const& path, unsigned int const& max_level):
+	Analyse(path,max_level),
 	outfile_(NULL)
 {
 	std::cout<<"Will proceed to the analyse SU(N) chains. It will consist "
@@ -23,16 +23,17 @@ AnalyseChain::~AnalyseChain(){
 }
 
 void AnalyseChain::open_files(){
-	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); 
-		if(level_==6){ 
+	if(level_>1){ 
+		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); 
+		if(level_==7){ 
 			jd_write_->write("number of different wavefunction",nof_); 
 			jd_write_->add_header()->np();
 		} 
-		if(level_==5){ 
+		if(level_==6){ 
 			jd_write_->write("number of different boundary condition",nof_); 
 			jd_write_->add_header()->np();
 		}
-		if(level_==3 || level_==7){
+		if(level_==3 || level_==8){
 			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); 
 			data_write_->precision(10);
 		}
@@ -43,17 +44,17 @@ void AnalyseChain::open_files(){
 void AnalyseChain::close_files(){
 	if(jd_write_){ 
 		switch(level_){
-			case 7:
+			case 8:
 				{
 					if(nof_>1){/*if there is only one E data, there is no need to make a plot*/
-						rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); 
+						rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); 
 					}
 				} break;
 			case 3:
 				{
-					rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp",1000); 
-					rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp",1000); 
-					rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp",1000); 
+					rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp")+RST::width("1000")); 
+					rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp")+RST::width("1000")); 
+					rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp")+RST::width("1000")); 
 				} break;
 		}
 		rst_file_.last().text(jd_write_->get_header());
@@ -66,12 +67,23 @@ void AnalyseChain::close_files(){
 	}
 }
 
-/*calls cs.analyse(level) to plot E(ti)*/
-std::string AnalyseChain::extract_level_6(){
+/*{Description*/
+/*!extracts the results and plots the correlations, long range correlations and structure factor*/
+/*}*/
+std::string AnalyseChain::extract_level_8(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	CreateSystem cs(read_);
-	cs.init(read_,this);
+	Vector<double> tmp(read_->read<Vector<double> >());
+	System s(*read_);
+	CreateSystem cs(&s);
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
+
+	if(!all_link_names_.size()){ 
+		jd_write_->add_header()->title("Simulations",'<');
+		jd_write_->write("number of jdfiles",nof_);
+		(*data_write_)<<"% t E dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
+	}
 	std::string link_name(cs.analyse(level_));
 
 	delete read_;
@@ -80,144 +92,158 @@ std::string AnalyseChain::extract_level_6(){
 	return link_name;
 }
 
+/*calls cs.analyse(level) to plot E(ti)*/
+std::string AnalyseChain::extract_level_7(){
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
+	unsigned int idx(0);
+	std::string link_name(filename_);
+
+	double E(666);
+	Vector<double> t;
+
+	double d_tmp;
+	Vector<double> vd_tmp;
+
+	(*read_)>>nof_;
+	for(unsigned int i(0);i<nof_;i++){
+		(*read_)>>t;
+		System s(*read_);
+		(*read_)>>d_tmp>>vd_tmp;
+
+		if(s.get_energy().get_x()<E){ 
+			E = s.get_energy().get_x();
+			idx = i;
+		}
+	}
+
+	delete read_;
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
+	(*read_)>>nof_;
+	for(unsigned int i(0);i<idx+1;i++){
+		(*read_)>>t;
+		System s(*read_);
+
+		if(i==idx){ 
+			CreateSystem cs(&s);
+			cs.init(&t,NULL);
+			cs.set_IOSystem(this);
+			link_name = cs.analyse(level_);
+		} else {
+			(*read_)>>d_tmp>>vd_tmp;
+		}
+	}
+
+	delete read_;
+	read_ = NULL;
+
+	return link_name;
+}
+
 /*different wavefunction*/
-std::string AnalyseChain::extract_level_5(){
+std::string AnalyseChain::extract_level_6(){
 	std::string link_name;
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
-	(*read_)>>nof_;
 	Vector<unsigned int> ref;
 	Vector<unsigned int> M;
-	unsigned int N;
-	unsigned int m;
-	unsigned int n;
-	int bc;
+	(*read_)>>nof_;
 
 	switch(nof_){
 		case 1:
 			{ 
 				double polymerization_strength;
 				Vector<double> exponents;
-				Data<double> E;
-				Vector<double> ti;
-				(*read_)>>ref>>N>>m>>n>>M>>bc;
-				switch(ref(2)){
-					case 0:
-						{ ti.set(N/m,1); }break;
-					case 1:
-						{ (*read_)>>ti; }break;
-					default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
-				}
-				(*read_)>>E>>polymerization_strength>>exponents;
-				switch(ref(2)){
-					case 0:
-						{
-							switch(ref(1)){
-								case 1:
-									{
-										ChainFermi<double> chain(ref,N,m,n,M,bc);
-										chain.set_IOSystem(this);
-										chain.save();
-									}break;
-								case 2:
-									{
-										ChainFermi<std::complex<double> > chain(ref,N,m,n,M,bc);
-										chain.set_IOSystem(this);
-										chain.save();
-									}break;
-								default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
-							}
-						}break;
-					case 1:
-						{
-							ChainPolymerized chain(ref,N,m,n,M,bc,ti);
-							chain.set_IOSystem(this);
-							chain.save();
-						}break;
-					default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
-				}
-				if(outfile_){
-					(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<ti<<" ";
-					(*outfile_)<<E<<" "<<exponents<<" "<<polymerization_strength<<IOFiles::endl;
-				}
-				jd_write_->write("energy per site",E);
+				Vector<double> t;
+				(*read_)>>t;
+
+				System s(*read_);
+				(*read_)>>polymerization_strength>>exponents;
+
+				CreateSystem cs(&s);
+				cs.init(&t,NULL);
+				cs.set_IOSystem(this);
+
+				cs.save_param(*jd_write_);
+				s.save_input(*jd_write_);
+				s.save_output(*jd_write_);
 				jd_write_->write("polymerization strength",polymerization_strength);
 				jd_write_->write("critical exponents",exponents);
-				std::cerr<<"only one wf for "<<N<<" "<<m<<" "<<n<<" "<<bc<<std::endl; 
+
+				if(outfile_){
+					s.write(*outfile_);
+					(*outfile_)<<t<<" "<<exponents<<" "<<polymerization_strength<<IOFiles::endl;
+					//(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<ti<<" ";
+					//(*outfile_)<<E<<" "<<exponents<<" "<<polymerization_strength<<IOFiles::endl;
+				}
+
+				std::cerr<<__PRETTY_FUNCTION__<<" only one wf"<<std::endl; 
 			}break;
 		case 2:
 			{ 
-				double polymerization_strength[2];
-				Vector<double> exponents[2];
-				Data<double> E[2];
-				Vector<double> ti;
-				for(unsigned int i(0);i<nof_;i++){
-					(*read_)>>ref>>N>>m>>n>>M>>bc;
-					if(ref(2) == 1){ (*read_)>>ti; }
-					else{ ti.set(N/m,1); }
-					(*read_)>>E[ref(2)]>>polymerization_strength[ref(2)]>>exponents[ref(2)];
-				}
-
-				if(!my::are_equal(ti,Vector<double>(N/m,1.0))){
-					ref(1) = 1;
-					ref(2) = 1;
-					ChainPolymerized chain(ref,N,m,n,M,bc,ti);
-					chain.set_IOSystem(this);
-					chain.save();
-				} else {
-					ref(2) = 0;
-					switch(ref(1)){
-						case 1:
-							{
-								ChainFermi<double> chain(ref,N,m,n,M,bc);
-								chain.set_IOSystem(this);
-								chain.save();
-							}break;
-						case 2:
-							{
-								ChainFermi<std::complex<double> > chain(ref,N,m,n,M,bc);
-								chain.set_IOSystem(this);
-								chain.save();
-							}break;
-						default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : ref undefined"<<std::endl; }
-					}
-				}
-
-				/*As we know that SU(9) m=3 is gapless, it will save the correct critical exponent*/
+				/*This part should load the two different wavefunctions. If
+				 * the ChainPolymerization has a vector set to 1, there this
+				 * wavefunction is equivalent to the ChainFermi one. In that
+				 * case the energy obtained with this wavefunction is correct
+				 * and should replace the one obtained by ChainFermi.
+				 * ChainFermi should therefore be the wavefunction to save but
+				 * with the energy of the ChainPolymerized one. In the other
+				 * case, the energy given by ChainPolymerized should also be
+				 * taken even if the one obtained by ChainFermi is lower (the
+				 * Fermi one is then wrong) and ChainPolymerized is the
+				 * wavefunction to save.
+				 *
+				 *As we know that SU(9) m=3 is gapless, it will save the
+				 * correct critical exponent
 				unsigned int eta_idx(( (N==9&&m==3) || ref(2)==0)?0:1);
-				if(outfile_){
-					(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<ti<<" ";
-					(*outfile_)<<E[1]<<" "<<exponents[eta_idx]<<" "<<polymerization_strength[ref(2)]<<IOFiles::endl;
-				}
-				jd_write_->write("energy per site",E[1]);
-				jd_write_->write("polymerization strength",polymerization_strength[ref(2)]);
-				jd_write_->write("critical exponents",exponents[eta_idx]);
+				*/
+				std::cerr<<__PRETTY_FUNCTION__<<" : don't know what to do"<<std::endl; 
 			}break;
-		default:{ std::cerr<<"std::string AnalyseChain::extract_level_5() : too many wavefunctions"<<std::endl; }
+		default:{ std::cerr<<__PRETTY_FUNCTION__<<" : too many wavefunctions"<<std::endl; }
 	}
+	return filename_;
+}
+
+/*different J_*/
+std::string AnalyseChain::extract_level_5(){
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	(*read_)>>nof_;
+	Vector<double> t(*read_);
+	System s(*read_);
+	CreateSystem cs(&s);
+	cs.init(&t,NULL);
+	cs.set_IOSystem(this);
+
+	cs.save_param(*jd_write_);
+	s.save_input(*jd_write_);
+	s.save_output(*jd_write_);
+	jd_write_->write("polymerization strength",read_->read<double>());
+	jd_write_->write("critical exponents",read_->read<Vector<double> >());
+
 	return filename_;
 }
 
 /*different boundary condition*/
 std::string AnalyseChain::extract_level_4(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
-	(*read_)>>nof_;
 	/*!must save now nof_ because it doesn't refer to the number of file in the
 	 * next directory but in the next-next directory*/
 	jd_write_->write("number of different boundary condition",nof_); 
 
-	double polymerization_strength;
-	Vector<double> exponents;
-	Data<double> E;
+	std::cout<<nof_<<std::endl;
+	Vector<double> t;
 	for(unsigned int i(0);i<nof_;i++){
-		CreateSystem cs(read_);
-		cs.init(read_,this);
-		(*read_)>>E>>polymerization_strength>>exponents;
+		(*read_)>>t;
+		System s(*read_);
+		CreateSystem cs(&s);
+		cs.init(&t,NULL);
+		cs.set_IOSystem(this);
 
-		jd_write_->add_header()->nl();
-		cs.save(); 
-		jd_write_->write("energy per site",E);
-		jd_write_->write("polymerization strength",polymerization_strength);
-		jd_write_->write("critical exponents",exponents);
+		cs.save_param(*jd_write_);
+		s.save_input(*jd_write_);
+		s.save_output(*jd_write_);
+		jd_write_->write("polymerization strength",read_->read<double>());
+		jd_write_->write("critical exponents",read_->read<Vector<double> >());
 	}
 
 	delete read_;
@@ -230,14 +256,18 @@ std::string AnalyseChain::extract_level_4(){
 std::string AnalyseChain::extract_level_3(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
-
+	
+	Vector<double> t;
 	for(unsigned int i(0);i<nof_;i++){
-		CreateSystem cs(read_);
-		cs.init(read_,this);
-		std::string link_name(cs.analyse(level_));
+		(*read_)>>t;
+		System s(*read_);
+		CreateSystem cs(&s);
+		cs.init(&t,NULL);
+		cs.set_IOSystem(this);
 
-		jd_write_->add_header()->nl();
-		cs.save();
+		cs.analyse(level_);
+
+		s.save_input(*jd_write_);
 	}
 
 	delete read_;
@@ -248,10 +278,14 @@ std::string AnalyseChain::extract_level_3(){
 
 /*different system size*/
 std::string AnalyseChain::extract_level_2(){
-	IOFiles read(sim_+path_+dir_+filename_+".jdbin",false);
-	Vector<unsigned int> ref(read.read<Vector<unsigned int> >());
-	unsigned int N(read.read<unsigned int>());
-	unsigned int m(read.read<unsigned int>());
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
+	Vector<unsigned int> ref(read_->read<Vector<unsigned int> >());
+	unsigned int N(read_->read<unsigned int>());
+	unsigned int m(read_->read<unsigned int>());
+
+	delete read_;
+	read_ = NULL;
 
 	Gnuplot gpenergy(analyse_+path_+dir_,filename_+"-energy");
 	gpenergy.label("x","$n^{-1}$");
@@ -291,7 +325,7 @@ std::string AnalyseChain::extract_level_2(){
 		gpenergy+="     f(x) lc 3 t sprintf('$E=%f$',E)";
 	}
 	gpenergy.save_file();
-	gpenergy.create_image(true);
+	gpenergy.create_image(true,true);
 
 	Gnuplot gpexp(analyse_+path_+dir_,filename_+"-exponents");
 	gpexp+="set multiplot";
@@ -313,7 +347,7 @@ std::string AnalyseChain::extract_level_2(){
 	gpexp+="     2.0 axes x1y2 lc 2 notitle";
 	gpexp+="unset multiplot";
 	gpexp.save_file();
-	gpexp.create_image(true);
+	gpexp.create_image(true,true);
 
 	Gnuplot gppolym(analyse_+path_+dir_,filename_+"-polymerization");
 	gppolym.label("x","$n^{-1}$");
@@ -324,7 +358,7 @@ std::string AnalyseChain::extract_level_2(){
 	gppolym+="plot '"+filename_+".dat' u (1/$4):($3==1?$9:1/0) t 'P',\\";
 	gppolym+="     '"+filename_+".dat' u (1/$4):($3==0?$9:1/0) t 'O'";
 	gppolym.save_file();
-	gppolym.create_image(true);
+	gppolym.create_image(true,true);
 
 	return filename_;
 }

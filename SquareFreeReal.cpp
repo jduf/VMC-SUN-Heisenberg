@@ -1,15 +1,7 @@
 #include "SquareFreeReal.hpp"
 
-SquareFreeReal::SquareFreeReal(
-		Vector<unsigned int> const& ref,
-		unsigned int const& N, 
-		unsigned int const& m, 
-		unsigned int const& n, 
-		Vector<unsigned int> const& M,  
-		int const& bc, 
-		Vector<double> const& t, 
-		Vector<double> const& mu):
-	System(ref,N,m,n,M,bc),
+SquareFreeReal::SquareFreeReal(System const& s, Vector<double> const& t, Vector<double> const& mu):
+	System(s),
 	Square<double>(set_ab(),(N/m==2?2:0),"square-free-real"),
 	t_(t),
 	mu_(mu)

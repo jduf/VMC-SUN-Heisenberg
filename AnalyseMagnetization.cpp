@@ -1,7 +1,7 @@
 #include "AnalyseMagnetization.hpp"
 
-AnalyseMagnetization::AnalyseMagnetization(std::string const& sim):
-	Analyse(sim)
+AnalyseMagnetization::AnalyseMagnetization(std::string const& sim, unsigned int const& max_level):
+	Analyse(sim,max_level)
 {}
 
 void AnalyseMagnetization::open_files(){
@@ -20,8 +20,8 @@ void AnalyseMagnetization::open_files(){
 void AnalyseMagnetization::close_files(){
 	if(jd_write_){ 
 		switch(level_){
-			case 4:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
-			case 3:{ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); } break;
+			case 4:{ rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); } break;
+			case 3:{ rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); } break;
 		}
 		rst_file_.last().text(jd_write_->get_header());
 		delete jd_write_;
@@ -36,8 +36,11 @@ void AnalyseMagnetization::close_files(){
 std::string AnalyseMagnetization::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	CreateSystem cs(read_);
-	cs.init(read_,this);
+	System s(*read_);
+	CreateSystem cs(&s);
+	Vector<double> tmp(read_->read<Vector<double> >());
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
 	if(!all_link_names_.size()){ jd_write_->write("number of jdfiles",nof_); }
 	jd_write_->add_header()->nl();
 	std::string link_name(cs.analyse(level_));
@@ -58,8 +61,11 @@ std::string AnalyseMagnetization::extract_level_5(){
 	min_E.set_x(10.0);
 	Vector<unsigned int> M;
 	for(unsigned int i(0);i<nof_;i++){
-		CreateSystem cs(read_);
-		cs.init(read_,this);
+		System s(*read_);
+		CreateSystem cs(&s);
+		Vector<double> tmp(read_->read<Vector<double> >());
+		cs.init(&tmp,NULL);
+		cs.set_IOSystem(this);
 		(*read_)>>E;
 		if(E.get_x()<min_E.get_x()){ 
 			idx = i;
@@ -74,11 +80,14 @@ std::string AnalyseMagnetization::extract_level_5(){
 	jd_write_->write("number of jdfiles",nof_);
 	jd_write_->add_header()->nl();
 	for(unsigned int i(0);i<nof_;i++){
-		CreateSystem cs(read_);
-		cs.init(read_,this);
+		System s(*read_);
+		CreateSystem cs(&s);
+		Vector<double> tmp(read_->read<Vector<double> >());
+		cs.init(&tmp,NULL);
+		cs.set_IOSystem(this);
 		(*read_)>>E;
 		if(i==idx){
-			cs.save(); 
+			s.save_input(*jd_write_); 
 			jd_write_->write("energy per site",E);
 		}
 	}
@@ -93,9 +102,12 @@ std::string AnalyseMagnetization::extract_level_4(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
 
-	CreateSystem cs(read_);
-	cs.init(read_,this);
-	cs.save();
+	Vector<double> tmp(read_->read<Vector<double> >());
+	System s(*read_);
+	CreateSystem cs(&s);
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
+	s.save_input(*jd_write_);
 	std::string link_name(cs.analyse(level_));
 	jd_write_->add_header()->nl();
 
@@ -116,7 +128,7 @@ std::string AnalyseMagnetization::extract_level_3(){
 	gp+="     '"+filename_+".dat' u 1:($4==511?$2:1/0):3 w e t 'Dirac',\\";
 	gp+="     '"+filename_+".dat' u 1:($4==520?$2:1/0):3 w e t 'VBC'";
 	gp.save_file();
-	gp.create_image(true);
+	gp.create_image(true,true);
 
 	Vector<unsigned int> ref;
 	Vector<unsigned int> M;
@@ -154,6 +166,6 @@ std::string AnalyseMagnetization::extract_level_2(){
 	gp+="plot '"+filename_+".dat' u 1:2 notitle,\\";
 	gp+="     1.0/3.0, 5.0/9.0, 7.0/9.0";
 	gp.save_file();
-	gp.create_image(true);
+	gp.create_image(true,true);
 	return filename_;
 }

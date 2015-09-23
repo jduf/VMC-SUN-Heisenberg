@@ -27,19 +27,16 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		GenericSystem& operator=(GenericSystem<Type> const&) = delete;
 		/*}*/
 
-		/*{Description*/
-		/*!Saves ref_, N_, m_, n_, M_ and bc_ in jd_write_. As the method is
-		 * virtual, a call on this method will call first child::save() const
-		 * if it exists*/
-		/*}*/
-		virtual void save() const;
+		virtual void save_param(IOFiles& w) const;
 		virtual void create() = 0;
 		virtual void check() = 0;
+		virtual void lattice(std::string const& path, std::string const& filename) = 0;
+		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
 	protected:
 		unsigned int const spuc_;//!< site per unit cell
-		unsigned int const z_;	//!< coordination number
-		RST system_info_;		//!< store information about the system
+		unsigned int const z_;	 //!< coordination number
+		RST system_info_;		 //!< store information about the system
 
 		/*{Description*/
 		/*!Returns the neighbours of site i. 
@@ -56,41 +53,32 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*}*/
 		void compute_links(Vector<unsigned int> const& l);
 		void check_lattice();
+
+	private:
+		std::vector<std::string> generate_names() const;
 };
 
 template<typename Type>
 GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename): 
-	IOSystem(filename),
+	IOSystem(filename,generate_names()),
 	spuc_(spuc),
 	z_(z)
 {
 	if(this->n_%this->spuc_){
-		this->status_++;
-		std::cerr<<"GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename) : the number of sites is not comensurate with the unit cell"<<std::endl;
+		this->status_= 4;
+		std::cerr<<__PRETTY_FUNCTION__<<" : the number of sites is not commensurate with the unit cell"<<std::endl;
+	} else {
+		/*!Need to redefine the value of status to be 3 because in MCSim::save,
+		 * CreateSystem uses a MCSystem in the constructor. As
+		 * MCSystem::stats_=0 for successful simulation, the created System
+		 * will also have System::status_=0 which will be problematic.*/
+		this->status_=3;
 	}
-	filename_ += "-N" + my::tostring(this->N_);
-	path_ += "N" + my::tostring(this->N_);
-	filename_ += "-m" + my::tostring(this->m_);
-	path_ += "/m" + my::tostring(this->m_);
-	filename_ += "-n" + my::tostring(this->n_);
-	path_ += "/n" + my::tostring(this->n_);
-	filename_ += "-M";
-	path_ += "/M";
-	for(unsigned int i(0);i<this->M_.size();i++){
-		filename_  += "-" + my::tostring(this->M_(i));
-		path_ +=  "-"+my::tostring(this->M_(i));
-	}
-	switch(this->bc_){
-		case -1:{filename_ += "-A"; path_ += "/A/"; }break;
-		case 0: {filename_ += "-O"; path_ += "/O/"; }break;
-		case 1: {filename_ += "-P"; path_ += "/P/"; }break;
-		default:
-				{
-					this->status_++;
-					std::cerr<<"GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename) : unknown boundary condition"<<std::endl;
-				}
-	}
-	path_ += my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2))+"/";
+}
+
+template<typename Type>
+void GenericSystem<Type>::save_param(IOFiles& w) const {
+	w.add_header()->add(system_info_.get());
 }
 
 template<typename Type>
@@ -117,22 +105,11 @@ void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
 			}
 		}
 	} else {
-		std::cerr<<"void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l) : incoherent number of link";
+		std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link";
 	}
 	if(this->bc_==0){
-		std::cerr<<"void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l) : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl;
 	}
-}
-
-template<typename Type>
-void GenericSystem<Type>::save() const {
-	jd_write_->add_header()->add(system_info_.get());
-	jd_write_->write("ref (type of wavefunction)",this->ref_);
-	jd_write_->write("N (N of SU(N))",this->N_);
-	jd_write_->write("m (# of particles per site)",this->m_);
-	jd_write_->write("n (# of site)",this->n_);
-	jd_write_->write("M (# of particles of each color, "+my::tostring(this->M_(0))+")",this->M_);
-	jd_write_->write("bc (boundary condition)",this->bc_);
 }
 
 template<typename Type>
@@ -168,8 +145,29 @@ void GenericSystem<Type>::check_lattice(){
 		}
 		if(p0 != p1){ 
 			this->status_++; 
-			std::cerr<<"void GenericSystem<Type>::check_lattice() const : no consistent enumeration"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : no consistent enumeration"<<std::endl;
 		}
 	}
+}
+
+template<typename Type>
+std::vector<std::string> GenericSystem<Type>::generate_names() const {
+	std::vector<std::string> parameter_names;
+	parameter_names.push_back("N" + my::tostring(this->N_));
+	parameter_names.push_back("m" + my::tostring(this->m_));
+	parameter_names.push_back("n" + my::tostring(this->n_));
+	std::string tmp("M");
+	for(unsigned int i(0);i<this->M_.size();i++){
+		tmp  += "_" + my::tostring(this->M_(i));
+	}
+	parameter_names.push_back(tmp);
+	switch(this->bc_){
+		case -1:{ parameter_names.push_back("A"); }break;
+		case 0: { parameter_names.push_back("O"); }break;
+		case 1: { parameter_names.push_back("P"); }break;
+	}
+	parameter_names.push_back("Juniform");
+	parameter_names.push_back(my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2)));
+	return parameter_names;
 }
 #endif

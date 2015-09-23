@@ -11,18 +11,21 @@
 /*}*/
 class ChainPolymerized: public Chain<double> {
 	public:
-		ChainPolymerized(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<double> const& t);
+		ChainPolymerized(System const& s, Vector<double> const& t);
 		~ChainPolymerized() = default;
 
 		void create();
-		void save() const;
+		void save_param(IOFiles& w) const;
 		void check();
 		
 	private:
 		Vector<double> t_;//!< polymerization parameter 
 
 		void compute_H();
+		std::string extract_level_8();
 		std::string extract_level_7();
-		std::string extract_level_6();
+
+	private:
+		unsigned int set_spuc(Vector<double> const& t, unsigned int const& spuc);
 };
 #endif

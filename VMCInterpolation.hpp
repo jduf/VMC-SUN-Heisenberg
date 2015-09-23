@@ -1,8 +1,8 @@
 #ifndef DEF_VMCINTERPOLATION
 #define DEF_VMCINTERPOLATION
 
-#include "Interpolation.hpp"
 #include "VMCMinimization.hpp"
+#include "Interpolation.hpp"
 
 class VMCInterpolation : public VMCMinimization{
 	public:
@@ -17,13 +17,13 @@ class VMCInterpolation : public VMCMinimization{
 		/*}*/
 
 		void init();
-		void run(unsigned int const& explore_around_minima);
+		void run(bool const& explore_around_minima);
 
 		void plot();
 		void print();
 
 	private:
-		Interpolation interp_;
+		Interpolation<Vector<double> > interp_;
 		std::vector<Vector<unsigned int> > list_min_idx_;
 
 		/*!Uses interpolation to find some/all minima*/
@@ -37,5 +37,7 @@ class VMCInterpolation : public VMCMinimization{
 
 		/*!Creates param via x and idx then call VMCMinimization::evaluate(param)*/
 		void evaluate(Vector<double>* x, Vector<unsigned int> const& idx);
+		/*!Same as other but set E and dE and Ee*/
+		void evaluate(Vector<double>* x, Vector<unsigned int> const& idx, double& E, double& dE, double& Ee);
 };
 #endif

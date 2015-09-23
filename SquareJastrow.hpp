@@ -5,18 +5,18 @@
 
 class SquareJastrow: public Square<double>{
 	public:
-		SquareJastrow(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, Matrix<double> const& nu);
+		SquareJastrow(System const& s, Matrix<double> const& nu);
 		~SquareJastrow() = default;
 
 		void create();
 		void check();
-		void save() const;
+		void save_input(IOFiles& w) const;
 
 	protected:
 		void compute_nn();
 		void compute_sublattice();
 		void compute_omega_cc();
-		void lattice();
+		void lattice(std::string const& path, std::string const& filename);
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 		Matrix<double> set_ab();

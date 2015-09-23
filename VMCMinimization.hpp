@@ -7,7 +7,7 @@
 class VMCMinimization{
 	public:
 		VMCMinimization(Parseur& P);
-		VMCMinimization(VMCMinimization const& m, std::string const& prefix);
+		VMCMinimization(IOFiles& in);
 		/*!Default destructor*/
 		virtual ~VMCMinimization() = default;
 		/*{Forbidden*/
@@ -17,55 +17,68 @@ class VMCMinimization{
 		VMCMinimization& operator=(VMCMinimization const&) = delete;
 		/*}*/
 
-		void refine(unsigned int const& Nrefine, double const& convergence_criterion, unsigned int const& tmax);
+		void set_phase_space(Parseur const& P){ m_->set_phase_space(P); }
+		void set_tmax(unsigned int const& tmax){ m_->tmax_ = tmax; };
+
+		void refine();
+		void refine(double const& E, double const& dE);
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
-		void save_best(unsigned int const& nsave);
-		void plot() const;
+		void find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& best_param, double& E_range) const;
+		void find_and_run_minima(unsigned int const& max_n_minima);
+		void find_save_and_plot_minima(unsigned int const& max_n_minima, IOFiles& w, std::string path="", std::string filename="") const;
 
 		virtual void print() const;
+		bool ready(){ return m_.get(); }
+		RST& get_header(){ return m_->info_; }
 
 	private:
-		std::string time_;
+		mutable std::string time_;
+		std::string path_;
 		std::string basename_;
+		std::string prefix_;
 
 		class Minimization{
 			public:
-				Minimization(Parseur& P);
+				Minimization()=default;
 				/*!Default destructor*/
 				virtual ~Minimization();
 				/*{Forbidden*/
-				Minimization() = delete;
 				Minimization(Minimization const&) = delete;
 				Minimization(Minimization&&) = delete;
 				Minimization& operator=(Minimization const&) = delete;
 				/*}*/
+				void set(Parseur& P, std::string& path, std::string& basename);
+
+				void create(Parseur& P, std::string& path, std::string& basename);
+				std::string load(IOFiles& in, std::string& path, std::string& basename);
+				void set_phase_space(Parseur const& P);
+
 				bool within_limit(Vector<double> const& x);
 				void save(IOFiles& out) const;
 
 				List<MCSim> samples_list_;
 				Container system_param_;
-				RST pso_info_;
+				RST info_;
+				System* s_             = NULL;
+				unsigned int dof_ 	   = 0;
+				Vector<double>* ps_    = NULL;//!< parameter space
+				double ps_size_        = 0;   //!< parameter space size
 				double effective_time_ = 0.0;
 				unsigned int tmax_     = 0;
-				std::string  wf_       ="";
-				unsigned int N_        = 0;
-				unsigned int m_        = 0;
-				unsigned int n_        = 0;
-				int          bc_       = 0;
-				unsigned int Nfreedom_ = 0;
-				double       ps_size_  = 0;   //!< parameter space size
-				Vector<double>* ps_    = NULL;//!< parameter space
 		};
 
 	protected:
+		VMCMinimization(VMCMinimization const& m, std::string const& prefix);
+
 		IOFiles* out_;
 		std::shared_ptr<Minimization> m_;
 
-		void set_time(){ time_ = Time().date("-"); }
-		std::string get_filename() const { return time_+"_"+basename_; }
+		std::string const& get_path() const { return path_; }
+		std::string get_filename() const { return time_+"_"+prefix_+basename_; }
+		void set_time() const { time_ = Time().date("-"); }
 
-		/*!Real call to GenericSystem+MonteCarlo*/
-		std::shared_ptr<MCSim> evaluate(Vector<double> const& param);
+		/*!Real call to the MonteCarlo evaluation via MCSim*/
+		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, unsigned int const& obs=0);
 };
 #endif

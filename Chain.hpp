@@ -48,6 +48,8 @@ class Chain: public System1D<Type>{
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Chain()=0;
 
+		Vector<double> compute_J(Vector<double> const& Jp);
+
 	protected:
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
@@ -55,6 +57,7 @@ class Chain: public System1D<Type>{
 		std::string extract_level_3();
 		/*!Find the best range to compute the critcal exponents*/
 		bool compute_critical_exponents(Vector<double> const& lrc, unsigned int& xi, unsigned int& xf, Vector<double>& p);
+		void lattice(std::string const& path, std::string const& filename){(void)(path);(void)(filename);};
 
 	private:
 		/*{Description*/
@@ -68,7 +71,14 @@ template<typename Type>
 Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,2,filename)
 {
-	if(this->status_==2){ this->compute_links(Vector<unsigned int>(1,1)); }
+	if(this->status_==2){
+		this->compute_links(Vector<unsigned int>(1,1)); 
+		if(this->J_.ptr()){ 
+			Vector<double> tmp(this->J_);
+			this->J_.set(this->links_.row());
+			for(unsigned int i(0);i<this->J_.size();i++){ this->J_(i) = tmp(i%tmp.size()); }
+		} else { this->J_.set(this->links_.row(),1); }
+	}
 }
 
 template<typename Type>
@@ -94,7 +104,7 @@ template<typename Type>
 std::string Chain<Type>::extract_level_3(){
 	double polymerization_strength;
 	Vector<double> exponents;
-	(*this->read_)>>this->E_>>polymerization_strength>>exponents;
+	(*this->read_)>>polymerization_strength>>exponents;
 	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<" "<<exponents<<IOFiles::endl;
 
 	return this->filename_;
@@ -142,10 +152,7 @@ bool Chain<Type>::compute_critical_exponents(Vector<double> const& lrc, unsigned
 			xf = lrc.size()-dx;
 			do_fit(lrc, xi, xf, p, R_squared, d_squared);
 
-			std::cerr<<"void Chain<Type>::compute_critical_exponents(unsigned int& xi,"<<std::endl;
-			std::cerr<<"unsigned int& xf, Vector<double>& exponents, Vector<double> lrc) :"<<std::endl;
-			std::cerr<< "    No fit found for : SU("<<this->N_<<") m="<<this->m_<<" n="<<this->n_;
-			std::cerr<< " (fitting range assumed)"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : No fit found for : SU("<<this->N_<<") m="<<this->m_<<" n="<<this->n_<<" (fitting range assumed)"<<std::endl;
 			return false;
 		}
 	} else {

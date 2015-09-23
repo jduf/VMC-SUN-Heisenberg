@@ -3,7 +3,6 @@
 
 #include "SystemBosonic.hpp"
 #include "SystemFermionic.hpp"
-#include <omp.h>
 
 /*{!Class MonteCarlo
  *
@@ -59,8 +58,9 @@ class MonteCarlo{
 		bool keepon();
 
 		unsigned int const tmax_;//!< Time limit in second, by default 5min
-		MCSystem* S_;			//!< Pointer to a Fermionic or Bosonic System 
-		Time time_; 			//!< To stop the simulation after time_limit seconds
-		Rand<double> rnd_;		//!< Pointer to a random number generator
+		double ratio_;			 //!< Ratio between current and next step
+		MCSystem* S_;			 //!< Pointer to a Fermionic or Bosonic System 
+		Time time_; 			 //!< To stop the simulation after time_limit seconds
+		Rand<double> rnd_;		 //!< Pointer to a random number generator
 };
 #endif

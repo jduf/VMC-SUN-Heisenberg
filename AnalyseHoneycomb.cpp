@@ -1,7 +1,7 @@
 #include "AnalyseHoneycomb.hpp"
 
-AnalyseHoneycomb::AnalyseHoneycomb(std::string const& sim):
-	Analyse(sim)
+AnalyseHoneycomb::AnalyseHoneycomb(std::string const& sim, unsigned int const& max_level):
+	Analyse(sim,max_level)
 {
 	do_analyse();
 }
@@ -16,7 +16,7 @@ void AnalyseHoneycomb::open_files(){
 
 void AnalyseHoneycomb::close_files(){
 	if(jd_write_){ 
-		if(level_==7){ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Honeycomb",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); }
+		if(level_==7){ rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Honeycomb",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
 		rst_file_.last().text(jd_write_->get_header());
 		delete jd_write_;
 		jd_write_ = NULL;
@@ -30,8 +30,11 @@ void AnalyseHoneycomb::close_files(){
 std::string AnalyseHoneycomb::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	CreateSystem cs(read_);
-	cs.init(read_,this);
+	System s(*read_);
+	CreateSystem cs(&s);
+	Vector<double> tmp(read_->read<Vector<double> >());
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
 	std::string link_name(cs.analyse(level_));
 
 	delete read_;

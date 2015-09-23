@@ -5,7 +5,7 @@
 
 class SquareACSL: public Square<std::complex<double> >{
 	public:
-		SquareACSL(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, Vector<double> const& t);
+		SquareACSL(System const& s, Vector<double> const& t);
 		~SquareACSL() = default;
 
 		void create();
@@ -13,7 +13,7 @@ class SquareACSL: public Square<std::complex<double> >{
 
 	protected:
 		void compute_H();
-		void lattice();
+		void lattice(std::string const& path, std::string const& filename);
 		Vector<double> const t_;
 
 		Matrix<double> set_ab(unsigned int const& spuc);

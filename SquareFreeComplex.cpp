@@ -1,17 +1,8 @@
 #include "SquareFreeComplex.hpp"
 
-SquareFreeComplex::SquareFreeComplex(
-		Vector<unsigned int> const& ref, 
-		unsigned int const& N, 
-		unsigned int const& m, 
-		unsigned int const& n, 
-		Vector<unsigned int> const& M,  
-		int const& bc, 
-		Vector<double> const& t, 
-		Vector<double> const& mu, 
-		Vector<double> const& phi):
-	System(ref,N,m,n,M,bc),
-	Square<std::complex<double> >(set_ab(),(N/m==2?2:0),"square-free-flux"),
+SquareFreeComplex::SquareFreeComplex(System const& s, Vector<double> const& t, Vector<double> const& mu, Vector<double> const& phi):
+	System(s),
+	Square<std::complex<double> >(set_ab(),(N_/m_==2?2:0),"square-free-flux"),
 	t_(t),
 	mu_(mu),
 	phi_(phi)
@@ -54,7 +45,7 @@ void SquareFreeComplex::compute_H(unsigned int const& c){
 					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
 					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
 				}break;
-			default:{ std::cerr<<"void SquareFreeComplex::compute_H(unsigned int const& c) : undefined site in unit cell"<<std::endl; }break;
+			default:{ std::cerr<<__PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
 	H_ += H_.trans_conj(); 
@@ -101,7 +92,7 @@ Matrix<double> SquareFreeComplex::set_ab(){
 /*}*/
 
 /*{method needed for checking*/
-void SquareFreeComplex::lattice(){
+void SquareFreeComplex::lattice(std::string const& path, std::string const& filename){
 	compute_H(1);
 	Matrix<int> nb;
 	std::string color("black");
@@ -110,8 +101,8 @@ void SquareFreeComplex::lattice(){
 	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps("./","lattice");
-	ps.add("\\begin{pspicture}(-20,-20)(20,20)%"+filename_);
+	PSTricks ps(path,filename);
+	ps.begin(-20,-20,20,20,filename_);
 	for(unsigned int i(0);i<n_;i++) {
 		xy0 = get_pos_in_lattice(i);
 		set_pos_LxLy(xy0);
@@ -185,8 +176,7 @@ void SquareFreeComplex::lattice(){
 	}
 	ps.polygon(polygon,"linecolor=blue");
 
-	ps.add("\\end{pspicture}");
-	ps.save(true,true,true);
+	ps.end(true,true,true);
 }
 
 void SquareFreeComplex::check(){
@@ -197,6 +187,6 @@ void SquareFreeComplex::check(){
 	//std::cout<<s<<" "<<nb(i,0)<<" "<<nb(i,1)<<std::endl;
 	//}
 	//}
-	lattice();
+	lattice("./","lattice");
 }
 /*}*/

@@ -109,11 +109,11 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 
 		if( my::are_equal(Lx,zero) &&  my::are_equal(Ly,zero) ){
 			if(this->spuc_ != 0){ this->status_--; }
-			else { std::cerr<<"System2D<Type> : the unit cell contains 0 site"<<std::endl; }
+			else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
 		}
-		else { std::cerr<<"System2D<Type> : the unit cell doesn't fit into the cluster"<<std::endl; }
+		else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell doesn't fit into the cluster"<<std::endl; }
 	} else {
-		std::cerr<<"System2D<Type> : the number of site doesn't fit into the cluster"<<std::endl; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : the number of site doesn't fit into the cluster"<<std::endl; 
 	}
 }
 /*}*/
@@ -300,8 +300,7 @@ bool System2D<Type>::simple_diagonalization(){
 	Lapack<Type>(H_,false,(this->ref_(1)==1?'S':'H')).eigensystem(eval,true);
 	for(unsigned int c(0);c<this->N_;c++){
 		if(my::are_equal(eval(this->M_(c)),eval(this->M_(c)-1),1e-12)){
-			std::cerr<<"bool System2D<Type>::simple_diagonalization() :"
-				" degenerate at the Fermi level"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : degenerate at the Fermi level"<<std::endl;
 			return false;
 		}
 	}
@@ -320,8 +319,7 @@ bool System2D<Type>::full_diagonalization(){
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(i+1);j<this->n_;j++){
 			if(my::are_equal(eval(i),eval(j),1e-10,1e-10)){
-				std::cerr<<"bool System2D<Type>::full_diagonalization() :"
-					"eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
+				std::cerr<<__PRETTY_FUNCTION__<<" : eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
 				return false;
 			}
 		}

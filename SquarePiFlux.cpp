@@ -1,8 +1,8 @@
 #include "SquarePiFlux.hpp"
 
-SquarePiFlux::SquarePiFlux(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc):
-	System(ref,N,m,n,M,bc),
-	Square<std::complex<double> >(set_ab(),(N/m==2?2:0),"square-csl")
+SquarePiFlux::SquarePiFlux(System const& s):
+	System(s),
+	Square<std::complex<double> >(set_ab(),(N_/m_==2?2:0),"square-csl")
 {
 	if(status_==2){
 		init_fermionic();
@@ -31,12 +31,12 @@ void SquarePiFlux::compute_H(){
 					H_(i,nb(0,0)) = std::polar(double(nb(0,1)),-phi);
 					H_(i,nb(1,0)) = std::polar(double(nb(1,1)),phi);
 				}break;
-			default:{ std::cerr<<"void SquarePiFlux::compute_H() : undefined site in unit cell"<<std::endl; }break;
+			default:{ std::cerr<<__PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
-	std::cerr<<"SquarePiFlux : compute_EVec : new use of polar, check that it is correct"<<std::endl;
-	std::cerr<<"                            : modified the flux disposition..."<<std::endl;
-	std::cerr<<"it seems that std::polar is not very stable for std::polar(1,-pi)=(0,1e-6)"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : new use of polar, check that it is correct"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : modified the flux disposition..."<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : it seems that std::polar is not very stable for std::polar(1,-pi)=(0,1e-6)"<<std::endl;
 	H_ += H_.trans_conj(); 
 }
 
@@ -73,7 +73,7 @@ Matrix<double> SquarePiFlux::set_ab(){
 /*}*/
 
 /*{method needed for checking*/
-void SquarePiFlux::lattice(){
+void SquarePiFlux::lattice(std::string const& path, std::string const& filename){
 	compute_H();
 	Matrix<int> nb;
 	std::string color("black");
@@ -81,8 +81,8 @@ void SquarePiFlux::lattice(){
 	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps("./","lattice");
-	ps.add("\\begin{pspicture}(-9,-10)(16,10)%"+filename_);
+	PSTricks ps(path,filename);
+	ps.begin(-9,-10,16,10,filename_);
 	for(unsigned int i(0);i<n_;i++) {
 		xy0 = get_pos_in_lattice(i);
 		set_pos_LxLy(xy0);
@@ -155,8 +155,7 @@ void SquarePiFlux::lattice(){
 	}
 	ps.polygon(polygon,"linecolor=blue");
 
-	ps.add("\\end{pspicture}");
-	ps.save(true,true,true);
+	ps.end(true,true,true);
 }
 
 void SquarePiFlux::check(){
@@ -167,7 +166,7 @@ void SquarePiFlux::check(){
 	//std::cout<<s<<" "<<nb(i,0)<<" "<<nb(i,1)<<std::endl;
 	//}
 	//}
-	lattice();
+	lattice("./","lattice");
 }
 /*}*/
 
@@ -188,7 +187,7 @@ std::string SquarePiFlux::extract_level_7(){
 	jd_write_->write("energy per site",E_);
 
 	rst_file_->text(read_->get_header());
-	rst_file_->save(false);
+	rst_file_->save(false,true);
 	delete rst_file_;
 	rst_file_ = NULL;
 

@@ -6,7 +6,7 @@
 
 class VMCPSO: public VMCMinimization, public Swarm<MCParticle>{
 	public:
-		VMCPSO(Parseur& P, VMCMinimization const& vmcm);
+		VMCPSO(Parseur const& P, VMCMinimization const& vmcm);
 		/*!Default destructor*/
 		virtual ~VMCPSO() = default;
 		/*{Forbidden*/

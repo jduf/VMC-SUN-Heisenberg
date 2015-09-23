@@ -12,22 +12,24 @@
 #include "SquareFermi.hpp"
 #include "SquarePiFlux.hpp"
 #include "SquareJastrow.hpp"
-//#include "SquareFreeReal.hpp"
 #include "SquareACSL.hpp"
 #include "SquareFreeComplex.hpp"
 
-//#include "KagomeFermi.hpp"
-//#include "KagomeDirac.hpp"
-//#include "KagomeVBC.hpp"
+#include "KagomeFermi.hpp"
+#include "KagomeDirac.hpp"
+#include "KagomeVBC.hpp"
 
 #include "Honeycomb0pp.hpp"
 
-#include "Parseur.hpp"
-
 class CreateSystem{
 	public:
-		CreateSystem(Container* C, Vector<double> const* param=NULL);
-		CreateSystem(IOFiles* r);
+		/*{Description*/
+		/*!Takes a pointer to an already existing System (better than to create
+		 * a System within this class because in VMCMinimization, many
+		 * GenericSystem will be created therefore if one can avoid the
+		 * re-creation of a System, it saves ressources) */
+		/*}*/
+		CreateSystem(System const* const s);
 		virtual ~CreateSystem();
 		/*{Forbidden*/
 		CreateSystem() = delete;
@@ -36,64 +38,80 @@ class CreateSystem{
 		CreateSystem& operator=(CreateSystem cs) = delete;
 		/*}*/
 
-		void init(IOFiles* read=NULL, IOSystem* ios=NULL);
+		/*{Core methods*/
+		void init(Vector<double> const* const param, Container* C);
+		void create(bool const& try_solve_degeneracy=false);
+		/*}*/
 
 		/*{IOSystem calls*/
+		/*!The attributes of IOSystem will be copied to RGL_/CGL_*/
+		void set_IOSystem(IOSystem const* const ios){
+			if(RGL_){ RGL_->set_IOSystem(ios); }
+			if(CGL_){ CGL_->set_IOSystem(ios); }
+		}
 		/*!Calls IOSystem::analyse(unsigned int const& level)*/
 		std::string analyse(unsigned int const& level) {
-			if(RGL_){return RGL_->analyse(level);}
-			if(CGL_){return CGL_->analyse(level);}
+			if(RGL_){ return RGL_->analyse(level); }
+			if(CGL_){ return CGL_->analyse(level); }
 			return "";
-		}
-		/*!Calls IOSystem::init_output_file(output)*/
-		void init_output_file(IOFiles& output) const {
-			if(RGL_){RGL_->init_output_file(output);}
-			if(CGL_){CGL_->init_output_file(output);}
 		}
 		/*!Returns the filename (only usefull for mc) */
 		std::string get_filename() const {
-			if(RGL_){return RGL_->get_filename();}
-			if(CGL_){return CGL_->get_filename();}
+			if(RGL_){ return RGL_->get_filename(); }
+			if(CGL_){ return CGL_->get_filename(); }
 			return "";
 		}
 		/*!Returns the path (only usefull for mc) */
 		std::string get_path() const {
-			if(RGL_){return RGL_->get_path();}
-			if(CGL_){return CGL_->get_path();}
+			if(RGL_){ return RGL_->get_path();}
+			if(CGL_){ return CGL_->get_path();}
 			return "";
 		}
 		/*}*/
 
 		/*{GenericSystem calls*/
-		/*!Calls GenericSystem::save() virtual method*/
-		void save() const {
-			if(RGL_){RGL_->save();}
-			if(CGL_){CGL_->save();}
+		/*!Calls GenericSystem::save_input() virtual method*/
+		void save_param(IOFiles& w) const {
+			if(RGL_){ RGL_->save_param(w); }
+			if(CGL_){ CGL_->save_param(w); }
 		}
 		/*!Calls GenericSystem::check() pure virtual method*/
 		void check() const {
-			if(RGL_){return RGL_->check();}
-			if(CGL_){return CGL_->check();}
+			if(RGL_){ return RGL_->check(); }
+			if(CGL_){ return CGL_->check(); }
 		}
 		/*!Calls GenericSystem::create() pure virtual method*/
-		void create(bool try_solve_degeneracy=false);
-		/*}*/
-
-		/*{Other class calls*/
-		/*!Calls System::get_status() : see System.hpp*/
-		unsigned int get_status() const {
-			if(RGL_){return RGL_->get_status();}
-			if(CGL_){return CGL_->get_status();}
-			return 10;
+		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
+			if(RGL_){ RGL_->get_wf_symmetries(sym); }
+			if(CGL_){ CGL_->get_wf_symmetries(sym); }
+		}
+		void lattice(std::string const& path, std::string const& filename) const {
+			if(RGL_){ RGL_->lattice(path,filename); }
+			if(CGL_){ CGL_->lattice(path,filename); }
 		}
 		/*}*/
 
+		/*{System calls*/
+		/*!Calls System::get_status() : see System.hpp*/
+		unsigned int get_status() const {
+			if(RGL_){ return RGL_->get_status(); }
+			if(CGL_){ return CGL_->get_status(); }
+			return 10;
+		}
+		/*!Calls System::get_status() : see System.hpp*/
+		void set_bonds(System* const s) const {
+			if(RGL_){ s->set_bonds(RGL_); }
+			if(CGL_){ s->set_bonds(CGL_); }
+		}
+		/*}*/
+
+		/*{Simple value return*/
 		/*!Returns ref*/
 		Vector<unsigned int> const&  get_ref() const { return ref_; }
 		/*!Returns a pointer on the GenericSystem created*/
-		System const* get_system() const { 
-			if(RGL_){return RGL_;}
-			if(CGL_){return CGL_;}
+		System const* get_GS() const {
+			if(RGL_){ return RGL_; }
+			if(CGL_){ return CGL_; }
 			return NULL;
 		}
 		/*!Returns true if ref_(1)==2 : complex eigenvectors*/
@@ -106,21 +124,18 @@ class CreateSystem{
 			if(ref_(1) == 0){ return true; }
 			else { return false; }
 		}
+		/*}*/
 
 	private:
+		Container* C_;
+		System const* s_;
 		Vector<unsigned int> ref_;
-		unsigned int const N_;
-		unsigned int const m_;
-		unsigned int const n_;
-		Vector<unsigned int> M_;
-		int const bc_;
-		unsigned int type_;
-		Container C_;
 
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
 
-		void parse(Container* C, Vector<double> const* param);
-		void error() const;
+		void error() const {
+			std::cerr<<__PRETTY_FUNCTION__<<" : ref_ = ["<<ref_<<"] unknown"<<std::endl;
+		}
 };
 #endif

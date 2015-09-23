@@ -6,7 +6,7 @@
 template<typename Type>
 class KagomeFermi: public Kagome<Type>{
 	public:
-		KagomeFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, unsigned int& sel0, unsigned int& sel1);
+		KagomeFermi(System const& s);
 		~KagomeFermi() = default;
 
 		void create();
@@ -15,16 +15,16 @@ class KagomeFermi: public Kagome<Type>{
 
 	protected:
 		void compute_H();
-		void lattice();
+		void lattice(std::string const& path, std::string const& filename);
 		std::string extract_level_7();
 		std::string extract_level_6();
 		std::string extract_level_4();
 };
 
 template<typename Type>
-KagomeFermi<Type>::KagomeFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, unsigned int& sel0, unsigned int& sel1):
-	System(ref,N,m,n,M,bc),
-	Kagome<Type>(1,1,3,"kagome-fermi",sel0,sel1)
+KagomeFermi<Type>::KagomeFermi(System const& s):
+	System(s,3),
+	Kagome<Type>(1,1,3,"kagome-fermi")
 {
 	if(this->status_==2){
 		this->init_fermionic();
@@ -36,38 +36,38 @@ KagomeFermi<Type>::KagomeFermi(Vector<unsigned int> const& ref, unsigned int con
 /*{method needed for running*/
 template<typename Type>
 void KagomeFermi<Type>::compute_H(){
-	double t(1.0);
+	//double t(1.0);
 	this->H_.set(this->n_,this->n_,0);
-	Matrix<int> nb;
-	unsigned int s(0);
-	for(unsigned int i(0);i<this->Lx_;i++){
-		for(unsigned int j(0);j<this->Ly_;j++){
-			/*site 0*/
-			s = this->spuc_*(i + j*this->Lx_);
-			nb = this->get_neighbourg(s);
-			/*0-1*/this->H_(s,nb(0,0)) = nb(0,1)*t;
-			/*0-1*/this->H_(s,nb(2,0)) = nb(2,1)*t;
-
-			/*site 1*/
-			s++;
-			nb = this->get_neighbourg(s);
-			/*0-1*/this->H_(s,nb(1,0)) = nb(1,1)*t;
-			/*0-1*/this->H_(s,nb(3,0)) = nb(3,1)*t;
-
-			/*site 2*/
-			s++;
-			nb = this->get_neighbourg(s);
-			/*0-1*/this->H_(s,nb(0,0)) = nb(0,1)*t;
-			/*0-1*/this->H_(s,nb(2,0)) = nb(2,1)*t;
-		}
-	}
+	//Matrix<int> nb;
+	//unsigned int s(0);
+	//for(unsigned int i(0);i<this->Lx_;i++){
+		//for(unsigned int j(0);j<this->Ly_;j++){
+			///*site 0*/
+			//s = this->spuc_*(i + j*this->Lx_);
+			//nb = this->get_neighbourg(s);
+			///*0-1*/this->H_(s,nb(0,0)) = nb(0,1)*t;
+			///*0-1*/this->H_(s,nb(2,0)) = nb(2,1)*t;
+//
+			///*site 1*/
+			//s++;
+			//nb = this->get_neighbourg(s);
+			///*0-1*/this->H_(s,nb(1,0)) = nb(1,1)*t;
+			///*0-1*/this->H_(s,nb(3,0)) = nb(3,1)*t;
+//
+			///*site 2*/
+			//s++;
+			//nb = this->get_neighbourg(s);
+			///*0-1*/this->H_(s,nb(0,0)) = nb(0,1)*t;
+			///*0-1*/this->H_(s,nb(2,0)) = nb(2,1)*t;
+		//}
+	//}
 	this->H_ += this->H_.transpose();
 }
 /*}*/
 
 /*{method needed for checking*/
 template<typename Type>
-void KagomeFermi<Type>::lattice(){
+void KagomeFermi<Type>::lattice(std::string const& path, std::string const& filename){
 	Matrix<int> nb;
 	double x0;
 	double x1;
@@ -79,8 +79,8 @@ void KagomeFermi<Type>::lattice(){
 	double ey(2.0*ll*sin(2.0*M_PI/6.0));
 	std::string color("black");
 
-	PSTricks ps("./","lattice");
-	ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+this->filename_);
+	PSTricks ps(path,filename);
+	ps.begin(-1,-1,16,10,this->filename_);
 	Matrix<double> cell(4,2);
 	cell(0,0) = 0.0;
 	cell(0,1) = 0.0;
@@ -153,8 +153,8 @@ void KagomeFermi<Type>::lattice(){
 			/*2-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 		}
 	}
-	ps.add("\\end{pspicture}");
-	ps.save(true,true);
+
+	ps.end(true,true,true);
 }
 
 template<typename Type>

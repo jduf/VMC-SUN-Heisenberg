@@ -1,15 +1,8 @@
 #include "SquareACSL.hpp"
 
-SquareACSL::SquareACSL(
-		Vector<unsigned int> const& ref, 
-		unsigned int const& N, 
-		unsigned int const& m, 
-		unsigned int const& n, 
-		Vector<unsigned int> const& M,  
-		int const& bc, 
-		Vector<double> const& t):
-	System(ref,N,m,n,M,bc),
-	Square<std::complex<double> >(set_ab(N/m),(N%m?0:N/m),"square-acsl"),
+SquareACSL::SquareACSL(System const& s, Vector<double> const& t):
+	System(s),
+	Square<std::complex<double> >(set_ab(N_/m_),(N_%m_?0:N_/m_),"square-acsl"),
 	t_(t)
 {
 	if(status_==2){
@@ -73,7 +66,7 @@ Matrix<double> SquareACSL::set_ab(unsigned int const& spuc){
 /*}*/
 
 /*{method needed for checking*/
-void SquareACSL::lattice(){
+void SquareACSL::lattice(std::string const& path, std::string const& filename){
 	compute_H();
 	Matrix<int> nb;
 	std::string color("black");
@@ -82,8 +75,8 @@ void SquareACSL::lattice(){
 	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps("./","lattice");
-	ps.add("\\begin{pspicture}(-20,-20)(20,20)%"+filename_);
+	PSTricks ps(path,filename);
+	ps.begin(-20,-20,20,20,filename_);
 	for(unsigned int i(0);i<n_;i++) {
 		xy0 = get_pos_in_lattice(i);
 		set_pos_LxLy(xy0);
@@ -159,8 +152,7 @@ void SquareACSL::lattice(){
 	}
 	ps.polygon(polygon,"linecolor=blue");
 
-	ps.add("\\end{pspicture}");
-	ps.save(true,true,true);
+	ps.end(true,true,true);
 }
 
 void SquareACSL::check(){
@@ -171,6 +163,6 @@ void SquareACSL::check(){
 	//std::cout<<s<<" "<<nb(i,0)<<" "<<nb(i,1)<<std::endl;
 	//}
 	//}
-	lattice();
+	lattice("./","lattice");
 }
 /*}*/

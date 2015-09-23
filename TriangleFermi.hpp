@@ -5,7 +5,7 @@
 
 class TriangleFermi: public Triangle<double>{
 	public:
-		TriangleFermi(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc);
+		TriangleFermi(System const& s);
 		~TriangleFermi() = default;
 
 		void create();
@@ -13,7 +13,7 @@ class TriangleFermi: public Triangle<double>{
 
 	protected:
 		void compute_H();
-		void lattice();
+		void lattice(std::string const& path, std::string const& filename);
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 		Matrix<double> set_ab();

@@ -29,7 +29,7 @@ class Fermionic : public virtual System{
 		bool same_wf_;		//!< true if the same wavefunction is used for all colors
 		Matrix<Type>* EVec_;//!< eigenvectors matrix (transfer matrix)
 
-		/*!compute the eigenvectors from the mean field Hamiltonian*/
+		/*!Sets the eigenvectors' matrices*/
 		void init_fermionic();
 };
 

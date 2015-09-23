@@ -7,13 +7,13 @@
 
 class Analyse: public IOSystem{
 	public:
-		Analyse(std::string const& path);
+		Analyse(std::string const& path, unsigned int const& max_level);
 		/*Default destructor*/
 		virtual ~Analyse() = default;
 		/*{Forbidden*/
 		Analyse() = delete;
-		Analyse(Analyse const& a) = delete;
-		Analyse(Analyse&& a) = delete;
+		Analyse(Analyse const&) = delete;
+		Analyse(Analyse&&) = delete;
 		Analyse& operator=(Analyse const&) = delete;
 		/*}*/
 
@@ -22,13 +22,14 @@ class Analyse: public IOSystem{
 		List<std::string> all_link_files_;
 		List<RSTFile> rst_file_;
 
+		std::string rel_level_;
+		unsigned int const max_level_;
 		unsigned int level_;
 		unsigned int nof_;
 
 		void do_analyse();
-		virtual void open_files()=0;
-		virtual void close_files()=0;
-		std::string extract_level_7();
+		virtual void open_files()  = 0;
+		virtual void close_files() = 0;
 
 	private:
 		unsigned int study_;

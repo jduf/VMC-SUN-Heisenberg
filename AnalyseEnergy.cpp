@@ -1,7 +1,7 @@
 #include "AnalyseEnergy.hpp"
 
-AnalyseEnergy::AnalyseEnergy(std::string const& path):
-	Analyse(path)
+AnalyseEnergy::AnalyseEnergy(std::string const& path, unsigned int const& max_level):
+	Analyse(path,max_level)
 {
 	do_analyse();
 }
@@ -18,8 +18,8 @@ void AnalyseEnergy::open_files(){
 
 void AnalyseEnergy::close_files(){
 	if(jd_write_){ 
-		if(level_==7){ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); }
-		if(level_==3){ rst_file_.last().link_figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp",1000); }
+		if(level_==7){ rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
+		if(level_==3){ rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
 		rst_file_.last().text(jd_write_->get_header());
 		delete jd_write_;
 		jd_write_ = NULL;
@@ -45,12 +45,15 @@ std::string AnalyseEnergy::extract_level_4(){
 
 	Data<double> E;
 	for(unsigned int i(0);i<nof_;i++){
-		CreateSystem cs(read_);
-		cs.init(read_,this);
+		System s(*read_);
+		CreateSystem cs(&s);
+		Vector<double> tmp(read_->read<Vector<double> >());
+		cs.init(&tmp,NULL);
+		cs.set_IOSystem(this);
 		(*read_)>>E;
 
 		jd_write_->add_header()->nl();
-		cs.save(); 
+		s.save_input(*jd_write_); 
 		jd_write_->write("energy per site",E);
 	}
 
@@ -65,12 +68,15 @@ std::string AnalyseEnergy::extract_level_3(){
 	(*read_)>>nof_;
 
 	for(unsigned int i(0);i<nof_;i++){
-		CreateSystem cs(read_);
-		cs.init(read_,this);
+		System s(*read_);
+		CreateSystem cs(&s);
+		Vector<double> tmp(read_->read<Vector<double> >());
+		cs.init(&tmp,NULL);
+		cs.set_IOSystem(this);
 		std::string link_name(cs.analyse(level_));
 
 		jd_write_->add_header()->nl();
-		cs.save();
+		s.save_input(*jd_write_);
 	}
 
 	delete read_;
@@ -94,7 +100,7 @@ std::string AnalyseEnergy::extract_level_2(){
 	gp+="     '"+filename_+".dat' u (1/$1):($6==0?$2:1/0):3 w e t '0',\\";
 	gp+="     f(x) t sprintf('$E=%f$',b)";
 	gp.save_file();
-	gp.create_image(true);
+	gp.create_image(true,true);
 	return filename_;
 }
 
@@ -103,12 +109,15 @@ std::string AnalyseEnergy::extract_default(){
 
 	jd_write_->add_header()->nl();
 	Data<double> E;
-	CreateSystem cs(read_);
-	cs.init(read_,this);
+	System s(*read_);
+	CreateSystem cs(&s);
+	Vector<double> tmp(read_->read<Vector<double> >());
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
 	if(level_ == 6){ (*read_)>>nof_; }
 	(*read_)>>E;
 
-	cs.save();
+	s.save_input(*jd_write_);
 	jd_write_->write("energy per site",E);
 
 	delete read_;

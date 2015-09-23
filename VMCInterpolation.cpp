@@ -2,10 +2,9 @@
 
 VMCInterpolation::VMCInterpolation(VMCMinimization const& m):
 	VMCMinimization(m,"INT"),
-	interp_(m_->Nfreedom_)
+	interp_(m_->dof_)
 {
 	interp_.select_basis_function(7);
-	std::cerr<<"VMCInterpolation::VMCInterpolation(VMCMinimization const& m): no 'dx' set for Interpolation"<<std::endl;
 }
 
 /*{public methods*/
@@ -15,56 +14,71 @@ void VMCInterpolation::init(){
 	list_min_idx_.clear();
 
 	std::cout<<"#######################"<<std::endl;
-	std::string msg("new VMCInterpolation");
+	std::string msg("VMCInterpolation");
 	std::cout<<"#"<<msg<<std::endl;
-	m_->pso_info_.title(msg,'-');
+	m_->info_.title(msg,'-');
 
 	std::cout<<"#"<<get_filename()<<std::endl;
-	m_->pso_info_.item(get_filename());
+	m_->info_.item(get_filename());
 
 	msg="contains "+my::tostring(m_->samples_list_.size())+" samples";
 	std::cout<<"#"<<msg<<std::endl;
-	m_->pso_info_.item(msg);
+	m_->info_.item(msg);
 
 	if(m_->samples_list_.size()){ search_minima(); }
 	else {
-		std::cerr<<"VMCInterpolation::run() : empty samples_list_"<<std::endl;
-		m_->pso_info_.item("error : empty samples_list_");
+		std::cerr<<__PRETTY_FUNCTION__<<" : empty samples_list_"<<std::endl;
+		m_->info_.item("error : empty samples_list_");
 	}
 }
 
-void VMCInterpolation::run(unsigned int const& explore_around_minima){
+void VMCInterpolation::run(bool const& explore_around_minima){
 	unsigned int lmis(list_min_idx_.size());
 	if(lmis){
-		unsigned int nsim(pow(2*explore_around_minima+1,m_->Nfreedom_));
-		std::string msg1("measuring "+my::tostring(nsim)+" samples per minima (time estimated "+my::tostring(lmis*m_->effective_time_*nsim/omp_get_max_threads())+"s");
+		std::string msg1("explore around minima");
 		std::cout<<"#"<<msg1<<std::flush;
 		Time chrono;
 
 		if(explore_around_minima){
-#pragma omp parallel for
+			double E(0.0);
+			double dE(0.0);
+			double Ee(0.0);
+			double tmp(0.0);
+			unsigned int j(0);
+			unsigned int dir(0);
+			unsigned int maxjter(10);
+			unsigned int thread;
+			Vector<unsigned int> pos;
+
+			thread = omp_get_max_threads();
+			RandArray<double> rnd(thread);
+			RandArray<unsigned int> choose_dir(thread);
+			for(unsigned int i(0);i<thread;i++){
+				rnd.set(i,0.0,1.0);
+				choose_dir.set(i,0,2*m_->dof_-1);
+			}
+#pragma omp parallel for private(E,dE,Ee,tmp,j,dir,thread,pos)
 			for(unsigned int i=0;i<lmis;i++){
-				std::vector<unsigned int>* min_idx(new std::vector<unsigned int>[m_->Nfreedom_]);
-				for(unsigned int j(0);j<m_->Nfreedom_;j++){
-					for(unsigned int k(0);k<2*explore_around_minima+1;k++){
-						if(list_min_idx_[i](j)+k >= 2 && list_min_idx_[i](j)+k < m_->ps_[j].size()+2){
-							min_idx[j].push_back(list_min_idx_[i](j)+k-2);
+				pos = list_min_idx_[i];
+				thread = omp_get_thread_num();
+				E = 0.0;
+				j = 0;
+				do{
+					evaluate(m_->ps_,pos,tmp,dE,Ee);
+					dir = choose_dir.get(thread);
+					if( tmp < E*rnd.get(thread) ){
+						E = tmp;
+						if(dir%2){
+							if( pos(dir/2)+1<m_->ps_[dir/2].size() ){
+								pos(dir/2)++;
+							} else { j=maxjter; }
+						} else {
+							if( pos(dir/2)>1 ){
+								pos(dir/2)--;
+							} else { j=maxjter; }
 						}
-					}
-				}
-
-				Vector<double>* local_x(new Vector<double>[m_->Nfreedom_]);
-				for(unsigned int j(0);j<m_->Nfreedom_;j++){
-					local_x[j].set(min_idx[j].size(),0);
-					for(unsigned int k(0);k<min_idx[j].size();k++){
-						local_x[j](k) = m_->ps_[j](min_idx[j][k]);
-					}
-				}
-
-				Vector<unsigned int> idx(m_->Nfreedom_,0);
-				while(go_through_parameter_space(local_x,idx,0,0,&VMCInterpolation::evaluate));
-				delete[] local_x;
-				delete[] min_idx;
+					} else { j=maxjter; }
+				} while ( j++<maxjter && 2.0*j*dE/std::abs(Ee-E) > rnd.get(thread) );
 			}
 		} else {
 #pragma omp parallel for
@@ -73,57 +87,86 @@ void VMCInterpolation::run(unsigned int const& explore_around_minima){
 			}
 		}
 
-		std::string msg2(", done in "+my::tostring(chrono.elapsed())+"s)");
+		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
 		std::cout<<msg2<<std::endl;
-		m_->pso_info_.item(msg1+msg2);
+		m_->info_.item(msg1+msg2);
 	}
 }
 
 void VMCInterpolation::plot(){
-	if(m_->Nfreedom_<4){
-		out_ = new IOFiles(get_filename()+".dat",true);
+	if(m_->dof_<4){
+		out_ = new IOFiles(get_path()+get_filename()+".dat",true);
 		m_->samples_list_.set_target();
 		double min(0);
 		while(m_->samples_list_.target_next()){
-			if(m_->samples_list_.get().get_S()->get_energy().get_x()<min){ min = m_->samples_list_.get().get_S()->get_energy().get_x(); }
-			(*out_)<<m_->samples_list_.get().get_param()<<" "<<m_->samples_list_.get().get_S()->get_energy().get_x()<<IOFiles::endl;
+			if(m_->samples_list_.get().get_MCS()->get_energy().get_x()<min){ min = m_->samples_list_.get().get_MCS()->get_energy().get_x(); }
+			(*out_)<<m_->samples_list_.get().get_param()<<" "<<m_->samples_list_.get().get_MCS()->get_energy()<<IOFiles::endl;
 		}
 		delete out_;
 
-		out_ = new IOFiles(get_filename()+"-spline.dat",true);
-		Vector<unsigned int> idx(m_->Nfreedom_,0);
+		out_ = new IOFiles(get_path()+get_filename()+"-spline.dat",true);
+		Vector<unsigned int> idx(m_->dof_,0);
 		while(go_through_parameter_space(m_->ps_,idx,0,0,&VMCInterpolation::save_interp_data));
 		delete out_;
 		out_ = NULL;
 
-		Gnuplot plot("./",get_filename());
-		plot.range("x","-2","2");
-		plot.range("y","-2","2");
-		plot.range("z","-1","");
-		plot+="set ticslevel 0";
-		if(m_->Nfreedom_==2){
+		Gnuplot plot(get_path(),get_filename());
+		plot.range("x",m_->ps_[0](0),m_->ps_[0].back());
+		if(m_->dof_==1){
+			plot+="plot '"+get_filename()+"-spline.dat' u 1:2   lt 7 lc 1 t 'spline',\\";
+			plot+="     '"+get_filename()+".dat'        u 1:2:3 lt 7 lc 2 notitle";
+		} else {
+			plot.range("y",m_->ps_[1](0),m_->ps_[1].back());
+			plot.label("x","x");
+			plot.label("y","y");
+			plot.label("z","z");
+			plot+="set ticslevel 0";
+		}
+		if(m_->dof_==2){
+			plot.range("z","-1","");
 			plot+="splot '"+get_filename()+"-spline.dat' u 1:2:3 lt 7 lc 1 t 'spline',\\";
 			plot+="      '"+get_filename()+".dat'        u 1:2:3 lt 7 lc 2 notitle";
 		}
-		if(m_->Nfreedom_==3){
-			plot+="splot '"+get_filename()+"-spline.dat' u 1:2:3:($4>-0.93?0:exp("+my::tostring(min)+"-$4)) w p lt 7 lc 1 ps variable t 'spline',\\";
-			plot+="      '"+get_filename()+".dat'        u 1:2:3:($4>-0.93?0:exp("+my::tostring(min)+"-$4)) w p lt 7 lc 2 ps variable notitle";
+		if(m_->dof_==3){
+			plot.range("z",m_->ps_[2](0),m_->ps_[2].back());
+			plot+="splot '"+get_filename()+"-spline.dat' u 1:2:3:($4>"+my::tostring(min*0.8)+"?0:exp("+my::tostring(min)+"-$4)) w p lt 7 lc 1 ps variable t 'spline',\\";
+			plot+="      '"+get_filename()+".dat'        u 1:2:3:($4>"+my::tostring(min*0.8)+"?0:exp("+my::tostring(min)+"-$4)) w p lt 7 lc 2 ps variable notitle";
 		}
 		plot.save_file();
 	} else {
-		std::cerr<<"void VMCInterpolation::plot() : how to plot "<<m_->Nfreedom_<<"-dimensional data ?"<<std::endl;
+		out_ = new IOFiles(get_path()+get_filename()+".dat",true);
+		Vector<double> param(m_->dof_);
+		for(unsigned int k(0);k<m_->ps_[0].size();k++){
+			for(unsigned int j(0);j<m_->dof_;j++){
+				param(j) = m_->ps_[j](0)-m_->ps_[j](k);
+			}
+			std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
+			(*out_)<<param.norm_squared()<<" "<<interp_(param)<<" ";
+			if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){
+				(*out_)<<m_->samples_list_.get().get_MCS()->get_energy().get_x()<<" "<<m_->samples_list_.get().get_MCS()->get_energy().get_dx()<<IOFiles::endl;
+			} else {
+				(*out_)<<0<<" "<<0<<IOFiles::endl;
+			}
+		}
+		delete out_;
+		out_ = NULL;
+
+		Gnuplot plot(get_path(),get_filename());
+		plot.range("x","0","");
+		plot+="plot '"+get_filename()+".dat' u 1:2:3 t 'cut'";
+		plot.save_file();
 	}
 }
 
 void VMCInterpolation::print(){
-	Vector<double> param(m_->Nfreedom_);
+	Vector<double> param(m_->dof_);
 #pragma omp parallel for firstprivate(param)
 	for(unsigned int i=0;i<list_min_idx_.size();i++){
-		for(unsigned int j(0);j<m_->Nfreedom_;j++){ param(j) = m_->ps_[j](list_min_idx_[i](j)); }
+		for(unsigned int j(0);j<m_->dof_;j++){ param(j) = m_->ps_[j](list_min_idx_[i](j)); }
 		std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
 		if(sim.get()){
 #pragma omp critical
-			std::cerr<<param<<" "<<interp_.extrapolate(param)<<" "<<sim->get_S()->get_energy()<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : "<<param<<" "<<interp_(param)<<" "<<sim->get_MCS()->get_energy()<<std::endl;
 		}
 	}
 }
@@ -131,17 +174,29 @@ void VMCInterpolation::print(){
 
 /*{private methods*/
 void VMCInterpolation::search_minima(){
-	m_->samples_list_.set_target();
-	while(m_->samples_list_.target_next()){
-		interp_.add_data(m_->samples_list_.get().get_param(),m_->samples_list_.get().get_S()->get_energy().get_x());
-	}
 	Time chrono;
 	std::string msg1("computing the weights");
 	std::cout<<"#"<<msg1<<std::flush;
-	if(interp_.compute_weights(0.05,pow(m_->ps_size_,1./m_->Nfreedom_))){
-		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
+
+	m_->samples_list_.set_target();
+	while(m_->samples_list_.target_next()){
+		interp_.add_data(m_->samples_list_.get().get_param(),m_->samples_list_.get().get_MCS()->get_energy().get_x());
+	}
+
+	double dx(0.0);
+	for(unsigned int i(0);i<m_->dof_;i++){
+		double tmp(0);
+		for(unsigned int j(1);j<m_->ps_[i].size();j++){
+			tmp += m_->ps_[i](j)-m_->ps_[i](j-1);
+		}
+		dx += tmp/(m_->ps_[i].size()-1);
+	}
+	dx /= m_->dof_;
+
+	if(interp_.compute_weights(dx,pow(m_->ps_size_,1./m_->dof_))){
+		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s"+(dx>1e-14?", error : "+my::tostring(dx)+")":")"));
 		std::cout<<msg2<<std::endl;
-		m_->pso_info_.item(msg1+msg2);
+		m_->info_.item(msg1+msg2);
 		chrono.set();
 		msg1="search for minima";
 		if(m_->ps_size_ < 1e5){
@@ -151,41 +206,41 @@ void VMCInterpolation::search_minima(){
 			{
 				unsigned int min0(omp_get_thread_num()*m_->ps_[0].size()/omp_get_num_threads());
 				unsigned int max0((omp_get_thread_num()+1)*m_->ps_[0].size()/omp_get_num_threads());
-				Vector<unsigned int> idx(m_->Nfreedom_,0);
+				Vector<unsigned int> idx(m_->dof_,0);
 				idx(0) = min0;
 				while(go_through_parameter_space(m_->ps_,idx,min0,max0,&VMCInterpolation::select_if_min));
 			}
 		} else {
 			msg1="random "+msg1;
 			std::cout<<"#"<<msg1<<std::flush;
-			RandArray<unsigned int>* rnd(new RandArray<unsigned int>[m_->Nfreedom_]);
-			unsigned int max_threads(omp_get_max_threads());
-			for(unsigned int i(0);i<m_->Nfreedom_;i++){
-				rnd[i].set(max_threads);
-				for(unsigned int j(0);j<max_threads;j++){
+			RandArray<unsigned int>* rnd(new RandArray<unsigned int>[m_->dof_]);
+			unsigned int tmp(omp_get_max_threads());
+			for(unsigned int i(0);i<m_->dof_;i++){
+				rnd[i].set(tmp);
+				for(unsigned int j(0);j<tmp;j++){
 					rnd[i].set(j,0,m_->ps_[i].size()-1);
 				}
 			}
 #pragma omp parallel for
-			for(unsigned int i=0;i<100;i++){
-				Vector<double> param(m_->Nfreedom_);
-				Vector<unsigned int> pidx(m_->Nfreedom_);
+			for(unsigned int i=0;i<m_->dof_*100;i++){
+				Vector<double> param(m_->dof_);
+				Vector<unsigned int> pidx(m_->dof_);
 				unsigned int thread(omp_get_thread_num());
-				for(unsigned int j(0);j<m_->Nfreedom_;j++){
+				for(unsigned int j(0);j<m_->dof_;j++){
 					pidx(j) = rnd[j].get(thread);
 					param(j) = m_->ps_[j](pidx(j));
 				}
 
-				double tmp(interp_.extrapolate(param));
+				double tmp(interp_(param));
 				double min(tmp);
 				unsigned int dir;
 				unsigned int const max_step(1e3);
 				for(unsigned int j(0);j<max_step;j++){
-					dir = 2*m_->Nfreedom_;
-					for(unsigned int k(0);k<m_->Nfreedom_;k++){
+					dir = 2*m_->dof_;
+					for(unsigned int k(0);k<m_->dof_;k++){
 						if(pidx(k)+1<m_->ps_[k].size()){
 							param(k) = m_->ps_[k](pidx(k)+1);
-							tmp = interp_.extrapolate(param);
+							tmp = interp_(param);
 							if(!isnan(tmp) && tmp<min){
 								min = tmp;
 								dir = 2*k;
@@ -193,7 +248,7 @@ void VMCInterpolation::search_minima(){
 						}
 						if(pidx(k)>0){
 							param(k) = m_->ps_[k](pidx(k)-1);
-							tmp = interp_.extrapolate(param);
+							tmp = interp_(param);
 							if(!isnan(tmp) && tmp<min){
 								min = tmp;
 								dir = 2*k+1;
@@ -201,11 +256,11 @@ void VMCInterpolation::search_minima(){
 						}
 						param(k) = m_->ps_[k](pidx(k));
 					}
-					if(dir != 2*m_->Nfreedom_){
+					if(dir != 2*m_->dof_){
 						pidx(dir/2) += (dir%2?-1:1);
 						param(dir/2) = m_->ps_[dir/2](pidx(dir/2));
 					} else {
-						j=max_step; 
+						j=max_step;
 #pragma omp critical
 						{
 							bool add_to_list_min(true);
@@ -226,11 +281,11 @@ void VMCInterpolation::search_minima(){
 
 		msg2=" (found "+my::tostring(list_min_idx_.size())+" minimas in "+my::tostring(chrono.elapsed())+"s)";
 		std::cout<<msg2<<std::endl;
-		m_->pso_info_.item(msg1+msg2);
+		m_->info_.item(msg1+msg2);
 	} else {
 		std::string msg2(" FAIL ");
 		std::cout<<msg2<<std::endl;
-		m_->pso_info_.item(msg1+msg2);
+		m_->info_.item(msg1+msg2);
 	}
 }
 
@@ -239,22 +294,22 @@ bool VMCInterpolation::go_through_parameter_space(Vector<double>* x, Vector<unsi
 
 	idx(0)++;
 	if(min0==0 && max0==0){
-		for(unsigned int i(0);i<m_->Nfreedom_;i++){
+		for(unsigned int i(0);i<m_->dof_;i++){
 			if(idx(i) == x[i].size()){
-				if(i+1 == m_->Nfreedom_){ return false; }
+				if(i+1 == m_->dof_){ return false; }
 				idx(i) = 0;
 				idx(i+1)++;
 			}
 		}
 	} else {
 		if(idx(0) == max0){
-			if(1 == m_->Nfreedom_){ return false; }
+			if(1 == m_->dof_){ return false; }
 			idx(0) = min0;
 			idx(1)++;
 		}
-		for(unsigned int i(1);i<m_->Nfreedom_;i++){
+		for(unsigned int i(1);i<m_->dof_;i++){
 			if(idx(i) == x[i].size()){
-				if(i+1 == m_->Nfreedom_){ return false; }
+				if(i+1 == m_->dof_){ return false; }
 				idx(i) = 0;
 				idx(i+1)++;
 			}
@@ -268,20 +323,20 @@ void VMCInterpolation::select_if_min(Vector<double>* x, Vector<unsigned int> con
 	double f;
 	double f_tmp;
 	bool is_min(true);
-	Vector<double> param(m_->Nfreedom_);
-	for(unsigned int i(0); i<m_->Nfreedom_;i++){ param(i) = x[i](idx(i)); }
-	f = interp_.extrapolate(param);
+	Vector<double> param(m_->dof_);
+	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
+	f = interp_(param);
 	if(!isnan(f)){
-		for(unsigned int j(0);j<m_->Nfreedom_;j++){
+		for(unsigned int j(0);j<m_->dof_;j++){
 			if(is_min){
 				if(idx(j)+1<m_->ps_[j].size()){
 					param(j) = x[j](idx(j)+1);
-					f_tmp = interp_.extrapolate(param);
+					f_tmp = interp_(param);
 					if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
 				}
 				if(is_min && idx(j)>0){
 					param(j) = x[j](idx(j)-1);
-					f_tmp = interp_.extrapolate(param);
+					f_tmp = interp_(param);
 					if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
 				}
 				param(j) = x[j](idx(j));
@@ -298,21 +353,30 @@ void VMCInterpolation::select_if_min(Vector<double>* x, Vector<unsigned int> con
 }
 
 void VMCInterpolation::save_interp_data(Vector<double>* x, Vector<unsigned int> const& idx){
-	Vector<double> param(m_->Nfreedom_);
-	for(unsigned int i(0); i<m_->Nfreedom_;i++){ param(i) = x[i](idx(i)); }
-	(*out_)<<param<<" "<<interp_.extrapolate(param)<<IOFiles::endl;
+	Vector<double> param(m_->dof_);
+	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
+	(*out_)<<param<<" "<<interp_(param)<<IOFiles::endl;
+}
+
+void VMCInterpolation::evaluate(Vector<double>* x, Vector<unsigned int> const& idx, double& E, double& dE, double& Ee){
+	Vector<double> param(m_->dof_);
+	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
+	std::shared_ptr<MCSim> mcsim(VMCMinimization::evaluate(param));
+	if(mcsim.get()){
+		mcsim->check_conv(1e-5);
+		E = mcsim->get_MCS()->get_energy().get_x();
+		dE= mcsim->get_MCS()->get_energy().get_dx();
+		Ee= interp_(param);
+	} else {
+		E = 0.0;
+		dE= 0.0;
+		Ee= 0.0;
+	}
 }
 
 void VMCInterpolation::evaluate(Vector<double>* x, Vector<unsigned int> const& idx){
-	Vector<double> param(m_->Nfreedom_);
-	for(unsigned int i(0); i<m_->Nfreedom_;i++){ param(i) = x[i](idx(i)); }
+	Vector<double> param(m_->dof_);
+	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
 	std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
-	if(sim.get()){
-		sim->get_S()->get_energy().complete_analysis(1e-5);
-		if(std::abs(interp_.extrapolate(param)-sim->get_S()->get_energy().get_x())<sim->get_S()->get_energy().get_dx()){
-#pragma omp critical
-			std::cerr<<param<<" : "<<interp_.extrapolate(param)<<" <-> "<<sim->get_S()->get_energy()<<std::endl;
-		}
-	}
 }
 /*}*/

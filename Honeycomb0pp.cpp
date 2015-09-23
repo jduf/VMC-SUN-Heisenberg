@@ -1,7 +1,7 @@
 #include "Honeycomb0pp.hpp"
 
-Honeycomb0pp::Honeycomb0pp(Vector<unsigned int> const& ref, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M,  int const& bc, double td):
-	System(ref,N,m,n,M,bc),
+Honeycomb0pp::Honeycomb0pp(System const& s, double td):
+	System(s),
 	Honeycomb<double>(set_ab(),6,"honeycomb0pp"),
 	td_(td)
 {
@@ -43,7 +43,7 @@ void Honeycomb0pp::compute_H(){
 					H_(i,nb(1,0))= nb(1,1)*td_;
 					H_(i,nb(2,0))= nb(2,1)*th;
 				}break;
-			default:{ std::cerr<<"void Honeycomb0pp::compute_H() : undefined site in unit cell"<<std::endl; }break;
+			default:{ std::cerr<< __PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
 	H_ += H_.transpose();
@@ -61,9 +61,8 @@ void Honeycomb0pp::create(){
 	}
 }
 
-void Honeycomb0pp::save() const{
-	GenericSystem<double>::save();
-	jd_write_->write("td/th (ratio of the hopping parameters)",td_);
+void Honeycomb0pp::save_param(IOFiles& w) const{
+	w.write("td/th (ratio of the hopping parameters)",td_);
 }
 
 unsigned int Honeycomb0pp::match_pos_in_ab(Vector<double> const& x) const{
@@ -98,7 +97,7 @@ Matrix<double> Honeycomb0pp::set_ab(){
 /*}*/
 
 /*{method needed for checking*/
-void Honeycomb0pp::lattice(){
+void Honeycomb0pp::lattice(std::string const& path, std::string const& filename){
 	compute_H();
 	Matrix<double> e(2,2);
 	e(0,0) = 1.0/3.0;
@@ -117,8 +116,8 @@ void Honeycomb0pp::lattice(){
 	std::string linestyle("solid");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps("./","lattice");
-	ps.add("\\begin{pspicture}(-4,-10)(20,10)%"+filename_);
+	PSTricks ps(path,filename);
+	ps.begin(-4,-10,20,10,filename_);
 	for(unsigned int i(0);i<n_;i+=2) {
 		xy0 = get_pos_in_lattice(i);
 		set_pos_LxLy(xy0);
@@ -231,8 +230,7 @@ void Honeycomb0pp::lattice(){
 	for(unsigned int i(0);i<polygon.row();i++){ polygon(i,0) -= 1; }
 	ps.polygon(polygon,"linecolor=blue");
 
-	ps.add("\\end{pspicture}");
-	ps.save(true,true,true);
+	ps.end(true,true,true);
 }
 
 void Honeycomb0pp::check(){
@@ -296,7 +294,7 @@ void Honeycomb0pp::check(){
 	std::cout<<12<<" "<<get_site_in_ab(12)<<std::endl;
 	std::cout<<9<<" "<<get_site_in_ab(9)<<std::endl;
 	std::cout<<3<<" "<<get_site_in_ab(3)<<std::endl;
-	lattice();
+	lattice("./","lattice");
 }
 /*}*/
 
@@ -319,7 +317,7 @@ std::string Honeycomb0pp::extract_level_7(){
 	jd_write_->write("E",E_);
 
 	rst_file_->text(read_->get_header());
-	rst_file_->save(false);
+	rst_file_->save(false,true);
 	delete rst_file_;
 	rst_file_ = NULL;
 
@@ -341,7 +339,7 @@ std::string Honeycomb0pp::extract_level_6(){
 	}
 
 	jd_write_->add_header()->nl();
-	save();
+	save_input(*jd_write_);
 	jd_write_->write("energy per site",E_);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
@@ -350,7 +348,7 @@ std::string Honeycomb0pp::extract_level_6(){
 	gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
 	gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean'";
 	gp.save_file();
-	gp.create_image(true);
+	gp.create_image(true,true);
 
 	return filename_;
 }
