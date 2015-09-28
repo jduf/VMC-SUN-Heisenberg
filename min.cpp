@@ -6,9 +6,13 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	
+	unsigned int i;
+	if(!P.find("M",i,false)){
+		std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
+		P.set("M",M);
+	}
 	VMCMinimization m(P);
 	if(m.ready()){
-		unsigned int i;
 		switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
 			case 0:
 				{

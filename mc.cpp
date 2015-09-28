@@ -6,8 +6,13 @@
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	unsigned int nruns(P.get<unsigned int>("nruns"));
 	unsigned int tmax(P.get<unsigned int>("tmax"));
+	unsigned int i(0);
+	unsigned int nruns(P.find("nruns",i,false)?P.get<unsigned int>(i):omp_get_max_threads());
+	if(!P.find("M",i,false)){
+		std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
+		P.set("M",M);
+	}
 	System sys(P);
 	CreateSystem cs(&sys);
 	cs.init(NULL,&P);
@@ -18,7 +23,7 @@ int main(int argc, char* argv[]){
 				sys.set_bonds(cs.get_GS());
 				sys.set_observables(2);
 #pragma omp parallel for
-				for(unsigned int i=0;i<nruns;i++){
+				for(unsigned int j=0;j<nruns;j++){
 					MCSystem* mcsys(NULL);
 					if( cs.use_complex()){
 						if(cs.is_bosonic()){
@@ -57,7 +62,6 @@ int main(int argc, char* argv[]){
 				cs.get_GS()->save_input(out);
 				sys.save_output(out);
 
-				unsigned int i(0);
 				if(P.find("d",i,false)){
 					CreateSystem tmp(&sys);
 					tmp.init(NULL,&P);
@@ -67,9 +71,9 @@ int main(int argc, char* argv[]){
 					rst.text(out.get_header());
 					rst.save(false,true);
 					command.html_browser("/tmp/"+cs.get_filename()+".html");
-					if( my::get_yn("move the plot in the correct folder ?") ){
-						std::cerr<<"should implement this move"<<std::endl;
-					}
+					//if( my::get_yn("move the plot in the correct folder ?") ){
+						//std::cerr<<"should implement this move"<<std::endl;
+					//}
 				}
 			}
 		}

@@ -902,11 +902,15 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 	ps.begin(-1,-5,n_plot,2,filename);
 	double t;
 	double corr;
+	unsigned int s0;
+	unsigned int s1;
 	for(unsigned int i(0);i<links_.row();i++){
-		xy0(0) = links_(i,0)/2;
-		xy0(1) = links_(i,0)%2;
-		xy1(0) = links_(i,1)/2;
-		xy1(1) = links_(i,1)%2;
+		s0 = links_(i,0);
+		s1 = links_(i,1);
+		xy0(0) = s0/2;
+		xy0(1) = s0%2;
+		xy1(0) = s1/2;
+		xy1(1) = s1%2;
 
 		if(xy1(0)<xy0(0)){
 			xy1(0) = xy0(0)+1;
@@ -916,7 +920,7 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 		if(i%3==0){ ps.put(xy0(0),xy0(1)-0.2,"\\tiny{"+my::tostring(links_(i,0))+"}"); }
 		if(i%3==1){ ps.put(xy1(0),xy1(1)+0.2,"\\tiny{"+my::tostring(links_(i,1))+"}"); }
 
-		t=H_(links_(i,0),links_(i,1));
+		t=H_(s0,s1);
 		if(std::abs(t)>1e-4){
 			if(t<0){ color = "red"; }
 			else { color = "blue"; }
@@ -945,7 +949,7 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 		}
 	}
 	double lr_corr;
-	double rescale(lr_corr_.size()?1.0/(lr_corr_[0].get_x()*0.75):0);
+	double rescale(lr_corr_.size()?0.75/lr_corr_[0].get_x():0);
 	for(unsigned int i(0);i<lr_corr_.size();i++){
 		lr_corr = lr_corr_[i].get_x()*rescale;
 		if(std::abs(lr_corr)>1e-4){
@@ -957,9 +961,7 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 			if(i){
 				if(lr_corr<0){ color = "red"; }
 				else { color = "blue"; }
-			} else {
-				color = "black";
-			}
+			} else { color = "black"; }
 
 			ps.circle(xy0,std::abs(lr_corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 		}

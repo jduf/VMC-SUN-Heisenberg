@@ -21,7 +21,7 @@ class Square: public System2D<Type>{
 
 	private:
 		Matrix<double> set_LxLy(unsigned int const& n) const;
-		Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const;
+		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
 };
 
@@ -56,7 +56,12 @@ Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::st
 		this->dir_nn_LxLy_(3,0) = dir(0);
 		this->dir_nn_LxLy_(3,1) = dir(1);
 
-		this->compute_links(Vector<unsigned int>(1,2));
+		if(!this->links_.ptr()){ this->compute_links(Vector<unsigned int>(1,2)); }
+
+		/*!sets the bond energy if it has not been set yet*/
+		if(this->links_.row() != this->J_.size() && this->J_.size() == 1){
+			this->J_.set(this->links_.row(),1);
+		}
 	}
 }
 
@@ -94,7 +99,7 @@ Matrix<double> Square<Type>::set_LxLy(unsigned int const& n) const {
 }
 
 template<typename Type>
-Vector<double> Square<Type>::vector_towrards(unsigned int const& i, unsigned int const& dir) const {
+Vector<double> Square<Type>::vector_towards(unsigned int const& i, unsigned int const& dir) const {
 	(void)(i);
 	Vector<double> tmp(2);
 	tmp(0) = this->dir_nn_LxLy_(dir,0);

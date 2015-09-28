@@ -60,7 +60,7 @@ class System2D: public GenericSystem<Type>{
 
 		/*!Set the neighbour of site i in direction dir in nb*/
 		void find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const;
-		virtual Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const = 0;
+		virtual Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const = 0;
 		virtual void try_neighbourg(Vector<double>& tn, unsigned int const& i) const = 0;
 		void set_pos(Vector<double>& x) const;
 };
@@ -186,8 +186,7 @@ void System2D<Type>::select_eigenvectors(){
 	//}
 	//}
 	}
-
-*/
+	*/
 	/*}*/
 	unsigned int c(0);
 	unsigned int a(this->M_(c)-1);
@@ -362,13 +361,15 @@ std::complex<double> System2D<Type>::projection(Matrix<Type> const& O, unsigned 
 }
 
 template<typename Type>
-void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const{
-	Vector<double> tn(2,0);				/* trial neighbour of the site i in the (Lx,Ly) basis*/
-	Vector<double> nn(get_pos_in_lattice(i));/*nearest neighbour of the site i in the (Lx,Ly) basis*/
+void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const {
+	/* trial neighbour of the site i in the (Lx,Ly) basis*/
+	Vector<double> tn(2,0);
+	/*nearest neighbour of the site i in the (Lx,Ly) basis*/
+	Vector<double> nn(get_pos_in_lattice(i));
 	set_pos_LxLy(nn);
 	set_in_basis(nn);
 
-	nn+= vector_towrards(i,dir);
+	nn += vector_towards(i,dir);
 	if(set_in_basis(nn)){ nb(dir,1) = this->bc_; }
 
 	unsigned int j(0);
@@ -377,6 +378,7 @@ void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<in
 		try_neighbourg(tn,j);
 		set_in_basis(tn);
 	}
+	assert(j<this->n_);
 	nb(dir,0) = j;
 }
 

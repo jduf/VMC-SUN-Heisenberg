@@ -336,9 +336,8 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 }
 
 void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::string& basename){
-	tmax_= P.get<unsigned int>("tmax");
-	dof_ = P.get<unsigned int>("dof");
 	s_ = new System(P);
+	dof_ = P.get<unsigned int>("dof");
 	ps_= new Vector<double>[dof_];
 
 	/*!the next block is required to configure J correctly so that path and
@@ -364,7 +363,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 
 std::string VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::string& basename){
 	s_ = new System(in);
-	dof_ = in.read<unsigned int>();
+	in>>dof_;
 	ps_= new Vector<double>[dof_];
 
 	/*!the next block is required to compute the J setup*/

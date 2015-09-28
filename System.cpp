@@ -9,7 +9,7 @@ System::System(Parseur& P):
 	n_(P.get<unsigned int>("n")),
 	bc_(P.get<int>("bc")),
 	M_(P.get<std::vector<unsigned int>>("M")),
-	J_(P.get<std::vector<double> >("Jp")),
+	J_(P.get<std::vector<double>>("Jp")),
 	status_(5)
 {
 	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : Bad initialization"<<std::endl; } 
@@ -191,16 +191,22 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 3;
+		std::vector<double> Jp(1,1);
+		P.set("Jp",Jp);
 	}
 	if( wf == "squarefreecomplex" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 4;
+		std::vector<double> Jp(1,1);
+		P.set("Jp",Jp);
 	}
 	if( wf == "squarepiflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 2;
+		std::vector<double> Jp(1,1);
+		P.set("Jp",Jp);
 	}
 	if( wf == "squarephi" ){
 		ref(0) = 4;

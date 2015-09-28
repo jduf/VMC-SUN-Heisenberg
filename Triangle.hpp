@@ -23,7 +23,7 @@ class Triangle: public System2D<Type>{
 
 	private:
 		Matrix<double> set_LxLy(unsigned int const& n) const;
-		Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const;
+		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
 };
 
@@ -103,7 +103,7 @@ Matrix<double> Triangle<Type>::set_LxLy(unsigned int const& n) const {
 }
 
 template<typename Type>
-Vector<double> Triangle<Type>::vector_towrards(unsigned int const& i, unsigned int const& dir) const {
+Vector<double> Triangle<Type>::vector_towards(unsigned int const& i, unsigned int const& dir) const {
 	(void)(i);
 	Vector<double> tmp(2);
 	tmp(0) = this->dir_nn_LxLy_(dir,0);

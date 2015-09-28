@@ -25,7 +25,7 @@ class Kagome: public System2D<Type>{
 		//Matrix<int> get_neighbourg(unsigned int i) const;
 
 	private:
-		Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const { return Vector<double>(i,dir); }
+		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const { return Vector<double>(i,dir); }
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const { (void)(tn); (void)(j); }
 };
 

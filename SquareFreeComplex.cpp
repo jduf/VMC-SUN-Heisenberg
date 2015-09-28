@@ -1,10 +1,9 @@
 #include "SquareFreeComplex.hpp"
 
-SquareFreeComplex::SquareFreeComplex(System const& s, Vector<double> const& t, Vector<double> const& mu, Vector<double> const& phi):
+SquareFreeComplex::SquareFreeComplex(System const& s, Vector<double> const& t, Vector<double> const& phi):
 	System(s),
 	Square<std::complex<double> >(set_ab(),(N_/m_==2?2:0),"square-free-flux"),
 	t_(t),
-	mu_(mu),
 	phi_(phi)
 {
 	if(status_==2){
@@ -15,16 +14,14 @@ SquareFreeComplex::SquareFreeComplex(System const& s, Vector<double> const& t, V
 }
 
 /*{method needed for running*/
-void SquareFreeComplex::compute_H(unsigned int const& c){
+void SquareFreeComplex::compute_H(){
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
 	unsigned int s(0);
 	for(unsigned int i(0);i<n_;i++){
 		s = get_site_in_ab(i);
-		if(c%2){ if( s==0 || s==3 ){ H_(i,i) = mu_(0)/2.0; } }
-		else { if( s==2 || s==1 ){ H_(i,i) = mu_(0)/2.0; } }
 		nb = get_neighbourg(i);
-		switch(s){ 
+		switch(s){
 			case 0:
 				{
 					H_(i,nb(0,0)) = std::polar(t_(0)*nb(0,1),phi_(0));
@@ -48,20 +45,19 @@ void SquareFreeComplex::compute_H(unsigned int const& c){
 			default:{ std::cerr<<__PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
-	H_ += H_.trans_conj(); 
+	H_ += H_.trans_conj();
 }
 
 void SquareFreeComplex::create(){
-	for(unsigned int c(0);c<N_;c++){
-		compute_H(c);
-		diagonalize(true);
-		if(status_==1){
+	compute_H();
+	diagonalize(true);
+	if(status_==1){
+		for(unsigned int c(0);c<N_;c++){
 			for(unsigned int i(0);i<n_;i++){
 				for(unsigned int j(0);j<M_(c);j++){
 					EVec_[c](i,j) = H_(i,j);
 				}
 			}
-			if(c!=N_-1){ status_++;}
 		}
 	}
 }
@@ -94,60 +90,79 @@ Matrix<double> SquareFreeComplex::set_ab(){
 /*{method needed for checking*/
 void SquareFreeComplex::lattice(std::string const& path, std::string const& filename){
 	compute_H(1);
-	Matrix<int> nb;
 	std::string color("black");
 	std::string linestyle("solid");
-	std::string linewidth("1pt");
 	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(path,filename);
-	ps.begin(-20,-20,20,20,filename_);
-	for(unsigned int i(0);i<n_;i++) {
-		xy0 = get_pos_in_lattice(i);
+	ps.begin(-9,-10,16,10,filename_);
+	std::complex<double> t;
+	unsigned int s0;
+	unsigned int s1;
+	double y_shift(4);
+	for(unsigned int i(0);i<links_.row();i++){
+		s0 = links_(i,0);
+		xy0 = get_pos_in_lattice(s0);
 		set_pos_LxLy(xy0);
-		set_in_basis(xy0);
 		xy0 = (LxLy_*xy0).chop();
-		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
-		nb = get_neighbourg(i);
 
-		if(nb(0,1)<0){ color = "red"; }
-		else { color = "black"; }
-		xy1 = get_pos_in_lattice(nb(0,0));
+		s1 = links_(i,1);
+		xy1 = get_pos_in_lattice(s1);
 		set_pos_LxLy(xy1);
-		set_in_basis(xy1);
-		xy1 = LxLy_*xy1;
-		xy1 = xy1.chop();
-		if( xy1(0)<xy0(0) || i+1==xloop_){ 
-			xy1 = xy0;
-			xy1(0) += 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
-			linestyle="dashed";
-		} else { linestyle="solid"; }
-
-		if(arg(H_(i,nb(0,0)))>0){ arrow = "->"; }
-		else { arrow = "<-"; }
-		linewidth = my::tostring(std::abs(H_(i,nb(0,0))))+"pt";
-		/*x-link*/ ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-
-		if(nb(1,1)<0){ color = "red"; }
-		else { color = "black"; }
-		xy1 = get_pos_in_lattice(nb(1,0));
-		set_pos_LxLy(xy1);
-		set_in_basis(xy1);
 		xy1 = (LxLy_*xy1).chop();
-		if( xy1(1)<xy0(1) ){ 
-			xy1 = xy0;
-			xy1(1) += 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
-			linestyle="dashed";
-		} else { linestyle="solid"; }
-		if(arg(H_(i,nb(1,0)))>0){ arrow = "->"; }
-		else { arrow = "<-"; }
-		linewidth = my::tostring(std::abs(H_(i,nb(1,0))))+"pt";
-		/*y-link*/ ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 
-		if(my::real(H_(i,i))){ ps.circle(xy0,my::real(H_(i,i)),"linecolor=magenta,fillstyle=solid,fillcolor=magenta"); }
+		if((xy0-xy1).norm_squared()<1.1){ linestyle = "solid"; }
+		else {
+			linestyle = "dashed";
+			if(i%2 && xy1(1)<xy0(1)){
+				xy1(0) = xy0(0);
+				xy1(1) = xy0(1)+1.0;
+			}
+			if(!(i%2) && xy1(0)<xy0(0)){
+				xy1(0) = xy0(0)+1.0;
+				xy1(1) = xy0(1);
+			}
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
+		}
+
+		t = H_(s0,s1);
+		if(i%2){
+			ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
+			if(my::real(H_(s0,s0))){ ps.circle(xy0,t.real(),"linecolor=magenta,fillstyle=solid,fillcolor=magenta"); }
+		}
+
+		if(std::abs(t)>1e-4){
+			if(t.real()<0){ color = "red"; }
+			else { color = "blue"; }
+
+			arrow = "-";
+			if(std::arg(t)>0){ arrow = "-"+std::string(std::arg(t)/(2*M_PI*m_/N_),'>'); }
+			if(std::arg(t)<0){ arrow = std::string(-std::arg(t)/(2*M_PI*m_/N_),'<')+"-"; }
+
+			xy0 = xy0.chop();
+			xy1 = xy1.chop();
+			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+my::tostring(std::abs(t))+"pt,linecolor="+color+",linestyle="+linestyle);
+		}
+	}
+
+	double lr_corr;
+	double rescale(lr_corr_.size()?0.75/lr_corr_[0].get_x():0);
+	for(unsigned int i(0);i<lr_corr_.size();i++){
+		lr_corr = lr_corr_[i].get_x()*rescale;
+		if(std::abs(lr_corr)>1e-4){
+			xy1 = get_pos_in_lattice(i);
+			set_pos_LxLy(xy1);
+			xy1 = (LxLy_*xy1).chop();
+			xy1(1) -= 2*y_shift;
+
+			if(i){
+				if(lr_corr<0){ color = "red"; }
+				else { color = "blue"; }
+			} else { color = "black"; }
+
+			ps.circle(xy1,std::abs(lr_corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+		}
 	}
 
 	Matrix<double> polygon(4,2);
@@ -159,7 +174,6 @@ void SquareFreeComplex::lattice(std::string const& path, std::string const& file
 	polygon(2,1)=LxLy_(1,0)+LxLy_(1,1);
 	polygon(3,0)=LxLy_(0,1);
 	polygon(3,1)=LxLy_(1,1);
-	for(unsigned int i(0);i<polygon.row();i++){ polygon(i,0) -= 0.5; }
 	ps.polygon(polygon,"linecolor=green");
 
 	polygon(0,0)=0;
@@ -170,23 +184,15 @@ void SquareFreeComplex::lattice(std::string const& path, std::string const& file
 	polygon(2,1)=ab_(1,0)+ab_(1,1);
 	polygon(3,0)=ab_(0,1);
 	polygon(3,1)=ab_(1,1);
-	for(unsigned int i(0);i<polygon.row();i++){ 
+	for(unsigned int i(0);i<polygon.row();i++){
 		polygon(i,0) -= 0.2;
 		polygon(i,1) -= 0.1;
 	}
-	ps.polygon(polygon,"linecolor=blue");
-
+	ps.polygon(polygon,"linecolor=black");
 	ps.end(true,true,true);
 }
 
 void SquareFreeComplex::check(){
-	//Matrix<int> nb;
-	//for(unsigned int s(0);s<n_;s++){
-	//nb = get_neighbourg(s);
-	//for(unsigned int i(0);i<z_;i++){
-	//std::cout<<s<<" "<<nb(i,0)<<" "<<nb(i,1)<<std::endl;
-	//}
-	//}
 	lattice("./","lattice");
 }
 /*}*/

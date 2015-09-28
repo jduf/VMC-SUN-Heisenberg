@@ -130,20 +130,17 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 4:
 									{
 										Vector<double> t;
-										Vector<double> mu;
 										Vector<double> phi;
 										if(param){
 											t = param->range(0,0);
-											mu= param->range(1,2);
 											phi.set(1,M_PI/4.0);
 										}
 										if(C){
 											t = C->get<std::vector<double> >("t");
-											mu= C->get<std::vector<double> >("mu");
 											phi=Vector<double>(1,M_PI/4.0);
 										}
-										if(mu.ptr() && mu.ptr() && t.ptr()){
-											CGL_ = new SquareFreeComplex(*s_,t,mu,phi);
+										if(phi.ptr() && t.ptr()){
+											CGL_ = new SquareFreeComplex(*s_,t,phi);
 										}
 									}break;
 								default:{error();}break;

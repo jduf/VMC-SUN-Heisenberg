@@ -5,14 +5,14 @@
 
 class SquareFreeComplex: public Square<std::complex<double> >{
 	public:
-		SquareFreeComplex(System const& s, Vector<double> const& t, Vector<double> const& mu, Vector<double> const& phi);
+		SquareFreeComplex(System const& s, Vector<double> const& t, Vector<double> const& phi);
 		~SquareFreeComplex() = default;
 
 		void create();
 		void check();
 
 	protected:
-		void compute_H(unsigned int const& c);
+		void compute_H();
 		void lattice(std::string const& path, std::string const& filename);
 		Vector<double> const t_;
 		Vector<double> const mu_;
