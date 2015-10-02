@@ -71,9 +71,9 @@ class Vector{
 		/*!Set the vector to 0*/
 		void set();
 		/*!Set the whole Vector to val*/
-		void set(unsigned int N);
+		void set(unsigned int const& N);
 		/*!Set the vector to val*/
-		void set(unsigned int N, Type const& val);
+		void set(unsigned int const& N, Type const& val);
 
 		/*!Sets the entries to zero if they are close to 0*/
 		Vector<Type> chop(double precision = 1e-10) const;
@@ -342,7 +342,7 @@ void Vector<Type>::set(){
 }
 
 template<typename Type>
-void Vector<Type>::set(unsigned int N){
+void Vector<Type>::set(unsigned int const& N){
 	if(size_ != N){
 		if(vec_){ delete[] vec_; }
 		vec_ = new Type[N];
@@ -351,9 +351,9 @@ void Vector<Type>::set(unsigned int N){
 }
 
 template<typename Type>
-void Vector<Type>::set(unsigned int N, Type const& val){
+void Vector<Type>::set(unsigned int const& N, Type const& val){
 	set(N);
-	for(unsigned int i(0); i<size_; i++){ vec_[i] = val; }
+	for(unsigned int i(0);i<size_;i++){ vec_[i] = val; }
 }
 /*}*/
 

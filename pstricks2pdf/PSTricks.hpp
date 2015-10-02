@@ -27,7 +27,6 @@ class PSTricks {
 		void circle(Vector<double> const& x, double const& r, std::string const& options="");
 		void polygon(Matrix<double> const& x, std::string const& options="");
 
-
 	private:
 		std::string path_;
 		std::string filename_;

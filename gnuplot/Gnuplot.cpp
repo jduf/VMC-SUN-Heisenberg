@@ -84,6 +84,6 @@ void Gnuplot::create_image(bool silent, bool png){
 		command("mv /tmp/" + texfile + ".pdf " + path_ + filename_ + ".pdf",silent);
 		command("rm /tmp/" + texfile + ".*",silent);
 	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : can't create a plot"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : Linux::gp2latex(\"/tmp/\"+texfile,path_,filename_) returned an error ("<<command.status()<<")"<<std::endl;
 	}
 }

@@ -65,28 +65,24 @@ class IOFiles{
 		/*!Returns file_*/
 		std::fstream& stream(){ return file_;}
 		/*!Returns true if the file is open as a binary file*/
-		bool is_binary() const {return binary_;}
+		bool is_binary() const { return binary_; }
 		/*!Returns true if the file is open*/
-		bool is_open() const {return open_;}
+		bool is_open() const { return open_; }
 		/*!Returns the filename_ in which the class in writing*/
-		std::string get_filename() const { return filename_;};
+		std::string get_filename() const { return filename_; }
 
 		/*!Change the precision on the output text files*/
 		void precision(unsigned int const& N);
 		/*!Returns the header contained in the file*/
 		std::string get_header() const;
 		/*!Returns the header contained in the file*/
-		Header* add_header() const { return header_; };
+		Header* add_header() const { return header_; }
 
 		static std::string const endl; //!<Gives a way to end lines
 
 	private:
 		/*!Subroutine that check if the correct extension is given*/
-		void test_ext();
-		/*!Subroutine needed to open a binary file*/
-		void open_binary();
-		/*!Subroutine needed to open a text file*/
-		void open_txt();
+		bool test_ext();
 		/*!Extract the header*/
 		void read_header();
 		/*!Write the header*/
@@ -98,11 +94,11 @@ class IOFiles{
 		void write_string(const char* t, unsigned int const& N);
 
 		std::string filename_;	//!< name of the file to read from
+		Header* header_;		//!< pointer to a header (actually it will be a footer)
 		bool write_;			//!< true if the file is writable
 		bool binary_; 			//!< true if the file is binary_
-		bool open_;				//!< true if the file is ready to be read from
 		std::fstream file_;		//!< text file to read form
-		Header* header_;		//!< pointer to a header (actually it will be a footer)
+		bool open_;				//!< true if the file is ready to be read from
 };
 
 template<typename Type>

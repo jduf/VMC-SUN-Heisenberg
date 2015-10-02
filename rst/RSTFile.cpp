@@ -14,12 +14,12 @@ void RSTFile::save(bool const& pdf, bool const& silent){
 	Linux command;
 	command(Linux::rst2html(path_,filename_),silent);
 	if(command.status()){
-		std::cerr<<__PRETTY_FUNCTION__<<" : the command function called returns an error for the html creation"<<std::endl; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : Linux::rst2html(path_,filename_) returned an error ("<<command.status()<<")"<<std::endl; 
 	} else {
 		if(pdf){
 			command(Linux::rst2latex(path_,filename_),silent);
 			command(Linux::pdflatex(path_,filename_),silent);
-			if(command.status()){ std::cerr<<__PRETTY_FUNCTION__<<" : the command function called returns an error for the pdf creation"<<std::endl; }
+			if(command.status()){ std::cerr<<__PRETTY_FUNCTION__<<" : Linux::pdf2latex(path_,filename_) returned an error ("<<command.status()<<")"<<std::endl; }
 		}
 	}
 }

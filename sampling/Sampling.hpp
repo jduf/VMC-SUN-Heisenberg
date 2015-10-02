@@ -90,9 +90,8 @@ class Data{
 		bool const& get_conv() const { return conv_; }
 		Binning<Type> const* get_binning() const { return binning_; }
 
-		void set_x(Type const& x){x_ = x;}
-
-		void add(Type const& x){x_ += x;}
+		void set_x(Type const& x){ x_ = x; }
+		void add(Type const& x){ x_ += x; }
 		void divide(Type const& x){ x_ /= x; }
 
 		void header_rst(std::string const& s, RST& rst) const;
@@ -184,9 +183,7 @@ Binning<Type>::Binning(Binning&& b):
 	m_bin_(std::move(b.m_bin_)),
 	bin_(b.bin_),
 	recompute_dx_usefull_(b.recompute_dx_usefull_)
-{ b.bin_ = NULL; 
-	std::cout<<"Binning move constructor"<<std::endl;
-}
+{ b.bin_ = NULL; }
 
 template<typename Type>
 Binning<Type>::Binning(IOFiles& r):

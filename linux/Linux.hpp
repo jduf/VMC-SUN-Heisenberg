@@ -2,7 +2,7 @@
 #define DEF_LINUX
 
 /*{Description*/
-/*!The following macro a essential. They need to be set to the correct
+/*!The following macro are essential. They need to be set to the correct
  * path/executable in order to run.*/
 /*}*/
 #define MY_RST2HTML_STYLESHEET "/home/jdufour/travail/cpp-dev/rst/css/best.css"
@@ -22,6 +22,8 @@
 #include <unistd.h>
 #include <fstream>
 #include <iostream>
+#include "sys/stat.h"
+#include "string.h"
 
 class Linux {
 	public:
@@ -38,16 +40,45 @@ class Linux {
 		/*!Execute a UNIX command and get its exit value*/
 		void operator()(std::string cmd, bool silent){ ev_=system((cmd+(silent?" > /dev/null 2> /dev/null":"")).c_str()); }
 		/*!Returns exit value of the last command*/
-		int status(){return ev_;}
+		int status(){ return ev_; }
 
 		/*!Returns a string containing the current path*/
 		std::string pwd(){ return std::string(get_current_dir_name()) + '/'; }
 
 		/*!Creates a directory with -p option*/
-		void mkdir(std::string const& directory){ 
-			std::string cmd(MY_BIN_MKDIR);
-			(*this)(cmd + " -p " + directory, true); 
+		//void mkdir(std::string const& directory){ 
+			//std::string cmd(MY_BIN_MKDIR);
+			//(*this)(cmd + " -p " + directory, true); 
+		//}
+		void mkdir(const char *directory, mode_t mode = 0700){
+			struct stat st;
+			ev_ = 0;
+			if (stat(directory, &st) != 0 && ::mkdir(directory, mode) != 0 && errno != EEXIST){
+				ev_ = 1;
+			} else if(!S_ISDIR(st.st_mode)){
+				errno = ENOTDIR;
+				ev_ = 1;
+			}
 		}
+
+		void mkpath(const char *path, mode_t mode = 0755){
+			char *pp;
+			char *sp;
+			char *copypath = strdup(path);
+
+			pp = copypath;
+			while (ev_ == 0 && (sp = strchr(pp, '/')) != 0){
+				if(sp != pp){
+					*sp = '\0';
+					mkdir(copypath, mode);
+					*sp = '/';
+				}
+				pp = sp + 1;
+			}
+			if(ev_ == 0) { mkdir(path, mode); }
+			free(copypath);
+		}
+
 		/*!open a html page into browser*/
 		void html_browser(std::string const& html){
 			std::string cmd(MY_BIN_HTMLBROWSER);
