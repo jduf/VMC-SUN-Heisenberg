@@ -18,7 +18,6 @@ class SquarePiFlux: public Square<std::complex<double> >{
 		std::string extract_level_7();
 		std::string extract_level_3();
 
-		Matrix<double> set_ab();
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 };
 #endif

@@ -20,7 +20,7 @@ class Analyse: public IOSystem{
 	protected:
 		List<std::string> all_link_names_;
 		List<std::string> all_link_files_;
-		List<RSTFile> rst_file_;
+		List<RSTFile> list_rst_;
 
 		std::string rel_level_;
 		unsigned int const max_level_;

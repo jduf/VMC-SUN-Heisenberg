@@ -12,17 +12,11 @@ MCSim::MCSim(IOFiles& r):
 	unsigned int ref_type_of_MCSystem(r.read<unsigned int>());
 	switch(ref_type_of_MCSystem){
 		case 0:
-			{
-				MCS_ = std::unique_ptr<SystemBosonic<double> >(new SystemBosonic<double>(r));
-			} break;
+			{ MCS_ = std::unique_ptr<SystemBosonic<double> >(new SystemBosonic<double>(r)); } break;
 		case 1:
-			{
-				MCS_ = std::unique_ptr<SystemFermionic<double> >(new SystemFermionic<double>(r));
-			} break;
+			{ MCS_ = std::unique_ptr<SystemFermionic<double> >(new SystemFermionic<double>(r)); } break;
 		case 2:
-			{
-				MCS_ = std::unique_ptr<SystemFermionic<std::complex<double> > >(new SystemFermionic<std::complex<double> >(r));
-			} break;
+			{ MCS_ = std::unique_ptr<SystemFermionic<std::complex<double> > >(new SystemFermionic<std::complex<double> >(r)); } break;
 	}
 }
 /*}*/

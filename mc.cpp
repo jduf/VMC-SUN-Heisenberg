@@ -56,7 +56,7 @@ int main(int argc, char* argv[]){
 				std::cout<<sys.get_energy()<<std::endl;
 
 				Linux command;
-				command.mkdir(cs.get_path());
+				command.mkpath(cs.get_path().c_str());
 				IOFiles out(cs.get_path() + cs.get_filename()+".jdbin",true);
 				cs.save_param(out);
 				cs.get_GS()->save_input(out);

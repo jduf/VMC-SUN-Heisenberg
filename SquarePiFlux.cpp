@@ -2,7 +2,7 @@
 
 SquarePiFlux::SquarePiFlux(System const& s):
 	System(s),
-	Square<std::complex<double> >(set_ab(),(N_/m_==2?2:0),"square-csl")
+	Square<std::complex<double> >((N_/m_==2?2:0),2,1,"square-csl")
 {
 	if(status_==2){
 		init_fermionic();
@@ -60,15 +60,6 @@ unsigned int SquarePiFlux::match_pos_in_ab(Vector<double> const& x) const{
 	match(1) = 0;
 	if(my::are_equal(x,match)){ return 1; }
 	return 2;
-}
-
-Matrix<double> SquarePiFlux::set_ab(){
-	Matrix<double> tmp(2,2);
-	tmp(0,0) = 2;
-	tmp(1,0) = 0;
-	tmp(0,1) = 1;
-	tmp(1,1) = 1;
-	return tmp;
 }
 /*}*/
 

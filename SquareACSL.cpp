@@ -2,7 +2,7 @@
 
 SquareACSL::SquareACSL(System const& s, Vector<double> const& t):
 	System(s),
-	Square<std::complex<double> >(set_ab(N_/m_),(N_%m_?0:N_/m_),"square-acsl"),
+	Square<std::complex<double> >((N_%m_?0:N_/m_),N_/m_,0,"square-acsl"),
 	t_(t)
 {
 	if(2*spuc_ != t_.size()){
@@ -57,15 +57,6 @@ unsigned int SquareACSL::match_pos_in_ab(Vector<double> const& x) const{
 		if(my::are_equal(x,match)){ return i; }
 	}
 	return spuc_;
-}
-
-Matrix<double> SquareACSL::set_ab(unsigned int const& spuc){
-	Matrix<double> tmp(2,2);
-	tmp(0,0) = spuc;
-	tmp(1,0) = 0;
-	tmp(0,1) = 0;
-	tmp(1,1) = 1;
-	return tmp;
 }
 /*}*/
 

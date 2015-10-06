@@ -19,7 +19,6 @@ class SquareJastrow: public Square<double>{
 		void lattice(std::string const& path, std::string const& filename);
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
-		Matrix<double> set_ab();
 };
 #endif
 

@@ -18,7 +18,6 @@ class SquareFreeComplex: public Square<std::complex<double> >{
 		Vector<double> const mu_;
 		Vector<double> const phi_;
 
-		Matrix<double> set_ab();
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 };
 #endif

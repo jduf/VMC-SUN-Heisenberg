@@ -27,16 +27,12 @@ void AnalyseLadder::open_files(){
 void AnalyseLadder::close_files(){
 	switch(level_){
 		case 9:
-			{
-				rst_file_.last().figure(rel_level_+analyse_+path_+dir_+filename_+".png","Parameter sets",RST::target(rel_level_+analyse_+path_+dir_+filename_+".gp")+RST::width("1000")); 
-			} break;
+			{ list_rst_.last().figure(rel_level_+analyse_+path_+dir_+filename_+".png","Parameter sets",RST::target(rel_level_+analyse_+path_+dir_+filename_+".gp")+RST::width("1000")); } break;
 		case 6:
-			{
-				rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); 
-			} break;
+			{ list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); } break;
 	}
 	if(jd_write_){ 
-		rst_file_.last().text(jd_write_->get_header());
+		list_rst_.last().text(jd_write_->get_header());
 		delete jd_write_;
 		jd_write_ = NULL;
 	}
@@ -46,6 +42,7 @@ void AnalyseLadder::close_files(){
 	}
 }
 
+/*extract VMCMinimization and plot*/
 std::string AnalyseLadder::extract_level_9(){
 	IOFiles in(sim_+path_+dir_+filename_+".jdbin",false);
 
@@ -67,6 +64,7 @@ std::string AnalyseLadder::extract_level_9(){
 	return filename_;
 }
 
+/*show best solutions*/
 std::string AnalyseLadder::extract_level_8(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
@@ -80,8 +78,10 @@ std::string AnalyseLadder::extract_level_8(){
 		cs.set_IOSystem(this);
 
 		/*!Draw the lattice with the witdth related to t_*/
+		if(!i){ std::cout<<std::string(6+path_.size()+dir_.size()+filename_.size(),' ')<<"|-> create lattice"; }
+		else { std::cout<<" "<<nof_-i<<std::flush; }
 		cs.lattice(info_+path_+dir_,filename_+"-"+my::tostring(i));
-		rst_file_.last().figure(dir_+filename_+"-"+my::tostring(i)+".png",RST::math("E="+my::tostring(s.get_energy().get_x())+"\\pm"+my::tostring(s.get_energy().get_dx())),RST::target(dir_+filename_+"-"+my::tostring(i)+".pdf")+RST::scale("200")); 
+		list_rst_.last().figure(dir_+filename_+"-"+my::tostring(i)+".png",RST::math("E="+my::tostring(s.get_energy().get_x())+"\\pm"+my::tostring(s.get_energy().get_dx())),RST::target(dir_+filename_+"-"+my::tostring(i)+".pdf")+RST::scale("200")); 
 
 		if(!i){/*only the best set of parameter is kept*/
 			cs.save_param(*jd_write_);
@@ -89,6 +89,7 @@ std::string AnalyseLadder::extract_level_8(){
 			s.save_output(*jd_write_);
 		}
 	}
+	std::cout<<std::endl;
 
 	delete read_;
 	read_ = NULL;
@@ -96,6 +97,7 @@ std::string AnalyseLadder::extract_level_8(){
 	return filename_;
 }
 
+/*compare wavefunction (different ref_)*/
 std::string AnalyseLadder::extract_level_7(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
@@ -141,6 +143,7 @@ std::string AnalyseLadder::extract_level_7(){
 	return filename_;
 }
 
+/*plot energy for different J*/
 std::string AnalyseLadder::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
@@ -148,13 +151,15 @@ std::string AnalyseLadder::extract_level_6(){
 	System s(*read_);
 	CreateSystem cs(&s);
 	cs.init(&tmp,NULL);
+	rst_file_ = &list_rst_.last();
 	cs.set_IOSystem(this);
 	std::string link_name(cs.analyse(level_));
+	rst_file_ = NULL;
 
 	delete read_;
 	read_ = NULL;
 
-	return filename_;
+	return link_name;
 }
 
 std::string AnalyseLadder::extract_level_5(){

@@ -12,7 +12,7 @@ class Square: public System2D<Type>{
 		 * GenericSystem<Type>(4,filename), to construct a system with 4 links
 		 * per sites */
 		/*}*/
-		Square(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
+		Square(unsigned int const& spuc, unsigned int const& length, unsigned int const& tilting, std::string const& filename);
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Square()=0;
 
@@ -20,17 +20,18 @@ class Square: public System2D<Type>{
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
 	private:
-		Matrix<double> set_LxLy(unsigned int const& n) const;
+		Matrix<double> set_geometry(unsigned int const& n) const;
+		Matrix<double> set_ab(unsigned int const& spuc, unsigned int const& length, unsigned int const& tilting) const;
 		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
 };
 
 /*{constructor*/
 template<typename Type>
-Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_LxLy(this->n_),ab,spuc,4,filename)
+Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsigned int const& tilting, std::string const& filename):
+	System2D<Type>(set_geometry(this->n_),set_ab(spuc,length,tilting),spuc,4,filename)
 {
-	if(this->status_==2){ 
+	if(this->status_==2){
 		Vector<double> dir(2);
 		dir(0) = 1.0;
 		dir(1) = 0.0;
@@ -81,11 +82,11 @@ Vector<double> Square<Type>::get_pos_in_lattice(unsigned int const& i) const {
 
 /*{private methods*/
 template<typename Type>
-Matrix<double> Square<Type>::set_LxLy(unsigned int const& n) const {
+Matrix<double> Square<Type>::set_geometry(unsigned int const& n) const {
 	Matrix<double> tmp;
 	for(unsigned int p(0);p<=sqrt(n);p++){
 		for(unsigned int q(0);q<p+1;q++){
-			if(p*p+q*q==n){ 
+			if(p*p+q*q==n){
 				tmp.set(2,2);
 				tmp(0,0) = p;
 				tmp(1,0) = q;
@@ -96,6 +97,23 @@ Matrix<double> Square<Type>::set_LxLy(unsigned int const& n) const {
 		}
 	}
 	return tmp;
+}
+
+template<typename Type>
+Matrix<double> Square<Type>::set_ab(unsigned int const& spuc, unsigned int const& length, unsigned int const& tilting) const {
+	if(!length){
+		return set_geometry(spuc); 
+	} else if(!(spuc%length)){
+		Matrix<double> tmp(2,2);
+		tmp(0,0) = length;
+		tmp(1,0) = 0;
+		tmp(0,1) = tilting;
+		tmp(1,1) = spuc/length;
+		return tmp;
+	} else {
+		std::cerr<<__PRETTY_FUNCTION__<<" : unkown unit cell geometry"<<std::endl; 
+		return Matrix<double>();
+	}
 }
 
 template<typename Type>

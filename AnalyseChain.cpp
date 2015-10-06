@@ -47,17 +47,17 @@ void AnalyseChain::close_files(){
 			case 8:
 				{
 					if(nof_>1){/*if there is only one E data, there is no need to make a plot*/
-						rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); 
+						list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); 
 					}
 				} break;
 			case 3:
 				{
-					rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp")+RST::width("1000")); 
-					rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp")+RST::width("1000")); 
-					rst_file_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp")+RST::width("1000")); 
+					list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp")+RST::width("1000")); 
+					list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp")+RST::width("1000")); 
+					list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp")+RST::width("1000")); 
 				} break;
 		}
-		rst_file_.last().text(jd_write_->get_header());
+		list_rst_.last().text(jd_write_->get_header());
 		delete jd_write_;
 		jd_write_ = NULL;
 	}

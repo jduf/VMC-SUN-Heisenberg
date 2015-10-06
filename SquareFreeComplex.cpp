@@ -2,7 +2,7 @@
 
 SquareFreeComplex::SquareFreeComplex(System const& s, Vector<double> const& t, Vector<double> const& phi):
 	System(s),
-	Square<std::complex<double> >(set_ab(),(N_/m_==2?2:0),"square-free-flux"),
+	Square<std::complex<double> >((N_%m_?0:N_/m_),0,1,"square-free-flux"),
 	t_(t),
 	phi_(phi)
 {
@@ -42,6 +42,16 @@ void SquareFreeComplex::compute_H(){
 					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
 					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
 				}break;
+			case 4:
+				{
+					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
+					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
+				}break;
+			case 5:
+				{
+					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
+					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
+				}break;
 			default:{ std::cerr<<__PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
@@ -62,7 +72,7 @@ void SquareFreeComplex::create(){
 	}
 }
 
-unsigned int SquareFreeComplex::match_pos_in_ab(Vector<double> const& x) const{
+unsigned int SquareFreeComplex::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match)){ return 0; }
 	match(0) = 0.5;
@@ -76,20 +86,11 @@ unsigned int SquareFreeComplex::match_pos_in_ab(Vector<double> const& x) const{
 	if(my::are_equal(x,match)){ return 3; }
 	return 4;
 }
-
-Matrix<double> SquareFreeComplex::set_ab(){
-	Matrix<double> tmp(2,2);
-	tmp(0,0) = 2;
-	tmp(1,0) = 0;
-	tmp(0,1) = 0;
-	tmp(1,1) = 2;
-	return tmp;
-}
 /*}*/
 
 /*{method needed for checking*/
 void SquareFreeComplex::lattice(std::string const& path, std::string const& filename){
-	compute_H(1);
+	compute_H();
 	std::string color("black");
 	std::string linestyle("solid");
 	std::string arrow("-");
