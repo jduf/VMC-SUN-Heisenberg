@@ -1,64 +1,21 @@
-#include "SquareFreeComplex.hpp"
+#include "SquareFreeHopping.hpp"
 
-SquareFreeComplex::SquareFreeComplex(System const& s, Vector<double> const& t, Vector<double> const& phi):
+SquareFreeHopping::SquareFreeHopping(System const& s, Vector<double> const& t):
 	System(s),
-	Square<std::complex<double> >((N_%m_?0:N_/m_),0,1,"square-free-flux"),
-	t_(t),
-	phi_(phi)
+	Square<double>((N_/m_==2?2:0),0,1,"square-free-real"),
+	t_(t)
 {
+	//std::cout<<t_<<std::endl;
+	//std::cout<<mu_<<std::endl;
 	if(status_==2){
 		init_fermionic();
 
-		system_info_.text("FreeComplex : all colors experience the same Hamiltonian");
+		system_info_.text("FreeReal : all colors experience the same Hamiltonian");
 	}
 }
 
 /*{method needed for running*/
-void SquareFreeComplex::compute_H(){
-	H_.set(n_,n_,0);
-	Matrix<int> nb;
-	unsigned int s(0);
-	for(unsigned int i(0);i<n_;i++){
-		s = get_site_in_ab(i);
-		nb = get_neighbourg(i);
-		switch(s){
-			case 0:
-				{
-					H_(i,nb(0,0)) = std::polar(t_(0)*nb(0,1),phi_(0));
-					H_(i,nb(1,0)) = std::polar(t_(1)*nb(1,1),-phi_(0));
-				}break;
-			case 1:
-				{
-					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),-phi_(0));
-					H_(i,nb(1,0)) = std::polar(t_(1)*nb(1,1),phi_(0));
-				}break;
-			case 2:
-				{
-					H_(i,nb(0,0)) = std::polar(t_(0)*nb(0,1),-phi_(0));
-					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),phi_(0));
-				}break;
-			case 3:
-				{
-					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
-					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
-				}break;
-			case 4:
-				{
-					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
-					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
-				}break;
-			case 5:
-				{
-					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
-					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
-				}break;
-			default:{ std::cerr<<__PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
-		}
-	}
-	H_ += H_.trans_conj();
-}
-
-void SquareFreeComplex::create(){
+void SquareFreeHopping::create(){
 	compute_H();
 	diagonalize(true);
 	if(status_==1){
@@ -72,24 +29,26 @@ void SquareFreeComplex::create(){
 	}
 }
 
-unsigned int SquareFreeComplex::match_pos_in_ab(Vector<double> const& x) const {
+void SquareFreeHopping::compute_H(){
+	H_.set(n_,n_,0);
+	for(unsigned int i(0); i < links_.row(); i++){
+		H_(links_(i,0),links_(i,1)) = t_(i%t_.size());
+	}
+	H_ += H_.transpose();
+}
+
+unsigned int SquareFreeHopping::match_pos_in_ab(Vector<double> const& x) const{
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match)){ return 0; }
 	match(0) = 0.5;
 	match(1) = 0;
 	if(my::are_equal(x,match)){ return 1; }
-	match(0) = 0;
-	match(1) = 0.5;
-	if(my::are_equal(x,match)){ return 2; }
-	match(0) = 0.5;
-	match(1) = 0.5;
-	if(my::are_equal(x,match)){ return 3; }
-	return 4;
+	return 2;
 }
 /*}*/
 
 /*{method needed for checking*/
-void SquareFreeComplex::lattice(std::string const& path, std::string const& filename){
+void SquareFreeHopping::lattice(std::string const& path, std::string const& filename){
 	compute_H();
 	std::string color("black");
 	std::string linestyle("solid");
@@ -193,7 +152,23 @@ void SquareFreeComplex::lattice(std::string const& path, std::string const& file
 	ps.end(true,true,true);
 }
 
-void SquareFreeComplex::check(){
-	lattice("./","lattice");
+void SquareFreeHopping::check(){
+	//unsigned int c(0);
+	//unsigned int a(M_(c)-1);
+	//unsigned int b(M_(c)-1);
+	//Vector<double> eval;
+	//do{b++;} while (b+1<n_ && my::are_equal(eval(b),eval(b-1)));
+	//if(b!=M_(c)){ while(a>0 && my::are_equal(eval(a-1),eval(a))){a--;} }
+	//std::cout<<a<<" "<<b<<std::endl;
+	std::cout<<t_<<std::endl;
+	compute_H();
+	for(unsigned int i(0);i<n_;i++){
+		for(unsigned int j(i);j<n_;j++){
+			if(H_(i,j)!=0){std::cout<<i<<" "<<j<<" "<<H_(i,j)<<std::endl;}
+		}
+	}
+	//plot_band_structure();
+	status_++;
+	std::cout<<H_<<std::endl;
 }
 /*}*/

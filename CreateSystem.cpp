@@ -112,6 +112,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 							switch(ref_(2)){
 								case 0:
 									{ RGL_ = new SquareFermi<double>(*s_); }break;
+								case 1:
+									{
+										Vector<double> t;
+										if(param){ t = param->range(0,0); }
+										if(C){ t=C->get<std::vector<double> >("phi"); }
+										RGL_ = new SquareFreeHopping(*s_,t);
+									}break;
 								default:{error();}break;
 							}
 						}break;
@@ -125,23 +132,14 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										Vector<double> t;
 										if(param){ t = *param; }
 										if(C)    { t = C->get<std::vector<double> >("t"); }
-										if(t.ptr()){ CGL_ = new SquareACSL(*s_,t); }
+										CGL_ = new SquareACSL(*s_,t);
 									}break;
 								case 4:
 									{
-										Vector<double> t;
 										Vector<double> phi;
-										if(param){
-											t = param->range(0,0);
-											phi.set(1,M_PI/4.0);
-										}
-										if(C){
-											t = C->get<std::vector<double> >("t");
-											phi=Vector<double>(1,M_PI/4.0);
-										}
-										if(phi.ptr() && t.ptr()){
-											CGL_ = new SquareFreeComplex(*s_,t,phi);
-										}
+										if(param){ phi = param->range(0,0); }
+										if(C){ phi=C->get<std::vector<double> >("phi"); }
+										CGL_ = new SquareFreeFlux(*s_,phi);
 									}break;
 								default:{error();}break;
 							}
