@@ -31,7 +31,12 @@ System::System(IOFiles& r):
 	E_(r),
 	corr_(r),
 	lr_corr_(r)
-{}
+{
+	for(unsigned int i(0);i<n_corr_;i++){
+		corr_links_[i] = r.read<Matrix<int> >();
+		corr_tpyes_[i] = r.read<DataSet<double> >();
+	}
+}
 /*}*/
 
 /*handles class attributes*/
@@ -107,10 +112,16 @@ void System::save_output(IOFiles& w) const {
 	w.add_header()->add(rst.get());
 
 	w.write("status",status_);
-	w.write("links",links_);
+	//w.write("links",links_);
 	w.write("energy per site",E_);
-	w.write("correlation on links",corr_);
-	w.write("long range correlation",lr_corr_);
+	//w.write("correlation on links",corr_);
+	//w.write("long range correlation",lr_corr_);
+	
+	w.write("number of types of correlations",n_corr_);
+	rst.set();
+	rst.text("writes the correlation links and values");
+	w.add_header()->add(rst.get());
+	for(unsigned int i(0);i<n_corr_;i++){ w<<corr_links_[i]<<corr_types_[i]; }
 }
 /*}*/
 

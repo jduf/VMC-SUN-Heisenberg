@@ -86,6 +86,10 @@ class System{
 		DataSet<double> corr_;			//!< correlation between neighbours
 		DataSet<double> lr_corr_;		//!< long range correlation 
 
+		unsigned int n_corr_;
+		Matrix<int>* corr_links_;
+		DataSet<double>* corr_types_;
+
 		Vector<unsigned int> set_ref(Parseur& P);
 };
 #endif

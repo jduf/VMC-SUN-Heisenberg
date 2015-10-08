@@ -71,7 +71,6 @@ void MCSystem::update(){
 
 void MCSystem::measure_new_step(){
 	E_.set_x(0.0);
-	double r;
 	if(!corr_.size()){/*!compute energy*/
 		for(unsigned int i(0);i<links_.row();i++){
 			for(unsigned int p0(0);p0<m_;p0++){
@@ -79,14 +78,14 @@ void MCSystem::measure_new_step(){
 					swap(links_(i,0),links_(i,1),p0,p1);
 					/*!if the new state is forbidden, r=0 and therefore there is no
 					 * need to complete the else condition*/
-					if(!is_new_state_forbidden()){ 
-						r = ratio(false);
-						E_.add(J_(i)*r); 
+					if(!is_new_state_forbidden()){
+						E_.add(J_(i)*ratio(false));
 					}
 				}
 			}
 		}
 	} else {/*!compute energy and the correlation*/
+		double r;
 		for(unsigned int i(0);i<links_.row();i++){
 			corr_[i].set_x(0.0);
 			for(unsigned int p0(0);p0<m_;p0++){
@@ -94,9 +93,9 @@ void MCSystem::measure_new_step(){
 					swap(links_(i,0),links_(i,1),p0,p1);
 					/*!if the new state is forbidden, r=0 and therefore there is no
 					 * need to complete the else condition*/
-					if(!is_new_state_forbidden()){ 
+					if(!is_new_state_forbidden()){
 						r = ratio(false);
-						E_.add(J_(i)*r); 
+						E_.add(J_(i)*r);
 						corr_[i].add(r);
 					}
 				}
@@ -112,7 +111,17 @@ void MCSystem::measure_new_step(){
 		for(unsigned int p0(0);p0<m_;p0++){
 			for(unsigned int p1(0);p1<m_;p1++){
 				swap(0,i%n_,p0,p1);
-				if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ lr_corr_[i].add(1); }
+				if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ lr_corr_[i].add(1.0); }
+			}
+		}
+	}
+
+	for(unsigned int i(0);i<lr_corr_.size();i++){
+		ladder_corr_[i].set_x(-diag_term);
+		for(unsigned int p0(0);p0<m_;p0++){
+			for(unsigned int p1(0);p1<m_;p1++){
+				swap(0,i%n_,p0,p1);
+				if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ lr_corr_[i].add(1.0); }
 			}
 		}
 	}
