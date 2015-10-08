@@ -36,7 +36,7 @@ class Honeycomb: public System2D<Type>{
 		Matrix<double> dir_nn_;
 
 		Matrix<double> set_LxLy(unsigned int const& n) const;
-		Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const;
+		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
 };
 
@@ -118,7 +118,7 @@ Matrix<double> Honeycomb<Type>::set_LxLy(unsigned int const& n) const {
 }
 
 template<typename Type>
-Vector<double> Honeycomb<Type>::vector_towrards(unsigned int const& i, unsigned int const& dir) const {
+Vector<double> Honeycomb<Type>::vector_towards(unsigned int const& i, unsigned int const& dir) const {
 	Vector<double> tmp(2);
 	if(i%2==0){
 		tmp(0) = this->dir_nn_LxLy_(dir,0);

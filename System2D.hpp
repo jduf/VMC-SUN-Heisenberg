@@ -20,9 +20,9 @@ class System2D: public GenericSystem<Type>{
 
 		unsigned int xloop_;
 
-		/*!Plot the band structure E(px,py)*/
+		/*!Plots the band structure E(px,py)*/
 		void plot_band_structure();
-		/*!Create the selection of optimal eigenvectors*/
+		/*!Creates the selection of optimal eigenvectors*/
 		void select_eigenvectors();
 
 		void diagonalize(bool simple);
@@ -31,14 +31,14 @@ class System2D: public GenericSystem<Type>{
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Returns the position of the site i in the lattice basis*/
 		virtual Vector<double> get_pos_in_lattice(unsigned int const& i) const = 0;
+		/*!Returns the index of the position x the unit cell basis (a,b)*/
 		virtual unsigned int match_pos_in_ab(Vector<double> const& x) const = 0;
-
-		void set_pos_LxLy(Vector<double>& x) const;
-		void set_pos_ab(Vector<double>& x) const;
-		/*!Reset x so that it belongs to the square (Lx,Ly)*/
-		bool set_in_basis(Vector<double>& x) const;
 		/*!Returns the index of the site i in the unit cell basis (a,b)*/
 		unsigned int get_site_in_ab(unsigned int const& i) const;
+		/*!Makes a change of basis to express the position x in the lattice basis (Lx,Ly)*/
+		void set_pos_LxLy(Vector<double>& x) const;
+		/*!Makes a change of basis to express the position x in the unit cell (a,b)*/
+		void set_pos_ab(Vector<double>& x) const;
 
 	private:
 		Matrix<Type> Tx_;	//!< translation operator along x-axis
@@ -49,20 +49,24 @@ class System2D: public GenericSystem<Type>{
 		Matrix<double> inv_LxLy_;
 		Matrix<double> inv_ab_;
 
-		/*!Compute the translation operators*/
+		/*!Computes the translation operators*/
 		void compute_TxTy();
-		/*!Diagonalize H_*/
+		/*!Diagonalizes H_*/
 		bool simple_diagonalization();
-		/*!Diagonalize H_+T_ => compute the band structure E(p)*/
+		/*!Diagonalizes H_+T_ => compute the band structure E(p)*/
 		bool full_diagonalization();
-		/*!Evaluate the value of an operator O as <bra|O|ket>*/
+		/*!Evaluates the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
 
-		/*!Set the neighbour of site i in direction dir in nb*/
+		/*!Sets the neighbour of site i in direction dir in nb*/
 		void find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const;
-		virtual Vector<double> vector_towrards(unsigned int const& i, unsigned int const& dir) const = 0;
+		virtual Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const = 0;
 		virtual void try_neighbourg(Vector<double>& tn, unsigned int const& i) const = 0;
+
+		/*!Makes sure that 0<=x_i<1, i=1,2*/
 		void set_pos(Vector<double>& x) const;
+		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
+		bool set_in_basis(Vector<double>& x) const;
 };
 
 /*{constructors*/
@@ -108,10 +112,9 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 		Vector<double> zero(2,0);
 
 		if( my::are_equal(Lx,zero) &&  my::are_equal(Ly,zero) ){
-			if(this->spuc_ != 0){ this->status_--; }
+			if(this->spuc_){ this->status_--; }
 			else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
-		}
-		else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell doesn't fit into the cluster"<<std::endl; }
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell doesn't fit into the cluster"<<std::endl; }
 	} else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : the number of site doesn't fit into the cluster"<<std::endl; 
 	}
@@ -186,8 +189,7 @@ void System2D<Type>::select_eigenvectors(){
 	//}
 	//}
 	}
-
-*/
+	*/
 	/*}*/
 	unsigned int c(0);
 	unsigned int a(this->M_(c)-1);
@@ -362,13 +364,15 @@ std::complex<double> System2D<Type>::projection(Matrix<Type> const& O, unsigned 
 }
 
 template<typename Type>
-void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const{
-	Vector<double> tn(2,0);				/* trial neighbour of the site i in the (Lx,Ly) basis*/
-	Vector<double> nn(get_pos_in_lattice(i));/*nearest neighbour of the site i in the (Lx,Ly) basis*/
+void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const {
+	/* trial neighbour of the site i in the (Lx,Ly) basis*/
+	Vector<double> tn(2,0);
+	/*nearest neighbour of the site i in the (Lx,Ly) basis*/
+	Vector<double> nn(get_pos_in_lattice(i));
 	set_pos_LxLy(nn);
 	set_in_basis(nn);
 
-	nn+= vector_towrards(i,dir);
+	nn += vector_towards(i,dir);
 	if(set_in_basis(nn)){ nb(dir,1) = this->bc_; }
 
 	unsigned int j(0);
@@ -377,6 +381,7 @@ void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<in
 		try_neighbourg(tn,j);
 		set_in_basis(tn);
 	}
+	assert(j<this->n_);
 	nb(dir,0) = j;
 }
 

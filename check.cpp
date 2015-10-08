@@ -7,10 +7,14 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	std::cout<<"############# Init System #################"<<std::endl;
+	unsigned int i(0);
+	if(!P.find("M",i,false)){
+		std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
+		P.set("M",M);
+	}
 	System s(P);
 	std::cout<<"############# Init CreateSystem ###########"<<std::endl;
 	CreateSystem cs(&s);
-	unsigned int i(0);
 	switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
 		case 0:/*call CreateSystem::init*/
 			{ 

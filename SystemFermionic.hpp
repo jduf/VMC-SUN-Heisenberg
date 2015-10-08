@@ -283,7 +283,7 @@ void SystemFermionic<Type>::free_memory(){
 	Ainv_[0].set();
 	tmp_[0].set();
 	for(unsigned int c(1);c<N_;c++){
-		this->EVec_[c].set();
+		if(this->same_wf_){ this->EVec_[c].set(); }
 		Ainv_[c].set();
 		tmp_[c].set();
 	}

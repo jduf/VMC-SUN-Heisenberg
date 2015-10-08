@@ -75,7 +75,7 @@ void TriangleFermi::lattice(std::string const& path, std::string const& filename
 	for(unsigned int i(0);i<n_;i++) {
 		xy0 = get_pos_in_lattice(i);
 		set_pos_LxLy(xy0);
-		set_in_basis(xy0);
+		//set_in_basis(xy0);
 		xy0 = (inv_e*LxLy_*xy0).chop();
 		nb = get_neighbourg(i);
 		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
@@ -95,7 +95,7 @@ void TriangleFermi::lattice(std::string const& path, std::string const& filename
 			} else {
 				xy1 = get_pos_in_lattice(nb(0,0));
 				set_pos_LxLy(xy1);
-				set_in_basis(xy1);
+				//set_in_basis(xy1);
 				xy1 = inv_e*LxLy_*xy1;
 			}
 		}
@@ -112,7 +112,7 @@ void TriangleFermi::lattice(std::string const& path, std::string const& filename
 			color = "black";
 			xy1 = get_pos_in_lattice(nb(1,0));
 			set_pos_LxLy(xy1);
-			set_in_basis(xy1);
+			//set_in_basis(xy1);
 			xy1 = inv_e*LxLy_*xy1;
 		}
 		xy1 = xy1.chop();
@@ -128,7 +128,7 @@ void TriangleFermi::lattice(std::string const& path, std::string const& filename
 			color = "black";
 			xy1 = get_pos_in_lattice(nb(2,0));
 			set_pos_LxLy(xy1);
-			set_in_basis(xy1);
+			//set_in_basis(xy1);
 			xy1 = inv_e*LxLy_*xy1;
 		}
 		xy1 = xy1.chop();

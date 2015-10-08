@@ -1,12 +1,12 @@
-#ifndef DEF_SQUAREPIFLUX
-#define DEF_SQUAREPIFLUX
+#ifndef DEF_SQUAREFREEFLUX
+#define DEF_SQUAREFREEFLUX
 
 #include "Square.hpp"
 
-class SquarePiFlux: public Square<std::complex<double> >{
+class SquareFreeFlux: public Square<std::complex<double> >{
 	public:
-		SquarePiFlux(System const& s);
-		~SquarePiFlux() = default;
+		SquareFreeFlux(System const& s, Vector<double> const& phi);
+		~SquareFreeFlux() = default;
 
 		void create();
 		void check();
@@ -14,9 +14,7 @@ class SquarePiFlux: public Square<std::complex<double> >{
 	protected:
 		void compute_H();
 		void lattice(std::string const& path, std::string const& filename);
-
-		std::string extract_level_7();
-		std::string extract_level_3();
+		Vector<double> const phi_;
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 };

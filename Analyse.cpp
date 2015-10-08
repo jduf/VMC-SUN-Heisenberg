@@ -16,13 +16,13 @@ void Analyse::do_analyse(){
 		case 0: /*treat everything*/
 			{
 				std::cout<<"analysing the whole "<<sim_<<" directory"<<std::endl;
-				rst_file_.add_end(std::make_shared<RSTFile>("./","README"));
+				list_rst_.add_end(std::make_shared<RSTFile>("./","README"));
 				IOFiles r("README",false);
 				std::string h;
 				r>>h;
-				rst_file_.first().text(h);
+				list_rst_.first().text(h);
 				recursive_search();
-				rst_file_.first().save(false,false);
+				list_rst_.first().save(false,false);
 			}break;
 		case 1: /*update only the README file*/
 			{
@@ -55,7 +55,7 @@ void Analyse::do_analyse(){
 				}
 				dir_ = tmp[tmp.size()-1]+'/';
 
-				rst_file_.add_end(std::make_shared<RSTFile>(info_+path_,dir_.substr(0,dir_.size()-1)));
+				list_rst_.add_end(std::make_shared<RSTFile>(info_+path_,dir_.substr(0,dir_.size()-1)));
 				recursive_search();
 			}break;
 		case 3:
@@ -70,7 +70,7 @@ void Analyse::recursive_search(){
 	level_++;
 	if(level_>1){ rel_level_ += "../"; }
 	for(unsigned int i(0);i<d.size();i++){
-		rst_file_.add_end(std::make_shared<RSTFile>(info_+path_+dir_,d.get_name(i)));
+		list_rst_.add_end(std::make_shared<RSTFile>(info_+path_+dir_,d.get_name(i)));
 
 		std::string tmp_path(path_);
 		std::string tmp_dir(dir_);
@@ -81,7 +81,7 @@ void Analyse::recursive_search(){
 
 		path_ = tmp_path;
 		dir_ = tmp_dir;
-		rst_file_.pop_end();
+		list_rst_.pop_end();
 	}
 	search_jdbin();
 	level_--;
@@ -96,8 +96,8 @@ void Analyse::search_jdbin(){
 		d.sort();
 
 		Linux command;
-		command.mkdir(info_+path_+dir_);
-		command.mkdir(analyse_+path_+dir_);
+		command.mkpath((info_+path_+dir_).c_str());
+		command.mkpath((analyse_+path_+dir_).c_str());
 		open_files();
 
 		if(level_==9){
@@ -120,13 +120,13 @@ void Analyse::search_jdbin(){
 
 		all_link_names_.set_target();
 		all_link_files_.set_target();
-		while ( all_link_names_.target_next() && all_link_files_.target_next() ) {
-			rst_file_.last().hyperlink(all_link_names_.get(),all_link_files_.get());
+		while( all_link_names_.target_next() && all_link_files_.target_next() ){
+			list_rst_.last().hyperlink(all_link_names_.get(),all_link_files_.get());
 		}
 
 		close_files();
 		all_link_names_.set();
 		all_link_files_.set();
-		rst_file_.last().save(false,true);
+		list_rst_.last().save(false,true);
 	}
 }

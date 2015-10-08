@@ -13,7 +13,8 @@
 #include "SquarePiFlux.hpp"
 #include "SquareJastrow.hpp"
 #include "SquareACSL.hpp"
-#include "SquareFreeComplex.hpp"
+#include "SquareFreeHopping.hpp"
+#include "SquareFreeFlux.hpp"
 
 #include "KagomeFermi.hpp"
 #include "KagomeDirac.hpp"

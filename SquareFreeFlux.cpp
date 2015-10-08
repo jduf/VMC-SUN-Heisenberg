@@ -1,19 +1,19 @@
-#include "SquarePiFlux.hpp"
+#include "SquareFreeFlux.hpp"
 
-SquarePiFlux::SquarePiFlux(System const& s):
+SquareFreeFlux::SquareFreeFlux(System const& s, Vector<double> const& phi):
 	System(s),
-	Square<std::complex<double> >((N_/m_==2?2:0),2,1,"square-csl")
+	Square<std::complex<double> >((N_%m_?0:N_/m_),0,1,"square-free-flux"),
+	phi_(phi)
 {
 	if(status_==2){
 		init_fermionic();
 
-		system_info_.text("Chiral spin liquid : pi-flux per plaquette");
+		system_info_.text("FreeComplex : all colors experience the same Hamiltonian");
 	}
 }
 
 /*{method needed for running*/
-void SquarePiFlux::compute_H(){
-	double phi(M_PI/4.0);
+void SquareFreeFlux::compute_H(){
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
 	unsigned int s(0);
@@ -23,48 +23,72 @@ void SquarePiFlux::compute_H(){
 		switch(s){
 			case 0:
 				{
-					H_(i,nb(0,0)) = std::polar(double(nb(0,1)),phi);
-					H_(i,nb(1,0)) = std::polar(double(nb(1,1)),-phi);
+					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
+					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
 				}break;
 			case 1:
 				{
-					H_(i,nb(0,0)) = std::polar(double(nb(0,1)),-phi);
-					H_(i,nb(1,0)) = std::polar(double(nb(1,1)),phi);
+					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),-phi_(0));
+					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),phi_(0));
+				}break;
+			case 2:
+				{
+					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),-phi_(0));
+					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),phi_(0));
+				}break;
+			case 3:
+				{
+					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
+					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
+				}break;
+			case 4:
+				{
+					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
+					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
+				}break;
+			case 5:
+				{
+					H_(i,nb(0,0)) = std::polar(1.0*nb(0,1),phi_(0));
+					H_(i,nb(1,0)) = std::polar(1.0*nb(1,1),-phi_(0));
 				}break;
 			default:{ std::cerr<<__PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
-	std::cerr<<__PRETTY_FUNCTION__<<" : new use of polar, check that it is correct"<<std::endl;
-	std::cerr<<__PRETTY_FUNCTION__<<" : modified the flux disposition..."<<std::endl;
-	std::cerr<<__PRETTY_FUNCTION__<<" : it seems that std::polar is not very stable for std::polar(1,-pi)=(0,1e-6)"<<std::endl;
 	H_ += H_.trans_conj();
 }
 
-void SquarePiFlux::create(){
+void SquareFreeFlux::create(){
 	compute_H();
 	diagonalize(true);
-	for(unsigned int c(0);c<N_;c++){
-		EVec_[c].set(n_,M_(c));
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = H_(i,j);
+	if(status_==1){
+		for(unsigned int c(0);c<N_;c++){
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = H_(i,j);
+				}
 			}
 		}
 	}
 }
 
-unsigned int SquarePiFlux::match_pos_in_ab(Vector<double> const& x) const{
+unsigned int SquareFreeFlux::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match)){ return 0; }
 	match(0) = 0.5;
 	match(1) = 0;
 	if(my::are_equal(x,match)){ return 1; }
-	return 2;
+	match(0) = 0;
+	match(1) = 0.5;
+	if(my::are_equal(x,match)){ return 2; }
+	match(0) = 0.5;
+	match(1) = 0.5;
+	if(my::are_equal(x,match)){ return 3; }
+	return 4;
 }
 /*}*/
 
 /*{method needed for checking*/
-void SquarePiFlux::lattice(std::string const& path, std::string const& filename){
+void SquareFreeFlux::lattice(std::string const& path, std::string const& filename){
 	compute_H();
 	std::string color("black");
 	std::string linestyle("solid");
@@ -105,17 +129,20 @@ void SquarePiFlux::lattice(std::string const& path, std::string const& filename)
 		t = H_(s0,s1);
 		if(i%2){
 			ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
+			if(my::real(H_(s0,s0))){ ps.circle(xy0,t.real(),"linecolor=magenta,fillstyle=solid,fillcolor=magenta"); }
 		}
 
 		if(std::abs(t)>1e-4){
 			if(t.real()<0){ color = "red"; }
 			else { color = "blue"; }
 
-			if(t.imag()>0){ arrow = "->"; }
-			else { arrow = "<-"; }
+			arrow = "-";
+			if(std::arg(t)>0){ arrow = "-"+std::string(std::arg(t)/(2*M_PI*m_/N_),'>'); }
+			if(std::arg(t)<0){ arrow = std::string(-std::arg(t)/(2*M_PI*m_/N_),'<')+"-"; }
+
 			xy0 = xy0.chop();
 			xy1 = xy1.chop();
-			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
+			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+my::tostring(std::abs(t))+"pt,linecolor="+color+",linestyle="+linestyle);
 		}
 	}
 
@@ -165,39 +192,7 @@ void SquarePiFlux::lattice(std::string const& path, std::string const& filename)
 	ps.end(true,true,true);
 }
 
-void SquarePiFlux::check(){
+void SquareFreeFlux::check(){
 	lattice("./","lattice");
-}
-/*}*/
-
-/*{method needed for analysing*/
-std::string SquarePiFlux::extract_level_7(){
-	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
-
-	unsigned int nruns;
-	unsigned int tmax;
-
-	(*read_)>>nruns>>tmax;
-	(*data_write_)<<"% E dE 0|1"<<IOFiles::endl;
-	/* the +1 is the averages over all runs */
-	for(unsigned int i(0);i<nruns+1;i++){
-		(*read_)>>E_>>corr_>>lr_corr_;
-		(*data_write_)<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
-	}
-	jd_write_->write("energy per site",E_);
-
-	rst_file_->text(read_->get_header());
-	rst_file_->save(false,true);
-	delete rst_file_;
-	rst_file_ = NULL;
-
-	return filename_;
-}
-
-std::string SquarePiFlux::extract_level_3(){
-	(*read_)>>E_;
-	(*data_write_)<<n_<<" "<<E_<<" "<<bc_<<IOFiles::endl;
-
-	return filename_;
 }
 /*}*/

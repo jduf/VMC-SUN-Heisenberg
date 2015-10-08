@@ -129,6 +129,7 @@ void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>&
 		return 2;
 	};
 
+	/*!finds the MCSim with the minimal energy*/
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
 		tmp = m_->samples_list_.get().get_MCS()->get_energy().get_x();
@@ -139,6 +140,7 @@ void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>&
 	}
 	E_range = E*0.99;
 
+	/*!lists all MCSim with energy below E_range and keep only one per r*/
 	List<MCSim> list_sorted_r;
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
@@ -150,6 +152,7 @@ void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>&
 		}
 	}
 
+	/*!finds the minima*/
 	unsigned int ao(1);
 	do{
 		ao *= 2;
@@ -336,9 +339,8 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 }
 
 void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::string& basename){
-	tmax_= P.get<unsigned int>("tmax");
-	dof_ = P.get<unsigned int>("dof");
 	s_ = new System(P);
+	dof_ = P.get<unsigned int>("dof");
 	ps_= new Vector<double>[dof_];
 
 	/*!the next block is required to configure J correctly so that path and
@@ -359,12 +361,12 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	path = cs.get_path();
 	path+= my::tostring(dof_)+"dof/";
 	basename = "-" + cs.get_filename();
-	command.mkdir(path);
+	command.mkpath(path.c_str());
 }
 
 std::string VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::string& basename){
 	s_ = new System(in);
-	dof_ = in.read<unsigned int>();
+	in>>dof_;
 	ps_= new Vector<double>[dof_];
 
 	/*!the next block is required to compute the J setup*/

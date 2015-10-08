@@ -20,6 +20,7 @@ void IOSystem::set_IOSystem(IOSystem const* const t){
 	read_ = t->read_;
 	jd_write_ = t->jd_write_;
 	data_write_ = t->data_write_;
+	rst_file_ = t->rst_file_;
 }
 
 std::string IOSystem::analyse(unsigned int const& level){

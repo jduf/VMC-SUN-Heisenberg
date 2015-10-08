@@ -18,9 +18,9 @@ void AnalyseEnergy::open_files(){
 
 void AnalyseEnergy::close_files(){
 	if(jd_write_){ 
-		if(level_==7){ rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
-		if(level_==3){ rst_file_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
-		rst_file_.last().text(jd_write_->get_header());
+		if(level_==7){ list_rst_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
+		if(level_==3){ list_rst_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
+		list_rst_.last().text(jd_write_->get_header());
 		delete jd_write_;
 		jd_write_ = NULL;
 	}

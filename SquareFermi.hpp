@@ -17,13 +17,12 @@ class SquareFermi: public Square<Type>{
 		void lattice(std::string const& path, std::string const& filename);
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0;};
-		Matrix<double> set_ab();
 };
 
 template<typename Type>
 SquareFermi<Type>::SquareFermi(System const& s):
 	System(s),
-	Square<Type>(set_ab(),1,"square-fermi")
+	Square<Type>(1,1,0,"square-fermi")
 {
 	if(this->status_==2){
 		this->init_fermionic();
@@ -45,62 +44,56 @@ void SquareFermi<Type>::compute_H(){
 	}
 	this->H_ += this->H_.transpose();
 }
-
-template<typename Type>
-Matrix<double> SquareFermi<Type>::set_ab(){
-	Matrix<double> tmp(2,2);
-	tmp(0,0) = 1;
-	tmp(1,0) = 0;
-	tmp(0,1) = 0;
-	tmp(1,1) = 1;
-	return tmp;
-}
 /*}*/
 
 /*{method needed for checking*/
 template<typename Type>
 void SquareFermi<Type>::lattice(std::string const& path, std::string const& filename){
-	Matrix<int> nb;
 	std::string color("black");
+	std::string linestyle("solid");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(path,filename);
 	ps.begin(-9,-10,16,10,this->filename_);
+	unsigned int s0;
+	unsigned int s1;
+	double t;
 	for(unsigned int i(0);i<this->n_;i++) {
-		xy0 = this->get_pos_in_lattice(i);
+		s0 = this->links_(i,0);
+		xy0 = this->get_pos_in_lattice(s0);
 		this->set_pos_LxLy(xy0);
-		this->set_in_basis(xy0);
 		xy0 = (this->LxLy_*xy0).chop();
-		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
-		nb = this->get_neighbourg(i);
 
-		if(nb(0,1)<0){
-			color = "red";
-			xy1 = xy0;
-			xy1(0) += 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
-		} else {
-			color = "black";
-			xy1 = this->get_pos_in_lattice(nb(0,0));
-			this->set_pos_LxLy(xy1);
-			this->set_in_basis(xy1);
-			xy1 = (this->LxLy_*xy1).chop();
-		}
-		/*x-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color);
+		s1 = this->links_(i,1);
+		xy1 = this->get_pos_in_lattice(s1);
+		this->set_pos_LxLy(xy1);
+		xy1 = (this->LxLy_*xy1).chop();
 
-		if(nb(1,1)<0){
-			color = "red";
-			xy1 = xy0;
-			xy1(1) += 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
-		} else {
-			color = "black";
-			xy1 = this->get_pos_in_lattice(nb(1,0));
-			this->set_pos_LxLy(xy1);
-			this->set_in_basis(xy1);
-			xy1 = (this->LxLy_*xy1).chop();
+		if((xy0-xy1).norm_squared()<1.1){ linestyle = "solid"; }
+		else {
+			linestyle = "dashed";
+			if(i%2 && xy1(1)<xy0(1)){
+				xy1(0) = xy0(0);
+				xy1(1) = xy0(1)+1.0;
+			}
+			if(!(i%2) && xy1(0)<xy0(0)){
+				xy1(0) = xy0(0)+1.0;
+				xy1(1) = xy0(1);
+			}
+			ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 		}
-		/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color);
+
+		t = this->H_(s0,s1);
+		if(i%2){ ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
+
+		if(std::abs(t)>1e-4){
+			if(t<0){ color = "red"; }
+			else { color = "blue"; }
+
+			xy0 = xy0.chop();
+			xy1 = xy1.chop();
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
+		}
 	}
 
 	Matrix<double> polygon(4,2);

@@ -895,32 +895,32 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	unsigned int n_plot((n_<30?n_:spuc_));
+	double x_shift(spuc_/2+1);
 	double y_shift(2);
 
 	PSTricks ps(path,filename);
-	ps.begin(-1,-5,n_plot,2,filename);
+	ps.begin(-1,-5,n_/2,2,filename);
 	double t;
 	double corr;
-	for(unsigned int i(0);i<links_.row();i++){
-		xy0(0) = links_(i,0)/2;
-		xy0(1) = links_(i,0)%2;
-		xy1(0) = links_(i,1)/2;
-		xy1(1) = links_(i,1)%2;
+	unsigned int s0;
+	unsigned int s1;
+	for(unsigned int i(0);links_(i,1)<spuc_+2;i++){
+		s0 = links_(i,0);
+		s1 = links_(i,1);
+		xy0(0) = s0/2;
+		xy0(1) = s0%2;
+		xy1(0) = s1/2;
+		xy1(1) = s1%2;
 
-		if(xy1(0)<xy0(0)){
-			xy1(0) = xy0(0)+1;
-			linestyle="dashed";
-		} else { linestyle="solid"; }
-
-		if(i%3==0){ ps.put(xy0(0),xy0(1)-0.2,"\\tiny{"+my::tostring(links_(i,0))+"}"); }
-		if(i%3==1){ ps.put(xy1(0),xy1(1)+0.2,"\\tiny{"+my::tostring(links_(i,1))+"}"); }
-
-		t=H_(links_(i,0),links_(i,1));
+		t=H_(s0,s1);
 		if(std::abs(t)>1e-4){
+			if(xy1(0)<xy0(0)){
+				xy1(0) = xy0(0)+1;
+				linestyle="dashed";
+			} else { linestyle="solid"; }
+
 			if(t<0){ color = "red"; }
 			else { color = "blue"; }
-
 			linewidth = my::tostring(std::abs(t))+"mm";
 
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
@@ -934,61 +934,40 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 		if(i<corr_.size()){
 			corr = corr_[i].get_x();
 			if(std::abs(corr)>1e-4){
-
 				if(corr<0){ color = "red"; }
 				else { color = "blue"; }
-
 				linewidth = my::tostring(std::abs(corr))+"mm";
 
-				ps.line("-",xy0(0),xy0(1)-y_shift,xy1(0),xy1(1)-y_shift, "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+				ps.line("-",xy0(0)+x_shift,xy0(1),xy1(0)+x_shift,xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
+		}
+
+		if(i%3==0){ 
+			ps.put(xy0(0),xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}"); 
+			ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}"); 
+		}
+		if(i%3==1){ 
+			ps.put(xy1(0),xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}"); 
+			ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}"); 
 		}
 	}
 	double lr_corr;
-	double rescale(lr_corr_.size()?1.0/(lr_corr_[0].get_x()*0.75):0);
+	double rescale(lr_corr_.size()?0.75/lr_corr_[0].get_x():0);
 	for(unsigned int i(0);i<lr_corr_.size();i++){
 		lr_corr = lr_corr_[i].get_x()*rescale;
 		if(std::abs(lr_corr)>1e-4){
 			xy0(0) = i/2;
-			xy0(1) = i%2-2*y_shift;
+			xy0(1) = i%2-y_shift;
 			xy1(0) = i/2;
-			xy1(1) = i%2-2*y_shift;
+			xy1(1) = i%2-y_shift;
 
 			if(i){
 				if(lr_corr<0){ color = "red"; }
 				else { color = "blue"; }
-			} else {
-				color = "black";
-			}
+			} else { color = "black"; }
 
 			ps.circle(xy0,std::abs(lr_corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 		}
-	}
-
-	if(n_plot>spuc_){
-		if(n_plot==n_){
-			Matrix<double> polygon(4,2);
-			polygon(0,0)=-0.3;
-			polygon(0,1)=-0.3;
-			polygon(1,0)=n_/2-0.1;
-			polygon(1,1)=-0.3;
-			polygon(2,0)=n_/2-0.1;
-			polygon(2,1)=1.3;
-			polygon(3,0)=-0.3;
-			polygon(3,1)=1.3;
-			ps.polygon(polygon,"linecolor=green");
-		}
-
-		Matrix<double> polygon(4,2);
-		polygon(0,0)=-0.3;
-		polygon(0,1)=-0.3;
-		polygon(1,0)=spuc_/2-0.1;
-		polygon(1,1)=-0.3;
-		polygon(2,0)=spuc_/2-0.1;
-		polygon(2,1)=1.3;
-		polygon(3,0)=-0.3;
-		polygon(3,1)=1.3;
-		ps.polygon(polygon,"linecolor=black");
 	}
 
 	ps.end(true,true,true);
@@ -998,6 +977,13 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 /*{method needed for analysing*/
 std::string LadderFree::extract_level_6(){
 	(*data_write_)<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<asin(J_(1))<<" "<<E_<<IOFiles::endl;
+
+	lattice(info_+path_+dir_,filename_);
+	rst_file_->figure(dir_+filename_+".png",RST::math("\\theta="+my::tostring(asin(J_(1))))+" : "+RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200")); 
+
+	save_param(*jd_write_);
+	save_input(*jd_write_);
+	save_output(*jd_write_);
 
 	return filename_;
 }
