@@ -34,7 +34,7 @@ int main(int argc, char* argv[]){
 				cs.init(NULL,&P);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
-					cs.create(0);
+					cs.create();
 					std::cout<<"############# Check #######################"<<std::endl;
 					cs.check();
 				}
@@ -44,9 +44,10 @@ int main(int argc, char* argv[]){
 				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init(NULL,&P);
+				cs.set_observables(1);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
-					cs.create(0);
+					cs.create();
 					std::cout<<"############# Create MCSystem #############"<<std::endl;
 					MCSystem* S(NULL);
 					if(cs.use_complex()){
@@ -55,7 +56,6 @@ int main(int argc, char* argv[]){
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())); 
 					}
 					std::cout<<"############# Init Monte Carlo ############"<<std::endl;
-					S->set_observables(1);
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
 					std::cout<<"############# Run Monte Carlo #############"<<std::endl;
@@ -70,9 +70,10 @@ int main(int argc, char* argv[]){
 				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init(NULL,&P);
+				cs.set_observables(1);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
-					cs.create(0);
+					cs.create();
 					std::cout<<"############# Create MCSystem #############"<<std::endl;
 					MCSystem* S(NULL);
 					if(cs.use_complex()){
@@ -81,7 +82,6 @@ int main(int argc, char* argv[]){
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())); 
 					}
 					std::cout<<"############# Init Monte Carlo ############"<<std::endl;
-					S->set_observables(1);
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
 					std::cout<<"############# Run Monte Carlo #############"<<std::endl;
@@ -160,8 +160,7 @@ int main(int argc, char* argv[]){
 			{
 				MCSim mcsim(P.get<std::vector<double> >("t"));
 				System s(P);
-				s.set_observables(1);
-				mcsim.create_S(&s,0);
+				mcsim.create_S(&s,1);
 				mcsim.run(1e6,2);
 				mcsim.complete_analysis(1e-5);
 

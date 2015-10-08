@@ -68,8 +68,7 @@ void KagomeVBC::compute_H(){
 	H_ += H_.trans_conj();
 }
 
-void KagomeVBC::create(unsigned int const& which_observables){
-	(void)(which_observables);
+void KagomeVBC::create(){
 	compute_H();
 	diagonalize(false);
 	if(status_==2){

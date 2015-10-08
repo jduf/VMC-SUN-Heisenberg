@@ -8,7 +8,7 @@ class SquareJastrow: public Square<double>{
 		SquareJastrow(System const& s, Matrix<double> const& nu);
 		~SquareJastrow() = default;
 
-		void create(unsigned int const& which_observables);
+		void create();
 		void check();
 		void save_input(IOFiles& w) const;
 

@@ -192,21 +192,21 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 	}
 }
 
-void CreateSystem::create(unsigned int const& which_observables, bool const& try_solve_degeneracy){
+void CreateSystem::create(bool const& try_solve_degeneracy){
 	if(RGL_){
-		RGL_->create(which_observables);
+		RGL_->create();
 		if(RGL_->get_status()!=1){
 			if(try_solve_degeneracy){
 				ref_(1)=2;
 				init(NULL,C_);
 				std::cerr<<__PRETTY_FUNCTION__<<" : need to check if this works"<<std::endl;
-				if(CGL_){ CGL_->create(which_observables); }
+				if(CGL_){ CGL_->create(); }
 			} else {
 				std::cerr<<__PRETTY_FUNCTION__<<" : giving up"<<std::endl;
 			}
 		}
 	} else {
-		if(CGL_){ CGL_->create(which_observables); }
+		if(CGL_){ CGL_->create(); }
 		if(CGL_ && get_status()!=1){
 			std::cerr<<__PRETTY_FUNCTION__<<" : behaviour undefined"<<std::endl;
 		}

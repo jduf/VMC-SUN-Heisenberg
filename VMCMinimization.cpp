@@ -272,7 +272,7 @@ void VMCMinimization::print() const {
 /*}*/
 
 /*{protected methods*/
-std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, unsigned int const& which_observables){
+std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, unsigned int const& which){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 	bool tmp_test;
 #pragma omp critical(samples_list_)
@@ -280,9 +280,11 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, un
 		if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){
 			tmp_test = true;
 			sim->copy_S(m_->samples_list_.get().get_MCS());
+			/*will need to provide a way to set correct observables*/
+			//sim->set_observables(which);
 		} else {
 			tmp_test = false;
-			sim->create_S(m_->s_,which_observables);
+			sim->create_S(m_->s_,which);
 		}
 		m_->samples_list_.set_target();
 	}
@@ -347,7 +349,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	Vector<double> tmp;
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
-	cs.set_bonds(s_);
+	cs.set(s_);
 
 	std::string msg("no samples loaded");
 	std::cout<<"#"+msg<<std::endl;
@@ -372,7 +374,7 @@ std::string VMCMinimization::Minimization::load(IOFiles& in, std::string& path, 
 	Vector<double> tmp;
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
-	cs.set_bonds(s_);
+	cs.set(s_);
 
 	ps_size_ = 1;
 	for(unsigned int i(0);i<dof_;i++){

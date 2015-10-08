@@ -1,8 +1,7 @@
 #include"ChainFermi.hpp"
 
 template<>
-void ChainFermi<double>::create(unsigned int const& which_observables){
-	(void)(which_observables);
+void ChainFermi<double>::create(){
 	compute_H();
 	diagonalize(true);
 	if(status_==1){
@@ -17,8 +16,7 @@ void ChainFermi<double>::create(unsigned int const& which_observables){
 }
 
 template<>
-void ChainFermi<std::complex<double> >::create(unsigned int const& which_observables){
-	(void)(which_observables);
+void ChainFermi<std::complex<double> >::create(){
 	compute_H();
 	diagonalize(false);
 	for(unsigned int c(0);c<N_;c++){

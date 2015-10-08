@@ -41,7 +41,7 @@ class CreateSystem{
 
 		/*{Core methods*/
 		void init(Vector<double> const* const param, Container* C);
-		void create(unsigned int const& which_observables, bool const& try_solve_degeneracy=false);
+		void create(bool const& try_solve_degeneracy=false);
 		/*}*/
 
 		/*{IOSystem calls*/
@@ -76,10 +76,19 @@ class CreateSystem{
 			if(RGL_){ RGL_->save_param(w); }
 			if(CGL_){ CGL_->save_param(w); }
 		}
+		void save_input(IOFiles& w) const {
+			if(RGL_){ RGL_->save_input(w); }
+			if(CGL_){ CGL_->save_input(w); }
+		}
 		/*!Calls GenericSystem::check() pure virtual method*/
 		void check() const {
 			if(RGL_){ return RGL_->check(); }
 			if(CGL_){ return CGL_->check(); }
+		}
+		/*!Calls GenericSystem::set_observables(unsigned int const& which) pure virtual method*/
+		void set_observables(unsigned int const& which) const {
+			if(RGL_){ return RGL_->set_observables(which); }
+			if(CGL_){ return CGL_->set_observables(which); }
 		}
 		/*!Calls GenericSystem::get_wf_symmetries(std::vector<Matrix<int> >& sym) pure virtual method*/
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
@@ -100,9 +109,9 @@ class CreateSystem{
 			return 10;
 		}
 		/*!Calls System::get_status() : see System.hpp*/
-		void set_bonds(System* const s) const {
-			if(RGL_){ s->set_bonds(RGL_); }
-			if(CGL_){ s->set_bonds(CGL_); }
+		void set(System* const s) const {
+			if(RGL_){ s->set(RGL_); }
+			if(CGL_){ s->set(CGL_); }
 		}
 		/*}*/
 

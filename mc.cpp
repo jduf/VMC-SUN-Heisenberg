@@ -17,11 +17,11 @@ int main(int argc, char* argv[]){
 	CreateSystem cs(&sys);
 	cs.init(NULL,&P);
 	if(!P.locked()){
-		cs.create_observables();
 		if(cs.get_status()==2){
-			cs.create(0);
+			cs.create();
 			if(cs.get_status()==1){
-				sys.set_bonds(cs.get_GS());
+				cs.set_observables(P.find("ncorr",i,false)?P.get<unsigned int>(i):1);
+				sys.set(cs.get_GS());
 #pragma omp parallel for
 				for(unsigned int j=0;j<nruns;j++){
 					MCSystem* mcsys(NULL);
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]){
 				command.mkpath(cs.get_path().c_str());
 				IOFiles out(cs.get_path() + cs.get_filename()+".jdbin",true);
 				cs.save_param(out);
-				cs.get_GS()->save_input(out);
+				cs.save_input(out);
 				sys.save_output(out);
 
 				if(P.find("d",i,false)){
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]){
 					rst.save(false,true);
 					command.html_browser("/tmp/"+cs.get_filename()+".html");
 					//if( my::get_yn("move the plot in the correct folder ?") ){
-						//std::cerr<<"should implement this move"<<std::endl;
+					//std::cerr<<"should implement this move"<<std::endl;
 					//}
 				}
 			}

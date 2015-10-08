@@ -10,10 +10,7 @@ System::System(Parseur& P):
 	bc_(P.get<int>("bc")),
 	M_(P.get<std::vector<unsigned int> >("M")),
 	J_(P.get<std::vector<double> >("Jp")),
-	status_(5),
-	n_corr_(P.get<unsigned int>("nops")),
-	link_types_(n_corr_?new Matrix<int>[n_corr_]:NULL),
-	corr_types_(n_corr_?new DataSet<double>[n_corr_]:NULL)
+	status_(5)
 {
 	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : Bad initialization"<<std::endl; } 
 	else{ status_--; }
@@ -55,32 +52,22 @@ System::System(System const& s):
 	corr_(s.corr_),
 	lr_corr_(s.lr_corr_),
 	n_corr_(s.n_corr_),
-	link_types_(s.n_corr_?new Matrix<int>[n_corr_]:NULL),
-	corr_types_(s.n_corr_?new DataSet<double>[n_corr_]:NULL)
-{
-	for(unsigned int i(0);i<n_corr_;i++){
-		link_types_[i] = s.link_types_[i];
-		corr_types_[i] = s.corr_types_[i]; 
-		/*I don't want to copy the values of s.corr_types because for a new
-		 *simulation, I want to use a new binning*/
-	}
-}
+	link_types_(s.link_types_),
+	corr_types_(s.corr_types_)
+{}
 /*}*/
 
 /*handles class attributes*/
 /*{*/
-void System::set_bonds(System const* const s){
+void System::set(System const* const s){
 	J_ = s->J_; 
 	links_ = s->links_; 
+	n_corr_ = s->n_corr_;
+	link_types_ = s->link_types_;
+	corr_types_ = s->corr_types_;
 }
 
-void System::set_observables(unsigned int const& which){
-	E_.set(50,5,false);
-	if(which>0){ corr_.set(links_.row(),50,5,false); }
-	if(which>1){ lr_corr_.set(n_,50,5,false); }
-}
-
-void System::set_observables(){ 
+void System::clear_measurments(){ 
 	E_.set(); 
 	corr_.set(); 
 	lr_corr_.set(); 
@@ -95,18 +82,27 @@ void System::complete_analysis(double const& convergence_criterion){
 	E_.complete_analysis(convergence_criterion); 
 	corr_.complete_analysis(convergence_criterion); 
 	lr_corr_.complete_analysis(convergence_criterion); 
+	for(unsigned int i(0);i<n_corr_;i++){
+		corr_types_[i].complete_analysis(convergence_criterion); 
+	}
 }
 
-void System::merge(System* s){ 
+void System::merge(System* s){
 	E_.merge(s->E_);
 	corr_.merge(s->corr_);
 	lr_corr_.merge(s->lr_corr_);
+	for(unsigned int i(0);i<n_corr_;i++){
+		corr_types_[i].merge(s->corr_types_[i]); 
+	}
 }
 
-void System::delete_binning(){ 
+void System::delete_binning(){
 	E_.delete_binning();
 	corr_.delete_binning();
 	lr_corr_.delete_binning();
+	for(unsigned int i(0);i<n_corr_;i++){
+		corr_types_[i].delete_binning();
+	}
 }
 /*}*/
 

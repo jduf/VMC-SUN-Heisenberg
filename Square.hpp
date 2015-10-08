@@ -58,7 +58,7 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 			this->dir_nn_LxLy_(3,0) = dir(0);
 			this->dir_nn_LxLy_(3,1) = dir(1);
 
-			this->compute_nn_links(Vector<unsigned int>(1,2)); 
+			this->set_nn_links(Vector<unsigned int>(1,2)); 
 		}
 
 		/*!sets the bond energy if it has not been set yet*/

@@ -213,14 +213,6 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 
 template<typename Type>
 SystemFermionic<Type>::~SystemFermionic(){
-#pragma omp critical
-	{
-		std::cout<<n_corr_<<std::endl;
-		for(unsigned int i(0);i<n_corr_;i++){
-			std::cout<<link_types_[i]<<std::endl;
-			std::cout<<corr_types_[i]<<std::endl<<std::endl;;
-		}
-	}
 	delete[] Ainv_;
 	delete[] tmp_;
 }

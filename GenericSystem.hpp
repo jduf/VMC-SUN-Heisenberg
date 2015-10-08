@@ -28,11 +28,13 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*}*/
 
 		virtual void save_param(IOFiles& w) const;
-		virtual void create(unsigned int const& which_observables) = 0;
-		virtual void create_observables(){ std::cout<<"should be pure virtual"<<std::endl ;}
+		virtual void create() = 0;
 		virtual void check() = 0;
 		virtual void lattice(std::string const& path, std::string const& filename) = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
+
+		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
+		virtual void set_observables(unsigned int const& which){  std::cout<<"should be pure virtual"<<which<<std::endl ;}
 
 	protected:
 		unsigned int const spuc_;//!< site per unit cell
@@ -43,7 +45,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*!Returns the neighbours of site i. 
 		 *
 		 * This pure virtual method must be defined here because it is needed
-		 * by GenericSystem<Type>::compute_nn_links()
+		 * by GenericSystem<Type>::set_nn_links()
 		 */
 		/*}*/
 		virtual Matrix<int> get_neighbourg(unsigned int const& i) const = 0;
@@ -52,7 +54,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		 * The argument l gives the number of links that need to be computed
 		 * for the site i%l.size()*/
 		/*}*/
-		void compute_nn_links(Vector<unsigned int> const& l);
+		void set_nn_links(Vector<unsigned int> const& l);
 		void check_lattice();
 
 	private:
@@ -83,7 +85,7 @@ void GenericSystem<Type>::save_param(IOFiles& w) const {
 }
 
 template<typename Type>
-void GenericSystem<Type>::compute_nn_links(Vector<unsigned int> const& l){
+void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 	if(2*l.sum()==l.size()*z_){
 		unsigned int k(0);
 		Matrix<int> nb;
@@ -93,7 +95,7 @@ void GenericSystem<Type>::compute_nn_links(Vector<unsigned int> const& l){
 				if(nb(j,1)!=0){ k++; }
 			}
 		}
-		this->link_types_[0].set(k,2);
+		this->link_types_.push_back(Matrix<int>(k,2));
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
 			nb = get_neighbourg(i);

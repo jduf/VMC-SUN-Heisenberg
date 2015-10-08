@@ -8,7 +8,7 @@ class TriangleFermi: public Triangle<double>{
 		TriangleFermi(System const& s);
 		~TriangleFermi() = default;
 
-		void create(unsigned int const& which_observables);
+		void create();
 		void check();
 
 	protected:

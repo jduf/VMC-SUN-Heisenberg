@@ -25,7 +25,7 @@ class Ladder: public System1D<Type>{
 		virtual ~Ladder()=0;
 
 	protected:
-		void create_observables();
+		void set_observables(unsigned int const& which);
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Given N and m, save the best simulation in a text file for any n*/
@@ -43,11 +43,12 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 	 * this_->J_ should be computed*/
 	if(this->status_==2){
 		/*!create the links if necessary*/
-		if(!this->link_types_[0].ptr()){
+		if(!this->link_types_.size()){
+			std::cout<<"set nn links"<<std::endl;
 			Vector<unsigned int> l(2);
 			l(0) = 2;
 			l(1) = 1;
-			this->compute_nn_links(l);
+			this->set_nn_links(l);
 		}
 
 		/*!sets the bond energy if it has not been set yet*/
@@ -82,31 +83,34 @@ template<typename Type>
 Ladder<Type>::~Ladder() = default;
 
 template<typename Type>
-void Ladder<Type>::create_observables(){
+void Ladder<Type>::set_observables(unsigned int const& which){
+	std::cout<<"set observable"<<std::endl;
+	this->n_corr_=which;
+
 	this->E_.set(50,5,false);
+	this->corr_types_.resize(this->n_corr_);
+
 	if(this->n_corr_>0){
 		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
 	}
-	if(this->n_corr_>1){
-		/*the long range correlation*/
-		this->link_types_[1].set(this->n_,2);
+	if(this->n_corr_>1){ /*the long range correlation*/
 		this->corr_types_[1].set(this->n_,50,5,false);
+		this->link_types_.push_back(Matrix<int>(this->n_,2));
 		for(unsigned int i(0);i<this->n_;i++){
 			this->link_types_[1](i,0) = 0;
 			this->link_types_[1](i,1) = i;
 		}
 	}
-	if(this->n_corr_==6){
-		/*the (anti)symmetric correlation*/
-		std::cout<<"yes"<<std::endl;
-		this->link_types_[2].set(this->n_/2,2);
+	if(this->n_corr_==6){ /*the (anti)symmetric correlation*/
 		this->corr_types_[2].set(this->n_/2,50,5,false);
-		this->link_types_[3].set(this->n_/2,2);
 		this->corr_types_[3].set(this->n_/2,50,5,false);
-		this->link_types_[4].set(this->n_/2,2);
 		this->corr_types_[4].set(this->n_/2,50,5,false);
-		this->link_types_[5].set(this->n_/2,2);
 		this->corr_types_[5].set(this->n_/2,50,5,false);
+
+		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
+		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
+		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
+		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
 		for(unsigned int i(0);i<this->n_/2;i++){
 			this->link_types_[2](i,0) = 0;
 			this->link_types_[2](i,1) = 2*i;

@@ -47,10 +47,9 @@ void LadderFree::compute_H(){
 	H_ += H_.transpose();
 }
 
-void LadderFree::create(unsigned int const& which_observables){
+void LadderFree::create(){
 	compute_H();
 	diagonalize(true);
-	(void)(which_observables);
 
 	if(status_==1){
 		for(unsigned int c(0);c<N_;c++){
@@ -905,7 +904,7 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 	double corr;
 	unsigned int s0;
 	unsigned int s1;
-	for(unsigned int i(0);i<spuc_+2;i++){
+	for(unsigned int i(0);i<3*spuc_/2;i++){
 		s0 = link_types_[0](i,0);
 		s1 = link_types_[0](i,1);
 		xy0(0) = s0/2;
@@ -932,7 +931,7 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 			}
 		}
 
-		if(i<corr_types_[0].size()){
+		if(corr_types_.size()>0 && i<corr_types_[0].size()){/*bound energy*/
 			corr = corr_types_[0][i].get_x();
 			if(std::abs(corr)>1e-4){
 				if(corr<0){ color = "red"; }
@@ -952,23 +951,22 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 			ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}"); 
 		}
 	}
-	double rescale(corr_types_[1].size()?0.75/corr_types_[1][0].get_x():0);
-	for(unsigned int i(0);i<corr_types_[0].size();i++){
-		corr = corr_types_[1][i].get_x()*rescale;
-		if(std::abs(corr)>1e-4){
-			s0 = link_types_[1](i,0);
-			s1 = link_types_[1](i,1);
-			xy0(0) = s0/2;
-			xy0(1) = s0%2-y_shift;
-			xy1(0) = s1&2;
-			xy1(1) = s1%2-y_shift;
+	if(corr_types_.size()>1){/*long range correlations*/
+		double rescale(corr_types_[1].size()?0.75/corr_types_[1][0].get_x():0);
+		for(unsigned int i(0);i<corr_types_[1].size();i++){
+			corr = corr_types_[1][i].get_x()*rescale;
+			if(std::abs(corr)>1e-4){
+				s0 = link_types_[1](i,1);
+				xy0(0) = s0/2;
+				xy0(1) = s0%2-y_shift;
 
-			if(i){
-				if(corr<0){ color = "red"; }
-				else { color = "blue"; }
-			} else { color = "black"; }
+				if(i){
+					if(corr<0){ color = "red"; }
+					else { color = "blue"; }
+				} else { color = "black"; }
 
-			ps.circle(xy0,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+				ps.circle(xy0,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
 		}
 	}
 

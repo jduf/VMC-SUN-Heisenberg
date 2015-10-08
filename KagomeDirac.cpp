@@ -1,8 +1,7 @@
 #include "KagomeDirac.hpp"
 
 template<>
-void KagomeDirac<double>::create(unsigned int const& which_observables){
-	(void)(which_observables);
+void KagomeDirac<double>::create(){
 	compute_H();
 	diagonalize(false);
 	if(status_==2){
@@ -20,8 +19,7 @@ void KagomeDirac<double>::create(unsigned int const& which_observables){
 }
 
 template<>
-void KagomeDirac<std::complex<double> >::create(unsigned int const& which_observables){
-	(void)(which_observables);
+void KagomeDirac<std::complex<double> >::create(){
 	compute_H();
 	select_eigenvectors();
 	if(status_==2){

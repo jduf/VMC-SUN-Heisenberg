@@ -75,8 +75,8 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 		this->dir_nn_LxLy_(2,0) = dir(0);
 		this->dir_nn_LxLy_(2,1) = dir(1);
 
-		std::cerr<<__PRETTY_FUNCTION__<<" : new def of compute_nn_links will be problematic"<<std::endl;
-		this->compute_nn_links(Vector<unsigned int>(1,3));
+		std::cerr<<__PRETTY_FUNCTION__<<" : new def of set_nn_links will be problematic"<<std::endl;
+		this->set_nn_links(Vector<unsigned int>(1,3));
 	}
 }
 

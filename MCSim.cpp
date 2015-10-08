@@ -27,7 +27,8 @@ void MCSim::create_S(System const* const s, unsigned int const& which_observable
 	CreateSystem cs(s);
 	cs.init(&param_,NULL);
 	if(cs.get_status()==2){
-		cs.create(which_observables);
+		cs.create();
+		cs.set_observables(which_observables);
 		if(cs.get_status()==1){
 			if(cs.use_complex()){
 				if(cs.is_bosonic()){

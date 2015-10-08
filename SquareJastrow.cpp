@@ -14,10 +14,7 @@ SquareJastrow::SquareJastrow(System const& s, Matrix<double> const& nu):
 }
 
 /*{method needed for running*/
-void SquareJastrow::create(unsigned int const& which_observables){
-	(void)(which_observables);
-	status_--; 
-}
+void SquareJastrow::create(){ status_--; }
 
 	void SquareJastrow::compute_nn(){
 		Matrix<int> nb;

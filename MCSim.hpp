@@ -29,8 +29,6 @@ class MCSim {
 		/*}*/
 
 		/*{System and MCSystem calls*/
-		/*!Calls void System::set_observable(unsigned int const& which)*/
-		void set_observables(unsigned int const& which){ MCS_->set_observables(which); }
 		/*!Calls bool System::check_conv(double const& convergence_criterion)*/
 		bool check_conv(double const& convergence_criterion){
 			return MCS_->check_conv(convergence_criterion);

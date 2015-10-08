@@ -15,8 +15,7 @@ SquareFreeHopping::SquareFreeHopping(System const& s, Vector<double> const& t):
 }
 
 /*{method needed for running*/
-void SquareFreeHopping::create(unsigned int const& which_observables){
-	(void)(which_observables);
+void SquareFreeHopping::create(){
 	compute_H();
 	diagonalize(true);
 	if(status_==1){

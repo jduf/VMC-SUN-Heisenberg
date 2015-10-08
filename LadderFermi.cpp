@@ -1,9 +1,7 @@
 #include"LadderFermi.hpp"
 
 template<>
-void LadderFermi<double>::create(unsigned int const& which_observables){
-	(void)(which_observables);
-
+void LadderFermi<double>::create(){
 	compute_H();
 	diagonalize(true);
 	if(status_==1){
@@ -18,9 +16,7 @@ void LadderFermi<double>::create(unsigned int const& which_observables){
 }
 
 template<>
-void LadderFermi<std::complex<double> >::create(unsigned int const& which_observables){
-	(void)(which_observables);
-
+void LadderFermi<std::complex<double> >::create(){
 	compute_H();
 	diagonalize(false);
 	for(unsigned int c(0);c<N_;c++){

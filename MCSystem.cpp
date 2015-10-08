@@ -71,7 +71,7 @@ void MCSystem::update(){
 
 void MCSystem::measure_new_step(){
 	E_.set_x(0.0);
-	if(!corr_types_[0].size()){/*!compute energy*/
+	if(!corr_types_.size()){/*!compute energy*/
 		for(unsigned int l(0);l<link_types_[0].row();l++){
 			for(unsigned int p0(0);p0<m_;p0++){
 				for(unsigned int p1(0);p1<m_;p1++){
@@ -85,7 +85,7 @@ void MCSystem::measure_new_step(){
 			}
 		}
 	} else {/*!compute energy and the correlation*/
-		double r;
+		double e;
 		for(unsigned int l(0);l<link_types_[0].row();l++){
 			corr_types_[0][l].set_x(0.0);
 			for(unsigned int p0(0);p0<m_;p0++){
@@ -94,9 +94,9 @@ void MCSystem::measure_new_step(){
 					/*!if the new state is forbidden, r=0 and therefore there is no
 					 * need to complete the else condition*/
 					if(!is_new_state_forbidden()){
-						r = ratio(false);
-						E_.add(J_(l)*r);
-						corr_types_[0][l].add(r);
+						e = J_(l)*ratio(false);
+						E_.add(e);
+						corr_types_[0][l].add(e);
 					}
 				}
 			}

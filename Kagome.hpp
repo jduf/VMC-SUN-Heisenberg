@@ -33,8 +33,8 @@ template<typename Type>
 Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
 	System2D<Type>(set_LxLy(this->n_),Matrix<double>(Lx,Ly),spuc,4,filename)
 {
-	std::cerr<<__PRETTY_FUNCTION__<<" : new def of compute_nn_links will be problematic"<<std::endl;
-	if(this->status_==2){ this->compute_nn_links(Vector<unsigned int>(1,2)); }
+	std::cerr<<__PRETTY_FUNCTION__<<" : new def of set_nn_links will be problematic"<<std::endl;
+	if(this->status_==2){ this->set_nn_links(Vector<unsigned int>(1,2)); }
 }
 
 template<typename Type>

@@ -8,7 +8,7 @@ class Honeycomb0pp: public Honeycomb<double>{
 		Honeycomb0pp(System const& s, double td);
 		~Honeycomb0pp() = default;
 
-		void create(unsigned int const& which_observables);
+		void create();
 		void save_param(IOFiles& w) const;
 		void check();
 

@@ -28,12 +28,10 @@ class System{
 		/*}*/
 
 		/*{Handles class attributes*/
-		/*!Sets (*this) J_ and links_ to be those of s*/
-		void set_bonds(System const* const s);
-		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
-		void set_observables(unsigned int const& which);
+		/*!Sets (*this)*/
+		void set(System const* const s);
 		/*!Sets the observables to default (0) values and initilizes binning*/
-		void set_observables();
+		void clear_measurments();
 		/*!Checks if the energy has converged to a stable value*/
 		bool check_conv(double const& convergence_criterion);
 		/*!Calls complete_analysis of the sampled datas*/
@@ -87,8 +85,8 @@ class System{
 		DataSet<double> lr_corr_;		//!< long range correlation 
 
 		unsigned int n_corr_;
-		Matrix<int>* link_types_;
-		DataSet<double>* corr_types_;
+		std::vector<Matrix<int> > link_types_;
+		std::vector<DataSet<double> > corr_types_;
 
 		Vector<unsigned int> set_ref(Parseur& P);
 };

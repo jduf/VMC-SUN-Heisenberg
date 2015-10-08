@@ -25,8 +25,7 @@ void TriangleFermi::compute_H(){
 	H_ += H_.transpose();
 }
 
-void TriangleFermi::create(unsigned int const& which_observables){
-	(void)(which_observables);
+void TriangleFermi::create(){
 	compute_H();
 	diagonalize(false);
 	for(unsigned int c(0);c<N_;c++){

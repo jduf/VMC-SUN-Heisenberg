@@ -14,7 +14,7 @@ class ChainPolymerized: public Chain<double> {
 		ChainPolymerized(System const& s, Vector<double> const& t);
 		~ChainPolymerized() = default;
 
-		void create(unsigned int const& which_observables);
+		void create();
 		void save_param(IOFiles& w) const;
 		void check();
 		
