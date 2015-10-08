@@ -34,7 +34,7 @@ int main(int argc, char* argv[]){
 				cs.init(NULL,&P);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
-					cs.create();
+					cs.create(0);
 					std::cout<<"############# Check #######################"<<std::endl;
 					cs.check();
 				}
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]){
 				cs.init(NULL,&P);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
-					cs.create();
+					cs.create(0);
 					std::cout<<"############# Create MCSystem #############"<<std::endl;
 					MCSystem* S(NULL);
 					if(cs.use_complex()){
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
 				cs.init(NULL,&P);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
-					cs.create();
+					cs.create(0);
 					std::cout<<"############# Create MCSystem #############"<<std::endl;
 					MCSystem* S(NULL);
 					if(cs.use_complex()){
@@ -161,7 +161,7 @@ int main(int argc, char* argv[]){
 				MCSim mcsim(P.get<std::vector<double> >("t"));
 				System s(P);
 				s.set_observables(1);
-				mcsim.create_S(&s);
+				mcsim.create_S(&s,0);
 				mcsim.run(1e6,2);
 				mcsim.complete_analysis(1e-5);
 

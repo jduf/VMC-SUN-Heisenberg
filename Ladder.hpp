@@ -25,6 +25,7 @@ class Ladder: public System1D<Type>{
 		virtual ~Ladder()=0;
 
 	protected:
+		void create_observables();
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Given N and m, save the best simulation in a text file for any n*/
@@ -42,25 +43,25 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 	 * this_->J_ should be computed*/
 	if(this->status_==2){
 		/*!create the links if necessary*/
-		if(!this->links_.ptr()){
+		if(!this->link_types_[0].ptr()){
 			Vector<unsigned int> l(2);
 			l(0) = 2;
 			l(1) = 1;
-			this->compute_links(l);
+			this->compute_nn_links(l);
 		}
 
 		/*!sets the bond energy if it has not been set yet*/
-		if(this->links_.row() != this->J_.size() && this->J_.size() == 2){
+		if(this->link_types_[0].row() != this->J_.size() && this->J_.size() == 2){
 			Vector<double> tmp(this->J_);
-			this->J_.set(this->links_.row());
-			for (unsigned int i=0; i<this->J_.size() ; i++){
+			this->J_.set(this->link_types_[0].row());
+			for (unsigned int i=0; i<this->J_.size();i++){
 				if (i%3==1){ this->J_(i) = tmp(1); } //rungs (J⊥) -> sin(theta)
 				else{ this->J_(i) = tmp(0); }        //legs  (J‖) -> cos(theta)
 			}
 		}
 
 		/*!fix the names for the bond energy*/
-		if(this->J_.size()==this->links_.row()){
+		if(this->J_.size()==this->link_types_[0].row()){
 			std::string tmp("theta"+my::tostring(acos(this->J_(0))));
 			this->filename_.replace(this->filename_.find("Juniform"),8,tmp);
 			this->path_.replace(this->path_.find("Juniform"),8,tmp);
@@ -69,7 +70,8 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 		}
 	} else {
 		/*!if the ladder has a spuc_ equal to one, the creation is impossible
-		 * but the construction should be silent*/
+		 * but the construction should be silent to have a nice display when
+		 * used with Analyse* */
 		if(this->spuc_!=1){
 			std::cerr<<__PRETTY_FUNCTION__<<" creation is problematic"<<std::endl;
 		}
@@ -78,6 +80,45 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 
 template<typename Type>
 Ladder<Type>::~Ladder() = default;
+
+template<typename Type>
+void Ladder<Type>::create_observables(){
+	this->E_.set(50,5,false);
+	if(this->n_corr_>0){
+		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
+	}
+	if(this->n_corr_>1){
+		/*the long range correlation*/
+		this->link_types_[1].set(this->n_,2);
+		this->corr_types_[1].set(this->n_,50,5,false);
+		for(unsigned int i(0);i<this->n_;i++){
+			this->link_types_[1](i,0) = 0;
+			this->link_types_[1](i,1) = i;
+		}
+	}
+	if(this->n_corr_==6){
+		/*the (anti)symmetric correlation*/
+		std::cout<<"yes"<<std::endl;
+		this->link_types_[2].set(this->n_/2,2);
+		this->corr_types_[2].set(this->n_/2,50,5,false);
+		this->link_types_[3].set(this->n_/2,2);
+		this->corr_types_[3].set(this->n_/2,50,5,false);
+		this->link_types_[4].set(this->n_/2,2);
+		this->corr_types_[4].set(this->n_/2,50,5,false);
+		this->link_types_[5].set(this->n_/2,2);
+		this->corr_types_[5].set(this->n_/2,50,5,false);
+		for(unsigned int i(0);i<this->n_/2;i++){
+			this->link_types_[2](i,0) = 0;
+			this->link_types_[2](i,1) = 2*i;
+			this->link_types_[3](i,0) = 0;
+			this->link_types_[3](i,1) = 2*i+1;
+			this->link_types_[4](i,0) = 1;
+			this->link_types_[4](i,1) = 2*i;
+			this->link_types_[5](i,0) = 1;
+			this->link_types_[5](i,1) = 2*i+1;
+		}
+	}
+}
 
 template<typename Type>
 Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {

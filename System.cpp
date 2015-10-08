@@ -8,9 +8,12 @@ System::System(Parseur& P):
 	m_(P.get<unsigned int>("m")),
 	n_(P.get<unsigned int>("n")),
 	bc_(P.get<int>("bc")),
-	M_(P.get<std::vector<unsigned int>>("M")),
-	J_(P.get<std::vector<double>>("Jp")),
-	status_(5)
+	M_(P.get<std::vector<unsigned int> >("M")),
+	J_(P.get<std::vector<double> >("Jp")),
+	status_(5),
+	n_corr_(P.get<unsigned int>("nops")),
+	link_types_(n_corr_?new Matrix<int>[n_corr_]:NULL),
+	corr_types_(n_corr_?new DataSet<double>[n_corr_]:NULL)
 {
 	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : Bad initialization"<<std::endl; } 
 	else{ status_--; }
@@ -32,9 +35,34 @@ System::System(IOFiles& r):
 	corr_(r),
 	lr_corr_(r)
 {
+	//for(unsigned int i(0);i<n_corr_;i++){
+		//link_types_[i] = r.read<Matrix<int> >();
+		//corr_types_[i] = r.read<DataSet<double> >();
+	//}
+}
+
+System::System(System const& s):
+	ref_(s.ref_),
+	N_(s.N_), 
+	m_(s.m_),
+	n_(s.n_),
+	bc_(s.bc_),
+	M_(s.M_),
+	J_(s.J_),
+	status_(s.status_),
+	links_(s.links_),
+	E_(s.E_),
+	corr_(s.corr_),
+	lr_corr_(s.lr_corr_),
+	n_corr_(s.n_corr_),
+	link_types_(s.n_corr_?new Matrix<int>[n_corr_]:NULL),
+	corr_types_(s.n_corr_?new DataSet<double>[n_corr_]:NULL)
+{
 	for(unsigned int i(0);i<n_corr_;i++){
-		corr_links_[i] = r.read<Matrix<int> >();
-		corr_tpyes_[i] = r.read<DataSet<double> >();
+		link_types_[i] = s.link_types_[i];
+		corr_types_[i] = s.corr_types_[i]; 
+		/*I don't want to copy the values of s.corr_types because for a new
+		 *simulation, I want to use a new binning*/
 	}
 }
 /*}*/
@@ -116,12 +144,9 @@ void System::save_output(IOFiles& w) const {
 	w.write("energy per site",E_);
 	//w.write("correlation on links",corr_);
 	//w.write("long range correlation",lr_corr_);
-	
-	w.write("number of types of correlations",n_corr_);
-	rst.set();
-	rst.text("writes the correlation links and values");
-	w.add_header()->add(rst.get());
-	for(unsigned int i(0);i<n_corr_;i++){ w<<corr_links_[i]<<corr_types_[i]; }
+
+	w.write("number of types of correlations (saved as well)",n_corr_);
+	for(unsigned int i(0);i<n_corr_;i++){ w<<link_types_[i]<<corr_types_[i]; }
 }
 /*}*/
 

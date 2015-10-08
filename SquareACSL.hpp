@@ -8,7 +8,7 @@ class SquareACSL: public Square<std::complex<double> >{
 		SquareACSL(System const& s, Vector<double> const& t);
 		~SquareACSL() = default;
 
-		void create();
+		void create(unsigned int const& which_observables);
 		void check();
 
 	protected:

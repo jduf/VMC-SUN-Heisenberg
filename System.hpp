@@ -67,7 +67,7 @@ class System{
 
 	protected:
 		/*!Copy constructor*/
-		System(System const& s) = default;
+		System(System const& s);
 		/*!Default constructor*/
 		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),status_(5){ std::cout<<__PRETTY_FUNCTION__<<" : should never be called"<<std::endl; }
 
@@ -87,7 +87,7 @@ class System{
 		DataSet<double> lr_corr_;		//!< long range correlation 
 
 		unsigned int n_corr_;
-		Matrix<int>* corr_links_;
+		Matrix<int>* link_types_;
 		DataSet<double>* corr_types_;
 
 		Vector<unsigned int> set_ref(Parseur& P);

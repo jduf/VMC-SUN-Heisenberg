@@ -32,32 +32,34 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 	System2D<Type>(set_geometry(this->n_),set_ab(spuc,length,tilting),spuc,4,filename)
 {
 	if(this->status_==2){
-		Vector<double> dir(2);
-		dir(0) = 1.0;
-		dir(1) = 0.0;
-		this->set_pos_LxLy(dir);
-		this->dir_nn_LxLy_(0,0) = dir(0);
-		this->dir_nn_LxLy_(0,1) = dir(1);
+		if(!this->links_.ptr()){ 
+			Vector<double> dir(2);
+			dir(0) = 1.0;
+			dir(1) = 0.0;
+			this->set_pos_LxLy(dir);
+			this->dir_nn_LxLy_(0,0) = dir(0);
+			this->dir_nn_LxLy_(0,1) = dir(1);
 
-		dir(0) = 0.0;
-		dir(1) = 1.0;
-		this->set_pos_LxLy(dir);
-		this->dir_nn_LxLy_(1,0) = dir(0);
-		this->dir_nn_LxLy_(1,1) = dir(1);
+			dir(0) = 0.0;
+			dir(1) = 1.0;
+			this->set_pos_LxLy(dir);
+			this->dir_nn_LxLy_(1,0) = dir(0);
+			this->dir_nn_LxLy_(1,1) = dir(1);
 
-		dir(0) = -1.0;
-		dir(1) = 0.0;
-		this->set_pos_LxLy(dir);
-		this->dir_nn_LxLy_(2,0) = dir(0);
-		this->dir_nn_LxLy_(2,1) = dir(1);
+			dir(0) = -1.0;
+			dir(1) = 0.0;
+			this->set_pos_LxLy(dir);
+			this->dir_nn_LxLy_(2,0) = dir(0);
+			this->dir_nn_LxLy_(2,1) = dir(1);
 
-		dir(0) = 0.0;
-		dir(1) = -1.0;
-		this->set_pos_LxLy(dir);
-		this->dir_nn_LxLy_(3,0) = dir(0);
-		this->dir_nn_LxLy_(3,1) = dir(1);
+			dir(0) = 0.0;
+			dir(1) = -1.0;
+			this->set_pos_LxLy(dir);
+			this->dir_nn_LxLy_(3,0) = dir(0);
+			this->dir_nn_LxLy_(3,1) = dir(1);
 
-		if(!this->links_.ptr()){ this->compute_links(Vector<unsigned int>(1,2)); }
+			this->compute_nn_links(Vector<unsigned int>(1,2)); 
+		}
 
 		/*!sets the bond energy if it has not been set yet*/
 		if(this->links_.row() != this->J_.size() && this->J_.size() == 1){

@@ -8,7 +8,7 @@ class SquareFreeHopping: public Square<double>{
 		SquareFreeHopping(System const& s, Vector<double> const& t);
 		~SquareFreeHopping() = default;
 
-		void create();
+		void create(unsigned int const& which_observables);
 		void check();
 
 	protected:

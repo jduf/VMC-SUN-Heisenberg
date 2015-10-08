@@ -8,7 +8,7 @@ class KagomeVBC: public Kagome<std::complex<double> >{
 		KagomeVBC(System const& s);
 		~KagomeVBC() = default;
 
-		void create();
+		void create(unsigned int const& which_observables);
 		void check();
 
 	protected:

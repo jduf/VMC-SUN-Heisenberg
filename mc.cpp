@@ -17,11 +17,11 @@ int main(int argc, char* argv[]){
 	CreateSystem cs(&sys);
 	cs.init(NULL,&P);
 	if(!P.locked()){
+		cs.create_observables();
 		if(cs.get_status()==2){
-			cs.create();
+			cs.create(0);
 			if(cs.get_status()==1){
 				sys.set_bonds(cs.get_GS());
-				sys.set_observables(2);
 #pragma omp parallel for
 				for(unsigned int j=0;j<nruns;j++){
 					MCSystem* mcsys(NULL);
@@ -38,7 +38,6 @@ int main(int argc, char* argv[]){
 							mcsys = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS()));
 						}
 					}
-					mcsys->set_observables(2);
 
 					MonteCarlo sim(mcsys,tmax);
 					sim.thermalize(1e6);

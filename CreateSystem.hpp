@@ -41,7 +41,7 @@ class CreateSystem{
 
 		/*{Core methods*/
 		void init(Vector<double> const* const param, Container* C);
-		void create(bool const& try_solve_degeneracy=false);
+		void create(unsigned int const& which_observables, bool const& try_solve_degeneracy=false);
 		/*}*/
 
 		/*{IOSystem calls*/
@@ -81,7 +81,7 @@ class CreateSystem{
 			if(RGL_){ return RGL_->check(); }
 			if(CGL_){ return CGL_->check(); }
 		}
-		/*!Calls GenericSystem::create() pure virtual method*/
+		/*!Calls GenericSystem::get_wf_symmetries(std::vector<Matrix<int> >& sym) pure virtual method*/
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 			if(RGL_){ RGL_->get_wf_symmetries(sym); }
 			if(CGL_){ CGL_->get_wf_symmetries(sym); }

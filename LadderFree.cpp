@@ -47,9 +47,10 @@ void LadderFree::compute_H(){
 	H_ += H_.transpose();
 }
 
-void LadderFree::create(){
+void LadderFree::create(unsigned int const& which_observables){
 	compute_H();
 	diagonalize(true);
+	(void)(which_observables);
 
 	if(status_==1){
 		for(unsigned int c(0);c<N_;c++){
@@ -895,7 +896,7 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	double x_shift(spuc_/2+1);
+	double x_shift(spuc_/2+2);
 	double y_shift(2);
 
 	PSTricks ps(path,filename);
@@ -904,9 +905,9 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 	double corr;
 	unsigned int s0;
 	unsigned int s1;
-	for(unsigned int i(0);links_(i,1)<spuc_+2;i++){
-		s0 = links_(i,0);
-		s1 = links_(i,1);
+	for(unsigned int i(0);i<spuc_+2;i++){
+		s0 = link_types_[0](i,0);
+		s1 = link_types_[0](i,1);
 		xy0(0) = s0/2;
 		xy0(1) = s0%2;
 		xy1(0) = s1/2;
@@ -931,8 +932,8 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 			}
 		}
 
-		if(i<corr_.size()){
-			corr = corr_[i].get_x();
+		if(i<corr_types_[0].size()){
+			corr = corr_types_[0][i].get_x();
 			if(std::abs(corr)>1e-4){
 				if(corr<0){ color = "red"; }
 				else { color = "blue"; }
@@ -951,22 +952,23 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 			ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}"); 
 		}
 	}
-	double lr_corr;
-	double rescale(lr_corr_.size()?0.75/lr_corr_[0].get_x():0);
-	for(unsigned int i(0);i<lr_corr_.size();i++){
-		lr_corr = lr_corr_[i].get_x()*rescale;
-		if(std::abs(lr_corr)>1e-4){
-			xy0(0) = i/2;
-			xy0(1) = i%2-y_shift;
-			xy1(0) = i/2;
-			xy1(1) = i%2-y_shift;
+	double rescale(corr_types_[1].size()?0.75/corr_types_[1][0].get_x():0);
+	for(unsigned int i(0);i<corr_types_[0].size();i++){
+		corr = corr_types_[1][i].get_x()*rescale;
+		if(std::abs(corr)>1e-4){
+			s0 = link_types_[1](i,0);
+			s1 = link_types_[1](i,1);
+			xy0(0) = s0/2;
+			xy0(1) = s0%2-y_shift;
+			xy1(0) = s1&2;
+			xy1(1) = s1%2-y_shift;
 
 			if(i){
-				if(lr_corr<0){ color = "red"; }
+				if(corr<0){ color = "red"; }
 				else { color = "blue"; }
 			} else { color = "black"; }
 
-			ps.circle(xy0,std::abs(lr_corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			ps.circle(xy0,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 		}
 	}
 

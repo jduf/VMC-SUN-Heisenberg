@@ -1,7 +1,8 @@
 #include "SquareFermi.hpp"
 
 template<>
-void SquareFermi<double>::create(){
+void SquareFermi<double>::create(unsigned int const& which_observables){
+	(void)(which_observables);
 	compute_H();
 	diagonalize(true);
 	if(status_==1){
@@ -16,7 +17,8 @@ void SquareFermi<double>::create(){
 }
 
 template<>
-void SquareFermi<std::complex<double> >::create(){
+void SquareFermi<std::complex<double> >::create(unsigned int const& which_observables){
+	(void)(which_observables);
 	std::cout<<"complex"<<std::endl;
 	compute_H();
 	diagonalize(false);

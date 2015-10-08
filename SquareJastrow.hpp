@@ -8,7 +8,7 @@ class SquareJastrow: public Square<double>{
 		SquareJastrow(System const& s, Matrix<double> const& nu);
 		~SquareJastrow() = default;
 
-		void create();
+		void create(unsigned int const& which_observables);
 		void check();
 		void save_input(IOFiles& w) const;
 
@@ -21,4 +21,3 @@ class SquareJastrow: public Square<double>{
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 };
 #endif
-

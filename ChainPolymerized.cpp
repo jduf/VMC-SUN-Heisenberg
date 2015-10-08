@@ -41,7 +41,7 @@ void ChainPolymerized::compute_H(){
 	H_ += H_.transpose();
 }
 
-void ChainPolymerized::create(){
+void ChainPolymerized::create(unsigned int const& which_observables){
 	compute_H();
 	diagonalize(true);
 	if(status_==1){

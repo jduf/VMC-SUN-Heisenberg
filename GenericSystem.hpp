@@ -28,7 +28,8 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*}*/
 
 		virtual void save_param(IOFiles& w) const;
-		virtual void create() = 0;
+		virtual void create(unsigned int const& which_observables) = 0;
+		virtual void create_observables(){ std::cout<<"should be pure virtual"<<std::endl ;}
 		virtual void check() = 0;
 		virtual void lattice(std::string const& path, std::string const& filename) = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
@@ -42,7 +43,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*!Returns the neighbours of site i. 
 		 *
 		 * This pure virtual method must be defined here because it is needed
-		 * by GenericSystem<Type>::compute_links()
+		 * by GenericSystem<Type>::compute_nn_links()
 		 */
 		/*}*/
 		virtual Matrix<int> get_neighbourg(unsigned int const& i) const = 0;
@@ -51,7 +52,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		 * The argument l gives the number of links that need to be computed
 		 * for the site i%l.size()*/
 		/*}*/
-		void compute_links(Vector<unsigned int> const& l);
+		void compute_nn_links(Vector<unsigned int> const& l);
 		void check_lattice();
 
 	private:
@@ -82,7 +83,7 @@ void GenericSystem<Type>::save_param(IOFiles& w) const {
 }
 
 template<typename Type>
-void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
+void GenericSystem<Type>::compute_nn_links(Vector<unsigned int> const& l){
 	if(2*l.sum()==l.size()*z_){
 		unsigned int k(0);
 		Matrix<int> nb;
@@ -92,21 +93,19 @@ void GenericSystem<Type>::compute_links(Vector<unsigned int> const& l){
 				if(nb(j,1)!=0){ k++; }
 			}
 		}
-		this->links_.set(k,2);
+		this->link_types_[0].set(k,2);
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
 			nb = get_neighbourg(i);
 			for(unsigned int j(0);j<l(i%l.size());j++){
 				if(nb(j,1)!=0){
-					this->links_(k,0) = i;
-					this->links_(k,1) = nb(j,0);
+					this->link_types_[0](k,0) = i;
+					this->link_types_[0](k,1) = nb(j,0);
 					k++;
 				}
 			}
 		}
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link";
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link"; }
 	if(this->bc_==0){
 		std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl;
 	}

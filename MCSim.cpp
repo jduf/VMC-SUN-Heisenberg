@@ -23,13 +23,13 @@ MCSim::MCSim(IOFiles& r):
 
 /*core methods*/
 /*{*/
-void MCSim::create_S(System const* const s){
+void MCSim::create_S(System const* const s, unsigned int const& which_observables){
 	CreateSystem cs(s);
 	cs.init(&param_,NULL);
 	if(cs.get_status()==2){
-		cs.create();
+		cs.create(which_observables);
 		if(cs.get_status()==1){
-			if( cs.use_complex()){
+			if(cs.use_complex()){
 				if(cs.is_bosonic()){
 					MCS_.reset(new SystemBosonic<std::complex<double> >(*dynamic_cast<const Bosonic<std::complex<double> >*>(cs.get_GS())));
 				} else {

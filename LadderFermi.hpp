@@ -16,7 +16,7 @@ class LadderFermi: public Ladder<Type>{
 		LadderFermi(System const& s);
 		~LadderFermi(){}
 
-		void create();
+		void create(unsigned int const& which_observables);
 		void check();
 
 	private:

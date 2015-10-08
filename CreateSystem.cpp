@@ -36,17 +36,17 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C)    { t = C->get<std::vector<double> >("t"); }
 										if(t.ptr()){ RGL_ = new ChainPolymerized(*s_,t); }
 									}break;
-								default:{error();}break;
+								default:{ error(); }break;
 							}
 						}break;
 					case 2:
 						{
 							switch(ref_(2)){
 								case 0: { CGL_ = new ChainFermi<std::complex<double> >(*s_); }break;
-								default:{error();}break;
+								default:{ error(); }break;
 							}
 						}break;
-					default:{error();}break;
+					default:{ error(); }break;
 				}
 			}break;
 		case 2:	
@@ -64,17 +64,17 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C)    { t = C->get<std::vector<double> >("t"); }
 										RGL_ = new LadderFree(*s_,t);
 									}break;
-								default:{error();}break;
+								default:{ error(); }break;
 							}
 						}break;
 					case 2:
 						{
 							switch(ref_(2)){
 								case 0: { CGL_ = new LadderFermi<std::complex<double> >(*s_); }break;
-								default:{error();}break;
+								default:{ error(); }break;
 							}
 						}break;
-					default:{error();}break;
+					default:{ error(); }break;
 				}
 			}break;
 		case 3:
@@ -84,10 +84,10 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 0: { RGL_ = new TriangleFermi(*s_); }break;
-								default:{error();}break;
+								default:{ error(); }break;
 							}
 						}break;
-					default:{error();}break;
+					default:{ error(); }break;
 				}
 			}break;
 		case 4:
@@ -119,7 +119,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C){ t=C->get<std::vector<double> >("phi"); }
 										RGL_ = new SquareFreeHopping(*s_,t);
 									}break;
-								default:{error();}break;
+								default:{ error(); }break;
 							}
 						}break;
 					case 2:
@@ -141,10 +141,10 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C){ phi=C->get<std::vector<double> >("phi"); }
 										CGL_ = new SquareFreeFlux(*s_,phi);
 									}break;
-								default:{error();}break;
+								default:{ error(); }break;
 							}
 						}break;
-					default:{error();}break;
+					default:{ error(); }break;
 				}
 			}break;
 		case 5:
@@ -154,7 +154,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 1: { RGL_ = new KagomeDirac<double>(*s_); }break;
-								default:{error();}break;
+								default:{ error(); }break;
 							}
 						} break;
 					case 2:
@@ -162,10 +162,10 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 							switch(ref_(2)){
 								case 1: {CGL_ = new KagomeDirac<std::complex<double> >(*s_); }break;
 								case 2: {CGL_ = new KagomeVBC(*s_); }break;
-								default:{error();}break;
+								default:{ error(); }break;
 							}
 						}break;
-					default:{error();}break;
+					default:{ error(); }break;
 				}
 			}break;
 		case 6:
@@ -182,31 +182,31 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(param || C){ RGL_ = new Honeycomb0pp(*s_,t); }
 									}break;
 									////case 1:{return HoneycombSU4(N,n,m);}break;
-								default:{error();}break;
+								default:{ error(); }break;
 							}
 						}break;
-					default:{error();}break;
+					default:{ error(); }break;
 				}
 			}break;
-		default:{error();}break;
+		default:{ error(); }break;
 	}
 }
 
-void CreateSystem::create(bool const& try_solve_degeneracy){
+void CreateSystem::create(unsigned int const& which_observables, bool const& try_solve_degeneracy){
 	if(RGL_){
-		RGL_->create();
+		RGL_->create(which_observables);
 		if(RGL_->get_status()!=1){
 			if(try_solve_degeneracy){
 				ref_(1)=2;
 				init(NULL,C_);
 				std::cerr<<__PRETTY_FUNCTION__<<" : need to check if this works"<<std::endl;
-				if(CGL_){ CGL_->create(); }
+				if(CGL_){ CGL_->create(which_observables); }
 			} else {
 				std::cerr<<__PRETTY_FUNCTION__<<" : giving up"<<std::endl;
 			}
 		}
 	} else {
-		if(CGL_){ CGL_->create(); }
+		if(CGL_){ CGL_->create(which_observables); }
 		if(CGL_ && get_status()!=1){
 			std::cerr<<__PRETTY_FUNCTION__<<" : behaviour undefined"<<std::endl;
 		}

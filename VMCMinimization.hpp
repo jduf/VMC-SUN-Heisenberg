@@ -63,7 +63,7 @@ class VMCMinimization{
 				System* s_             = NULL;
 				unsigned int dof_ 	   = 0;
 				Vector<double>* ps_    = NULL;//!< parameter space
-				double ps_size_        = 0;   //!< parameter space size
+				double ps_size_        = 0.0; //!< parameter space size
 				double effective_time_ = 0.0;
 				unsigned int tmax_     = 0;
 		};

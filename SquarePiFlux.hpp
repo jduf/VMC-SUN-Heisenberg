@@ -8,7 +8,7 @@ class SquarePiFlux: public Square<std::complex<double> >{
 		SquarePiFlux(System const& s);
 		~SquarePiFlux() = default;
 
-		void create();
+		void create(unsigned int const& which_observables);
 		void check();
 
 	protected:

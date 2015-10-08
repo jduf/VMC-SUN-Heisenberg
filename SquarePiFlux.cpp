@@ -40,7 +40,8 @@ void SquarePiFlux::compute_H(){
 	H_ += H_.trans_conj();
 }
 
-void SquarePiFlux::create(){
+void SquarePiFlux::create(unsigned int const& which_observables){
+	(void)(which_observables);
 	compute_H();
 	diagonalize(true);
 	for(unsigned int c(0);c<N_;c++){

@@ -57,7 +57,8 @@ void SquareFreeFlux::compute_H(){
 	H_ += H_.trans_conj();
 }
 
-void SquareFreeFlux::create(){
+void SquareFreeFlux::create(unsigned int const& which_observables){
+	(void)(which_observables);
 	compute_H();
 	diagonalize(true);
 	if(status_==1){

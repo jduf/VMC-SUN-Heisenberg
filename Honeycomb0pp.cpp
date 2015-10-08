@@ -49,7 +49,8 @@ void Honeycomb0pp::compute_H(){
 	H_ += H_.transpose();
 }
 
-void Honeycomb0pp::create(){
+void Honeycomb0pp::create(unsigned int const& which_observables){
+	(void)(which_observables);
 	compute_H();
 	diagonalize(true);
 	for(unsigned int c(0);c<N_;c++){

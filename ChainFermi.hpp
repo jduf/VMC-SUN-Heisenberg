@@ -16,7 +16,7 @@ class ChainFermi: public Chain<Type>{
 		ChainFermi(System const& s);
 		~ChainFermi() = default;
 
-		void create();
+		void create(unsigned int const& which_observables);
 		void check();
 
 	private:

@@ -9,7 +9,7 @@ class KagomeDirac: public Kagome<Type>{
 		KagomeDirac(System const& s);
 		~KagomeDirac() = default;
 
-		void create();
+		void create(unsigned int const& which_observables);
 		void check();
 
 	protected:

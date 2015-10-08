@@ -9,7 +9,7 @@ class SquareFermi: public Square<Type>{
 		SquareFermi(System const& s);
 		~SquareFermi() = default;
 
-		void create();
+		void create(unsigned int const& which_observables);
 		void check();
 
 	protected:

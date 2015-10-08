@@ -21,7 +21,7 @@ class MCSim {
 
 		/*{Core methods*/
 		/*!Sets MCS_ to a new MCSystem created via C*/
-		void create_S(System const* const s);
+		void create_S(System const* const s, unsigned int const& which_observables);
 		/*!Sets MCS_ to a copy obtained via MCSystem::clone() run on MCS*/
 		void copy_S(std::unique_ptr<MCSystem> const& MCS);
 		/*!Creates MonteCarlo, then run on MCS_*/

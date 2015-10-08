@@ -8,7 +8,7 @@ class LadderFree: public Ladder<double>{
 		LadderFree(System const&s, Vector<double> const& t);
 		~LadderFree() = default;
 
-		void create();
+		void create(unsigned int const& which_observables);
 		void save_param(IOFiles& w) const;
 		void check();
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const;

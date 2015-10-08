@@ -272,7 +272,7 @@ void VMCMinimization::print() const {
 /*}*/
 
 /*{protected methods*/
-std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, unsigned int const& which){
+std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, unsigned int const& which_observables){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 	bool tmp_test;
 #pragma omp critical(samples_list_)
@@ -282,12 +282,11 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, un
 			sim->copy_S(m_->samples_list_.get().get_MCS());
 		} else {
 			tmp_test = false;
-			sim->create_S(m_->s_);
+			sim->create_S(m_->s_,which_observables);
 		}
 		m_->samples_list_.set_target();
 	}
 	if(sim->is_created()){
-		sim->set_observables(which);
 		sim->run(tmp_test?10:1e6,m_->tmax_);
 #pragma omp critical(samples_list_)
 		{
@@ -339,9 +338,9 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 }
 
 void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::string& basename){
-	s_ = new System(P);
-	dof_ = P.get<unsigned int>("dof");
-	ps_= new Vector<double>[dof_];
+	s_  = new System(P);
+	dof_= P.get<unsigned int>("dof");
+	ps_ = new Vector<double>[dof_];
 
 	/*!the next block is required to configure J correctly so that path and
 	 * filename are correct*/
