@@ -17,11 +17,13 @@ class Square: public System2D<Type>{
 		virtual ~Square()=0;
 
 	protected:
+		void set_observables(unsigned int const& which);
+		/*!Returns the neighbours of site i*/
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
 	private:
-		Matrix<double> set_geometry(unsigned int const& n) const;
 		Matrix<double> set_ab(unsigned int const& spuc, unsigned int const& length, unsigned int const& tilting) const;
+		Matrix<double> set_geometry(unsigned int const& n) const;
 		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
 };
@@ -32,7 +34,7 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 	System2D<Type>(set_geometry(this->n_),set_ab(spuc,length,tilting),spuc,4,filename)
 {
 	if(this->status_==2){
-		if(!this->links_.ptr()){ 
+		if(!this->link_types_[0].ptr()){ 
 			Vector<double> dir(2);
 			dir(0) = 1.0;
 			dir(1) = 0.0;
@@ -62,8 +64,8 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 		}
 
 		/*!sets the bond energy if it has not been set yet*/
-		if(this->links_.row() != this->J_.size() && this->J_.size() == 1){
-			this->J_.set(this->links_.row(),1);
+		if(this->link_types_[0].row() != this->J_.size() && this->J_.size() == 1){
+			this->J_.set(this->link_types_[0].row(),1);
 		}
 	}
 }
@@ -74,6 +76,24 @@ Square<Type>::~Square() = default;
 
 /*{protected methods*/
 template<typename Type>
+void Square<Type>::set_observables(unsigned int const& which){
+	this->E_.set(50,5,false);
+	this->corr_types_.resize(which);
+
+	if(which>0){
+		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
+	}
+	if(which>1){ /*the long range correlation*/
+		this->corr_types_[1].set(this->n_,50,5,false);
+		this->link_types_.push_back(Matrix<int>(this->n_,2));
+		for(unsigned int i(0);i<this->n_;i++){
+			this->link_types_[1](i,0) = 0;
+			this->link_types_[1](i,1) = i;
+		}
+	}
+}
+
+template<typename Type>
 Vector<double> Square<Type>::get_pos_in_lattice(unsigned int const& i) const {
 	Vector<double> tmp(2);
 	tmp(0) = i;
@@ -83,6 +103,23 @@ Vector<double> Square<Type>::get_pos_in_lattice(unsigned int const& i) const {
 /*}*/
 
 /*{private methods*/
+template<typename Type>
+Matrix<double> Square<Type>::set_ab(unsigned int const& spuc, unsigned int const& length, unsigned int const& tilting) const {
+	if(!length){
+		return set_geometry(spuc); 
+	} else if(!(spuc%length)){
+		Matrix<double> tmp(2,2);
+		tmp(0,0) = length;
+		tmp(1,0) = 0;
+		tmp(0,1) = tilting;
+		tmp(1,1) = spuc/length;
+		return tmp;
+	} else {
+		std::cerr<<__PRETTY_FUNCTION__<<" : unkown unit cell geometry"<<std::endl; 
+		return Matrix<double>();
+	}
+}
+
 template<typename Type>
 Matrix<double> Square<Type>::set_geometry(unsigned int const& n) const {
 	Matrix<double> tmp;
@@ -99,23 +136,6 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n) const {
 		}
 	}
 	return tmp;
-}
-
-template<typename Type>
-Matrix<double> Square<Type>::set_ab(unsigned int const& spuc, unsigned int const& length, unsigned int const& tilting) const {
-	if(!length){
-		return set_geometry(spuc); 
-	} else if(!(spuc%length)){
-		Matrix<double> tmp(2,2);
-		tmp(0,0) = length;
-		tmp(1,0) = 0;
-		tmp(0,1) = tilting;
-		tmp(1,1) = spuc/length;
-		return tmp;
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : unkown unit cell geometry"<<std::endl; 
-		return Matrix<double>();
-	}
 }
 
 template<typename Type>

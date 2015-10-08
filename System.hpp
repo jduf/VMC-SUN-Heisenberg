@@ -65,7 +65,7 @@ class System{
 
 	protected:
 		/*!Copy constructor*/
-		System(System const& s);
+		System(System const& s) = default;
 		/*!Default constructor*/
 		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),status_(5){ std::cout<<__PRETTY_FUNCTION__<<" : should never be called"<<std::endl; }
 
@@ -78,13 +78,8 @@ class System{
 		Vector<double> J_;				//!< bond energy
 
 		unsigned int status_;			//!< status of the simulation
-		Matrix<unsigned int> links_;	//!< bond <i,j>
 
 		Data<double> E_; 				//!< energy of the system
-		DataSet<double> corr_;			//!< correlation between neighbours
-		DataSet<double> lr_corr_;		//!< long range correlation 
-
-		unsigned int n_corr_;
 		std::vector<Matrix<int> > link_types_;
 		std::vector<DataSet<double> > corr_types_;
 

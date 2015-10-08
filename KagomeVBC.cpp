@@ -353,7 +353,7 @@ std::string KagomeVBC::extract_level_7(){
 	(*read_)>>nruns>>tmax;
 	/* the +1 is the averages over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){ 
-		(*read_)>>E_>>corr_>>lr_corr_;
+		(*read_)>>E_>>corr_types_[0]>>corr_types_[1];
 	}
 	jd_write_->write("energy per site",E_);
 

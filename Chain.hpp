@@ -51,6 +51,7 @@ class Chain: public System1D<Type>{
 		Vector<double> compute_J(Vector<double> const& Jp);
 
 	protected:
+		void set_observables(unsigned int const& which);
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Given N and m, save the best simulation in a text file for any n*/
@@ -75,14 +76,32 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 		this->set_nn_links(Vector<unsigned int>(1,1)); 
 		if(this->J_.ptr()){ 
 			Vector<double> tmp(this->J_);
-			this->J_.set(this->links_.row());
+			this->J_.set(this->link_types_[0].row());
 			for(unsigned int i(0);i<this->J_.size();i++){ this->J_(i) = tmp(i%tmp.size()); }
-		} else { this->J_.set(this->links_.row(),1); }
+		} else { this->J_.set(this->link_types_[0].row(),1); }
 	}
 }
 
 template<typename Type>
 Chain<Type>::~Chain() = default;
+
+template<typename Type>
+void Chain<Type>::set_observables(unsigned int const& which){
+	this->E_.set(50,5,false);
+	this->corr_types_.resize(which);
+
+	if(which>0){
+		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
+	}
+	if(which>1){ /*the long range correlation*/
+		this->corr_types_[1].set(this->n_,50,5,false);
+		this->link_types_.push_back(Matrix<int>(this->n_,2));
+		for(unsigned int i(0);i<this->n_;i++){
+			this->link_types_[1](i,0) = 0;
+			this->link_types_[1](i,1) = i;
+		}
+	}
+}
 
 template<typename Type>
 Matrix<int> Chain<Type>::get_neighbourg(unsigned int const& i) const {

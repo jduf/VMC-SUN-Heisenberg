@@ -106,7 +106,7 @@ void MCSystem::measure_new_step(){
 
 	/*!compute the long range correlation*/
 	double diag_term(1.0*m_*m_/N_);
-	for(unsigned int i(1);i<n_corr_;i++){
+	for(unsigned int i(1);i<corr_types_.size();i++){
 		for(unsigned int l(0);l<corr_types_[i].size();l++){
 			corr_types_[i][l].set_x(-diag_term);
 			for(unsigned int p0(0);p0<m_;p0++){
@@ -121,7 +121,7 @@ void MCSystem::measure_new_step(){
 
 void MCSystem::add_sample(){
 	E_.add_sample();
-	for(unsigned int i(0);i<n_corr_;i++){
+	for(unsigned int i(0);i<corr_types_.size();i++){
 		corr_types_[i].add_sample();
 	}
 }

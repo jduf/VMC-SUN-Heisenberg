@@ -71,19 +71,19 @@ std::string ChainFermi<Type>::extract_level_8(){
 	IOFiles corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-corr.dat",true);
 	IOFiles lr_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.dat",true);
 
-	Vector<double> lr_corr_v(this->links_.row());
+	Vector<double> lr_corr(this->link_types_[0].row());
 
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
-	(*this->read_)>>this->E_>>this->corr_>>this->lr_corr_;
+	(*this->read_)>>this->E_>>this->corr_types_[0]>>this->corr_types_[1];
 	(*this->data_write_)<<this->E_<<IOFiles::endl;
-	for(unsigned int i(0);i<this->corr_.size();i++){
-		corr_file<<i+0.5<<" "<<this->corr_[i]<<IOFiles::endl;
+	for(unsigned int i(0);i<this->corr_types_[0].size();i++){
+		corr_file<<i+0.5<<" "<<this->corr_types_[0][i]<<IOFiles::endl;
 	}
-	for(unsigned int i(0);i<this->lr_corr_.size();i++){
-		lr_corr_file<<i<<" "<<this->lr_corr_[i]<<IOFiles::endl;
-		lr_corr_v(i) = this->lr_corr_[i].get_x();
+	for(unsigned int i(0);i<this->corr_types_[1].size();i++){
+		lr_corr_file<<i<<" "<<this->corr_types_[1][i]<<IOFiles::endl;
+		lr_corr(i) = this->corr_types_[1][i].get_x();
 	}
 	/*}*/
 	/*!nearest neighbourg correlations*/
@@ -102,7 +102,7 @@ std::string ChainFermi<Type>::extract_level_8(){
 	unsigned int xi;
 	unsigned int xf;
 	Vector<double> exponents;
-	bool fit(this->compute_critical_exponents(lr_corr_v,xi,xf,exponents));
+	bool fit(this->compute_critical_exponents(lr_corr,xi,xf,exponents));
 
 	Gnuplot gplr(this->analyse_+this->path_+this->dir_,this->filename_+"-long-range-corr");
 	gplr.range("x",this->N_/this->m_,this->n_-this->N_/this->m_);
@@ -129,14 +129,14 @@ std::string ChainFermi<Type>::extract_level_8(){
 	/*}*/
 	/*!structure factor*/
 	/*{*/
-	unsigned int llr(this->lr_corr_.size());
+	unsigned int llr(this->corr_types_[1].size());
 	Vector<std::complex<double> > Ck(llr,0.0);
 	std::complex<double> normalize(0.0);
 	double dk(2.0*M_PI/llr);
 
 	for(unsigned int k(0);k<llr;k++){
 		for(unsigned int i(0);i<llr;i++){
-			Ck(k) += std::polar(lr_corr_v(i),dk*k*i);
+			Ck(k) += std::polar(lr_corr(i),dk*k*i);
 		}
 		normalize += Ck(k); 
 	}

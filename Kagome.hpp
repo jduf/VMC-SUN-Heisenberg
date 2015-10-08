@@ -17,21 +17,19 @@ class Kagome: public System2D<Type>{
 		virtual ~Kagome()=0;
 
 	protected:
-		Matrix<double> set_LxLy(unsigned int const& n) const;
+		void set_observables(unsigned int const& which);
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const { return Vector<double>(i); }
 		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0; }
 
-		/*!Returns the neighbours of site i*/
-		//Matrix<int> get_neighbourg(unsigned int i) const;
-
 	private:
+		Matrix<double> set_geometry(unsigned int const& n) const;
 		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const { return Vector<double>(i,dir); }
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const { (void)(tn); (void)(j); }
 };
 
 template<typename Type>
 Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_LxLy(this->n_),Matrix<double>(Lx,Ly),spuc,4,filename)
+	System2D<Type>(set_geometry(this->n_),Matrix<double>(Lx,Ly),spuc,4,filename)
 {
 	std::cerr<<__PRETTY_FUNCTION__<<" : new def of set_nn_links will be problematic"<<std::endl;
 	if(this->status_==2){ this->set_nn_links(Vector<unsigned int>(1,2)); }
@@ -39,6 +37,45 @@ Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned in
 
 template<typename Type>
 Kagome<Type>::~Kagome() = default;
+
+template<typename Type>
+void Kagome<Type>::set_observables(unsigned int const& which){
+	this->E_.set(50,5,false);
+	this->corr_types_.resize(which);
+
+	if(which>0){
+		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
+	}
+	if(which>1){ /*the long range correlation*/
+		this->corr_types_[1].set(this->n_,50,5,false);
+		this->link_types_.push_back(Matrix<int>(this->n_,2));
+		for(unsigned int i(0);i<this->n_;i++){
+			this->link_types_[1](i,0) = 0;
+			this->link_types_[1](i,1) = i;
+		}
+	}
+	if(which==6){ /*the (anti)symmetric correlation*/
+		this->corr_types_[2].set(this->n_/2,50,5,false);
+		this->corr_types_[3].set(this->n_/2,50,5,false);
+		this->corr_types_[4].set(this->n_/2,50,5,false);
+		this->corr_types_[5].set(this->n_/2,50,5,false);
+
+		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
+		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
+		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
+		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
+		for(unsigned int i(0);i<this->n_/2;i++){
+			this->link_types_[2](i,0) = 0;
+			this->link_types_[2](i,1) = 2*i;
+			this->link_types_[3](i,0) = 0;
+			this->link_types_[3](i,1) = 2*i+1;
+			this->link_types_[4](i,0) = 1;
+			this->link_types_[4](i,1) = 2*i;
+			this->link_types_[5](i,0) = 1;
+			this->link_types_[5](i,1) = 2*i+1;
+		}
+	}
+}
 
 //template<typename Type>
 //Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
@@ -263,7 +300,7 @@ Kagome<Type>::~Kagome() = default;
 //}
 
 template<typename Type>
-Matrix<double> Kagome<Type>::set_LxLy(unsigned int const& n) const {
+Matrix<double> Kagome<Type>::set_geometry(unsigned int const& n) const {
 	Matrix<double> tmp(n,n);
 	std::cerr<<__PRETTY_FUNCTION__<<" : undefined"<<std::endl;
 	return tmp;

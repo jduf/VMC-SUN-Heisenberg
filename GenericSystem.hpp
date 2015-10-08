@@ -34,7 +34,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
 		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
-		virtual void set_observables(unsigned int const& which){  std::cout<<"should be pure virtual"<<which<<std::endl ;}
+		virtual void set_observables(unsigned int const& which) = 0;
 
 	protected:
 		unsigned int const spuc_;//!< site per unit cell

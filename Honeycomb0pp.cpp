@@ -309,7 +309,7 @@ std::string Honeycomb0pp::extract_level_7(){
 	(*data_write_)<<"% td E dE 0|1"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){ 
-		(*read_)>>E_>>corr_>>lr_corr_;
+		(*read_)>>E_>>corr_types_[0]>>corr_types_[1];
 		(*data_write_)<<td_<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 	}
 

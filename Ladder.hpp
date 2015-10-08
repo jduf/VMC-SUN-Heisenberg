@@ -44,7 +44,6 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 	if(this->status_==2){
 		/*!create the links if necessary*/
 		if(!this->link_types_.size()){
-			std::cout<<"set nn links"<<std::endl;
 			Vector<unsigned int> l(2);
 			l(0) = 2;
 			l(1) = 1;
@@ -84,16 +83,13 @@ Ladder<Type>::~Ladder() = default;
 
 template<typename Type>
 void Ladder<Type>::set_observables(unsigned int const& which){
-	std::cout<<"set observable"<<std::endl;
-	this->n_corr_=which;
-
 	this->E_.set(50,5,false);
-	this->corr_types_.resize(this->n_corr_);
+	this->corr_types_.resize(which);
 
-	if(this->n_corr_>0){
+	if(which>0){
 		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
 	}
-	if(this->n_corr_>1){ /*the long range correlation*/
+	if(which>1){ /*the long range correlation*/
 		this->corr_types_[1].set(this->n_,50,5,false);
 		this->link_types_.push_back(Matrix<int>(this->n_,2));
 		for(unsigned int i(0);i<this->n_;i++){
@@ -101,7 +97,7 @@ void Ladder<Type>::set_observables(unsigned int const& which){
 			this->link_types_[1](i,1) = i;
 		}
 	}
-	if(this->n_corr_==6){ /*the (anti)symmetric correlation*/
+	if(which==6){ /*the (anti)symmetric correlation*/
 		this->corr_types_[2].set(this->n_/2,50,5,false);
 		this->corr_types_[3].set(this->n_/2,50,5,false);
 		this->corr_types_[4].set(this->n_/2,50,5,false);

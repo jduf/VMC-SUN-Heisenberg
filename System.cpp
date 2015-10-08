@@ -27,50 +27,29 @@ System::System(IOFiles& r):
 	M_(r),
 	J_(r),
 	status_(r.read<unsigned int>()),
-	links_(r),
-	E_(r),
-	corr_(r),
-	lr_corr_(r)
+	E_(r)
 {
-	//for(unsigned int i(0);i<n_corr_;i++){
-		//link_types_[i] = r.read<Matrix<int> >();
-		//corr_types_[i] = r.read<DataSet<double> >();
-	//}
+	unsigned int n_corr(r.read<unsigned int>());
+	for(unsigned int i(0);i<n_corr;i++){
+		link_types_.push_back(r.read<Matrix<int> >());
+		corr_types_.push_back(r.read<DataSet<double> >());
+	}
 }
-
-System::System(System const& s):
-	ref_(s.ref_),
-	N_(s.N_), 
-	m_(s.m_),
-	n_(s.n_),
-	bc_(s.bc_),
-	M_(s.M_),
-	J_(s.J_),
-	status_(s.status_),
-	links_(s.links_),
-	E_(s.E_),
-	corr_(s.corr_),
-	lr_corr_(s.lr_corr_),
-	n_corr_(s.n_corr_),
-	link_types_(s.link_types_),
-	corr_types_(s.corr_types_)
-{}
 /*}*/
 
 /*handles class attributes*/
 /*{*/
 void System::set(System const* const s){
 	J_ = s->J_; 
-	links_ = s->links_; 
-	n_corr_ = s->n_corr_;
 	link_types_ = s->link_types_;
 	corr_types_ = s->corr_types_;
 }
 
 void System::clear_measurments(){ 
 	E_.set(); 
-	corr_.set(); 
-	lr_corr_.set(); 
+	for(unsigned int i(0);i<corr_types_.size();i++){
+		corr_types_[i].set();
+	}
 }
 
 bool System::check_conv(double const& convergence_criterion){
@@ -80,27 +59,21 @@ bool System::check_conv(double const& convergence_criterion){
 
 void System::complete_analysis(double const& convergence_criterion){ 
 	E_.complete_analysis(convergence_criterion); 
-	corr_.complete_analysis(convergence_criterion); 
-	lr_corr_.complete_analysis(convergence_criterion); 
-	for(unsigned int i(0);i<n_corr_;i++){
+	for(unsigned int i(0);i<corr_types_.size();i++){
 		corr_types_[i].complete_analysis(convergence_criterion); 
 	}
 }
 
 void System::merge(System* s){
 	E_.merge(s->E_);
-	corr_.merge(s->corr_);
-	lr_corr_.merge(s->lr_corr_);
-	for(unsigned int i(0);i<n_corr_;i++){
+	for(unsigned int i(0);i<corr_types_.size();i++){
 		corr_types_[i].merge(s->corr_types_[i]); 
 	}
 }
 
 void System::delete_binning(){
 	E_.delete_binning();
-	corr_.delete_binning();
-	lr_corr_.delete_binning();
-	for(unsigned int i(0);i<n_corr_;i++){
+	for(unsigned int i(0);i<corr_types_.size();i++){
 		corr_types_[i].delete_binning();
 	}
 }
@@ -110,7 +83,8 @@ void System::delete_binning(){
 /*{*/
 void System::write(IOFiles& w) const {
 	if(w.is_binary()){
-		w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<links_<<E_<<corr_<<lr_corr_;
+		w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<E_<<corr_types_.size();
+		for(unsigned int i(0);i<corr_types_.size();i++){ w<<link_types_[i]<<corr_types_[i]; }
 	} else {
 		w<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<M_<<" "<<E_<<IOFiles::endl;
 	}
@@ -136,13 +110,10 @@ void System::save_output(IOFiles& w) const {
 	w.add_header()->add(rst.get());
 
 	w.write("status",status_);
-	//w.write("links",links_);
 	w.write("energy per site",E_);
-	//w.write("correlation on links",corr_);
-	//w.write("long range correlation",lr_corr_);
-
-	w.write("number of types of correlations (saved as well)",n_corr_);
-	for(unsigned int i(0);i<n_corr_;i++){ w<<link_types_[i]<<corr_types_[i]; }
+	unsigned int ncorr(corr_types_.size());
+	w.write("number of types of correlations (saved as well)",ncorr);
+	for(unsigned int i(0);i<corr_types_.size();i++){ w<<link_types_[i]<<corr_types_[i]; }
 }
 /*}*/
 

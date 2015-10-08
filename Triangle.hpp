@@ -19,10 +19,12 @@ class Triangle: public System2D<Type>{
 		Vector<double> compute_J(Vector<double> const& Jp);
 
 	protected:
+		void set_observables(unsigned int const& which);
+		/*!Returns the neighbours of site i*/
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
 	private:
-		Matrix<double> set_LxLy(unsigned int const& n) const;
+		Matrix<double> set_geometry(unsigned int const& n) const;
 		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
 };
@@ -30,7 +32,7 @@ class Triangle: public System2D<Type>{
 /*{constructor*/
 template<typename Type>
 Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(Triangle<Type>::set_LxLy(this->n_),ab,spuc,6,filename)
+	System2D<Type>(set_geometry(this->n_),ab,spuc,6,filename)
 {
 	if(this->status_==2){ 
 		Vector<double> dir(2);
@@ -80,6 +82,24 @@ Triangle<Type>::~Triangle() = default;
 
 /*{protected methods*/
 template<typename Type>
+void Triangle<Type>::set_observables(unsigned int const& which){
+	this->E_.set(50,5,false);
+	this->corr_types_.resize(which);
+
+	if(which>0){
+		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
+	}
+	if(which>1){ /*the long range correlation*/
+		this->corr_types_[1].set(this->n_,50,5,false);
+		this->link_types_.push_back(Matrix<int>(this->n_,2));
+		for(unsigned int i(0);i<this->n_;i++){
+			this->link_types_[1](i,0) = 0;
+			this->link_types_[1](i,1) = i;
+		}
+	}
+}
+
+template<typename Type>
 Vector<double> Triangle<Type>::get_pos_in_lattice(unsigned int const& i) const {
 	Vector<double> tmp(2);
 	tmp(0) = i;
@@ -90,7 +110,7 @@ Vector<double> Triangle<Type>::get_pos_in_lattice(unsigned int const& i) const {
 
 /*{private methods*/
 template<typename Type>
-Matrix<double> Triangle<Type>::set_LxLy(unsigned int const& n) const {
+Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n) const {
 	Matrix<double> tmp;
 	if(n==27){
 		tmp.set(2,2);

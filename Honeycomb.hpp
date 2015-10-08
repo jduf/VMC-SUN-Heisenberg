@@ -30,12 +30,14 @@ class Honeycomb: public System2D<Type>{
 		virtual ~Honeycomb()=0;
 
 	protected:
+		void set_observables(unsigned int const& which);
+		/*!Returns the neighbours of site i*/
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
 	private:
 		Matrix<double> dir_nn_;
 
-		Matrix<double> set_LxLy(unsigned int const& n) const;
+		Matrix<double> set_geometry(unsigned int const& n) const;
 		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
 };
@@ -43,7 +45,7 @@ class Honeycomb: public System2D<Type>{
 /*{constructor*/
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(Honeycomb<Type>::set_LxLy(this->n_),ab,spuc,3,filename),
+	System2D<Type>(set_geometry(this->n_),ab,spuc,3,filename),
 	dir_nn_(this->z_,2)
 {
 	if(this->status_==2){
@@ -86,6 +88,24 @@ Honeycomb<Type>::~Honeycomb() = default;
 
 /*{protected methods*/
 template<typename Type>
+void Honeycomb<Type>::set_observables(unsigned int const& which){
+	this->E_.set(50,5,false);
+	this->corr_types_.resize(which);
+
+	if(which>0){
+		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
+	}
+	if(which>1){ /*the long range correlation*/
+		this->corr_types_[1].set(this->n_,50,5,false);
+		this->link_types_.push_back(Matrix<int>(this->n_,2));
+		for(unsigned int i(0);i<this->n_;i++){
+			this->link_types_[1](i,0) = 0;
+			this->link_types_[1](i,1) = i;
+		}
+	}
+}
+
+template<typename Type>
 Vector<double> Honeycomb<Type>::get_pos_in_lattice(unsigned int const& i) const {
 	Vector<double> tmp(2);
 	unsigned int j(i/this->xloop_);
@@ -104,7 +124,7 @@ Vector<double> Honeycomb<Type>::get_pos_in_lattice(unsigned int const& i) const 
 
 /*{private methods*/
 template<typename Type>
-Matrix<double> Honeycomb<Type>::set_LxLy(unsigned int const& n) const {
+Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n) const {
 	Matrix<double> tmp;
 	double L(sqrt(n/2));
 	if(my::are_equal(L,floor(L))){

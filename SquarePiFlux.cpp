@@ -77,13 +77,13 @@ void SquarePiFlux::lattice(std::string const& path, std::string const& filename)
 	unsigned int s0;
 	unsigned int s1;
 	double y_shift(4);
-	for(unsigned int i(0);i<links_.row();i++){
-		s0 = links_(i,0);
+	for(unsigned int i(0);i<link_types_[0].row();i++){
+		s0 = link_types_[0](i,0);
 		xy0 = get_pos_in_lattice(s0);
 		set_pos_LxLy(xy0);
 		xy0 = (LxLy_*xy0).chop();
 
-		s1 = links_(i,1);
+		s1 = link_types_[0](i,1);
 		xy1 = get_pos_in_lattice(s1);
 		set_pos_LxLy(xy1);
 		xy1 = (LxLy_*xy1).chop();
@@ -120,9 +120,9 @@ void SquarePiFlux::lattice(std::string const& path, std::string const& filename)
 	}
 
 	double lr_corr;
-	double rescale(lr_corr_.size()?0.75/lr_corr_[0].get_x():0);
-	for(unsigned int i(0);i<lr_corr_.size();i++){
-		lr_corr = lr_corr_[i].get_x()*rescale;
+	double rescale(corr_types_[1].size()?0.75/corr_types_[1][0].get_x():0);
+	for(unsigned int i(0);i<corr_types_[1].size();i++){
+		lr_corr = corr_types_[1][i].get_x()*rescale;
 		if(std::abs(lr_corr)>1e-4){
 			xy1 = get_pos_in_lattice(i);
 			set_pos_LxLy(xy1);
@@ -181,7 +181,7 @@ std::string SquarePiFlux::extract_level_7(){
 	(*data_write_)<<"% E dE 0|1"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){
-		(*read_)>>E_>>corr_>>lr_corr_;
+		(*read_)>>E_>>corr_types_[0]>>corr_types_[1];
 		(*data_write_)<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 	}
 	jd_write_->write("energy per site",E_);

@@ -125,20 +125,20 @@ std::string ChainPolymerized::extract_level_8(){
 	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true);
 	IOFiles lr_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);
 
-	Vector<double> lr_corr_v(lr_corr_.size());
+	Vector<double> lr_corr(corr_types_[1].size());
 	Vector<double> poly_e(N_/m_,0);
 
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
 	(*data_write_)<<t_<<" "<<E_<<IOFiles::endl;
-	for(unsigned int i(0);i<corr_.size();i++){
-		corr_file<<i+0.5<<" "<<corr_[i]<<IOFiles::endl;
-		poly_e(i%(N_/m_)) += corr_[i].get_x(); 
+	for(unsigned int i(0);i<corr_types_[0].size();i++){
+		corr_file<<i+0.5<<" "<<corr_types_[0][i]<<IOFiles::endl;
+		poly_e(i%(N_/m_)) += corr_types_[0][i].get_x(); 
 	}
-	for(unsigned int i(0);i<lr_corr_.size();i++){
-		lr_corr_file<<i<<" "<<lr_corr_[i]<<IOFiles::endl;
-		lr_corr_v(i) = lr_corr_[i].get_x();
+	for(unsigned int i(0);i<corr_types_[1].size();i++){
+		lr_corr_file<<i<<" "<<corr_types_[1][i]<<IOFiles::endl;
+		lr_corr(i) = corr_types_[1][i].get_x();
 	}
 	poly_e /= n_*m_/N_;
 	poly_e.sort(std::less<double>());
@@ -162,7 +162,7 @@ std::string ChainPolymerized::extract_level_8(){
 	unsigned int xi;
 	unsigned int xf;
 	Vector<double> exponents;
-	bool fit(compute_critical_exponents(lr_corr_v,xi,xf,exponents));
+	bool fit(compute_critical_exponents(lr_corr,xi,xf,exponents));
 
 	Gnuplot gplr(analyse_+path_+dir_,filename_+"-long-range-corr");
 	gplr.range("x",N_/m_,n_-N_/m_);
@@ -189,14 +189,14 @@ std::string ChainPolymerized::extract_level_8(){
 	/*}*/
 	/*!structure factor*/
 	/*{*/
-	unsigned int llr(lr_corr_.size());
+	unsigned int llr(corr_types_[1].size());
 	Vector<std::complex<double> > Ck(llr,0.0);
 	std::complex<double> normalize(0.0);
 	double dk(2.0*M_PI/llr);
 
 	for(unsigned int k(0);k<llr;k++){
 		for(unsigned int i(0);i<llr;i++){
-			Ck(k) += std::polar(lr_corr_v(i),dk*k*i);
+			Ck(k) += std::polar(lr_corr(i),dk*k*i);
 		}
 		normalize += Ck(k); 
 	}
