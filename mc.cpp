@@ -20,8 +20,9 @@ int main(int argc, char* argv[]){
 		if(cs.get_status()==2){
 			cs.create();
 			if(cs.get_status()==1){
-				cs.set_observables(P.find("ncorr",i,false)?P.get<unsigned int>(i):1);
-				sys.set(cs.get_GS());
+				unsigned int which(P.find("ncorr",i,false)?P.get<unsigned int>(i):1);
+				cs.set_observables(which);
+				sys.set(cs.get_GS()->get_J(),cs.get_GS()->get_link_types(),cs.get_GS()->get_corr_types(),which);
 #pragma omp parallel for
 				for(unsigned int j=0;j<nruns;j++){
 					MCSystem* mcsys(NULL);
@@ -39,6 +40,7 @@ int main(int argc, char* argv[]){
 						}
 					}
 
+					mcsys->set(cs.get_GS()->get_J(),cs.get_GS()->get_link_types(),cs.get_GS()->get_corr_types(),which);
 					MonteCarlo sim(mcsys,tmax);
 					sim.thermalize(1e6);
 					sim.run();
@@ -53,6 +55,16 @@ int main(int argc, char* argv[]){
 				sys.delete_binning();
 
 				std::cout<<sys.get_energy()<<std::endl;
+				std::vector<DataSet<double> > obs(sys.get_corr_types());
+				double c(0);
+				double dc(0);
+				unsigned int N(0);
+				for(unsigned int i(0);i<obs[0].size();i++){
+					c += obs[0][i].get_x();
+					dc+= obs[0][i].get_dx();
+					N += obs[0][i].get_N();
+				}
+				std::cout<<c<<" "<<dc<<" "<<N<<std::endl;
 
 				Linux command;
 				command.mkpath(cs.get_path().c_str());

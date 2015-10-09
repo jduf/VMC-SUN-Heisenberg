@@ -21,12 +21,16 @@ class MCSim {
 
 		/*{Core methods*/
 		/*!Sets MCS_ to a new MCSystem created via C*/
-		void create_S(System const* const s, unsigned int const& which_observables);
+		void create_S(System const* const s);
 		/*!Sets MCS_ to a copy obtained via MCSystem::clone() run on MCS*/
 		void copy_S(std::unique_ptr<MCSystem> const& MCS);
 		/*!Creates MonteCarlo, then run on MCS_*/
 		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
 		/*}*/
+		void set(Vector<double> const& J, std::vector<Matrix<int> > const& link_types, std::vector<DataSet<double> > const& corr_types, unsigned int const& which_observables){ 
+			MCS_->set(J,link_types,corr_types,which_observables);
+		}
+
 
 		/*{System and MCSystem calls*/
 		/*!Calls bool System::check_conv(double const& convergence_criterion)*/

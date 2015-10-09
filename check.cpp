@@ -12,6 +12,7 @@ int main(int argc, char* argv[]){
 		std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
 		P.set("M",M);
 	}
+	unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
 	System s(P);
 	std::cout<<"############# Init CreateSystem ###########"<<std::endl;
 	CreateSystem cs(&s);
@@ -41,7 +42,6 @@ int main(int argc, char* argv[]){
 			} break;
 		case 3:/*call CreateSystem::init create, MonteCarlo::run*/
 			{
-				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init(NULL,&P);
 				cs.set_observables(1);
@@ -65,12 +65,12 @@ int main(int argc, char* argv[]){
 					delete S;
 				}
 			} break;
-		case 4:/*call CreateSystem::(init,create), MonteCarlo::run and save*/
+		case 4:/*call CreateSystem::(init,create), MCSystem, MonteCarlo::run and save*/
 			{
-				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init(NULL,&P);
-				cs.set_observables(1);
+				unsigned int which(P.find("ncorr",i,false)?P.get<unsigned int>(i):1);
+				cs.set_observables(which);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
 					cs.create();
@@ -81,6 +81,7 @@ int main(int argc, char* argv[]){
 					} else {
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())); 
 					}
+					S->set(cs.get_GS()->get_J(),cs.get_GS()->get_link_types(),cs.get_GS()->get_corr_types(),which);
 					std::cout<<"############# Init Monte Carlo ############"<<std::endl;
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
@@ -94,29 +95,8 @@ int main(int argc, char* argv[]){
 					delete S;
 				}
 			} break;
-		case 5:/*call CreateSystem::(init,create), MonteCarlo::run and save*/
+		case 5:/*call load MCSystem, MonteCarlo::run and save*/
 			{
-				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
-				MCSystem* S(NULL);
-				std::cout<<"############# Load MCSystem ###############"<<std::endl;
-				IOFiles in("check.jdbin",false);
-				if(cs.use_complex()){
-					S = new SystemFermionic<std::complex<double> >(in); 
-				} else {
-					S = new SystemFermionic<double>(in); 
-				}
-				std::cout<<"############# Init Monte Carlo ############"<<std::endl;
-				MonteCarlo sim(S,tmax);
-				sim.thermalize(10);
-				std::cout<<"############# Run Monte Carlo #############"<<std::endl;
-				sim.run();
-				S->complete_analysis(1e-5);
-				std::cout<<S->get_energy()<<std::endl;
-				delete S;
-			} break;
-		case 6:/*call CreateSystem::(init,create), MonteCarlo::run and save*/
-			{
-				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
 				MCSystem* S(NULL);
 				std::cout<<"############# Load MCSystem ###############"<<std::endl;
 				IOFiles in("check.jdbin",false);
@@ -133,9 +113,36 @@ int main(int argc, char* argv[]){
 				S->complete_analysis(1e-5);
 				std::cout<<S->get_energy()<<std::endl;
 				std::cout<<"############# Save MCSystem ###############"<<std::endl;
-				IOFiles out("check.jdbin",true);
+				IOFiles out("check-1.jdbin",true);
 				S->write(out);
 				delete S;
+			} break;
+		case 6:/*use MCSim to run two sim then, merge them*/
+			{
+				unsigned int which(P.find("ncorr",i,false)?P.get<unsigned int>(i):1);
+				cs.init(NULL,&P);
+				cs.create();
+				cs.set_observables(which);
+
+				MCSim mcsim(P.get<std::vector<double> >("t"));
+				System s(P);
+				mcsim.create_S(&s);
+				mcsim.set(cs.get_GS()->get_J(),cs.get_GS()->get_link_types(),cs.get_GS()->get_corr_types(),P.find("ncorr",i,false)?P.get<unsigned int>(i):1);
+
+				mcsim.run(1e6,2);
+				mcsim.complete_analysis(1e-5);
+
+				MCSim mcsim2(P.get<std::vector<double> >("t"));
+				mcsim2.copy_S(mcsim.get_MCS());
+				mcsim2.set(cs.get_GS()->get_J(),cs.get_GS()->get_link_types(),cs.get_GS()->get_corr_types(),P.find("ncorr",i,false)?P.get<unsigned int>(i):1);
+				mcsim2.run(1e6,4);
+				mcsim2.complete_analysis(1e-5);
+
+				std::cout<<mcsim.get_MCS()->get_energy()<<std::endl;
+				std::cout<<mcsim2.get_MCS()->get_energy()<<std::endl;
+				MCSim::merge(mcsim,mcsim2);
+				mcsim.complete_analysis(1e-5);
+				std::cout<<mcsim.get_MCS()->get_energy()<<std::endl;
 			} break;
 		case 7:/*check symmetries*/
 			{
@@ -156,25 +163,6 @@ int main(int argc, char* argv[]){
 					std::cout<<"sim["<<j<<"]"<<" "<<i<<" -> "<<t<<std::endl;
 				}
 			} break;
-		case 8:/*use MCSim to run two sim then, merge them*/
-			{
-				MCSim mcsim(P.get<std::vector<double> >("t"));
-				System s(P);
-				mcsim.create_S(&s,1);
-				mcsim.run(1e6,2);
-				mcsim.complete_analysis(1e-5);
-
-				MCSim mcsim2(P.get<std::vector<double> >("t"));
-				mcsim2.copy_S(mcsim.get_MCS());
-				mcsim2.run(1e6,4);
-				mcsim2.complete_analysis(1e-5);
-
-				std::cout<<mcsim.get_MCS()->get_energy()<<std::endl;
-				std::cout<<mcsim2.get_MCS()->get_energy()<<std::endl;
-				MCSim::merge(mcsim,mcsim2);
-				mcsim.complete_analysis(1e-5);
-				std::cout<<mcsim.get_MCS()->get_energy()<<std::endl;
-			} break;
 		default:
 			{
 				std::cerr<<__PRETTY_FUNCTION__<<" : unknown option 'what', options are :"<<std::endl;
@@ -183,10 +171,9 @@ int main(int argc, char* argv[]){
 				std::cerr<<"    - init + create + check       : 2"<<std::endl;
 				std::cerr<<"    - init + create + run         : 3"<<std::endl;
 				std::cerr<<"    - init + create + run + write : 4"<<std::endl;
-				std::cerr<<"    - load + run                  : 5"<<std::endl;
-				std::cerr<<"    - load + run + rewrite        : 6"<<std::endl;
+				std::cerr<<"    - load + run + rewrite        : 5"<<std::endl;
+				std::cerr<<"    - MCSim                       : 6"<<std::endl;
 				std::cerr<<"    - load + check_symmetries     : 7"<<std::endl;
-				std::cerr<<"    - MCSim                       : 8"<<std::endl;
 			}
 	}
 }

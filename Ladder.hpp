@@ -83,7 +83,6 @@ Ladder<Type>::~Ladder() = default;
 
 template<typename Type>
 void Ladder<Type>::set_observables(unsigned int const& which){
-	this->E_.set(50,5,false);
 	this->corr_types_.resize(which);
 
 	if(which>0){

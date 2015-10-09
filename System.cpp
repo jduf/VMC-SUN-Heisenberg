@@ -35,14 +35,33 @@ System::System(IOFiles& r):
 		corr_types_.push_back(r.read<DataSet<double> >());
 	}
 }
+
+System::System(System const& s):
+	ref_(s.ref_),
+	N_(s.N_), 
+	m_(s.m_),
+	n_(s.n_),
+	bc_(s.bc_),
+	M_(s.M_),
+	J_(s.J_),
+	status_(s.status_),
+	E_(s.E_),
+	link_types_(s.link_types_),
+	corr_types_(s.corr_types_)
+{}
+
+
 /*}*/
 
 /*handles class attributes*/
 /*{*/
-void System::set(System const* const s){
-	J_ = s->J_; 
-	link_types_ = s->link_types_;
-	corr_types_ = s->corr_types_;
+void System::set(Vector<double> const& J, std::vector<Matrix<int> > const& link_types, std::vector<DataSet<double> > const& corr_types, unsigned int const& which_observables){
+	E_.set(50,5,false);
+	J_ = J; 
+	for(unsigned int i(0);i<which_observables;i++){
+		link_types_.push_back(link_types[i]);
+		corr_types_.push_back(corr_types[i]);
+	}
 }
 
 void System::clear_measurments(){ 
@@ -83,7 +102,8 @@ void System::delete_binning(){
 /*{*/
 void System::write(IOFiles& w) const {
 	if(w.is_binary()){
-		w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<E_<<corr_types_.size();
+		unsigned int ncorr(corr_types_.size());
+		w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<E_<<ncorr;
 		for(unsigned int i(0);i<corr_types_.size();i++){ w<<link_types_[i]<<corr_types_[i]; }
 	} else {
 		w<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<M_<<" "<<E_<<IOFiles::endl;

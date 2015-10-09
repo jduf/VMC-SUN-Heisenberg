@@ -23,12 +23,11 @@ MCSim::MCSim(IOFiles& r):
 
 /*core methods*/
 /*{*/
-void MCSim::create_S(System const* const s, unsigned int const& which_observables){
+void MCSim::create_S(System const* const s){
 	CreateSystem cs(s);
 	cs.init(&param_,NULL);
 	if(cs.get_status()==2){
 		cs.create();
-		cs.set_observables(which_observables);
 		if(cs.get_status()==1){
 			if(cs.use_complex()){
 				if(cs.is_bosonic()){

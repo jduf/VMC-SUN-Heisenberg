@@ -109,10 +109,10 @@ class CreateSystem{
 			return 10;
 		}
 		/*!Calls System::get_status() : see System.hpp*/
-		void set(System* const s) const {
-			if(RGL_){ s->set(RGL_); }
-			if(CGL_){ s->set(CGL_); }
-		}
+		//void set(System* const s) const {
+			//if(RGL_){ s->set(RGL_); }
+			//if(CGL_){ s->set(CGL_); }
+		//}
 		/*}*/
 
 		/*{Simple value return*/

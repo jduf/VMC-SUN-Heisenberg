@@ -28,8 +28,10 @@ class System{
 		/*}*/
 
 		/*{Handles class attributes*/
-		/*!Sets (*this)*/
-		void set(System const* const s);
+		Vector<double> const& get_J() const { return J_; }
+		std::vector<Matrix<int> > const& get_link_types() const { return link_types_; }
+		std::vector<DataSet<double> > const& get_corr_types() const { return corr_types_; }
+		void set(Vector<double> const& J, std::vector<Matrix<int> > const& link_types, std::vector<DataSet<double> > const& corr_types, unsigned int const& which_observables);
 		/*!Sets the observables to default (0) values and initilizes binning*/
 		void clear_measurments();
 		/*!Checks if the energy has converged to a stable value*/
@@ -65,9 +67,11 @@ class System{
 
 	protected:
 		/*!Copy constructor*/
-		System(System const& s) = default;
+		System(System const& s);
 		/*!Default constructor*/
 		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),status_(5){ std::cout<<__PRETTY_FUNCTION__<<" : should never be called"<<std::endl; }
+
+		Vector<unsigned int> set_ref(Parseur& P);
 
 		Vector<unsigned int> const ref_;//!< type of system 
 		unsigned int const N_;			//!< number of colors
@@ -75,14 +79,13 @@ class System{
 		unsigned int const n_;			//!< number of sites
 		int const bc_;					//!< boundary condition
 		Vector<unsigned int> const M_;	//!< number of particles of each color 
+
+		/*the following attributes will be set by GenericSystem and can't be
+		 * defined within System*/
 		Vector<double> J_;				//!< bond energy
-
 		unsigned int status_;			//!< status of the simulation
-
 		Data<double> E_; 				//!< energy of the system
 		std::vector<Matrix<int> > link_types_;
 		std::vector<DataSet<double> > corr_types_;
-
-		Vector<unsigned int> set_ref(Parseur& P);
 };
 #endif
