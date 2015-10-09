@@ -26,13 +26,11 @@ System::System(IOFiles& r):
 	bc_(r.read<int>()),
 	M_(r),
 	J_(r),
-	status_(r.read<unsigned int>()),
-	E_(r)
+	status_(r.read<unsigned int>())
 {
-	unsigned int n_corr(r.read<unsigned int>());
-	for(unsigned int i(0);i<n_corr;i++){
-		link_types_.push_back(r.read<Matrix<int> >());
-		corr_types_.push_back(r.read<DataSet<double> >());
+	unsigned int n_obs_(r.read<unsigned int>());
+	for(unsigned int i(0);i<n_obs_;i++){
+		obs_.push_back(Observable(r));
 	}
 }
 
@@ -45,9 +43,7 @@ System::System(System const& s):
 	M_(s.M_),
 	J_(s.J_),
 	status_(s.status_),
-	E_(s.E_),
-	link_types_(s.link_types_),
-	corr_types_(s.corr_types_)
+	obs_(s.obs_)
 {}
 
 
@@ -55,45 +51,44 @@ System::System(System const& s):
 
 /*handles class attributes*/
 /*{*/
-void System::set(Vector<double> const& J, std::vector<Matrix<int> > const& link_types, std::vector<DataSet<double> > const& corr_types, unsigned int const& which_observables){
-	E_.set(50,5,false);
+void System::set(Vector<double> const& J, std::vector<Observable> const& obs, unsigned int const& which_observables){
+	//E_.set(50,5,false);
 	J_ = J; 
 	for(unsigned int i(0);i<which_observables;i++){
-		link_types_.push_back(link_types[i]);
-		corr_types_.push_back(corr_types[i]);
+		obs_.push_back(obs[i]);
 	}
 }
 
 void System::clear_measurments(){ 
-	E_.set(); 
-	for(unsigned int i(0);i<corr_types_.size();i++){
-		corr_types_[i].set();
-	}
+	//E_.set(); 
+	for(unsigned int i(0);i<obs_.size();i++){ obs_[i].set(); }
 }
 
 bool System::check_conv(double const& convergence_criterion){
-	E_.complete_analysis(convergence_criterion);
-	return E_.get_conv();
+	(void)(convergence_criterion);
+	//E_.complete_analysis(convergence_criterion);
+	//return E_.get_conv();
+	return 0;
 }
 
 void System::complete_analysis(double const& convergence_criterion){ 
-	E_.complete_analysis(convergence_criterion); 
-	for(unsigned int i(0);i<corr_types_.size();i++){
-		corr_types_[i].complete_analysis(convergence_criterion); 
+	//E_.complete_analysis(convergence_criterion); 
+	for(unsigned int i(0);i<obs_.size();i++){
+		obs_[i].complete_analysis(convergence_criterion); 
 	}
 }
 
 void System::merge(System* s){
-	E_.merge(s->E_);
-	for(unsigned int i(0);i<corr_types_.size();i++){
-		corr_types_[i].merge(s->corr_types_[i]); 
+	//E_.merge(s->E_);
+	for(unsigned int i(0);i<obs_.size();i++){
+		obs_[i].merge(s->obs_[i]); 
 	}
 }
 
 void System::delete_binning(){
-	E_.delete_binning();
-	for(unsigned int i(0);i<corr_types_.size();i++){
-		corr_types_[i].delete_binning();
+	//E_.delete_binning();
+	for(unsigned int i(0);i<obs_.size();i++){
+		obs_[i].delete_binning();
 	}
 }
 /*}*/
@@ -102,11 +97,11 @@ void System::delete_binning(){
 /*{*/
 void System::write(IOFiles& w) const {
 	if(w.is_binary()){
-		unsigned int ncorr(corr_types_.size());
-		w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<E_<<ncorr;
-		for(unsigned int i(0);i<corr_types_.size();i++){ w<<link_types_[i]<<corr_types_[i]; }
+		unsigned int nobs(obs_.size());
+		w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<nobs;
+		for(unsigned int i(0);i<nobs;i++){ w<<obs_[i]; }
 	} else {
-		w<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<M_<<" "<<E_<<IOFiles::endl;
+		w<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<M_<<IOFiles::endl;
 	}
 }
 
@@ -130,10 +125,9 @@ void System::save_output(IOFiles& w) const {
 	w.add_header()->add(rst.get());
 
 	w.write("status",status_);
-	w.write("energy per site",E_);
-	unsigned int ncorr(corr_types_.size());
-	w.write("number of types of correlations (saved as well)",ncorr);
-	for(unsigned int i(0);i<corr_types_.size();i++){ w<<link_types_[i]<<corr_types_[i]; }
+	unsigned int nobs(obs_.size());
+	w.write("number of types of correlations (saved as well)",nobs);
+	for(unsigned int i(0);i<corr_types_.size();i++){ w<<obs_[i]; }
 }
 /*}*/
 

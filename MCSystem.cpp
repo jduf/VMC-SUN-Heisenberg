@@ -70,49 +70,27 @@ void MCSystem::update(){
 }
 
 void MCSystem::measure_new_step(){
-	E_.set_x(0.0);
-	if(!corr_types_.size()){/*!compute energy*/
-		for(unsigned int l(0);l<link_types_[0].row();l++){
-			for(unsigned int p0(0);p0<m_;p0++){
-				for(unsigned int p1(0);p1<m_;p1++){
-					swap(link_types_[0](l,0),link_types_[0](l,1),p0,p1);
-					/*!if the new state is forbidden, r=0 and therefore there is no
-					 * need to complete the else condition*/
-					if(!is_new_state_forbidden()){
-						E_.add(J_(l)*ratio(false));
-					}
-				}
-			}
-		}
-	} else {/*!compute energy and the correlation*/
-		double e;
-		for(unsigned int l(0);l<link_types_[0].row();l++){
-			corr_types_[0][l].set_x(0.0);
-			for(unsigned int p0(0);p0<m_;p0++){
-				for(unsigned int p1(0);p1<m_;p1++){
-					swap(link_types_[0](l,0),link_types_[0](l,1),p0,p1);
-					/*!if the new state is forbidden, r=0 and therefore there is no
-					 * need to complete the else condition*/
-					if(!is_new_state_forbidden()){
-						e = J_(l)*ratio(false);
-						E_.add(e);
-						corr_types_[0][l].add(e);
-					}
-				}
+	for(unsigned int l(0);l<link_types_[0].row();l++){
+		obs_[0][l].set_x(0.0);
+		for(unsigned int p0(0);p0<m_;p0++){
+			for(unsigned int p1(0);p1<m_;p1++){
+				swap(obs_[0](l,0),obs_[0](l,1),p0,p1);
+				/*!if the new state is forbidden, r=0 and therefore there is no
+				 * need to complete the else condition*/
+				if(!is_new_state_forbidden()){ obs_[0][l].add(J_(l)*ratio(false)); }
 			}
 		}
 	}
-	E_.divide(n_);
 
 	/*!compute the long range correlation*/
 	double diag_term(1.0*m_*m_/N_);
 	for(unsigned int i(1);i<corr_types_.size();i++){
 		for(unsigned int l(0);l<corr_types_[i].size();l++){
-			corr_types_[i][l].set_x(-diag_term);
+			obs_[i][l].set_x(-diag_term);
 			for(unsigned int p0(0);p0<m_;p0++){
 				for(unsigned int p1(0);p1<m_;p1++){
-					swap(link_types_[i](l,0),link_types_[i](l,1),p0,p1);
-					if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ corr_types_[i][l].add(1.0); }
+					swap(obs_[i](l,0),obs_[i](l,1),p0,p1);
+					if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ obs_[i][l].add(1.0); }
 				}
 			}
 		}
@@ -120,10 +98,7 @@ void MCSystem::measure_new_step(){
 }
 
 void MCSystem::add_sample(){
-	E_.add_sample();
-	for(unsigned int i(0);i<corr_types_.size();i++){
-		corr_types_[i].add_sample();
-	}
+	for(unsigned int i(0);i<obs_.size();i++){ obs_[i].add_sample(); }
 }
 
 void MCSystem::write(IOFiles& w) const {
