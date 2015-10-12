@@ -127,7 +127,7 @@ void System::save_output(IOFiles& w) const {
 	w.write("status",status_);
 	unsigned int nobs(obs_.size());
 	w.write("number of types of correlations (saved as well)",nobs);
-	for(unsigned int i(0);i<corr_types_.size();i++){ w<<obs_[i]; }
+	for(unsigned int i(0);i<nobs;i++){ w<<obs_[i]; }
 }
 /*}*/
 

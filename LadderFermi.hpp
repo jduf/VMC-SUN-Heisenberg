@@ -71,10 +71,10 @@ void LadderFermi<Type>::check(){
 		std::cout<<","<<nb(1,0);
 		std::cout<<","<<nb(2,0)<<std::endl;;
 	} 
-	for(unsigned int i(0);i<this->link_types_[0].row();i++){
+	for(unsigned int i(0);i<this->obs_[0].size();i++){
 		std::cout<<"i="<<i;
-		std::cout<<" l="<<this->link_types_[0](i,0);
-		std::cout<<","<<this->link_types_[0](i,1);
+		std::cout<<" l="<<this->obs_[0](i,0);
+		std::cout<<","<<this->obs_[0](i,1);
 		std::cout<<" J="<<this->J_(i)<<std::endl;;
 	} 
 	std::cout<<"Hamiltonien"<<std::endl;
@@ -154,7 +154,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 	IOFiles corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-corr.dat",true);
 	IOFiles lr_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.dat",true);
 
-	Vector<double> lrc_mean(this->link_types_[0].row(),0);
+	Vector<double> lrc_mean(this->obs_[0].size(),0);
 	unsigned int nruns;
 	unsigned int tmax;
 
@@ -164,21 +164,21 @@ std::string LadderFermi<Type>::extract_level_7(){
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	/*!the +1 is the average over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){ 
-		(*this->read_)>>this->E_>>this->corr_types_[0]>>this->corr_types_[1];
-		(*this->data_write_)<<this->E_<<" "<<(i<nruns)<<IOFiles::endl;
-		for(unsigned int j(0);j<this->corr_types_[0].size();j++){
-			corr_file<<j+0.5<<" "<<this->corr_types_[0][j]<<" "<<(i<nruns)<<IOFiles::endl;
+		//(*this->read_)>>this->E_>>this->corr_types_[0]>>this->corr_types_[1];
+		//(*this->data_write_)<<this->E_<<" "<<(i<nruns)<<IOFiles::endl;
+		for(unsigned int j(0);j<this->obs_[0].size();j++){
+			corr_file<<j+0.5<<" "<<this->obs_[0][j]<<" "<<(i<nruns)<<IOFiles::endl;
 		}
-		for(unsigned int j(0);j<this->corr_types_[1].size();j++){
-			lr_corr_file<<j<<" "<<this->corr_types_[1][j]<<" "<<(i<nruns)<<IOFiles::endl;
+		for(unsigned int j(0);j<this->obs_[1].size();j++){
+			lr_corr_file<<j<<" "<<this->obs_[1][j]<<" "<<(i<nruns)<<IOFiles::endl;
 		}
 		if(i<nruns){
-			for(unsigned int j(0);j<this->corr_types_[1].size();j++){
-				lrc_mean(j) += this->corr_types_[1][j].get_x()/nruns;
+			for(unsigned int j(0);j<this->obs_[1].size();j++){
+				lrc_mean(j) += this->obs_[1][j].get_x()/nruns;
 			}
 		} else {
-			for(unsigned int j(0);j<this->corr_types_[1].size();j++){
-				if(this->corr_types_[1][j].get_conv()){ lrc_mean(j) = this->corr_types_[1][j].get_x(); } 
+			for(unsigned int j(0);j<this->obs_[1].size();j++){
+				if(this->obs_[1][j].get_conv()){ lrc_mean(j) = this->obs_[1][j].get_x(); } 
 			}
 		}
 	}
@@ -218,7 +218,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 	/*}*/
 	/*!structure factor*/
 	/*{*/
-	unsigned int llr(this->corr_types_[1].size());
+	unsigned int llr(this->obs_[1].size());
 	Vector<std::complex<double> > Ck(llr,0.0);
 	std::complex<double> normalize(0.0);
 	double dk(2.0*M_PI/llr);
@@ -251,7 +251,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 	/*}*/
 	/*!save some additionnal values */
 	/*{*/
-	this->jd_write_->write("energy per site",this->E_);
+	//this->jd_write_->write("energy per site",this->E_);
 	/*}*/
 
 	this->rst_file_->text(this->read_->get_header());
@@ -264,12 +264,12 @@ std::string LadderFermi<Type>::extract_level_7(){
 
 template<typename Type>
 std::string LadderFermi<Type>::extract_level_6(){
-	unsigned int nof(0);
-	(*this->read_)>>nof>>this->E_;
+	//unsigned int nof(0);
+	//(*this->read_)>>nof>>this->E_;
 
 	this->jd_write_->add_header()->nl();
 	this->save_input(*this->jd_write_);
-	this->jd_write_->write("energy per site",this->E_);
+	//this->jd_write_->write("energy per site",this->E_);
 
 	return this->filename_;
 }

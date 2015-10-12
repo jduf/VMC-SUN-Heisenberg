@@ -287,7 +287,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, un
 		m_->samples_list_.set_target();
 	}
 	if(sim->is_created()){
-		sim->set(m_->J_,m_->link_types_,m_->corr_types_,which);
+		sim->set(m_->J_,m_->obs_,which);
 		sim->run(tmp_test?10:1e6,m_->tmax_);
 #pragma omp critical(samples_list_)
 		{
@@ -350,8 +350,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	cs.init(&tmp,NULL);
 	cs.set_observables(6);
 	J_ = cs.get_GS()->get_J();
-	link_types_ = cs.get_GS()->get_link_types();
-	corr_types_ = cs.get_GS()->get_corr_types();
+	obs_ = cs.get_GS()->get_obs();
 
 	std::string msg("no samples loaded");
 	std::cout<<"#"+msg<<std::endl;
@@ -378,8 +377,7 @@ std::string VMCMinimization::Minimization::load(IOFiles& in, std::string& path, 
 	cs.init(&tmp,NULL);
 	cs.set_observables(6);
 	J_ = cs.get_GS()->get_J();
-	link_types_ = cs.get_GS()->get_link_types();
-	corr_types_ = cs.get_GS()->get_corr_types();
+	obs_ = cs.get_GS()->get_obs();
 
 	ps_size_ = 1;
 	for(unsigned int i(0);i<dof_;i++){

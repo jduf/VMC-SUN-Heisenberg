@@ -34,7 +34,7 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 	System2D<Type>(set_geometry(this->n_),set_ab(spuc,length,tilting),spuc,4,filename)
 {
 	if(this->status_==2){
-		if(!this->link_types_[0].ptr()){ 
+		if(!this->obs_.size()){ 
 			Vector<double> dir(2);
 			dir(0) = 1.0;
 			dir(1) = 0.0;
@@ -64,8 +64,8 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 		}
 
 		/*!sets the bond energy if it has not been set yet*/
-		if(this->link_types_[0].row() != this->J_.size() && this->J_.size() == 1){
-			this->J_.set(this->link_types_[0].row(),1);
+		if(this->obs_[0].size() != this->J_.size() && this->J_.size() == 1){
+			this->J_.set(this->obs_[0].size(),1);
 		}
 	}
 }
@@ -77,18 +77,13 @@ Square<Type>::~Square() = default;
 /*{protected methods*/
 template<typename Type>
 void Square<Type>::set_observables(unsigned int const& which){
-	this->E_.set(50,5,false);
-	this->corr_types_.resize(which);
+	//this->E_.set(50,5,false);
 
-	if(which>0){
-		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
-	}
 	if(which>1){ /*the long range correlation*/
-		this->corr_types_[1].set(this->n_,50,5,false);
-		this->link_types_.push_back(Matrix<int>(this->n_,2));
+		this->obs_.push_back(Observable(this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
-			this->link_types_[1](i,0) = 0;
-			this->link_types_[1](i,1) = i;
+			this->obs_[1](i,0) = 0;
+			this->obs_[1](i,1) = i;
 		}
 	}
 }

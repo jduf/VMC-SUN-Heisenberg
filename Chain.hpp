@@ -76,9 +76,9 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 		this->set_nn_links(Vector<unsigned int>(1,1)); 
 		if(this->J_.ptr()){ 
 			Vector<double> tmp(this->J_);
-			this->J_.set(this->link_types_[0].row());
+			this->J_.set(this->obs_[0].size());
 			for(unsigned int i(0);i<this->J_.size();i++){ this->J_(i) = tmp(i%tmp.size()); }
-		} else { this->J_.set(this->link_types_[0].row(),1); }
+		} else { this->J_.set(this->obs_[0].size(),1); }
 	}
 }
 
@@ -87,18 +87,13 @@ Chain<Type>::~Chain() = default;
 
 template<typename Type>
 void Chain<Type>::set_observables(unsigned int const& which){
-	this->E_.set(50,5,false);
-	this->corr_types_.resize(which);
+	//this->E_.set(50,5,false);
 
-	if(which>0){
-		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
-	}
 	if(which>1){ /*the long range correlation*/
-		this->corr_types_[1].set(this->n_,50,5,false);
-		this->link_types_.push_back(Matrix<int>(this->n_,2));
+		this->obs_.push_back(Observable(this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
-			this->link_types_[1](i,0) = 0;
-			this->link_types_[1](i,1) = i;
+			this->obs_[1](i,0) = 0;
+			this->obs_[1](i,1) = i;
 		}
 	}
 }
@@ -124,7 +119,7 @@ std::string Chain<Type>::extract_level_3(){
 	double polymerization_strength;
 	Vector<double> exponents;
 	(*this->read_)>>polymerization_strength>>exponents;
-	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<" "<<exponents<<IOFiles::endl;
+	//(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<" "<<exponents<<IOFiles::endl;
 
 	return this->filename_;
 }

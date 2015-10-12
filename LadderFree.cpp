@@ -905,8 +905,8 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 	unsigned int s0;
 	unsigned int s1;
 	for(unsigned int i(0);i<3*spuc_/2;i++){
-		s0 = link_types_[0](i,0);
-		s1 = link_types_[0](i,1);
+		s0 = obs_[0](i,0);
+		s1 = obs_[0](i,1);
 		xy0(0) = s0/2;
 		xy0(1) = s0%2;
 		xy1(0) = s1/2;
@@ -931,8 +931,8 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 			}
 		}
 
-		if(corr_types_.size()>0 && i<corr_types_[0].size()){/*bound energy*/
-			corr = corr_types_[0][i].get_x();
+		if(i<obs_[0].size()){/*bound energy*/
+			corr = obs_[0][i].get_x();
 			if(std::abs(corr)>1e-4){
 				if(corr<0){ color = "red"; }
 				else { color = "blue"; }
@@ -951,12 +951,12 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 			ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}"); 
 		}
 	}
-	if(corr_types_.size()>1){/*long range correlations*/
-		double rescale(corr_types_[1].size()?0.75/corr_types_[1][0].get_x():0);
-		for(unsigned int i(0);i<corr_types_[1].size();i++){
-			corr = corr_types_[1][i].get_x()*rescale;
+	if(obs_.size()>1){/*long range correlations*/
+		double rescale(obs_[1].size()?0.75/obs_[1][0].get_x():0);
+		for(unsigned int i(0);i<obs_[1].size();i++){
+			corr = obs_[1][i].get_x()*rescale;
 			if(std::abs(corr)>1e-4){
-				s0 = link_types_[1](i,1);
+				s0 = obs_[1](i,1);
 				xy0(0) = s0/2;
 				xy0(1) = s0%2-y_shift;
 
@@ -976,10 +976,10 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 
 /*{method needed for analysing*/
 std::string LadderFree::extract_level_6(){
-	(*data_write_)<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<asin(J_(1))<<" "<<E_<<IOFiles::endl;
+	//(*data_write_)<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<asin(J_(1))<<" "<<E_<<IOFiles::endl;
 
 	lattice(info_+path_+dir_,filename_);
-	rst_file_->figure(dir_+filename_+".png",RST::math("\\theta="+my::tostring(asin(J_(1))))+" : "+RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200")); 
+	//rst_file_->figure(dir_+filename_+".png",RST::math("\\theta="+my::tostring(asin(J_(1))))+" : "+RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200")); 
 
 	save_param(*jd_write_);
 	save_input(*jd_write_);

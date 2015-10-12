@@ -70,27 +70,27 @@ void MCSystem::update(){
 }
 
 void MCSystem::measure_new_step(){
-	for(unsigned int l(0);l<link_types_[0].row();l++){
-		obs_[0][l].set_x(0.0);
+	for(unsigned int l(0);l<obs_[0].size();l++){
+		obs_[0].set_x(l,0.0);
 		for(unsigned int p0(0);p0<m_;p0++){
 			for(unsigned int p1(0);p1<m_;p1++){
 				swap(obs_[0](l,0),obs_[0](l,1),p0,p1);
 				/*!if the new state is forbidden, r=0 and therefore there is no
 				 * need to complete the else condition*/
-				if(!is_new_state_forbidden()){ obs_[0][l].add(J_(l)*ratio(false)); }
+				if(!is_new_state_forbidden()){ obs_[0].add(l,J_(l)*ratio(false)); }
 			}
 		}
 	}
 
 	/*!compute the long range correlation*/
 	double diag_term(1.0*m_*m_/N_);
-	for(unsigned int i(1);i<corr_types_.size();i++){
-		for(unsigned int l(0);l<corr_types_[i].size();l++){
-			obs_[i][l].set_x(-diag_term);
+	for(unsigned int i(1);i<obs_.size();i++){
+		for(unsigned int l(0);l<obs_[i].size();l++){
+			obs_[i].set_x(l,-diag_term);
 			for(unsigned int p0(0);p0<m_;p0++){
 				for(unsigned int p1(0);p1<m_;p1++){
 					swap(obs_[i](l,0),obs_[i](l,1),p0,p1);
-					if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ obs_[i][l].add(1.0); }
+					if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ obs_[i].add(l,1.0); }
 				}
 			}
 		}

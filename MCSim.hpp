@@ -27,8 +27,8 @@ class MCSim {
 		/*!Creates MonteCarlo, then run on MCS_*/
 		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
 		/*}*/
-		void set(Vector<double> const& J, std::vector<Matrix<int> > const& link_types, std::vector<DataSet<double> > const& corr_types, unsigned int const& which_observables){ 
-			MCS_->set(J,link_types,corr_types,which_observables);
+		void set(Vector<double> const& J, std::vector<Observable> const& obs, unsigned int const& which){ 
+			MCS_->set(J,obs,which);
 		}
 
 

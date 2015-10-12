@@ -59,12 +59,12 @@ void SquareFermi<Type>::lattice(std::string const& path, std::string const& file
 	unsigned int s1;
 	double t;
 	for(unsigned int i(0);i<this->n_;i++) {
-		s0 = this->link_types_[0](i,0);
+		s0 = this->obs_[0](i,0);
 		xy0 = this->get_pos_in_lattice(s0);
 		this->set_pos_LxLy(xy0);
 		xy0 = (this->LxLy_*xy0).chop();
 
-		s1 = this->link_types_[0](i,1);
+		s1 = this->obs_[0](i,1);
 		xy1 = this->get_pos_in_lattice(s1);
 		this->set_pos_LxLy(xy1);
 		xy1 = (this->LxLy_*xy1).chop();

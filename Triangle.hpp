@@ -83,18 +83,12 @@ Triangle<Type>::~Triangle() = default;
 /*{protected methods*/
 template<typename Type>
 void Triangle<Type>::set_observables(unsigned int const& which){
-	this->E_.set(50,5,false);
-	this->corr_types_.resize(which);
-
-	if(which>0){
-		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
-	}
+	//this->E_.set(50,5,false);
 	if(which>1){ /*the long range correlation*/
-		this->corr_types_[1].set(this->n_,50,5,false);
-		this->link_types_.push_back(Matrix<int>(this->n_,2));
+		this->obs_.push_back(Observable(this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
-			this->link_types_[1](i,0) = 0;
-			this->link_types_[1](i,1) = i;
+			this->obs_[1](i,0) = 0;
+			this->obs_[1](i,1) = i;
 		}
 	}
 }

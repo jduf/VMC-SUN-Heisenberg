@@ -71,19 +71,19 @@ std::string ChainFermi<Type>::extract_level_8(){
 	IOFiles corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-corr.dat",true);
 	IOFiles lr_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.dat",true);
 
-	Vector<double> lr_corr(this->link_types_[0].row());
+	Vector<double> lr_corr(this->obs_[0].size());
 
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
-	(*this->read_)>>this->E_>>this->corr_types_[0]>>this->corr_types_[1];
-	(*this->data_write_)<<this->E_<<IOFiles::endl;
-	for(unsigned int i(0);i<this->corr_types_[0].size();i++){
-		corr_file<<i+0.5<<" "<<this->corr_types_[0][i]<<IOFiles::endl;
+	//(*this->read_)>>this->E_>>this->obs_[0]>>this->obs_[1];
+	//(*this->data_write_)<<this->E_<<IOFiles::endl;
+	for(unsigned int i(0);i<this->obs_[0].size();i++){
+		corr_file<<i+0.5<<" "<<this->obs_[0][i]<<IOFiles::endl;
 	}
-	for(unsigned int i(0);i<this->corr_types_[1].size();i++){
-		lr_corr_file<<i<<" "<<this->corr_types_[1][i]<<IOFiles::endl;
-		lr_corr(i) = this->corr_types_[1][i].get_x();
+	for(unsigned int i(0);i<this->obs_[1].size();i++){
+		lr_corr_file<<i<<" "<<this->obs_[1][i]<<IOFiles::endl;
+		lr_corr(i) = this->obs_[1][i].get_x();
 	}
 	/*}*/
 	/*!nearest neighbourg correlations*/
@@ -129,7 +129,7 @@ std::string ChainFermi<Type>::extract_level_8(){
 	/*}*/
 	/*!structure factor*/
 	/*{*/
-	unsigned int llr(this->corr_types_[1].size());
+	unsigned int llr(this->obs_[1].size());
 	Vector<std::complex<double> > Ck(llr,0.0);
 	std::complex<double> normalize(0.0);
 	double dk(2.0*M_PI/llr);
@@ -184,12 +184,11 @@ std::string ChainFermi<Type>::extract_level_8(){
 
 template<typename Type>
 std::string ChainFermi<Type>::extract_level_7(){
-
 	this->jd_write_->add_header()->title("System's parameters",'-');
 	this->save_param(*this->jd_write_);
 	this->save_input(*this->jd_write_);
 	this->save_output(*this->jd_write_);
-	this->jd_write_->write("energy per site",this->E_);
+	//this->jd_write_->write("energy per site",this->E_);
 	double polymerization_strength;
 	Vector<double> exponents;
 	(*this->read_)>>polymerization_strength>>exponents;

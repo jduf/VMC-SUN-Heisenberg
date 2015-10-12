@@ -3,7 +3,7 @@
 
 #include "Sampling.hpp"
 #include "Parseur.hpp"
-#include "Observables.hpp"
+#include "Observable.hpp"
 
 /*!{Class that contains the information on the state*/
 /*
@@ -30,7 +30,7 @@ class System{
 
 		/*{Handles class attributes*/
 		Vector<double> const& get_J() const { return J_; }
-		std::vector<Observable> const& get_link_types() const { return obs_; }
+		std::vector<Observable> const& get_obs() const { return obs_; }
 		void set(Vector<double> const& J, std::vector<Observable> const& obs, unsigned int const& which_observables);
 		/*!Sets the observables to default (0) values and initilizes binning*/
 		void clear_measurments();

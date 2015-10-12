@@ -40,39 +40,14 @@ Kagome<Type>::~Kagome() = default;
 
 template<typename Type>
 void Kagome<Type>::set_observables(unsigned int const& which){
-	this->E_.set(50,5,false);
-	this->corr_types_.resize(which);
+	//this->E_.set(50,5,false);
+	//this->corr_types_.resize(which);
 
-	if(which>0){
-		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
-	}
 	if(which>1){ /*the long range correlation*/
-		this->corr_types_[1].set(this->n_,50,5,false);
-		this->link_types_.push_back(Matrix<int>(this->n_,2));
+		this->obs_.push_back(Observable(this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
-			this->link_types_[1](i,0) = 0;
-			this->link_types_[1](i,1) = i;
-		}
-	}
-	if(which==6){ /*the (anti)symmetric correlation*/
-		this->corr_types_[2].set(this->n_/2,50,5,false);
-		this->corr_types_[3].set(this->n_/2,50,5,false);
-		this->corr_types_[4].set(this->n_/2,50,5,false);
-		this->corr_types_[5].set(this->n_/2,50,5,false);
-
-		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
-		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
-		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
-		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
-		for(unsigned int i(0);i<this->n_/2;i++){
-			this->link_types_[2](i,0) = 0;
-			this->link_types_[2](i,1) = 2*i;
-			this->link_types_[3](i,0) = 0;
-			this->link_types_[3](i,1) = 2*i+1;
-			this->link_types_[4](i,0) = 1;
-			this->link_types_[4](i,1) = 2*i;
-			this->link_types_[5](i,0) = 1;
-			this->link_types_[5](i,1) = 2*i+1;
+			this->obs_[1](i,0) = 0;
+			this->obs_[1](i,1) = i;
 		}
 	}
 }

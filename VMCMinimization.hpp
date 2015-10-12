@@ -67,8 +67,7 @@ class VMCMinimization{
 				double effective_time_ = 0.0;
 				unsigned int tmax_     = 0;
 				Vector<double> J_;
-				std::vector<Matrix<int> > link_types_;
-				std::vector<DataSet<double> > corr_types_;
+				std::vector<Observable> obs_;
 		};
 
 	protected:

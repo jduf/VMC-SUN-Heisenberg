@@ -7,23 +7,22 @@
 class Observable{
 	public:
 		/*!Constructor*/
-		Observable(unsigned int const& n, unsigned int const& B, unsigned int const& b, bool const& conv):
-			links_(n,2){ val_.set(n,B,b,conv); }
+		Observable(unsigned int const& n, unsigned int const& B, unsigned int const& b, bool const& conv);
 		/*!Constructor that reads from file*/
-		Observable(IOFiles& r):
-			links_(r),val_(r) {}
+		Observable(IOFiles& r);
 		/*!Copy constructor*/
 		Observable(Observable const& s) = default;
 		/*!Default destructor*/
 		virtual ~Observable() = default;
-		/*{Forbidden*/
-		Observable(Observable&&) = delete;
-		Observable& operator=(Observable) = delete;
-		/*}*/
+		Observable(Observable&&) = default;
+		Observable& operator=(Observable obs);
+
 		void set(){ val_.set(); }
 		void merge(Observable & obs){ val_.merge(obs.val_); }
 		void delete_binning(){ val_.delete_binning(); }
 		void complete_analysis(double const& convergence_criterion){ val_.complete_analysis(convergence_criterion); }
+		
+		unsigned int size() const { return links_.row(); }
 
 		int const& operator()(unsigned int const& i, unsigned int const& j) const { return links_(i,j); }
 		int& operator()(unsigned int const& i, unsigned int const& j){ return links_(i,j); }
@@ -40,7 +39,10 @@ class Observable{
 
 		Matrix<int> links_;
 		DataSet<double> val_;
+
+		void swap_to_assign(Observable& ds1, Observable& ds2);
 };
 
-
+IOFiles& operator<<(IOFiles& w, Observable const& obs);
+IOFiles& operator>>(IOFiles& r, Observable& obs);
 #endif

@@ -95,14 +95,14 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 				if(nb(j,1)!=0){ k++; }
 			}
 		}
-		this->link_types_.push_back(Matrix<int>(k,2));
+		this->obs_.push_back(Observable(k,50,5,false));
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
 			nb = get_neighbourg(i);
 			for(unsigned int j(0);j<l(i%l.size());j++){
 				if(nb(j,1)!=0){
-					this->link_types_[0](k,0) = i;
-					this->link_types_[0](k,1) = nb(j,0);
+					this->obs_[0](k,0) = i;
+					this->obs_[0](k,1) = nb(j,0);
 					k++;
 				}
 			}

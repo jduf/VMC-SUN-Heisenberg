@@ -22,7 +22,7 @@ int main(int argc, char* argv[]){
 			if(cs.get_status()==1){
 				unsigned int which(P.find("ncorr",i,false)?P.get<unsigned int>(i):1);
 				cs.set_observables(which);
-				sys.set(cs.get_GS()->get_J(),cs.get_GS()->get_link_types(),cs.get_GS()->get_corr_types(),which);
+				sys.set(cs.get_GS()->get_J(),cs.get_GS()->get_obs(),which);
 #pragma omp parallel for
 				for(unsigned int j=0;j<nruns;j++){
 					MCSystem* mcsys(NULL);
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
 						}
 					}
 
-					mcsys->set(cs.get_GS()->get_J(),cs.get_GS()->get_link_types(),cs.get_GS()->get_corr_types(),which);
+					mcsys->set(cs.get_GS()->get_J(),cs.get_GS()->get_obs(),which);
 					MonteCarlo sim(mcsys,tmax);
 					sim.thermalize(1e6);
 					sim.run();
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]){
 				sys.delete_binning();
 
 				std::cout<<sys.get_energy()<<std::endl;
-				std::vector<DataSet<double> > obs(sys.get_corr_types());
+				std::vector<Observable> obs(sys.get_obs());
 				double c(0);
 				double dc(0);
 				unsigned int N(0);

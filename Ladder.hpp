@@ -43,7 +43,7 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 	 * this_->J_ should be computed*/
 	if(this->status_==2){
 		/*!create the links if necessary*/
-		if(!this->link_types_.size()){
+		if(!this->obs_.size()){
 			Vector<unsigned int> l(2);
 			l(0) = 2;
 			l(1) = 1;
@@ -51,9 +51,9 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 		}
 
 		/*!sets the bond energy if it has not been set yet*/
-		if(this->link_types_[0].row() != this->J_.size() && this->J_.size() == 2){
+		if(this->obs_[0].size() != this->J_.size() && this->J_.size() == 2){
 			Vector<double> tmp(this->J_);
-			this->J_.set(this->link_types_[0].row());
+			this->J_.set(this->obs_[0].size());
 			for (unsigned int i=0; i<this->J_.size();i++){
 				if (i%3==1){ this->J_(i) = tmp(1); } //rungs (J⊥) -> sin(theta)
 				else{ this->J_(i) = tmp(0); }        //legs  (J‖) -> cos(theta)
@@ -61,7 +61,7 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 		}
 
 		/*!fix the names for the bond energy*/
-		if(this->J_.size()==this->link_types_[0].row()){
+		if(this->J_.size()==this->obs_[0].size()){
 			std::string tmp("theta"+my::tostring(acos(this->J_(0))));
 			this->filename_.replace(this->filename_.find("Juniform"),8,tmp);
 			this->path_.replace(this->path_.find("Juniform"),8,tmp);
@@ -83,38 +83,27 @@ Ladder<Type>::~Ladder() = default;
 
 template<typename Type>
 void Ladder<Type>::set_observables(unsigned int const& which){
-	this->corr_types_.resize(which);
-
-	if(which>0){
-		this->corr_types_[0].set(this->link_types_[0].row(),50,5,false);
-	}
 	if(which>1){ /*the long range correlation*/
-		this->corr_types_[1].set(this->n_,50,5,false);
-		this->link_types_.push_back(Matrix<int>(this->n_,2));
+		this->obs_.push_back(Observable(this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
-			this->link_types_[1](i,0) = 0;
-			this->link_types_[1](i,1) = i;
+			this->obs_[1](i,0) = 0;
+			this->obs_[1](i,1) = i;
 		}
 	}
 	if(which==6){ /*the (anti)symmetric correlation*/
-		this->corr_types_[2].set(this->n_/2,50,5,false);
-		this->corr_types_[3].set(this->n_/2,50,5,false);
-		this->corr_types_[4].set(this->n_/2,50,5,false);
-		this->corr_types_[5].set(this->n_/2,50,5,false);
-
-		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
-		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
-		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
-		this->link_types_.push_back(Matrix<int>(this->n_/2,2));
+		this->obs_.push_back(Observable(this->n_/2,50,5,false));
+		this->obs_.push_back(Observable(this->n_/2,50,5,false));
+		this->obs_.push_back(Observable(this->n_/2,50,5,false));
+		this->obs_.push_back(Observable(this->n_/2,50,5,false));
 		for(unsigned int i(0);i<this->n_/2;i++){
-			this->link_types_[2](i,0) = 0;
-			this->link_types_[2](i,1) = 2*i;
-			this->link_types_[3](i,0) = 0;
-			this->link_types_[3](i,1) = 2*i+1;
-			this->link_types_[4](i,0) = 1;
-			this->link_types_[4](i,1) = 2*i;
-			this->link_types_[5](i,0) = 1;
-			this->link_types_[5](i,1) = 2*i+1;
+			this->obs_[2](i,0) = 0;
+			this->obs_[2](i,1) = 2*i;
+			this->obs_[3](i,0) = 0;
+			this->obs_[3](i,1) = 2*i+1;
+			this->obs_[4](i,0) = 1;
+			this->obs_[4](i,1) = 2*i;
+			this->obs_[5](i,0) = 1;
+			this->obs_[5](i,1) = 2*i+1;
 		}
 	}
 }
@@ -152,8 +141,8 @@ Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {
 
 template<typename Type>
 std::string Ladder<Type>::extract_level_3(){
-	(*this->read_)>>this->E_;
-	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<IOFiles::endl;
+	//(*this->read_)>>this->E_;
+	//(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<IOFiles::endl;
 
 	return this->filename_;
 }
