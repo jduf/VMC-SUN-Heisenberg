@@ -559,7 +559,7 @@ template<typename Type>
 void Lapack<Type>::eigensystem(Vector<double>& EVal, bool compute_EVec){
 	if(mat_->row() != mat_->col()){ std::cerr<<__PRETTY_FUNCTION__<<" : matrix is not square"<<std::endl; }
 	char jobvr('N');
-	if(compute_EVec){jobvr = 'V';}
+	if(compute_EVec){ jobvr = 'V'; }
 	switch(matrix_type_){
 		case 'S':
 			{ syev(EVal,jobvr); } break;
@@ -574,7 +574,7 @@ void Lapack<Type>::eigensystem(Vector<double>& EVal, bool compute_EVec){
 
 template<typename Type>
 void Lapack<Type>::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec){
-	if(mat_->row() != mat_->col()){ std::cerr<<__PRETTY_FUNCTION__<<" : matrix is not square"<<std::endl;}
+	if(mat_->row() != mat_->col()){ std::cerr<<__PRETTY_FUNCTION__<<" : matrix is not square"<<std::endl; }
 	switch(matrix_type_){
 		case 'G':
 			{

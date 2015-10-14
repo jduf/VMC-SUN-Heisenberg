@@ -36,9 +36,7 @@ void Interpolation<double>::add_linear_term(double const& x, double& y) const {
 
 template<>
 void Interpolation<double>::add_linear_term(Matrix<double>& m){
-	for(unsigned int i(0);i<N_;i++){
-		m(i,N_) = c_[i]; 
-	}
+	for(unsigned int i(0);i<N_;i++){ m(i,N_) = c_[i]; }
 }
 
 template<>
@@ -52,9 +50,7 @@ void Interpolation<Vector<double> >::add_linear_term(Matrix<double>& m){
 
 template<>
 void Interpolation<double>::add_linear_term(SparseMatrix<double>& m){
-	for(unsigned int i(0);i<N_;i++){
-		m.push_back(i,N_,c_[i]); 
-	}
+	for(unsigned int i(0);i<N_;i++){ m.push_back(i,N_,c_[i]); }
 }
 
 template<>

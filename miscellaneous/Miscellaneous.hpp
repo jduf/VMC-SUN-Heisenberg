@@ -5,13 +5,12 @@
 #include <iostream>
 #include <sstream>
 #include <complex>
-#include <cmath> 
-#include <vector> 
-#include <limits> 
-#include <algorithm> 
+#include <cmath>
+#include <vector>
+#include <limits>
+#include <algorithm>
 
 namespace my{
-
 	template<typename Type>
 		std::string tostring(Type const& t){
 			std::ostringstream s;
@@ -24,8 +23,8 @@ namespace my{
 			std::stringstream ss(s);
 			if( ss>>out ){ return true; }
 			else {
-				std::cerr<<__PRETTY_FUNCTION__<<" incoherent types"<<std::endl; 
-				return false; 
+				std::cerr<<__PRETTY_FUNCTION__<<" incoherent types"<<std::endl;
+				return false;
 			}
 		}
 
@@ -50,7 +49,7 @@ namespace my{
 		std::string token;
 		do{
 			std::cout<<msg<<" [y/n] ";
-			std::getline(std::cin,token); 
+			std::getline(std::cin,token);
 			if(token == "y"){ return true; }
 			if(token == "n"){ return false; }
 		} while(1);
@@ -96,15 +95,15 @@ namespace my{
 	inline double chop(double const& x, double precision = 1e-10){ return (std::abs(x)<precision?0.0:x); }
 
 	inline std::complex<double> chop(std::complex<double> x, double precision = 1e-10){
-		if(std::abs(x.imag()) < precision ){x.imag(0.0);}
-		if(std::abs(x.real()) < precision ){x.real(0.0);}
-		return x; 
+		if(std::abs(x.imag()) < precision ){ x.imag(0.0); }
+		if(std::abs(x.real()) < precision ){ x.real(0.0); }
+		return x;
 	}
 	/*}*/
 
 	/*bool are_equal(T,T)*/
 	/*{*/
-	inline bool are_equal(double x, double y, double abs_tol=1e-14, double rel_tol=1e-14){ 
+	inline bool are_equal(double x, double y, double abs_tol=1e-14, double rel_tol=1e-14){
 		double diff(std::abs(x-y));
 		x = std::abs(x);
 		y = std::abs(y);
@@ -112,7 +111,7 @@ namespace my{
 		return (diff<rel_tol*x) || (diff<abs_tol);
 	}
 
-	inline bool are_equal(std::complex<double> const& x, std::complex<double> const& y, double abs_tol=1e-14, double rel_tol=1e-14){ 
+	inline bool are_equal(std::complex<double> const& x, std::complex<double> const& y, double abs_tol=1e-14, double rel_tol=1e-14){
 		if(!are_equal(std::abs(x),std::abs(y),abs_tol,rel_tol)){ return false; }
 		if(!are_equal(x.real(),y.real(),abs_tol,rel_tol)){ return false; }
 		if(!are_equal(x.imag(),y.imag(),abs_tol,rel_tol)){ return false; }
@@ -140,7 +139,7 @@ namespace my{
 			r /= g;
 			t = n / (d / g);
 			if(r > std::numeric_limits<unsigned long long>::max() / t){
-				std::cerr<<__PRETTY_FUNCTION__<<" : other bug"<<std::endl; 
+				std::cerr<<__PRETTY_FUNCTION__<<" : other bug"<<std::endl;
 			}
 			r *= t;
 		}

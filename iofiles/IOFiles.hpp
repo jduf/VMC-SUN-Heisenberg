@@ -57,7 +57,7 @@ class IOFiles{
 			void write(std::string const& var, Type const& val);
 
 		/*!Returns file_*/
-		std::fstream& stream(){ return file_;}
+		std::fstream& stream(){ return file_; }
 		/*!Returns true if the file is open as a binary file*/
 		bool const& is_binary() const { return binary_; }
 		/*!Returns true if the file is open*/

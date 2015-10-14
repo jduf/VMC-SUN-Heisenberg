@@ -17,19 +17,19 @@ class Directory {
 		/*{Forbidden*/
 		Directory(Directory const&) = delete;
 		Directory(Directory&&) = delete;
-		Directory& operator=(Directory d) = delete;
+		Directory& operator=(Directory) = delete;
 		/*}*/
 
 		/*!Returns the ith filename_*/
-		inline std::string get_name(unsigned int i) const {return filename_[i];};
+		inline std::string get_name(unsigned int i) const { return filename_[i]; }
 		/*!Returns the ith path_*/
-		inline std::string get_path(unsigned int i) const {return path_[i];};
+		inline std::string get_path(unsigned int i) const { return path_[i]; }
 		/*!Returns the ith extension_*/
-		inline std::string get_ext(unsigned int i) const {return ext_[i];};
+		inline std::string get_ext(unsigned int i) const { return ext_[i]; }
 		/*!Returns the ith path_+filename_+extension_*/
-		inline std::string operator[](unsigned int i) const {return path_[i]+filename_[i]+ext_[i];};
+		inline std::string operator[](unsigned int i) const { return path_[i]+filename_[i]+ext_[i]; }
 		/*!Returns the number of files*/
-		inline unsigned int size() const {return path_.size();};
+		inline unsigned int size() const { return path_.size(); }
 
 		/*!Prints all the path_+filename_+extension_*/
 		void print();

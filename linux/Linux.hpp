@@ -16,7 +16,7 @@
 #define MY_BIN_PDF2PNG "convert"
 #define MY_BIN_HTMLBROWSER "/usr/bin/firefox"
 
-#include <cstdlib> 
+#include <cstdlib>
 #include <string>
 #include <unistd.h>
 #include <fstream>
@@ -37,86 +37,24 @@ class Linux {
 		/*}*/
 
 		/*!Execute a UNIX command and get its exit value*/
-		void operator()(std::string cmd, bool silent){ ev_=system((cmd+(silent?" > /dev/null 2> /dev/null":"")).c_str()); }
+		void operator()(std::string cmd, bool silent);
+		static void open(std::string const& filename);
+		static void close();
+
 		/*!Returns exit value of the last command*/
 		int status(){ return ev_; }
-
 		/*!Returns a string containing the current path*/
 		std::string pwd(){ return std::string(get_current_dir_name()) + '/'; }
 
 		/*!Creates a directory with -p option*/
-		void mkdir(const char *directory, mode_t mode = 0700){
-			struct stat st;
-			ev_ = 0;
-			if (stat(directory, &st) != 0){
-				if(::mkdir(directory, mode) != 0 && errno != EEXIST){
-					ev_ = 1;
-				}
-			} else if(!S_ISDIR(st.st_mode)){
-				errno = ENOTDIR;
-				ev_ = 1;
-			}
-		}
+		void mkdir(const char *directory, mode_t mode = 0700);
+		void mkpath(const char *path, mode_t mode = 0755);
 
-		void mkpath(const char *path, mode_t mode = 0755){
-			char *pp;
-			char *sp;
-			char *copypath = strdup(path);
-
-			pp = copypath;
-			while (ev_ == 0 && (sp = strchr(pp, '/')) != 0){
-				if(sp != pp){
-					*sp = '\0';
-					mkdir(copypath, mode);
-					*sp = '/';
-				}
-				pp = sp + 1;
-			}
-			if(ev_ == 0) { mkdir(path, mode); }
-			free(copypath);
-		}
-
-		/*!open a html page into browser*/
-		void html_browser(std::string const& html){
-			std::string cmd(MY_BIN_HTMLBROWSER);
-			(*this)(cmd + " " + html, true); 
-		}
-
-		static std::string latex(std::string const& path, std::string const& filename){
-			std::string cmd(MY_BIN_LATEX);
-			cmd+= " -output-directory " +path + " ";
-			cmd+= path+filename + ".tex";
-			return cmd;
-		}
-
-		static std::string pdflatex(std::string const& path, std::string const& filename){
-			std::string cmd(MY_BIN_PDFLATEX);
-			cmd+= " -shell-escape";
-			cmd+= " -output-directory " +path + " ";
-			cmd+= filename + ".tex";
-			return cmd;
-		}
-
-		static std::string dvipdf(std::string const& path, std::string const& filename){
-			std::string cmd(MY_BIN_DVIPDF);
-			cmd+= " " + path  + filename + ".dvi ";
-			cmd+= path + filename + ".pdf ";
-			return cmd;
-		}
-
-		static std::string pdfcrop(std::string const& path, std::string const& filename){
-			std::string cmd(MY_BIN_PDFCROP);
-			cmd+= " "  + path + filename + ".pdf ";
-			cmd+=       path + filename + ".pdf > /dev/null"; 
-			return cmd;
-		}
-
-		static std::string pdf2png(std::string const& infile, std::string const& outfile){
-			std::string cmd(MY_BIN_PDF2PNG);
-			cmd+= " -density 500 -resize 20% " + infile + ".pdf " + outfile + ".png";
-			return cmd;
-		}
-
+		static std::string latex(std::string const& path, std::string const& filename);
+		static std::string pdflatex(std::string const& path, std::string const& filename);
+		static std::string dvipdf(std::string const& path, std::string const& filename);
+		static std::string pdfcrop(std::string const& path, std::string const& filename);
+		static std::string pdf2png(std::string const& infile, std::string const& outfile);
 		/*{Description*/
 		/*!Using a simple gnuplot file (with extension .gp) creates and .eps
 		 * picture and .tex file which can be used to create .pdf files via
@@ -129,37 +67,20 @@ class Linux {
 		 * picture
 		 * */
 		/*}*/
-		static std::string gp2latex(std::string const& texfile, std::string const& path, std::string const& gpfile){
-			std::string cmd(MY_BIN_GNUPLOT);
-			cmd = "cd " + path + "; " + cmd;
-			std::ifstream file(path+gpfile+".gp",std::ifstream::in);
-			std::string size;
-			if(file.is_open() && std::getline(file,size) && size.find("#latex_size") != std::string::npos){ 
-				size = size.substr(12); 
-				std::cerr<<__PRETTY_FUNCTION__<<" : set size "<<size<<std::endl;
-			} else { size = "12.15cm,7.54"; } 
-			cmd+= " -e \"set terminal epslatex color size "+size+" standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'" + texfile + ".tex\'\" ";
-			cmd+= path + gpfile + ".gp";
-			return cmd;
-		}
-
-		static std::string rst2latex(std::string const& path, std::string const& filename){
-			std::string cmd(MY_BIN_RST2LATEX);
-			cmd+= " " + path + filename + ".rst ";
-			cmd+=       path + filename + ".tex ";
-			return cmd;
-		}
-
-		static std::string rst2html(std::string const& path, std::string const& filename){
-			std::string cmd(MY_BIN_RST2HTML);
-			cmd+= " --stylesheet=" + std::string(MY_RST2HTML_STYLESHEET);
-			cmd+= " --field-name-limit=0 "; 
-			cmd+= path + filename + ".rst ";
-			cmd+= path + filename + ".html ";
-			return cmd;
-		}
+		static std::string gp2latex(std::string const& texfile, std::string const& path, std::string const& gpfile);
+		static std::string rst2latex(std::string const& path, std::string const& filename);
+		static std::string rst2html(std::string const& path, std::string const& filename);
+		static std::string html_browser(std::string const& html);
 
 	private:
+		class Bash{
+			public:
+				Bash() = default;
+				~Bash();
+				std::ofstream file_;
+		};
+
 		int ev_ = 0;//!< exit value of the last UNIX command
+		static Bash bash_;
 };
 #endif

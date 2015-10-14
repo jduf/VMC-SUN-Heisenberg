@@ -5,7 +5,7 @@
 #include <cassert>
 
 /*{Description*/
-/*!Random number generator that uses <random> of c++11. 
+/*!Random number generator that uses <random> of c++11.
  * \warning if declared outside an parallel region but used by different
  * threads, to same random number may be used by different thread (openmp)
  */
@@ -92,9 +92,9 @@ RandArray<Type>::~RandArray(){
 
 template<typename Type>
 void RandArray<Type>::set(unsigned int const& size){
-	if(rnd_){ 
+	if(rnd_){
 		for(unsigned int i(0);i<size_;i++){
-			delete rnd_[i]; 
+			delete rnd_[i];
 			rnd_[i] = NULL;
 		}
 	}

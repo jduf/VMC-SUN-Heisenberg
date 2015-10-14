@@ -21,7 +21,7 @@ class Variable{
 		/*!Method that allows a copy of the derived class*/
 		virtual Variable* clone() const = 0;
 		/*!Returns the name of the data*/
-		std::string const& get_name() const { return name_;}
+		std::string const& get_name() const { return name_; }
 
 	protected:
 		/*!Default copy constructor*/

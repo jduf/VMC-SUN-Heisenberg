@@ -1,7 +1,7 @@
 EXEC=jdread jdhtml
 
-jdread_SRCS = jdread.cpp Header.cpp IOFiles.cpp RST.cpp
-jdhtml_SRCS = jdhtml.cpp Header.cpp IOFiles.cpp RST.cpp RSTFile.cpp
+jdread_SRCS = jdread.cpp Header.cpp IOFiles.cpp RST.cpp Linux.cpp
+jdhtml_SRCS = jdhtml.cpp Header.cpp IOFiles.cpp RST.cpp RSTFile.cpp Linux.cpp 
 
 #-----------------------------------------------------------------
 

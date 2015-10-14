@@ -19,7 +19,7 @@ class Fit{
 	private:
 		const double* x_;//!< pointer on a constant x
 		const double* y_;//!< pointer on a constant y
-		std::function<double (double, const double*)> f_; 
+		std::function<double (double, const double*)> f_;
 		int m_;			//!< number of measures
 		int n_;			//!< number of parameters
 		int lwa_;		//!< bigger than m_*n_+5*n_+m_

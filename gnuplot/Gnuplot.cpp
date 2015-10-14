@@ -17,7 +17,7 @@ void Gnuplot::multiplot(){
 	multiplot_ = true;
 }
 
-void Gnuplot::title(std::string const& title){plot_+="set title '"+title+"'\n";}
+void Gnuplot::title(std::string const& title){ plot_+="set title '"+title+"'\n"; }
 
 void Gnuplot::range(std::string const& axis, std::string const& a, std::string const& b){
 	plot_+="set "+axis+"range ["+a+":"+b+"]\n";
@@ -41,7 +41,7 @@ void Gnuplot::range(std::string const& axis){
 void Gnuplot::tics(std::string const& axis, std::string const& t){
 	plot_+="set "+axis+"tics "+t+"\n";
 }
-void Gnuplot::tics(std::string const& axis, double const& t){ 
+void Gnuplot::tics(std::string const& axis, double const& t){
 	tics(axis,my::tostring(t));
 }
 void Gnuplot::tics(std::string const& axis){
@@ -82,7 +82,7 @@ void Gnuplot::create_image(bool silent, bool png){
 		command(Linux::pdflatex("/tmp/",texfile),silent);
 		if(png){ command(Linux::pdf2png("/tmp/" + texfile, path_ + filename_),silent); }
 		command("mv /tmp/" + texfile + ".pdf " + path_ + filename_ + ".pdf",silent);
-		command("rm /tmp/" + texfile + ".*",silent);
+		command("rm /tmp/" + texfile + ".* /tmp/" + texfile + "*-inc-eps-converted-to.pdf /tmp/" + texfile + "*-inc.eps",silent);
 	} else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : Linux::gp2latex(\"/tmp/\"+texfile,path_,filename_) returned an error ("<<command.status()<<")"<<std::endl;
 	}

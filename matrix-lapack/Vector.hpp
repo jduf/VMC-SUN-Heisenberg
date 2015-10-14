@@ -31,10 +31,10 @@ class Vector{
 		~Vector();
 
 		/*!Accesses the (i)th entry of the Vector*/
-		Type const& operator()(unsigned int const& i) const 
+		Type const& operator()(unsigned int const& i) const
 		{ assert(i<size_); return vec_[i]; }
 		/*!Sets the (i)th entry of the Vector*/
-		Type& operator()(unsigned int const& i) 
+		Type& operator()(unsigned int const& i)
 		{ assert(i<size_); return vec_[i]; }
 		/*!Accesses the last entry of the Vector*/
 		Type const& back() const { return vec_[size_-1]; }
@@ -43,7 +43,7 @@ class Vector{
 
 
 		/*!Assignment (using Copy-And-Swap Idiom)*/
-		Vector<Type>& operator=(Vector<Type> vec); 
+		Vector<Type>& operator=(Vector<Type> vec);
 		/*!Additions this vector with another (m1 += m2 : m1 = m1+m2)*/
 		Vector<Type>& operator+=(Vector<Type> const& vec);
 		/*!Calls operator+=(Vector<Type> const& vec)*/
@@ -82,7 +82,7 @@ class Vector{
 		template<typename Function>
 			void sort(Function cmp);
 		/*{Description*/
-		/*!Sort the datas according cmp and my own implementation of sort. 
+		/*!Sort the datas according cmp and my own implementation of sort.
 		 * \param cmp comparison method (std::greater<Type>(), std::less<Type>(),...)
 		 * \param index stores the reordering */
 		/*}*/
@@ -114,9 +114,9 @@ class Vector{
 		void swap(unsigned int i, unsigned int j);
 
 		/*!Returns the size of the Vector*/
-		unsigned int size() const {return size_;}
+		unsigned int size() const { return size_; }
 		/*!Returns the pointer to the Vector*/
-		Type* ptr() const {return vec_;}
+		Type* ptr() const { return vec_; }
 
 		void header_rst(std::string const& s, RST& rst) const;
 
@@ -134,7 +134,7 @@ template<typename Type>
 Vector<Type>::Vector(unsigned int N):
 	size_(N),
 	vec_(size_?new Type[size_]:NULL)
-{} 
+{}
 
 /*!Initializes with {min,min+dx,...,max-dx,max}*/
 template<typename Type>
@@ -216,14 +216,14 @@ template<typename Type>
 std::istream& operator>>(std::istream& flux, Vector<Type>& v){
 	unsigned int size(v.size());
 	for(unsigned int i(0);i<size;i++){
-		flux>>v.ptr()[i]; 
+		flux>>v.ptr()[i];
 	}
 	return flux;
 }
 
 template<typename Type>
 void Vector<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,"Vector("+my::tostring(size_)+")"); 
+	rst.def(s,"Vector("+my::tostring(size_)+")");
 }
 
 template<typename Type>
@@ -239,7 +239,7 @@ IOFiles& operator<<(IOFiles& w, Vector<Type> const& v){
 
 template<typename Type>
 IOFiles& operator>>(IOFiles& r, Vector<Type>& v){
-	if(r.is_binary()){ v = std::move(Vector<Type>(r)); } 
+	if(r.is_binary()){ v = std::move(Vector<Type>(r)); }
 	else { r.stream()>>v; }
 	return r;
 }
@@ -363,7 +363,7 @@ template<>
 inline Vector<double> Vector<double>::chop(double precision) const {
 	Vector<double > tmp(*this);
 	for(unsigned int i(0);i<size_;i++){
-		if(std::abs(tmp.vec_[i]) < precision ){tmp.vec_[i]=0.0;}
+		if(std::abs(tmp.vec_[i]) < precision ){ tmp.vec_[i]=0.0; }
 	}
 	return tmp;
 }
@@ -372,8 +372,8 @@ template<>
 inline Vector<std::complex<double> > Vector<std::complex<double> >::chop(double precision) const{
 	Vector<std::complex<double> > tmp(*this);
 	for(unsigned int i(0);i<size_;i++){
-		if(std::abs(tmp.vec_[i].real()) < precision ){tmp.vec_[i].real(0.0);}
-		if(std::abs(tmp.vec_[i].imag()) < precision ){tmp.vec_[i].imag(0.0);}
+		if(std::abs(tmp.vec_[i].real()) < precision ){ tmp.vec_[i].real(0.0); }
+		if(std::abs(tmp.vec_[i].imag()) < precision ){ tmp.vec_[i].imag(0.0); }
 	}
 	return tmp;
 }
@@ -426,21 +426,21 @@ Type Vector<Type>::variance() const {
 template<typename Type>
 Type Vector<Type>::sum() const {
 	Type s(0.0);
-	for(unsigned int i(0);i<size_;i++){ s += vec_[i];}
+	for(unsigned int i(0);i<size_;i++){ s += vec_[i]; }
 	return s;
 }
 
 template<typename Type>
 Type Vector<Type>::prod() const {
 	Type s(1.0);
-	for(unsigned int i(0);i<size_;i++){ s *= vec_[i];}
+	for(unsigned int i(0);i<size_;i++){ s *= vec_[i]; }
 	return s;
 }
 
 template<typename Type>
 double Vector<Type>::norm_squared() const {
 	double ns(0);
-	for(unsigned int i(0);i<size_;i++){ ns += my::norm_squared(vec_[i]);}
+	for(unsigned int i(0);i<size_;i++){ ns += my::norm_squared(vec_[i]); }
 	return ns;
 }
 /*}*/

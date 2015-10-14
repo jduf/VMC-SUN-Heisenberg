@@ -1,6 +1,6 @@
 EXEC=test
 
-test_SRCS=test.cpp RST.cpp Header.cpp IOFiles.cpp Gnuplot.cpp
+test_SRCS=test.cpp RST.cpp Header.cpp IOFiles.cpp Gnuplot.cpp Linux.cpp
 
 #-----------------------------------------------------------------
 

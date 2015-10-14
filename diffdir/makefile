@@ -1,6 +1,6 @@
 EXEC=diffdir
 
-diffdir_SRCS=diffdir.cpp Directory.cpp Parseur.cpp
+diffdir_SRCS=diffdir.cpp Directory.cpp Parseur.cpp Linux.cpp
 
 #-----------------------------------------------------------------
 

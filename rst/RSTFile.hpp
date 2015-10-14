@@ -1,8 +1,8 @@
 #ifndef DEF_RSTFILE
 #define DEF_RSTFILE
 
-#include"IOFiles.hpp"
-#include"Linux.hpp"
+#include "IOFiles.hpp"
+#include "Linux.hpp"
 
 class RSTFile:public RST{
 	public:

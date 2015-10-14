@@ -36,8 +36,8 @@ class RST{
 		static std::string target(std::string const& t);
 		static std::string scale(std::string const& t);
 
-		std::string const& get() const { return rst_;};
-		void set(std::string const& s="") { rst_ = s; };
+		std::string const& get() const { return rst_; }
+		void set(std::string const& s="") { rst_ = s; }
 
 		static std::string const nl_;	//!< string for a new line
 		static std::string const np_;	//!< string for a new paragraph

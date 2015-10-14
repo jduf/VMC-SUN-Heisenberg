@@ -1,6 +1,6 @@
 EXEC=pstricks2pdf
 
-pstricks2pdf_SRCS=pstricks2pdf.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp Directory.cpp PSTricks.cpp
+pstricks2pdf_SRCS=pstricks2pdf.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp Directory.cpp PSTricks.cpp Linux.cpp
 
 #-----------------------------------------------------------------
 

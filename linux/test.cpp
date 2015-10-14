@@ -21,6 +21,12 @@ int main(){
 	std::cout<<chrono.elapsed()<<std::endl;
 	command.mkdir("AA");
 
-	//command("gnuplot -e 'plot sin(x)'",false);
-	//std::cout<<command.status()<<std::endl;
+	command.open("gp");
+
+	command("gnuplot -e 'plot sin(x)'",false);
+	std::cout<<command.status()<<std::endl;
+
+	Linux command_bis;
+	command_bis("gnuplot -e 'plot cos(x)'",false);
+	
 }

@@ -1,6 +1,6 @@
 EXEC=run
 
-run_SRCS=run.cpp RST.cpp Header.cpp IOFiles.cpp Parseur.cpp Directory.cpp RSTFile.cpp
+run_SRCS=run.cpp RST.cpp Header.cpp IOFiles.cpp Parseur.cpp Directory.cpp RSTFile.cpp Linux.cpp
 
 #-----------------------------------------------------------------
 

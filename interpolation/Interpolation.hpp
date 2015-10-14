@@ -147,7 +147,7 @@ bool Interpolation<Type>::compute_weights(double& dx, unsigned int const& n){
 		for(unsigned int idx(0);idx<m.size();idx++){
 			m.get_idx(idx,row,col);
 			r0(row) -= m[idx]*weights_(col);
-			if(row!=col){r0(col) -= m[idx]*weights_(row);}
+			if(row!=col){ r0(col) -= m[idx]*weights_(row); }
 		}
 		p0 = r0;
 		r0_ns = r0.norm_squared();

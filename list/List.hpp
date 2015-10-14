@@ -20,15 +20,15 @@
    | ^ = Node target_       |
    |________________________|
 \endverbatim
- * The list contains 3 Nodes.  
+ * The list contains 3 Nodes.
  *
- * + head_ that has is such that head_::prev_=NULL. 
- * + tail_ that has is such that tail_::next_=NULL. 
+ * + head_ that has is such that head_::prev_=NULL.
+ * + tail_ that has is such that tail_::next_=NULL.
  * + target_ that can point to any Node
  *
  * Between head_ and tail_ there could be an many node as one wants. Each node
  * is only aware of the previous and next one.
- * 
+ *
  * A node points to a given instance of Type.
  */
 /*}*/
@@ -39,7 +39,7 @@ class List{
 		List(List&& l);
 		~List();
 		/*{Forbidden*/
-		List(List<Type> const& l) = delete;
+		List(List<Type> const&) = delete;
 		List& operator=(List) = delete;
 		/*}*/
 
@@ -47,13 +47,13 @@ class List{
 		void set_target() const { target_ = NULL; }
 		bool target_next() const;
 
-		Type& operator[](unsigned int i){ 
+		Type& operator[](unsigned int i){
 			target_ = NULL;
 			target_next();
 			while(i--){ target_next(); }
 			return (*target_->t_);
 		}
-		Type const& operator[](unsigned int i) const { 
+		Type const& operator[](unsigned int i) const {
 			target_ = NULL;
 			target_next();
 			while(i--){ target_next(); }
@@ -110,7 +110,7 @@ class List{
 				/*{Forbidden*/
 				Node(Node&&) = delete;
 				Node() = delete;
-				Node(Node const& l) = delete;
+				Node(Node const&) = delete;
 				Node& operator=(List) = delete;
 				/*}*/
 
@@ -163,7 +163,7 @@ List<Type>::Node::Node(std::shared_ptr<Type> t, Node* prev, Node* next):
 
 template<typename Type>
 List<Type>::Node::~Node(){
-	if(next_){ 
+	if(next_){
 		delete next_;
 		next_ = NULL;
 	}
@@ -174,8 +174,8 @@ List<Type>::Node::~Node(){
 /*{*/
 template<typename Type>
 std::ostream& operator<<(std::ostream& flux, List<Type> const& l){
-	flux<<"("<<l.size()<<")"; 
-	l.set_target(); 
+	flux<<"("<<l.size()<<")";
+	l.set_target();
 	while(l.target_next()){ flux<<" "<<l.get(); }
 	return flux;
 }
@@ -185,16 +185,16 @@ std::istream& operator>>(std::istream& flux, List<Type>& l){
 	unsigned int size;
 	flux>>size;
 	Type tmp;
-	while(size--){ 
+	while(size--){
 		flux>>tmp;
-		l.add_end( std::make_shared<Type>(tmp) ); 
+		l.add_end( std::make_shared<Type>(tmp) );
 	}
 	return flux;
 }
 
 template<typename Type>
 void List<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,"List("+my::tostring(size())+")"); 
+	rst.def(s,"List("+my::tostring(size())+")");
 }
 
 template<typename Type>
@@ -293,7 +293,7 @@ void List<Type>::add_sort(std::shared_ptr<Type> t, std::function<bool (Type cons
 				} else { add_start(t); }
 			}
 		} else {
-			if( cmp(*head_->t_,*t) ){ add_end(t); } 
+			if( cmp(*head_->t_,*t) ){ add_end(t); }
 			else { add_start(t); }
 		}
 	} else { add_end(t); }
@@ -395,7 +395,7 @@ void List<Type>::swap(unsigned int const& a, unsigned int const& b){
 		for(unsigned int i(0);i<a;i++){ node_a = node_a->next_; }
 		Node* node_b(node_a);
 		for(unsigned int i(0);i<b-a;i++){ node_b = node_b->next_; }
-		std::swap(node_a->t_,node_b->t_); 
+		std::swap(node_a->t_,node_b->t_);
 	}
 }
 
@@ -413,10 +413,10 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 		if(head_->next_){//check if there is at least two elements
 			switch(cmp(*tail_->t_,*t)){ //check cmp(last,t)
 				case 0://the last element is "bigger" than t
-					{ 
+					{
 						switch(cmp(*head_->t_,*t)){
 							case 0:
-								{ 
+								{
 									target_ = NULL;
 									return false;
 								}break;
@@ -428,12 +428,12 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 										target_ = target_->next_;
 										c = cmp(*target_->next_->t_,*t);
 									}
-									if(c==0){ return false; } 
-									else { 
+									if(c==0){ return false; }
+									else {
 										target_ = target_->next_;
-										return true; 
+										return true;
 									}
-								}break; 
+								}break;
 							case 2:
 								{
 									target_ = head_;
@@ -442,12 +442,12 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 						}
 					} break;
 				case 1://the last element is "smaller" than t
-					{ 
+					{
 						target_ = tail_;
 						return false;
 					} break;
 				case 2://the last element is equal to t
-					{ 
+					{
 						target_ = tail_;
 						return true;
 					} break;
@@ -455,17 +455,17 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 		} else {
 			switch(cmp(*head_->t_,*t)){//check the unique element of the list
 				case 0://the unique element is "bigger"  than t
-					{ 
+					{
 						target_ = NULL;
 						return false;
 					} break;
 				case 1://the unique element is "smaller" than t
-					{ 
+					{
 						target_ = head_;
 						return false;
 					} break;
-				case 2://the unique element is equal to t 
-					{ 
+				case 2://the unique element is equal to t
+					{
 						target_ = head_;
 						return true;
 					} break;
@@ -480,12 +480,12 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 }
 
 template<typename Type>
-bool List<Type>::target_next() const { 
+bool List<Type>::target_next() const {
 	if(target_ == NULL ){
 		if(head_){ target_ = head_; }
 		return target_;
 	}
-	target_ = target_->next_; 
+	target_ = target_->next_;
 	return target_;
 }
 
@@ -495,7 +495,7 @@ List<Type> List<Type>::sublist(unsigned int const& a, unsigned int const& b) con
 	for(unsigned int i(1);i<a;i++){ target_ = target_->next_; }
 	List<Type> tmp;
 	for(unsigned int i(0);i<b-a;i++){
-		target_ = target_->next_; 
+		target_ = target_->next_;
 		tmp.add_end(std::make_shared<Type>(*target_->t_));
 	}
 	target_ = NULL;

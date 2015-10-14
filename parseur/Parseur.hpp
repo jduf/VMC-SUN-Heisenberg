@@ -8,7 +8,7 @@ class Parseur: public Container {
 		/*{Description*/
 		/*!Constructor
 		 * \param argc=argc argument used in main(int argc, char* argv[])
-		 * \param argv[]=argv[] argument used in main(int argc, char* argv[]) 
+		 * \param argv[]=argv[] argument used in main(int argc, char* argv[])
 		 */
 		/*}*/
 		Parseur(unsigned int const& argc, char* argv[]);

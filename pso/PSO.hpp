@@ -34,7 +34,7 @@ class Particle{
 		double fbx_;		//!< value at the best position
 		Vector<double> x_;	//!< position
 		Vector<double> v_;	//!< velocity
-		Vector<double> bx_;	//!< best position 
+		Vector<double> bx_;	//!< best position
 		static Vector<double> min_;//!< min_(c) minimum value of the cth coordinate
 		static Vector<double> max_;//!< max(c) minimum value of the cth coordinate
 		static unsigned int dof_;  //!< number of degrees of freedom
@@ -130,7 +130,7 @@ void Swarm<Type>::minimize(){
 				else { local_p = Nparticles_; }
 			}
 			if(local_p<Nparticles_){
-				next_step(local_p); 
+				next_step(local_p);
 				particle_[local_p]->toggle_free();
 			} else { i--; }
 		}

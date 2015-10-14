@@ -40,13 +40,13 @@ void Lapack<double>::geqp3(double* tau, int* jpvt){
 template<>
 void Lapack<double>::gqr(unsigned int k, double* tau){
 	int info(1);
-	//if(mat_->row()>=mat_->col()){ 
+	//if(mat_->row()>=mat_->col()){
 	int const lwork(mat_->col());
 	double* work(new double[lwork]);
 	unsigned int row(mat_->row());
 	unsigned int col(mat_->col());
 	if(col>row){ col=row; }
-	dorgqr_(row, col, k, mat_->ptr(), row, tau, work, lwork, info); 
+	dorgqr_(row, col, k, mat_->ptr(), row, tau, work, lwork, info);
 	delete[] work;
 	if(info){ std::cerr<<__PRETTY_FUNCTION__<<" : info="<<info<<std::endl; }
 }
@@ -84,7 +84,7 @@ void Lapack<double>::sytrf(Vector<int>& ipiv){
 		double* work(new double[lwork]);
 		dsytrf_('U', mat_->col(), mat_->ptr(), mat_->row(), ipiv.ptr(), work, lwork, info);
 
-		if(info<0){ 
+		if(info<0){
 			std::cerr<<__PRETTY_FUNCTION__<<" : info="<<info<<std::endl;
 			ipiv.set();
 		}
@@ -310,8 +310,8 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::compl
 	char jobvr('N');
 	char jobvl('N');
 	if(REVec){
-		REVec->set(N,N); 
-		jobvr = 'V'; 
+		REVec->set(N,N);
+		jobvr = 'V';
 		ldvr = N;
 		vr = new double[N*N];
 	}
@@ -323,10 +323,10 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::compl
 	}
 	EVal.set(N);
 
-	dgeev_(jobvl, jobvr, N, mat_->ptr(), N, wr, wi, vl, ldvl, vr, ldvr, &wopt, lwork, info); 
+	dgeev_(jobvl, jobvr, N, mat_->ptr(), N, wr, wi, vl, ldvl, vr, ldvr, &wopt, lwork, info);
 	lwork = int(wopt);
 	double* work(new double[lwork]);
-	dgeev_(jobvl, jobvr, N, mat_->ptr(), N, wr, wi, vl, ldvl, vr, ldvr, work, lwork, info); 
+	dgeev_(jobvl, jobvr, N, mat_->ptr(), N, wr, wi, vl, ldvl, vr, ldvr, work, lwork, info);
 
 	for(unsigned int i(0);i<N;i++){
 		EVal(i) = std::complex<double>(wr[i],wi[i]);
@@ -350,7 +350,7 @@ void Lapack<double>::geev(Vector<std::complex<double> >& EVal, Matrix<std::compl
 		delete[] vr;
 	}
 	if(LEVec){
-		std::cerr<<__PRETTY_FUNCTION__<<" : might be a proble because LU*RU != 1 but LU*A*RU = diag"<<std::endl; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : might be a proble because LU*RU != 1 but LU*A*RU = diag"<<std::endl;
 		LEVec->set(N,N);
 		for(unsigned int j(0);j<N;j++){
 			if(j==N-1 || !(wi[j]*wi[j+1]<0 && my::are_equal(wr[j],wr[j+1]))){
@@ -385,24 +385,24 @@ void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >& EVal, Ma
 	int info(1);
 	char jobvr('N');
 	char jobvl('N');
-	if(REVec){ 
-		REVec->set(N,N); 
+	if(REVec){
+		REVec->set(N,N);
 		jobvr = 'V';
 		ldvr = N;
 		vr = REVec->ptr();
 	}
-	if(LEVec){ 
-		LEVec->set(N,N); 
+	if(LEVec){
+		LEVec->set(N,N);
 		jobvl = 'V';
 		ldvl = N;
 		vl = LEVec->ptr();
 	}
 	EVal.set(N);
 
-	zgeev_(jobvl, jobvr, N, mat_->ptr(), N, EVal.ptr(), vl, ldvl, vr, ldvr, &wopt, lwork, rwork, info); 
+	zgeev_(jobvl, jobvr, N, mat_->ptr(), N, EVal.ptr(), vl, ldvl, vr, ldvr, &wopt, lwork, rwork, info);
 	lwork = int(wopt.real());
 	std::complex<double>* work(new std::complex<double>[N*N]);
-	zgeev_(jobvl, jobvr, N, mat_->ptr(), N, EVal.ptr(), vl, ldvl, vr, ldvr, work, lwork, rwork, info); 
+	zgeev_(jobvl, jobvr, N, mat_->ptr(), N, EVal.ptr(), vl, ldvl, vr, ldvr, work, lwork, rwork, info);
 
 	delete[] work;
 

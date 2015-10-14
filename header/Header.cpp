@@ -27,8 +27,8 @@ void Header::add(std::string const& s, double const& d){
 }
 
 void Header::add(std::string const& s, bool const& d){
-	if(d){def(s + " = true", "bool");}
-	else{def(s + " = false", "bool");}
+	if(d){ def(s + " = true", "bool"); }
+	else { def(s + " = false", "bool"); }
 }
 
 void Header::add(std::string const& s, std::string const& d){

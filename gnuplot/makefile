@@ -1,7 +1,7 @@
 EXEC=test gnuplot2image
 
-test_SRCS=test.cpp Gnuplot.cpp IOFiles.cpp Header.cpp RST.cpp 
-gnuplot2image_SRCS=gnuplot2image.cpp 
+test_SRCS=test.cpp Gnuplot.cpp IOFiles.cpp Header.cpp RST.cpp Linux.cpp
+gnuplot2image_SRCS=gnuplot2image.cpp Linux.cpp
 #gnuplot2image_SRCS=gnuplot2image.cpp Gnuplot.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp 
 
 #-----------------------------------------------------------------

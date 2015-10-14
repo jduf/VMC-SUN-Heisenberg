@@ -35,7 +35,7 @@ class Binning{
 		/*!Set x_ to the mean value, dx_ to the variance*/
 		void complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv);
 		/*!Compute the mean value*/
-		Type get_x() const { return (m_bin_(0)*Ml_(0)*DPL_+bin_[0](Ml_(0)))/(1.0*Ml_(0)*DPL_+dpl_); }
+		Type get_x() const { return (m_bin_(0)*Ml_(0)*DPL_+bin_[0](Ml_(0)))/(Ml_(0)*DPL_+dpl_); }
 		/*!Compute the number of samples*/
 		double get_N() const { return 1.0*Ml_(0)*DPL_+dpl_; }
 		/*!Merge this with b*/
@@ -321,8 +321,8 @@ void Binning<Type>::complete_analysis(double const& convergence_criterion, Type&
 
 		/*!set the incertitude over x as the mean over all bins of the variance
 		 * if the slope is positive increase the incertitude */
-		dx = yb; 
-		if(num/den>0.0){ dx += num/den * xb; } 
+		dx = yb;
+		if(num/den>0.0){ dx += num/den * xb; }
 
 		/*!if the slope is flat enough, the convergence is reached*/
 		if(std::abs(num/(den*x))<convergence_criterion){ conv = true; }
@@ -385,8 +385,8 @@ Data<Type>::Data(Data<Type>&& d):
 	N_(d.N_),
 	conv_(d.conv_),
 	binning_(d.binning_)
-{ d.binning_ = NULL; 
-	std::cerr<<"move Data"<<std::endl;
+{ d.binning_ = NULL;
+	//std::cerr<<"move Data"<<std::endl;
 }
 
 template<typename Type>
@@ -502,7 +502,7 @@ void Data<Type>::add_sample(){
 
 template<typename Type>
 void Data<Type>::merge(Data const& d){
-	if(d.binning_){ 
+	if(d.binning_){
 		if(!binning_){ binning_ = new Binning<Type>(*d.binning_); }
 		else { binning_->merge(*d.binning_); }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no binning"<<std::endl; }
@@ -542,8 +542,8 @@ template<typename Type>
 DataSet<Type>::DataSet(DataSet<Type>&& ds):
 	size_(ds.size_),
 	ds_(ds.ds_)
-{ ds.ds_ = NULL; 
-	std::cerr<<"move DataSet"<<std::endl;
+{ ds.ds_ = NULL;
+	//std::cerr<<"move DataSet"<<std::endl;
 }
 
 template<typename Type>

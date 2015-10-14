@@ -97,7 +97,7 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 
 Parseur::~Parseur(){
 	for(unsigned int i(0);i<data_.size();i++){
-		if(!used_[i]){ std::cerr<<__PRETTY_FUNCTION__<<" : variable "<<data_[i]->get_name()<<" was given as input but not used"<<std::endl;}
+		if(!used_[i]){ std::cerr<<__PRETTY_FUNCTION__<<" : variable "<<data_[i]->get_name()<<" was given as input but not used"<<std::endl; }
 	}
 	if(locked_){ std::cerr<<__PRETTY_FUNCTION__<<" : the parseur was locked"<<std::endl; }
 }
