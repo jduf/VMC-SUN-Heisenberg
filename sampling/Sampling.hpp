@@ -23,6 +23,7 @@ class Binning{
 		/*!Destructor*/
 		~Binning();
 		/*{Forbidden*/
+		Binning() = delete;
 		Binning& operator=(Binning) = delete;
 		/*}*/
 
@@ -64,7 +65,7 @@ template<typename Type>
 class Data{
 	public:
 		/*!Default constructor*/
-		Data();
+		Data() = default;
 		/*!Copy constructor*/
 		Data<Type>(Data<Type> const& d);
 		/*!Move constructor*/
@@ -97,11 +98,11 @@ class Data{
 		void header_rst(std::string const& s, RST& rst) const;
 
 	private:
-		Type x_;
-		Type dx_;
-		double N_;
-		bool conv_;
-		Binning<Type>* binning_;
+		Type x_					= 0.0;
+		Type dx_				= 0.0;
+		double N_				= 0.0;
+		bool conv_				= false;
+		Binning<Type>* binning_ = NULL;
 
 		void swap_to_assign(Data<Type>& d1, Data<Type>& d2);
 };
@@ -110,7 +111,7 @@ template<typename Type>
 class DataSet{
 	public:
 		/*!Default constructor*/
-		DataSet();
+		DataSet() = default;
 		/*!Copy constructor*/
 		DataSet<Type>(DataSet<Type> const& d);
 		/*!Copy constructor*/
@@ -132,16 +133,16 @@ class DataSet{
 
 		void header_rst(std::string const& s, RST& rst) const;
 
-		unsigned int size() const { return size_;}
+		unsigned int size() const { return size_; }
 
 		Data<Type> const& operator[](unsigned int const& i) const
-		{assert(i<size_); return ds_[i];}
+		{assert(i<size_); return ds_[i]; }
 		Data<Type>& operator[](unsigned int const& i)
-		{assert(i<size_); return ds_[i];}
+		{assert(i<size_); return ds_[i]; }
 
 	private:
-		unsigned int size_;
-		Data<Type>* ds_;
+		unsigned int size_ = 0;
+		Data<Type>* ds_    = NULL;
 
 		void swap_to_assign(DataSet<Type>& ds1, DataSet<Type>& ds2);
 };
@@ -369,15 +370,6 @@ void Binning<Type>::do_merge(Vector<Type> const& bin, unsigned int const& dpl, u
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-Data<Type>::Data():
-	x_(0.0),
-	dx_(0.0),
-	N_(0),
-	conv_(false),
-	binning_(NULL)
-{}
-
-template<typename Type>
 Data<Type>::Data(Data<Type> const& d):
 	x_(d.x_),
 	dx_(d.dx_),
@@ -393,7 +385,9 @@ Data<Type>::Data(Data<Type>&& d):
 	N_(d.N_),
 	conv_(d.conv_),
 	binning_(d.binning_)
-{ d.binning_ = NULL; }
+{ d.binning_ = NULL; 
+	std::cerr<<"move Data"<<std::endl;
+}
 
 template<typename Type>
 Data<Type>::Data(IOFiles& r):
@@ -535,12 +529,6 @@ void Data<Type>::delete_binning(){
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-DataSet<Type>::DataSet():
-	size_(0),
-	ds_(NULL)
-{}
-
-template<typename Type>
 DataSet<Type>::DataSet(DataSet<Type> const& ds):
 	size_(ds.size_),
 	ds_(size_?new Data<Type>[size_]:NULL)
@@ -554,7 +542,9 @@ template<typename Type>
 DataSet<Type>::DataSet(DataSet<Type>&& ds):
 	size_(ds.size_),
 	ds_(ds.ds_)
-{ ds.ds_ = NULL; }
+{ ds.ds_ = NULL; 
+	std::cerr<<"move DataSet"<<std::endl;
+}
 
 template<typename Type>
 DataSet<Type>::DataSet(IOFiles& r):

@@ -13,14 +13,10 @@ std::string RST::scale(std::string const& t) { return "   :scale: " + t + RST::n
 std::string RST::target(std::string const& t){ return "   :target: "+ t + RST::nl_; }
 /*}*/
 
-RST::RST(std::string const& rst):
-	rst_(rst)
-{}
-
 void RST::title(std::string const& t, char const& symb){
-	rst_ += RST::np_ + t + RST::nl_;
-	for(unsigned int i(0);i<t.size();i++){ rst_ +=  symb; }
 	rst_ += RST::np_;
+	rst_ += t + RST::nl_;
+	rst_ += std::string(t.size(),symb) + RST::np_;
 }
 
 void RST::text(std::string const& t){
@@ -69,11 +65,11 @@ void RST::comment(std::string const& t){
 }
 
 void RST::np(){
-	rst_ += RST::np_; 
+	rst_ += RST::np_;
 }
 
 void RST::nl(){
-	rst_ += RST::nl_; 
+	rst_ += RST::nl_;
 }
 
 std::ostream& operator<<(std::ostream& flux, RST const& rst){

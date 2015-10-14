@@ -4,14 +4,14 @@
 /*{*/
 IOFiles::IOFiles(std::string const& filename, bool const& write):
 	filename_(filename),
-	header_(NULL),
 	write_(write),
-	binary_(test_ext()),
+	binary_(filename_.find("bin",(filename_.size()-3)) != std::string::npos),
+	header_((binary_ && filename_.find(".jdbin", (filename_.size()-6)) != std::string::npos)?new Header():NULL),
 	file_(filename_.c_str(), (binary_?(write_?(std::ios::out | std::ios::binary):(std::ios::in | std::ios::binary)) : (write_?std::ios::out : std::ios::in))),
 	open_(file_.is_open())
 {
 	if(open_){
-		if(binary_){
+		if(header_){
 			if(write_){ header_->init(filename_); }
 			else { read_header(); }
 		}
@@ -19,7 +19,7 @@ IOFiles::IOFiles(std::string const& filename, bool const& write):
 }
 
 IOFiles::~IOFiles(){
-	if(open_ && binary_){
+	if(header_){
 		if(write_){ write_header(); }
 		delete header_;
 	}
@@ -31,15 +31,6 @@ std::string const IOFiles::endl("\n");
 
 /*private methods used in the constructors, destructor or with open(std::string filename_)*/
 /*{*/
-bool IOFiles::test_ext(){
-	std::string ext("bin");
-	if(filename_.find(ext, (filename_.size() - ext.size())) != std::string::npos){
-		ext = ".jd" + ext;
-		if(filename_.find(ext, (filename_.size() - ext.size())) != std::string::npos){ header_ = new Header; }
-		return true;
-	} else { return false; }
-}
-
 void IOFiles::read_header(){
 	unsigned int N(0);
 	file_.seekg(-sizeof(unsigned int),std::ios::end);
@@ -59,9 +50,9 @@ void IOFiles::write_header(){
 	file_.write((char*)(&N),sizeof(unsigned int));
 }
 
-void IOFiles::read_string(std::string& t){
+IOFiles& IOFiles::operator>>(std::string& t){
 	if(open_ && !write_){
-		if (binary_){
+		if(binary_){
 			unsigned int N(0);
 			file_.read((char*)(&N),sizeof(unsigned int));
 			t.resize(N);
@@ -73,20 +64,19 @@ void IOFiles::read_string(std::string& t){
 				t += tmp + "\n";
 			}
 		}
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : can't read from "<<filename_<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : can't read from "<<filename_<<std::endl; }
+	return (*this);
 }
 
-void IOFiles::write_string(const char* t, unsigned int const& N){
+IOFiles& IOFiles::operator<<(std::string const& t){
 	if(open_ && write_){
 		if (binary_){
+			unsigned int N(t.size());
 			file_.write((char*)(&N),sizeof(unsigned int));
-			file_.write(t,N);
+			file_.write(t.c_str(),N);
 		} else { file_<<t<<std::flush; }
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : can't write in "<<filename_<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : can't write in "<<filename_<<std::endl; }
+	return (*this);
 }
 /*}*/
 
@@ -98,7 +88,7 @@ void IOFiles::precision(unsigned int const& N){
 }
 
 std::string IOFiles::get_header() const {
-	if(header_ && open_){ return header_->get(); }
+	if(header_){ return header_->get(); }
 	std::cerr<<__PRETTY_FUNCTION__<<" : can't read from "<<filename_<<std::endl;
 	return 0;
 }

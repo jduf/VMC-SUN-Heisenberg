@@ -14,7 +14,6 @@
 #define MY_BIN_DVIPDF "dvipdf"
 #define MY_BIN_PDFCROP "pdfcrop"
 #define MY_BIN_PDF2PNG "convert"
-#define MY_BIN_MKDIR "/bin/mkdir"
 #define MY_BIN_HTMLBROWSER "/usr/bin/firefox"
 
 #include <cstdlib> 
@@ -46,15 +45,13 @@ class Linux {
 		std::string pwd(){ return std::string(get_current_dir_name()) + '/'; }
 
 		/*!Creates a directory with -p option*/
-		//void mkdir(std::string const& directory){ 
-			//std::string cmd(MY_BIN_MKDIR);
-			//(*this)(cmd + " -p " + directory, true); 
-		//}
 		void mkdir(const char *directory, mode_t mode = 0700){
 			struct stat st;
 			ev_ = 0;
-			if (stat(directory, &st) != 0 && ::mkdir(directory, mode) != 0 && errno != EEXIST){
-				ev_ = 1;
+			if (stat(directory, &st) != 0){
+				if(::mkdir(directory, mode) != 0 && errno != EEXIST){
+					ev_ = 1;
+				}
 			} else if(!S_ISDIR(st.st_mode)){
 				errno = ENOTDIR;
 				ev_ = 1;

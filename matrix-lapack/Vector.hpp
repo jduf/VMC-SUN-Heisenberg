@@ -502,19 +502,19 @@ namespace my {
 		}
 
 	template<typename Type>
-	Vector<Type> comb(unsigned int n, int unsigned k, Vector<Type> v){
-		Vector<Type> out(nCk(n,k));
-		std::vector<char> bitmask(k, 1);
-		bitmask.resize(n, 0);
-		unsigned int i(0);
-		unsigned int s;
-		do{
-			s = 1;
-			for(unsigned int j(0);j<n;j++){ if (bitmask[j]){ s *= v(j); } }
-			out(i) = s;
-			i++;
-		} while (std::prev_permutation(bitmask.begin(), bitmask.end()));
-		return out;
-	}
+		Vector<Type> comb(unsigned int n, int unsigned k, Vector<Type> v){
+			Vector<Type> out(nCk(n,k));
+			std::vector<char> bitmask(k, 1);
+			bitmask.resize(n, 0);
+			unsigned int i(0);
+			unsigned int s;
+			do{
+				s = 1;
+				for(unsigned int j(0);j<n;j++){ if (bitmask[j]){ s *= v(j); } }
+				out(i) = s;
+				i++;
+			} while (std::prev_permutation(bitmask.begin(), bitmask.end()));
+			return out;
+		}
 }
 #endif

@@ -7,8 +7,8 @@ class RST{
 	public:
 		/*!Default constructor*/
 		RST() = default;
-		/*!Constructor that sets rst_=rst*/
-		RST(std::string const& rst);
+		/*!Constructor*/
+		RST(std::string const& rst):rst_(rst){}
 		/*!Default destructor*/
 		virtual ~RST() = default;
 		/*{Forbidden*/

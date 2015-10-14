@@ -23,14 +23,12 @@ void read_bin(){
 	double a;
 	std::string slt;
 	read>>a>>M>>c>>slt>>v;
-	std::cout<<read.get_header()<<std::endl;
-	std::cout<<a<<std::endl;
-
-	std::cout<<M<<std::endl;
-	std::cout<<c<<std::endl;
-	std::cout<<slt<<std::endl;
-	std::cout<<v<<std::endl;
-
+	//std::cout<<read.get_header()<<std::endl;
+	//std::cout<<a<<std::endl;
+	//std::cout<<M<<std::endl;
+	//std::cout<<c<<std::endl;
+	//std::cout<<slt<<std::endl;
+	//std::cout<<v<<std::endl;
 }
 
 void write_txt(){
@@ -73,7 +71,7 @@ void read_txt(){
 int main(){
 	write_bin();
 	read_bin();
-	write_txt();
-	read_txt();
+	//write_txt();
+	//read_txt();
 }
 
