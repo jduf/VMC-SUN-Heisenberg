@@ -83,7 +83,8 @@ void VMCMinimization::refine(double const& E, double const& dE){
 				iter = 0;
 				do {
 #pragma omp parallel
-					{ evaluate(best.get().get_param()); }
+					{ evaluate(best.get().get_param(),0); }
+					std::cout<<iter<<" iter "<<best.get().get_param()<<std::endl;
 				} while( iter++<10 && ( !best.get().check_conv(1e-5) || best.get().get_MCS()->get_energy().get_dx()>dE ) );
 			}
 		} else {
@@ -237,10 +238,10 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima
 	}
 }
 
-void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima){
+void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima, int const& nobs){
 	if(m_->samples_list_.size()){
 		std::cout<<"#######################"<<std::endl;
-		std::string msg("compute correlations and long range correlations for minima");
+		std::string msg("compute "+my::tostring(nobs)+" observables for minima");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 		List<MCSim> list_min;
@@ -255,7 +256,7 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima){
 		list_min.set_target();
 		while(list_min.target_next()){
 #pragma omp parallel
-			{ evaluate(list_min.get().get_param(),2); }
+			{ evaluate(list_min.get().get_param(),nobs); }
 			list_min.get().complete_analysis(1e-5);
 		}
 	} else {
@@ -272,7 +273,7 @@ void VMCMinimization::print() const {
 /*}*/
 
 /*{protected methods*/
-std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, unsigned int const& which){
+std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, int const& nobs){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 	bool tmp_test;
 #pragma omp critical(samples_list_)
@@ -287,7 +288,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, un
 		m_->samples_list_.set_target();
 	}
 	if(sim->is_created()){
-		sim->set(m_->J_,m_->obs_,which);
+		sim->set_observables(m_->obs_,nobs);
 		sim->run(tmp_test?10:1e6,m_->tmax_);
 #pragma omp critical(samples_list_)
 		{
@@ -339,18 +340,22 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 }
 
 void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::string& basename){
+	unsigned int i;
+	if(!P.find("M",i,false)){
+		std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
+		P.set("M",M);
+	}
 	s_  = new System(P);
 	dof_= P.get<unsigned int>("dof");
 	ps_ = new Vector<double>[dof_];
 
-	/*!the next block is required to configure J correctly so that path and
-	 * filename are correct*/
+	/*!Sets obs_ and gives s_ the list of nearest neighbour links*/
 	Vector<double> tmp;
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
-	cs.set_observables(6);
-	J_ = cs.get_GS()->get_J();
+	cs.set_observables(-1);
 	obs_ = cs.get_GS()->get_obs();
+	s_->set_observables(obs_,0);
 
 	std::string msg("no samples loaded");
 	std::cout<<"#"+msg<<std::endl;
@@ -371,12 +376,11 @@ std::string VMCMinimization::Minimization::load(IOFiles& in, std::string& path, 
 	in>>dof_;
 	ps_= new Vector<double>[dof_];
 
-	/*!the next block is required to compute the J setup*/
+	/*!Sets obs_ (s_ should already know the list of nearest neighbour links)*/
 	Vector<double> tmp;
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
-	cs.set_observables(6);
-	J_ = cs.get_GS()->get_J();
+	cs.set_observables(-1);
 	obs_ = cs.get_GS()->get_obs();
 
 	ps_size_ = 1;
@@ -385,7 +389,7 @@ std::string VMCMinimization::Minimization::load(IOFiles& in, std::string& path, 
 		ps_size_ *= ps_[i].size();
 	}
 
-	unsigned int n_samples(in.read<int>());
+	unsigned int n_samples(in.read<unsigned int>());
 	while(n_samples--){ samples_list_.add_end(std::make_shared<MCSim>(in)); }
 	in>>path>>basename;
 
@@ -473,11 +477,8 @@ bool VMCMinimization::Minimization::within_limit(Vector<double> const& x){
 }
 
 void VMCMinimization::Minimization::save(IOFiles& out) const {
-	/*{Description*/
-	/*!will save "empty" E_,corr_,lr_corr_ but it is required if one want to
-	 * create a System by calling System(IOFiles& r) later. Note that as s_ is
-	 * an instance of System, save_input will not save any parameter*/
-	/*}*/
+	/*!Saves a system that has not been measured but it is required for the
+	 * eventual call of System(IOFiles& r).*/
 	s_->save_input(out);
 	s_->save_output(out);
 

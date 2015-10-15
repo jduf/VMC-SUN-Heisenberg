@@ -25,7 +25,7 @@ class VMCMinimization{
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
 		void find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& best_param, double& E_range) const;
-		void find_and_run_minima(unsigned int const& max_n_minima);
+		void find_and_run_minima(unsigned int const& max_n_minima, int const& nobs);
 		void find_save_and_plot_minima(unsigned int const& max_n_minima, IOFiles& w, std::string path="", std::string filename="") const;
 
 		virtual void print() const;
@@ -66,7 +66,6 @@ class VMCMinimization{
 				double ps_size_        = 0.0; //!< parameter space size
 				double effective_time_ = 0.0;
 				unsigned int tmax_     = 0;
-				Vector<double> J_;
 				std::vector<Observable> obs_;
 		};
 
@@ -81,6 +80,6 @@ class VMCMinimization{
 		void set_time() const { time_ = Time().date("-"); }
 
 		/*!Real call to the MonteCarlo evaluation via MCSim*/
-		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, unsigned int const& obs=0);
+		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, int const& obs);
 };
 #endif

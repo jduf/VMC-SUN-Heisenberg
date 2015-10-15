@@ -7,10 +7,6 @@ int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	
 	unsigned int i;
-	if(!P.find("M",i,false)){
-		std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
-		P.set("M",M);
-	}
 	VMCMinimization m(P);
 	if(m.ready()){
 		switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
@@ -38,7 +34,7 @@ int main(int argc, char* argv[]){
 						m.save();
 
 						m.set_tmax(20);
-						m.find_and_run_minima(10);
+						m.find_and_run_minima(10,-1);
 						m.save();
 					} else { std::cerr<<__PRETTY_FUNCTION__<<" : some argument are not corretly set"<<std::endl; }
 				}break;
@@ -52,7 +48,7 @@ int main(int argc, char* argv[]){
 				}break;
 			case 2:
 				{ 
-					m.find_and_run_minima(10);
+					m.find_and_run_minima(10,-1);
 					m.save();
 				}break;
 			case 3:
@@ -63,7 +59,7 @@ int main(int argc, char* argv[]){
 			case 4:
 				{ 
 					IOFiles out("test.jdbin",true);
-					m.find_save_and_plot_minima(5,out);
+					m.find_save_and_plot_minima(10,out);
 					VMCInterpolation m2(m);
 					m2.plot();
 				} break;

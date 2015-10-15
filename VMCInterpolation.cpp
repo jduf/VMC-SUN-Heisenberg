@@ -163,7 +163,7 @@ void VMCInterpolation::print(){
 #pragma omp parallel for firstprivate(param)
 	for(unsigned int i=0;i<list_min_idx_.size();i++){
 		for(unsigned int j(0);j<m_->dof_;j++){ param(j) = m_->ps_[j](list_min_idx_[i](j)); }
-		std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
+		std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param,0));
 		if(sim.get()){
 #pragma omp critical
 			std::cerr<<__PRETTY_FUNCTION__<<" : "<<param<<" "<<interp_(param)<<" "<<sim->get_MCS()->get_energy()<<std::endl;
@@ -361,7 +361,7 @@ void VMCInterpolation::save_interp_data(Vector<double>* x, Vector<unsigned int> 
 void VMCInterpolation::evaluate(Vector<double>* x, Vector<unsigned int> const& idx, double& E, double& dE, double& Ee){
 	Vector<double> param(m_->dof_);
 	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
-	std::shared_ptr<MCSim> mcsim(VMCMinimization::evaluate(param));
+	std::shared_ptr<MCSim> mcsim(VMCMinimization::evaluate(param,0));
 	if(mcsim.get()){
 		mcsim->check_conv(1e-5);
 		E = mcsim->get_MCS()->get_energy().get_x();
@@ -377,6 +377,6 @@ void VMCInterpolation::evaluate(Vector<double>* x, Vector<unsigned int> const& i
 void VMCInterpolation::evaluate(Vector<double>* x, Vector<unsigned int> const& idx){
 	Vector<double> param(m_->dof_);
 	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
-	std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param));
+	std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param,0));
 }
 /*}*/

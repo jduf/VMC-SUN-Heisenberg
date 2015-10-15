@@ -116,7 +116,7 @@ void VMCPSO::run(){
 /*{private methods*/
 bool VMCPSO::evaluate(unsigned int const& p){
 	std::shared_ptr<MCParticle> particle(std::dynamic_pointer_cast<MCParticle>(particle_[p]));
-	std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(particle->get_param()));
+	std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(particle->get_param(),0));
 	return (sim.get()?particle->update(sim):false);
 }
 /*}*/

@@ -1,7 +1,6 @@
 #ifndef DEF_SYSTEM
 #define DEF_SYSTEM
 
-#include "Sampling.hpp"
 #include "Parseur.hpp"
 #include "Observable.hpp"
 
@@ -29,9 +28,8 @@ class System{
 		/*}*/
 
 		/*{Handles class attributes*/
-		Vector<double> const& get_J() const { return J_; }
 		std::vector<Observable> const& get_obs() const { return obs_; }
-		void set(Vector<double> const& J, std::vector<Observable> const& obs, unsigned int const& which_observables);
+		void set_observables(std::vector<Observable> const& obs, int const& nobs);
 		/*!Sets the observables to default (0) values and initilizes binning*/
 		void clear_measurments();
 		/*!Checks if the energy has converged to a stable value*/
@@ -62,9 +60,7 @@ class System{
 		/*!Returns the status of the system*/
 		unsigned int const& get_status() const { return status_; }
 		/*!Returns the energy*/
-		Data<double> const& get_energy() const {
-			return obs_[0][0]; 
-		}
+		Data<double> const& get_energy() const { return E_; }
 		/*}*/
 
 	protected:
@@ -86,6 +82,7 @@ class System{
 		 * defined within System*/
 		Vector<double> J_;				//!< bond energy
 		unsigned int status_;			//!< status of the simulation
+		Data<double> E_; 				//!< energy of the system
 		std::vector<Observable> obs_;
 };
 #endif

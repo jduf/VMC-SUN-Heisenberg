@@ -25,7 +25,7 @@ class Ladder: public System1D<Type>{
 		virtual ~Ladder()=0;
 
 	protected:
-		void set_observables(unsigned int const& which);
+		void set_observables(int nobs);
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Given N and m, save the best simulation in a text file for any n*/
@@ -82,26 +82,35 @@ template<typename Type>
 Ladder<Type>::~Ladder() = default;
 
 template<typename Type>
-void Ladder<Type>::set_observables(unsigned int const& which){
-	if(which>1){ /*the long range correlation*/
+void Ladder<Type>::set_observables(int nobs){
+	this->E_.set(50,5,false);
+	if(nobs<0){ nobs = 6; }
+	if(nobs>0){/*bond energy*/
+		this->obs_[0].set(50,5,false);
+	}
+	if(nobs>1){ /*the long range correlation*/
 		this->obs_.push_back(Observable(this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
 			this->obs_[1](i,0) = 0;
 			this->obs_[1](i,1) = i;
 		}
 	}
-	if(which==6){ /*the (anti)symmetric correlation*/
+	if(nobs==6){ /*the (anti)symmetric correlation*/
 		this->obs_.push_back(Observable(this->n_/2,50,5,false));
 		this->obs_.push_back(Observable(this->n_/2,50,5,false));
 		this->obs_.push_back(Observable(this->n_/2,50,5,false));
 		this->obs_.push_back(Observable(this->n_/2,50,5,false));
 		for(unsigned int i(0);i<this->n_/2;i++){
+			/*obs_[2]=S_10*S_1i*/
 			this->obs_[2](i,0) = 0;
 			this->obs_[2](i,1) = 2*i;
+			/*obs_[3]=S_10*S_2i*/
 			this->obs_[3](i,0) = 0;
 			this->obs_[3](i,1) = 2*i+1;
+			/*obs_[4]=S_20*S_1i*/
 			this->obs_[4](i,0) = 1;
 			this->obs_[4](i,1) = 2*i;
+			/*obs_[5]=S_20*S_2i*/
 			this->obs_[5](i,0) = 1;
 			this->obs_[5](i,1) = 2*i+1;
 		}
@@ -141,8 +150,8 @@ Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {
 
 template<typename Type>
 std::string Ladder<Type>::extract_level_3(){
-	//(*this->read_)>>this->E_;
-	//(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<IOFiles::endl;
+	(*this->read_)>>this->E_;
+	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<IOFiles::endl;
 
 	return this->filename_;
 }

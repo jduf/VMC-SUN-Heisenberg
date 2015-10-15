@@ -27,10 +27,9 @@ class MCSim {
 		/*!Creates MonteCarlo, then run on MCS_*/
 		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
 		/*}*/
-		void set(Vector<double> const& J, std::vector<Observable> const& obs, unsigned int const& which){ 
-			MCS_->set(J,obs,which);
+		void set_observables(std::vector<Observable> const& obs, int const& nobs){ 
+			MCS_->set_observables(obs,nobs);
 		}
-
 
 		/*{System and MCSystem calls*/
 		/*!Calls bool System::check_conv(double const& convergence_criterion)*/

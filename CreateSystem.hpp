@@ -86,9 +86,9 @@ class CreateSystem{
 			if(CGL_){ return CGL_->check(); }
 		}
 		/*!Calls GenericSystem::set_observables(unsigned int const& which) pure virtual method*/
-		void set_observables(unsigned int const& which) const {
-			if(RGL_){ return RGL_->set_observables(which); }
-			if(CGL_){ return CGL_->set_observables(which); }
+		void set_observables(int const& nobs) const {
+			if(RGL_){ return RGL_->set_observables(nobs); }
+			if(CGL_){ return CGL_->set_observables(nobs); }
 		}
 		/*!Calls GenericSystem::get_wf_symmetries(std::vector<Matrix<int> >& sym) pure virtual method*/
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const {

@@ -34,7 +34,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
 		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
-		virtual void set_observables(unsigned int const& which) = 0;
+		virtual void set_observables(int nobs) = 0;
 
 	protected:
 		unsigned int const spuc_;//!< site per unit cell
@@ -86,6 +86,7 @@ void GenericSystem<Type>::save_param(IOFiles& w) const {
 
 template<typename Type>
 void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
+	std::cout<<"set_nn_links should only be called once"<<std::endl;
 	if(2*l.sum()==l.size()*z_){
 		unsigned int k(0);
 		Matrix<int> nb;
@@ -95,7 +96,7 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 				if(nb(j,1)!=0){ k++; }
 			}
 		}
-		this->obs_.push_back(Observable(k,50,5,false));
+		this->obs_.push_back(Observable(k));
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
 			nb = get_neighbourg(i);

@@ -131,7 +131,7 @@ std::string ChainPolymerized::extract_level_8(){
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
-	//(*data_write_)<<t_<<" "<<E_<<IOFiles::endl;
+	(*data_write_)<<t_<<" "<<E_<<IOFiles::endl;
 	for(unsigned int i(0);i<obs_[0].size();i++){
 		corr_file<<i+0.5<<" "<<obs_[0][i]<<IOFiles::endl;
 		poly_e(i%(N_/m_)) += obs_[0][i].get_x(); 
@@ -250,7 +250,7 @@ std::string ChainPolymerized::extract_level_7(){
 		gp.label("y2","$\\dfrac{E}{n}$","rotate by 0");
 		gp.range("x","0.0","");
 		gp+="f(x) = "+std::string(my::are_equal(t_(N_/m_-1),0)?"a+b*x**c":"a+b*(x-c)*(x-c)"); 
-		//gp+="a="+my::tostring(E_.get_x());
+		gp+="a="+my::tostring(E_.get_x());
 		gp+="b=1";
 		gp+="c=1";
 		gp+="set fit quiet";

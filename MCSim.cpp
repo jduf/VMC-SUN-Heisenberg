@@ -9,8 +9,7 @@ MCSim::MCSim(Vector<double> const& param):
 MCSim::MCSim(IOFiles& r):
 	param_(r)
 {
-	unsigned int ref_type_of_MCSystem(r.read<unsigned int>());
-	switch(ref_type_of_MCSystem){
+	switch(r.read<unsigned int>()){
 		case 0:
 			{ MCS_ = std::unique_ptr<SystemBosonic<double> >(new SystemBosonic<double>(r)); } break;
 		case 1:

@@ -164,8 +164,8 @@ std::string LadderFermi<Type>::extract_level_7(){
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	/*!the +1 is the average over all runs */
 	for(unsigned int i(0);i<nruns+1;i++){ 
-		//(*this->read_)>>this->E_>>this->corr_types_[0]>>this->corr_types_[1];
-		//(*this->data_write_)<<this->E_<<" "<<(i<nruns)<<IOFiles::endl;
+		(*this->read_)>>this->E_>>this->obs_[0]>>this->obs_[1];
+		(*this->data_write_)<<this->E_<<" "<<(i<nruns)<<IOFiles::endl;
 		for(unsigned int j(0);j<this->obs_[0].size();j++){
 			corr_file<<j+0.5<<" "<<this->obs_[0][j]<<" "<<(i<nruns)<<IOFiles::endl;
 		}
@@ -251,7 +251,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 	/*}*/
 	/*!save some additionnal values */
 	/*{*/
-	//this->jd_write_->write("energy per site",this->E_);
+	this->jd_write_->write("energy per site",this->E_);
 	/*}*/
 
 	this->rst_file_->text(this->read_->get_header());
@@ -264,12 +264,12 @@ std::string LadderFermi<Type>::extract_level_7(){
 
 template<typename Type>
 std::string LadderFermi<Type>::extract_level_6(){
-	//unsigned int nof(0);
-	//(*this->read_)>>nof>>this->E_;
+	unsigned int nof(0);
+	(*this->read_)>>nof>>this->E_;
 
 	this->jd_write_->add_header()->nl();
 	this->save_input(*this->jd_write_);
-	//this->jd_write_->write("energy per site",this->E_);
+	this->jd_write_->write("energy per site",this->E_);
 
 	return this->filename_;
 }

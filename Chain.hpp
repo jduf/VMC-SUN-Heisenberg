@@ -51,7 +51,7 @@ class Chain: public System1D<Type>{
 		Vector<double> compute_J(Vector<double> const& Jp);
 
 	protected:
-		void set_observables(unsigned int const& which);
+		void set_observables(int nobs);
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Given N and m, save the best simulation in a text file for any n*/
@@ -86,10 +86,10 @@ template<typename Type>
 Chain<Type>::~Chain() = default;
 
 template<typename Type>
-void Chain<Type>::set_observables(unsigned int const& which){
-	//this->E_.set(50,5,false);
+void Chain<Type>::set_observables(int nobs){
+	this->E_.set(50,5,false);
 
-	if(which>1){ /*the long range correlation*/
+	if(nobs>1){ /*the long range correlation*/
 		this->obs_.push_back(Observable(this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
 			this->obs_[1](i,0) = 0;
@@ -119,7 +119,7 @@ std::string Chain<Type>::extract_level_3(){
 	double polymerization_strength;
 	Vector<double> exponents;
 	(*this->read_)>>polymerization_strength>>exponents;
-	//(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<" "<<exponents<<IOFiles::endl;
+	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<" "<<exponents<<IOFiles::endl;
 
 	return this->filename_;
 }

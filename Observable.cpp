@@ -1,5 +1,9 @@
 #include "Observable.hpp"
 
+Observable::Observable(unsigned int const& n):
+	links_(n,2)
+{}
+
 Observable::Observable(unsigned int const& n, unsigned int const& B, unsigned int const& b, bool const& conv):
 	links_(n,2)
 {
@@ -12,16 +16,12 @@ Observable::Observable(IOFiles& r):
 {}
 
 IOFiles& operator<<(IOFiles& w, Observable const& obs){
-	if(w.is_binary()){
-		(void)(obs);
-	}
+	if(w.is_binary()){ obs.write(w); }
 	return w;
 }
 
 IOFiles& operator>>(IOFiles& r, Observable& obs){
-	if(r.is_binary()){
-		(void)(obs);
-	} 
+	if(r.is_binary()){ obs = Observable(r); }
 	return r;
 }
 
@@ -33,4 +33,8 @@ void Observable::swap_to_assign(Observable& obs1, Observable& obs2){
 Observable& Observable::operator=(Observable obs){
 	swap_to_assign(*this,obs);
 	return (*this);
+}
+
+void Observable::write(IOFiles& w) const {
+	w<<links_<<val_;
 }

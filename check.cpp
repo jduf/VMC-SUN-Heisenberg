@@ -81,7 +81,7 @@ int main(int argc, char* argv[]){
 					} else {
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())); 
 					}
-					S->set(cs.get_GS()->get_J(),cs.get_GS()->get_obs(),which);
+					S->set_observables(cs.get_GS()->get_obs(),which);
 					std::cout<<"############# Init Monte Carlo ############"<<std::endl;
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
@@ -127,14 +127,14 @@ int main(int argc, char* argv[]){
 				MCSim mcsim(P.get<std::vector<double> >("t"));
 				System s(P);
 				mcsim.create_S(&s);
-				mcsim.set(cs.get_GS()->get_J(),cs.get_GS()->get_obs(),which);
+				mcsim.set_observables(cs.get_GS()->get_obs(),which);
 
 				mcsim.run(1e6,2);
 				mcsim.complete_analysis(1e-5);
 
 				MCSim mcsim2(P.get<std::vector<double> >("t"));
 				mcsim2.copy_S(mcsim.get_MCS());
-				mcsim2.set(cs.get_GS()->get_J(),cs.get_GS()->get_obs(),which);
+				mcsim2.set_observables(cs.get_GS()->get_obs(),which);
 				mcsim2.run(1e6,4);
 				mcsim2.complete_analysis(1e-5);
 

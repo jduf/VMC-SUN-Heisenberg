@@ -76,8 +76,8 @@ std::string ChainFermi<Type>::extract_level_8(){
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
-	//(*this->read_)>>this->E_>>this->obs_[0]>>this->obs_[1];
-	//(*this->data_write_)<<this->E_<<IOFiles::endl;
+	(*this->read_)>>this->E_>>this->obs_[0]>>this->obs_[1];
+	(*this->data_write_)<<this->E_<<IOFiles::endl;
 	for(unsigned int i(0);i<this->obs_[0].size();i++){
 		corr_file<<i+0.5<<" "<<this->obs_[0][i]<<IOFiles::endl;
 	}
@@ -188,7 +188,7 @@ std::string ChainFermi<Type>::extract_level_7(){
 	this->save_param(*this->jd_write_);
 	this->save_input(*this->jd_write_);
 	this->save_output(*this->jd_write_);
-	//this->jd_write_->write("energy per site",this->E_);
+	this->jd_write_->write("energy per site",this->E_);
 	double polymerization_strength;
 	Vector<double> exponents;
 	(*this->read_)>>polymerization_strength>>exponents;

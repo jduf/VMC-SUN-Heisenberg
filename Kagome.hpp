@@ -17,7 +17,7 @@ class Kagome: public System2D<Type>{
 		virtual ~Kagome()=0;
 
 	protected:
-		void set_observables(unsigned int const& which);
+		void set_observables(int nobs);
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const { return Vector<double>(i); }
 		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0; }
 
@@ -39,11 +39,9 @@ template<typename Type>
 Kagome<Type>::~Kagome() = default;
 
 template<typename Type>
-void Kagome<Type>::set_observables(unsigned int const& which){
-	//this->E_.set(50,5,false);
-	//this->corr_types_.resize(which);
-
-	if(which>1){ /*the long range correlation*/
+void Kagome<Type>::set_observables(int nobs){
+	this->E_.set(50,5,false);
+	if(nobs>1){ /*the long range correlation*/
 		this->obs_.push_back(Observable(this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
 			this->obs_[1](i,0) = 0;

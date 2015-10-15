@@ -20,9 +20,9 @@ int main(int argc, char* argv[]){
 		if(cs.get_status()==2){
 			cs.create();
 			if(cs.get_status()==1){
-				unsigned int which(P.find("ncorr",i,false)?P.get<unsigned int>(i):1);
-				cs.set_observables(which);
-				sys.set(cs.get_GS()->get_J(),cs.get_GS()->get_obs(),which);
+				int nobs(P.find("nobs",i,false)?P.get<int>(i):-1);
+				cs.set_observables(nobs);
+				sys.set_observables(cs.get_GS()->get_obs(),nobs);
 #pragma omp parallel for
 				for(unsigned int j=0;j<nruns;j++){
 					MCSystem* mcsys(NULL);
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
 						}
 					}
 
-					mcsys->set(cs.get_GS()->get_J(),cs.get_GS()->get_obs(),which);
+					//mcsys->set(cs.get_GS()->get_J(),cs.get_GS()->get_obs(),nobs);
 					MonteCarlo sim(mcsys,tmax);
 					sim.thermalize(1e6);
 					sim.run();
@@ -54,17 +54,13 @@ int main(int argc, char* argv[]){
 				sys.complete_analysis(1e-5);
 				sys.delete_binning();
 
-				std::cout<<sys.get_energy()<<std::endl;
 				std::vector<Observable> obs(sys.get_obs());
-				double c(0);
-				double dc(0);
-				unsigned int N(0);
-				for(unsigned int i(0);i<obs[0].size();i++){
-					c += obs[0][i].get_x();
-					dc+= obs[0][i].get_dx();
-					N += obs[0][i].get_N();
+				if(obs[0].ready()){
+					double c(0);
+					for(unsigned int i(0);i<obs[0].size();i++){ c += obs[0][i].get_x(); }
+					std::cout<<"this should be equal to the energy "<<c/obs[0].size()*3/2<<std::endl;
 				}
-				std::cout<<c<<" "<<dc<<" "<<N<<std::endl;
+				std::cout<<sys.get_energy()<<std::endl;
 
 				Linux command;
 				command.mkpath(cs.get_path().c_str());
@@ -81,10 +77,11 @@ int main(int argc, char* argv[]){
 					rst.figure("/tmp/"+cs.get_filename()+".png","bla",RST::target("/tmp/"+cs.get_filename()+".pdf")+RST::scale("200"));
 					rst.text(out.get_header());
 					rst.save(false,true);
-					command.html_browser("/tmp/"+cs.get_filename()+".html");
+					command(Linux::html_browser("/tmp/"+cs.get_filename()+".html"),true);
 					//if( my::get_yn("move the plot in the correct folder ?") ){
 					//std::cerr<<"should implement this move"<<std::endl;
 					//}
+					tmp.check();
 				}
 			}
 		}

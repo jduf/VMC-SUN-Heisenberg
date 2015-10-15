@@ -19,7 +19,7 @@ class Triangle: public System2D<Type>{
 		Vector<double> compute_J(Vector<double> const& Jp);
 
 	protected:
-		void set_observables(unsigned int const& which);
+		void set_observables(int nobs);
 		/*!Returns the neighbours of site i*/
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
@@ -82,9 +82,10 @@ Triangle<Type>::~Triangle() = default;
 
 /*{protected methods*/
 template<typename Type>
-void Triangle<Type>::set_observables(unsigned int const& which){
-	//this->E_.set(50,5,false);
-	if(which>1){ /*the long range correlation*/
+void Triangle<Type>::set_observables(int nobs){
+	this->E_.set(50,5,false);
+	if(nobs<0){ nobs = 1; }
+	if(nobs>1){ /*the long range correlation*/
 		this->obs_.push_back(Observable(this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
 			this->obs_[1](i,0) = 0;
