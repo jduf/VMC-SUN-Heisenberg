@@ -125,18 +125,18 @@ std::string ChainPolymerized::extract_level_8(){
 	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true);
 	IOFiles lr_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);
 
-	Vector<double> lr_corr(obs_[1].size());
+	Vector<double> lr_corr(obs_[1].nlinks());
 	Vector<double> poly_e(N_/m_,0);
 
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
 	(*data_write_)<<t_<<" "<<E_<<IOFiles::endl;
-	for(unsigned int i(0);i<obs_[0].size();i++){
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		corr_file<<i+0.5<<" "<<obs_[0][i]<<IOFiles::endl;
 		poly_e(i%(N_/m_)) += obs_[0][i].get_x(); 
 	}
-	for(unsigned int i(0);i<obs_[1].size();i++){
+	for(unsigned int i(0);i<obs_[1].nlinks();i++){
 		lr_corr_file<<i<<" "<<obs_[1][i]<<IOFiles::endl;
 		lr_corr(i) = obs_[1][i].get_x();
 	}
@@ -189,7 +189,7 @@ std::string ChainPolymerized::extract_level_8(){
 	/*}*/
 	/*!structure factor*/
 	/*{*/
-	unsigned int llr(obs_[1].size());
+	unsigned int llr(obs_[1].nlinks());
 	Vector<std::complex<double> > Ck(llr,0.0);
 	std::complex<double> normalize(0.0);
 	double dk(2.0*M_PI/llr);

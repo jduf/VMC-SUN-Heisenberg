@@ -328,7 +328,7 @@ std::string AnalyseChain::extract_level_2(){
 	gpenergy.create_image(true,true);
 
 	Gnuplot gpexp(analyse_+path_+dir_,filename_+"-exponents");
-	gpexp+="set multiplot";
+	gpexp.multiplot();
 	gpexp.margin("0.15","0.85","0.95","0.55");
 	gpexp+="unset xtics";
 	gpexp.range("x","0","0.037");

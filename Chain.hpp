@@ -76,9 +76,9 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 		this->set_nn_links(Vector<unsigned int>(1,1)); 
 		if(this->J_.ptr()){ 
 			Vector<double> tmp(this->J_);
-			this->J_.set(this->obs_[0].size());
+			this->J_.set(this->obs_[0].nlinks());
 			for(unsigned int i(0);i<this->J_.size();i++){ this->J_(i) = tmp(i%tmp.size()); }
-		} else { this->J_.set(this->obs_[0].size(),1); }
+		} else { this->J_.set(this->obs_[0].nlinks(),1); }
 	}
 }
 
@@ -90,10 +90,11 @@ void Chain<Type>::set_observables(int nobs){
 	this->E_.set(50,5,false);
 
 	if(nobs>1){ /*the long range correlation*/
-		this->obs_.push_back(Observable(this->n_,50,5,false));
+		this->obs_.push_back(Observable(this->n_,this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
 			this->obs_[1](i,0) = 0;
 			this->obs_[1](i,1) = i;
+			this->obs_[1](i,2) = i;
 		}
 	}
 }

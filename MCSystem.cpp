@@ -71,10 +71,10 @@ void MCSystem::update(){
 
 void MCSystem::measure_new_step(){
 	E_.set_x(0.0);
-	if(obs_[0].ready()){
+	if(obs_[0].nval()){
 		double r;
-		for(unsigned int l(0);l<obs_[0].size();l++){
-			obs_[0].set_x(l,0.0);
+		obs_[0].set_x(0.0);
+		for(unsigned int l(0);l<obs_[0].nlinks();l++){
 			for(unsigned int p0(0);p0<m_;p0++){
 				for(unsigned int p1(0);p1<m_;p1++){
 					swap(obs_[0](l,0),obs_[0](l,1),p0,p1);
@@ -89,7 +89,7 @@ void MCSystem::measure_new_step(){
 			}
 		}
 	} else {
-		for(unsigned int l(0);l<obs_[0].size();l++){
+		for(unsigned int l(0);l<obs_[0].nlinks();l++){
 			for(unsigned int p0(0);p0<m_;p0++){
 				for(unsigned int p1(0);p1<m_;p1++){
 					swap(obs_[0](l,0),obs_[0](l,1),p0,p1);
@@ -104,8 +104,8 @@ void MCSystem::measure_new_step(){
 
 	double diag_term(1.0*m_*m_/N_);
 	for(unsigned int i(1);i<obs_.size();i++){
-		for(unsigned int l(0);l<obs_[i].size();l++){
-			obs_[i].set_x(l,-diag_term);
+		obs_[i].set_x(-diag_term);
+		for(unsigned int l(0);l<obs_[i].nlinks();l++){
 			for(unsigned int p0(0);p0<m_;p0++){
 				for(unsigned int p1(0);p1<m_;p1++){
 					swap(obs_[i](l,0),obs_[i](l,1),p0,p1);

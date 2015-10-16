@@ -51,9 +51,9 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 		}
 
 		/*!sets the bond energy if it has not been set yet*/
-		if(this->obs_[0].size() != this->J_.size() && this->J_.size() == 2){
+		if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() == 2){
 			Vector<double> tmp(this->J_);
-			this->J_.set(this->obs_[0].size());
+			this->J_.set(this->obs_[0].nlinks());
 			for (unsigned int i=0; i<this->J_.size();i++){
 				if (i%3==1){ this->J_(i) = tmp(1); } //rungs (J⊥) -> sin(theta)
 				else{ this->J_(i) = tmp(0); }        //legs  (J‖) -> cos(theta)
@@ -61,7 +61,7 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 		}
 
 		/*!fix the names for the bond energy*/
-		if(this->J_.size()==this->obs_[0].size()){
+		if(this->J_.size()==this->obs_[0].nlinks()){
 			std::string tmp("theta"+my::tostring(acos(this->J_(0))));
 			this->filename_.replace(this->filename_.find("Juniform"),8,tmp);
 			this->path_.replace(this->path_.find("Juniform"),8,tmp);
@@ -85,34 +85,61 @@ template<typename Type>
 void Ladder<Type>::set_observables(int nobs){
 	this->E_.set(50,5,false);
 	if(nobs<0){ nobs = 6; }
+	unsigned int nlinks;
+	unsigned int nval;
 	if(nobs>0){/*bond energy*/
-		this->obs_[0].set(50,5,false);
-	}
-	if(nobs>1){ /*the long range correlation*/
-		this->obs_.push_back(Observable(this->n_,50,5,false));
-		for(unsigned int i(0);i<this->n_;i++){
-			this->obs_[1](i,0) = 0;
-			this->obs_[1](i,1) = i;
+		nlinks = this->obs_[0].nlinks();
+		nval = 3*this->spuc_/2;
+		this->obs_[0].set(nval,50,5,false);
+		for(unsigned int i(0);i<nlinks;i++){
+			this->obs_[0](i,2) = i%nval;
 		}
 	}
-	if(nobs==6){ /*the (anti)symmetric correlation*/
-		this->obs_.push_back(Observable(this->n_/2,50,5,false));
-		this->obs_.push_back(Observable(this->n_/2,50,5,false));
-		this->obs_.push_back(Observable(this->n_/2,50,5,false));
-		this->obs_.push_back(Observable(this->n_/2,50,5,false));
-		for(unsigned int i(0);i<this->n_/2;i++){
-			/*obs_[2]=S_10*S_1i*/
-			this->obs_[2](i,0) = 0;
-			this->obs_[2](i,1) = 2*i;
-			/*obs_[3]=S_10*S_2i*/
-			this->obs_[3](i,0) = 0;
-			this->obs_[3](i,1) = 2*i+1;
-			/*obs_[4]=S_20*S_1i*/
-			this->obs_[4](i,0) = 1;
-			this->obs_[4](i,1) = 2*i;
-			/*obs_[5]=S_20*S_2i*/
-			this->obs_[5](i,0) = 1;
-			this->obs_[5](i,1) = 2*i+1;
+	if(nobs>1){/*long range correlation*/
+		nlinks = this->spuc_*this->n_/2;
+		nval = this->n_;
+		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
+		for(unsigned int i(0);i<this->spuc_/2;i++){
+			for(unsigned int j(0);j<nlinks/2;j++){
+				//std::cout<<i<<" "<<j<<std::flush;
+				this->obs_[1](i*nlinks/2+j,0) = (2*i)%this->n_;
+				this->obs_[1](i*nlinks/2+j,1) = (2*i+j)%this->n_;
+				this->obs_[1](i*nlinks/2+j,2) = j;
+				//std::cout<<" "<<this->obs_[1](i*nlinks/2+j,0)<<" "<< this->obs_[1](i*nlinks/2+j,1)<<" " <<this->obs_[1](i*nlinks/2+j,2)<<std::endl;
+			}
+		}
+	}
+	if(nobs==6){/*(anti)symmetric correlation*/
+		nlinks = this->spuc_*this->n_/4;
+		nval = this->n_/2;
+		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
+		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
+		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
+		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
+		for(unsigned int i(0);i<this->spuc_/2;i++){
+			for(unsigned int j(0);j<nlinks/2;j++){
+				//std::cout<<i<<" "<<j<<std::flush;
+				/*obs_[2]=S_10*S_1i*/
+				this->obs_[2](i*nlinks/2+j,0) = 2*i;
+				this->obs_[2](i*nlinks/2+j,1) = (2*j+2*i)%this->n_;
+				this->obs_[2](i*nlinks/2+j,2) = j;
+				/*obs_[3]=S_10*S_2i*/
+				this->obs_[3](i*nlinks/2+j,0) = 2*i;
+				this->obs_[3](i*nlinks/2+j,1) = (2*j+2*i+1)%this->n_;
+				this->obs_[3](i*nlinks/2+j,2) = j;
+				/*obs_[4]=S_20*S_1i*/
+				this->obs_[4](i*nlinks/2+j,0) = 2*i+1;
+				this->obs_[4](i*nlinks/2+j,1) = (2*j+2*i)%this->n_;
+				this->obs_[4](i*nlinks/2+j,2) = j;
+				/*obs_[5]=S_20*S_2i*/
+				this->obs_[5](i*nlinks/2+j,0) = 2*i+1;
+				this->obs_[5](i*nlinks/2+j,1) = (2*j+1+2*i)%this->n_;
+				this->obs_[5](i*nlinks/2+j,2) = j;
+				//std::cout<<"| "<<this->obs_[2](i*nlinks/2+j,0)<<" "<< this->obs_[2](i*nlinks/2+j,1)<<" " <<this->obs_[2](i*nlinks/2+j,2)<<std::endl;
+				//std::cout<<"| "<<this->obs_[3](i*nlinks/2+j,0)<<" "<< this->obs_[3](i*nlinks/2+j,1)<<" " <<this->obs_[3](i*nlinks/2+j,2)<<std::endl;
+				//std::cout<<"| "<<this->obs_[4](i*nlinks/2+j,0)<<" "<< this->obs_[4](i*nlinks/2+j,1)<<" " <<this->obs_[4](i*nlinks/2+j,2)<<std::endl;
+				//std::cout<<"| "<<this->obs_[5](i*nlinks/2+j,0)<<" "<< this->obs_[5](i*nlinks/2+j,1)<<" " <<this->obs_[5](i*nlinks/2+j,2)<<std::endl;
+			}
 		}
 	}
 }

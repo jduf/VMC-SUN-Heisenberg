@@ -64,8 +64,8 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 		}
 
 		/*!sets the bond energy if it has not been set yet*/
-		if(this->obs_[0].size() != this->J_.size() && this->J_.size() == 1){
-			this->J_.set(this->obs_[0].size(),1);
+		if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() == 1){
+			this->J_.set(this->obs_[0].nlinks(),1);
 		}
 	}
 }
@@ -81,10 +81,11 @@ void Square<Type>::set_observables(int nobs){
 
 	if(nobs<0){ nobs = 1; }
 	if(nobs>1){ /*the long range correlation*/
-		this->obs_.push_back(Observable(this->n_,50,5,false));
+		this->obs_.push_back(Observable(this->n_,this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
 			this->obs_[1](i,0) = 0;
 			this->obs_[1](i,1) = i;
+			this->obs_[1](i,2) = i;
 		}
 	}
 }

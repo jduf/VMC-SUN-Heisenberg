@@ -101,7 +101,7 @@ void SquareFreeFlux::lattice(std::string const& path, std::string const& filenam
 	unsigned int s0;
 	unsigned int s1;
 	double y_shift(4);
-	for(unsigned int i(0);i<obs_[0].size();i++){
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		xy0 = get_pos_in_lattice(s0);
 		set_pos_LxLy(xy0);
@@ -147,8 +147,8 @@ void SquareFreeFlux::lattice(std::string const& path, std::string const& filenam
 	}
 
 	double lr_corr;
-	double rescale(obs_[1].size()?0.75/obs_[1][0].get_x():0);
-	for(unsigned int i(0);i<obs_[1].size();i++){
+	double rescale(obs_[1].nlinks()?0.75/obs_[1][0].get_x():0);
+	for(unsigned int i(0);i<obs_[1].nlinks();i++){
 		lr_corr = obs_[1][i].get_x()*rescale;
 		if(std::abs(lr_corr)>1e-4){
 			xy1 = get_pos_in_lattice(i);

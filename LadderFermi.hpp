@@ -71,7 +71,7 @@ void LadderFermi<Type>::check(){
 		std::cout<<","<<nb(1,0);
 		std::cout<<","<<nb(2,0)<<std::endl;;
 	} 
-	for(unsigned int i(0);i<this->obs_[0].size();i++){
+	for(unsigned int i(0);i<this->obs_[0].nlinks();i++){
 		std::cout<<"i="<<i;
 		std::cout<<" l="<<this->obs_[0](i,0);
 		std::cout<<","<<this->obs_[0](i,1);
@@ -154,7 +154,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 	IOFiles corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-corr.dat",true);
 	IOFiles lr_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-long-range-corr.dat",true);
 
-	Vector<double> lrc_mean(this->obs_[0].size(),0);
+	Vector<double> lrc_mean(this->obs_[0].nlinks(),0);
 	unsigned int nruns;
 	unsigned int tmax;
 
@@ -166,18 +166,18 @@ std::string LadderFermi<Type>::extract_level_7(){
 	for(unsigned int i(0);i<nruns+1;i++){ 
 		(*this->read_)>>this->E_>>this->obs_[0]>>this->obs_[1];
 		(*this->data_write_)<<this->E_<<" "<<(i<nruns)<<IOFiles::endl;
-		for(unsigned int j(0);j<this->obs_[0].size();j++){
+		for(unsigned int j(0);j<this->obs_[0].nlinks();j++){
 			corr_file<<j+0.5<<" "<<this->obs_[0][j]<<" "<<(i<nruns)<<IOFiles::endl;
 		}
-		for(unsigned int j(0);j<this->obs_[1].size();j++){
+		for(unsigned int j(0);j<this->obs_[1].nlinks();j++){
 			lr_corr_file<<j<<" "<<this->obs_[1][j]<<" "<<(i<nruns)<<IOFiles::endl;
 		}
 		if(i<nruns){
-			for(unsigned int j(0);j<this->obs_[1].size();j++){
+			for(unsigned int j(0);j<this->obs_[1].nlinks();j++){
 				lrc_mean(j) += this->obs_[1][j].get_x()/nruns;
 			}
 		} else {
-			for(unsigned int j(0);j<this->obs_[1].size();j++){
+			for(unsigned int j(0);j<this->obs_[1].nlinks();j++){
 				if(this->obs_[1][j].get_conv()){ lrc_mean(j) = this->obs_[1][j].get_x(); } 
 			}
 		}
@@ -218,7 +218,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 	/*}*/
 	/*!structure factor*/
 	/*{*/
-	unsigned int llr(this->obs_[1].size());
+	unsigned int llr(this->obs_[1].nlinks());
 	Vector<std::complex<double> > Ck(llr,0.0);
 	std::complex<double> normalize(0.0);
 	double dk(2.0*M_PI/llr);

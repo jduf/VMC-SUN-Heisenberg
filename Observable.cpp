@@ -1,19 +1,29 @@
 #include "Observable.hpp"
 
-Observable::Observable(unsigned int const& n):
-	links_(n,2)
+Observable::Observable(unsigned int const& nlinks):
+	links_(nlinks,3),
+	modulo_(0)
 {}
 
-Observable::Observable(unsigned int const& n, unsigned int const& B, unsigned int const& b, bool const& conv):
-	links_(n,2)
+Observable::Observable(unsigned int const& nlinks, unsigned int const& nval, unsigned int const& B, unsigned int const& b, bool const& conv):
+	links_(nlinks,3),
+	modulo_(0)
 {
-	val_.set(n,B,b,conv);
+	set(nval,B,b,conv);
 }
 
 Observable::Observable(IOFiles& r):
 	links_(r),
 	val_(r)
 {}
+
+void Observable::set(unsigned int const& nval, unsigned int const& B, unsigned int const& b, bool const& conv){
+	if(links_.row()%nval){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number"<<std::endl; }
+	else {
+		modulo_ = links_.row()/nval;
+		val_.set(nval,B,b,conv); 
+	}
+}
 
 IOFiles& operator<<(IOFiles& w, Observable const& obs){
 	if(w.is_binary()){ obs.write(w); }
@@ -38,3 +48,18 @@ Observable& Observable::operator=(Observable obs){
 void Observable::write(IOFiles& w) const {
 	w<<links_<<val_;
 }
+
+std::ostream& operator<<(std::ostream& flux, Observable const& obs){
+	for(unsigned int i(0);i<obs.nlinks();i++){
+		flux<<obs(i,0)<<" "<<obs(i,1)<<" "<<obs(i,2)<<" "<<obs[obs(i,2)]<<std::endl;
+	}
+	return flux;
+}
+
+void Observable::set_x(double const& val){ 
+	for(unsigned int i(0);i<val_.size();i++){ val_[i].set_x(val); }
+}
+void Observable::add(unsigned int const& i, double const& val){
+	val_[links_(i,2)].add(val/modulo_); 
+}
+void Observable::add_sample(){ val_.add_sample(); }
