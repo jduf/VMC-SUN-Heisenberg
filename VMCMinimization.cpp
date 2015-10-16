@@ -350,7 +350,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	ps_ = new Vector<double>[dof_];
 
 	/*!Sets obs_ and gives s_ the list of nearest neighbour links*/
-	Vector<double> tmp;
+	Vector<double> tmp(dof_,1.0);
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
 	cs.set_observables(-1);
@@ -377,7 +377,7 @@ std::string VMCMinimization::Minimization::load(IOFiles& in, std::string& path, 
 	ps_= new Vector<double>[dof_];
 
 	/*!Sets obs_ (s_ should already know the list of nearest neighbour links)*/
-	Vector<double> tmp;
+	Vector<double> tmp(dof_,1.0);
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
 	cs.set_observables(-1);

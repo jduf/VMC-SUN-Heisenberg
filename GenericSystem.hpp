@@ -86,7 +86,6 @@ void GenericSystem<Type>::save_param(IOFiles& w) const {
 
 template<typename Type>
 void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
-	std::cout<<"set_nn_links should only be called once"<<std::endl;
 	if(2*l.sum()==l.size()*z_){
 		unsigned int k(0);
 		Matrix<int> nb;

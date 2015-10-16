@@ -1,6 +1,6 @@
 EXEC+=mc
-EXEC+=check
-#EXEC+=min
+#EXEC+=check
+EXEC+=min
 EXEC+=study
 #EXEC+=load
 
@@ -29,17 +29,17 @@ SRCS=$(wildcard *.cpp)
 all: OPTION += -O3 -DNDEBUG
 all:$(EXEC)
 	cp mc ../sim
-	cp check ../sim
+	#cp check ../sim
 	cp min ../sim
-	cp load ../sim
+	#cp load ../sim
 	cp study ..
 
 debug: OPTION += -ggdb 
 debug:$(EXEC)
 	cp mc ../sim
-	cp check ../sim
+	#cp check ../sim
 	cp min ../sim
-	cp load ../sim
+	#cp load ../sim
 	cp study ..
 
 .SECONDEXPANSION:

@@ -75,7 +75,6 @@ void LadderFree::save_param(IOFiles& w) const {
 
 unsigned int LadderFree::set_spuc(Vector<double> const& t){
 	switch(t.size()){
-		case 0: { return 1; } break;//!to allow a silent construction in case of undefined t
 		case 2: { return 2; } break;
 		case 5: { return 4; } break;
 		case 8: { return 6; } break;
@@ -922,20 +921,10 @@ void LadderFree::check(){
 		std::complex<double> normalize_p(0.0);
 		double dk(2.0*M_PI/llr);
 
-		double mean_p(0.0);
-		double mean_m(0.0);
-		for(unsigned int i(0);i<llr;i++){
-			mean_m += obs_[2][i].get_x()-obs_[3][i].get_x()-obs_[4][i].get_x()+obs_[5][i].get_x();
-			mean_p += obs_[2][i].get_x()+obs_[3][i].get_x()+obs_[4][i].get_x()+obs_[5][i].get_x();
-		}
-		mean_m /= llr;
-		mean_p /= llr;
-		std::cout<<"I substract the mean to compute the structure factor "<<mean_m<<" "<<mean_p<<std::endl;
-
 		for(unsigned int k(0);k<llr;k++){
 			for(unsigned int i(0);i<llr;i++){
-				Ckm(k) += std::polar(obs_[2][i].get_x()-obs_[3][i].get_x()-obs_[4][i].get_x()+obs_[5][i].get_x()-mean_m,dk*k*i);
-				Ckp(k) += std::polar(obs_[2][i].get_x()+obs_[3][i].get_x()+obs_[4][i].get_x()+obs_[5][i].get_x()-mean_p,dk*k*i);
+				Ckm(k) += std::polar(obs_[2][i].get_x()-obs_[3][i].get_x()-obs_[4][i].get_x()+obs_[5][i].get_x(),dk*k*i);
+				Ckp(k) += std::polar(obs_[2][i].get_x()+obs_[3][i].get_x()+obs_[4][i].get_x()+obs_[5][i].get_x(),dk*k*i);
 			}
 			normalize_m += Ckm(k); 
 			normalize_p += Ckp(k); 
