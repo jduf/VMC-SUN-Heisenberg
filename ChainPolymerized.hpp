@@ -17,7 +17,7 @@ class ChainPolymerized: public Chain<double> {
 		void create();
 		void save_param(IOFiles& w) const;
 		void check();
-		
+
 	private:
 		Vector<double> t_;//!< polymerization parameter 
 
@@ -25,7 +25,7 @@ class ChainPolymerized: public Chain<double> {
 		std::string extract_level_8();
 		std::string extract_level_7();
 
-	private:
+		void energy_bound(std::string const& path, std::string const& title);
 		unsigned int set_spuc(Vector<double> const& t, unsigned int const& spuc);
 };
 #endif

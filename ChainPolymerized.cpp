@@ -93,9 +93,8 @@ void ChainPolymerized::save_param(IOFiles& w) const {
 }
 
 unsigned int ChainPolymerized::set_spuc(Vector<double> const& t, unsigned int const& spuc){
-	if(t.size() == spuc && !my::are_equal(t,Vector<double>(spuc,1.0))){ 
-		return spuc; 
-	} else { 
+	if(t.size() == spuc && !my::are_equal(t,Vector<double>(spuc,1.0))){ return spuc; }
+	else { 
 		std::cerr<<__PRETTY_FUNCTION__<<" : invalid t size : "<<t.size()<<std::endl;
 		return 1; 
 	}
@@ -104,8 +103,34 @@ unsigned int ChainPolymerized::set_spuc(Vector<double> const& t, unsigned int co
 
 /*{method needed for checking*/
 void ChainPolymerized::check(){
-	compute_H();
-	plot_band_structure();
+	energy_bound("./","check");
+	long_range_correlation_and_structure_factor("./","check");
+}
+
+void ChainPolymerized::energy_bound(std::string const& path, std::string const& title){
+	IOFiles corr_file(path+filename_+"-corr.dat",true);
+	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
+
+	Vector<double> poly_e(N_/m_,0);
+	for(unsigned int i(0);i<obs_[0].nval();i++){
+		corr_file<<i+0.5<<" "<<obs_[0][i]<<IOFiles::endl;
+		poly_e(i%(N_/m_)) += obs_[0][i].get_x(); 
+	}
+	poly_e /= n_*m_/N_;
+	poly_e.sort(std::less<double>());
+
+	Gnuplot gp(path,filename_+"-corr");
+	gp+="set key center";
+	gp.label("x","site","offset 0,0.5");
+	gp.label("y2","$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$");
+	gp.title(title);
+	gp+="plot '"+filename_+"-corr.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
+	gp+="     "+my::tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merization="+my::tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
+	gp+="     "+my::tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
+	gp.save_file();
+	gp.create_image(true,true);
+
+	if(jd_write_){ jd_write_->write("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2)); }
 }
 /*}*/
 
@@ -120,119 +145,18 @@ std::string ChainPolymerized::extract_level_8(){
 	t_string += my::tostring(t_.back())+")";
 	std::string title("$N="+my::tostring(N_)+"$ $m="+my::tostring(m_)+"$ $n="+my::tostring(n_)+"$ bc="+my::tostring(bc_)+" $t_{ij}="+t_string+"$");
 
-	/*!extract jdbin*/
-	/*{*/
-	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true);
-	IOFiles lr_corr_file(analyse_+path_+dir_+filename_+"-long-range-corr.dat",true);
-
-	Vector<double> lr_corr(obs_[1].nlinks());
-	Vector<double> poly_e(N_/m_,0);
-
-	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
-	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
-
 	(*data_write_)<<t_<<" "<<E_<<IOFiles::endl;
-	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		corr_file<<i+0.5<<" "<<obs_[0][i]<<IOFiles::endl;
-		poly_e(i%(N_/m_)) += obs_[0][i].get_x(); 
-	}
-	for(unsigned int i(0);i<obs_[1].nlinks();i++){
-		lr_corr_file<<i<<" "<<obs_[1][i]<<IOFiles::endl;
-		lr_corr(i) = obs_[1][i].get_x();
-	}
-	poly_e /= n_*m_/N_;
-	poly_e.sort(std::less<double>());
-	/*}*/
-	/*!nearest neighbourg correlations*/
-	/*{*/
-	Gnuplot gp(analyse_+path_+dir_,filename_+"-corr");
-	gp+="set key center";
-	gp.label("x","site","offset 0,0.5");
-	gp.label("y2","$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$");
-	gp.title(title);
-	gp+="plot '"+filename_+"-corr.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
-	gp+="     "+my::tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merization="+my::tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
-	gp+="     "+my::tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
-	gp.save_file();
-	//gp.create_image(true);
-	rst_file_->figure(basename+"-corr.png","Correlation on links",RST::target(basename+"-corr.gp")+RST::width("1000"));
-	/*}*/
-	/*!long range correlations*/
-	/*{*/
-	unsigned int xi;
-	unsigned int xf;
-	Vector<double> exponents;
-	bool fit(compute_critical_exponents(lr_corr,xi,xf,exponents));
-
-	Gnuplot gplr(analyse_+path_+dir_,filename_+"-long-range-corr");
-	gplr.range("x",N_/m_,n_-N_/m_);
-	gplr.label("x","$\\|i-j\\|$","offset 0,0.5");
-	gplr.label("y2","$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$","offset 1");
-	gp.title(title);
-	gplr+="set key center bottom";
-	gplr+="set sample 1000";
-	gplr+="m="+my::tostring(m_)+".0";
-	gplr+="N="+my::tostring(N_)+".0";
-	gplr+="n="+my::tostring(n_)+".0";
-	gplr+="p0 = 1.0";
-	gplr+="p1 = 2.0-2.0/N";
-	gplr+="p2 = -1.0";
-	gplr+="p3 = 2.0";
-	gplr+="f(x) = p0*cos(2.0*pi*x*m/N)*(x**(-p1)+(n-x)**(-p1))+p2*(x**(-p3)+(n-x)**(-p3))";
-	gplr+="set fit quiet";
-	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+filename_+"-long-range-corr.dat' u 1:2 noerrors via p0,p1,p2,p3"; 
-	gplr+="plot '"+filename_+"-long-range-corr.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
-	gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
-	gplr.save_file();
-	//gplr.create_image(true);
-	rst_file_->figure(basename+"-long-range-corr.png","Long range correlation",RST::target(basename+"-long-range-corr.gp")+RST::width("1000"));
-	/*}*/
-	/*!structure factor*/
-	/*{*/
-	unsigned int llr(obs_[1].nlinks());
-	Vector<std::complex<double> > Ck(llr,0.0);
-	std::complex<double> normalize(0.0);
-	double dk(2.0*M_PI/llr);
-
-	for(unsigned int k(0);k<llr;k++){
-		for(unsigned int i(0);i<llr;i++){
-			Ck(k) += std::polar(lr_corr(i),dk*k*i);
-		}
-		normalize += Ck(k); 
-	}
-	Ck /= dk*normalize;
-
-	IOFiles data_sf(analyse_+path_+dir_+filename_+"-structure-factor.dat",true);
-	for(unsigned int k(0);k<llr;k++){
-		data_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<IOFiles::endl;
-	}
-
-	Gnuplot gpsf(analyse_+path_+dir_,filename_+"-structure-factor");
-	gp.title(title);
-	gpsf+="set key bottom";
-	gpsf.range("x","0","2*pi");
-	switch(N_/m_){
-		case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0, '$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
-		case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
-		default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
-	}
-	gpsf.label("x","$k$","offset 0,0.5");
-	gpsf.label("y2","$<S(k)>$");
-	gpsf+="plot '"+filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";
-	gpsf+="     '"+filename_+"-structure-factor.dat' u 1:3 lt 1 lc 7 t 'imag'";
-	gpsf.save_file();
-	//gpsf.create_image(true);
-	rst_file_->figure(basename+"-structure-factor.png","Structure factor",RST::target(basename+"-structure-factor.gp")+RST::width("1000"));
-	/*}*/
-	/*!save*/
-	/*{*/
 	jd_write_->add_header()->title("System's parameters",'-');
 	save_param(*jd_write_);
 	save_input(*jd_write_);
 	save_output(*jd_write_);
-	jd_write_->write("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2));
-	jd_write_->write("critical exponents",exponents);
-	/*}*/
+
+	energy_bound(analyse_+path_+dir_,title);
+	rst_file_->figure(basename+"-corr.png","Correlation on links",RST::target(basename+"-corr.gp")+RST::width("1000"));
+
+	long_range_correlation_and_structure_factor(analyse_+path_+dir_,title);
+	rst_file_->figure(basename+"-long-range-corr.png","Long range correlation",RST::target(basename+"-long-range-corr.gp")+RST::width("1000"));
+	rst_file_->figure(basename+"-structure-factor.png","Structure factor",RST::target(basename+"-structure-factor.gp")+RST::width("1000"));
 
 	rst_file_->text(read_->get_header());
 	rst_file_->save(false,true);

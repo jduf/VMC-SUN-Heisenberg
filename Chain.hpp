@@ -58,7 +58,9 @@ class Chain: public System1D<Type>{
 		std::string extract_level_3();
 		/*!Find the best range to compute the critcal exponents*/
 		bool compute_critical_exponents(Vector<double> const& lrc, unsigned int& xi, unsigned int& xf, Vector<double>& p);
-		void lattice(std::string const& path, std::string const& filename){(void)(path);(void)(filename);};
+		void lattice(std::string const& path, std::string const& filename){ (void)(path);(void)(filename); }
+
+		void long_range_correlation_and_structure_factor(std::string const& path, std::string const& title);
 
 	private:
 		/*{Description*/
@@ -73,7 +75,9 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,2,filename)
 {
 	if(this->status_==2){
-		this->set_nn_links(Vector<unsigned int>(1,1)); 
+		if(!this->obs_.size()){
+			this->set_nn_links(Vector<unsigned int>(1,1)); 
+		}
 		if(this->J_.ptr()){ 
 			Vector<double> tmp(this->J_);
 			this->J_.set(this->obs_[0].nlinks());
@@ -89,12 +93,27 @@ template<typename Type>
 void Chain<Type>::set_observables(int nobs){
 	this->E_.set(50,5,false);
 
-	if(nobs>1){ /*the long range correlation*/
-		this->obs_.push_back(Observable(this->n_,this->n_,50,5,false));
+	if(nobs<0){ nobs = 2; }
+	unsigned int nlinks;
+	unsigned int nval;
+	if(nobs>0){/*bond energy*/
+		nlinks = this->obs_[0].nlinks();
+		nval = this->spuc_;
+		this->obs_[0].set(nval,50,5,false);
+		for(unsigned int i(0);i<nlinks;i++){
+			this->obs_[0](i,2) = i%nval;
+		}
+	}
+	if(nobs==2){/*long range correlation*/
+		nlinks = this->n_*this->n_;
+		nval = this->n_;
+		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
-			this->obs_[1](i,0) = 0;
-			this->obs_[1](i,1) = i;
-			this->obs_[1](i,2) = i;
+			for(unsigned int j(0);j<nval;j++){
+				this->obs_[1](i*nval+j,0) = i%this->n_;
+				this->obs_[1](i*nval+j,1) = (i+j)%this->n_;
+				this->obs_[1](i*nval+j,2) = j;
+			}
 		}
 	}
 }
@@ -216,5 +235,85 @@ void Chain<Type>::do_fit(Vector<double> const& lrc, unsigned int const& xi, unsi
 
 	R_squared = 1-rss/tss*(x.size()-1)/(x.size()-p.size());
 	d_squared = rss/(x.size()-p.size());
+}
+
+template<typename Type>
+void Chain<Type>::long_range_correlation_and_structure_factor(std::string const& path, std::string const& title){
+	/*!long range correlations*/
+	/*{*/
+	IOFiles lr_corr_file(path+this->filename_+"-long-range-corr.dat",true);
+	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
+
+	Vector<double> lr_corr(this->obs_[1].nval());
+	for(unsigned int i(0);i<this->obs_[1].nval();i++){
+		lr_corr_file<<i<<" "<<this->obs_[1][i]<<IOFiles::endl;
+		lr_corr(i) = this->obs_[1][i].get_x();
+	}
+
+	unsigned int xi;
+	unsigned int xf;
+	Vector<double> exponents;
+	bool fit(this->compute_critical_exponents(lr_corr,xi,xf,exponents));
+
+	Gnuplot gplr(path,this->filename_+"-long-range-corr");
+	gplr.range("x",this->N_/this->m_,this->n_-this->N_/this->m_);
+	gplr.label("x","$\\|i-j\\|$","offset 0,0.5");
+	gplr.label("y2","$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$","offset 1");
+	gplr.title(title);
+	gplr+="set key center bottom";
+	gplr+="set sample 1000";
+	gplr+="m="+my::tostring(this->m_)+".0";
+	gplr+="N="+my::tostring(this->N_)+".0";
+	gplr+="n="+my::tostring(this->n_)+".0";
+	gplr+="p0 = 1.0";
+	gplr+="p1 = 2.0-2.0/N";
+	gplr+="p2 = -1.0";
+	gplr+="p3 = 2.0";
+	gplr+="f(x) = p0*cos(2.0*pi*x*m/N)*(x**(-p1)+(n-x)**(-p1))+p2*(x**(-p3)+(n-x)**(-p3))";
+	gplr+="set fit quiet";
+	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+this->filename_+"-long-range-corr.dat' u 1:2 noerrors via p0,p1,p2,p3"; 
+	gplr+="plot '"+this->filename_+"-long-range-corr.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
+	gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
+	gplr.save_file();
+	gplr.create_image(true,true);
+	/*}*/
+	/*!structure factor*/
+	/*{*/
+	unsigned int llr(this->obs_[1].nval());
+	Vector<std::complex<double> > Ck(llr,0.0);
+	std::complex<double> normalize(0.0);
+	double dk(2.0*M_PI/llr);
+
+	for(unsigned int k(0);k<llr;k++){
+		for(unsigned int i(0);i<llr;i++){
+			Ck(k) += std::polar(lr_corr(i),dk*k*i);
+		}
+		normalize += Ck(k); 
+	}
+	Ck /= dk*normalize;
+
+	IOFiles data_sf(path+this->filename_+"-structure-factor.dat",true);
+	for(unsigned int k(0);k<llr;k++){
+		data_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<IOFiles::endl;
+	}
+
+	Gnuplot gpsf(path,this->filename_+"-structure-factor");
+	gpsf.title(title);
+	gpsf+="set key bottom";
+	gpsf.range("x","0","2*pi");
+	switch(this->N_/this->m_){
+		case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0, '$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
+		case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
+		default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
+	}
+	gpsf.label("x","$k$","offset 0,0.5");
+	gpsf.label("y2","$<S(k)>$");
+	gpsf+="plot '"+this->filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";
+	gpsf+="     '"+this->filename_+"-structure-factor.dat' u 1:3 lt 1 lc 7 t 'imag'";
+	gpsf.save_file();
+	gpsf.create_image(true,true);
+	/*}*/
+
+	if(this->jd_write_){ this->jd_write_->write("critical exponents",exponents); }
 }
 #endif

@@ -53,13 +53,15 @@ System::System(System const& s):
 /*{*/
 void System::set_observables(std::vector<Observable> const& obs, int const& nobs){
 	E_.set(50,5,false);
-	obs_.clear();
 	if(nobs<0){ obs_ = obs; }
-	else if(nobs==0 && obs_.size()==0){
-		obs_.push_back(Observable(0)); 
-		obs_[0].set_links(obs[0].get_links());
-	} else {
-		for(int i(0);i<nobs;i++){ obs_.push_back(obs[i]); }
+	else {
+		obs_.clear();
+		if(nobs==0 && obs_.size()==0){
+			obs_.push_back(Observable(0)); 
+			obs_[0].set_links(obs[0].get_links());
+		} else {
+			for(int i(0);i<nobs;i++){ obs_.push_back(obs[i]); }
+		}
 	}
 }
 

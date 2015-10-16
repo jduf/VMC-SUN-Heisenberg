@@ -84,6 +84,7 @@ Ladder<Type>::~Ladder() = default;
 template<typename Type>
 void Ladder<Type>::set_observables(int nobs){
 	this->E_.set(50,5,false);
+
 	if(nobs<0){ nobs = 6; }
 	unsigned int nlinks;
 	unsigned int nval;
