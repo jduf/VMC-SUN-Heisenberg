@@ -31,6 +31,6 @@ int main(int argc, char* argv[]){
 					}
 		}
 	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : must be run in a directory that contains 'sim' and 'src'"<<std::endl; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : must be run in a directory that contains 'sim' and 'src'"<<std::endl;
 	}
 }

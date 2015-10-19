@@ -71,7 +71,7 @@ void Kagome<Type>::set_observables(int nobs){
 //nb(2,1) = this->bc_;
 //}
 ///*-x-y neighbour*/
-//if(i+1>=this->spuc_*this->Lx_){ nb(3,0) = i+2-this->spuc_*this->Lx_; } 
+//if(i+1>=this->spuc_*this->Lx_){ nb(3,0) = i+2-this->spuc_*this->Lx_; }
 //else {
 //nb(3,0) = i+2+(this->Ly_-1)*this->spuc_*this->Lx_;
 //nb(3,1) = this->bc_;
@@ -91,9 +91,9 @@ void Kagome<Type>::set_observables(int nobs){
 //nb(2,0) = i-1;
 ///*+x-y neighbour*/
 //if(i+1>=this->spuc_*this->Lx_){
-//if((i+2)%(this->spuc_*this->Lx_)){ nb(3,0) = i+4-this->spuc_*this->Lx_; } 
+//if((i+2)%(this->spuc_*this->Lx_)){ nb(3,0) = i+4-this->spuc_*this->Lx_; }
 //else {
-//nb(3,0) = i+4-2*this->spuc_*this->Lx_; 
+//nb(3,0) = i+4-2*this->spuc_*this->Lx_;
 //nb(3,1) = this->bc_;
 //}
 //} else {
@@ -101,7 +101,7 @@ void Kagome<Type>::set_observables(int nobs){
 //nb(3,0) = i+4+(this->Ly_-1)*this->spuc_*this->Lx_;
 //nb(3,1) = this->bc_;
 //} else {
-//nb(3,0) = this->Lx_*(this->Ly_-1)*this->spuc_+2; 
+//nb(3,0) = this->Lx_*(this->Ly_-1)*this->spuc_+2;
 //nb(3,1) = this->bc_*this->bc_;
 //}
 //}
@@ -110,7 +110,7 @@ void Kagome<Type>::set_observables(int nobs){
 //{
 ///*+x+y neighbour*/
 //if(i<this->n_-this->spuc_*this->Lx_){ nb(0,0) = i+this->spuc_*this->Lx_-2; }
-//else { 
+//else {
 //nb(0,0) = i-2-this->spuc_*this->Lx_*(this->Ly_-1);
 //nb(0,1) = this->bc_;
 //}
@@ -141,17 +141,17 @@ void Kagome<Type>::set_observables(int nobs){
 //{
 //switch(i%9){
 //case 0:
-//{ 
-//nb(0,0) = i+1; 
+//{
+//nb(0,0) = i+1;
 //if(i%(this->Lx_*this->spuc_)){ nb(1,0) = i-1; }
-//else { 
-//nb(1,0) = i-1+this->Lx_*this->spuc_; 
-//nb(1,1) = this->bc_; 
+//else {
+//nb(1,0) = i-1+this->Lx_*this->spuc_;
+//nb(1,1) = this->bc_;
 //}
 //if(i>=(this->Lx_*this->spuc_)){ nb(2,0) = i+6-this->Lx_*this->spuc_; }
-//else { 
+//else {
 //nb(2,0) = i+6+(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(2,1) = this->bc_; 
+//nb(2,1) = this->bc_;
 //}
 //nb(3,0) = i+5;
 //}break;
@@ -160,13 +160,13 @@ void Kagome<Type>::set_observables(int nobs){
 //nb(0,0) = i+1;
 //if((i-1)%(this->Lx_*this->spuc_)!=0){ nb(1,0) = i-3; }
 //else {
-//nb(1,0) = i-3+this->Lx_*this->spuc_; 
-//nb(1,1) = this->bc_; 
+//nb(1,0) = i-3+this->Lx_*this->spuc_;
+//nb(1,1) = this->bc_;
 //}
 //if((i-1)%(this->Lx_*this->spuc_)){ nb(2,0) = i-2; }
 //else {
-//nb(2,0) = i-2+this->Lx_*this->spuc_; 
-//nb(2,1) = this->bc_; 
+//nb(2,0) = i-2+this->Lx_*this->spuc_;
+//nb(2,1) = this->bc_;
 //}
 //nb(3,0) = i-1;
 //}break;
@@ -176,8 +176,8 @@ void Kagome<Type>::set_observables(int nobs){
 //nb(1,0) = i+4;
 //if((i-2)%(this->Lx_*this->spuc_)!=0){ nb(2,0) = i-4; }
 //else {
-//nb(2,0) = i-4+this->Lx_*this->spuc_; 
-//nb(2,1) = this->bc_; 
+//nb(2,0) = i-4+this->Lx_*this->spuc_;
+//nb(2,1) = this->bc_;
 //}
 //nb(3,0) = i-1;
 //}break;
@@ -192,9 +192,9 @@ void Kagome<Type>::set_observables(int nobs){
 //{
 //nb(0,0) = i+1;
 //if(i>=(this->Lx_*this->spuc_)){ nb(1,0) = i+3-this->Lx_*this->spuc_; }
-//else { 
+//else {
 //nb(1,0) = i+3+(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_; 
+//nb(1,1) = this->bc_;
 //}
 //nb(2,0) = i+4;
 //nb(3,0) = i-1;
@@ -203,14 +203,14 @@ void Kagome<Type>::set_observables(int nobs){
 //{
 //nb(0,0) = i-5;
 //if(i>=(this->Lx_*this->spuc_)){ nb(1,0) = i+1-this->Lx_*this->spuc_; }
-//else { 
+//else {
 //nb(1,0) = i+1+(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_; 
+//nb(1,1) = this->bc_;
 //}
 //if(i>=(this->Lx_*this->spuc_)){ nb(2,0) = i+2-this->Lx_*this->spuc_; }
-//else { 
+//else {
 //nb(2,0) = i+2+(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(2,1) = this->bc_; 
+//nb(2,1) = this->bc_;
 //}
 //nb(3,0) = i-1;
 //}break;
@@ -219,12 +219,12 @@ void Kagome<Type>::set_observables(int nobs){
 //if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(0,0) = i-1+this->Lx_*this->spuc_; }
 //else {
 //nb(0,0) = i-1-(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(0,1) = this->bc_; 
+//nb(0,1) = this->bc_;
 //}
 //if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(1,0) = i-6+this->Lx_*this->spuc_; }
 //else {
 //nb(1,0) = i-6-(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_; 
+//nb(1,1) = this->bc_;
 //}
 //nb(2,0) = i-4;
 //nb(3,0) = i-3;
@@ -234,22 +234,22 @@ void Kagome<Type>::set_observables(int nobs){
 //if((i+2)%(this->Lx_*this->spuc_)!=0){ nb(0,0) = i+3; }
 //else {
 //nb(0,0) = i+3-this->Lx_*this->spuc_;
-//nb(0,1) = this->bc_; 
+//nb(0,1) = this->bc_;
 //}
 //if((i+2)%(this->Lx_*this->spuc_)!=0){ nb(1,0) = i+4; }
 //else {
 //nb(1,0) = i+4-this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_; 
+//nb(1,1) = this->bc_;
 //}
 //if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(2,0) = i-3+this->Lx_*this->spuc_; }
 //else {
 //nb(2,0) = i-3-(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(2,1) = this->bc_; 
+//nb(2,1) = this->bc_;
 //}
 //if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(3,0) = i-2+this->Lx_*this->spuc_; }
 //else {
 //nb(3,0) = i-2-(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(3,1) = this->bc_; 
+//nb(3,1) = this->bc_;
 //}
 //}break;
 //case 8:
@@ -257,12 +257,12 @@ void Kagome<Type>::set_observables(int nobs){
 //if((i+1)%(this->Lx_*this->spuc_)!=0){ nb(0,0) = i+1; }
 //else {
 //nb(0,0) = i+1-this->Lx_*this->spuc_;
-//nb(0,1) = this->bc_; 
+//nb(0,1) = this->bc_;
 //}
 //if((i+1)%(this->Lx_*this->spuc_)!=0){ nb(1,0) = i+2; }
 //else {
 //nb(1,0) = i+2-this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_; 
+//nb(1,1) = this->bc_;
 //}
 //nb(2,0) = i-5;
 //nb(3,0) = i-4;

@@ -7,7 +7,7 @@ SquareACSL::SquareACSL(System const& s, Vector<double> const& t):
 {
 	if(2*spuc_ != t_.size()){
 		status_++;
-		std::cerr<<__PRETTY_FUNCTION__<<" : t has a wrong size"<<std::endl; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : t has a wrong size"<<std::endl;
 	}
 	if(status_==2){
 		init_fermionic();

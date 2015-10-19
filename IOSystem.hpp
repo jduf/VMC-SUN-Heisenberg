@@ -11,14 +11,14 @@ class IOSystem{
 		/*{Forbidden*/
 		IOSystem(IOSystem const&) = delete;
 		IOSystem(IOSystem&&) = delete;
-		IOSystem& operator=(IOSystem ios) = delete;
+		IOSystem& operator=(IOSystem) = delete;
 		/*}*/
 
 		/*!Set this to the value contained in t*/
 		void set_IOSystem(IOSystem const* const t);
 
 		/*!Returns the filename (only usefull for mc via CreateSystem)*/
-		std::string const& get_filename() const { return filename_; };
+		std::string const& get_filename() const { return filename_; }
 		/*!Returns the path (only usefull for mc via CreateSystem)*/
 		std::string const& get_path() const { return path_; }
 
@@ -33,7 +33,7 @@ class IOSystem{
 
 		std::string sim_	  = "sim/";		//!< sim directory name
 		std::string info_	  = "info/";	//!< directory name where the .rst and .html files will be saved
-		std::string analyse_  = "analyse/";	//!< directory name where the .gp dat .dat files will be saved 
+		std::string analyse_  = "analyse/";	//!< directory name where the .gp dat .dat files will be saved
 		std::string path_	  = "";			//!< temporary variable of the path leading to dir_
 		std::string dir_	  = "";			//!< temporary variable containing filename_
 		std::string filename_ = "";			//!< whole filename of the .jdbin file

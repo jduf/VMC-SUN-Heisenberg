@@ -4,11 +4,11 @@
 #include "System1D.hpp"
 
 /*{Description*/
-/*! 
+/*!
  * This is our ladder.
- * 
+ *
  * 		1___3___5___7__...__n-1
- * 		|   |   |   |        |       
+ * 		|   |   |   |        |
  * 		0___2___4___6__...__n-2
  */
 /*}*/
@@ -98,47 +98,45 @@ void Ladder<Type>::set_observables(int nobs){
 		}
 	}
 	if(nobs>1){/*long range correlation*/
-		m = this->n_;
+		m = this->spuc_/2;
 		nval = this->n_;
-		nlinks = this->spuc_*this->n_/2;
+		nlinks = m*nval;
 		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
-		for(unsigned int i(0);i<this->spuc_/2;i++){
-			for(unsigned int j(0);j<m;j++){
-				//std::cout<<i<<" "<<j<<std::flush;
-				this->obs_[1](i*m+j,0) = (2*i)%this->n_;
-				this->obs_[1](i*m+j,1) = (2*i+j)%this->n_;
-				this->obs_[1](i*m+j,2) = j;
-				//std::cout<<" "<<this->obs_[1](i*nval+j,0)<<" "<< this->obs_[1](i*nval+j,1)<<" " <<this->obs_[1](i*nval+j,2)<<std::endl;
+		for(unsigned int i(0);i<m;i++){
+			for(unsigned int j(0);j<nval;j++){
+				this->obs_[1](i*nval+j,0) = (2*i)%this->n_;
+				this->obs_[1](i*nval+j,1) = (2*i+j)%this->n_;
+				this->obs_[1](i*nval+j,2) = j;
 			}
 		}
 	}
 	if(nobs==6){/*(anti)symmetric correlation*/
 		m = this->n_/2;
 		nval = this->n_/2;
-		nlinks = m*this->spuc_/2;
+		nlinks = m*nval;
 		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
 		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
 		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
 		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
-		for(unsigned int i(0);i<this->spuc_/2;i++){
-			for(unsigned int j(0);j<m;j++){
+		for(unsigned int i(0);i<m;i++){
+			for(unsigned int j(0);j<nval;j++){
 				//std::cout<<i<<" "<<j<<std::flush;
 				/*obs_[2]=S_10*S_1i*/
-				this->obs_[2](i*m+j,0) = 2*i;
-				this->obs_[2](i*m+j,1) = (2*(i+j))%this->n_;
-				this->obs_[2](i*m+j,2) = j;
+				this->obs_[2](i*nval+j,0) = 2*i;
+				this->obs_[2](i*nval+j,1) = (2*(i+j))%this->n_;
+				this->obs_[2](i*nval+j,2) = j;
 				/*obs_[3]=S_10*S_2i*/
-				this->obs_[3](i*m+j,0) = 2*i;
-				this->obs_[3](i*m+j,1) = (2*(i+j)+1)%this->n_;
-				this->obs_[3](i*m+j,2) = j;
+				this->obs_[3](i*nval+j,0) = 2*i;
+				this->obs_[3](i*nval+j,1) = (2*(i+j)+1)%this->n_;
+				this->obs_[3](i*nval+j,2) = j;
 				/*obs_[4]=S_20*S_1i*/
-				this->obs_[4](i*m+j,0) = 2*i+1;
-				this->obs_[4](i*m+j,1) = (2*(i+j))%this->n_;
-				this->obs_[4](i*m+j,2) = j;
+				this->obs_[4](i*nval+j,0) = 2*i+1;
+				this->obs_[4](i*nval+j,1) = (2*(i+j))%this->n_;
+				this->obs_[4](i*nval+j,2) = j;
 				/*obs_[5]=S_20*S_2i*/
-				this->obs_[5](i*m+j,0) = 2*i+1;
-				this->obs_[5](i*m+j,1) = (2*(i+j)+1)%this->n_;
-				this->obs_[5](i*m+j,2) = j;
+				this->obs_[5](i*nval+j,0) = 2*i+1;
+				this->obs_[5](i*nval+j,1) = (2*(i+j)+1)%this->n_;
+				this->obs_[5](i*nval+j,2) = j;
 				//std::cout<<"| "<<this->obs_[2](i*m+j,0)<<" "<< this->obs_[2](i*m+j,1)<<" " <<this->obs_[2](i*m+j,2)<<std::endl;
 				//std::cout<<"| "<<this->obs_[3](i*nlinks/2+j,0)<<" "<< this->obs_[3](i*nlinks/2+j,1)<<" " <<this->obs_[3](i*nlinks/2+j,2)<<std::endl;
 				//std::cout<<"| "<<this->obs_[4](i*nlinks/2+j,0)<<" "<< this->obs_[4](i*nlinks/2+j,1)<<" " <<this->obs_[4](i*nlinks/2+j,2)<<std::endl;
@@ -152,25 +150,25 @@ template<typename Type>
 Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {
 	Matrix<int> nb(this->z_,2,1);
 	if(i%2){//!odd number => upper part. 0:right, 1:down, 2:left
-		if(i+1 != this->n_){nb(0,0) = i+2;}
+		if(i+1 != this->n_){ nb(0,0) = i+2; }
 		else{
 			nb(0,0) = 1;
 			nb(0,1) = this ->bc_;
 		}
 		nb(1,0)=i-1;
-		if(i != 1){nb(2,0)=i-2;}
+		if(i != 1){ nb(2,0)=i-2; }
 		else{
 			nb(2,0) = this-> n_-1;
 			nb(2,1) = this-> bc_;
 		}
 	} else {//!even number => lower part. 0:right, 1:up, 2:left
-		if(i+2 != this->n_){nb(0,0) = i+2;}
+		if(i+2 != this->n_){ nb(0,0) = i+2; }
 		else{
 			nb(0,0) = 0;
 			nb(0,1) = this ->bc_;
 		}
 		nb(1,0)=i+1;
-		if(i){nb(2,0)=i-2;}
+		if(i){ nb(2,0)=i-2; }
 		else{
 			nb(2,0) = this-> n_-2;
 			nb(2,1) = this-> bc_;

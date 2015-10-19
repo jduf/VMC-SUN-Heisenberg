@@ -7,17 +7,17 @@ AnalyseEnergy::AnalyseEnergy(std::string const& path, unsigned int const& max_le
 }
 
 void AnalyseEnergy::open_files(){
-	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); 
+	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
 		if(level_==5){ jd_write_->write("number of different boundary condition",nof_); }
 		if(level_==3 || level_==7){
-			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); 
+			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
 			data_write_->precision(10);
 		}
 	}
 }
 
 void AnalyseEnergy::close_files(){
-	if(jd_write_){ 
+	if(jd_write_){
 		if(level_==7){ list_rst_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
 		if(level_==3){ list_rst_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
 		list_rst_.last().text(jd_write_->get_header());
@@ -41,7 +41,7 @@ std::string AnalyseEnergy::extract_level_4(){
 	(*read_)>>nof_;
 	/*!must save now nof_ because it doesn't refer to the number of file in the
 	 * next directory but in the next-next directory*/
-	jd_write_->write("number of different boundary condition",nof_); 
+	jd_write_->write("number of different boundary condition",nof_);
 
 	Data<double> E;
 	for(unsigned int i(0);i<nof_;i++){
@@ -53,7 +53,7 @@ std::string AnalyseEnergy::extract_level_4(){
 		(*read_)>>E;
 
 		jd_write_->add_header()->nl();
-		s.save_input(*jd_write_); 
+		s.save_input(*jd_write_);
 		jd_write_->write("energy per site",E);
 	}
 

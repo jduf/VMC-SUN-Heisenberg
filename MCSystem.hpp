@@ -47,8 +47,8 @@ class MCSystem: public virtual System{
 		unsigned int new_p_[2];//!< sites that are exchanged
 
 		Matrix<unsigned int> s_;  //!< s(site,particle)=color
-		Rand<unsigned int> n_rnd_;//!< generator of random numbers 
-		Rand<unsigned int> m_rnd_;//!< generator of random numbers 
+		Rand<unsigned int> n_rnd_;//!< generator of random numbers
+		Rand<unsigned int> m_rnd_;//!< generator of random numbers
 
 	private:
 		/*!Check only if the new state has not the same color on one site*/

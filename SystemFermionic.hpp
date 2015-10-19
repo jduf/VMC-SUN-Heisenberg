@@ -29,7 +29,7 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 		/*{Description
 		 *!Computes the ratio of the two determinants related to the current
 		 * and next configuration
-		 * - when particle of the same color are exchanged a minus sign arises 
+		 * - when particle of the same color are exchanged a minus sign arises
 		 *   to conserve the Marshall-Peierls sign rule
 		 * - when two different colors are exchanged, computes the ratio using
 		 *   the determinant lemma
@@ -57,7 +57,7 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 
 		Matrix<unsigned int> row_;//!< row of the matrix A that is modified
 		Matrix<Type>* Ainv_;	  //!< inverse of A
-		Matrix<Type>* tmp_;		  //!< temporary matrix used during the update 
+		Matrix<Type>* tmp_;		  //!< temporary matrix used during the update
 		Type w_[2];				  //!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0;0,w22)
 		unsigned int new_r_[2];	  //!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
 		unsigned int new_ev_[2];  //!< newly selected rows of the EVec matrix
@@ -78,8 +78,8 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	tmp_(new Matrix<Type>[N_])
 {
 	/*!Initialized class variables*/
-	for(unsigned int c(0);c<N_;c++){ 
-		Ainv_[c].set(M_(c),M_(c)); 
+	for(unsigned int c(0);c<N_;c++){
+		Ainv_[c].set(M_(c),M_(c));
 		tmp_[c].set(M_(c),M_(c));
 	}
 
@@ -121,7 +121,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 		 * brute force method but as for now the inverse matrix is unknown, it
 		 * is the only solution*/
 		Type d(1.0);
-		for(unsigned int c(0);c<2;c++){ 
+		for(unsigned int c(0);c<2;c++){
 			det_A(new_c_[c]) = Lapack<Type>(A[new_c_[c]],true,'G').det();
 			d *= det_A(new_c_[c])/det_Ainv(new_c_[c]);
 		}
@@ -151,7 +151,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 
 	/*!Proceed to the inversion if possible*/
 	if(l<TRY_MAX){
-		status_--; 
+		status_--;
 		for(unsigned int c(0); c<N_; c++){
 			Lapack<Type> inv(Ainv_[c],false,'G');
 			inv.inv();
@@ -228,8 +228,8 @@ std::unique_ptr<MCSystem> SystemFermionic<Type>::clone() const {
 template<typename Type>
 void SystemFermionic<Type>::swap(){
 	MCSystem::swap();
-	new_r_[0] = row_(new_s_[0],new_p_[0]); 
-	new_r_[1] = row_(new_s_[1],new_p_[1]); 
+	new_r_[0] = row_(new_s_[0],new_p_[0]);
+	new_r_[1] = row_(new_s_[1],new_p_[1]);
 	new_ev_[0] = new_s_[1];
 	new_ev_[1] = new_s_[0];
 }
@@ -237,8 +237,8 @@ void SystemFermionic<Type>::swap(){
 template<typename Type>
 void SystemFermionic<Type>::swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
 	MCSystem::swap(s0,s1,p0,p1);
-	new_r_[0] = row_(new_s_[0],new_p_[0]); 
-	new_r_[1] = row_(new_s_[1],new_p_[1]); 
+	new_r_[0] = row_(new_s_[0],new_p_[0]);
+	new_r_[1] = row_(new_s_[1],new_p_[1]);
 	new_ev_[0] = new_s_[1];
 	new_ev_[1] = new_s_[0];
 }
@@ -292,7 +292,7 @@ void SystemFermionic<Type>::free_memory(){
 
 /*methods that return something related to the class*/
 /*{*/
-template<typename Type> 
+template<typename Type>
 double SystemFermionic<Type>::ratio(bool const& squared){
 	if(new_c_[0] == new_c_[1]){
 		/*!there is no minus sign because if the same color is inverted, the

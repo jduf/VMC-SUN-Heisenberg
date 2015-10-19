@@ -18,11 +18,11 @@ class Bosonic : public virtual System{
 		Bosonic<Type>& operator=(Bosonic<Type>) = delete;
 		/*}*/
 
-		Vector<unsigned int> const& get_sl() const { return sl_;}
-		Matrix<unsigned int> const& get_nn() const { return nn_;}
-		Matrix<unsigned int> const& get_cc() const { return cc_;}
-		Matrix<double> const& get_nu() const { return nu_;}
-		Matrix<Type> const& get_omega() const { return omega_;}
+		Vector<unsigned int> const& get_sl() const { return sl_; }
+		Matrix<unsigned int> const& get_nn() const { return nn_; }
+		Matrix<unsigned int> const& get_cc() const { return cc_; }
+		Matrix<double> const& get_nu() const { return nu_; }
+		Matrix<Type> const& get_omega() const { return omega_; }
 
 	protected:
 		/*!Default Constructor*/
@@ -57,7 +57,7 @@ Bosonic<Type>::Bosonic(IOFiles& r):
 	cc_(r),
 	nu_(r),
 	omega_(r)
-{} 
+{}
 
 template<typename Type>
 void Bosonic<Type>::init_bosonic(unsigned int const& z, Matrix<double> const& nu){

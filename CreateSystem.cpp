@@ -10,8 +10,8 @@ CreateSystem::CreateSystem(System const* const s):
 {}
 
 CreateSystem::~CreateSystem(){
-	if(RGL_){delete RGL_;}
-	if(CGL_){delete CGL_;}
+	if(RGL_){ delete RGL_; }
+	if(CGL_){ delete CGL_; }
 }
 /*}*/
 
@@ -19,8 +19,8 @@ CreateSystem::~CreateSystem(){
 /*{*/
 void CreateSystem::init(Vector<double> const* const param, Container* C){
 	if(C){ C_ = C; }
-	if(RGL_){delete RGL_;}
-	if(CGL_){delete CGL_;}
+	if(RGL_){ delete RGL_; }
+	if(CGL_){ delete CGL_; }
 	switch(ref_(0)){
 		case 1:
 			{
@@ -181,7 +181,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C)    { t = C->get<double>("td"); }
 										if(param || C){ RGL_ = new Honeycomb0pp(*s_,t); }
 									}break;
-									////case 1:{return HoneycombSU4(N,n,m);}break;
+									////case 1:{ return HoneycombSU4(N,n,m); }break;
 								default:{ error(); }break;
 							}
 						}break;

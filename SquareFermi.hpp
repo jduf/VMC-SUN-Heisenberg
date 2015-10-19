@@ -16,7 +16,7 @@ class SquareFermi: public Square<Type>{
 		void compute_H();
 		void lattice(std::string const& path, std::string const& filename);
 
-		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0;};
+		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0; }
 };
 
 template<typename Type>

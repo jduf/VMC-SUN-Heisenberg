@@ -12,15 +12,15 @@ System::System(Parseur& P):
 	J_(P.get<std::vector<double> >("Jp")),
 	status_(5)
 {
-	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : Bad initialization"<<std::endl; } 
+	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : Bad initialization"<<std::endl; }
 	else{ status_--; }
-	if(bc_ != -1 && bc_ != 0 && bc_ != 1){ std::cerr<<__PRETTY_FUNCTION__<<" : unknown boundary condition"<<std::endl; } 
+	if(bc_ != -1 && bc_ != 0 && bc_ != 1){ std::cerr<<__PRETTY_FUNCTION__<<" : unknown boundary condition"<<std::endl; }
 	else { status_--; }
 }
 
 System::System(IOFiles& r):
 	ref_(r),
-	N_(r.read<unsigned int>()), 
+	N_(r.read<unsigned int>()),
 	m_(r.read<unsigned int>()),
 	n_(r.read<unsigned int>()),
 	bc_(r.read<int>()),
@@ -37,7 +37,7 @@ System::System(IOFiles& r):
 
 System::System(System const& s):
 	ref_(s.ref_),
-	N_(s.N_), 
+	N_(s.N_),
 	m_(s.m_),
 	n_(s.n_),
 	bc_(s.bc_),
@@ -57,7 +57,7 @@ void System::set_observables(std::vector<Observable> const& obs, int const& nobs
 	else {
 		obs_.clear();
 		if(nobs==0 && obs_.size()==0){
-			obs_.push_back(Observable(0)); 
+			obs_.push_back(Observable(0));
 			obs_[0].set_links(obs[0].get_links());
 		} else {
 			for(int i(0);i<nobs;i++){ obs_.push_back(obs[i]); }
@@ -66,7 +66,7 @@ void System::set_observables(std::vector<Observable> const& obs, int const& nobs
 }
 
 void System::clear_measurments(){
-	E_.set(); 
+	E_.set();
 	obs_.clear();
 }
 
@@ -75,17 +75,20 @@ bool System::check_conv(double const& convergence_criterion){
 	return E_.get_conv();
 }
 
-void System::complete_analysis(double const& convergence_criterion){ 
-	E_.complete_analysis(convergence_criterion); 
+void System::complete_analysis(double const& convergence_criterion){
+	E_.complete_analysis(convergence_criterion);
 	for(unsigned int i(0);i<obs_.size();i++){
-		obs_[i].complete_analysis(convergence_criterion); 
+		obs_[i].complete_analysis(convergence_criterion);
 	}
 }
 
-void System::merge(System* s){
+void System::merge(System* const s){
 	E_.merge(s->E_);
 	for(unsigned int i(0);i<obs_.size();i++){
-		obs_[i].merge(s->obs_[i]); 
+		obs_[i].merge(s->obs_[i]);
+	}
+	for(unsigned int i(obs_.size());i<s->obs_.size();i++){
+		obs_.push_back(s->obs_[i]);
 	}
 }
 
@@ -120,7 +123,7 @@ void System::save_input(IOFiles& w) const {
 	w.write("n (# of site)",n_);
 	w.write("bc (boundary condition)",bc_);
 	w.write("M (# of particles of each color, "+my::tostring(M_(0))+")",M_);
-	w.write("J (energy of each bond)",J_);
+	w.write("J (coupling strength)",J_);
 }
 
 void System::save_output(IOFiles& w) const {

@@ -25,7 +25,7 @@ void MonteCarlo::thermalize(unsigned int const& thermalization_steps){
 void MonteCarlo::run(){
 	time_.set();
 	if(!S_->get_status()){
-		do{next_step();}
+		do{ next_step(); }
 		while(keepon());
 	}
 }
@@ -45,7 +45,7 @@ void MonteCarlo::next_step(){
 
 bool MonteCarlo::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
-	if(std::abs(S_->get_energy().get_x())>1e2){ 
+	if(std::abs(S_->get_energy().get_x())>1e2){
 		std::cerr<<__PRETTY_FUNCTION__<<" : simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
 		S_->clear_measurments();
 	}

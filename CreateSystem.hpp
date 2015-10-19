@@ -36,7 +36,7 @@ class CreateSystem{
 		CreateSystem() = delete;
 		CreateSystem(CreateSystem const&) = delete;
 		CreateSystem(CreateSystem&&) = delete;
-		CreateSystem& operator=(CreateSystem cs) = delete;
+		CreateSystem& operator=(CreateSystem) = delete;
 		/*}*/
 
 		/*{Core methods*/
@@ -64,8 +64,8 @@ class CreateSystem{
 		}
 		/*!Returns the path (only usefull for mc) */
 		std::string get_path() const {
-			if(RGL_){ return RGL_->get_path();}
-			if(CGL_){ return CGL_->get_path();}
+			if(RGL_){ return RGL_->get_path(); }
+			if(CGL_){ return CGL_->get_path(); }
 			return "";
 		}
 		/*}*/

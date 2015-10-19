@@ -37,8 +37,8 @@ void TriangleFermi::create(){
 	}
 }
 
-unsigned int TriangleFermi::match_pos_in_ab(Vector<double> const& x) const { 
-	(void)(x); 
+unsigned int TriangleFermi::match_pos_in_ab(Vector<double> const& x) const {
+	(void)(x);
 	return 0;
 }
 
@@ -154,8 +154,8 @@ void TriangleFermi::lattice(std::string const& path, std::string const& filename
 	polygon(3,0)=Ly(0);
 	polygon(3,1)=Ly(1);
 	for(unsigned int i(0);i<polygon.row();i++){
-		polygon(i,0) -= 0.3; 
-		polygon(i,1) += 0.2; 
+		polygon(i,0) -= 0.3;
+		polygon(i,1) += 0.2;
 	}
 	ps.polygon(polygon,"linecolor=green");
 

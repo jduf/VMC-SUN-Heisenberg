@@ -58,8 +58,8 @@ int main(int argc, char* argv[]){
 				if(obs[0].nval()){
 					double c(0);
 					for(unsigned int i(0);i<obs[0].nval();i++){ c += obs[0][i].get_x(); }
-					//c /= (obs[0].nval()*2/3);/*to get the energy per site for the ladder*/
-					c /= obs[0].nval();/*to get the energy per site for the chain*/
+					c /= (obs[0].nval()*2/3);/*to get the energy per site for the ladder*/
+					//c /= obs[0].nval();/*to get the energy per site for the chain*/
 					std::cout<<"this should be equal to the energy "<<c<<" "<<c/sys.get_energy().get_x()<<std::endl;
 				}
 				std::cout<<sys.get_energy()<<std::endl;
@@ -76,14 +76,14 @@ int main(int argc, char* argv[]){
 					tmp.init(NULL,&P);
 					tmp.lattice("/tmp/",cs.get_filename());
 					RSTFile rst("/tmp/",cs.get_filename());
-					rst.figure("/tmp/"+cs.get_filename()+".png","bla",RST::target("/tmp/"+cs.get_filename()+".pdf")+RST::scale("200"));
+					rst.figure("/tmp/"+cs.get_filename()+"-pstricks.png","bla",RST::target("/tmp/"+cs.get_filename()+"-pstricks.pdf")+RST::scale("200"));
+					rst.figure("/tmp/"+cs.get_filename()+"-as-sf.png","bla",RST::target("/tmp/"+cs.get_filename()+"-as-sf.gp")+RST::scale("200"));
 					rst.text(out.get_header());
 					rst.save(false,true);
 					command(Linux::html_browser("/tmp/"+cs.get_filename()+".html"),true);
 					//if( my::get_yn("move the plot in the correct folder ?") ){
 					//std::cerr<<"should implement this move"<<std::endl;
 					//}
-					tmp.check();
 				}
 			}
 		}

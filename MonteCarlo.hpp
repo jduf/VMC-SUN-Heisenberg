@@ -8,16 +8,16 @@
  *
  * Implement the Monte-Carlo algorithm. This alorithm lets a System evolve
  * according to a Markov process. To work properly, MCSystem has to contain at
- * least these methods : 
+ * least these methods :
  *
  * - Type System::ratio() : compute the probability to accept the next
  *   configuration
  * - void System::update() : update the old cufiguration to the new one
  * - void System::measure() : measure an observable according to the current
- *   configuration 
+ *   configuration
  *
  * The MonteCarlo class contains a pointer to MCSystem. The MCSystem is in
- * reality either a SystemFermionic or a SystemBosonic. 
+ * reality either a SystemFermionic or a SystemBosonic.
  *
  * Once the System is created, it is thermalized.
  *
@@ -32,10 +32,10 @@ class MonteCarlo{
 		/*!Default destructor*/
 		~MonteCarlo() = default;
 		/*{Forbidden*/
-		MonteCarlo() = delete; 
-		MonteCarlo(MonteCarlo const&) = delete; 
-		MonteCarlo(MonteCarlo&&) = delete; 
-		MonteCarlo& operator=(MonteCarlo) = delete; 
+		MonteCarlo() = delete;
+		MonteCarlo(MonteCarlo const&) = delete;
+		MonteCarlo(MonteCarlo&&) = delete;
+		MonteCarlo& operator=(MonteCarlo) = delete;
 		/*}*/
 
 		/*!Thermalize the Monte-Carlo algorithm*/
@@ -47,7 +47,7 @@ class MonteCarlo{
 		/*!Find the next configuration and measure it*/
 		void next_step();
 		/*{Description*/
-		/*!Private method that gives a shutoff condition 
+		/*!Private method that gives a shutoff condition
 		 * Stops the simulation when
 		 * - convergence is reached
 		 * - time limit is up
@@ -59,7 +59,7 @@ class MonteCarlo{
 
 		unsigned int const tmax_;//!< Time limit in second, by default 5min
 		double ratio_;			 //!< Ratio between current and next step
-		MCSystem* S_;			 //!< Pointer to a Fermionic or Bosonic System 
+		MCSystem* S_;			 //!< Pointer to a Fermionic or Bosonic System
 		Time time_; 			 //!< To stop the simulation after time_limit seconds
 		Rand<double> rnd_;		 //!< Pointer to a random number generator
 };

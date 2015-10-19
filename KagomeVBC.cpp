@@ -32,8 +32,8 @@ void KagomeVBC::compute_H(){
 			//s++;
 			//nb = get_neighbourg(s);
 			///*1-2*/ H_(s, nb(0,0)) = std::polar(nb(0,1)*t,-phi);
-			///*1-7*/ H_(s, nb(1,0)) = std::polar(nb(1,1)*t,phi); 
-			///*1-8*/ H_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi); 
+			///*1-7*/ H_(s, nb(1,0)) = std::polar(nb(1,1)*t,phi);
+			///*1-8*/ H_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
 //
 			///*site 2*/
 			//s++;
@@ -128,16 +128,16 @@ void KagomeVBC::lattice(std::string const& path, std::string const& filename){
 			//x0 = ll*(0.5+sin(M_PI/6.0)) + i*ex + j*exy;
 			///*0.05 is there so there is no problem with latex and it shows
 			// * better which sites are in the unit cell*/
-			//y0 = 0.05 + ll/2.0 + j*ey; 
+			//y0 = 0.05 + ll/2.0 + j*ey;
 			//ps.put(x0+0.2,y0+0.2,my::tostring(s));
 			//x1 = x0+ll*cos(3.0*M_PI/6.0);
 			//y1 = y0+ll*sin(3.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*0-1*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			//x1 = x0+ll*cos(9.0*M_PI/6.0);
 			//y1 = y0+ll*sin(9.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*0-6*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 //
@@ -150,14 +150,14 @@ void KagomeVBC::lattice(std::string const& path, std::string const& filename){
 			//ps.put(x0+0.2,y0-0.2,my::tostring(s));
 			//x1 = x0+ll*cos(1.0*M_PI/6.0);
 			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*1-2*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			//x1 = x0+ll*cos(7.0*M_PI/6.0);
 			//y1 = y0+ll*sin(7.0*M_PI/6.0);
 			//double x8(x1);
 			//double y8(y1);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*1-8*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 //
@@ -169,14 +169,14 @@ void KagomeVBC::lattice(std::string const& path, std::string const& filename){
 			//ps.put(x0,y0-0.2,my::tostring(s));
 			//x1 = x0+ll*cos(-1.0*M_PI/6.0);
 			//y1 = y0+ll*sin(-1.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*2-3*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			//x1 = x0+ll*cos(5.0*M_PI/6.0);
 			//y1 = y0+ll*sin(5.0*M_PI/6.0);
 			//double x7(x1);
 			//double y7(y1);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*2-7*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 //
@@ -188,14 +188,14 @@ void KagomeVBC::lattice(std::string const& path, std::string const& filename){
 			//ps.put(x0-0.2,y0-0.2,my::tostring(s));
 			//x1 = x0+ll*cos(9.0*M_PI/6.0);
 			//y1 = y0+ll*sin(9.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*3-4*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			//x1 = x0+ll*cos(3.0*M_PI/6.0);
 			//y1 = y0+ll*sin(3.0*M_PI/6.0);
 			//double x6(x1);
 			//double y6(y1);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*3-6*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 //
@@ -207,12 +207,12 @@ void KagomeVBC::lattice(std::string const& path, std::string const& filename){
 			//ps.put(x0-0.2,y0+0.2,my::tostring(s));
 			//x1 = x0+ll*cos(7.0*M_PI/6.0);
 			//y1 = y0+ll*sin(7.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*4-5*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			//x1 = x0+ll*cos(1.0*M_PI/6.0);
 			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*4-8*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 //
@@ -224,12 +224,12 @@ void KagomeVBC::lattice(std::string const& path, std::string const& filename){
 			//ps.put(x0,y0+0.2,my::tostring(s));
 			//x1 = x0+ll*cos(5.0*M_PI/6.0);
 			//y1 = y0+ll*sin(5.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*5-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			//x1 = x0+ll*cos(11.0*M_PI/6.0);
 			//y1 = y0+ll*sin(11.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*5-7*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 //
@@ -241,12 +241,12 @@ void KagomeVBC::lattice(std::string const& path, std::string const& filename){
 			//ps.put(x0+0.2,y0-0.2,my::tostring(s));
 			//x1 = x0+ll*cos(1.0*M_PI/6.0);
 			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*6-5*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			//x1 = x0+ll*cos(7.0*M_PI/6.0);
 			//y1 = y0+ll*sin(7.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*6-2*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 //
@@ -258,12 +258,12 @@ void KagomeVBC::lattice(std::string const& path, std::string const& filename){
 			//ps.put(x0-0.2,y0-0.2,my::tostring(s));
 			//x1 = x0+ll*cos(3.0*M_PI/6.0);
 			//y1 = y0+ll*sin(3.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*7-1*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			//x1 = x0+ll*cos(9.0*M_PI/6.0);
 			//y1 = y0+ll*sin(9.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*7-4*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 //
@@ -275,12 +275,12 @@ void KagomeVBC::lattice(std::string const& path, std::string const& filename){
 			//ps.put(x0,y0+0.2,my::tostring(s));
 			//x1 = x0+ll*cos(11.0*M_PI/6.0);
 			//y1 = y0+ll*sin(11.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*8-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 			//x1 = x0+ll*cos(5.0*M_PI/6.0);
 			//y1 = y0+ll*sin(5.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green";}
+			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
 			//else { color = "blue"; }
 			///*8-3*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
 		//}
@@ -334,7 +334,7 @@ void KagomeVBC::check(){
 	//for(unsigned int s(0);s<n_;s++){
 	//nb = get_neighbourg(s);
 	//for(unsigned int i(0);i<z_;i++){
-	//if(nb(i,1)<0){std::cout<<s<<" "<<nb(i,0)<<std::endl;}
+	//if(nb(i,1)<0){ std::cout<<s<<" "<<nb(i,0)<<std::endl; }
 	//}
 	//}
 	///*}*/
@@ -352,7 +352,7 @@ std::string KagomeVBC::extract_level_7(){
 
 	(*read_)>>nruns>>tmax;
 	/* the +1 is the averages over all runs */
-	for(unsigned int i(0);i<nruns+1;i++){ 
+	for(unsigned int i(0);i<nruns+1;i++){
 		(*read_)>>E_>>obs_[0]>>obs_[1];
 	}
 	jd_write_->write("energy per site",E_);

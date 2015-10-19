@@ -17,7 +17,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		 * system, all other parameters of System have already been set by the
 		 * most derived class (multiple inheritance)*/
 		/*}*/
-		GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename); 
+		GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename);
 		/*!Default destructor*/
 		virtual ~GenericSystem() = default;
 		/*{Forbidden*/
@@ -42,7 +42,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		RST system_info_;		 //!< store information about the system
 
 		/*{Description*/
-		/*!Returns the neighbours of site i. 
+		/*!Returns the neighbours of site i.
 		 *
 		 * This pure virtual method must be defined here because it is needed
 		 * by GenericSystem<Type>::set_nn_links()
@@ -62,7 +62,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 };
 
 template<typename Type>
-GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename): 
+GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	IOSystem(filename,generate_names()),
 	spuc_(spuc),
 	z_(z)
@@ -144,8 +144,8 @@ void GenericSystem<Type>::check_lattice(){
 				p1 = nb(d,0);
 			} else { d++; }
 		}
-		if(p0 != p1){ 
-			this->status_++; 
+		if(p0 != p1){
+			this->status_++;
 			std::cerr<<__PRETTY_FUNCTION__<<" : no consistent enumeration"<<std::endl;
 		}
 	}

@@ -107,7 +107,7 @@ void KagomeFermi<Type>::lattice(std::string const& path, std::string const& file
 			x0 = 0.2+i*ex+j*exy;
 			/*0.05 is there so there is no problem with latex and it shows
 			 * better which sites are in the unit cell*/
-			y0 = 0.1+j*ey; 
+			y0 = 0.1+j*ey;
 			ps.put(x0-0.2,y0+0.2,my::tostring(s));
 			x1 = x0+ll;
 			y1 = y0;
@@ -203,7 +203,7 @@ void KagomeFermi<Type>::check(){
 	//for(unsigned int s(0);s<this->n_;s++){
 	//nb = this->get_neighbourg(s);
 	//for(unsigned int i(0);i<z_;i++){
-	//if(nb(i,1)<0){std::cout<<s<<" "<<nb(i,0)<<std::endl;}
+	//if(nb(i,1)<0){ std::cout<<s<<" "<<nb(i,0)<<std::endl; }
 	//}
 	//}
 	///*}*/
@@ -271,7 +271,7 @@ std::string KagomeFermi<Type>::extract_level_7(){
 
 	(*this->read_)>>nruns>>tmax;
 	/* the +1 is the averages over all runs */
-	for(unsigned int i(0);i<nruns+1;i++){ 
+	for(unsigned int i(0);i<nruns+1;i++){
 		(*this->read_)>>this->E_>>this->corr_>>this->lr_corr_;
 	}
 	this->jd_write_->write("energy per site",this->E_);

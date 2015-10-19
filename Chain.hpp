@@ -9,14 +9,14 @@
  * looks like this :
  *
  *     n_ even, bc_ = 1 |    bc_ = -1
- *                      | 
+ *                      |
  *           +          |      + +
  *         +   +        |    +     +
  *       +       +      |  +         +
  *                 + (1)|(3)
  *     -----------------|---------------
  *     n_ odd, bc_ = 1  |    bc_ = -1
- *                      | 
+ *                      |
  *           +          |      + +
  *         +   +        |    +     +
  *       +       +   (2)|(4)         +
@@ -76,9 +76,9 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 {
 	if(this->status_==2){
 		if(!this->obs_.size()){
-			this->set_nn_links(Vector<unsigned int>(1,1)); 
+			this->set_nn_links(Vector<unsigned int>(1,1));
 		}
-		if(this->J_.ptr()){ 
+		if(this->J_.ptr()){
 			Vector<double> tmp(this->J_);
 			this->J_.set(this->obs_[0].nlinks());
 			for(unsigned int i(0);i<this->J_.size();i++){ this->J_(i) = tmp(i%tmp.size()); }
@@ -96,6 +96,7 @@ void Chain<Type>::set_observables(int nobs){
 	if(nobs<0){ nobs = 2; }
 	unsigned int nlinks;
 	unsigned int nval;
+	unsigned int m;
 	if(nobs>0){/*bond energy*/
 		nlinks = this->obs_[0].nlinks();
 		nval = this->spuc_;
@@ -105,10 +106,11 @@ void Chain<Type>::set_observables(int nobs){
 		}
 	}
 	if(nobs==2){/*long range correlation*/
-		nlinks = this->n_*this->n_;
+		m = this->n_;
 		nval = this->n_;
+		nlinks = m*nval;
 		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
-		for(unsigned int i(0);i<this->n_;i++){
+		for(unsigned int i(0);i<m;i++){
 			for(unsigned int j(0);j<nval;j++){
 				this->obs_[1](i*nval+j,0) = i%this->n_;
 				this->obs_[1](i*nval+j,1) = (i+j)%this->n_;
@@ -121,12 +123,12 @@ void Chain<Type>::set_observables(int nobs){
 template<typename Type>
 Matrix<int> Chain<Type>::get_neighbourg(unsigned int const& i) const {
 	Matrix<int> nb(this->z_,2,1);
-	if( i != this->n_-1){ nb(0,0) = i+1;}
+	if( i != this->n_-1){ nb(0,0) = i+1; }
 	else {
 		nb(0,0) = 0;
 		nb(0,1) = this->bc_;
 	}
-	if( i != 0){ nb(1,0) = i-1;}
+	if( i != 0){ nb(1,0) = i-1; }
 	else {
 		nb(1,0) = this->n_-1;
 		nb(1,1) = this->bc_;
@@ -174,13 +176,13 @@ bool Chain<Type>::compute_critical_exponents(Vector<double> const& lrc, unsigned
 			do{
 				do_fit(lrc, xi, xf, p, R_squared, d_squared);
 
-				if(R_squared > 0.999 && d_squared/this->m_ < 1.6e-8){ return true; } 
+				if(R_squared > 0.999 && d_squared/this->m_ < 1.6e-8){ return true; }
 				/*!normally all the fits have a R_square higher than 0.999. But
 				 * if it is not the case, I just need a fit that is not too bad
 				 * and I don't care about d*/
-				if(R_squared < 0.999 && R_squared > 0.995 && d_squared < 1e-7){ return true; } 
+				if(R_squared < 0.999 && R_squared > 0.995 && d_squared < 1e-7){ return true; }
 				xf -= dx;
-				xi += dx; 
+				xi += dx;
 			} while (xf-xi>2*dx);
 			xi = dx;
 			xf = lrc.size()-dx;
@@ -213,20 +215,20 @@ void Chain<Type>::do_fit(Vector<double> const& lrc, unsigned int const& xi, unsi
 	ym = y.mean();
 
 	if(p.size()==3){
-		auto func = [this](double x, const double* p){ 
+		auto func = [this](double x, const double* p){
 			return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-2.0)+pow(this->n_-x,-2.0));
 		};
-		Fit(x,y,p,func); 
+		Fit(x,y,p,func);
 		for(unsigned int i(0);i<x.size();i++){
 			rss += my::norm_squared(y(i)-func(x(i),p.ptr()));
 			tss += my::norm_squared(ym-y(i));
 		}
 	}
 	if(p.size()==4){
-		auto func = [this](double x, const double* p){ 
+		auto func = [this](double x, const double* p){
 			return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-p[3])+pow(this->n_-x,-p[3]));
 		};
-		Fit(x,y,p,func); 
+		Fit(x,y,p,func);
 		for(unsigned int i(0);i<x.size();i++){
 			rss += my::norm_squared(y(i)-func(x(i),p.ptr()));
 			tss += my::norm_squared(ym-y(i));
@@ -271,7 +273,7 @@ void Chain<Type>::long_range_correlation_and_structure_factor(std::string const&
 	gplr+="p3 = 2.0";
 	gplr+="f(x) = p0*cos(2.0*pi*x*m/N)*(x**(-p1)+(n-x)**(-p1))+p2*(x**(-p3)+(n-x)**(-p3))";
 	gplr+="set fit quiet";
-	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+this->filename_+"-long-range-corr.dat' u 1:2 noerrors via p0,p1,p2,p3"; 
+	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+this->filename_+"-long-range-corr.dat' u 1:2 noerrors via p0,p1,p2,p3";
 	gplr+="plot '"+this->filename_+"-long-range-corr.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
 	gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
 	gplr.save_file();
@@ -288,7 +290,7 @@ void Chain<Type>::long_range_correlation_and_structure_factor(std::string const&
 		for(unsigned int i(0);i<llr;i++){
 			Ck(k) += std::polar(lr_corr(i),dk*k*i);
 		}
-		normalize += Ck(k); 
+		normalize += Ck(k);
 	}
 	Ck /= dk*normalize;
 

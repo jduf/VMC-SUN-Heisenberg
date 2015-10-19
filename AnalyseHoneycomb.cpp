@@ -8,14 +8,14 @@ AnalyseHoneycomb::AnalyseHoneycomb(std::string const& sim, unsigned int const& m
 
 void AnalyseHoneycomb::open_files(){
 	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); }
-	if(level_ == 7){ 
-		data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); 
+	if(level_ == 7){
+		data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
 		data_write_->precision(10);
 	}
 }
 
 void AnalyseHoneycomb::close_files(){
-	if(jd_write_){ 
+	if(jd_write_){
 		if(level_==7){ list_rst_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Honeycomb",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
 		list_rst_.last().text(jd_write_->get_header());
 		delete jd_write_;

@@ -52,7 +52,7 @@ Fermionic<Type>::Fermionic(IOFiles& r):
 	EVec_(N_?new Matrix<Type>[N_]:NULL)
 {
 	r>>EVec_[0];
-	if(same_wf_){ for(unsigned int c(1);c<N_;c++){ EVec_[c] = EVec_[0]; } } 
+	if(same_wf_){ for(unsigned int c(1);c<N_;c++){ EVec_[c] = EVec_[0]; } }
 	else { for(unsigned int c(1);c<N_;c++){ r>>EVec_[c]; } }
 }
 
@@ -64,7 +64,7 @@ Fermionic<Type>::Fermionic():
 
 template<typename Type>
 void Fermionic<Type>::init_fermionic(){
-	if(!EVec_){ EVec_ = new Matrix<Type>[N_];}
+	if(!EVec_){ EVec_ = new Matrix<Type>[N_]; }
 	for(unsigned int c(0);c<N_;c++){ EVec_[c].set(n_,M_(c)); }
 }
 

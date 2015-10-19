@@ -1,5 +1,5 @@
-#ifndef DEF_ANALYSEENERGY 
-#define DEF_ANALYSEENERGY 
+#ifndef DEF_ANALYSEENERGY
+#define DEF_ANALYSEENERGY
 
 #include "Analyse.hpp"
 

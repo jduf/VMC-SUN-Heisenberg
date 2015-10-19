@@ -47,17 +47,17 @@ int main(int argc, char* argv[]){
 					m.save();
 				}break;
 			case 2:
-				{ 
+				{
 					m.find_and_run_minima(10,-1);
 					m.save();
 				}break;
 			case 3:
-				{ 
-					m.set_phase_space(P); 
+				{
+					m.set_phase_space(P);
 					m.save();
 				}break;
 			case 4:
-				{ 
+				{
 					IOFiles out("test.jdbin",true);
 					m.find_save_and_plot_minima(10,out);
 					VMCInterpolation m2(m);

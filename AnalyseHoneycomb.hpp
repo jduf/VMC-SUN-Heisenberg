@@ -1,5 +1,5 @@
-#ifndef DEF_ANALYSEHONEYCOMB 
-#define DEF_ANALYSEHONEYCOMB 
+#ifndef DEF_ANALYSEHONEYCOMB
+#define DEF_ANALYSEHONEYCOMB
 
 #include "Analyse.hpp"
 

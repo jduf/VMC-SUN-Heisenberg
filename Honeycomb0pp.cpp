@@ -24,7 +24,7 @@ void Honeycomb0pp::compute_H(){
 	for(unsigned int i(0);i<n_;i+=2){
 		s = get_site_in_ab(i);
 		nb = get_neighbourg(i);
-		switch(s){ 
+		switch(s){
 			case 0:
 				{
 					H_(i,nb(0,0))= nb(0,1)*th;
@@ -283,7 +283,7 @@ void Honeycomb0pp::check(){
 	//for(unsigned int s(0);s<n_;s++){
 	//nb = get_neighbourg(s);
 	//for(unsigned int i(0);i<z_;i++){
-	//if(nb(i,1)<0){std::cout<<s<<" "<<nb(i,0)<<std::endl;}
+	//if(nb(i,1)<0){ std::cout<<s<<" "<<nb(i,0)<<std::endl; }
 	//}
 	//}
 	///*}*/
@@ -308,7 +308,7 @@ std::string Honeycomb0pp::extract_level_7(){
 	(*read_)>>nruns>>tmax;
 	(*data_write_)<<"% td E dE 0|1"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
-	for(unsigned int i(0);i<nruns+1;i++){ 
+	for(unsigned int i(0);i<nruns+1;i++){
 		(*read_)>>E_>>obs_[0]>>obs_[1];
 		(*data_write_)<<td_<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
 	}
@@ -332,7 +332,7 @@ std::string Honeycomb0pp::extract_level_6(){
 	(*read_)>>nof;
 	for(unsigned int i(0);i<nof;i++){
 		(*read_)>>tmp_td>>tmp_E;
-		if(tmp_E.get_x()<E_.get_x()){ 
+		if(tmp_E.get_x()<E_.get_x()){
 			E_ = tmp_E;
 			td_ = tmp_td;
 		}

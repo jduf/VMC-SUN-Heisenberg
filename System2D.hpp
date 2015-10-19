@@ -116,7 +116,7 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 			else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell doesn't fit into the cluster"<<std::endl; }
 	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : the number of site doesn't fit into the cluster"<<std::endl; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : the number of site doesn't fit into the cluster"<<std::endl;
 	}
 }
 /*}*/
@@ -155,8 +155,8 @@ void System2D<Type>::select_eigenvectors(){
 	  for(unsigned int c(0);c<this->N_;c++){
 	  unsigned int a(this->M_(c)-1);
 	  unsigned int b(this->M_(c)-1);
-	  do{b++;} while (b+1<this->n_ && my::are_equal(e_(b),e_(b-1)));
-	  if(b!=this->M_(c)){ while(a>0 && my::are_equal(e_(a-1),e_(a))){a--;} }
+	  do{ b++; } while (b+1<this->n_ && my::are_equal(e_(b),e_(b-1)));
+	  if(b!=this->M_(c)){ while(a>0 && my::are_equal(e_(a-1),e_(a))){ a--; } }
 	  Vector<unsigned int> cnk;
 	  Combination cbn;
 	  cbn.set(this->M_(c)-a,b-a,cnk);
@@ -172,7 +172,7 @@ void System2D<Type>::select_eigenvectors(){
 	  Py+= my::are_equal(std::abs(py_(select_[c](i))),M_PI,1e-12,1e-12)?0:py_(select_[c](i));
 	  e += e_(select_[c](i));
 	  }
-	  if(!my::are_equal(Px,0.,1e-14) || !my::are_equal(Py,0.,1e-14)){ 
+	  if(!my::are_equal(Px,0.,1e-14) || !my::are_equal(Py,0.,1e-14)){
 	  this->degenerate_ = true;
 	  } else {
 	  pxpy[c].set(this->M_(c)-a,2);
@@ -194,8 +194,8 @@ void System2D<Type>::select_eigenvectors(){
 	unsigned int c(0);
 	unsigned int a(this->M_(c)-1);
 	unsigned int b(this->M_(c)-1);
-	do{b++;} while (b+1<this->n_ && my::are_equal(e_(b),e_(b-1)));
-	if(b!=this->M_(c)){ while(a>0 && my::are_equal(e_(a-1),e_(a))){a--;} }
+	do{ b++; } while (b+1<this->n_ && my::are_equal(e_(b),e_(b-1)));
+	if(b!=this->M_(c)){ while(a>0 && my::are_equal(e_(a-1),e_(a))){ a--; } }
 	std::cout<<a<<" "<<b<<std::endl;
 	std::cout<<e_<<std::endl;
 	for(unsigned int i(a-1);i<b+1;i++){

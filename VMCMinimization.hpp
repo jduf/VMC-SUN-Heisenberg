@@ -18,7 +18,7 @@ class VMCMinimization{
 		/*}*/
 
 		void set_phase_space(Parseur const& P){ m_->set_phase_space(P); }
-		void set_tmax(unsigned int const& tmax){ m_->tmax_ = tmax; };
+		void set_tmax(unsigned int const& tmax){ m_->tmax_ = tmax; }
 
 		void refine();
 		void refine(double const& E, double const& dE);
@@ -40,7 +40,7 @@ class VMCMinimization{
 
 		class Minimization{
 			public:
-				Minimization()=default;
+				Minimization() = default;
 				/*!Default destructor*/
 				virtual ~Minimization();
 				/*{Forbidden*/

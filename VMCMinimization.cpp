@@ -83,9 +83,9 @@ void VMCMinimization::refine(double const& E, double const& dE){
 				iter = 0;
 				do {
 #pragma omp parallel
-					{ evaluate(best.get().get_param(),0); }
+					{ evaluate(best.get().get_param(),-1); }
 					std::cout<<iter<<" iter "<<best.get().get_param()<<std::endl;
-				} while( iter++<10 && ( !best.get().check_conv(1e-5) || best.get().get_MCS()->get_energy().get_dx()>dE ) );
+				} while ( iter++<10 && ( !best.get().check_conv(1e-5) || best.get().get_MCS()->get_energy().get_dx()>dE ) );
 			}
 		} else {
 			if(N<700){ msg = "not enough data to be usefull, skip the evaluation"; }

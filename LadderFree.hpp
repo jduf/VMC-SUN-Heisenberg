@@ -20,6 +20,7 @@ class LadderFree: public Ladder<double>{
 		void lattice(std::string const& path, std::string const& filename);
 
 		std::string extract_level_6();
+		void plot(std::string const& path, std::string const& filename);
 
 	private:
 		unsigned int set_spuc(Vector<double> const& t);

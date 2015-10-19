@@ -34,7 +34,7 @@ template<typename Type>
 Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
 	System2D<Type>(set_geometry(this->n_),ab,spuc,6,filename)
 {
-	if(this->status_==2){ 
+	if(this->status_==2){
 		Vector<double> dir(2);
 		dir(0) = 1.0;
 		dir(1) = 0.0;
@@ -72,7 +72,7 @@ Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std
 		this->dir_nn_LxLy_(5,0) = dir(0);
 		this->dir_nn_LxLy_(5,1) = dir(1);
 
-		//this->set_nn_links(); 
+		//this->set_nn_links();
 	}
 }
 

@@ -5,7 +5,7 @@ AnalyseMagnetization::AnalyseMagnetization(std::string const& sim, unsigned int 
 {}
 
 void AnalyseMagnetization::open_files(){
-	if(level_>1){ 
+	if(level_>1){
 		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
 	}
 	if(level_ == 4){
@@ -18,7 +18,7 @@ void AnalyseMagnetization::open_files(){
 }
 
 void AnalyseMagnetization::close_files(){
-	if(jd_write_){ 
+	if(jd_write_){
 		switch(level_){
 			case 4:{ list_rst_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); } break;
 			case 3:{ list_rst_.last().figure(analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","change_le_nom.png",RST::target(analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); } break;
@@ -67,7 +67,7 @@ std::string AnalyseMagnetization::extract_level_5(){
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
 		(*read_)>>E;
-		if(E.get_x()<min_E.get_x()){ 
+		if(E.get_x()<min_E.get_x()){
 			idx = i;
 			min_E = E;
 		}
@@ -87,7 +87,7 @@ std::string AnalyseMagnetization::extract_level_5(){
 		cs.set_IOSystem(this);
 		(*read_)>>E;
 		if(i==idx){
-			s.save_input(*jd_write_); 
+			s.save_input(*jd_write_);
 			jd_write_->write("energy per site",E);
 		}
 	}

@@ -157,14 +157,14 @@ void SquareFreeHopping::check(){
 	//unsigned int a(M_(c)-1);
 	//unsigned int b(M_(c)-1);
 	//Vector<double> eval;
-	//do{b++;} while (b+1<n_ && my::are_equal(eval(b),eval(b-1)));
-	//if(b!=M_(c)){ while(a>0 && my::are_equal(eval(a-1),eval(a))){a--;} }
+	//do{ b++; } while (b+1<n_ && my::are_equal(eval(b),eval(b-1)));
+	//if(b!=M_(c)){ while(a>0 && my::are_equal(eval(a-1),eval(a))){ a--; } }
 	//std::cout<<a<<" "<<b<<std::endl;
 	std::cout<<t_<<std::endl;
 	compute_H();
 	for(unsigned int i(0);i<n_;i++){
 		for(unsigned int j(i);j<n_;j++){
-			if(H_(i,j)!=0){std::cout<<i<<" "<<j<<" "<<H_(i,j)<<std::endl;}
+			if(H_(i,j)!=0){ std::cout<<i<<" "<<j<<" "<<H_(i,j)<<std::endl; }
 		}
 	}
 	//plot_band_structure();

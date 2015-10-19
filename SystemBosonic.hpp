@@ -24,7 +24,7 @@ class SystemBosonic : public MCSystem, public Bosonic<Type>{
 		 * !Computes the ratio of the two Jastrow factor related to the current
 		 * and next configuration
 		 *
-		 * - when particle of the same color are exchanged a minus sign arises 
+		 * - when particle of the same color are exchanged a minus sign arises
 		 *   to conserve the Marshall-Peierls sign rule
 		 * - when two different colors are exchanged, computes the ratio
 		 }*/
@@ -94,7 +94,7 @@ void SystemBosonic<Type>::free_memory(){
 
 /*methods that return something related to the class*/
 /*{*/
-template<typename Type> 
+template<typename Type>
 double SystemBosonic<Type>::ratio(bool const& squared){
 	if(new_c_[0] == new_c_[1]){
 		/*!the minus sign is required because two particles are exchanged
@@ -105,7 +105,7 @@ double SystemBosonic<Type>::ratio(bool const& squared){
 		Type omegab_a(0.0);//this->omega_next/this->omega_current
 		/*next state*/
 		omegab_a = this->omega_(this->sl_(new_s_[1]),new_c_[0])
-			* this->omega_(this->sl_(new_s_[0]),new_c_[1]); 
+			* this->omega_(this->sl_(new_s_[0]),new_c_[1]);
 		/*current state*/
 		omegab_a /= this->omega_(this->sl_(new_s_[0]),new_c_[0])
 			* this->omega_(this->sl_(new_s_[1]),new_c_[1]);

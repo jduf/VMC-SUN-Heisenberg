@@ -4,10 +4,10 @@
 #include "Ladder.hpp"
 
 /*{Description*/
-/*!Creates a ladder with uniform hopping parameter 
- * 
+/*!Creates a ladder with uniform hopping parameter
+ *
  *  => Fermi Ladder<=
- * 
+ *
  * */
 /*}*/
 template<typename Type>
@@ -70,13 +70,13 @@ void LadderFermi<Type>::check(){
 		std::cout<<" nb="<<nb(0,0);
 		std::cout<<","<<nb(1,0);
 		std::cout<<","<<nb(2,0)<<std::endl;;
-	} 
+	}
 	for(unsigned int i(0);i<this->obs_[0].nlinks();i++){
 		std::cout<<"i="<<i;
 		std::cout<<" l="<<this->obs_[0](i,0);
 		std::cout<<","<<this->obs_[0](i,1);
 		std::cout<<" J="<<this->J_(i)<<std::endl;;
-	} 
+	}
 	std::cout<<"Hamiltonien"<<std::endl;
 	std::cout<<this->H_<<std::endl;
 
@@ -100,18 +100,18 @@ void LadderFermi<Type>::lattice(std::string const& path, std::string const& file
 		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
 		nb = this->get_neighbourg(i);
 
-		if(nb(0,1)<0){ color = "red"; } 
+		if(nb(0,1)<0){ color = "red"; }
 		else { color = "black"; }
 		xy1(0) = nb(0,0)/2;
 		xy1(1) = nb(0,0)%2;
-		if(xy1(0)<xy0(0)){ 
+		if(xy1(0)<xy0(0)){
 			xy1(0) = xy0(0)+1;
 			linestyle="dashed";
 		} else{ linestyle="solid"; }
 		/*x-link*/  ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linecolor="+color+",linestyle="+linestyle);
 		if(i%2){
 			color = "black";
-			linestyle="solid"; 
+			linestyle="solid";
 			xy1(0) = nb(1,0)/2;
 			xy1(1) = nb(1,0)%2;
 			/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linecolor="+color+",linestyle="+linestyle);
@@ -163,7 +163,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	/*!the +1 is the average over all runs */
-	for(unsigned int i(0);i<nruns+1;i++){ 
+	for(unsigned int i(0);i<nruns+1;i++){
 		(*this->read_)>>this->E_>>this->obs_[0]>>this->obs_[1];
 		(*this->data_write_)<<this->E_<<" "<<(i<nruns)<<IOFiles::endl;
 		for(unsigned int j(0);j<this->obs_[0].nlinks();j++){
@@ -178,7 +178,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 			}
 		} else {
 			for(unsigned int j(0);j<this->obs_[1].nlinks();j++){
-				if(this->obs_[1][j].get_conv()){ lrc_mean(j) = this->obs_[1][j].get_x(); } 
+				if(this->obs_[1][j].get_conv()){ lrc_mean(j) = this->obs_[1][j].get_x(); }
 			}
 		}
 	}
@@ -227,7 +227,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 		for(unsigned int i(0);i<llr;i++){
 			Ck(k) += std::polar(lrc_mean(i),dk*k*i);
 		}
-		normalize += Ck(k); 
+		normalize += Ck(k);
 	}
 	Ck /= dk*normalize;
 
@@ -240,7 +240,7 @@ std::string LadderFermi<Type>::extract_level_7(){
 	gp.title(title);
 	gpsf+="set key bottom";
 	gpsf.range("x","0","2*pi");
-	gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; 
+	gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)";
 	gpsf.label("x","$k$","offset 0,0.5");
 	gpsf.label("y2","$<S(k)>$");
 	gpsf+="plot '"+this->filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";

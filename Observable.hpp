@@ -11,7 +11,7 @@ class Observable{
 		/*!Constructor that reads from file*/
 		Observable(IOFiles& r);
 		/*!Copy constructor*/
-		Observable(Observable const& s) = default;
+		Observable(Observable const&) = default;
 		/*!Default destructor*/
 		virtual ~Observable() = default;
 		Observable(Observable&&) = default;

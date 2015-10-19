@@ -10,7 +10,7 @@ IOSystem::IOSystem(std::string const& filename, std::vector<std::string> names):
 	path_ += names.back()+"/";
 }
 
-void IOSystem::set_IOSystem(IOSystem const* const t){ 
+void IOSystem::set_IOSystem(IOSystem const* const t){
 	sim_ = t->sim_;
 	info_ = t->info_;
 	analyse_ = t->analyse_;

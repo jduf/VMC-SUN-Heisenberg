@@ -34,7 +34,7 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 	System2D<Type>(set_geometry(this->n_),set_ab(spuc,length,tilting),spuc,4,filename)
 {
 	if(this->status_==2){
-		if(!this->obs_.size()){ 
+		if(!this->obs_.size()){
 			Vector<double> dir(2);
 			dir(0) = 1.0;
 			dir(1) = 0.0;
@@ -60,7 +60,7 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 			this->dir_nn_LxLy_(3,0) = dir(0);
 			this->dir_nn_LxLy_(3,1) = dir(1);
 
-			this->set_nn_links(Vector<unsigned int>(1,2)); 
+			this->set_nn_links(Vector<unsigned int>(1,2));
 		}
 
 		/*!sets the bond energy if it has not been set yet*/
@@ -103,7 +103,7 @@ Vector<double> Square<Type>::get_pos_in_lattice(unsigned int const& i) const {
 template<typename Type>
 Matrix<double> Square<Type>::set_ab(unsigned int const& spuc, unsigned int const& length, unsigned int const& tilting) const {
 	if(!length){
-		return set_geometry(spuc); 
+		return set_geometry(spuc);
 	} else if(!(spuc%length)){
 		Matrix<double> tmp(2,2);
 		tmp(0,0) = length;
@@ -112,7 +112,7 @@ Matrix<double> Square<Type>::set_ab(unsigned int const& spuc, unsigned int const
 		tmp(1,1) = spuc/length;
 		return tmp;
 	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : unkown unit cell geometry"<<std::endl; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : unkown unit cell geometry"<<std::endl;
 		return Matrix<double>();
 	}
 }

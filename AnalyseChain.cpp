@@ -23,18 +23,18 @@ AnalyseChain::~AnalyseChain(){
 }
 
 void AnalyseChain::open_files(){
-	if(level_>1){ 
-		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); 
-		if(level_==7){ 
-			jd_write_->write("number of different wavefunction",nof_); 
+	if(level_>1){
+		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
+		if(level_==7){
+			jd_write_->write("number of different wavefunction",nof_);
 			jd_write_->add_header()->np();
-		} 
-		if(level_==6){ 
-			jd_write_->write("number of different boundary condition",nof_); 
+		}
+		if(level_==6){
+			jd_write_->write("number of different boundary condition",nof_);
 			jd_write_->add_header()->np();
 		}
 		if(level_==3 || level_==8){
-			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); 
+			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
 			data_write_->precision(10);
 		}
 		if(level_==3){ (*data_write_)<<"%N m bc n E(x,dx,#,conv) d-strength exponents"<<IOFiles::endl; }
@@ -42,19 +42,19 @@ void AnalyseChain::open_files(){
 }
 
 void AnalyseChain::close_files(){
-	if(jd_write_){ 
+	if(jd_write_){
 		switch(level_){
 			case 8:
 				{
 					if(nof_>1){/*if there is only one E data, there is no need to make a plot*/
-						list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); 
+						list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000"));
 					}
 				} break;
 			case 3:
 				{
-					list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp")+RST::width("1000")); 
-					list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp")+RST::width("1000")); 
-					list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp")+RST::width("1000")); 
+					list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.png","Energy per site",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-energy.gp")+RST::width("1000"));
+					list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.png","Critical Exponents",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-exponents.gp")+RST::width("1000"));
+					list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.png","Polymerization",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+"-polymerization.gp")+RST::width("1000"));
 				} break;
 		}
 		list_rst_.last().text(jd_write_->get_header());
@@ -79,7 +79,7 @@ std::string AnalyseChain::extract_level_8(){
 	cs.init(&tmp,NULL);
 	cs.set_IOSystem(this);
 
-	if(!all_link_names_.size()){ 
+	if(!all_link_names_.size()){
 		jd_write_->add_header()->title("Simulations",'<');
 		jd_write_->write("number of jdfiles",nof_);
 		(*data_write_)<<"% t E dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
@@ -111,7 +111,7 @@ std::string AnalyseChain::extract_level_7(){
 		System s(*read_);
 		(*read_)>>d_tmp>>vd_tmp;
 
-		if(s.get_energy().get_x()<E){ 
+		if(s.get_energy().get_x()<E){
 			E = s.get_energy().get_x();
 			idx = i;
 		}
@@ -125,7 +125,7 @@ std::string AnalyseChain::extract_level_7(){
 		(*read_)>>t;
 		System s(*read_);
 
-		if(i==idx){ 
+		if(i==idx){
 			CreateSystem cs(&s);
 			cs.init(&t,NULL);
 			cs.set_IOSystem(this);
@@ -151,7 +151,7 @@ std::string AnalyseChain::extract_level_6(){
 
 	switch(nof_){
 		case 1:
-			{ 
+			{
 				double polymerization_strength;
 				Vector<double> exponents;
 				Vector<double> t;
@@ -177,10 +177,10 @@ std::string AnalyseChain::extract_level_6(){
 					//(*outfile_)<<E<<" "<<exponents<<" "<<polymerization_strength<<IOFiles::endl;
 				}
 
-				std::cerr<<__PRETTY_FUNCTION__<<" only one wf"<<std::endl; 
+				std::cerr<<__PRETTY_FUNCTION__<<" only one wf"<<std::endl;
 			}break;
 		case 2:
-			{ 
+			{
 				/*This part should load the two different wavefunctions. If
 				 * the ChainPolymerization has a vector set to 1, there this
 				 * wavefunction is equivalent to the ChainFermi one. In that
@@ -197,7 +197,7 @@ std::string AnalyseChain::extract_level_6(){
 				 * correct critical exponent
 				unsigned int eta_idx(( (N==9&&m==3) || ref(2)==0)?0:1);
 				*/
-				std::cerr<<__PRETTY_FUNCTION__<<" : don't know what to do"<<std::endl; 
+				std::cerr<<__PRETTY_FUNCTION__<<" : don't know what to do"<<std::endl;
 			}break;
 		default:{ std::cerr<<__PRETTY_FUNCTION__<<" : too many wavefunctions"<<std::endl; }
 	}
@@ -228,7 +228,7 @@ std::string AnalyseChain::extract_level_4(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	/*!must save now nof_ because it doesn't refer to the number of file in the
 	 * next directory but in the next-next directory*/
-	jd_write_->write("number of different boundary condition",nof_); 
+	jd_write_->write("number of different boundary condition",nof_);
 
 	std::cout<<nof_<<std::endl;
 	Vector<double> t;

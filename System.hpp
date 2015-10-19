@@ -37,7 +37,7 @@ class System{
 		/*!Calls complete_analysis of the sampled datas*/
 		void complete_analysis(double const& convergence_criterion);
 		/*!Merge the binning of all observables of s into (*this)*/
-		void merge(System* s);
+		void merge(System* const s);
 		/*!Deletes the binning for all observables*/
 		void delete_binning();
 		/*}*/
@@ -71,16 +71,16 @@ class System{
 
 		Vector<unsigned int> set_ref(Parseur& P);
 
-		Vector<unsigned int> const ref_;//!< type of system 
+		Vector<unsigned int> const ref_;//!< type of system
 		unsigned int const N_;			//!< number of colors
 		unsigned int const m_;			//!< number of particles per site
 		unsigned int const n_;			//!< number of sites
 		int const bc_;					//!< boundary condition
-		Vector<unsigned int> const M_;	//!< number of particles of each color 
+		Vector<unsigned int> const M_;	//!< number of particles of each color
 
 		/*the following attributes will be set by GenericSystem and can't be
 		 * defined within System*/
-		Vector<double> J_;				//!< bond energy
+		Vector<double> J_;				//!< coupling strength
 		unsigned int status_;			//!< status of the simulation
 		Data<double> E_; 				//!< energy of the system
 		std::vector<Observable> obs_;

@@ -19,7 +19,7 @@ ChainPolymerized::ChainPolymerized(System const& s, Vector<double> const& t):
 				for(unsigned int i(0);i<spuc_-1;i++){ tmp += "=\\bullet"; }
 				system_info_.text(" "+RST::math("t_i : "+tmp+"-"));
 			}
-			else{system_info_.text(" "+RST::math("t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-"));}
+			else { system_info_.text(" "+RST::math("t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-")); }
 			system_info_.nl();
 		} else {
 			system_info_.text("Trial wavefunction with uniform real hopping ");
@@ -94,9 +94,9 @@ void ChainPolymerized::save_param(IOFiles& w) const {
 
 unsigned int ChainPolymerized::set_spuc(Vector<double> const& t, unsigned int const& spuc){
 	if(t.size() == spuc && !my::are_equal(t,Vector<double>(spuc,1.0))){ return spuc; }
-	else { 
+	else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : invalid t size : "<<t.size()<<std::endl;
-		return 1; 
+		return 1;
 	}
 }
 /*}*/
@@ -114,7 +114,7 @@ void ChainPolymerized::energy_bound(std::string const& path, std::string const& 
 	Vector<double> poly_e(N_/m_,0);
 	for(unsigned int i(0);i<obs_[0].nval();i++){
 		corr_file<<i+0.5<<" "<<obs_[0][i]<<IOFiles::endl;
-		poly_e(i%(N_/m_)) += obs_[0][i].get_x(); 
+		poly_e(i%(N_/m_)) += obs_[0][i].get_x();
 	}
 	poly_e /= n_*m_/N_;
 	poly_e.sort(std::less<double>());
@@ -173,7 +173,7 @@ std::string ChainPolymerized::extract_level_7(){
 		gp.label("x","$t_"+my::tostring(N_/m_)+"$"," offset 0,1");
 		gp.label("y2","$\\dfrac{E}{n}$","rotate by 0");
 		gp.range("x","0.0","");
-		gp+="f(x) = "+std::string(my::are_equal(t_(N_/m_-1),0)?"a+b*x**c":"a+b*(x-c)*(x-c)"); 
+		gp+="f(x) = "+std::string(my::are_equal(t_(N_/m_-1),0)?"a+b*x**c":"a+b*(x-c)*(x-c)");
 		gp+="a="+my::tostring(E_.get_x());
 		gp+="b=1";
 		gp+="c=1";

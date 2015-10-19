@@ -10,17 +10,17 @@ AnalyseLadder::AnalyseLadder(std::string const& path, unsigned int const& max_le
 
 void AnalyseLadder::open_files(){
 	if(level_>1){
-		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); 
+		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
 
-		if(level_==8){ 
-			jd_write_->write("yahhooo",nof_); 
+		if(level_==8){
+			jd_write_->write("yahhooo",nof_);
 			jd_write_->add_header()->np();
-		} 
+		}
 
-		if(level_==6){ 
-			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true); 
+		if(level_==6){
+			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
 			data_write_->precision(10);
-		} 
+		}
 	}
 }
 
@@ -31,7 +31,7 @@ void AnalyseLadder::close_files(){
 		case 6:
 			{ list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); } break;
 	}
-	if(jd_write_){ 
+	if(jd_write_){
 		list_rst_.last().text(jd_write_->get_header());
 		delete jd_write_;
 		jd_write_ = NULL;
@@ -47,8 +47,8 @@ std::string AnalyseLadder::extract_level_9(){
 	IOFiles in(sim_+path_+dir_+filename_+".jdbin",false);
 
 	RSTFile rst(info_+path_+dir_,filename_);
-	rst.text(in.get_header()); 
-	rst.save(false,true); 
+	rst.text(in.get_header());
+	rst.save(false,true);
 
 	VMCMinimization min(in);
 	min.find_save_and_plot_minima(10,*jd_write_,analyse_+path_+dir_,filename_);
@@ -81,7 +81,9 @@ std::string AnalyseLadder::extract_level_8(){
 		if(!i){ std::cout<<std::string(6+path_.size()+dir_.size()+filename_.size(),' ')<<"|-> create lattice"; }
 		else { std::cout<<" "<<nof_-i<<std::flush; }
 		cs.lattice(info_+path_+dir_,filename_+"-"+my::tostring(i));
-		list_rst_.last().figure(dir_+filename_+"-"+my::tostring(i)+".png",RST::math("E="+my::tostring(s.get_energy().get_x())+"\\pm"+my::tostring(s.get_energy().get_dx())),RST::target(dir_+filename_+"-"+my::tostring(i)+".pdf")+RST::scale("200")); 
+		list_rst_.last().figure(dir_+filename_+"-"+my::tostring(i)+"-pstricks.png","",RST::target(dir_+filename_+"-"+my::tostring(i)+"-pstricks.pdf")+RST::scale("200"));
+		list_rst_.last().figure(dir_+filename_+"-"+my::tostring(i)+"-as-c.png","",RST::target(dir_+filename_+"-"+my::tostring(i)+"ps-c.pdf")+RST::scale("200"));
+		list_rst_.last().figure(dir_+filename_+"-"+my::tostring(i)+"-as-sf.png",RST::math("E="+my::tostring(s.get_energy().get_x())+"\\pm"+my::tostring(s.get_energy().get_dx())),RST::target(dir_+filename_+"-"+my::tostring(i)+"ps-sf.pdf")+RST::scale("200"));
 
 		if(!i){/*only the best set of parameter is kept*/
 			cs.save_param(*jd_write_);

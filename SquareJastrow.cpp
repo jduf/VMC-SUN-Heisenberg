@@ -79,7 +79,7 @@ void SquareJastrow::save_input(IOFiles& w) const {
 	w.write("omega (omega)",omega_);
 }
 
-unsigned int SquareJastrow::match_pos_in_ab(Vector<double> const& x) const { 
+unsigned int SquareJastrow::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match)){ return 0; }
 	match(0) = 0.5;
@@ -99,7 +99,7 @@ unsigned int SquareJastrow::match_pos_in_ab(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void SquareJastrow::lattice(std::string const& path, std::string const& filename){ 
+void SquareJastrow::lattice(std::string const& path, std::string const& filename){
 	(void)(path);
 	(void)(filename);
 	//PSTricks ps("./",filename_+"-lattice");
@@ -122,7 +122,7 @@ void SquareJastrow::lattice(std::string const& path, std::string const& filename
 	//ps.line("-", x0, y0, x1, y1 , "linewidth=1pt,linecolor="+color);
 	//
 	//x1 = nb(1,0)%Lx_;
-	//if( i+Lx_<this->n_){ 
+	//if( i+Lx_<this->n_){
 	//y1 = nb(1,0)/Ly_;
 	//color = "black";
 	//} else {
@@ -138,16 +138,16 @@ void SquareJastrow::lattice(std::string const& path, std::string const& filename
 	//for(unsigned int i(0);i<n_;i++){
 	//for(unsigned int j(0);j<N_;j++){
 	//pie(j) = lat(i,j)/m;
-	//if(pie(j) < 1e-4){pie(j) = 0;}
+	//if(pie(j) < 1e-4){ pie(j) = 0; }
 	//}
 	//ps.add("\\rput("+my::tostring(i%Lx_)+","+my::tostring(i/Ly_)+"){%");
 	//ps.pie(pie,r,"chartColor=color,userColor={red,blue}");
 	//ps.add("}");
 	//
 	//switch(sl_(i)){
-	//case 0: { color = "red";} break;
-	//case 1: { color = "blue";} break;
-	//case 2: { color = "green";} break;
+	//case 0: { color = "red"; } break;
+	//case 1: { color = "blue"; } break;
+	//case 2: { color = "green"; } break;
 	//}
 	//ps.put(i%Lx_+r*1.2, i/Ly_+r*1.2, "\\tiny{"+my::tostring(i)+"}");
 	//}

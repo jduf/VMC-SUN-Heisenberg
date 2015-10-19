@@ -27,7 +27,7 @@ class MCSim {
 		/*!Creates MonteCarlo, then run on MCS_*/
 		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
 		/*}*/
-		void set_observables(std::vector<Observable> const& obs, int const& nobs){ 
+		void set_observables(std::vector<Observable> const& obs, int const& nobs){
 			MCS_->set_observables(obs,nobs);
 		}
 

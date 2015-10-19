@@ -18,19 +18,19 @@ int main(int argc, char* argv[]){
 	CreateSystem cs(&s);
 	switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
 		case 0:/*call CreateSystem::init*/
-			{ 
+			{
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init(NULL,&P);
 			} break;
 		case 1:/*call CreateSystem::init and check*/
-			{ 
+			{
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init(NULL,&P);
 				std::cout<<"############# Check #######################"<<std::endl;
 				if(cs.get_status()==2){ cs.check(); }
 			} break;
 		case 2:/*call CreateSystem::init create and check*/
-			{ 
+			{
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init(NULL,&P);
 				if(cs.get_status()==2){
@@ -51,9 +51,9 @@ int main(int argc, char* argv[]){
 					std::cout<<"############# Create MCSystem #############"<<std::endl;
 					MCSystem* S(NULL);
 					if(cs.use_complex()){
-						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_GS())); 
+						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_GS()));
 					} else {
-						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())); 
+						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS()));
 					}
 					std::cout<<"############# Init Monte Carlo ############"<<std::endl;
 					MonteCarlo sim(S,tmax);
@@ -77,9 +77,9 @@ int main(int argc, char* argv[]){
 					std::cout<<"############# Create MCSystem #############"<<std::endl;
 					MCSystem* S(NULL);
 					if(cs.use_complex()){
-						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_GS())); 
+						S = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_GS()));
 					} else {
-						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())); 
+						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS()));
 					}
 					S->set_observables(cs.get_GS()->get_obs(),which);
 					std::cout<<"############# Init Monte Carlo ############"<<std::endl;
@@ -101,9 +101,9 @@ int main(int argc, char* argv[]){
 				std::cout<<"############# Load MCSystem ###############"<<std::endl;
 				IOFiles in("check.jdbin",false);
 				if(cs.use_complex()){
-					S = new SystemFermionic<std::complex<double> >(in); 
+					S = new SystemFermionic<std::complex<double> >(in);
 				} else {
-					S = new SystemFermionic<double>(in); 
+					S = new SystemFermionic<double>(in);
 				}
 				std::cout<<"############# Init Monte Carlo ############"<<std::endl;
 				MonteCarlo sim(S,tmax);
