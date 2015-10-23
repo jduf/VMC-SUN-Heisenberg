@@ -24,7 +24,7 @@ int main(int argc,char* argv[]){
 				if(argc==3){
 					std::string option(argv[2]);
 					if(option=="png"){
-						command(Linux::pdf2png("/tmp/" + texfile, path + filename),false);
+						command(Linux::pdf2png("/tmp/" + texfile, path + filename),true);
 					} else {
 						std::cerr<<"gnuplot2image : unknown option (only possible is 'png')"<<std::endl;
 					}

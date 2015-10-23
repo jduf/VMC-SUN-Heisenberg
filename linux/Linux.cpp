@@ -14,16 +14,30 @@ Linux::Bash::~Bash(){
 Linux::Bash Linux::bash_;
 
 void Linux::open(std::string const& filename){
-	bash_.file_.open(filename.c_str(), std::ios::out);
 	if(bash_.file_.is_open()){
-		bash_.file_<<"!#/bin/bash\n";
+		std::cerr<<__PRETTY_FUNCTION__<<" : can't open more than out Bash file at the same time"<<std::endl;
 	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : the bash file can't be openend"<<std::endl;
+		bash_.file_.open(filename.c_str(), std::ios::out);
+		if(bash_.file_.is_open()){
+			bash_.filename_ = filename;
+			bash_.file_<<"#!/bin/bash\n";
+		} else {
+			std::cerr<<__PRETTY_FUNCTION__<<" : the bash file can't be openend"<<std::endl;
+		}
 	}
 }
 
-void Linux::close(){
-	if(bash_.file_.is_open()){ bash_.file_.close(); }
+void Linux::close(bool const& run_now){
+	if(bash_.file_.is_open()){ 
+		bash_.file_.close(); 
+		if(run_now){
+			Linux command;
+			std::cout<<"bla"<<std::endl;
+			command("chmod 755 "+Linux::bash_.filename_,false);
+			command("./"+Linux::bash_.filename_,false);
+			bash_.filename_ = "";
+		}
+	}
 }
 
 /*{methods that don't need system*/
@@ -106,7 +120,7 @@ std::string Linux::gp2latex(std::string const& texfile, std::string const& path,
 	} else { size = "12.15cm,7.54"; }
 	cmd+= " -e \"set terminal epslatex color size "+size+" standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'" + texfile + ".tex\'\" ";
 	cmd+= path + gpfile + ".gp";
-	cmd+= "; cd -";
+	cmd+= "; cd - > /dev/null";
 	return cmd;
 }
 

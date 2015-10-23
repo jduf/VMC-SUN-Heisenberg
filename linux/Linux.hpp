@@ -24,7 +24,7 @@
 #include "sys/stat.h"
 #include "string.h"
 
-class Linux {
+class Linux{
 	public:
 		/*!Default constructor*/
 		Linux() = default;
@@ -39,15 +39,16 @@ class Linux {
 		/*!Execute a UNIX command and get its exit value*/
 		void operator()(std::string cmd, bool silent);
 		static void open(std::string const& filename);
-		static void close();
+		static void close(bool const& run_now);
 
 		/*!Returns exit value of the last command*/
 		int status(){ return ev_; }
 		/*!Returns a string containing the current path*/
 		std::string pwd(){ return std::string(get_current_dir_name()) + '/'; }
 
-		/*!Creates a directory with -p option*/
-		void mkdir(const char *directory, mode_t mode = 0700);
+		/*!Creates a directory*/
+		void mkdir(const char *directory, mode_t mode = 0755);
+		/*!Creates a path*/
 		void mkpath(const char *path, mode_t mode = 0755);
 
 		static std::string latex(std::string const& path, std::string const& filename);
@@ -78,6 +79,12 @@ class Linux {
 				Bash() = default;
 				~Bash();
 				std::ofstream file_;
+				std::string filename_;
+				/*{Forbidden*/
+				Bash(Bash const&) = delete;
+				Bash(Bash&&) = delete;
+				Bash& operator=(Bash) = delete;
+				/*}*/
 		};
 
 		int ev_ = 0;//!< exit value of the last UNIX command

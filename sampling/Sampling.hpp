@@ -35,7 +35,7 @@ class Binning{
 		/*!Set x_ to the mean value, dx_ to the variance*/
 		void complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv);
 		/*!Compute the mean value*/
-		Type get_x() const { return (m_bin_(0)*Ml_(0)*DPL_+bin_[0](Ml_(0)))/(Ml_(0)*DPL_+dpl_); }
+		Type get_x() const { return (m_bin_(0)*Ml_(0)*DPL_+bin_[0](Ml_(0)))/get_N(); }
 		/*!Compute the number of samples*/
 		double get_N() const { return 1.0*Ml_(0)*DPL_+dpl_; }
 		/*!Merge this with b*/
@@ -89,13 +89,13 @@ class Data{
 		Type get_x() const { return binning_?binning_->get_x():x_; }
 		Type const& get_dx() const { return dx_; }
 		bool const& get_conv() const { return conv_; }
-		Binning<Type> const* get_binning() const { return binning_; }
 
 		void set_x(Type const& x){ x_ = x; }
 		void add(Type const& x){ x_ += x; }
 		void divide(Type const& x){ x_ /= x; }
 
 		void header_rst(std::string const& s, RST& rst) const;
+		void write(IOFiles& w) const;
 
 	private:
 		Type x_					= 0.0;
@@ -465,13 +465,8 @@ void Data<Type>::header_rst(std::string const& s, RST& rst) const {
 
 template<typename Type>
 IOFiles& operator<<(IOFiles& w, Data<Type> const& d){
-	if(w.is_binary()){
-		w<<d.get_x()<<d.get_dx()<<d.get_N()<<d.get_conv();
-		if(d.get_binning()){
-			w<<true;
-			d.get_binning()->write(w);
-		} else { w<<false; }
-	} else { w.stream()<<d; }
+	if(w.is_binary()){ d.write(w); }
+	else { w.stream()<<d; }
 	return w;
 }
 
@@ -480,6 +475,17 @@ IOFiles& operator>>(IOFiles& r, Data<Type>& d){
 	if(r.is_binary()){ d = std::move(Data<Type>(r)); }
 	else { r.stream()>>d; }
 	return r;
+}
+
+template<typename Type>
+void Data<Type>::write(IOFiles& w) const {
+	/*!the call of get_x() and get_N() is useful because x_ and N_ are not
+	 * necessarily set to their correct value*/
+	w<<get_x()<<dx_<<get_N()<<conv_;
+	if(binning_){
+		w<<true;
+		binning_->write(w);
+	} else { w<<false; }
 }
 /*}*/
 
