@@ -47,7 +47,7 @@ void Analyse::do_analyse(){
 				if(path_[path_.size()-1] != '/'){ path_ += '/'; }
 				std::vector<std::string> tmp(my::string_split(path_,'/'));
 				path_ = "";
-				level_+=1;
+				level_=1;
 				for(unsigned int i(1);i<tmp.size()-1;i++){
 					path_ += tmp[i]+'/';
 					level_++;
@@ -56,7 +56,10 @@ void Analyse::do_analyse(){
 				dir_ = tmp[tmp.size()-1]+'/';
 
 				list_rst_.add_end(std::make_shared<RSTFile>(info_+path_,dir_.substr(0,dir_.size()-1)));
+
+				Linux::open(dir_.substr(0,dir_.size()-1)+".bash");
 				recursive_search();
+				Linux::close(true);
 			}break;
 		case 3:
 			{ std::cerr<<__PRETTY_FUNCTION__<<" : can't analyse a *.jdbin file"<<std::endl; }break;
@@ -64,6 +67,8 @@ void Analyse::do_analyse(){
 }
 
 void Analyse::recursive_search(){
+	if(level_ == 1){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
+
 	Directory d;
 	d.list_dir(sim_+path_+dir_);
 	if(d.size()>0){ d.sort(); }
@@ -86,6 +91,8 @@ void Analyse::recursive_search(){
 	search_jdbin();
 	level_--;
 	rel_level_.erase(0,3);
+
+	if(level_ == 1){ Linux::close(true); }
 }
 
 void Analyse::search_jdbin(){

@@ -111,8 +111,6 @@ void MCSystem::measure_new_step(){
 			s1 = obs_[i](l,1);
 			for(unsigned int p0(0);p0<m_;p0++){
 				for(unsigned int p1(0);p1<m_;p1++){
-					//MCSystem::swap(obs_[i](l,0),obs_[i](l,1),p0,p1);
-					//if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ obs_[i].add(l,1.0); }
 					if(s_(s0,p0) == s_(s1,p1)){ obs_[i].add(l,1.0); }
 				}
 			}
