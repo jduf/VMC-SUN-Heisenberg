@@ -1022,7 +1022,6 @@ void LadderFree::lattice(){
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	double x_shift(spuc_/2+2);
-	double y_shift(2);
 
 	PSTricks ps(info_+path_+dir_,filename_+"-pstricks");
 	ps.begin(-1,-5,n_/2,2,filename_+"-pstricks");
@@ -1075,29 +1074,27 @@ void LadderFree::lattice(){
 	}
 	if(obs_.size()==5){/*long range correlations*/
 		double rescale(0.75/obs_[1][0].get_x());
-		for(unsigned int i(0);i<obs_[1].nval();i++){
-			corr = obs_[1][i].get_x()*rescale;
-			if(std::abs(corr)>1e-4){
-				s0 = obs_[1](i,1);
-				xy0(0) = s0/2;
-				xy0(1) = s0%2-y_shift;
+		unsigned int n(std::min(4*N_/m_+1,obs_[1].nval()));
+		unsigned int idx;
+		for(unsigned int i(0);i<n;i++){
+			idx = (obs_[1].nval()-n/2+i)%obs_[1].nval();
 
-				if(i){
+			corr = obs_[1][idx].get_x()*rescale;
+			xy0(0) = i;
+			xy0(1) = -2;
+			if(std::abs(corr)>1e-4){
+				if(i!=idx){
 					if(corr<0){ color = "red"; }
 					else { color = "blue"; }
 				} else { color = "black"; }
-
 				ps.circle(xy0,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
-			corr = obs_[2][i].get_x()*rescale;
-			if(std::abs(corr)>1e-4){
-				s0 = obs_[2](i,1);
-				xy0(0) = s0/2;
-				xy0(1) = s0%2-y_shift;
 
+			corr = obs_[2][idx].get_x()*rescale;
+			xy0(1) = -1;
+			if(std::abs(corr)>1e-4){
 				if(corr<0){ color = "red"; }
 				else { color = "blue"; }
-
 				ps.circle(xy0,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
 		}

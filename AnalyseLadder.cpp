@@ -70,6 +70,7 @@ std::string AnalyseLadder::extract_level_8(){
 	(*read_)>>nof_;
 
 	Vector<double> tmp;
+	std::string tmp_filename(filename_);
 	for(unsigned int i(0);i<nof_;i++){
 		/*!Draw the lattice with the witdth related to t_*/
 		if(!i){ std::cout<<std::string(6+path_.size()+dir_.size()+filename_.size(),' ')<<"|-> create lattice"; }
@@ -80,7 +81,7 @@ std::string AnalyseLadder::extract_level_8(){
 		CreateSystem cs(&s);
 		cs.init(&tmp,NULL);
 		rst_file_ = &list_rst_.last();
-		filename_ = filename_+"-"+my::tostring(i);
+		filename_ = tmp_filename+"-"+my::tostring(i);
 		cs.set_IOSystem(this);
 		cs.lattice();
 		rst_file_ = NULL;
@@ -96,7 +97,7 @@ std::string AnalyseLadder::extract_level_8(){
 	delete read_;
 	read_ = NULL;
 
-	return filename_;
+	return tmp_filename;
 }
 
 /*compare wavefunction (different ref_)*/
