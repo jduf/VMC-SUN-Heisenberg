@@ -85,7 +85,7 @@ template<typename Type>
 void Ladder<Type>::set_observables(int nobs){
 	this->E_.set(50,5,false);
 
-	if(nobs<0){ nobs = 6; }
+	if(nobs<0){ nobs = 5; }
 	unsigned int nlinks;
 	unsigned int nval;
 	unsigned int m;
@@ -97,20 +97,7 @@ void Ladder<Type>::set_observables(int nobs){
 			this->obs_[0](i,2) = i%nval;
 		}
 	}
-	if(nobs>1){/*long range correlation*/
-		m = this->spuc_/2;
-		nval = this->n_;
-		nlinks = m*nval;
-		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
-		for(unsigned int i(0);i<m;i++){
-			for(unsigned int j(0);j<nval;j++){
-				this->obs_[1](i*nval+j,0) = (2*i)%this->n_;
-				this->obs_[1](i*nval+j,1) = (2*i+j)%this->n_;
-				this->obs_[1](i*nval+j,2) = j;
-			}
-		}
-	}
-	if(nobs==6){/*(anti)symmetric correlation*/
+	if(nobs==5){/*(anti)symmetric correlation*/
 		m = this->n_/2;
 		nval = this->n_/2;
 		nlinks = m*nval;
@@ -120,27 +107,22 @@ void Ladder<Type>::set_observables(int nobs){
 		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
 		for(unsigned int i(0);i<m;i++){
 			for(unsigned int j(0);j<nval;j++){
-				//std::cout<<i<<" "<<j<<std::flush;
 				/*obs_[2]=S_10*S_1i*/
-				this->obs_[2](i*nval+j,0) = 2*i;
-				this->obs_[2](i*nval+j,1) = (2*(i+j))%this->n_;
-				this->obs_[2](i*nval+j,2) = j;
+				this->obs_[1](i*nval+j,0) = 2*i;
+				this->obs_[1](i*nval+j,1) = (2*(i+j))%this->n_;
+				this->obs_[1](i*nval+j,2) = j;
 				/*obs_[3]=S_10*S_2i*/
-				this->obs_[3](i*nval+j,0) = 2*i;
-				this->obs_[3](i*nval+j,1) = (2*(i+j)+1)%this->n_;
-				this->obs_[3](i*nval+j,2) = j;
+				this->obs_[2](i*nval+j,0) = 2*i;
+				this->obs_[2](i*nval+j,1) = (2*(i+j)+1)%this->n_;
+				this->obs_[2](i*nval+j,2) = j;
 				/*obs_[4]=S_20*S_1i*/
-				this->obs_[4](i*nval+j,0) = 2*i+1;
-				this->obs_[4](i*nval+j,1) = (2*(i+j))%this->n_;
-				this->obs_[4](i*nval+j,2) = j;
+				this->obs_[3](i*nval+j,0) = 2*i+1;
+				this->obs_[3](i*nval+j,1) = (2*(i+j))%this->n_;
+				this->obs_[3](i*nval+j,2) = j;
 				/*obs_[5]=S_20*S_2i*/
-				this->obs_[5](i*nval+j,0) = 2*i+1;
-				this->obs_[5](i*nval+j,1) = (2*(i+j)+1)%this->n_;
-				this->obs_[5](i*nval+j,2) = j;
-				//std::cout<<"| "<<this->obs_[2](i*m+j,0)<<" "<< this->obs_[2](i*m+j,1)<<" " <<this->obs_[2](i*m+j,2)<<std::endl;
-				//std::cout<<"| "<<this->obs_[3](i*nlinks/2+j,0)<<" "<< this->obs_[3](i*nlinks/2+j,1)<<" " <<this->obs_[3](i*nlinks/2+j,2)<<std::endl;
-				//std::cout<<"| "<<this->obs_[4](i*nlinks/2+j,0)<<" "<< this->obs_[4](i*nlinks/2+j,1)<<" " <<this->obs_[4](i*nlinks/2+j,2)<<std::endl;
-				//std::cout<<"| "<<this->obs_[5](i*nlinks/2+j,0)<<" "<< this->obs_[5](i*nlinks/2+j,1)<<" " <<this->obs_[5](i*nlinks/2+j,2)<<std::endl;
+				this->obs_[4](i*nval+j,0) = 2*i+1;
+				this->obs_[4](i*nval+j,1) = (2*(i+j)+1)%this->n_;
+				this->obs_[4](i*nval+j,2) = j;
 			}
 		}
 	}

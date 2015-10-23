@@ -71,19 +71,18 @@ std::string AnalyseLadder::extract_level_8(){
 
 	Vector<double> tmp;
 	for(unsigned int i(0);i<nof_;i++){
+		/*!Draw the lattice with the witdth related to t_*/
+		if(!i){ std::cout<<std::string(6+path_.size()+dir_.size()+filename_.size(),' ')<<"|-> create lattice"; }
+		else { std::cout<<" "<<nof_-i<<std::flush; }
+
 		(*read_)>>tmp;
 		System s(*read_);
 		CreateSystem cs(&s);
 		cs.init(&tmp,NULL);
+		rst_file_ = &list_rst_.last();
 		cs.set_IOSystem(this);
-
-		/*!Draw the lattice with the witdth related to t_*/
-		if(!i){ std::cout<<std::string(6+path_.size()+dir_.size()+filename_.size(),' ')<<"|-> create lattice"; }
-		else { std::cout<<" "<<nof_-i<<std::flush; }
 		cs.lattice(info_+path_+dir_,filename_+"-"+my::tostring(i));
-		list_rst_.last().figure(dir_+filename_+"-"+my::tostring(i)+"-pstricks.png","",RST::target(dir_+filename_+"-"+my::tostring(i)+"-pstricks.pdf")+RST::scale("200"));
-		list_rst_.last().figure(dir_+filename_+"-"+my::tostring(i)+"-as-c.png","",RST::target(dir_+filename_+"-"+my::tostring(i)+"ps-c.pdf")+RST::scale("200"));
-		list_rst_.last().figure(dir_+filename_+"-"+my::tostring(i)+"-as-sf.png",RST::math("E="+my::tostring(s.get_energy().get_x())+"\\pm"+my::tostring(s.get_energy().get_dx())),RST::target(dir_+filename_+"-"+my::tostring(i)+"ps-sf.pdf")+RST::scale("200"));
+		rst_file_ = NULL;
 
 		if(!i){/*only the best set of parameter is kept*/
 			cs.save_param(*jd_write_);

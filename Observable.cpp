@@ -15,7 +15,9 @@ Observable::Observable(unsigned int const& nlinks, unsigned int const& nval, uns
 Observable::Observable(IOFiles& r):
 	links_(r),
 	val_(r)
-{}
+{
+	modulo_ = links_.row()/val_.size();
+}
 
 void Observable::set(unsigned int const& nval, unsigned int const& B, unsigned int const& b, bool const& conv){
 	if(links_.row()%nval){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number"<<std::endl; }
@@ -50,8 +52,8 @@ void Observable::write(IOFiles& w) const {
 }
 
 std::ostream& operator<<(std::ostream& flux, Observable const& obs){
-	for(unsigned int i(0);i<obs.nlinks();i++){
-		flux<<obs(i,0)<<" "<<obs(i,1)<<" "<<obs(i,2)<<" "<<obs[obs(i,2)]<<std::endl;
+	for(unsigned int i(0);i<obs.nval();i++){
+		flux<<obs(i,0)<<" "<<obs(i,1)<<" "<<obs(i,2)<<" "<<obs[i]<<std::endl;
 	}
 	return flux;
 }
@@ -59,7 +61,9 @@ std::ostream& operator<<(std::ostream& flux, Observable const& obs){
 void Observable::set_x(double const& val){
 	for(unsigned int i(0);i<val_.size();i++){ val_[i].set_x(val); }
 }
+
 void Observable::add(unsigned int const& i, double const& val){
 	val_[links_(i,2)].add(val/modulo_);
 }
+
 void Observable::add_sample(){ val_.add_sample(); }

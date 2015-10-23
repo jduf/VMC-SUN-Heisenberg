@@ -52,7 +52,7 @@ void MCSystem::swap(){
 		new_s_[1] = n_rnd_.get();
 		new_p_[1] = m_rnd_.get();
 		new_c_[1] = s_(new_s_[1],new_p_[1]);
-	} while(is_new_state_forbidden() || new_c_[0] == new_c_[1]);
+	} while (is_new_state_forbidden() || new_c_[0] == new_c_[1]);
 }
 
 void MCSystem::swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
@@ -103,13 +103,17 @@ void MCSystem::measure_new_step(){
 	E_.divide(n_);
 
 	double diag_term(1.0*m_*m_/N_);
+	unsigned int s0,s1;
 	for(unsigned int i(1);i<obs_.size();i++){
 		obs_[i].set_x(-diag_term);
 		for(unsigned int l(0);l<obs_[i].nlinks();l++){
+			s0 = obs_[i](l,0);
+			s1 = obs_[i](l,1);
 			for(unsigned int p0(0);p0<m_;p0++){
 				for(unsigned int p1(0);p1<m_;p1++){
-					swap(obs_[i](l,0),obs_[i](l,1),p0,p1);
-					if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ obs_[i].add(l,1.0); }
+					//MCSystem::swap(obs_[i](l,0),obs_[i](l,1),p0,p1);
+					//if(!is_new_state_forbidden() && new_c_[0] == new_c_[1]){ obs_[i].add(l,1.0); }
+					if(s_(s0,p0) == s_(s1,p1)){ obs_[i].add(l,1.0); }
 				}
 			}
 		}
@@ -129,7 +133,7 @@ void MCSystem::write(IOFiles& w) const {
 /*private methods*/
 /*{*/
 bool MCSystem::is_new_state_forbidden(){
-	for(unsigned int i(0); i<m_; i++){
+	for(unsigned int i(0);i<m_;i++){
 		if(i != new_p_[0] && s_(new_s_[0],i) == new_c_[1]){ return true; }
 		if(i != new_p_[1] && s_(new_s_[1],i) == new_c_[0]){ return true; }
 	}

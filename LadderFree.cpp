@@ -888,76 +888,71 @@ void LadderFree::check(){
 }
 
 void LadderFree::plot(std::string const& path, std::string const& filename){
-	if(obs_.size()>1){
-		/*!long-range correlations and structure factor*/
+	if(obs_.size()>3){
+		/*!long range correlations*/
 		/*{*/
-		IOFiles file_c(path+filename+"-c.dat",true);
-		for(unsigned int i(0);i<obs_[1].nval();i++){
-			file_c<<i<<" "<<obs_[1][i]<<IOFiles::endl;
-		}
-
-		Gnuplot gpc(path,filename+"-c");
-		gpc.multiplot();
-		gpc.margin("0.1","0.95","0.9","0.5");
-		gpc.tics("x");
-		gpc+="plot '"+filename+"-c.dat' u 1:(int($1)%2?1/0:$2):3 w errorbars lt 1 lc 6 notitle";
-		gpc.margin("0.1","0.95","0.5","0.1");
-		gpc+="plot '"+filename+"-c.dat' u 1:(int($1)%2?$2:1/0):3 w errorbars lt 1 lc 7 notitle";
-		gpc.save_file();
-		gpc.create_image(true,true);
-
 		unsigned int llr(obs_[1].nval());
-		Vector<std::complex<double> > Ck(llr,0.0);
-		std::complex<double> normalize(0.0);
+		Vector<std::complex<double> > Cku(llr,0.0);
+		Vector<std::complex<double> > Ckd(llr,0.0);
+		std::complex<double> normalize_u(0.0);
+		std::complex<double> normalize_d(0.0);
 		double dk(2.0*M_PI/llr);
 
 		for(unsigned int k(0);k<llr;k++){
 			for(unsigned int i(0);i<llr;i++){
-				Ck(k) += std::polar(obs_[1][i].get_x(),dk*k*i);
+				Ckd(k) += std::polar(obs_[1][i].get_x(),dk*k*i);
+				Cku(k) += std::polar(obs_[2][i].get_x(),dk*k*i);
 			}
-			normalize += Ck(k);
+			normalize_d += Ckd(k);
+			normalize_u += Cku(k);
 		}
-		Ck /= dk*normalize;
+		Ckd /= dk*normalize_d;
+		Cku /= dk*normalize_u;
 
-		IOFiles file_sf(path+filename+"-c-sf.dat",true);
-		for(unsigned int k(0);k<llr;k++){
-			file_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<IOFiles::endl;
+		IOFiles file_c(path+filename+"-lr-c.dat",true);
+		IOFiles file_sf(path+filename+"-lr-sf.dat",true);
+		for(unsigned int l(0);l<llr;l++){
+			file_c<<l<<" "<<obs_[1][l]<<" "<<obs_[2][l]<<IOFiles::endl;
+			file_sf<<dk*l<<" "<<Ckd(l).real()<<" "<<Ckd(l).imag()<<" "<<Cku(l).real()<<" "<<Cku(l).imag()<<IOFiles::endl;
 		}
 
-		Gnuplot gpsf(path,filename+"-c-sf");
-		gpsf+="set key bottom";
-		gpsf.range("x","0","2*pi");
-		gpsf.label("x","$k$","offset 0,0.5");
-		gpsf.label("y2","$<S(k)>$");
-		gpsf+="plot '"+filename+"-c-sf.dat' u 1:2 lt 1 lc 6 t 'real',\\";
-		gpsf+="     '"+filename+"-c-sf.dat' u 1:3 lt 2 lc 6 t 'imag'";
-		gpsf.save_file();
-		gpsf.create_image(true,true);
+		Gnuplot gp(path,filename+"-lr");
+		gp.multiplot();
+		/*{correlations*/
+		gp.range("x","0",llr/2);
+
+		gp.tics("x");
+		gp.margin("0.05","0.5","0.9","0.5");
+		gp+="plot '"+filename+"-lr-c.dat' u 1:2:3 w errorbars lt 1 lc 6 t 'intra'";
+
+		gp.margin("0.05","0.5","0.5","0.1");
+		gp.tics("x","");
+		gp+="plot '"+filename+"-lr-c.dat' u 1:6:7  w errorbars lt 1 lc 7 t 'inter'";
+		/*}*/
+		/*{structure factor*/
+		gp.range("x","0","pi");
+		gp.range("y2","0","");
+
+		gp.key("left");
+		gp.tics("y");
+		gp.tics("x");
+		gp.tics("y2","");
+		gp.margin("0.5","0.95","0.9","0.5");
+		gp+="plot '"+filename+"-lr-sf.dat' u 1:2 axes x1y2 lt 1 lc 6 notitle,\\";
+		gp+="     '"+filename+"-lr-sf.dat' u 1:3 axes x1y2 lt 2 lc 6 notitle";
+
+		gp.margin("0.5","0.95","0.5","0.1");
+		gp.tics("x","");
+		gp+="plot '"+filename+"-lr-sf.dat' u 1:4 axes x1y2 lt 1 lc 7 notitle,\\";
+		gp+="     '"+filename+"-lr-sf.dat' u 1:5 axes x1y2 lt 2 lc 7 notitle";
+		/*}*/
+		gp.save_file();
+		gp.create_image(true,true);
 		/*}*/
 	}
-	if(obs_.size()==6){
+	if(obs_.size()==5){
 		/*!(anti)symmetric correlations and structure factors*/
 		/*{*/
-		IOFiles file_c(path+filename+"-as-c.dat",true);
-		for(unsigned int i(0);i<obs_[2].nval();i++){
-			file_c<<i<<" "<<obs_[2][i]<<" "<<obs_[3][i]<<" "<<obs_[4][i]<<" "<<obs_[5][i]<<IOFiles::endl;
-		}
-
-		Gnuplot gpc(path,filename+"-as-c");
-		gpc.multiplot();
-		gpc.margin("0.1","0.95","0.9","0.7");
-		gpc.tics("x");
-		gpc+="plot '"+filename+"-as-c.dat' u 1:2:3   w errorbars lt 1 lc 6 notitle";
-		gpc.margin("0.1","0.95","0.7","0.5");
-		gpc+="plot '"+filename+"-as-c.dat' u 1:6:7   w errorbars lt 1 lc 7 notitle";
-		gpc.margin("0.1","0.95","0.5","0.3");
-		gpc+="plot '"+filename+"-as-c.dat' u 1:10:11 w errorbars lt 1 lc 8 notitle";
-		gpc.margin("0.1","0.95","0.3","0.1");
-		gpc.tics("x","");
-		gpc+="plot '"+filename+"-as-c.dat' u 1:14:15 w errorbars lt 1 lc 9 notitle";
-		gpc.save_file();
-		gpc.create_image(true,true);
-
 		unsigned int llr(obs_[2].nval());
 		Vector<std::complex<double> > Ckm(llr,0.0);
 		Vector<std::complex<double> > Ckp(llr,0.0);
@@ -967,8 +962,8 @@ void LadderFree::plot(std::string const& path, std::string const& filename){
 
 		for(unsigned int k(0);k<llr;k++){
 			for(unsigned int i(0);i<llr;i++){
-				Ckm(k) += std::polar(obs_[2][i].get_x()-obs_[3][i].get_x()-obs_[4][i].get_x()+obs_[5][i].get_x(),dk*k*i);
-				Ckp(k) += std::polar(obs_[2][i].get_x()+obs_[3][i].get_x()+obs_[4][i].get_x()+obs_[5][i].get_x(),dk*k*i);
+				Ckm(k) += std::polar(obs_[1][i].get_x()-obs_[2][i].get_x()-obs_[3][i].get_x()+obs_[4][i].get_x(),dk*k*i);
+				Ckp(k) += std::polar(obs_[1][i].get_x()+obs_[2][i].get_x()+obs_[3][i].get_x()+obs_[4][i].get_x(),dk*k*i);
 			}
 			normalize_m += Ckm(k);
 			normalize_p += Ckp(k);
@@ -976,22 +971,45 @@ void LadderFree::plot(std::string const& path, std::string const& filename){
 		Ckm /= dk*normalize_m;
 		Ckp /= dk*normalize_p;
 
+		IOFiles file_c(path+filename+"-as-c.dat",true);
 		IOFiles file_sf(path+filename+"-as-sf.dat",true);
-		for(unsigned int k(0);k<llr;k++){
-			file_sf<<dk*k<<" "<<Ckm(k).real()<<" "<<Ckm(k).imag()<<" "<<Ckp(k).real()<<" "<<Ckp(k).imag()<<IOFiles::endl;
+		for(unsigned int l(0);l<llr;l++){
+			file_c<<l<<" "<<obs_[1][l]<<" "<<obs_[2][l]<<" "<<obs_[3][l]<<" "<<obs_[4][l]<<IOFiles::endl;
+			file_sf<<dk*l<<" "<<Ckm(l).real()<<" "<<Ckm(l).imag()<<" "<<Ckp(l).real()<<" "<<Ckp(l).imag()<<IOFiles::endl;
 		}
 
-		Gnuplot gpsf(path,filename+"-as-sf");
-		gpsf+="set key bottom";
-		gpsf.range("x","0","2*pi");
-		gpsf.label("x","$k$","offset 0,0.5");
-		gpsf.label("y2","$<S(k)>$");
-		gpsf+="plot '"+filename+"-as-sf.dat' u 1:2 lt 1 lc 6 t '$-$ real',\\";
-		gpsf+="     '"+filename+"-as-sf.dat' u 1:3 lt 2 lc 6 t '$-$ imag',\\";
-		gpsf+="     '"+filename+"-as-sf.dat' u 1:4 lt 1 lc 7 t '$+$ real',\\";
-		gpsf+="     '"+filename+"-as-sf.dat' u 1:5 lt 2 lc 7 t '$+$ imag'";
-		gpsf.save_file();
-		gpsf.create_image(true,true);
+		Gnuplot gp(path,filename+"-as");
+		gp.multiplot();
+		/*{correlations*/
+		gp.range("x","0",llr/2);
+
+		gp.tics("x");
+		gp.margin("0.05","0.5","0.9","0.5");
+		gp+="plot '"+filename+"-as-c.dat' u 1:($2-$6-$10+$14):($3+$7+$18+$18) w errorbars lt 1 lc 6 t '$-$'";
+
+		gp.margin("0.05","0.5","0.5","0.1");
+		gp.tics("x","");
+		gp+="plot '"+filename+"-as-c.dat' u 1:($2+$6+$10+$14):($3+$7+$18+$18)  w errorbars lt 1 lc 7 t '$+$'";
+		/*}*/
+		/*{structure factor*/
+		gp.range("x","0","pi");
+		gp.range("y2","0","");
+
+		gp.key("left");
+		gp.tics("y");
+		gp.tics("x");
+		gp.tics("y2","");
+		gp.margin("0.5","0.95","0.9","0.5");
+		gp+="plot '"+filename+"-as-sf.dat' u 1:2 axes x1y2 lt 1 lc 6 notitle,\\";
+		gp+="     '"+filename+"-as-sf.dat' u 1:3 axes x1y2 lt 2 lc 6 notitle";
+
+		gp.margin("0.5","0.95","0.5","0.1");
+		gp.tics("x","");
+		gp+="plot '"+filename+"-as-sf.dat' u 1:4 axes x1y2 lt 1 lc 7 notitle,\\";
+		gp+="     '"+filename+"-as-sf.dat' u 1:5 axes x1y2 lt 2 lc 7 notitle";
+		/*}*/
+		gp.save_file();
+		gp.create_image(true,true);
 		/*}*/
 	}
 }
@@ -1055,8 +1073,8 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 		if(i%3==0){ ps.put(xy0(0),xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}"); }
 		if(i%3==1){ ps.put(xy1(0),xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}"); }
 	}
-	if(obs_.size()>1){/*long range correlations*/
-		double rescale(obs_[1].nlinks()?0.75/obs_[1][0].get_x():0);
+	if(obs_.size()==5){/*long range correlations*/
+		double rescale(0.75/obs_[1][0].get_x());
 		for(unsigned int i(0);i<obs_[1].nval();i++){
 			corr = obs_[1][i].get_x()*rescale;
 			if(std::abs(corr)>1e-4){
@@ -1071,11 +1089,29 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 
 				ps.circle(xy0,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
+			corr = obs_[2][i].get_x()*rescale;
+			if(std::abs(corr)>1e-4){
+				s0 = obs_[2](i,1);
+				xy0(0) = s0/2;
+				xy0(1) = s0%2-y_shift;
+
+				if(corr<0){ color = "red"; }
+				else { color = "blue"; }
+
+				ps.circle(xy0,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
 		}
 	}
 	ps.end(true,true,true);
 
 	plot(path,filename);
+
+	if(rst_file_){
+		rst_file_->title(RST::math("\\theta="+my::tostring(acos(this->J_(0)))),'-');
+		rst_file_->figure(dir_+filename+"-pstricks.png","",RST::target(dir_+filename+"-pstricks.pdf")+RST::scale("200"));
+		rst_file_->figure(dir_+filename+"-lr.png","",RST::target(dir_+filename+"-lr.gp")+RST::scale("200"));
+		rst_file_->figure(dir_+filename+"-as.png",RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(dir_+filename+"-as.gp")+RST::scale("200"));
+	}
 }
 /*}*/
 
@@ -1084,9 +1120,6 @@ std::string LadderFree::extract_level_6(){
 	(*data_write_)<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<asin(J_(1))<<" "<<E_<<IOFiles::endl;
 
 	lattice(info_+path_+dir_,filename_);
-	rst_file_->figure(dir_+filename_+"-pstricks.png","",RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
-	rst_file_->figure(dir_+filename_+"-as-c.png","",RST::target(dir_+filename_+"as-c.gp")+RST::scale("200"));
-	rst_file_->figure(dir_+filename_+"-as-sf.png",RST::math("\\theta="+my::tostring(asin(J_(1))))+" : "+RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(dir_+filename_+"as-sf.gp")+RST::scale("200"));
 
 	save_param(*jd_write_);
 	save_input(*jd_write_);

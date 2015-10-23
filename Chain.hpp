@@ -58,9 +58,9 @@ class Chain: public System1D<Type>{
 		std::string extract_level_3();
 		/*!Find the best range to compute the critcal exponents*/
 		bool compute_critical_exponents(Vector<double> const& lrc, unsigned int& xi, unsigned int& xf, Vector<double>& p);
-		void lattice(std::string const& path, std::string const& filename){ (void)(path);(void)(filename); }
+		void lattice(std::string const& path, std::string const& filename);
 
-		void long_range_correlation_and_structure_factor(std::string const& path, std::string const& title);
+		void long_range_correlation_and_structure_factor(std::string const& path, std::string const& filename);
 
 	private:
 		/*{Description*/
@@ -240,10 +240,16 @@ void Chain<Type>::do_fit(Vector<double> const& lrc, unsigned int const& xi, unsi
 }
 
 template<typename Type>
-void Chain<Type>::long_range_correlation_and_structure_factor(std::string const& path, std::string const& title){
+void Chain<Type>::lattice(std::string const& path, std::string const& filename){
+	//energy_bound(path,filename);
+	long_range_correlation_and_structure_factor(path,filename);
+}
+
+template<typename Type>
+void Chain<Type>::long_range_correlation_and_structure_factor(std::string const& path, std::string const& filename){
 	/*!long range correlations*/
 	/*{*/
-	IOFiles lr_corr_file(path+this->filename_+"-long-range-corr.dat",true);
+	IOFiles lr_corr_file(path+filename+"-lr-c.dat",true);
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
 	Vector<double> lr_corr(this->obs_[1].nval());
@@ -257,11 +263,10 @@ void Chain<Type>::long_range_correlation_and_structure_factor(std::string const&
 	Vector<double> exponents;
 	bool fit(this->compute_critical_exponents(lr_corr,xi,xf,exponents));
 
-	Gnuplot gplr(path,this->filename_+"-long-range-corr");
+	Gnuplot gplr(path,filename+"-lr");
 	gplr.range("x",this->N_/this->m_,this->n_-this->N_/this->m_);
 	gplr.label("x","$\\|i-j\\|$","offset 0,0.5");
 	gplr.label("y2","$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$","offset 1");
-	gplr.title(title);
 	gplr+="set key center bottom";
 	gplr+="set sample 1000";
 	gplr+="m="+my::tostring(this->m_)+".0";
@@ -273,8 +278,8 @@ void Chain<Type>::long_range_correlation_and_structure_factor(std::string const&
 	gplr+="p3 = 2.0";
 	gplr+="f(x) = p0*cos(2.0*pi*x*m/N)*(x**(-p1)+(n-x)**(-p1))+p2*(x**(-p3)+(n-x)**(-p3))";
 	gplr+="set fit quiet";
-	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+this->filename_+"-long-range-corr.dat' u 1:2 noerrors via p0,p1,p2,p3";
-	gplr+="plot '"+this->filename_+"-long-range-corr.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
+	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+filename+"-lr-c.dat' u 1:2 noerrors via p0,p1,p2,p3";
+	gplr+="plot '"+filename+"-lr-c.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
 	gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
 	gplr.save_file();
 	gplr.create_image(true,true);
@@ -294,13 +299,12 @@ void Chain<Type>::long_range_correlation_and_structure_factor(std::string const&
 	}
 	Ck /= dk*normalize;
 
-	IOFiles data_sf(path+this->filename_+"-structure-factor.dat",true);
+	IOFiles data_sf(path+filename+"-lr-sf.dat",true);
 	for(unsigned int k(0);k<llr;k++){
 		data_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<IOFiles::endl;
 	}
 
-	Gnuplot gpsf(path,this->filename_+"-structure-factor");
-	gpsf.title(title);
+	Gnuplot gpsf(path,filename+"-as");
 	gpsf+="set key bottom";
 	gpsf.range("x","0","2*pi");
 	switch(this->N_/this->m_){
@@ -310,8 +314,8 @@ void Chain<Type>::long_range_correlation_and_structure_factor(std::string const&
 	}
 	gpsf.label("x","$k$","offset 0,0.5");
 	gpsf.label("y2","$<S(k)>$");
-	gpsf+="plot '"+this->filename_+"-structure-factor.dat' u 1:2 lt 1 lc 6 t 'real',\\";
-	gpsf+="     '"+this->filename_+"-structure-factor.dat' u 1:3 lt 1 lc 7 t 'imag'";
+	gpsf+="plot '"+filename+"-lr-sf.dat' u 1:2 lt 1 lc 6 t 'real',\\";
+	gpsf+="     '"+filename+"-lr-sf.dat' u 1:3 lt 1 lc 7 t 'imag'";
 	gpsf.save_file();
 	gpsf.create_image(true,true);
 	/*}*/

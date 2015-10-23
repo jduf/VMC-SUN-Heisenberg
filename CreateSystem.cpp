@@ -197,6 +197,8 @@ void CreateSystem::create(bool const& try_solve_degeneracy){
 		RGL_->create();
 		if(RGL_->get_status()!=1){
 			if(try_solve_degeneracy){
+				delete RGL_;
+				RGL_ = NULL;
 				ref_(1)=2;
 				init(NULL,C_);
 				std::cerr<<__PRETTY_FUNCTION__<<" : need to check if this works"<<std::endl;

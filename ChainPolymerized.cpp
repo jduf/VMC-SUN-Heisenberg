@@ -107,8 +107,8 @@ void ChainPolymerized::check(){
 	long_range_correlation_and_structure_factor("./","check");
 }
 
-void ChainPolymerized::energy_bound(std::string const& path, std::string const& title){
-	IOFiles corr_file(path+filename_+"-corr.dat",true);
+void ChainPolymerized::energy_bound(std::string const& path, std::string const& filename){
+	IOFiles corr_file(path+filename+"-corr.dat",true);
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
 	Vector<double> poly_e(N_/m_,0);
@@ -119,12 +119,11 @@ void ChainPolymerized::energy_bound(std::string const& path, std::string const& 
 	poly_e /= n_*m_/N_;
 	poly_e.sort(std::less<double>());
 
-	Gnuplot gp(path,filename_+"-corr");
+	Gnuplot gp(path,filename+"-corr");
 	gp+="set key center";
 	gp.label("x","site","offset 0,0.5");
 	gp.label("y2","$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$");
-	gp.title(title);
-	gp+="plot '"+filename_+"-corr.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
+	gp+="plot '"+filename+"-corr.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
 	gp+="     "+my::tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merization="+my::tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
 	gp+="     "+my::tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
 	gp.save_file();
@@ -151,10 +150,10 @@ std::string ChainPolymerized::extract_level_8(){
 	save_input(*jd_write_);
 	save_output(*jd_write_);
 
-	energy_bound(analyse_+path_+dir_,title);
+	energy_bound(analyse_+path_+dir_,filename_);
 	rst_file_->figure(basename+"-corr.png","Correlation on links",RST::target(basename+"-corr.gp")+RST::width("1000"));
 
-	long_range_correlation_and_structure_factor(analyse_+path_+dir_,title);
+	long_range_correlation_and_structure_factor(analyse_+path_+dir_,filename_);
 	rst_file_->figure(basename+"-long-range-corr.png","Long range correlation",RST::target(basename+"-long-range-corr.gp")+RST::width("1000"));
 	rst_file_->figure(basename+"-structure-factor.png","Structure factor",RST::target(basename+"-structure-factor.gp")+RST::width("1000"));
 

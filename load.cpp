@@ -14,5 +14,6 @@ int main(int argc, char* argv[]){
 	CreateSystem cs(&s);
 	cs.init(&tmp,NULL);
 
-	cs.lattice("./","lattice");
+	//cs.lattice("./","lattice");
+	cs.check();
 }

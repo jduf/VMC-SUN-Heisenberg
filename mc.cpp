@@ -18,7 +18,7 @@ int main(int argc, char* argv[]){
 	cs.init(NULL,&P);
 	if(!P.locked()){
 		if(cs.get_status()==2){
-			cs.create();
+			cs.create(true);
 			if(cs.get_status()==1){
 				int nobs(P.find("nobs",i,false)?P.get<int>(i):-1);
 				cs.set_observables(nobs);
@@ -77,7 +77,8 @@ int main(int argc, char* argv[]){
 					tmp.lattice("/tmp/",cs.get_filename());
 					RSTFile rst("/tmp/",cs.get_filename());
 					rst.figure("/tmp/"+cs.get_filename()+"-pstricks.png","bla",RST::target("/tmp/"+cs.get_filename()+"-pstricks.pdf")+RST::scale("200"));
-					rst.figure("/tmp/"+cs.get_filename()+"-as-sf.png","bla",RST::target("/tmp/"+cs.get_filename()+"-as-sf.gp")+RST::scale("200"));
+					rst.figure("/tmp/"+cs.get_filename()+"-lr.png","long range correlation",RST::target("/tmp/"+cs.get_filename()+"-lr.gp")+RST::scale("200"));
+					rst.figure("/tmp/"+cs.get_filename()+"-as.png","Structure factor",RST::target("/tmp/"+cs.get_filename()+"-as.gp")+RST::scale("200"));
 					rst.text(out.get_header());
 					rst.save(false,true);
 					command(Linux::html_browser("/tmp/"+cs.get_filename()+".html"),true);

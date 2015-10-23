@@ -35,7 +35,7 @@ ChainFermi<Type>::ChainFermi(System const& s):
 	if(this->status_==2){
 		this->init_fermionic();
 
-		this->system_info_.item("+ Spin chain with real and identical hopping term between each sites");
+		this->system_info_.item("Spin chain with real and identical hopping term between each sites");
 	}
 }
 
@@ -61,20 +61,19 @@ void ChainFermi<Type>::check(){
 }
 
 template<typename Type>
-void ChainFermi<Type>::energy_bound(std::string const& path, std::string const& title){
-	IOFiles corr_file(path+this->filename_+"-corr.dat",true);
+void ChainFermi<Type>::energy_bound(std::string const& path, std::string const& filename){
+	IOFiles corr_file(path+filename+"-corr.dat",true);
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
 	for(unsigned int i(0);i<this->obs_[0].nval();i++){
 		corr_file<<i+0.5<<" "<<this->obs_[0][i]<<IOFiles::endl;
 	}
 
-	Gnuplot gp(path,this->filename_+"-corr");
+	Gnuplot gp(path,filename+"-corr");
 	gp+="set key center";
 	gp.label("x","site","offset 0,0.5");
 	gp.label("y2","$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$");
-	gp.title(title);
-	gp+="plot '"+this->filename_+"-corr.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle";
+	gp+="plot '"+filename+"-corr.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle";
 	gp.save_file();
 	gp.create_image(true,true);
 
@@ -95,10 +94,10 @@ std::string ChainFermi<Type>::extract_level_8(){
 	this->save_input(*this->jd_write_);
 	this->save_output(*this->jd_write_);
 
-	energy_bound(this->analyse_+this->path_+this->dir_,title);
+	energy_bound(this->analyse_+this->path_+this->dir_,this->filename_);
 	this->rst_file_->figure(basename+"-corr.png","Correlation on links",RST::target(basename+"-corr.gp")+RST::width("1000"));
 
-	this->long_range_correlation_and_structure_factor(this->analyse_+this->path_+this->dir_,title);
+	this->long_range_correlation_and_structure_factor(this->analyse_+this->path_+this->dir_,this->filename_);
 	this->rst_file_->figure(basename+"-long-range-corr.png","Long range correlation",RST::target(basename+"-long-range-corr.gp")+RST::width("1000"));
 	this->rst_file_->figure(basename+"-structure-factor.png","Structure factor",RST::target(basename+"-structure-factor.gp")+RST::width("1000"));
 
