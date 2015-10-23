@@ -53,7 +53,7 @@ Matrix<double> TriangleFermi::set_ab(){
 /*}*/
 
 /*{method needed for checking*/
-void TriangleFermi::lattice(std::string const& path, std::string const& filename){
+void TriangleFermi::lattice(){
 	Matrix<double> e(2,2);
 	e(0,0) = 1.0/3.0;
 	e(1,0) = 1.0/3.0;
@@ -70,7 +70,7 @@ void TriangleFermi::lattice(std::string const& path, std::string const& filename
 	std::string color("black");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps(path,filename);
+	PSTricks ps(path_,filename_);
 	ps.begin(-9,-10,16,10,filename_);
 	for(unsigned int i(0);i<n_;i++) {
 		xy0 = get_pos_in_lattice(i);
@@ -173,6 +173,6 @@ void TriangleFermi::check(){
 	//std::cout<<"######################"<<std::endl;
 	//nb = get_neighbourg(3);
 	//std::cout<<nb<<std::endl;
-	lattice("./","lattice");
+	lattice();
 }
 /*}*/

@@ -17,10 +17,10 @@ class LadderFree: public Ladder<double>{
 		Vector<double> const t_;
 
 		void compute_H();
-		void lattice(std::string const& path, std::string const& filename);
+		void lattice();
 
 		std::string extract_level_6();
-		void plot(std::string const& path, std::string const& filename);
+		void plot();
 
 	private:
 		unsigned int set_spuc(Vector<double> const& t);

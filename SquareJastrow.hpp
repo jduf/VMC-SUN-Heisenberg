@@ -16,7 +16,7 @@ class SquareJastrow: public Square<double>{
 		void compute_nn();
 		void compute_sublattice();
 		void compute_omega_cc();
-		void lattice(std::string const& path, std::string const& filename);
+		void lattice();
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 };

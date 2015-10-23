@@ -21,7 +21,7 @@ class LadderFermi: public Ladder<Type>{
 
 	private:
 		void compute_H();
-		void lattice(std::string const& path, std::string const& filename);
+		void lattice();
 
 		std::string extract_level_7();
 		std::string extract_level_6();
@@ -81,18 +81,18 @@ void LadderFermi<Type>::check(){
 	std::cout<<this->H_<<std::endl;
 
 	this->plot_band_structure();
-	lattice("./","lattice");
+	lattice();
 }
 
 template<typename Type>
-void LadderFermi<Type>::lattice(std::string const& path, std::string const& filename){
+void LadderFermi<Type>::lattice(){
 	compute_H();
 	Matrix<int> nb;
 	std::string color("black");
 	std::string linestyle("solid");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps(path,filename);
+	PSTricks ps(this->path_,this->filename_);
 	ps.begin(-9,-10,16,10,this->filename_);
 	for(unsigned int i(0);i<this->n_;i++) {
 		xy0(0) = i/2;

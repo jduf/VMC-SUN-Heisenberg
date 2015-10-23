@@ -13,7 +13,7 @@ class SquareACSL: public Square<std::complex<double> >{
 
 	protected:
 		void compute_H();
-		void lattice(std::string const& path, std::string const& filename);
+		void lattice();
 		Vector<double> const t_;
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;

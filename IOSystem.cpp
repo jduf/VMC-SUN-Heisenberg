@@ -10,17 +10,35 @@ IOSystem::IOSystem(std::string const& filename, std::vector<std::string> names):
 	path_ += names.back()+"/";
 }
 
+IOSystem::IOSystem(
+		std::string const& filename, 
+		std::string const& sim,
+		std::string const& info, 
+		std::string const& analyse, 
+		std::string const& path, 
+		std::string const& dir,
+		RSTFile* const rst_file
+		):
+	sim_(sim),
+	info_(info),
+	analyse_(analyse),
+	path_(path),
+	dir_(dir),
+	filename_(filename),
+	rst_file_(rst_file)
+{}
+
 void IOSystem::set_IOSystem(IOSystem const* const t){
-	sim_ = t->sim_;
-	info_ = t->info_;
-	analyse_ = t->analyse_;
-	path_ = t->path_;
-	dir_ = t->dir_;
-	filename_ = t->filename_;
-	read_ = t->read_;
-	jd_write_ = t->jd_write_;
-	data_write_ = t->data_write_;
-	rst_file_ = t->rst_file_;
+	sim_       = t->sim_;
+	info_      = t->info_;
+	analyse_   = t->analyse_;
+	path_      = t->path_;
+	dir_       = t->dir_;
+	filename_  = t->filename_;
+	read_      = t->read_;
+	jd_write_  = t->jd_write_;
+	data_write_= t->data_write_;
+	rst_file_  = t->rst_file_;
 }
 
 std::string IOSystem::analyse(unsigned int const& level){

@@ -40,7 +40,6 @@ int main(int argc, char* argv[]){
 						}
 					}
 
-					//mcsys->set(cs.get_GS()->get_J(),cs.get_GS()->get_obs(),nobs);
 					MonteCarlo sim(mcsys,tmax);
 					sim.thermalize(1e6);
 					sim.run();
@@ -74,11 +73,13 @@ int main(int argc, char* argv[]){
 				if(P.find("d",i,false)){
 					CreateSystem tmp(&sys);
 					tmp.init(NULL,&P);
-					tmp.lattice("/tmp/",cs.get_filename());
+
 					RSTFile rst("/tmp/",cs.get_filename());
-					rst.figure("/tmp/"+cs.get_filename()+"-pstricks.png","bla",RST::target("/tmp/"+cs.get_filename()+"-pstricks.pdf")+RST::scale("200"));
-					rst.figure("/tmp/"+cs.get_filename()+"-lr.png","long range correlation",RST::target("/tmp/"+cs.get_filename()+"-lr.gp")+RST::scale("200"));
-					rst.figure("/tmp/"+cs.get_filename()+"-as.png","Structure factor",RST::target("/tmp/"+cs.get_filename()+"-as.gp")+RST::scale("200"));
+					IOSystem ios(cs.get_filename(),"","","","","/tmp/",&rst);
+					tmp.set_IOSystem(&ios);
+
+					tmp.lattice();
+
 					rst.text(out.get_header());
 					rst.save(false,true);
 					command(Linux::html_browser("/tmp/"+cs.get_filename()+".html"),true);

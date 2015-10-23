@@ -884,10 +884,10 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 
 /*{method needed for checking*/
 void LadderFree::check(){
-	lattice("./","lattice");
+	lattice();
 }
 
-void LadderFree::plot(std::string const& path, std::string const& filename){
+void LadderFree::plot(){
 	if(obs_.size()>3){
 		/*!long range correlations*/
 		/*{*/
@@ -909,25 +909,25 @@ void LadderFree::plot(std::string const& path, std::string const& filename){
 		Ckd /= dk*normalize_d;
 		Cku /= dk*normalize_u;
 
-		IOFiles file_c(path+filename+"-lr-c.dat",true);
-		IOFiles file_sf(path+filename+"-lr-sf.dat",true);
+		IOFiles file_c(analyse_+path_+dir_+filename_+"-lr-c.dat",true);
+		IOFiles file_sf(analyse_+path_+dir_+filename_+"-lr-sf.dat",true);
 		for(unsigned int l(0);l<llr;l++){
 			file_c<<l<<" "<<obs_[1][l]<<" "<<obs_[2][l]<<IOFiles::endl;
 			file_sf<<dk*l<<" "<<Ckd(l).real()<<" "<<Ckd(l).imag()<<" "<<Cku(l).real()<<" "<<Cku(l).imag()<<IOFiles::endl;
 		}
 
-		Gnuplot gp(path,filename+"-lr");
+		Gnuplot gp(analyse_+path_+dir_,filename_+"-lr");
 		gp.multiplot();
 		/*{correlations*/
 		gp.range("x","0",llr/2);
 
 		gp.tics("x");
-		gp.margin("0.05","0.5","0.9","0.5");
-		gp+="plot '"+filename+"-lr-c.dat' u 1:2:3 w errorbars lt 1 lc 6 t 'intra'";
+		gp.margin("0.1","0.5","0.9","0.5");
+		gp+="plot '"+filename_+"-lr-c.dat' u 1:2:3 w errorbars lt 1 lc 6 t 'intra'";
 
-		gp.margin("0.05","0.5","0.5","0.1");
+		gp.margin("0.1","0.5","0.5","0.1");
 		gp.tics("x","");
-		gp+="plot '"+filename+"-lr-c.dat' u 1:6:7  w errorbars lt 1 lc 7 t 'inter'";
+		gp+="plot '"+filename_+"-lr-c.dat' u 1:6:7  w errorbars lt 1 lc 7 t 'inter'";
 		/*}*/
 		/*{structure factor*/
 		gp.range("x","0","pi");
@@ -937,14 +937,14 @@ void LadderFree::plot(std::string const& path, std::string const& filename){
 		gp.tics("y");
 		gp.tics("x");
 		gp.tics("y2","");
-		gp.margin("0.5","0.95","0.9","0.5");
-		gp+="plot '"+filename+"-lr-sf.dat' u 1:2 axes x1y2 lt 1 lc 6 notitle,\\";
-		gp+="     '"+filename+"-lr-sf.dat' u 1:3 axes x1y2 lt 2 lc 6 notitle";
+		gp.margin("0.5","0.9","0.9","0.5");
+		gp+="plot '"+filename_+"-lr-sf.dat' u 1:2 axes x1y2 lt 1 lc 6 notitle,\\";
+		gp+="     '"+filename_+"-lr-sf.dat' u 1:3 axes x1y2 lt 2 lc 6 notitle";
 
-		gp.margin("0.5","0.95","0.5","0.1");
+		gp.margin("0.5","0.9","0.5","0.1");
 		gp.tics("x","");
-		gp+="plot '"+filename+"-lr-sf.dat' u 1:4 axes x1y2 lt 1 lc 7 notitle,\\";
-		gp+="     '"+filename+"-lr-sf.dat' u 1:5 axes x1y2 lt 2 lc 7 notitle";
+		gp+="plot '"+filename_+"-lr-sf.dat' u 1:4 axes x1y2 lt 1 lc 7 notitle,\\";
+		gp+="     '"+filename_+"-lr-sf.dat' u 1:5 axes x1y2 lt 2 lc 7 notitle";
 		/*}*/
 		gp.save_file();
 		gp.create_image(true,true);
@@ -971,25 +971,25 @@ void LadderFree::plot(std::string const& path, std::string const& filename){
 		Ckm /= dk*normalize_m;
 		Ckp /= dk*normalize_p;
 
-		IOFiles file_c(path+filename+"-as-c.dat",true);
-		IOFiles file_sf(path+filename+"-as-sf.dat",true);
+		IOFiles file_c(analyse_+path_+dir_+filename_+"-as-c.dat",true);
+		IOFiles file_sf(analyse_+path_+dir_+filename_+"-as-sf.dat",true);
 		for(unsigned int l(0);l<llr;l++){
 			file_c<<l<<" "<<obs_[1][l]<<" "<<obs_[2][l]<<" "<<obs_[3][l]<<" "<<obs_[4][l]<<IOFiles::endl;
 			file_sf<<dk*l<<" "<<Ckm(l).real()<<" "<<Ckm(l).imag()<<" "<<Ckp(l).real()<<" "<<Ckp(l).imag()<<IOFiles::endl;
 		}
 
-		Gnuplot gp(path,filename+"-as");
+		Gnuplot gp(analyse_+path_+dir_,filename_+"-as");
 		gp.multiplot();
 		/*{correlations*/
 		gp.range("x","0",llr/2);
 
 		gp.tics("x");
-		gp.margin("0.05","0.5","0.9","0.5");
-		gp+="plot '"+filename+"-as-c.dat' u 1:($2-$6-$10+$14):($3+$7+$18+$18) w errorbars lt 1 lc 6 t '$-$'";
+		gp.margin("0.1","0.5","0.9","0.5");
+		gp+="plot '"+filename_+"-as-c.dat' u 1:($2-$6-$10+$14):($3+$7+$18+$18) w errorbars lt 1 lc 6 t '$-$'";
 
-		gp.margin("0.05","0.5","0.5","0.1");
+		gp.margin("0.1","0.5","0.5","0.1");
 		gp.tics("x","");
-		gp+="plot '"+filename+"-as-c.dat' u 1:($2+$6+$10+$14):($3+$7+$18+$18)  w errorbars lt 1 lc 7 t '$+$'";
+		gp+="plot '"+filename_+"-as-c.dat' u 1:($2+$6+$10+$14):($3+$7+$18+$18)  w errorbars lt 1 lc 7 t '$+$'";
 		/*}*/
 		/*{structure factor*/
 		gp.range("x","0","pi");
@@ -999,14 +999,14 @@ void LadderFree::plot(std::string const& path, std::string const& filename){
 		gp.tics("y");
 		gp.tics("x");
 		gp.tics("y2","");
-		gp.margin("0.5","0.95","0.9","0.5");
-		gp+="plot '"+filename+"-as-sf.dat' u 1:2 axes x1y2 lt 1 lc 6 notitle,\\";
-		gp+="     '"+filename+"-as-sf.dat' u 1:3 axes x1y2 lt 2 lc 6 notitle";
+		gp.margin("0.5","0.9","0.9","0.5");
+		gp+="plot '"+filename_+"-as-sf.dat' u 1:2 axes x1y2 lt 1 lc 6 notitle,\\";
+		gp+="     '"+filename_+"-as-sf.dat' u 1:3 axes x1y2 lt 2 lc 6 notitle";
 
-		gp.margin("0.5","0.95","0.5","0.1");
+		gp.margin("0.5","0.9","0.5","0.1");
 		gp.tics("x","");
-		gp+="plot '"+filename+"-as-sf.dat' u 1:4 axes x1y2 lt 1 lc 7 notitle,\\";
-		gp+="     '"+filename+"-as-sf.dat' u 1:5 axes x1y2 lt 2 lc 7 notitle";
+		gp+="plot '"+filename_+"-as-sf.dat' u 1:4 axes x1y2 lt 1 lc 7 notitle,\\";
+		gp+="     '"+filename_+"-as-sf.dat' u 1:5 axes x1y2 lt 2 lc 7 notitle";
 		/*}*/
 		gp.save_file();
 		gp.create_image(true,true);
@@ -1014,7 +1014,7 @@ void LadderFree::plot(std::string const& path, std::string const& filename){
 	}
 }
 
-void LadderFree::lattice(std::string const& path, std::string const& filename){
+void LadderFree::lattice(){
 	compute_H();
 	std::string color("black");
 	std::string linestyle("solid");
@@ -1024,8 +1024,8 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 	double x_shift(spuc_/2+2);
 	double y_shift(2);
 
-	PSTricks ps(path,filename+"-pstricks");
-	ps.begin(-1,-5,n_/2,2,filename+"-pstricks");
+	PSTricks ps(info_+path_+dir_,filename_+"-pstricks");
+	ps.begin(-1,-5,n_/2,2,filename_+"-pstricks");
 	double t;
 	double corr;
 	unsigned int s0;
@@ -1104,13 +1104,16 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 	}
 	ps.end(true,true,true);
 
-	plot(path,filename);
+	plot();
 
 	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 		rst_file_->title(RST::math("\\theta="+my::tostring(acos(this->J_(0)))),'-');
-		rst_file_->figure(dir_+filename+"-pstricks.png","",RST::target(dir_+filename+"-pstricks.pdf")+RST::scale("200"));
-		rst_file_->figure(dir_+filename+"-lr.png","",RST::target(dir_+filename+"-lr.gp")+RST::scale("200"));
-		rst_file_->figure(dir_+filename+"-as.png",RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(dir_+filename+"-as.gp")+RST::scale("200"));
+		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
+		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
+		rst_file_->figure(relative_path+filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+filename_+"-as.gp")+RST::scale("200"));
 	}
 }
 /*}*/
@@ -1119,7 +1122,7 @@ void LadderFree::lattice(std::string const& path, std::string const& filename){
 std::string LadderFree::extract_level_6(){
 	(*data_write_)<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<asin(J_(1))<<" "<<E_<<IOFiles::endl;
 
-	lattice(info_+path_+dir_,filename_);
+	lattice();
 
 	save_param(*jd_write_);
 	save_input(*jd_write_);

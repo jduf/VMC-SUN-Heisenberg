@@ -13,7 +13,7 @@ class KagomeVBC: public Kagome<std::complex<double> >{
 
 	protected:
 		void compute_H();
-		void lattice(std::string const& path, std::string const& filename);
+		void lattice();
 		std::string extract_level_7();
 		std::string extract_level_6();
 		std::string extract_level_4();

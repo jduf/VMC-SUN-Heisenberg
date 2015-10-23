@@ -80,8 +80,9 @@ std::string AnalyseLadder::extract_level_8(){
 		CreateSystem cs(&s);
 		cs.init(&tmp,NULL);
 		rst_file_ = &list_rst_.last();
+		filename_ = filename_+"-"+my::tostring(i);
 		cs.set_IOSystem(this);
-		cs.lattice(info_+path_+dir_,filename_+"-"+my::tostring(i));
+		cs.lattice();
 		rst_file_ = NULL;
 
 		if(!i){/*only the best set of parameter is kept*/

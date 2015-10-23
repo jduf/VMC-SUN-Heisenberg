@@ -97,7 +97,7 @@ Matrix<double> Honeycomb0pp::set_ab(){
 /*}*/
 
 /*{method needed for checking*/
-void Honeycomb0pp::lattice(std::string const& path, std::string const& filename){
+void Honeycomb0pp::lattice(){
 	compute_H();
 	Matrix<double> e(2,2);
 	e(0,0) = 1.0/3.0;
@@ -116,7 +116,7 @@ void Honeycomb0pp::lattice(std::string const& path, std::string const& filename)
 	std::string linestyle("solid");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps(path,filename);
+	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-4,-10,20,10,filename_);
 	for(unsigned int i(0);i<n_;i+=2) {
 		xy0 = get_pos_in_lattice(i);
@@ -294,7 +294,7 @@ void Honeycomb0pp::check(){
 	std::cout<<12<<" "<<get_site_in_ab(12)<<std::endl;
 	std::cout<<9<<" "<<get_site_in_ab(9)<<std::endl;
 	std::cout<<3<<" "<<get_site_in_ab(3)<<std::endl;
-	lattice("./","lattice");
+	lattice();
 }
 /*}*/
 

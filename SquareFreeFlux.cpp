@@ -88,14 +88,14 @@ unsigned int SquareFreeFlux::match_pos_in_ab(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void SquareFreeFlux::lattice(std::string const& path, std::string const& filename){
+void SquareFreeFlux::lattice(){
 	compute_H();
 	std::string color("black");
 	std::string linestyle("solid");
 	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps(path,filename);
+	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-9,-10,16,10,filename_);
 	std::complex<double> t;
 	unsigned int s0;
@@ -193,6 +193,6 @@ void SquareFreeFlux::lattice(std::string const& path, std::string const& filenam
 }
 
 void SquareFreeFlux::check(){
-	lattice("./","lattice");
+	lattice();
 }
 /*}*/

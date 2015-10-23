@@ -95,9 +95,9 @@ class CreateSystem{
 			if(RGL_){ RGL_->get_wf_symmetries(sym); }
 			if(CGL_){ CGL_->get_wf_symmetries(sym); }
 		}
-		void lattice(std::string const& path, std::string const& filename) const {
-			if(RGL_){ RGL_->lattice(path,filename); }
-			if(CGL_){ CGL_->lattice(path,filename); }
+		void lattice() const {
+			if(RGL_){ RGL_->lattice(); }
+			if(CGL_){ CGL_->lattice(); }
 		}
 		/*}*/
 

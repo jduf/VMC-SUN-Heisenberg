@@ -86,9 +86,7 @@ void KagomeVBC::create(){
 /*}*/
 
 /*{method needed for checking*/
-void KagomeVBC::lattice(std::string const& path, std::string const& filename){
-	(void)(path);
-	(void)(filename);
+void KagomeVBC::lattice(){
 	//Matrix<int> nb;
 	//double x0;
 	//double x1;

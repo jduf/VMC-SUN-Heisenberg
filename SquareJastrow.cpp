@@ -99,9 +99,7 @@ unsigned int SquareJastrow::match_pos_in_ab(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void SquareJastrow::lattice(std::string const& path, std::string const& filename){
-	(void)(path);
-	(void)(filename);
+void SquareJastrow::lattice(){
 	//PSTricks ps("./",filename_+"-lattice");
 	//ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
 	//Matrix<int> nb;
