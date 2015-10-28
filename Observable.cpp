@@ -67,3 +67,10 @@ void Observable::add(unsigned int const& i, double const& val){
 }
 
 void Observable::add_sample(){ val_.add_sample(); }
+
+void Observable::print() const {
+	for(unsigned int i(0);i<links_.row();i++){
+		std::cout<<links_(i,0)<<" "<<links_(i,1)<<" "<<links_(i,2)<<" "<<val_[links_(i,2)]<<std::endl;
+	}
+}
+

@@ -877,7 +877,7 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				sym.push_back(tmp);
 				/*}*/
 			}break;
-		default:{  std::cerr<<__PRETTY_FUNCTION__<<" bla"<<std::endl; }
+		default:{ std::cerr<<__PRETTY_FUNCTION__<<"unknown spuc_"<<std::endl; }
 	}
 }
 /*}*/
@@ -892,28 +892,28 @@ void LadderFree::plot(){
 		/*!long range correlations*/
 		/*{*/
 		unsigned int llr(obs_[1].nval());
-		Vector<std::complex<double> > Cku(llr,0.0);
-		Vector<std::complex<double> > Ckd(llr,0.0);
-		std::complex<double> normalize_u(0.0);
-		std::complex<double> normalize_d(0.0);
+		Vector<std::complex<double> > Ck_intra(llr,0.0);
+		Vector<std::complex<double> > Ck_inter(llr,0.0);
+		std::complex<double> normalize_intra(0.0);
+		std::complex<double> normalize_inter(0.0);
 		double dk(2.0*M_PI/llr);
 
 		for(unsigned int k(0);k<llr;k++){
 			for(unsigned int i(0);i<llr;i++){
-				Ckd(k) += std::polar(obs_[1][i].get_x(),dk*k*i);
-				Cku(k) += std::polar(obs_[2][i].get_x(),dk*k*i);
+				Ck_intra(k) += std::polar(obs_[1][i].get_x(),dk*k*i);
+				Ck_inter(k) += std::polar(obs_[2][i].get_x(),dk*k*i);
 			}
-			normalize_d += Ckd(k);
-			normalize_u += Cku(k);
+			normalize_intra += Ck_intra(k);
+			normalize_inter += Ck_inter(k);
 		}
-		Ckd /= dk*normalize_d;
-		Cku /= dk*normalize_u;
+		Ck_intra /= dk*normalize_intra;
+		Ck_inter /= dk*normalize_inter;
 
 		IOFiles file_c(analyse_+path_+dir_+filename_+"-lr-c.dat",true);
 		IOFiles file_sf(analyse_+path_+dir_+filename_+"-lr-sf.dat",true);
 		for(unsigned int l(0);l<llr;l++){
 			file_c<<l<<" "<<obs_[1][l]<<" "<<obs_[2][l]<<IOFiles::endl;
-			file_sf<<dk*l<<" "<<Ckd(l).real()<<" "<<Ckd(l).imag()<<" "<<Cku(l).real()<<" "<<Cku(l).imag()<<IOFiles::endl;
+			file_sf<<dk*l<<" "<<Ck_intra(l).real()<<" "<<Ck_intra(l).imag()<<" "<<Ck_inter(l).real()<<" "<<Ck_inter(l).imag()<<IOFiles::endl;
 		}
 
 		Gnuplot gp(analyse_+path_+dir_,filename_+"-lr");
@@ -931,18 +931,19 @@ void LadderFree::plot(){
 		/*}*/
 		/*{structure factor*/
 		gp.range("x","0","pi");
-		gp.range("y2","0","");
+		//gp.range("y2","0","");
 
 		gp.key("left");
-		gp.tics("y");
 		gp.tics("x");
-		gp.tics("y2","");
+		gp.tics("y");
+		gp.tics("x2","('' pi/3, '' pi/2, '' 2*pi/3, '' pi) mirror");
+		gp.tics("y2","mirror");
 		gp.margin("0.5","0.9","0.9","0.5");
 		gp+="plot '"+filename_+"-lr-sf.dat' u 1:2 axes x1y2 lt 1 lc 6 notitle,\\";
 		gp+="     '"+filename_+"-lr-sf.dat' u 1:3 axes x1y2 lt 2 lc 6 notitle";
 
 		gp.margin("0.5","0.9","0.5","0.1");
-		gp.tics("x","");
+		gp.tics("x","('$\\pi/3$' pi/3, '$\\pi/2$' pi/2, '$2\\pi/3$' 2*pi/3, '$\\pi$' pi)");
 		gp+="plot '"+filename_+"-lr-sf.dat' u 1:4 axes x1y2 lt 1 lc 7 notitle,\\";
 		gp+="     '"+filename_+"-lr-sf.dat' u 1:5 axes x1y2 lt 2 lc 7 notitle";
 		/*}*/
@@ -993,18 +994,19 @@ void LadderFree::plot(){
 		/*}*/
 		/*{structure factor*/
 		gp.range("x","0","pi");
-		gp.range("y2","0","");
+		//gp.range("y2","0","");
 
 		gp.key("left");
-		gp.tics("y");
 		gp.tics("x");
+		gp.tics("y");
+		gp.tics("x2","('' pi/3, '' pi/2, '' 2*pi/3, '' pi)");
 		gp.tics("y2","");
 		gp.margin("0.5","0.9","0.9","0.5");
 		gp+="plot '"+filename_+"-as-sf.dat' u 1:2 axes x1y2 lt 1 lc 6 notitle,\\";
 		gp+="     '"+filename_+"-as-sf.dat' u 1:3 axes x1y2 lt 2 lc 6 notitle";
 
 		gp.margin("0.5","0.9","0.5","0.1");
-		gp.tics("x","");
+		gp.tics("x","('$\\pi/3$' pi/3, '$\\pi/2$' pi/2, '$2\\pi/3$' 2*pi/3, '$\\pi$' pi)");
 		gp+="plot '"+filename_+"-as-sf.dat' u 1:4 axes x1y2 lt 1 lc 7 notitle,\\";
 		gp+="     '"+filename_+"-as-sf.dat' u 1:5 axes x1y2 lt 2 lc 7 notitle";
 		/*}*/
@@ -1107,7 +1109,10 @@ void LadderFree::lattice(){
 		std::string relative_path(analyse_+path_+dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-		rst_file_->title(RST::math("\\theta="+my::tostring(acos(this->J_(0)))),'-');
+		std::string title("t=(");
+		for(unsigned int i(0);i<t_.size()-1;i++){ title += my::tostring(t_(i)) + ","; }
+		title = RST::math("\\theta="+my::tostring(acos(this->J_(0)))) + " : " + RST::math(title + my::tostring(t_.back()) + ")");
+		rst_file_->title(title,'-');
 		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+filename_+"-as.gp")+RST::scale("200"));

@@ -13,7 +13,7 @@ void AnalyseLadder::open_files(){
 		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
 
 		if(level_==8){
-			jd_write_->write("yahhooo",nof_);
+			jd_write_->write("number of different number of dof",nof_);
 			jd_write_->add_header()->np();
 		}
 
@@ -93,11 +93,13 @@ std::string AnalyseLadder::extract_level_8(){
 		}
 	}
 	std::cout<<std::endl;
+	
+	filename_ = tmp_filename;
 
 	delete read_;
 	read_ = NULL;
 
-	return tmp_filename;
+	return filename_;
 }
 
 /*compare wavefunction (different ref_)*/

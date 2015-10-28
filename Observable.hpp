@@ -39,6 +39,7 @@ class Observable{
 		void write(IOFiles& w) const;
 		void set_links(Matrix<int> const& links){ links_ = links; }
 		Matrix<int> const& get_links() const { return links_; }
+		void print() const;
 
 	protected:
 		Matrix<int> links_;

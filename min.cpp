@@ -34,7 +34,7 @@ int main(int argc, char* argv[]){
 						m.save();
 
 						m.set_tmax(20);
-						m.find_and_run_minima(10,-1);
+						m.find_and_run_minima(10,-1,1e-4);
 						m.save();
 					} else { std::cerr<<__PRETTY_FUNCTION__<<" : some argument are not corretly set"<<std::endl; }
 				}break;
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]){
 				}break;
 			case 2:
 				{
-					m.find_and_run_minima(10,-1);
+					m.find_and_run_minima(10,-1,1e-4);
 					m.save();
 				}break;
 			case 3:
@@ -62,11 +62,16 @@ int main(int argc, char* argv[]){
 					m.find_save_and_plot_minima(10,out);
 					VMCInterpolation m2(m);
 					m2.plot();
-				} break;
+				}break;
 			case 5:
 				{
 					VMCPSO m1(P,m);
 					VMCInterpolation m2(m);
+				}break;
+			case 6:
+				{
+					m.explore_around_minima(10,-1,1e-4,0.05);
+					m.save();
 				}break;
 			default:
 				{
