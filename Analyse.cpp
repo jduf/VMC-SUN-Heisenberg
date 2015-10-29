@@ -57,9 +57,9 @@ void Analyse::do_analyse(){
 
 				list_rst_.add_end(std::make_shared<RSTFile>(info_+path_,dir_.substr(0,dir_.size()-1)));
 
-				Linux::open(dir_.substr(0,dir_.size()-1)+".bash");
+				if(level_ != 1){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
 				recursive_search();
-				Linux::close(true);
+				if(level_ != 1){ Linux::close(true); }
 			}break;
 		case 3:
 			{ std::cerr<<__PRETTY_FUNCTION__<<" : can't analyse a *.jdbin file"<<std::endl; }break;

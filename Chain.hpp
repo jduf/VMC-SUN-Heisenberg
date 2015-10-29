@@ -2,7 +2,6 @@
 #define DEF_CHAIN
 
 #include "System1D.hpp"
-#include "Fit.hpp"
 
 /*{Description*/
 /*!1D chain with all hopping term having the same amplitude. The band structure

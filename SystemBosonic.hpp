@@ -6,7 +6,7 @@
 
 /*!Class that contains the information on the state*/
 template<typename Type>
-class SystemBosonic : public MCSystem, public Bosonic<Type>{
+class SystemBosonic: public MCSystem, public Bosonic<Type>{
 	public:
 		/*!Constructor that creates an initial state*/
 		SystemBosonic(Bosonic<Type> const& S);

@@ -1,6 +1,6 @@
 #include "System.hpp"
 
-/*constructors and destructor*/
+/*constructors*/
 /*{*/
 System::System(Parseur& P):
 	ref_(set_ref(P)),
@@ -34,19 +34,6 @@ System::System(IOFiles& r):
 		obs_.push_back(Observable(r));
 	}
 }
-
-System::System(System const& s):
-	ref_(s.ref_),
-	N_(s.N_),
-	m_(s.m_),
-	n_(s.n_),
-	bc_(s.bc_),
-	M_(s.M_),
-	J_(s.J_),
-	status_(s.status_),
-	E_(s.E_),
-	obs_(s.obs_)
-{}
 /*}*/
 
 /*handles class attributes*/
@@ -56,12 +43,9 @@ void System::set_observables(std::vector<Observable> const& obs, int const& nobs
 	if(nobs<0){ obs_ = obs; }
 	else {
 		obs_.clear();
-		if(nobs==0 && obs_.size()==0){
-			obs_.push_back(Observable(0));
-			obs_[0].set_links(obs[0].get_links());
-		} else {
-			for(int i(0);i<nobs;i++){ obs_.push_back(obs[i]); }
-		}
+		if(nobs == 0 && obs_.size() == 0){
+			obs_.push_back(Observable(obs[0].get_links()));
+		} else { for(int i(0);i<nobs;i++){ obs_.push_back(obs[i]); } }
 	}
 }
 
@@ -84,11 +68,17 @@ void System::complete_analysis(double const& convergence_criterion){
 
 void System::merge(System* const s){
 	E_.merge(s->E_);
-	for(unsigned int i(0);i<obs_.size();i++){
-		obs_[i].merge(s->obs_[i]);
-	}
-	for(unsigned int i(obs_.size());i<s->obs_.size();i++){
-		obs_.push_back(s->obs_[i]);
+	if(obs_.size() > s->obs_.size()){
+		for(unsigned int i(0);i<s->obs_.size();i++){
+			obs_[i].merge(s->obs_[i]);
+		}
+	} else {
+		for(unsigned int i(0);i<obs_.size();i++){
+			obs_[i].merge(s->obs_[i]);
+		}
+		for(unsigned int i(obs_.size());i<s->obs_.size();i++){
+			obs_.push_back(s->obs_[i]);
+		}
 	}
 }
 
