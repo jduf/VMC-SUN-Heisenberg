@@ -1026,7 +1026,7 @@ void LadderFree::lattice(){
 	double x_shift(spuc_/2+2);
 
 	PSTricks ps(info_+path_+dir_,filename_+"-pstricks");
-	ps.begin(-1,-5,n_/2,2,filename_+"-pstricks");
+	ps.begin(-1,-5,n_/1.5,2,filename_+"-pstricks");
 	double t;
 	double corr;
 	unsigned int s0;
@@ -1067,8 +1067,17 @@ void LadderFree::lattice(){
 
 				ps.line("-",xy0(0)+x_shift,xy0(1),xy1(0)+x_shift,xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
-			if(i%3==0){ ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}"); }
-			if(i%3==1){ ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}"); }
+			if(i%3==0){ 
+				ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}"); 
+				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1),"\\tiny{"+my::tostring(corr).substr(0,5)+"}");
+			}
+			if(i%3==1){ 
+				ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}"); 
+				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(corr).substr(0,5)+"}");
+			}
+			if(i%3==2){
+				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy1(1),"\\tiny{"+my::tostring(corr).substr(0,5)+"}");
+			}
 		}
 
 		if(i%3==0){ ps.put(xy0(0),xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}"); }
@@ -1112,7 +1121,10 @@ void LadderFree::lattice(){
 		std::string title("t=(");
 		for(unsigned int i(0);i<t_.size()-1;i++){ title += my::tostring(t_(i)) + ","; }
 		title = RST::math("\\theta="+my::tostring(acos(this->J_(0)))) + " : " + RST::math(title + my::tostring(t_.back()) + ")");
-		rst_file_->title(title,'-');
+		if(dir_ == "P/" || dir_ == "O/" || dir_ == "A/"){
+			rst_file_->title("|theta"+my::tostring(acos(this->J_(0)))+"|_",'-');
+			rst_file_->replace("theta"+my::tostring(acos(this->J_(0))),title);
+		} else { rst_file_->title(title,'-'); }
 		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+filename_+"-as.gp")+RST::scale("200"));

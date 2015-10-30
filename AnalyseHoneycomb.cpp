@@ -1,10 +1,8 @@
 #include "AnalyseHoneycomb.hpp"
 
-AnalyseHoneycomb::AnalyseHoneycomb(std::string const& sim, unsigned int const& max_level):
-	Analyse(sim,max_level)
-{
-	do_analyse();
-}
+AnalyseHoneycomb::AnalyseHoneycomb(std::string const& sim, unsigned int const& max_level, bool const& run_cmd):
+	Analyse(sim,max_level,run_cmd)
+{ do_analyse(); }
 
 void AnalyseHoneycomb::open_files(){
 	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); }

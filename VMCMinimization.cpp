@@ -112,77 +112,52 @@ void VMCMinimization::save() const {
 }
 
 void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& best_param, double& E_range) const {
-	double E(666);
-	double tmp;
-
-	auto sort_by_r = [&](MCSim const& a, MCSim const& b){
-		double tmp_a((a.get_param()-best_param).norm_squared());
-		double tmp_b((b.get_param()-best_param).norm_squared());
-		if(my::are_equal(tmp_a,tmp_b)){ return 2; }
-		if(tmp_a>tmp_b){ return 0; }
-		if(tmp_a<tmp_b){ return 1; }
-		return 2;
-	};
+	Vector<double>* param(new Vector<double>[max_n_minima]);
 
 	/*!finds the MCSim with the minimal energy*/
+	double tmp;
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
 		tmp = m_->samples_list_.get().get_MCS()->get_energy().get_x();
-		if(tmp<E){
-			E=tmp;
-			best_param = m_->samples_list_.get().get_param();
-		}
+		if(tmp<E_range){ E_range=tmp; }
 	}
-	E_range = E*0.99;
+	E_range *= 0.99;
 
-	/*!lists all MCSim with energy below E_range and keep only one per r*/
-	List<MCSim> list_sorted_r;
+	List<MCSim> sorted_list;
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
-		E=m_->samples_list_.get().get_MCS()->get_energy().get_x();
-		if(E<E_range){
-			if(list_sorted_r.find_sorted(m_->samples_list_.get_ptr(),sort_by_r)){
-				if(list_sorted_r.get().get_MCS()->get_energy().get_x() > E){ list_sorted_r.get_ptr() = m_->samples_list_.get_ptr(); }
-			} else { list_sorted_r.add_after_target(m_->samples_list_.get_ptr()); }
+		if(m_->samples_list_.get().get_MCS()->get_energy().get_x()<E_range){
+			sorted_list.add_sort(m_->samples_list_.get_ptr(),MCSim::sort_by_E); 
 		}
 	}
 
-	/*!finds the minima*/
-	unsigned int ao(1);
+	unsigned int local_min;
+	bool keep;
+	double d_lim(0.8);
 	do{
-		ao *= 2;
+		d_lim *= d_lim;
+		local_min = 0;
 		list_min.set();
-
-		bool keep;
-		List<MCSim> list_tmp;
-		std::vector<double> E_tmp;
-		for(unsigned int i(0);i<list_sorted_r.size();i++){
-			tmp = (best_param-list_sorted_r[i].get_param()).norm_squared();
-			E = list_sorted_r.get().get_MCS()->get_energy().get_x();
-			list_tmp.add_end(list_sorted_r.get_ptr());
+		sorted_list.set_target();
+		while(sorted_list.target_next() && local_min<max_n_minima){
+			param[local_min] = sorted_list.get().get_param();
 			keep = true;
-			for(unsigned int j(i>ao?i-ao:1);j<i+ao && j<list_sorted_r.size();j++){
-				if(list_sorted_r[j].get_MCS()->get_energy().get_x()<E){
-					j = list_sorted_r.size();
+			for(unsigned int i(0);i<local_min;i++){
+				if((param[i]-param[local_min]).variance()<d_lim){
+					i=local_min;
 					keep = false;
 				}
 			}
-			if(keep){ E_tmp.push_back(E); }
-			else { list_tmp.pop_end(); }
-		}
 
-		unsigned int i(1);
-		list_tmp.set_target();
-		list_tmp.target_next();
-		list_min.add_start(list_tmp.get_ptr());
-		/*!the condition's order is important because the last entry should
-		 * be targeted otherwise the last entry might be forgotten.*/
-		while(list_tmp.target_next() && i<E_tmp.size()-1){
-			if( E_tmp[i-1]>E_tmp[i] && E_tmp[i]<E_tmp[i+1] ){ list_min.add_sort(list_tmp.get_ptr(),MCSim::sort_by_E); }
-			i++;
+			if(keep){
+				list_min.add_end(sorted_list.get_ptr());
+				local_min++;
+			}
 		}
-		if(E_tmp[i-1]>E_tmp[i]){ list_min.add_sort(list_tmp.get_ptr(),MCSim::sort_by_E); }
-	} while ( list_min.size()>max_n_minima );
+	} while( 1.2*local_min<max_n_minima && d_lim>0.01 );
+
+	best_param = param[0];
+	delete[] param;
 }
 
 void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima, IOFiles& w, std::string path, std::string filename) const {
@@ -320,7 +295,7 @@ void VMCMinimization::improve_bad_samples(double const& dE){
 			if(tmp<E){ E=tmp; }
 		}
 		E *= 0.9;
-	
+
 		List<MCSim> to_improve;
 		m_->samples_list_.set_target();
 		while(m_->samples_list_.target_next()){
@@ -359,7 +334,7 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima, int 
 		m_->info_.item(msg);
 
 		list_min.set_target();
-		while(list_min.target_next()){ evaluate_until_precision(list_min.get().get_param(),dE,-1,maxiter); }
+		while(list_min.target_next()){ evaluate_until_precision(list_min.get().get_param(),dE,nobs,maxiter); }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl; }
 }
 

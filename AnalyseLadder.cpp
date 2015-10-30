@@ -1,7 +1,7 @@
 #include "AnalyseLadder.hpp"
 
-AnalyseLadder::AnalyseLadder(std::string const& path, unsigned int const& max_level):
-	Analyse(path,max_level),
+AnalyseLadder::AnalyseLadder(std::string const& path, unsigned int const& max_level, bool const& run_cmd):
+	Analyse(path,max_level,run_cmd),
 	complete_jobs_(sim_+"to_run.bash",true)
 {
 	complete_jobs_<<"#!/bin/bash"<<IOFiles::endl;
@@ -46,20 +46,9 @@ void AnalyseLadder::close_files(){
 std::string AnalyseLadder::extract_level_9(){
 	IOFiles in(sim_+path_+dir_+filename_+".jdbin",false);
 
-	RSTFile rst(info_+path_+dir_,filename_);
-	rst.text(in.get_header());
-	rst.save(false,true);
-
 	VMCMinimization min(in);
 	min.find_save_and_plot_minima(10,*jd_write_,analyse_+path_+dir_,filename_);
-	std::string header(in.get_header());
-	if(header.find("compute correlation")==std::string::npos){
-		if(header.find("refine")==std::string::npos){
-			complete_jobs_<<"./min -u:what 1 -s:load "<<in.get_filename().substr(4)<<IOFiles::endl;
-		} else {
-			complete_jobs_<<"./min -u:what 2 -s:load "<<in.get_filename().substr(4)<<IOFiles::endl;
-		}
-	}
+	complete_jobs_<<"./min -u:what 6 -s:load "<<in.get_filename().substr(4)<<IOFiles::endl;
 
 	return filename_;
 }
