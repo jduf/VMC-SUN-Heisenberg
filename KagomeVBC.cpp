@@ -86,7 +86,7 @@ void KagomeVBC::create(){
 /*}*/
 
 /*{method needed for checking*/
-void KagomeVBC::lattice(){
+void KagomeVBC::display_results(){
 	//Matrix<int> nb;
 	//double x0;
 	//double x1;

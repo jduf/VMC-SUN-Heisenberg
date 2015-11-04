@@ -14,7 +14,7 @@ class SquareFermi: public Square<Type>{
 
 	protected:
 		void compute_H();
-		void lattice();
+		void display_results();
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0; }
 };
@@ -48,7 +48,7 @@ void SquareFermi<Type>::compute_H(){
 
 /*{method needed for checking*/
 template<typename Type>
-void SquareFermi<Type>::lattice(){
+void SquareFermi<Type>::display_results(){
 	std::string color("black");
 	std::string linestyle("solid");
 	Vector<double> xy0(2,0);
@@ -122,7 +122,7 @@ void SquareFermi<Type>::lattice(){
 
 template<typename Type>
 void SquareFermi<Type>::check(){
-	lattice();
+	display_results();
 	Matrix<int> nb;
 	//Vector<int> dir(4,0);
 	//Rand<unsigned int> rnd(0,3);

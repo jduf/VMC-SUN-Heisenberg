@@ -14,7 +14,7 @@ class KagomeDirac: public Kagome<Type>{
 
 	protected:
 		void compute_H();
-		void lattice();
+		void display_results();
 
 		std::string extract_level_7();
 		std::string extract_level_6();
@@ -86,7 +86,7 @@ void KagomeDirac<Type>::compute_H(){
 
 /*{method needed for checking*/
 template<typename Type>
-void KagomeDirac<Type>::lattice(){
+void KagomeDirac<Type>::display_results(){
 	//Matrix<int> nb;
 	//double x0;
 	//double x1;

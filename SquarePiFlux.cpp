@@ -64,7 +64,7 @@ unsigned int SquarePiFlux::match_pos_in_ab(Vector<double> const& x) const{
 /*}*/
 
 /*{method needed for checking*/
-void SquarePiFlux::lattice(){
+void SquarePiFlux::display_results(){
 	compute_H();
 	std::string color("black");
 	std::string linestyle("solid");
@@ -166,7 +166,7 @@ void SquarePiFlux::lattice(){
 }
 
 void SquarePiFlux::check(){
-	lattice();
+	display_results();
 }
 /*}*/
 

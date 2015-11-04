@@ -53,7 +53,7 @@ Matrix<double> TriangleFermi::set_ab(){
 /*}*/
 
 /*{method needed for checking*/
-void TriangleFermi::lattice(){
+void TriangleFermi::display_results(){
 	Matrix<double> e(2,2);
 	e(0,0) = 1.0/3.0;
 	e(1,0) = 1.0/3.0;
@@ -173,6 +173,6 @@ void TriangleFermi::check(){
 	//std::cout<<"######################"<<std::endl;
 	//nb = get_neighbourg(3);
 	//std::cout<<nb<<std::endl;
-	lattice();
+	display_results();
 }
 /*}*/

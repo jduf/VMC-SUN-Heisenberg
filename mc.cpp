@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
 					IOSystem ios(cs.get_filename(),"","","","","/tmp/",&rst);
 					tmp.set_IOSystem(&ios);
 
-					tmp.lattice();
+					tmp.display_results();
 
 					rst.text(out.get_header());
 					rst.save(false,true);

@@ -95,9 +95,9 @@ class CreateSystem{
 			if(RGL_){ RGL_->get_wf_symmetries(sym); }
 			if(CGL_){ CGL_->get_wf_symmetries(sym); }
 		}
-		void lattice() const {
-			if(RGL_){ RGL_->lattice(); }
-			if(CGL_){ CGL_->lattice(); }
+		void display_results() const {
+			if(RGL_){ RGL_->display_results(); }
+			if(CGL_){ CGL_->display_results(); }
 		}
 		/*}*/
 

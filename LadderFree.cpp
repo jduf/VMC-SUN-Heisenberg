@@ -884,10 +884,12 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 
 /*{method needed for checking*/
 void LadderFree::check(){
-	lattice();
+	compute_H();
+	plot_band_structure();
+	//display_results();
 }
 
-void LadderFree::plot(){
+void LadderFree::plot(bool const& create_image){
 	if(obs_.size()>3){
 		/*!long range correlations*/
 		/*{*/
@@ -948,7 +950,7 @@ void LadderFree::plot(){
 		gp+="     '"+filename_+"-lr-sf.dat' u 1:5 axes x1y2 lt 2 lc 7 notitle";
 		/*}*/
 		gp.save_file();
-		gp.create_image(true,true);
+		gp.create_image(create_image,true);
 		/*}*/
 	}
 	if(obs_.size()==5){
@@ -1011,7 +1013,7 @@ void LadderFree::plot(){
 		gp+="     '"+filename_+"-as-sf.dat' u 1:5 axes x1y2 lt 2 lc 7 notitle";
 		/*}*/
 		gp.save_file();
-		gp.create_image(true,true);
+		gp.create_image(create_image,true);
 		/*}*/
 	}
 }
@@ -1112,15 +1114,19 @@ void LadderFree::lattice(){
 	}
 	ps.end(true,true,true);
 
-	plot();
 
+}
+
+void LadderFree::display_results(){
+	lattice();
+	plot(true);
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 		std::string title("t=(");
 		for(unsigned int i(0);i<t_.size()-1;i++){ title += my::tostring(t_(i)) + ","; }
-		title = RST::math("\\theta="+my::tostring(acos(this->J_(0)))) + " : " + RST::math(title + my::tostring(t_.back()) + ")");
+		title = RST::math("\\theta=")+my::tostring(acos(this->J_(0))) + " : " + title + my::tostring(t_.back()) + ")";
 		if(dir_ == "P/" || dir_ == "O/" || dir_ == "A/"){
 			rst_file_->title("|theta"+my::tostring(acos(this->J_(0)))+"|_",'-');
 			rst_file_->replace("theta"+my::tostring(acos(this->J_(0))),title);
@@ -1136,7 +1142,7 @@ void LadderFree::lattice(){
 std::string LadderFree::extract_level_6(){
 	(*data_write_)<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<asin(J_(1))<<" "<<E_<<IOFiles::endl;
 
-	lattice();
+	display_results();
 
 	save_param(*jd_write_);
 	save_input(*jd_write_);

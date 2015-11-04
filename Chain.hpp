@@ -57,7 +57,7 @@ class Chain: public System1D<Type>{
 		std::string extract_level_3();
 		/*!Find the best range to compute the critcal exponents*/
 		bool compute_critical_exponents(Vector<double> const& lrc, unsigned int& xi, unsigned int& xf, Vector<double>& p);
-		void lattice();
+		void display_results();
 
 		void long_range_correlation_and_structure_factor();
 
@@ -239,7 +239,7 @@ void Chain<Type>::do_fit(Vector<double> const& lrc, unsigned int const& xi, unsi
 }
 
 template<typename Type>
-void Chain<Type>::lattice(){
+void Chain<Type>::display_results(){
 	//energy_bound();
 	long_range_correlation_and_structure_factor();
 }

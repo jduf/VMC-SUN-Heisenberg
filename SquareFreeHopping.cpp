@@ -48,7 +48,7 @@ unsigned int SquareFreeHopping::match_pos_in_ab(Vector<double> const& x) const{
 /*}*/
 
 /*{method needed for checking*/
-void SquareFreeHopping::lattice(){
+void SquareFreeHopping::display_results(){
 	compute_H();
 	std::string color("black");
 	std::string linestyle("solid");

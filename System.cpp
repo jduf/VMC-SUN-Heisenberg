@@ -43,9 +43,8 @@ void System::set_observables(std::vector<Observable> const& obs, int const& nobs
 	if(nobs<0){ obs_ = obs; }
 	else {
 		obs_.clear();
-		if(nobs == 0 && obs_.size() == 0){
-			obs_.push_back(Observable(obs[0].get_links()));
-		} else { for(int i(0);i<nobs;i++){ obs_.push_back(obs[i]); } }
+		if(nobs == 0 && obs_.size() == 0){ obs_.push_back(Observable(obs[0].get_links())); }
+		else { for(int i(0);i<nobs;i++){ obs_.push_back(obs[i]); } }
 	}
 }
 

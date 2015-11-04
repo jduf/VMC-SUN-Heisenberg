@@ -31,7 +31,7 @@ class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSyst
 		virtual void save_param(IOFiles& w) const;
 		virtual void create() = 0;
 		virtual void check() = 0;
-		virtual void lattice() = 0;
+		virtual void display_results() = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
 		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/

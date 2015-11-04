@@ -46,6 +46,10 @@ void AnalyseLadder::close_files(){
 std::string AnalyseLadder::extract_level_9(){
 	IOFiles in(sim_+path_+dir_+filename_+".jdbin",false);
 
+	RSTFile rst(info_+path_+dir_,filename_);
+	rst.text(in.get_header());
+	rst.save(false,true);
+
 	VMCMinimization min(in);
 	min.find_save_and_plot_minima(10,*jd_write_,analyse_+path_+dir_,filename_);
 	complete_jobs_<<"./min -u:what 6 -s:load "<<in.get_filename().substr(4)<<IOFiles::endl;
@@ -72,7 +76,7 @@ std::string AnalyseLadder::extract_level_8(){
 		rst_file_ = &list_rst_.last();
 		filename_ = tmp_filename+"-"+my::tostring(i);
 		cs.set_IOSystem(this);
-		cs.lattice();
+		cs.display_results();
 		rst_file_ = NULL;
 
 		if(!i){/*only the best set of parameter is kept*/
