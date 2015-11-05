@@ -118,11 +118,11 @@ class Vector{
 		/*!Returns the pointer to the Vector*/
 		Type* ptr() const { return vec_; }
 
-		void header_rst(std::string const& s, RST& rst) const;
+		std::string header_def() const { return "Vector("+my::tostring(size_)+")"; }
 
 	private:
 		unsigned int size_ = 0; //!< number of rows
-		Type* vec_ = NULL; //!< pointer to a static array
+		Type* vec_ = NULL;		//!< pointer to a static array
 
 		/*!Copy-And-Swap Idiom*/
 		void swap_to_assign(Vector<Type>& v1,Vector<Type>& v2);
@@ -222,18 +222,11 @@ std::istream& operator>>(std::istream& flux, Vector<Type>& v){
 }
 
 template<typename Type>
-void Vector<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,"Vector("+my::tostring(size_)+")");
-}
-
-template<typename Type>
 IOFiles& operator<<(IOFiles& w, Vector<Type> const& v){
 	if(w.is_binary()){
 		w<<v.size();
 		w.write(v.ptr(),v.size(),sizeof(Type));
-	} else {
-		w.stream()<<v;
-	}
+	} else { w.stream()<<v; }
 	return w;
 }
 

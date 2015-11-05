@@ -64,12 +64,11 @@ void PSTricks::end(bool const& silent, bool const& pdf, bool const& crop){
 	Linux command;
 	command(Linux::latex(path_,filename_),silent);
 	if(!command.status()){
-		if(pdf){ command(Linux::dvipdf(path_,filename_),silent);
+		if(pdf){
+			command(Linux::dvipdf(path_,filename_),silent);
 			if(crop){ command(Linux::pdfcrop(path_,filename_),silent); }
 			command(Linux::pdf2png(path_+filename_,path_+filename_),silent);
 			command("rm "+path_+filename_+".dvi "+path_+filename_+".aux "+path_+filename_+".log "+path_+filename_+".ps "+path_+filename_+"-1.png",true);
 		}
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : Linux::latex(path_,filename_) returned an error ("<<command.status()<<")"<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : Linux::latex(path_,filename_) returned an error ("<<command.status()<<")"<<std::endl; }
 }

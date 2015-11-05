@@ -1,6 +1,6 @@
 #include "IOFiles.hpp"
 
-/*constructors and destructor*/
+/*constructors*/
 /*{*/
 IOFiles::IOFiles(std::string const& filename, bool const& write):
 	filename_(filename),

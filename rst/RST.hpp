@@ -26,6 +26,7 @@ class RST{
 		void hyperlink(std::string const& display, std::string const& link);
 		void figure(std::string const& image, std::string const& legend, std::string const& option="");
 		void comment(std::string const& t);
+		void replace(std::string const& pattern, std::string const& replace);
 		void np();
 		void nl();
 

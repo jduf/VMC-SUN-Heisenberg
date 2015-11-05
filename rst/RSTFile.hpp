@@ -4,7 +4,7 @@
 #include "IOFiles.hpp"
 #include "Linux.hpp"
 
-class RSTFile:public RST{
+class RSTFile: public RST {
 	public:
 		/*!Constructor for the creation of a .rst file in path/filename*/
 		RSTFile(std::string const& path, std::string const& filename);

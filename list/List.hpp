@@ -43,9 +43,30 @@ class List{
 		List& operator=(List) = delete;
 		/*}*/
 
+		class Node{
+			public:
+				Node(std::shared_ptr<Type> t, Node* prev, Node* next);
+				~Node();
+				/*{Forbidden*/
+				Node(Node&&) = delete;
+				Node() = delete;
+				Node(Node const&) = delete;
+				Node& operator=(List) = delete;
+				/*}*/
+				std::shared_ptr<Type> get() const { return t_; }
+
+			protected:
+				std::shared_ptr<Type> t_;
+				Node* prev_;
+				Node* next_;
+
+				friend List<Type>;
+		};
+
 		void set();
-		void set_target() const { target_ = NULL; }
 		bool target_next() const;
+		void set_target(List<Type>::Node* const target = NULL) const { target_ = target; }
+		typename List<Type>::Node* get_target() const { return target_; }
 
 		Type& operator[](unsigned int i){
 			target_ = NULL;
@@ -99,26 +120,11 @@ class List{
 		void swap(unsigned int const& a, unsigned int const& b);
 		List<Type> sublist(unsigned int const& a, unsigned int const& b) const;
 
-		void header_rst(std::string const& s, RST& rst) const;
 		unsigned int const& size() const { return size_; }
 
+		std::string header_def() const { return "List("+my::tostring(size())+")"; }
+
 	private:
-		class Node{
-			public:
-				Node(std::shared_ptr<Type> t, Node* prev, Node* next);
-				~Node();
-				/*{Forbidden*/
-				Node(Node&&) = delete;
-				Node() = delete;
-				Node(Node const&) = delete;
-				Node& operator=(List) = delete;
-				/*}*/
-
-				std::shared_ptr<Type> t_;
-				Node* prev_;
-				Node* next_;
-		};
-
 		mutable Node* target_ = NULL;
 		Node* head_           = NULL;
 		Node* tail_           = NULL;
@@ -190,11 +196,6 @@ std::istream& operator>>(std::istream& flux, List<Type>& l){
 		l.add_end( std::make_shared<Type>(tmp) );
 	}
 	return flux;
-}
-
-template<typename Type>
-void List<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,"List("+my::tostring(size())+")");
 }
 
 template<typename Type>
@@ -440,17 +441,17 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 									return true;
 								}
 						}
-					} break;
+					}break;
 				case 1://the last element is "smaller" than t
 					{
 						target_ = tail_;
 						return false;
-					} break;
+					}break;
 				case 2://the last element is equal to t
 					{
 						target_ = tail_;
 						return true;
-					} break;
+					}break;
 			}
 		} else {
 			switch(cmp(*head_->t_,*t)){//check the unique element of the list
@@ -458,17 +459,17 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 					{
 						target_ = NULL;
 						return false;
-					} break;
+					}break;
 				case 1://the unique element is "smaller" than t
 					{
 						target_ = head_;
 						return false;
-					} break;
+					}break;
 				case 2://the unique element is equal to t
 					{
 						target_ = head_;
 						return true;
-					} break;
+					}break;
 			}
 		}
 		std::cerr<<__PRETTY_FUNCTION__<<" : unexpected value returned from cmp"<<std::endl;

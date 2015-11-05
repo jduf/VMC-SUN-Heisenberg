@@ -69,7 +69,7 @@ class Linux{
 		 * */
 		/*}*/
 		static std::string gp2latex(std::string const& texfile, std::string const& path, std::string const& gpfile);
-		static std::string rst2latex(std::string const& path, std::string const& filename);
+		static std::string rst2latex(std::string const& texfile, std::string const& path, std::string const& filename);
 		static std::string rst2html(std::string const& path, std::string const& filename);
 		static std::string html_browser(std::string const& html);
 

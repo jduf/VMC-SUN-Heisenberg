@@ -27,6 +27,7 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 										case 'i':{ set(name.substr(3),my::string2type<int>(val)); } break;
 										case 'u':{ set(name.substr(3),my::string2type<unsigned int>(val)); } break;
 										case 'd':{ set(name.substr(3),my::string2type<double>(val)); } break;
+										case 'b':{ set(name.substr(3),my::string2type<bool>(val)); } break;
 										default: { lock(name); }
 									}
 								}break;
@@ -116,5 +117,5 @@ bool Parseur::find(std::string const& pattern, unsigned int& i, bool lock_iffail
 
 void Parseur::lock(std::string const& arg){
 	locked_ = true;
-	std::cerr<<__PRETTY_FUNCTION__<<" : wrong argument '"<<arg<<"' : should be '-[iuds]:name' or '-[uids].name' : "<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : wrong argument '"<<arg<<"' : should be '-[iudsb]:name' : "<<std::endl;
 }

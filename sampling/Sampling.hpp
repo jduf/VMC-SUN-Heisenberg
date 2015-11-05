@@ -94,7 +94,7 @@ class Data{
 		void add(Type const& x){ x_ += x; }
 		void divide(Type const& x){ x_ /= x; }
 
-		void header_rst(std::string const& s, RST& rst) const;
+		std::string header_def() const { return (conv_?"":"nc:")+my::tostring(get_x())+" ("+my::tostring(get_dx())+")"; }
 		void write(IOFiles& w) const;
 
 	private:
@@ -131,14 +131,14 @@ class DataSet{
 		void complete_analysis(double const& convergence_criterion);
 		void delete_binning();
 
-		void header_rst(std::string const& s, RST& rst) const;
-
 		unsigned int size() const { return size_; }
 
 		Data<Type> const& operator[](unsigned int const& i) const
 		{assert(i<size_); return ds_[i]; }
 		Data<Type>& operator[](unsigned int const& i)
 		{assert(i<size_); return ds_[i]; }
+
+		std::string header_def() const { return "DataSet("+my::tostring(size_)+")"; }
 
 	private:
 		unsigned int size_ = 0;
@@ -236,7 +236,7 @@ void Binning<Type>::add_sample(Type const& x){
 		add_bin(0,2.0*x/DPL_,2.0*bin_[0](Ml_(0))/DPL_);
 		recompute_dx_usefull_ = true;
 		dpl_ = 0;
-		/*!update the bins if the bigger Binning is big enough*/
+		/*!update the bins if the bigger bin is big enough*/
 		if(Ml_(b_-1)==2*B_){
 			for(unsigned int i(0);i<b_-1;i++){
 				for(unsigned int j(0);j<bin_[i+1].size();j++){
@@ -459,11 +459,6 @@ std::istream& operator>>(std::istream& flux, Data<Type>& d){
 }
 
 template<typename Type>
-void Data<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,(conv_?"":"nc:")+my::tostring(get_x())+" ("+my::tostring(get_dx())+")");
-}
-
-template<typename Type>
 IOFiles& operator<<(IOFiles& w, Data<Type> const& d){
 	if(w.is_binary()){ d.write(w); }
 	else { w.stream()<<d; }
@@ -604,11 +599,6 @@ template<typename Type>
 std::istream& operator>>(std::istream& flux, DataSet<Type> const& ds){
 	std::cerr<<__PRETTY_FUNCTION__<<" :  not defined"<<std::endl;
 	return flux;
-}
-
-template<typename Type>
-void DataSet<Type>::header_rst(std::string const& s, RST& rst) const {
-	rst.def(s,my::tostring(size_));
 }
 
 template<typename Type>

@@ -21,14 +21,14 @@ class Header:public RST{
 
 		/*!Adds some text s to the Header*/
 		void add(std::string const& s);
-		void add(std::string const& s, double const& d);
-		void add(std::string const& s, bool const& d);
-		void add(std::string const& s, unsigned int const& d);
-		void add(std::string const& s, int const& d);
-		void add(std::string const& s, std::string const& d);
-		void add(std::string const& s, std::complex<double> const& d);
+		void add(std::string const& name, double const& val);
+		void add(std::string const& name, bool const& val);
+		void add(std::string const& name, unsigned int const& val);
+		void add(std::string const& name, int const& val);
+		void add(std::string const& name, std::string const& val);
+		void add(std::string const& name, std::complex<double> const& val);
 		template<typename Type>
-			void add(std::string const& s, Type const& t);
+			void add(std::string const& name, Type const& val);
 
 	private:
 		/*!Returns the time when a Header is created*/
@@ -38,7 +38,7 @@ class Header:public RST{
 std::ostream& operator<<(std::ostream& flux, Header const& h);
 
 template<typename Type>
-void Header::add(std::string const& s, Type const& t){
-	t.header_rst(s,(*this));
+void Header::add(std::string const& name, Type const& t){
+	def(name,t.header_def());
 }
 #endif

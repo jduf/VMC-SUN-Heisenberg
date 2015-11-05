@@ -5,9 +5,9 @@ std::string const RST::nl_ = "\n";
 std::string const RST::np_ = "\n\n";
 std::string const RST::item_ = "+ ";
 
-std::string RST::textit(std::string const& t){ return "*" + t + "*"; }
-std::string RST::textbf(std::string const& t){ return "**" + t + "**"; }
-std::string RST::math(std::string const& t)  { return ":math:`" + t + "`"; }
+std::string RST::textit(std::string const& t){ return " *" + t + "* "; }
+std::string RST::textbf(std::string const& t){ return " **" + t + "** "; }
+std::string RST::math(std::string const& t)  { return ":math:`" + t + "` "; }
 std::string RST::width(std::string const& t) { return "   :width: " + t + RST::nl_; }
 std::string RST::scale(std::string const& t) { return "   :scale: " + t + RST::nl_; }
 std::string RST::target(std::string const& t){ return "   :target: "+ t + RST::nl_; }
@@ -62,6 +62,11 @@ void RST::figure(std::string const& image, std::string const& legend, std::strin
 
 void RST::comment(std::string const& t){
 	rst_ += ".. " + t + RST::np_;
+}
+
+void RST::replace(std::string const& pattern, std::string const& replace){
+	rst_ += RST::nl_;
+	rst_ += ".. |" + pattern + "| replace:: " + replace + RST::np_;
 }
 
 void RST::np(){

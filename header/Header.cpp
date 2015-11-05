@@ -22,29 +22,29 @@ void Header::add(std::string const& s){
 	text(s);
 }
 
-void Header::add(std::string const& s, double const& d){
-	def(s + " = " + my::tostring(d), "double");
+void Header::add(std::string const& name, double const& val){
+	def(name + " = " + my::tostring(val), "double");
 }
 
-void Header::add(std::string const& s, bool const& d){
-	if(d){ def(s + " = true", "bool"); }
-	else { def(s + " = false", "bool"); }
+void Header::add(std::string const& name, bool const& val){
+	if(val){ def(name + " = true", "bool"); }
+	else { def(name + " = false", "bool"); }
 }
 
-void Header::add(std::string const& s, std::string const& d){
-	def(s + " = " + d, "string");
+void Header::add(std::string const& name, std::string const& val){
+	def(name + " = " + val, "string");
 }
 
-void Header::add(std::string const& s, unsigned int const& d){
-	def(s + " = " + my::tostring(d), "unsigned int");
+void Header::add(std::string const& name, unsigned int const& val){
+	def(name + " = " + my::tostring(val), "unsigned int");
 }
 
-void Header::add(std::string const& s, int const& d){
-	def(s + " = " + my::tostring(d), "int");
+void Header::add(std::string const& name, int const& val){
+	def(name + " = " + my::tostring(val), "int");
 }
 
-void Header::add(std::string const& s, std::complex<double> const& d){
-	def(s + " = " + my::tostring(d), "complex");
+void Header::add(std::string const& name, std::complex<double> const& val){
+	def(name + " = " + my::tostring(val), "complex");
 }
 
 std::ostream& operator<<(std::ostream& flux, Header const& h){

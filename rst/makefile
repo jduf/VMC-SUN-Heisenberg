@@ -1,6 +1,8 @@
 EXEC=test
+EXEC+=rst2pdf
 
 test_SRCS=test.cpp RST.cpp Header.cpp IOFiles.cpp Directory.cpp RSTFile.cpp Linux.cpp
+rst2pdf_SRCS=rst2pdf.cpp Linux.cpp
 
 #-----------------------------------------------------------------
 
