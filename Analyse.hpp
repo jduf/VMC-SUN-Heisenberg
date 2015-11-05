@@ -7,7 +7,7 @@
 
 class Analyse: public IOSystem{
 	public:
-		Analyse(std::string const& path, unsigned int const& max_level);
+		Analyse(std::string const& path, unsigned int const& max_level, bool const& run_cmd);
 		/*Default destructor*/
 		virtual ~Analyse() = default;
 		/*{Forbidden*/
@@ -33,6 +33,7 @@ class Analyse: public IOSystem{
 
 	private:
 		unsigned int study_;
+		bool run_cmd_;
 		
 		void recursive_search();
 		void search_jdbin();

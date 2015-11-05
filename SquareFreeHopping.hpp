@@ -13,7 +13,7 @@ class SquareFreeHopping: public Square<double>{
 
 	protected:
 		void compute_H();
-		void lattice();
+		void display_results();
 		Vector<double> const t_;
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;

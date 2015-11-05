@@ -81,8 +81,9 @@ void System1D<Type>::plot_band_structure(){
 
 		Gnuplot gp("./","spectrum");
 		gp.range("x","-pi","pi");
-		gp+="plot 'spectrum.dat' u 1:2 w p ps 1.5 lt 3 lc 7";
+		gp+="plot 'spectrum.dat' u 1:2 w p ps 1.5 lt 1 lc 7";
 		gp.save_file();
+		gp.create_image(true,false);
 	} else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : diagonalization failed, the band structure can't be computed"<<std::endl;
 	}

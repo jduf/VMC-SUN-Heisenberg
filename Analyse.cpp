@@ -1,9 +1,10 @@
 #include "Analyse.hpp"
 
-Analyse::Analyse(std::string const& path, unsigned int const& max_level):
+Analyse::Analyse(std::string const& path, unsigned int const& max_level, bool const& run_cmd):
 	rel_level_(""),
 	max_level_(max_level),
-	level_(0)
+	level_(0),
+	run_cmd_(run_cmd)
 {
 	if(path == ""){ study_=0; }
 	if(path == "README"){ study_=1; }
@@ -57,9 +58,9 @@ void Analyse::do_analyse(){
 
 				list_rst_.add_end(std::make_shared<RSTFile>(info_+path_,dir_.substr(0,dir_.size()-1)));
 
-				Linux::open(dir_.substr(0,dir_.size()-1)+".bash");
+				if(level_ != 1){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
 				recursive_search();
-				Linux::close(true);
+				if(level_ != 1){ Linux::close(true); }
 			}break;
 		case 3:
 			{ std::cerr<<__PRETTY_FUNCTION__<<" : can't analyse a *.jdbin file"<<std::endl; }break;
@@ -92,7 +93,7 @@ void Analyse::recursive_search(){
 	level_--;
 	rel_level_.erase(0,3);
 
-	if(level_ == 1){ Linux::close(true); }
+	if(level_ == 1){ Linux::close(run_cmd_); }
 }
 
 void Analyse::search_jdbin(){

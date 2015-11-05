@@ -5,7 +5,7 @@
 
 class AnalyseEnergy : public Analyse{
 	public:
-		AnalyseEnergy(std::string const& sim, unsigned int const& max_level);
+		AnalyseEnergy(std::string const& sim, unsigned int const& max_level, bool const& run_cmd);
 		/*!Default destructor*/
 		~AnalyseEnergy() = default;
 		/*{Forbidden*/

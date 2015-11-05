@@ -3,6 +3,7 @@
 
 #include "List.hpp"
 #include "MCSim.hpp"
+#include "omp.h"
 
 class VMCMinimization{
 	public:
@@ -25,8 +26,10 @@ class VMCMinimization{
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
 		void find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& best_param, double& E_range) const;
-		void find_and_run_minima(unsigned int const& max_n_minima, int const& nobs);
+		void find_and_run_minima(unsigned int const& max_n_minima, int const& nobs, double const& dE);
+		void explore_around_minima(unsigned int const& max_n_minima, int const& nobs, double const& dE, double const& dx);
 		void find_save_and_plot_minima(unsigned int const& max_n_minima, IOFiles& w, std::string path="", std::string filename="") const;
+		void improve_bad_samples(double const& dE);
 
 		virtual void print() const;
 		bool ready(){ return m_.get(); }
@@ -81,5 +84,6 @@ class VMCMinimization{
 
 		/*!Real call to the MonteCarlo evaluation via MCSim*/
 		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, int const& obs);
+		void evaluate_until_precision(Vector<double> const& param, double const& dE, int const& nobs, unsigned int const& maxiter);
 };
 #endif

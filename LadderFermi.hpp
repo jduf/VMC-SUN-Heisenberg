@@ -21,7 +21,7 @@ class LadderFermi: public Ladder<Type>{
 
 	private:
 		void compute_H();
-		void lattice();
+		void display_results();
 
 		std::string extract_level_7();
 		std::string extract_level_6();
@@ -81,11 +81,11 @@ void LadderFermi<Type>::check(){
 	std::cout<<this->H_<<std::endl;
 
 	this->plot_band_structure();
-	lattice();
+	display_results();
 }
 
 template<typename Type>
-void LadderFermi<Type>::lattice(){
+void LadderFermi<Type>::display_results(){
 	compute_H();
 	Matrix<int> nb;
 	std::string color("black");

@@ -1,7 +1,7 @@
 #include "AnalyseMagnetization.hpp"
 
-AnalyseMagnetization::AnalyseMagnetization(std::string const& sim, unsigned int const& max_level):
-	Analyse(sim,max_level)
+AnalyseMagnetization::AnalyseMagnetization(std::string const& sim, unsigned int const& max_level, bool const& run_cmd):
+	Analyse(sim,max_level,run_cmd)
 {}
 
 void AnalyseMagnetization::open_files(){

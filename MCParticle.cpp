@@ -90,13 +90,9 @@ void MCParticle::set_bx_via(Vector<double> const& param){
 Vector<double> MCParticle::get_param() const {
 	Vector<double> param(dof_);
 	for(unsigned int i(0);i<dof_;i++){
-		if(x_(i)<=min_(i) || x_(i)>=max_(i))
-		{
-#pragma omp critical
+		if(x_(i)<=min_(i) || x_(i)>=max_(i)){
 			std::cerr<<__PRETTY_FUNCTION__<<" : bug "<<x_<<" | "<<min_<<" | "<<max_<<std::endl;
-			for(unsigned int j(0);j<dof_;j++){
-				std::cout<<ps_[j]<<std::endl;
-			}
+			for(unsigned int j(0);j<dof_;j++){ std::cout<<ps_[j]<<std::endl; }
 		}
 		param(i) = ps_[i](floor(x_(i)));
 	}

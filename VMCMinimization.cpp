@@ -63,6 +63,7 @@ void VMCMinimization::refine(){
 
 void VMCMinimization::refine(double const& E, double const& dE){
 	if(m_->samples_list_.size()){
+		unsigned int maxiter(10);
 		List<MCSim> best;
 		m_->samples_list_.set_target();
 		while(m_->samples_list_.target_next()){
@@ -72,30 +73,23 @@ void VMCMinimization::refine(double const& E, double const& dE){
 		}
 		unsigned int N(best.size());
 
-		std::string msg("refine "+my::tostring(N)+" samples ("+my::tostring(E)+","+my::tostring(dE)+","+my::tostring(m_->tmax_)+")");
+		std::string msg("refines "+my::tostring(N)+" samples (max time "+my::tostring(N*m_->tmax_ * maxiter)+"s)");
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
+		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E="+my::tostring(dE));
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
 		if(N>5 && N<700){
-			unsigned int iter;
 			best.set_target();
-			while(best.target_next()){
-				iter = 0;
-				do {
-#pragma omp parallel
-					{ evaluate(best.get().get_param(),-1); }
-					std::cout<<iter<<" iter "<<best.get().get_param()<<std::endl;
-				} while ( iter++<10 && ( !best.get().check_conv(1e-5) || best.get().get_MCS()->get_energy().get_dx()>dE ) );
-			}
+			while(best.target_next()){ evaluate_until_precision(best.get().get_param(),dE,-1,maxiter); }
 		} else {
 			if(N<700){ msg = "not enough data to be usefull, skip the evaluation"; }
 			else { msg = "too many data, would take too much time, skip the evaluation"; }
 			std::cout<<"#"<<msg<<std::endl;
 			m_->info_.item(msg);
 		}
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl; }
 }
 
 void VMCMinimization::complete_analysis(double const& convergence_criterion){
@@ -118,77 +112,52 @@ void VMCMinimization::save() const {
 }
 
 void VMCMinimization::find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& best_param, double& E_range) const {
-	double E(666);
-	double tmp;
-
-	auto sort_by_r = [&](MCSim const& a, MCSim const& b){
-		double tmp_a((a.get_param()-best_param).norm_squared());
-		double tmp_b((b.get_param()-best_param).norm_squared());
-		if(my::are_equal(tmp_a,tmp_b)){ return 2; }
-		if(tmp_a>tmp_b){ return 0; }
-		if(tmp_a<tmp_b){ return 1; }
-		return 2;
-	};
+	Vector<double>* param(new Vector<double>[max_n_minima]);
 
 	/*!finds the MCSim with the minimal energy*/
+	double tmp;
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
 		tmp = m_->samples_list_.get().get_MCS()->get_energy().get_x();
-		if(tmp<E){
-			E=tmp;
-			best_param = m_->samples_list_.get().get_param();
-		}
+		if(tmp<E_range){ E_range=tmp; }
 	}
-	E_range = E*0.99;
+	E_range *= 0.99;
 
-	/*!lists all MCSim with energy below E_range and keep only one per r*/
-	List<MCSim> list_sorted_r;
+	List<MCSim> sorted_list;
 	m_->samples_list_.set_target();
 	while(m_->samples_list_.target_next()){
-		E=m_->samples_list_.get().get_MCS()->get_energy().get_x();
-		if(E<E_range){
-			if(list_sorted_r.find_sorted(m_->samples_list_.get_ptr(),sort_by_r)){
-				if(list_sorted_r.get().get_MCS()->get_energy().get_x() > E){ list_sorted_r.get_ptr() = m_->samples_list_.get_ptr(); }
-			} else { list_sorted_r.add_after_target(m_->samples_list_.get_ptr()); }
+		if(m_->samples_list_.get().get_MCS()->get_energy().get_x()<E_range){
+			sorted_list.add_sort(m_->samples_list_.get_ptr(),MCSim::sort_by_E); 
 		}
 	}
 
-	/*!finds the minima*/
-	unsigned int ao(1);
+	unsigned int local_min;
+	bool keep;
+	double d_lim(0.8);
 	do{
-		ao *= 2;
+		d_lim *= d_lim;
+		local_min = 0;
 		list_min.set();
-
-		bool keep;
-		List<MCSim> list_tmp;
-		std::vector<double> E_tmp;
-		for(unsigned int i(0);i<list_sorted_r.size();i++){
-			tmp = (best_param-list_sorted_r[i].get_param()).norm_squared();
-			E = list_sorted_r.get().get_MCS()->get_energy().get_x();
-			list_tmp.add_end(list_sorted_r.get_ptr());
+		sorted_list.set_target();
+		while(sorted_list.target_next() && local_min<max_n_minima){
+			param[local_min] = sorted_list.get().get_param();
 			keep = true;
-			for(unsigned int j(i>ao?i-ao:1);j<i+ao && j<list_sorted_r.size();j++){
-				if(list_sorted_r[j].get_MCS()->get_energy().get_x()<E){
-					j = list_sorted_r.size();
+			for(unsigned int i(0);i<local_min;i++){
+				if((param[i]-param[local_min]).variance()<d_lim){
+					i=local_min;
 					keep = false;
 				}
 			}
-			if(keep){ E_tmp.push_back(E); }
-			else { list_tmp.pop_end(); }
-		}
 
-		unsigned int i(1);
-		list_tmp.set_target();
-		list_tmp.target_next();
-		list_min.add_start(list_tmp.get_ptr());
-		/*!the condition's order is important because the last entry should
-		 * be targeted otherwise the last entry might be forgotten.*/
-		while(list_tmp.target_next() && i<E_tmp.size()-1){
-			if( E_tmp[i-1]>E_tmp[i] && E_tmp[i]<E_tmp[i+1] ){ list_min.add_sort(list_tmp.get_ptr(),MCSim::sort_by_E); }
-			i++;
+			if(keep){
+				list_min.add_end(sorted_list.get_ptr());
+				local_min++;
+			}
 		}
-		if(E_tmp[i-1]>E_tmp[i]){ list_min.add_sort(list_tmp.get_ptr(),MCSim::sort_by_E); }
-	} while ( list_min.size()>max_n_minima );
+	} while( 1.2*local_min<max_n_minima && d_lim>0.01 );
+
+	best_param = param[0];
+	delete[] param;
 }
 
 void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima, IOFiles& w, std::string path, std::string filename) const {
@@ -233,35 +202,140 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima
 		}
 		gp.save_file();
 		gp.create_image(true,true);
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl; }
 }
 
-void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima, int const& nobs){
+void VMCMinimization::explore_around_minima(unsigned int const& max_n_minima, int const& nobs, double const& dE, double const& dx){
 	if(m_->samples_list_.size()){
-		std::cout<<"#######################"<<std::endl;
-		std::string msg("compute "+my::tostring(nobs)+" observables for minima");
-		std::cout<<"#"<<msg<<std::endl;
-		m_->info_.item(msg);
-		List<MCSim> list_min;
+		unsigned int maxiter(10);
+		List<MCSim> sorted_list;
+		m_->samples_list_.set_target();
+		while(m_->samples_list_.target_next()){
+			sorted_list.add_sort(m_->samples_list_.get_ptr(),MCSim::sort_by_E);
+		}
+
+		auto sort_by_param = [](Vector<double> const& a, Vector<double> const& b){
+			for(unsigned int i(0);i<a.size();i++){
+				if(a(i) - b(i) > 0.0001){ return 0; }
+				if(a(i) - b(i) <-0.0001){ return 1; }
+			}
+			return 2;
+		};
+
+		List<Vector<double> > param;
+		Vector<double> p;
+		std::shared_ptr<Vector<double> > p_ptr;
+		unsigned int i(0);
+		sorted_list.set_target();
+		while(sorted_list.target_next() && i++<max_n_minima){
+			p = sorted_list.get().get_param();
+			for(unsigned int j(0);j<m_->dof_;j++){
+				p(j) += dx;
+				p_ptr = std::make_shared<Vector<double> >(p);
+				if(!param.find_sorted(p_ptr,sort_by_param)){ param.add_after_target(p_ptr); }
+
+				p(j) -= 2*dx;
+				p_ptr = std::make_shared<Vector<double> >(p);
+				if(!param.find_sorted(p_ptr,sort_by_param)){ param.add_after_target(p_ptr); }
+
+				p(j) += dx;
+				p_ptr = std::make_shared<Vector<double> >(p);
+				if(!param.find_sorted(p_ptr,sort_by_param)){ param.add_after_target(p_ptr); }
+			}
+		}
+
 		Vector<double> best_param;
 		double E_range;
+		sorted_list.set();
+		find_minima(max_n_minima,sorted_list,best_param,E_range);
+
+		sorted_list.set_target();
+		i=0;
+		while(sorted_list.target_next() && i++<max_n_minima){
+			p = sorted_list.get().get_param();
+			for(unsigned int j(0);j<m_->dof_;j++){
+				p(j) += dx;
+				p_ptr = std::make_shared<Vector<double> >(p);
+				if(!param.find_sorted(p_ptr,sort_by_param)){ param.add_after_target(p_ptr); }
+
+				p(j) -= 2*dx;
+				p_ptr = std::make_shared<Vector<double> >(p);
+				if(!param.find_sorted(p_ptr,sort_by_param)){ param.add_after_target(p_ptr); }
+
+				p(j) += dx;
+				p_ptr = std::make_shared<Vector<double> >(p);
+				if(!param.find_sorted(p_ptr,sort_by_param)){ param.add_after_target(p_ptr); }
+			}
+		}
+
+		std::cout<<"#######################"<<std::endl;
+		std::string msg("measures "+my::tostring(param.size())+" samples close to local minimas (max time "+my::tostring(m_->tmax_ * maxiter * param.size())+"s)");
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
+		msg = "compute "+my::tostring(nobs)+" observables for each samples";
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
+		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E="+my::tostring(dE));
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
+
+		param.set_target();
+		while(param.target_next()){ evaluate_until_precision(param.get(),dE,nobs,maxiter); }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl; }
+}
+
+void VMCMinimization::improve_bad_samples(double const& dE){
+	if(m_->samples_list_.size()){
+		unsigned int maxiter(10);
+		double E(666);
+		double tmp;
+		m_->samples_list_.set_target();
+		while(m_->samples_list_.target_next()){
+			tmp = m_->samples_list_.get().get_MCS()->get_energy().get_x();
+			if(tmp<E){ E=tmp; }
+		}
+		E *= 0.9;
+
+		List<MCSim> to_improve;
+		m_->samples_list_.set_target();
+		while(m_->samples_list_.target_next()){
+			if(m_->samples_list_.get().get_MCS()->get_energy().get_dx()>dE && m_->samples_list_.get().get_MCS()->get_energy().get_x()<E){
+				to_improve.add_end(m_->samples_list_.get_ptr());
+			}
+		}
+
+		std::cout<<"#######################"<<std::endl;
+		std::string msg("improve "+my::tostring(to_improve.size())+" samples (max time "+my::tostring(m_->tmax_ * maxiter * to_improve.size())+"s)");
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
+		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E="+my::tostring(dE));
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
+
+		to_improve.set_target();
+		while(to_improve.target_next()){ evaluate_until_precision(to_improve.get().get_param(),dE,0,maxiter); }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl; }
+}
+
+void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima, int const& nobs, double const& dE){
+	if(m_->samples_list_.size()){
+		unsigned int maxiter(10);
+		double E_range;
+		List<MCSim> list_min;
+		Vector<double> best_param;
 		find_minima(max_n_minima,list_min,best_param,E_range);
 
-		msg = "found "+my::tostring(list_min.size())+" local minima";
+		std::cout<<"#######################"<<std::endl;
+		std::string msg("compute "+my::tostring(nobs)+" observables for "+my::tostring(list_min.size())+" local minima (max time "+my::tostring(m_->tmax_ * maxiter)+"s)");
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
+		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E="+my::tostring(dE));
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
 		list_min.set_target();
-		while(list_min.target_next()){
-#pragma omp parallel
-			{ evaluate(list_min.get().get_param(),nobs); }
-			list_min.get().complete_analysis(1e-5);
-		}
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl;
-	}
+		while(list_min.target_next()){ evaluate_until_precision(list_min.get().get_param(),dE,nobs,maxiter); }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl; }
 }
 
 void VMCMinimization::print() const {
@@ -275,30 +349,34 @@ void VMCMinimization::print() const {
 /*{protected methods*/
 std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, int const& nobs){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
-	bool tmp_test;
+	List<MCSim>::Node* exists_sample(NULL);
 #pragma omp critical(samples_list_)
 	{
 		if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){
-			tmp_test = true;
 			sim->copy_S(m_->samples_list_.get().get_MCS());
-		} else {
-			tmp_test = false;
-			sim->create_S(m_->s_);
-		}
+			exists_sample = m_->samples_list_.get_target();
+		} else { sim->create_S(m_->s_); }
 		m_->samples_list_.set_target();
 	}
 	if(sim->is_created()){
 		sim->set_observables(m_->obs_,nobs);
-		sim->run(tmp_test?10:1e6,m_->tmax_);
+		sim->run(exists_sample?10:1e6,m_->tmax_);
 #pragma omp critical(samples_list_)
 		{
-			if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){
+			if(exists_sample){
+				m_->samples_list_.set_target(exists_sample);
 				m_->samples_list_.handle_twin(sim,MCSim::merge);
+				//sim = exists_sample->get();/*should be equivalent*/
 				sim = m_->samples_list_.get_ptr();
 			} else {
-				m_->samples_list_.add_after_target(sim);
+				/*search because the sample may have been created by another
+				 *thread*/
+				if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){
+					m_->samples_list_.handle_twin(sim,MCSim::merge);
+					sim = m_->samples_list_.get_ptr();
+				} else { m_->samples_list_.add_after_target(sim); }
+				m_->samples_list_.set_target();
 			}
-			m_->samples_list_.set_target();
 		}
 		sim->free_memory();
 		return sim;
@@ -306,6 +384,17 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, in
 		std::cerr<<__PRETTY_FUNCTION__<<" : not valid parameter : "<<param<<std::endl;
 		return NULL;
 	}
+}
+
+void VMCMinimization::evaluate_until_precision(Vector<double> const& param, double const& dE, int const& nobs, unsigned int const& maxiter){
+	std::shared_ptr<MCSim> sim(NULL);
+	unsigned int iter(0);
+	do {
+		if(sim.get()){ std::cout<<iter<<" iter "<<param<<" "<<sim->get_MCS()->get_energy()<<std::endl; }
+#pragma omp parallel
+		{ sim = evaluate(param,nobs); }
+	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || sim->get_MCS()->get_energy().get_dx()>dE ) );
+	if(sim.get()){ sim->complete_analysis(1e-5); }
 }
 /*}*/
 /*}*/
@@ -326,14 +415,12 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 		std::string msg_end(" ("+n_samples+" samples loaded in "+my::tostring(chrono.elapsed())+"s)");
 		info_.item(msg+msg_end);
 		std::cout<<msg_end<<std::endl;
-	} else {
-		create(P,path,basename);
-	}
+	} else { create(P,path,basename); }
 
 	if(P.find("tmax",i,false)){ tmax_ = P.get<unsigned int>("tmax"); }
 	else {
 		tmax_ = 1;
-		std::string msg("assume tmax=1s");
+		std::string msg("assume "+RST::math("t_{max} = "+my::tostring(tmax_)+"s"));
 		std::cout<<"#"+msg<<std::endl;
 		info_.item(msg);
 	}
@@ -424,9 +511,7 @@ void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 						vec[k]= Vector<double>(my::string2type<double>(v[0]), my::string2type<double>(v[2]), my::string2type<double>(v[1]));
 						size += vec[k].size();
 						k++;
-					} else {
-						std::cerr<<__PRETTY_FUNCTION__<<" : each range must be given this way [min:dx:max]"<<std::endl;
-					}
+					} else { std::cerr<<__PRETTY_FUNCTION__<<" : each range must be given this way [min:dx:max]"<<std::endl; }
 				}
 				ps_size_ *= size;
 				ps_[i].set(size);
@@ -445,12 +530,8 @@ void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 			info_.item(msg);
 			info_.nl();
 			info_.lineblock(PS);
-		} else {
-			std::cerr<<__PRETTY_FUNCTION__<<" : provide "<<dof_<<" ranges and remove any blank space and EOL at the EOF"<<std::endl;
-		}
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : need to provide a file containing the phase space"<<std::endl;
-	}
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : provide "<<dof_<<" ranges and remove any blank space and EOL at the EOF"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : need to provide a file containing the phase space"<<std::endl; }
 }
 
 VMCMinimization::Minimization::~Minimization(){

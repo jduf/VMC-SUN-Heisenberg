@@ -7,7 +7,7 @@
 /*!Class that contains all the necessary informations to sample the
  * configuration of a fermionic system.*/
 template<typename Type>
-class SystemFermionic : public MCSystem, public Fermionic<Type>{
+class SystemFermionic: public MCSystem, public Fermionic<Type>{
 	public:
 		/*!Constructor that creates an initial state*/
 		SystemFermionic(Fermionic<Type> const& S);
@@ -52,7 +52,7 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 		void write(IOFiles& w) const;
 
 	private:
-		/*!Autorize copy only via clone()*/
+		/*!Authorizes copy only via clone()*/
 		SystemFermionic(SystemFermionic<Type> const& S);
 
 		Matrix<unsigned int> row_;//!< row of the matrix A that is modified
@@ -62,7 +62,7 @@ class SystemFermionic : public MCSystem, public Fermionic<Type>{
 		unsigned int new_r_[2];	  //!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
 		unsigned int new_ev_[2];  //!< newly selected rows of the EVec matrix
 
-		/*!Returns true is Ainv_ matrices are invertibles*/
+		/*!Returns true if the Ainv_ matrices are invertible*/
 		bool are_invertible();
 };
 
@@ -180,10 +180,12 @@ SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
 			}
 		}
 	}
-	for(unsigned int c(0);c<N_;c++){
-		Lapack<Type>(Ainv_[c],false,'G').inv();
-		tmp_[c].set(M_(c),M_(c));
-	}
+	if(are_invertible()){
+		for(unsigned int c(0);c<N_;c++){
+			Lapack<Type>(Ainv_[c],false,'G').inv();
+			tmp_[c].set(M_(c),M_(c));
+		}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" very caca "<<std::endl; }
 }
 
 template<typename Type>
@@ -205,10 +207,12 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 			}
 		}
 	}
-	for(unsigned int c(0);c<N_;c++){
-		tmp_[c].set(M_(c),M_(c));
-		Lapack<Type>(Ainv_[c],false,'G').inv();
-	}
+	if(are_invertible()){
+		for(unsigned int c(0);c<N_;c++){
+			tmp_[c].set(M_(c),M_(c));
+			Lapack<Type>(Ainv_[c],false,'G').inv();
+		}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" very caca "<<std::endl; }
 }
 
 template<typename Type>

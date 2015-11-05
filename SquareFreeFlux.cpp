@@ -88,7 +88,7 @@ unsigned int SquareFreeFlux::match_pos_in_ab(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void SquareFreeFlux::lattice(){
+void SquareFreeFlux::display_results(){
 	compute_H();
 	std::string color("black");
 	std::string linestyle("solid");
@@ -193,6 +193,6 @@ void SquareFreeFlux::lattice(){
 }
 
 void SquareFreeFlux::check(){
-	lattice();
+	display_results();
 }
 /*}*/

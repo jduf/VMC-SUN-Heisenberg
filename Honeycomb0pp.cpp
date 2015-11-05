@@ -97,7 +97,7 @@ Matrix<double> Honeycomb0pp::set_ab(){
 /*}*/
 
 /*{method needed for checking*/
-void Honeycomb0pp::lattice(){
+void Honeycomb0pp::display_results(){
 	compute_H();
 	Matrix<double> e(2,2);
 	e(0,0) = 1.0/3.0;
@@ -294,7 +294,7 @@ void Honeycomb0pp::check(){
 	std::cout<<12<<" "<<get_site_in_ab(12)<<std::endl;
 	std::cout<<9<<" "<<get_site_in_ab(9)<<std::endl;
 	std::cout<<3<<" "<<get_site_in_ab(3)<<std::endl;
-	lattice();
+	display_results();
 }
 /*}*/
 

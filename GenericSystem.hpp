@@ -7,10 +7,11 @@
 #include "Fermionic.hpp"
 #include "IOSystem.hpp"
 #include "Rand.hpp"
+#include "Fit.hpp"
 
 /*!Abstract class that can produce any kind of system*/
 template<typename Type>
-class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSystem{
+class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSystem{
 	public:
 		/*{Description*/
 		/*!Constructor requiring the coordination number and the name of the
@@ -30,7 +31,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void save_param(IOFiles& w) const;
 		virtual void create() = 0;
 		virtual void check() = 0;
-		virtual void lattice() = 0;
+		virtual void display_results() = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
 		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
@@ -95,18 +96,23 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 				if(nb(j,1)!=0){ k++; }
 			}
 		}
-		this->obs_.push_back(Observable(k));
+		Matrix<int> tmp(k,3);
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
 			nb = get_neighbourg(i);
 			for(unsigned int j(0);j<l(i%l.size());j++){
 				if(nb(j,1)!=0){
-					this->obs_[0](k,0) = i;
-					this->obs_[0](k,1) = nb(j,0);
+					tmp(k,0) = i;
+					tmp(k,1) = nb(j,0);
+					/*!set tmp(k,2) to -1 so that when one wants to measure the
+					 * bond energy, one has to redefine the correct mapping
+					 * between all bonds and the representative ones*/
+					tmp(k,2) = -1;
 					k++;
 				}
 			}
 		}
+		this->obs_.push_back(Observable(tmp));
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link"; }
 	if(this->bc_==0){
 		std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl;

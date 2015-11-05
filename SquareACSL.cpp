@@ -61,7 +61,7 @@ unsigned int SquareACSL::match_pos_in_ab(Vector<double> const& x) const{
 /*}*/
 
 /*{method needed for checking*/
-void SquareACSL::lattice(){
+void SquareACSL::display_results(){
 	compute_H();
 	std::string color("black");
 	std::string linestyle("solid");
@@ -166,6 +166,6 @@ void SquareACSL::lattice(){
 }
 
 void SquareACSL::check(){
-	lattice();
+	display_results();
 }
 /*}*/
