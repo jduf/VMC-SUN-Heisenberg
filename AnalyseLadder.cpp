@@ -92,7 +92,7 @@ std::string AnalyseLadder::extract_level_8(){
 	delete read_;
 	read_ = NULL;
 
-	return tmp_filename;
+	return filename_;
 }
 
 /*compare wavefunction (different ref_)*/

@@ -56,6 +56,5 @@ class Observable{
 
 IOFiles& operator<<(IOFiles& w, Observable const& obs);
 IOFiles& operator>>(IOFiles& r, Observable& obs);
-IOFiles& operator>>(IOFiles& r, Observable& obs);
 std::ostream& operator<<(std::ostream& flux, Observable const& obs);
 #endif

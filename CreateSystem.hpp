@@ -44,6 +44,15 @@ class CreateSystem{
 		void create(bool const& try_solve_degeneracy=false);
 		/*}*/
 
+		/*{System calls*/
+		/*!Calls System::get_status() : see System.hpp*/
+		unsigned int get_status() const {
+			if(RGL_){ return RGL_->get_status(); }
+			if(CGL_){ return CGL_->get_status(); }
+			return 10;
+		}
+		/*}*/
+
 		/*{IOSystem calls*/
 		/*!The attributes of IOSystem will be copied to RGL_/CGL_*/
 		void set_IOSystem(IOSystem const* const ios){
@@ -56,13 +65,13 @@ class CreateSystem{
 			if(CGL_){ return CGL_->analyse(level); }
 			return "";
 		}
-		/*!Returns the filename (only usefull for mc) */
+		/*!Returns the filename*/
 		std::string get_filename() const {
 			if(RGL_){ return RGL_->get_filename(); }
 			if(CGL_){ return CGL_->get_filename(); }
 			return "";
 		}
-		/*!Returns the path (only usefull for mc) */
+		/*!Returns the path*/
 		std::string get_path() const {
 			if(RGL_){ return RGL_->get_path(); }
 			if(CGL_){ return CGL_->get_path(); }
@@ -80,11 +89,6 @@ class CreateSystem{
 			if(RGL_){ RGL_->save_input(w); }
 			if(CGL_){ CGL_->save_input(w); }
 		}
-		/*!Calls GenericSystem::check() pure virtual method*/
-		void check() const {
-			if(RGL_){ return RGL_->check(); }
-			if(CGL_){ return CGL_->check(); }
-		}
 		/*!Calls GenericSystem::set_observables(unsigned int const& which) pure virtual method*/
 		void set_observables(int const& nobs) const {
 			if(RGL_){ return RGL_->set_observables(nobs); }
@@ -95,24 +99,16 @@ class CreateSystem{
 			if(RGL_){ RGL_->get_wf_symmetries(sym); }
 			if(CGL_){ CGL_->get_wf_symmetries(sym); }
 		}
+		/*!Calls GenericSystem::check() pure virtual method*/
+		void check() const {
+			if(RGL_){ return RGL_->check(); }
+			if(CGL_){ return CGL_->check(); }
+		}
+		/*!Calls GenericSystem::display_results() pure virtual method*/
 		void display_results() const {
 			if(RGL_){ RGL_->display_results(); }
 			if(CGL_){ CGL_->display_results(); }
 		}
-		/*}*/
-
-		/*{System calls*/
-		/*!Calls System::get_status() : see System.hpp*/
-		unsigned int get_status() const {
-			if(RGL_){ return RGL_->get_status(); }
-			if(CGL_){ return CGL_->get_status(); }
-			return 10;
-		}
-		/*!Calls System::get_status() : see System.hpp*/
-		//void set(System* const s) const {
-			//if(RGL_){ s->set(RGL_); }
-			//if(CGL_){ s->set(CGL_); }
-		//}
 		/*}*/
 
 		/*{Simple value return*/

@@ -1113,8 +1113,6 @@ void LadderFree::lattice(){
 		}
 	}
 	ps.end(true,true,true);
-
-
 }
 
 void LadderFree::display_results(){
