@@ -33,7 +33,7 @@ void SquareACSL::compute_H(){
 			H_(i,nb(1,0)) = std::polar(t_(0)*nb(1,1),s*phi);
 		}
 	}
-	H_ += H_.trans_conj();
+	H_ += H_.conjugate_transpose();
 }
 
 void SquareACSL::create(){

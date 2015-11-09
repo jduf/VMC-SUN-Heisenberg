@@ -14,7 +14,7 @@ template<typename Type>
 class LadderFermi: public Ladder<Type>{
 	public:
 		LadderFermi(System const& s);
-		~LadderFermi(){}
+		~LadderFermi() = default;
 
 		void create();
 		void check();
@@ -30,7 +30,7 @@ class LadderFermi: public Ladder<Type>{
 template<typename Type>
 LadderFermi<Type>::LadderFermi(System const& s):
 	System(s),
-	Ladder<Type>(2,"ladder-fermi")
+	Ladder<Type>(2,"ladderfermi")
 {
 	if(this->status_==2){
 		this->init_fermionic();

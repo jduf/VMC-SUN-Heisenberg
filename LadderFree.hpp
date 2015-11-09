@@ -13,17 +13,16 @@ class LadderFree: public Ladder<double>{
 		void check();
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const;
 
-	protected:
+	private:
 		Vector<double> const t_;
 
 		void compute_H();
+		unsigned int set_spuc(Vector<double> const& t);
+
 		void display_results();
+		void plot(bool const& create_image);
+		void lattice();
 
 		std::string extract_level_6();
-
-	private:
-		unsigned int set_spuc(Vector<double> const& t);
-		void lattice();
-		void plot(bool const& create_image);
 };
 #endif

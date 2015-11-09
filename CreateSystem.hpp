@@ -6,6 +6,7 @@
 
 #include "LadderFermi.hpp"
 #include "LadderFree.hpp"
+#include "LadderFlux.hpp"
 
 #include "TriangleFermi.hpp"
 

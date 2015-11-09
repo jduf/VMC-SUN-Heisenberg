@@ -84,12 +84,12 @@ void VMCMinimization::refine(double const& E, double const& dE){
 			best.set_target();
 			while(best.target_next()){ evaluate_until_precision(best.get().get_param(),dE,-1,maxiter); }
 		} else {
-			if(N<700){ msg = "not enough data to be usefull, skip the evaluation"; }
-			else { msg = "too many data, would take too much time, skip the evaluation"; }
+			if(N<700){ msg = "not enough samples to be usefull, skip the evaluation"; }
+			else { msg = "too many samples, would take too much time, skip the evaluation"; }
 			std::cout<<"#"<<msg<<std::endl;
 			m_->info_.item(msg);
 		}
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
 void VMCMinimization::complete_analysis(double const& convergence_criterion){
@@ -202,7 +202,7 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_n_minima
 		}
 		gp.save_file();
 		gp.create_image(true,true);
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
 void VMCMinimization::explore_around_minima(unsigned int const& max_n_minima, int const& nobs, double const& dE, double const& dx){
@@ -281,7 +281,7 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_n_minima, in
 
 		param.set_target();
 		while(param.target_next()){ evaluate_until_precision(param.get(),dE,nobs,maxiter); }
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
 void VMCMinimization::improve_bad_samples(double const& dE){
@@ -314,7 +314,7 @@ void VMCMinimization::improve_bad_samples(double const& dE){
 
 		to_improve.set_target();
 		while(to_improve.target_next()){ evaluate_until_precision(to_improve.get().get_param(),dE,0,maxiter); }
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
 void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima, int const& nobs, double const& dE){
@@ -335,7 +335,7 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_n_minima, int 
 
 		list_min.set_target();
 		while(list_min.target_next()){ evaluate_until_precision(list_min.get().get_param(),dE,nobs,maxiter); }
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : there is no data"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
 void VMCMinimization::print() const {
@@ -390,11 +390,13 @@ void VMCMinimization::evaluate_until_precision(Vector<double> const& param, doub
 	std::shared_ptr<MCSim> sim(NULL);
 	unsigned int iter(0);
 	do {
-		if(sim.get()){ std::cout<<iter<<" iter "<<param<<" "<<sim->get_MCS()->get_energy()<<std::endl; }
 #pragma omp parallel
 		{ sim = evaluate(param,nobs); }
 	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || sim->get_MCS()->get_energy().get_dx()>dE ) );
-	if(sim.get()){ sim->complete_analysis(1e-5); }
+	if(sim.get()){ 
+		sim->complete_analysis(1e-5);
+		std::cout<<iter<<" : "<<param<<" E="<<sim->get_MCS()->get_energy()<<std::endl; 
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : failed"<<std::endl; }
 }
 /*}*/
 /*}*/

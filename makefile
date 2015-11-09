@@ -4,11 +4,25 @@ EXEC+=min
 EXEC+=study
 EXEC+=load
 
-mc_SRCS=    mc.cpp    MonteCarlo.cpp MCSystem.cpp Observable.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp Linux.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp
-min_SRCS=   min.cpp   MonteCarlo.cpp MCSystem.cpp Observable.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp Linux.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp MCSim.cpp VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp 
-check_SRCS= check.cpp MonteCarlo.cpp MCSystem.cpp Observable.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp Linux.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp MCSim.cpp
-study_SRCS= study.cpp MonteCarlo.cpp MCSystem.cpp Observable.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp Linux.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp Directory.cpp Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseMagnetization.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp MCSim.cpp VMCMinimization.cpp Interpolation.cpp
-load_SRCS=  load.cpp  MonteCarlo.cpp MCSystem.cpp Observable.cpp System.cpp IOSystem.cpp CreateSystem.cpp ChainFermi.cpp ChainPolymerized.cpp LadderFermi.cpp LadderFree.cpp SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp TriangleFermi.cpp Honeycomb0pp.cpp KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp Lapack.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp Linux.cpp RSTFile.cpp PSTricks.cpp Fit.cpp Gnuplot.cpp Directory.cpp Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseMagnetization.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp MCSim.cpp VMCMinimization.cpp Interpolation.cpp
+CHAIN=ChainFermi.cpp ChainPolymerized.cpp 
+LADDER=LadderFermi.cpp LadderFree.cpp LadderFlux.cpp 
+SQUARE=SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp 
+TRIANGLE=TriangleFermi.cpp
+HONEYCOMB=Honeycomb0pp.cpp
+KAGOME=KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp
+
+WF=$(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)
+MC=MonteCarlo.cpp MCSystem.cpp Observable.cpp System.cpp IOSystem.cpp CreateSystem.cpp MCSim.cpp
+MIN=VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp 
+ANALYSE=Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseMagnetization.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp VMCMinimization.cpp Interpolation.cpp Directory.cpp 
+IOFILES=Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
+OTHER=Lapack.cpp Parseur.cpp Fit.cpp
+
+mc_SRCS=    mc.cpp    $(MC) $(IOFILES) $(OTHER) $(WF) 
+min_SRCS=   min.cpp   $(MC) $(IOFILES) $(OTHER) $(WF) $(MIN)
+check_SRCS= check.cpp $(MC) $(IOFILES) $(OTHER) $(WF) 
+study_SRCS= study.cpp $(MC) $(IOFILES) $(OTHER) $(WF) $(MIN) $(ANALYSE)
+load_SRCS=  load.cpp  $(MC) $(IOFILES) $(OTHER) $(WF) 
 
 #-----------------------------------------------------------------
 

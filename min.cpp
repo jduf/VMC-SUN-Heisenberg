@@ -12,7 +12,7 @@ int main(int argc, char* argv[]){
 		switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
 			case 0:
 				{
-					VMCPSO m1(P,m);
+					VMCPSO m1(P,m,P.get<bool>("symmetry"));
 					VMCInterpolation m2(m);
 					unsigned int loop(P.get<unsigned int>("loop"));
 					if(!P.locked()){
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]){
 				}break;
 			case 5:
 				{
-					VMCPSO m1(P,m);
+					VMCPSO m1(P,m,P.get<bool>("symmetry"));
 					VMCInterpolation m2(m);
 				}break;
 			case 6:

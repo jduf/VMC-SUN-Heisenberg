@@ -37,7 +37,7 @@ void SquarePiFlux::compute_H(){
 	std::cerr<<__PRETTY_FUNCTION__<<" : new use of polar, check that it is correct"<<std::endl;
 	std::cerr<<__PRETTY_FUNCTION__<<" : modified the flux disposition..."<<std::endl;
 	std::cerr<<__PRETTY_FUNCTION__<<" : it seems that std::polar is not very stable for std::polar(1,-pi)=(0,1e-6)"<<std::endl;
-	H_ += H_.trans_conj();
+	H_ += H_.conjugate_transpose();
 }
 
 void SquarePiFlux::create(){

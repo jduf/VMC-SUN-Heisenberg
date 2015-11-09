@@ -54,7 +54,7 @@ void SquareFreeFlux::compute_H(){
 			default:{ std::cerr<<__PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
 		}
 	}
-	H_ += H_.trans_conj();
+	H_ += H_.conjugate_transpose();
 }
 
 void SquareFreeFlux::create(){

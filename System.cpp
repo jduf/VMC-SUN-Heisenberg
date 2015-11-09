@@ -30,9 +30,7 @@ System::System(IOFiles& r):
 	E_(r)
 {
 	int nobs_(r.read<int>());
-	for(int i(0);i<nobs_;i++){
-		obs_.push_back(Observable(r));
-	}
+	for(int i(0);i<nobs_;i++){ obs_.push_back(Observable(r)); }
 }
 /*}*/
 
@@ -157,6 +155,16 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 4;
+		std::vector<double> Jp(2);
+		double theta(P.get<double>("theta"));
+		Jp[0] = cos(theta); //legs  (J‖)
+		Jp[1] = sin(theta); //rungs (J⊥)
+		P.set("Jp",Jp);
+	}
+	if( wf == "ladderflux"){
+		ref(0) = 2;
+		ref(1) = 2;
+		ref(2) = 1;
 		std::vector<double> Jp(2);
 		double theta(P.get<double>("theta"));
 		Jp[0] = cos(theta); //legs  (J‖)

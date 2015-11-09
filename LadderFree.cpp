@@ -63,12 +63,10 @@ void LadderFree::create(){
 }
 
 void LadderFree::save_param(IOFiles& w) const {
-	std::string t_string("");
-	for(unsigned int i(0);i<t_.size()-1;i++){
-		t_string += my::tostring(t_(i))+",";
-	}
-	t_string += my::tostring(t_.back());
-	w.add_header()->title("t=("+t_string+")",'<');
+	std::string s("t=(");
+	for(unsigned int i(0);i<t_.size()-1;i++){ s += my::tostring(t_(i))+","; }
+	s += my::tostring(t_.back())+")";
+	w.add_header()->title(s,'<');
 	w<<t_;
 	GenericSystem<double>::save_param(w);
 }
@@ -1122,9 +1120,9 @@ void LadderFree::display_results(){
 		std::string relative_path(analyse_+path_+dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-		std::string title("t=(");
+		std::string title(RST::math("\\theta=")+my::tostring(acos(this->J_(0))) + " : t=(");
 		for(unsigned int i(0);i<t_.size()-1;i++){ title += my::tostring(t_(i)) + ","; }
-		title = RST::math("\\theta=")+my::tostring(acos(this->J_(0))) + " : " + title + my::tostring(t_.back()) + ")";
+		title += my::tostring(t_.back()) + ")";
 		if(dir_ == "P/" || dir_ == "O/" || dir_ == "A/"){
 			rst_file_->title("|theta"+my::tostring(acos(this->J_(0)))+"|_",'-');
 			rst_file_->replace("theta"+my::tostring(acos(this->J_(0))),title);

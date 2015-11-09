@@ -65,7 +65,7 @@ void KagomeVBC::compute_H(){
 //
 		//}
 	//}
-	H_ += H_.trans_conj();
+	H_ += H_.conjugate_transpose();
 }
 
 void KagomeVBC::create(){

@@ -71,6 +71,22 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 0: { CGL_ = new LadderFermi<std::complex<double> >(*s_); }break;
+								case 1: { 
+											Vector<double> t;
+											Vector<double> flux;
+											if(param){
+												unsigned int l((3*param->size()-1)/4);
+												t.set(l);
+												flux.set(param->size()-l);
+												for(unsigned int i(0);i<l;i++){ t(i) = (*param)(i); }
+												for(unsigned int i(0);i<param->size()-l;i++){ flux(i) = (*param)(l+i); }
+											}
+											if(C){
+												t = C->get<std::vector<double> >("t"); 
+												flux = C->get<std::vector<double> >("flux"); 
+											}
+											CGL_ = new LadderFlux(*s_,t,flux); 
+										}break;
 								default:{ error(); }break;
 							}
 						}break;

@@ -1,24 +1,26 @@
 #include "VMCPSO.hpp"
 
-VMCPSO::VMCPSO(Parseur const& P, VMCMinimization const& vmcm):
+VMCPSO::VMCPSO(Parseur const& P, VMCMinimization const& vmcm, bool set_symmetry):
 	VMCMinimization(vmcm,"PSO"),
 	Swarm<MCParticle>(P.get<unsigned int>("Nparticles"),P.get<unsigned int>("maxiter"),m_->dof_,P.get<double>("cg"),P.get<double>("cp"))
 {
 	for(unsigned int i(0);i<m_->dof_;i++){
 		Particle::set_limit(i,0,m_->ps_[i].size());
 	}
-	Vector<double> tmp(m_->dof_);
-	CreateSystem cs(m_->s_);
-	cs.init(&tmp,NULL);
-	std::vector<Matrix<int> > sym;
-	cs.get_wf_symmetries(sym);
-	for(unsigned int i(0);i<Nparticles_;i++){
-		std::shared_ptr<MCParticle> MCP;
-		MCP = std::dynamic_pointer_cast<MCParticle>(particle_[i]);
-		MCP->set_symmetry(sym[i%sym.size()]);
-	}
-	if(Nparticles_<sym.size()){
-		std::cerr<<__PRETTY_FUNCTION__<<" : not enough particles with respect to the number of symmetries : "<<sym.size()<<std::endl;
+	if(set_symmetry){
+		Vector<double> tmp(m_->dof_);
+		std::vector<Matrix<int> > sym;
+		CreateSystem cs(m_->s_);
+		cs.init(&tmp,NULL);
+		cs.get_wf_symmetries(sym);
+		for(unsigned int i(0);i<Nparticles_;i++){
+			std::shared_ptr<MCParticle> MCP;
+			MCP = std::dynamic_pointer_cast<MCParticle>(particle_[i]);
+			MCP->set_symmetry(sym[i%sym.size()]);
+		}
+		if(Nparticles_<sym.size()){
+			std::cerr<<__PRETTY_FUNCTION__<<" : not enough particles with respect to the number of symmetries : "<<sym.size()<<std::endl;
+		}
 	}
 }
 
