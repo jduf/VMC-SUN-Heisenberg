@@ -444,7 +444,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	cs.init(&tmp,NULL);
 	cs.set_observables(-1);
 	obs_ = cs.get_GS()->get_obs();
-	s_->set_observables(obs_,0);
+	//s_->set_observables(obs_,0);
 
 	std::string msg("no samples loaded");
 	std::cout<<"#"+msg<<std::endl;

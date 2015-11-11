@@ -1,23 +1,24 @@
-#ifndef DEF_LADDERFLUX
-#define DEF_LADDERFLUX
+#ifndef DEF_LADDERFREEFLUX
+#define DEF_LADDERFREEFLUX
 
 #include "Ladder.hpp"
 
 /*{Description*/
 /*!Creates a ladder with uniform hopping parameter
  *
- *  => Flux Ladder<=
+ *  => FreeFlux Ladder<=
  *
  * */
 /*}*/
-class LadderFlux: public Ladder<std::complex<double> >{
+class LadderFreeFlux: public Ladder<std::complex<double> >{
 	public:
-		LadderFlux(System const& s, Vector<double> const& t, Vector<double> const& flux);
-		~LadderFlux() = default;
+		LadderFreeFlux(System const& s, Vector<double> const& t, Vector<double> const& flux);
+		~LadderFreeFlux() = default;
 
 		void create();
 		void save_param(IOFiles& w) const;
 		void check();
+		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const;
 
 	private:
 		Vector<double> t_;

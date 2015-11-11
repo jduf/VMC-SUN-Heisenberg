@@ -129,7 +129,7 @@ void System::save_output(IOFiles& w) const {
 Vector<unsigned int> System::set_ref(Parseur& P){
 	std::string const& wf(P.get<std::string>("wf"));
 	Vector<unsigned int> ref(3,6);
-	if( wf == "chainfermi" ){
+	if( wf == "chain-fermi" ){
 		ref(0) = 1;
 		ref(1) = 1;
 		ref(2) = 0;
@@ -137,7 +137,7 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		std::vector<double> Jp(1,1);
 		P.set("Jp",Jp);
 	}
-	if( wf == "chainpolymerized" ){
+	if( wf == "chain-polymerized" ){
 		ref(0) = 1;
 		ref(1) = 1;
 		ref(2) = 1;
@@ -146,12 +146,12 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		P.set("Jp",Jp);
 	}
 
-	if( wf == "ladderfermi"){
+	if( wf == "ladder-fermi"){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "ladderfree"){
+	if( wf == "ladder-free"){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 4;
@@ -161,7 +161,7 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		Jp[1] = sin(theta); //rungs (J⊥)
 		P.set("Jp",Jp);
 	}
-	if( wf == "ladderflux"){
+	if( wf == "ladder-freeflux"){
 		ref(0) = 2;
 		ref(1) = 2;
 		ref(2) = 1;
@@ -172,96 +172,96 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		P.set("Jp",Jp);
 	}
 
-	if( wf == "trianglefermi" ){
+	if( wf == "triangle-fermi" ){
 		ref(0) = 3;
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "trianglemu" ){
+	if( wf == "triangle-mu" ){
 		ref(0) = 3;
 		ref(1) = 1;
 		ref(2) = 1;
 	}
-	if( wf == "trianglephi" ){
+	if( wf == "triangle-phi" ){
 		ref(0) = 3;
 		ref(1) = 2;
 		ref(2) = 2;
 	}
-	if( wf == "trianglejastrow" ){
+	if( wf == "triangle-jastrow" ){
 		ref(0) = 3;
 		ref(1) = 0;
 	}
 
-	if( wf == "squarefermi" ){
+	if( wf == "square-fermi" ){
 		ref(0) = 4;
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "squaremu" ){
+	if( wf == "square-mu" ){
 		ref(0) = 4;
 		ref(1) = 1;
 		ref(2) = 1;
 	}
-	//if( wf == "squarefreereal" ){
+	//if( wf == "square-freereal" ){
 	//ref(0) = 4;
 	//ref(1) = 1;
 	//ref(2) = 3;
 	//C_.set("t",param?param->range(0,3):C->get<std::vector<double> >("t"));
 	//C_.set("mu",param?param->range(3,5):C->get<std::vector<double> >("mu"));
 	//}
-	if( wf == "squareacsl" ){
+	if( wf == "squarea-csl" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 3;
 		std::vector<double> Jp(1,1);
 		P.set("Jp",Jp);
 	}
-	if( wf == "squarefreecomplex" ){
+	if( wf == "square-freecomplex" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 4;
 		std::vector<double> Jp(1,1);
 		P.set("Jp",Jp);
 	}
-	if( wf == "squarepiflux" ){
+	if( wf == "square-piflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 2;
 		std::vector<double> Jp(1,1);
 		P.set("Jp",Jp);
 	}
-	if( wf == "squarephi" ){
+	if( wf == "square-phi" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 3;
 	}
-	if( wf == "squarejastrow" ){
+	if( wf == "square-jastrow" ){
 		ref(0) = 4;
 		ref(1) = 0;
 	}
 
-	if( wf == "kagomefermi" ){
+	if( wf == "kagome-fermi" ){
 		ref(0) = 5;
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "kagomedirac" ){
+	if( wf == "kagome-dirac" ){
 		ref(0) = 5;
 		ref(1) = 1;
 		ref(2) = 1;
 	}
-	if( wf == "kagomevbc" ){
+	if( wf == "kagome-vbc" ){
 		ref(0) = 5;
 		ref(1) = 2;
 		ref(2) = 2;
 	}
 
-	if( wf == "honeycomb0pp" ){
+	if( wf == "honeycomb-0pp" ){
 		ref(0) = 6;
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "honeycombsu4" ){
+	if( wf == "honeycomb-su4" ){
 		ref(0) = 6;
 		ref(1) = 1;
 		ref(2) = 0;

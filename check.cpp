@@ -147,6 +147,7 @@ int main(int argc, char* argv[]){
 		case 7:/*check symmetries*/
 			{
 				Vector<double> t_ref(P.get<std::vector<double> >("t"));
+				Vector<double> flux_ref(P.get<std::vector<double> >("flux"));
 				cs.init(NULL,&P);
 				std::vector<Matrix<int> > all_sym;
 				cs.get_wf_symmetries(all_sym);
@@ -154,11 +155,8 @@ int main(int argc, char* argv[]){
 					Vector<double> t(t_ref);
 					Matrix<int> sym(all_sym[j]);
 					for(unsigned int i(0);i<sym.row();i++){
-						if(sym(i,1)<0){
-							t(sym(i,0)) = sym(i,2)*0.1;
-						} else {
-							t(sym(i,0)) = sym(i,2)*t(sym(i,1));
-						}
+						if(sym(i,1)<0){ t(sym(i,0)) = sym(i,2)*0.1; }
+						else { t(sym(i,0)) = sym(i,2)*t(sym(i,1)); }
 					}
 					std::cout<<"sim["<<j<<"]"<<" "<<i<<" -> "<<t<<std::endl;
 				}

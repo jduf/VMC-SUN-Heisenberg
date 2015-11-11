@@ -6,7 +6,7 @@
 
 #include "LadderFermi.hpp"
 #include "LadderFree.hpp"
-#include "LadderFlux.hpp"
+#include "LadderFreeFlux.hpp"
 
 #include "TriangleFermi.hpp"
 
@@ -22,6 +22,7 @@
 #include "KagomeVBC.hpp"
 
 #include "Honeycomb0pp.hpp"
+#include "HoneycombSU4.hpp"
 
 class CreateSystem{
 	public:

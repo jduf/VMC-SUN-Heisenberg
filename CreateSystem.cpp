@@ -85,7 +85,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 												t = C->get<std::vector<double> >("t"); 
 												flux = C->get<std::vector<double> >("flux"); 
 											}
-											CGL_ = new LadderFlux(*s_,t,flux); 
+											CGL_ = new LadderFreeFlux(*s_,t,flux); 
 										}break;
 								default:{ error(); }break;
 							}
@@ -169,6 +169,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 1:
 						{
 							switch(ref_(2)){
+								case 0: { RGL_ = new KagomeFermi<double>(*s_); }break;
 								case 1: { RGL_ = new KagomeDirac<double>(*s_); }break;
 								default:{ error(); }break;
 							}
@@ -176,8 +177,8 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 2:
 						{
 							switch(ref_(2)){
-								case 1: {CGL_ = new KagomeDirac<std::complex<double> >(*s_); }break;
-								case 2: {CGL_ = new KagomeVBC(*s_); }break;
+								case 1: { CGL_ = new KagomeDirac<std::complex<double> >(*s_); }break;
+								case 2: { CGL_ = new KagomeVBC(*s_); }break;
 								default:{ error(); }break;
 							}
 						}break;
@@ -197,7 +198,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C)    { t = C->get<double>("td"); }
 										if(param || C){ RGL_ = new Honeycomb0pp(*s_,t); }
 									}break;
-									////case 1:{ return HoneycombSU4(N,n,m); }break;
+									case 1:{ RGL_ = new HoneycombSU4(*s_); }break;
 								default:{ error(); }break;
 							}
 						}break;

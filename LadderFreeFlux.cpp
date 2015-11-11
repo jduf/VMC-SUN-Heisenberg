@@ -1,23 +1,28 @@
-#include"LadderFlux.hpp"
+#include"LadderFreeFlux.hpp"
 
-LadderFlux::LadderFlux(System const& s, Vector<double> const& t, Vector<double> const& flux):
+LadderFreeFlux::LadderFreeFlux(System const& s, Vector<double> const& t, Vector<double> const& flux):
 	System(s),
-	Ladder<std::complex<double> >(set_spuc(t,flux),"ladderflux"),
+	Ladder<std::complex<double> >(set_spuc(t,flux),"ladder-freeflux"),
 	t_(t),
 	flux_(flux)
 {
 	if(status_==2){
 		init_fermionic();
-		system_info_.text("LadderFlux : flux per plaquette");
+		system_info_.item("arbitrary hopping term");
+		system_info_.item("arbitrary flux per plaquette ");
 		filename_ += "-t";
-		for(unsigned int j(0);j<t_.size();j++){
-			filename_ += ((t_(j)>0)?"+":"")+my::tostring(t_(j));
+		for(unsigned int i(0);i<t_.size();i++){
+			filename_ += ((t_(i)>0)?"+":"")+my::tostring(t_(i));
+		}
+		filename_ += "-phi";
+		for(unsigned int i(0);i<flux_.size()-1;i++){
+			filename_ += ((flux_(i)>0)?"+":"")+my::tostring(flux_(i)); 
 		}
 	}
 }
 
 /*{method needed for running*/
-void LadderFlux::compute_H(){
+void LadderFreeFlux::compute_H(){
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
 	unsigned int k(0);
@@ -27,7 +32,7 @@ void LadderFlux::compute_H(){
 		nb = get_neighbourg(i);
 		if(i%spuc_){
 			if(i%2){
-				H_(i,nb(0,0)) = my::chop(std::polar(nb(0,1)*t_(k++),flux_(f++)));
+				H_(i,nb(0,0)) = my::chop(std::polar(nb(0,1)*t_(k++),flux_(f++)*M_PI));
 			} else {
 				H_(i,nb(0,0)) = nb(0,1)*t_(k++);
 				H_(i,nb(1,0)) = nb(1,1)*t_(k++);
@@ -50,7 +55,7 @@ void LadderFlux::compute_H(){
 	H_ += H_.conjugate_transpose();
 }
 
-void LadderFlux::create(){
+void LadderFreeFlux::create(){
 	compute_H();
 	diagonalize(true);
 
@@ -65,7 +70,7 @@ void LadderFlux::create(){
 	}
 }
 
-void LadderFlux::save_param(IOFiles& w) const {
+void LadderFreeFlux::save_param(IOFiles& w) const {
 	Vector<double> param(t_.size()+flux_.size());
 	std::string s("t=(");
 	for(unsigned int i(0);i<t_.size()-1;i++){ 
@@ -85,7 +90,7 @@ void LadderFlux::save_param(IOFiles& w) const {
 	GenericSystem<std::complex<double> >::save_param(w);
 }
 
-unsigned int LadderFlux::set_spuc(Vector<double> const& t, Vector<double> const& flux){
+unsigned int LadderFreeFlux::set_spuc(Vector<double> const& t, Vector<double> const& flux){
 	if((t.size()+1)%flux.size()){
 		std::cerr<<__PRETTY_FUNCTION__<<" : incoherent t and flux sizes : "<<t.size()<<" "<<flux.size()<<std::endl;
 		return 1;
@@ -102,16 +107,159 @@ unsigned int LadderFlux::set_spuc(Vector<double> const& t, Vector<double> const&
 		}
 	}
 }
+
+void LadderFreeFlux::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
+	int A(J_(0)>J_(1)?0:-1); //link between sites 0-1 (rung)
+	int B(J_(0)>J_(1)?-1:0); //link between sites 0-2 (leg)
+	switch(spuc_){
+		case 8:
+			{
+				Matrix<int> tmp;
+				/*{no symmetry breaking*/
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{facing tetramerization*/
+				tmp.set(7,3);
+				tmp(0,0) = 1;
+				tmp(0,1) = B;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 4;
+				tmp(1,1) = 2;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 5;
+				tmp(2,1) = B;
+				tmp(2,2) = 1;
+
+				tmp(3,0) = 6;
+				tmp(3,1) = 3;
+				tmp(3,2) = 1;
+
+				tmp(4,0) = 7;
+				tmp(4,1) = B;
+				tmp(4,2) = 1;
+
+				tmp(5,0) = 9;
+				tmp(5,1) = A;
+				tmp(5,2) = 1;
+
+				tmp(6,0) = 10;
+				tmp(6,1) = 8;
+				tmp(6,2) = 1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{shifted by one tetramerization*/
+				tmp.set(6,3);
+				tmp(0,0) = 1;
+				tmp(0,1) = 2;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 4;
+				tmp(1,1) = 5;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 7;
+				tmp(2,1) = 2;
+				tmp(2,2) = 1;
+
+				tmp(3,0) = 8;
+				tmp(3,1) = 2;
+				tmp(3,2) = 1;
+
+				tmp(4,0) = 9;
+				tmp(4,1) = 3;
+				tmp(4,2) = 1;
+
+				tmp(5,0) = 10;
+				tmp(5,1) = B;
+				tmp(5,2) = 1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{shifted by two tetramerization*/
+				tmp.set(8,3);
+				tmp(0,0) = 1;
+				tmp(0,1) = B;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 3;
+				tmp(1,1) = A;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 4;
+				tmp(2,1) = 8;
+				tmp(2,2) = 1;
+
+				tmp(3,0) = 5;
+				tmp(3,1) = B;
+				tmp(3,2) = 1;
+
+				tmp(4,0) = 6;
+				tmp(4,1) = A;
+				tmp(4,2) = 1;
+
+				tmp(5,0) = 7;
+				tmp(5,1) = B;
+				tmp(5,2) = 1;
+
+				tmp(6,0) = 9;
+				tmp(6,1) = A;
+				tmp(6,2) = 1;
+
+				tmp(7,0) = 10;
+				tmp(7,1) = 2;
+				tmp(7,2) = 1;
+				sym.push_back(tmp);
+				/*}*/
+
+				/*{double dimerization*/
+				tmp.set(7,3);
+				tmp(0,0) = 1;
+				tmp(0,1) = B;
+				tmp(0,2) = 1;
+
+				tmp(1,0) = 2;
+				tmp(1,1) = B;
+				tmp(1,2) = 1;
+
+				tmp(2,0) = 4;
+				tmp(2,1) = B;
+				tmp(2,2) = 1;
+
+				tmp(3,0) = 6;
+				tmp(3,1) = A;
+				tmp(3,2) = 1;
+
+				tmp(4,0) = 7;
+				tmp(4,1) = 5;
+				tmp(4,2) = 1;
+
+				tmp(5,0) = 8;
+				tmp(5,1) = 5;
+				tmp(5,2) = 1;
+
+				tmp(6,0) = 10;
+				tmp(6,1) = 5;
+				tmp(6,2) = 1;
+				sym.push_back(tmp);
+				/*}*/
+			}break;
+		default:{ std::cerr<<__PRETTY_FUNCTION__<<"unknown spuc_"<<std::endl; }
+	}
+}
 /*}*/
 
 /*{method needed for checking*/
-void LadderFlux::check(){
+void LadderFreeFlux::check(){
 	compute_H();
 	plot_band_structure();
 	//display_results();
 }
 
-void LadderFlux::plot(bool const& create_image){
+void LadderFreeFlux::plot(bool const& create_image){
 	if(obs_.size()>3){
 		/*!long range correlations*/
 		/*{*/
@@ -240,7 +388,7 @@ void LadderFlux::plot(bool const& create_image){
 	}
 }
 
-void LadderFlux::lattice(){
+void LadderFreeFlux::lattice(){
 	compute_H();
 	std::string color("black");
 	std::string linestyle("solid");
@@ -337,7 +485,7 @@ void LadderFlux::lattice(){
 	ps.end(true,true,true);
 }
 
-void LadderFlux::display_results(){
+void LadderFreeFlux::display_results(){
 	lattice();
 	plot(true);
 	if(rst_file_){
@@ -361,7 +509,7 @@ void LadderFlux::display_results(){
 /*}*/
 
 /*{method needed for analysing*/
-std::string LadderFlux::extract_level_6(){
+std::string LadderFreeFlux::extract_level_6(){
 	(*data_write_)<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<asin(J_(1))<<" "<<E_<<IOFiles::endl;
 
 	display_results();

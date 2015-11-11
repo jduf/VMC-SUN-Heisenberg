@@ -12,9 +12,10 @@ class SquareFreeFlux: public Square<std::complex<double> >{
 		void check();
 
 	protected:
+		Vector<double> const phi_;
+
 		void compute_H();
 		void display_results();
-		Vector<double> const phi_;
 
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 };

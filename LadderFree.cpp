@@ -2,15 +2,15 @@
 
 LadderFree::LadderFree(System const& s, Vector<double> const& t):
 	System(s),
-	Ladder<double>(set_spuc(t),"ladderfree"),
+	Ladder<double>(set_spuc(t),"ladder-free"),
 	t_(t)
 {
 	if(status_==2 && t_.ptr()){
 		init_fermionic();
 		system_info_.text("LadderFree : all colors experience the same Hamiltonian");
 		filename_ += "-t";
-		for(unsigned int j(0);j<t_.size();j++){
-			filename_ += ((t_(j)>0)?"+":"")+my::tostring(t_(j));
+		for(unsigned int i(0);i<t_.size();i++){
+			filename_ += ((t_(i)>0)?"+":"")+my::tostring(t_(i));
 		}
 	}
 }

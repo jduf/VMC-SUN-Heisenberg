@@ -48,7 +48,10 @@ int main(int argc, char* argv[]){
 				}break;
 			case 2:
 				{
-					m.set_tmax(20);
+					m.refine();
+					m.save();
+
+					m.set_tmax(30);
 					m.find_and_run_minima(10,-1,1e-4);
 					m.save();
 				}break;
@@ -71,11 +74,9 @@ int main(int argc, char* argv[]){
 				}break;
 			case 6:
 				{
-					//m.explore_around_minima(10,-1,1e-4,0.05);
-					//m.save();
-
-					m.set_tmax(5);
-					m.improve_bad_samples(0.01);
+					/*one hour :  30sec * 10 min * 10 iter*/
+					m.set_tmax(30);
+					m.find_and_run_minima(10,-1,1e-4);
 					m.save();
 				}break;
 			default:

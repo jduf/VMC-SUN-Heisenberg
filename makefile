@@ -5,10 +5,10 @@ EXEC+=study
 EXEC+=load
 
 CHAIN=ChainFermi.cpp ChainPolymerized.cpp 
-LADDER=LadderFermi.cpp LadderFree.cpp LadderFlux.cpp 
+LADDER=LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp 
 SQUARE=SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp 
 TRIANGLE=TriangleFermi.cpp
-HONEYCOMB=Honeycomb0pp.cpp
+HONEYCOMB=Honeycomb0pp.cpp HoneycombSU4.cpp
 KAGOME=KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp
 
 WF=$(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)

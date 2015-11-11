@@ -17,11 +17,12 @@ class Honeycomb0pp: public Honeycomb<double>{
 
 		void compute_H();
 		void display_results();
-		std::string extract_level_7();
-		std::string extract_level_6();
 
 		Matrix<double> set_ab();
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
+
+		std::string extract_level_7();
+		std::string extract_level_6();
 };
 #endif
 

@@ -57,7 +57,7 @@ void SquareFermi<Type>::display_results(){
 	ps.begin(-9,-10,16,10,this->filename_);
 	unsigned int s0;
 	unsigned int s1;
-	double t;
+	Type t;
 	for(unsigned int i(0);i<this->n_;i++) {
 		s0 = this->obs_[0](i,0);
 		xy0 = this->get_pos_in_lattice(s0);
@@ -87,7 +87,7 @@ void SquareFermi<Type>::display_results(){
 		if(i%2){ ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 
 		if(std::abs(t)>1e-4){
-			if(t<0){ color = "red"; }
+			if(my::real(t)<0){ color = "red"; }
 			else { color = "blue"; }
 
 			xy0 = xy0.chop();
