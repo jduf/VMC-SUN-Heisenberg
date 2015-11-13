@@ -1,65 +1,77 @@
-EXEC+=mc
-EXEC+=check
-EXEC+=min
-EXEC+=study
-EXEC+=load
+MACHINE=$(shell uname -n)_
+ifeq ($(MACHINE),ctmcpc33_)
+	MACHINE=
+	EXEC = min
+	EXEC+= mc
+	EXEC+= load
+	EXEC+= check
+	POSTPROCESS= cp $(EXEC) ../sim;
+	EXEC+= study
+	POSTPROCESS+= cp study ..
 
-CHAIN=ChainFermi.cpp ChainPolymerized.cpp 
-LADDER=LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp 
-SQUARE=SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp 
-TRIANGLE=TriangleFermi.cpp
-HONEYCOMB=Honeycomb0pp.cpp HoneycombSU4.cpp
-KAGOME=KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp
+	CXX = g++ -std=c++11
+	LAPACK = -llapack -lblas
+	ERRORS = -Wall -Wextra -pedantic
+	OPTION = -fopenmp
+else
+	EXEC = $(MACHINE)min
+	EXEC+= $(MACHINE)mc
+	POSTPROCESS= cp $(EXEC) ../sim
 
-WF=$(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)
-MC=MonteCarlo.cpp MCSystem.cpp Observable.cpp System.cpp IOSystem.cpp CreateSystem.cpp MCSim.cpp
-MIN=VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp 
-ANALYSE=Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseMagnetization.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp VMCMinimization.cpp Interpolation.cpp Directory.cpp 
-IOFILES=Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
-OTHER=Lapack.cpp Parseur.cpp Fit.cpp
+	#CXX = icpc -std=c++11
+	#LAPACK = -Wl,--no-as-needed -L${MKL_ROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
+	#ERRORS = -Wall -Wextra -pedantic
+	#OPTION = -openmp -mkl
 
-mc_SRCS=    mc.cpp    $(MC) $(IOFILES) $(OTHER) $(WF) 
-min_SRCS=   min.cpp   $(MC) $(IOFILES) $(OTHER) $(WF) $(MIN)
-check_SRCS= check.cpp $(MC) $(IOFILES) $(OTHER) $(WF) 
-study_SRCS= study.cpp $(MC) $(IOFILES) $(OTHER) $(WF) $(MIN) $(ANALYSE)
-load_SRCS=  load.cpp  $(MC) $(IOFILES) $(OTHER) $(WF) 
+	CXX = g++ -std=c++11
+	LAPACK = -L $(LIBLAPACK_DIR) -llapack -lgfortran -lblas
+	ERRORS = -Wall -Wextra -pedantic
+	OPTION = -fopenmp
+endif
+
+CHAIN     = ChainFermi.cpp ChainPolymerized.cpp
+LADDER    = LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp
+SQUARE    = SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp
+TRIANGLE  = TriangleFermi.cpp
+HONEYCOMB = Honeycomb0pp.cpp HoneycombSU4.cpp
+KAGOME    = KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp
+
+WF         = $(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)
+MONTECARLO = MonteCarlo.cpp MCSystem.cpp Observable.cpp System.cpp IOSystem.cpp CreateSystem.cpp MCSim.cpp
+VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp
+ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseMagnetization.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp VMCMinimization.cpp Interpolation.cpp Directory.cpp
+IOFILES    = Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
+OTHER      = Lapack.cpp Parseur.cpp Fit.cpp
+
+$(MACHINE)mc_SRCS    = mc.cpp    $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
+$(MACHINE)min_SRCS   = min.cpp   $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN)
+$(MACHINE)check_SRCS = check.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
+$(MACHINE)study_SRCS = study.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN) $(ANALYSE)
+$(MACHINE)load_SRCS  = load.cpp  $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 
 #-----------------------------------------------------------------
 
-CXX = g++ -std=c++11
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION) $(LAPACK) libcminpack.a
 
-ERRORS = -Wall -Wextra -pedantic
-LAPACK = -llapack -lblas
-OPTION = -fopenmp
-FIT = /home/jdufour/travail/cpp-dev/fit/
+$(EXEC)_SRCS=$(EXEC_SRCS)
 
 BUILD=build
-
-CXXFLAGS = -I$(FIT) $(ERRORS) $(OPTION)
-LDFLAGS  = $(FIT)libcminpack.a $(LAPACK) $(ERRORS) $(OPTION)
 
 SRCS=$(wildcard *.cpp)
 
 all: OPTION += -O3 -DNDEBUG
 all:$(EXEC)
-	cp mc ../sim
-	cp check ../sim
-	cp min ../sim
-	cp load ../sim
-	cp study ..
+	$(POSTPROCESS)
 
-debug: OPTION += -ggdb 
+debug: OPTION += -ggdb
 debug:$(EXEC)
-	cp mc ../sim
-	cp check ../sim
-	cp min ../sim
-	cp load ../sim
-	cp study ..
+	$(POSTPROCESS)
 
 .SECONDEXPANSION:
-$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS))
 	@echo Links $(notdir $^)
-	$(CXX) -o $@ $^ $(LDFLAGS) 
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 $(BUILD)/%.o:%.cpp
 	@echo Creates $(notdir $@)

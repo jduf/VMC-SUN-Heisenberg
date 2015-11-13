@@ -28,7 +28,7 @@ class SystemBosonic: public MCSystem, public Bosonic<Type>{
 		 *   to conserve the Marshall-Peierls sign rule
 		 * - when two different colors are exchanged, computes the ratio
 		 }*/
-		double ratio(bool const& squared);
+		double ratio();
 
 		/*!Returns a copy of this instance*/
 		std::unique_ptr<MCSystem> clone() const;
@@ -95,7 +95,7 @@ void SystemBosonic<Type>::free_memory(){
 /*methods that return something related to the class*/
 /*{*/
 template<typename Type>
-double SystemBosonic<Type>::ratio(bool const& squared){
+double SystemBosonic<Type>::ratio(){
 	if(new_c_[0] == new_c_[1]){
 		/*!the minus sign is required because two particles are exchanged
 		 *(Marshall-Peirels sign rule)*/
@@ -130,7 +130,7 @@ double SystemBosonic<Type>::ratio(bool const& squared){
 				jastrow -= this->nu_(i, this->cc_(new_c_[0], new_c_[1]))/2.0;
 			}
 		}
-		return squared?my::norm_squared(exp(jastrow)*omegab_a):my::real(exp(jastrow)*omegab_a);
+		return my::real(exp(jastrow)*omegab_a);
 	}
 }
 /*}*/

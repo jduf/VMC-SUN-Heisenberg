@@ -15,7 +15,7 @@ void MonteCarlo::thermalize(unsigned int const& thermalization_steps){
 	if(!S_->get_status()){
 		for(unsigned int i(0);i<thermalization_steps;i++){
 			S_->swap();
-			ratio_ = S_->ratio(true);
+			ratio_ = my::norm_squared(S_->ratio());
 			if( ratio_ > 1.0 || ratio_ > rnd_.get() ){ S_->update(); }
 		}
 		S_->measure_new_step();
@@ -29,13 +29,34 @@ void MonteCarlo::run(){
 		while(keepon());
 	}
 }
+
+void MonteCarlo::run(unsigned int const& maxiter){
+	time_.set();
+	if(!S_->get_status()){
+		Time chrono;
+		unsigned int iter(0);
+		unsigned int measures(0);
+		do{
+			S_->swap();
+			ratio_ = my::norm_squared(S_->ratio());
+			if( ratio_ > 1.0 || ratio_ > rnd_.get() ){
+				S_->update();
+				S_->measure_new_step();
+				measures++;
+			}
+			S_->add_sample();
+		} while(keepon() && ++iter<maxiter);
+#pragma omp critical
+		std::cout<<"done "<<iter<<" steps in "<<chrono.elapsed()<<"s with "<<measures<<" measures"<<std::endl;
+	}
+}
 /*}*/
 
 /*private methods*/
 /*{*/
 void MonteCarlo::next_step(){
 	S_->swap();
-	ratio_ = S_->ratio(true);
+	ratio_ = my::norm_squared(S_->ratio());
 	if( ratio_ > 1.0 || ratio_ > rnd_.get() ){
 		S_->update();
 		S_->measure_new_step();

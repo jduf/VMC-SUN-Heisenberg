@@ -25,7 +25,7 @@ class MCSystem: public virtual System{
 		/*!Exchanges the p0's particle of site s0 with the p1's of site s1*/
 		virtual void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
 		/*!Pure virtual method that computes the ratio between two states*/
-		virtual double ratio(bool const& squared)=0;
+		virtual double ratio()=0;
 		/*!Updates only s_*/
 		virtual void update();
 

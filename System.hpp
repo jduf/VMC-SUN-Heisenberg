@@ -65,7 +65,7 @@ class System{
 
 	protected:
 		/*!Default copy constructor*/
-		System(System const& s) = default;
+		System(System const&) = default;
 		/*!Default constructor*/
 		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),M_(0),status_(5){ std::cout<<__PRETTY_FUNCTION__<<" : should never be called"<<std::endl; }
 

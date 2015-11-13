@@ -34,7 +34,7 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 		 * - when two different colors are exchanged, computes the ratio using
 		 *   the determinant lemma
 		 }*/
-		double ratio(bool const& squared);
+		double ratio();
 		/*{Description*/
 		/*!Calls System::update() and then
 		 * - updates row_
@@ -58,6 +58,7 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 		Matrix<unsigned int> row_;//!< row of the matrix A that is modified
 		Matrix<Type>* Ainv_;	  //!< inverse of A
 		Matrix<Type>* tmp_;		  //!< temporary matrix used during the update
+		Vector<Type>* tmp_v;	  //!< temporary vector used during the update
 		Type w_[2];				  //!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0;0,w22)
 		unsigned int new_r_[2];	  //!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
 		unsigned int new_ev_[2];  //!< newly selected rows of the EVec matrix
@@ -75,12 +76,14 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	Fermionic<Type>(S),
 	row_(n_,m_),
 	Ainv_(new Matrix<Type>[N_]),
-	tmp_(new Matrix<Type>[N_])
+	tmp_(new Matrix<Type>[N_]),
+	tmp_v(new Vector<Type>[N_])
 {
 	/*!Initialized class variables*/
 	for(unsigned int c(0);c<N_;c++){
 		Ainv_[c].set(M_(c),M_(c));
 		tmp_[c].set(M_(c),M_(c));
+		tmp_v[c].set(M_(c));
 	}
 
 	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
@@ -168,7 +171,8 @@ SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
 	Fermionic<Type>(S),
 	row_(S.row_),
 	Ainv_(new Matrix<Type>[N_]),
-	tmp_(new Matrix<Type>[N_])
+	tmp_(new Matrix<Type>[N_]),
+	tmp_v(new Vector<Type>[N_])
 {
 	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
 	unsigned int c(0);
@@ -184,6 +188,7 @@ SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
 		for(unsigned int c(0);c<N_;c++){
 			Lapack<Type>(Ainv_[c],false,'G').inv();
 			tmp_[c].set(M_(c),M_(c));
+			tmp_v[c].set(M_(c));
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" very caca "<<std::endl; }
 }
@@ -195,7 +200,8 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 	Fermionic<Type>(r),
 	row_(r),
 	Ainv_(N_?new Matrix<Type>[N_]:NULL),
-	tmp_(N_?new Matrix<Type>[N_]:NULL)
+	tmp_(N_?new Matrix<Type>[N_]:NULL),
+	tmp_v(N_?new Vector<Type>[N_]:NULL)
 {
 	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
 	unsigned int c(0);
@@ -210,6 +216,7 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 	if(are_invertible()){
 		for(unsigned int c(0);c<N_;c++){
 			tmp_[c].set(M_(c),M_(c));
+			tmp_v[c].set(M_(c));
 			Lapack<Type>(Ainv_[c],false,'G').inv();
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" very caca "<<std::endl; }
@@ -270,6 +277,21 @@ void SystemFermionic<Type>::update(){
 		}
 		Ainv_[c_tmp] -= tmp_[c_tmp];
 	}
+
+	/*remove tmp_*/
+	//Type Ainvlk;
+	//for(unsigned int c(0);c<2;c++){
+		///*!compute u.u^T.Ã.A^(-1) = ((A^(-1))^T.Ã^T.u.u^T)^T*/
+		//BLAS::gemv('T',M_(new_c_[c]),M_(new_c_[c]),Ainv_[new_c_[c]].ptr(),this->EVec_[new_c_[c]].ptr()+new_ev_[c],this->EVec_[new_c_[c]].row(),tmp_v[new_c_[c]].ptr());
+		//tmp_v[new_c_[c]](new_r_[c]) -= 1;
+		//for(unsigned int i(0);i<M_(new_c_[c]);i++){
+			///*need to save this temporary value because Ainv_ is overwritten*/
+			//Ainvlk = Ainv_[new_c_[c]](i,new_r_[c])/w_[c];
+			//for(unsigned int j(0);j<M_(new_c_[c]);j++){
+				//Ainv_[new_c_[c]](i,j) -= Ainvlk*tmp_v[new_c_[c]](j);
+			//}
+		//}
+	//}
 }
 
 template<typename Type>
@@ -297,7 +319,7 @@ void SystemFermionic<Type>::free_memory(){
 /*methods that return something related to the class*/
 /*{*/
 template<typename Type>
-double SystemFermionic<Type>::ratio(bool const& squared){
+double SystemFermionic<Type>::ratio(){
 	if(new_c_[0] == new_c_[1]){
 		/*!there is no minus sign because if the same color is inverted, the
 		 * matrices will be identical up to the invertion of two columns, this
@@ -306,6 +328,7 @@ double SystemFermionic<Type>::ratio(bool const& squared){
 	} else {
 		unsigned int c_tmp;
 		for(unsigned int c(0);c<2;c++){
+			//w_[c] = BLAS::dot(M_(new_c_[c]),this->EVec_[new_c_[c]].ptr(),true,this->EVec_[new_c_[c]].row(),new_ev_[c],Ainv_[new_c_[c]].ptr(),false,M_(new_c_[c]),new_r_[c]);
 			c_tmp = new_c_[c];
 			w_[c] = 0.0;
 			for(unsigned int k(0);k<M_(c_tmp);k++){
@@ -315,7 +338,7 @@ double SystemFermionic<Type>::ratio(bool const& squared){
 		/*!the minus sign is correct, it comes from <C|H|C'> because when H is
 		 * applied on |C>, the operators are not in the correct color order, so
 		 * they need to be exchanged*/
-		return squared?my::norm_squared(w_[0]*w_[1]):-my::real(w_[0]*w_[1]);
+		return -my::real(w_[0]*w_[1]);
 	}
 }
 

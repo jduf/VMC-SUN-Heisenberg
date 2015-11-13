@@ -193,7 +193,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 							switch(ref_(2)){
 								case 0:
 									{
-										double t;
+										double t(0);
 										if(param){ t = (*param)(0); }
 										if(C)    { t = C->get<double>("td"); }
 										if(param || C){ RGL_ = new Honeycomb0pp(*s_,t); }

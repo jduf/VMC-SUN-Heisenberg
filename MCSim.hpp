@@ -4,7 +4,7 @@
 #include "CreateSystem.hpp"
 #include "MonteCarlo.hpp"
 
-class MCSim {
+class MCSim{
 	public:
 		/*!Constructor that only sets param_*/
 		MCSim(Vector<double> const& param);

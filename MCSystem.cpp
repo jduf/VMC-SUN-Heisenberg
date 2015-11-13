@@ -81,7 +81,7 @@ void MCSystem::measure_new_step(){
 					/*!if the new state is forbidden, r=0 and therefore there is no
 					 * need to complete the else condition*/
 					if(!is_new_state_forbidden()){
-						r = J_(l)*ratio(false);
+						r = J_(l)*ratio();
 						E_.add(r);
 						obs_[0].add(l,r);
 					}
@@ -95,7 +95,7 @@ void MCSystem::measure_new_step(){
 					swap(obs_[0](l,0),obs_[0](l,1),p0,p1);
 					/*!if the new state is forbidden, r=0 and therefore there is no
 					 * need to complete the else condition*/
-					if(!is_new_state_forbidden()){ E_.add(J_(l)*ratio(false)); }
+					if(!is_new_state_forbidden()){ E_.add(J_(l)*ratio()); }
 				}
 			}
 		}

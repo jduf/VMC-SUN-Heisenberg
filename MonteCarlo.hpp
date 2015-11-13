@@ -42,6 +42,8 @@ class MonteCarlo{
 		void thermalize(unsigned int const& thermalization_steps);
 		/*!Run the Monte-Carlo algorithm*/
 		void run();
+		/*!Run the Monte-Carlo algorithm*/
+		void run(unsigned int const& maxiter);
 
 	private:
 		/*!Find the next configuration and measure it*/

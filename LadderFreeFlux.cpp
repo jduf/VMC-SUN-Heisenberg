@@ -78,13 +78,13 @@ void LadderFreeFlux::save_param(IOFiles& w) const {
 		param(i) = t_(i);
 	}
 	param(t_.size()-1) = t_.back();
-	s += my::tostring(t_.back())+") : " + RST::math("\\phi")+"=(";
+	s += my::tostring(t_.back())+") : " + RST::math("\\phi/\\pi")+"=(";
 	for(unsigned int i(0);i<flux_.size()-1;i++){
 		s += my::tostring(flux_(i))+","; 
 		param(i+t_.size()) = flux_(i);
 	}
 	param.back() = flux_.back();
-	s += my::tostring(flux_.back())+") "+RST::math("\\pi");
+	s += my::tostring(flux_.back())+")";
 	w.add_header()->title(s,'<');
 	w<<param;
 	GenericSystem<std::complex<double> >::save_param(w);
@@ -494,9 +494,9 @@ void LadderFreeFlux::display_results(){
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 		std::string title(RST::math("\\theta=")+my::tostring(acos(this->J_(0))) + " : t=(");
 		for(unsigned int i(0);i<t_.size()-1;i++){ title += my::tostring(t_(i)) + ","; }
-		title += my::tostring(t_.back()) + ") "+RST::math("\\phi=")+"(";
+		title += my::tostring(t_.back()) + ") "+RST::math("\\phi/\\pi=")+"(";
 		for(unsigned int i(0);i<flux_.size()-1;i++){ title += my::tostring(flux_(i)) + ","; }
-		title += my::tostring(flux_.back()) + ") "+RST::math("\\pi");
+		title += my::tostring(flux_.back()) + ")";
 		if(dir_ == "P/" || dir_ == "O/" || dir_ == "A/"){
 			rst_file_->title("|theta"+my::tostring(acos(this->J_(0)))+"|_",'-');
 			rst_file_->replace("theta"+my::tostring(acos(this->J_(0))),title);

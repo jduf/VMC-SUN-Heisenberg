@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
 
 					MonteCarlo sim(mcsys,tmax);
 					sim.thermalize(1e6);
-					sim.run();
+					sim.run(1e7);
 
 #pragma omp critical
 					{ sys.merge(mcsys); }
