@@ -44,7 +44,7 @@ int main(int argc, char* argv[]){
 					sim.thermalize(1e6);
 					sim.run(1e7);
 
-#pragma omp critical
+#pragma omp critical(System__merge)
 					{ sys.merge(mcsys); }
 
 					delete mcsys;

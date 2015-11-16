@@ -140,7 +140,7 @@ int main(int argc, char* argv[]){
 
 				std::cout<<mcsim.get_MCS()->get_energy()<<std::endl;
 				std::cout<<mcsim2.get_MCS()->get_energy()<<std::endl;
-				MCSim::merge(mcsim,mcsim2);
+				mcsim.get_MCS()->merge(mcsim2.get_MCS().get());
 				mcsim.complete_analysis(1e-5);
 				std::cout<<mcsim.get_MCS()->get_energy()<<std::endl;
 			} break;

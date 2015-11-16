@@ -94,8 +94,4 @@ unsigned int MCSim::sort_by_param_for_merge(MCSim const& list, MCSim const& new_
 	}
 	return 2;
 }
-
-void MCSim::merge(MCSim& list, MCSim& new_elem){
-	list.get_MCS()->merge(new_elem.get_MCS().get());
-}
 /*}*/

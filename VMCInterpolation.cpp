@@ -142,7 +142,7 @@ void VMCInterpolation::plot(){
 			}
 			std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 			(*out_)<<param.norm_squared()<<" "<<interp_(param)<<" ";
-			if(m_->samples_list_.find_sorted(sim,MCSim::sort_by_param_for_merge)){
+			if(m_->samples_list_.find_in_sorted_list(sim,MCSim::sort_by_param_for_merge)){
 				(*out_)<<m_->samples_list_.get().get_MCS()->get_energy().get_x()<<" "<<m_->samples_list_.get().get_MCS()->get_energy().get_dx()<<IOFiles::endl;
 			} else {
 				(*out_)<<0<<" "<<0<<IOFiles::endl;
@@ -165,7 +165,7 @@ void VMCInterpolation::print(){
 		for(unsigned int j(0);j<m_->dof_;j++){ param(j) = m_->ps_[j](list_min_idx_[i](j)); }
 		std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param,0));
 		if(sim.get()){
-#pragma omp critical
+#pragma omp critical(cout)
 			std::cerr<<__PRETTY_FUNCTION__<<" : "<<param<<" "<<interp_(param)<<" "<<sim->get_MCS()->get_energy()<<std::endl;
 		}
 	}
@@ -261,7 +261,7 @@ void VMCInterpolation::search_minima(){
 						param(dir/2) = m_->ps_[dir/2](pidx(dir/2));
 					} else {
 						j=max_step;
-#pragma omp critical
+#pragma omp critical(VMCInterpolation__search_minima__local)
 						{
 							bool add_to_list_min(true);
 							for(unsigned int k(0);k<list_min_idx_.size();k++){
@@ -345,10 +345,8 @@ void VMCInterpolation::select_if_min(Vector<double>* x, Vector<unsigned int> con
 	} else { is_min = false; }
 
 	if(is_min){
-#pragma omp critical(list_min)
-		{
-			list_min_idx_.push_back(idx);
-		}
+#pragma omp critical(VMCInterpolation__select_if_min__local)
+		list_min_idx_.push_back(idx);
 	}
 }
 

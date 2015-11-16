@@ -46,7 +46,7 @@ void MonteCarlo::run(unsigned int const& maxiter){
 			}
 			S_->add_sample();
 		} while(keepon() && ++iter<maxiter);
-#pragma omp critical
+#pragma omp critical(cout)
 		std::cout<<"done "<<iter<<" steps in "<<chrono.elapsed()<<"s with "<<measures<<" measures"<<std::endl;
 	}
 }

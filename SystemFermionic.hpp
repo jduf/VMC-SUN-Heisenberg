@@ -326,14 +326,14 @@ double SystemFermionic<Type>::ratio(){
 		 * minus sign is then cancelled by the reordering of the operators */
 		return 1.0;
 	} else {
-		unsigned int c_tmp;
+		//unsigned int c_tmp;
 		for(unsigned int c(0);c<2;c++){
-			//w_[c] = BLAS::dot(M_(new_c_[c]),this->EVec_[new_c_[c]].ptr(),true,this->EVec_[new_c_[c]].row(),new_ev_[c],Ainv_[new_c_[c]].ptr(),false,M_(new_c_[c]),new_r_[c]);
-			c_tmp = new_c_[c];
-			w_[c] = 0.0;
-			for(unsigned int k(0);k<M_(c_tmp);k++){
-				w_[c] += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,new_r_[c]);
-			}
+			w_[c] = BLAS::dot(M_(new_c_[c]),this->EVec_[new_c_[c]].ptr(),true,this->EVec_[new_c_[c]].row(),new_ev_[c],Ainv_[new_c_[c]].ptr(),false,M_(new_c_[c]),new_r_[c]);
+			//c_tmp = new_c_[c];
+			//w_[c] = 0.0;
+			//for(unsigned int k(0);k<M_(c_tmp);k++){
+				//w_[c] += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,new_r_[c]);
+			//}
 		}
 		/*!the minus sign is correct, it comes from <C|H|C'> because when H is
 		 * applied on |C>, the operators are not in the correct color order, so
