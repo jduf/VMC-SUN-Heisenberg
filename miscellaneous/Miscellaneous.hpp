@@ -7,7 +7,6 @@
 #include <complex>
 #include <cmath>
 #include <vector>
-#include <limits>
 #include <algorithm>
 
 namespace my{
@@ -41,7 +40,7 @@ namespace my{
 		do{
 			std::cout<<msg<<" [double] ";
 			std::getline(std::cin,token);
-		} while ( !(token.find(' ') == std::string::npos && my::string2type<double>(token,in)));
+		} while (!(token.find(' ') == std::string::npos && my::string2type<double>(token,in)));
 		return in;
 	}
 
@@ -145,5 +144,85 @@ namespace my{
 		}
 		return r;
 	}
+}
+
+namespace BLAS{
+	/*{BLAS level 1*/
+	extern "C" double ddot_(unsigned int const& N, double const* const dx, unsigned int const& ix, double const* const dy, unsigned int const& iy);
+	inline double dot(
+			unsigned int const& N,
+			double const* const a,
+			bool const& ar, //true : multiply a row of a
+			unsigned int const& arow,// 1 for Vector 
+			unsigned int aidx, // 0 for Vector
+			double const* const b, 
+			bool const& br, //true : multiply a row of b
+			unsigned int const& brow,// 1 for Vector 
+			unsigned int bidx// 0 for Vector
+			)
+	{
+		if(ar){//multiply a row of a
+			if(br){ return ddot_(N,/**/a+aidx,     arow,/**/b+bidx     ,brow); }
+			else  { return ddot_(N,/**/a+aidx,     arow,/**/b+bidx*brow,1); } 
+		} else {                                         
+			std::cout<<__PRETTY_FUNCTION__<<" : need to be checked"<<std::endl; 
+			if(br){ return ddot_(N,/**/a+aidx*arow,1,   /**/b+bidx     ,brow); }
+			else  { return ddot_(N,/**/a+aidx*arow,1,   /**/b+bidx*brow,1); }
+		}
+	}
+
+	extern "C" std::complex<double> zdotu_(unsigned int const& N, std::complex<double> const* const dx, unsigned int const& ix, std::complex<double> const* const dy, unsigned int const& iy);
+	inline std::complex<double> dot(
+			unsigned int const& N,
+			std::complex<double> const* const a,
+			bool const& ar, //true : multiply a row of a
+			unsigned int const& arow,// 1 for Vector 
+			unsigned int aidx, // 0 for Vector
+			std::complex<double> const* const b, 
+			bool const& br,  //true : multiply a row of b
+			unsigned int const& brow,// 0 for Vector 
+			unsigned int bidx// 1 for Vector
+			)
+	{
+		if(ar){
+			if(br){ return zdotu_(N,/**/a+aidx,     arow,/**/b+bidx     ,brow); }
+			else  { return zdotu_(N,/**/a+aidx,     arow,/**/b+bidx*brow,1); } 
+		} else {
+			std::cout<<__PRETTY_FUNCTION__<<" : need to be checked"<<std::endl; 
+			if(br){ return zdotu_(N,/**/a+aidx*arow,1,   /**/b+bidx     ,brow); }
+			else  { return zdotu_(N,/**/a+aidx*arow,1,   /**/b+bidx*brow,1); }
+		}
+	}
+	/*}*/
+
+	/*{BLAS level 2*/
+	extern "C" void dgemv_(char const& trans, unsigned int const& N, unsigned int const& M, double const& alpha, double const* const a, unsigned int const& lda, double const* const x, unsigned int const& incx, double const& beta, double const* y, unsigned int const& incy);
+	inline void gemv(
+			char const& trans,
+			unsigned int const& N,
+			unsigned int const& M,
+			double const* const a,
+			double const* const x,
+			unsigned int const& incx,
+			double const* y
+			)
+	{
+		dgemv_(trans,N,M,1.0,a,M,x,incx,0.0,y,1);
+	}
+
+	extern "C" void zgemv_(char const& trans, unsigned int const& N, unsigned int const& M, std::complex<double> const& alpha, std::complex<double> const* const a, unsigned int const& lda, std::complex<double> const* const x, unsigned int const& incx, std::complex<double> const& beta, std::complex<double> const* y, unsigned int const& incy);
+	inline void gemv(
+			char const& trans,
+			unsigned int const& N,
+			unsigned int const& M,
+			std::complex<double> const* const a,
+			std::complex<double> const* const x,
+			unsigned int const& incx,
+			std::complex<double> const* y
+			)
+	{
+		zgemv_(trans,N,M,1.0,a,M,x,incx,0.0,y,1);
+	}
+	/*}*/
 }
 #endif

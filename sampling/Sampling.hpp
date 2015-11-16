@@ -10,58 +10,6 @@
  */
 /*}*/
 template<typename Type>
-class Binning{
-	public:
-		/*!Constructor*/
-		Binning(unsigned int const& B, unsigned int const& b);
-		/*!Copy constructor*/
-		Binning(Binning const& b);
-		/*!Move constructor*/
-		Binning(Binning&& b);
-		/*!Constructor that reads from file*/
-		Binning(IOFiles& r);
-		/*!Destructor*/
-		~Binning();
-		/*{Forbidden*/
-		Binning() = delete;
-		Binning& operator=(Binning) = delete;
-		/*}*/
-
-		/*!Set the class*/
-		void set();
-
-		/*!Add sample to the bins*/
-		void add_sample(Type const& x);
-		/*!Set x_ to the mean value, dx_ to the variance*/
-		void complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv);
-		/*!Compute the mean value*/
-		Type get_x() const { return (m_bin_(0)*Ml_(0)*DPL_+bin_[0](Ml_(0)))/get_N(); }
-		/*!Compute the number of samples*/
-		double get_N() const { return 1.0*Ml_(0)*DPL_+dpl_; }
-		/*!Merge this with b*/
-		void merge(Binning const& b);
-
-		void write(IOFiles& w) const;
-
-	private:
-		unsigned int const B_;//!< minimum number of biggest bins needed to compute variance
-		unsigned int const b_;//!< l_+b_ rank of the biggest bin (b !> 30)
-		unsigned int l_;	  //!< rank of the "smallest" bin
-		unsigned int DPL_;	  //!< 2^l_ maximum number of element in the smallest bin l_
-		unsigned int dpl_;	  //!< current number of element in each bin of rank l_
-
-		Vector<unsigned int> Ml_;//!< number filled (or partially filled) bins of rank l : Ml_(l) = Ml_(0)/2^l
-		Vector<Type> m_bin_;	 //!< mean of the Binnings
-		Vector<Type>*  bin_;	 //!< binnings
-
-		bool recompute_dx_usefull_;	//!< true if dx should be recomputed
-
-		/*!Recursive method that add samples in the different bins*/
-		void add_bin(unsigned int l, Type const& a, Type const& b);
-		void do_merge(Vector<Type> const& bin, unsigned int const& dpl, unsigned int const& DPL, unsigned int const& Ml);
-};
-
-template<typename Type>
 class Data{
 	public:
 		/*!Default constructor*/
@@ -98,11 +46,62 @@ class Data{
 		void write(IOFiles& w) const;
 
 	private:
-		Type x_					= 0.0;
-		Type dx_				= 0.0;
-		double N_				= 0.0;
-		bool conv_				= false;
-		Binning<Type>* binning_ = NULL;
+		class Binning{
+			public:
+				/*!Constructor*/
+				Binning(unsigned int const& B, unsigned int const& b);
+				/*!Copy constructor*/
+				Binning(Binning const& b);
+				/*!Move constructor*/
+				Binning(Binning&& b);
+				/*!Constructor that reads from file*/
+				Binning(IOFiles& r);
+				/*!Destructor*/
+				~Binning();
+				/*{Forbidden*/
+				Binning() = delete;
+				Binning& operator=(Binning) = delete;
+				/*}*/
+
+				/*!Set the class*/
+				void set();
+
+				/*!Add sample to the bins*/
+				void add_sample(Type const& x);
+				/*!Set x_ to the mean value, dx_ to the variance*/
+				void complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv);
+				/*!Compute the mean value*/
+				Type get_x() const { return (m_bin_(0)*Ml_(0)*DPL_+bin_[0](Ml_(0)))/get_N(); }
+				/*!Compute the number of samples*/
+				double get_N() const { return 1.0*Ml_(0)*DPL_+dpl_; }
+				/*!Merge this with b*/
+				void merge(Binning const& b);
+
+				void write(IOFiles& w) const;
+
+			private:
+				unsigned int const B_;//!< minimum number of biggest bins needed to compute variance
+				unsigned int const b_;//!< l_+b_ rank of the biggest bin (b !> 30)
+				unsigned int l_;	  //!< rank of the "smallest" bin
+				unsigned int DPL_;	  //!< 2^l_ maximum number of element in the smallest bin l_
+				unsigned int dpl_;	  //!< current number of element in each bin of rank l_
+
+				Vector<unsigned int> Ml_;//!< number filled (or partially filled) bins of rank l : Ml_(l) = Ml_(0)/2^l
+				Vector<Type> m_bin_;	 //!< mean of the Binnings
+				Vector<Type>*  bin_;	 //!< binnings
+
+				bool recompute_dx_usefull_;	//!< true if dx should be recomputed
+
+				/*!Recursive method that add samples in the different bins*/
+				void add_bin(unsigned int l, Type const& a, Type const& b);
+				void do_merge(Vector<Type> const& bin, unsigned int const& dpl, unsigned int const& DPL, unsigned int const& Ml);
+		};
+
+		Type x_			  = 0.0;
+		Type dx_		  = 0.0;
+		double N_		  = 0.0;
+		bool conv_		  = false;
+		Binning* binning_ = NULL;
 
 		void swap_to_assign(Data<Type>& d1, Data<Type>& d2);
 };
@@ -152,14 +151,14 @@ class DataSet{
 /*constructors and destructor*/
 /*{*/
 template<typename Type>
-Binning<Type>::Binning(unsigned int const& B, unsigned int const& b):
+Data<Type>::Binning::Binning(unsigned int const& B, unsigned int const& b):
 	B_(B),
 	b_(b),
 	bin_(new Vector<Type>[b])
 { set(); }
 
 template<typename Type>
-Binning<Type>::Binning(Binning const& b):
+Data<Type>::Binning::Binning(Binning const& b):
 	B_(b.B_),
 	b_(b.b_),
 	l_(b.l_),
@@ -174,7 +173,7 @@ Binning<Type>::Binning(Binning const& b):
 }
 
 template<typename Type>
-Binning<Type>::Binning(Binning&& b):
+Data<Type>::Binning::Binning(Binning&& b):
 	B_(b.B_),
 	b_(b.b_),
 	l_(b.l_),
@@ -187,7 +186,7 @@ Binning<Type>::Binning(Binning&& b):
 { b.bin_ = NULL; }
 
 template<typename Type>
-Binning<Type>::Binning(IOFiles& r):
+Data<Type>::Binning::Binning(IOFiles& r):
 	B_(r.read<unsigned int>()),
 	b_(r.read<unsigned int>()),
 	l_(r.read<unsigned int>()),
@@ -208,7 +207,7 @@ Binning<Type>::Binning(IOFiles& r):
 }
 
 template<typename Type>
-void Binning<Type>::set(){
+void Data<Type>::Binning::set(){
 	l_ = 0;
 	DPL_ = 1;
 	dpl_ = 0;
@@ -222,7 +221,7 @@ void Binning<Type>::set(){
 }
 
 template<typename Type>
-Binning<Type>::~Binning(){
+Data<Type>::Binning::~Binning(){
 	if(bin_){ delete[] bin_; }
 }
 /*}*/
@@ -230,7 +229,7 @@ Binning<Type>::~Binning(){
 /*public methods*/
 /*{*/
 template<typename Type>
-void Binning<Type>::add_sample(Type const& x){
+void Data<Type>::Binning::add_sample(Type const& x){
 	/*!add new entry to the bins*/
 	if(DPL_ == ++dpl_){
 		add_bin(0,2.0*x/DPL_,2.0*bin_[0](Ml_(0))/DPL_);
@@ -261,7 +260,7 @@ void Binning<Type>::add_sample(Type const& x){
 }
 
 template<typename Type>
-void Binning<Type>::merge(Binning const& other){
+void Data<Type>::Binning::merge(Binning const& other){
 	if(B_ == other.B_ && b_ == other.b_ ){
 		if(l_>= other.l_){
 			do_merge(other.bin_[0],other.dpl_,other.DPL_,other.Ml_(0));
@@ -285,7 +284,7 @@ void Binning<Type>::merge(Binning const& other){
 }
 
 template<typename Type>
-void Binning<Type>::complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv){
+void Data<Type>::Binning::complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv){
 	x = get_x();
 	N = get_N();
 	if(l_>30){ std::cerr<<__PRETTY_FUNCTION__<<" : possibility of 'unsigned int' overflow : l_="<<l_<<std::endl; }
@@ -331,7 +330,7 @@ void Binning<Type>::complete_analysis(double const& convergence_criterion, Type&
 }
 
 template<typename Type>
-void Binning<Type>::write(IOFiles& w) const {
+void Data<Type>::Binning::write(IOFiles& w) const {
 	w<<B_<<b_<<l_<<DPL_<<dpl_<<Ml_<<m_bin_<<bin_[0];
 }
 /*}*/
@@ -339,7 +338,7 @@ void Binning<Type>::write(IOFiles& w) const {
 /*private methods*/
 /*{*/
 template<typename Type>
-void Binning<Type>::add_bin(unsigned int l, Type const& a, Type const& b){
+void Data<Type>::Binning::add_bin(unsigned int l, Type const& a, Type const& b){
 	bin_[l](Ml_(l)) = (a+b)/2.0;
 	m_bin_(l) = (m_bin_(l)*Ml_(l)+bin_[l](Ml_(l)))/(Ml_(l)+1);
 	Ml_(l)++;
@@ -350,7 +349,7 @@ void Binning<Type>::add_bin(unsigned int l, Type const& a, Type const& b){
 }
 
 template<typename Type>
-void Binning<Type>::do_merge(Vector<Type> const& bin, unsigned int const& dpl, unsigned int const& DPL, unsigned int const& Ml){
+void Data<Type>::Binning::do_merge(Vector<Type> const& bin, unsigned int const& dpl, unsigned int const& DPL, unsigned int const& Ml){
 	Type old_last_bin(bin_[0](Ml_(0)));
 	unsigned int old_dpl(dpl_);
 	bin_[0](Ml_(0)) = 0;
@@ -375,7 +374,7 @@ Data<Type>::Data(Data<Type> const& d):
 	dx_(d.dx_),
 	N_(d.N_),
 	conv_(d.conv_),
-	binning_(d.binning_?new Binning<Type>(*d.binning_):NULL)
+	binning_(d.binning_?new Data<Type>::Binning(*d.binning_):NULL)
 {}
 
 template<typename Type>
@@ -395,7 +394,7 @@ Data<Type>::Data(IOFiles& r):
 	dx_(r.read<Type>()),
 	N_(r.read<double>()),
 	conv_(r.read<bool>()),
-	binning_(r.read<bool>()?new Binning<Type>(r):NULL)
+	binning_(r.read<bool>()?new Data<Type>::Binning(r):NULL)
 {}
 
 template<typename Type>
@@ -409,7 +408,7 @@ void Data<Type>::set(Type const& x, Type const& dx, double const& N, bool const&
 template<typename Type>
 void Data<Type>::set(unsigned int const& B, unsigned int const& b, bool const& conv){
 	if(binning_){ delete binning_; }
-	binning_ = new Binning<Type>(B,b);
+	binning_ = new Data<Type>::Binning(B,b);
 	conv_ = conv;
 	x_ = 0.0;
 	dx_ = 0.0;
@@ -504,7 +503,7 @@ void Data<Type>::add_sample(){
 template<typename Type>
 void Data<Type>::merge(Data const& d){
 	if(d.binning_){
-		if(!binning_){ binning_ = new Binning<Type>(*d.binning_); }
+		if(!binning_){ binning_ = new Data<Type>::Binning(*d.binning_); }
 		else { binning_->merge(*d.binning_); }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no binning"<<std::endl; }
 }

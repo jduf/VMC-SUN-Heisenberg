@@ -65,8 +65,8 @@ class List{
 
 		void set();
 		bool target_next() const;
-		void set_target(List<Type>::Node* const target = NULL) const { target_ = target; }
-		typename List<Type>::Node* get_target() const { return target_; }
+		void set_target(Node* const target = NULL) const { target_ = target; }
+		Node* get_target() const { return target_; }
 
 		Type& operator[](unsigned int i){
 			target_ = NULL;
@@ -93,13 +93,13 @@ class List{
 		Type& last() { return (*tail_->t_); }
 		Type const& last() const { return (*tail_->t_); }
 
-		void add_start(std::shared_ptr<Type> t);
-		void add_end(std::shared_ptr<Type> t);
-		void add(std::shared_ptr<Type> t, unsigned int const& idx);
+		void add_start(std::shared_ptr<Type> const& t);
+		void add_end(std::shared_ptr<Type> const& t);
+		void add(std::shared_ptr<Type> const& t, unsigned int const& idx);
 		/*!Add t to the list at the correct place. If an entry t', such that
 		 * t=t', is already contained in the list, it will add t anyway.*/
-		void add_sort(std::shared_ptr<Type> t,  std::function<bool (Type const&, Type const&)> cmp);
-		void add_after_target(std::shared_ptr<Type> t);
+		void add_sort(std::shared_ptr<Type> const& t,  std::function<bool (Type const&, Type const&)> cmp);
+		void add_after_target(std::shared_ptr<Type> const& t);
 
 		void pop_start();
 		void pop_end();
@@ -107,15 +107,12 @@ class List{
 		void pop_range(unsigned int const& a, unsigned int const& b);
 
 		/*!In a correctly sorted list, returns true if the list contains a t'
-		 * such that cmp(t',t)=2 . In that case, targets_ point the that entry
+		 * such that cmp(t',t)=2 . In that case, targets point the that entry
 		 * in the list. It returns false if the condition is not satisfied and
-		 * targets_ points to the place where t should be added with
+		 * targets points to the place where t should be added with
 		 * add_after_target(t) to keep a correct sorting*/
-		bool find_sorted(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp);
-		/*!If find_sorted returns true, one can deal with the two identical (in the
-		 * sense of cmp(t,t')=2) t and t'. The way to deal with the twin is is
-		 * given by handling_function.*/
-		void handle_twin(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> handling_function);
+		bool find_in_sorted_list(std::shared_ptr<Type> const& t, Node*& target, std::function<unsigned int (Type const&, Type const&)> cmp) const;
+		bool find_in_sorted_list(std::shared_ptr<Type> const& t, std::function<unsigned int (Type const&, Type const&)> cmp) { return find_in_sorted_list(t,target_,cmp); }
 
 		void swap(unsigned int const& a, unsigned int const& b);
 		List<Type> sublist(unsigned int const& a, unsigned int const& b) const;
@@ -182,7 +179,7 @@ template<typename Type>
 std::ostream& operator<<(std::ostream& flux, List<Type> const& l){
 	flux<<"("<<l.size()<<")";
 	l.set_target();
-	while(l.target_next()){ flux<<" "<<l.get(); }
+	while(l.target_next()){ flux<<" | "<<l.get(); }
 	return flux;
 }
 
@@ -222,7 +219,7 @@ IOFiles& operator>>(IOFiles& r, List<Type>& l){
 /*add an element to the list*/
 /*{*/
 template<typename Type>
-void List<Type>::add_start(std::shared_ptr<Type> t){
+void List<Type>::add_start(std::shared_ptr<Type> const& t){
 	if(head_){
 		target_ = new Node(t,NULL,head_);
 		head_->prev_ = target_;
@@ -236,21 +233,21 @@ void List<Type>::add_start(std::shared_ptr<Type> t){
 }
 
 template<typename Type>
-void List<Type>::add_end(std::shared_ptr<Type> t){
-	if(head_){
+void List<Type>::add_end(std::shared_ptr<Type> const& t){
+	if(tail_){
 		target_ = new Node(t,tail_,NULL);
 		tail_->next_ = target_;
 		tail_ = target_;
 		target_ = NULL;
 	} else {
-		head_ = new Node(t,NULL,NULL);
-		tail_ = head_;
+		tail_ = new Node(t,NULL,NULL);
+		head_ = tail_;
 	}
 	size_++;
 }
 
 template<typename Type>
-void List<Type>::add(std::shared_ptr<Type> t, unsigned int const& idx){
+void List<Type>::add(std::shared_ptr<Type> const& t, unsigned int const& idx){
 	if(idx == 0){ add_start(t); }
 	else{
 		target_ = head_;
@@ -270,7 +267,7 @@ void List<Type>::add(std::shared_ptr<Type> t, unsigned int const& idx){
 }
 
 template<typename Type>
-void List<Type>::add_after_target(std::shared_ptr<Type> t){
+void List<Type>::add_after_target(std::shared_ptr<Type> const& t){
 	if(target_){
 		if(target_->next_){
 			target_->next_ = new Node(t,target_,target_->next_);
@@ -282,7 +279,7 @@ void List<Type>::add_after_target(std::shared_ptr<Type> t){
 }
 
 template<typename Type>
-void List<Type>::add_sort(std::shared_ptr<Type> t, std::function<bool (Type const&, Type const&)> cmp){
+void List<Type>::add_sort(std::shared_ptr<Type> const& t, std::function<bool (Type const&, Type const&)> cmp){
 	if(head_){
 		if(head_->next_){
 			if(cmp(*tail_->t_,*t)){ add_end(t); }
@@ -400,16 +397,12 @@ void List<Type>::swap(unsigned int const& a, unsigned int const& b){
 	}
 }
 
-template<typename Type>
-void List<Type>::handle_twin(std::shared_ptr<Type> t, std::function<void (Type&, Type&)> handling_function){
-	handling_function(*target_->t_,*t);
-}
 /*}*/
 
 /*methods that return something*/
 /*{*/
 template<typename Type>
-bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int (Type const&, Type const&)> cmp){
+bool List<Type>::find_in_sorted_list(std::shared_ptr<Type> const& t, Node*& target, std::function<unsigned int (Type const&, Type const&)> cmp) const {
 	if(head_){//check if there is at least one element
 		if(head_->next_){//check if there is at least two elements
 			switch(cmp(*tail_->t_,*t)){ //check cmp(last,t)
@@ -418,38 +411,38 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 						switch(cmp(*head_->t_,*t)){
 							case 0:
 								{
-									target_ = NULL;
+									target = NULL;
 									return false;
 								}break;
 							case 1:
 								{
-									target_ = head_;
-									unsigned int c(cmp(*target_->next_->t_,*t));
+									target = head_;
+									unsigned int c(cmp(*target->next_->t_,*t));
 									while(c==1){
-										target_ = target_->next_;
-										c = cmp(*target_->next_->t_,*t);
+										target = target->next_;
+										c = cmp(*target->next_->t_,*t);
 									}
 									if(c==0){ return false; }
 									else {
-										target_ = target_->next_;
+										target = target->next_;
 										return true;
 									}
 								}break;
 							case 2:
 								{
-									target_ = head_;
+									target = head_;
 									return true;
-								}
+								}break;
 						}
 					}break;
 				case 1://the last element is "smaller" than t
 					{
-						target_ = tail_;
+						target = tail_;
 						return false;
 					}break;
 				case 2://the last element is equal to t
 					{
-						target_ = tail_;
+						target = tail_;
 						return true;
 					}break;
 			}
@@ -457,25 +450,26 @@ bool List<Type>::find_sorted(std::shared_ptr<Type> t, std::function<unsigned int
 			switch(cmp(*head_->t_,*t)){//check the unique element of the list
 				case 0://the unique element is "bigger"  than t
 					{
-						target_ = NULL;
+						target = NULL;
 						return false;
 					}break;
 				case 1://the unique element is "smaller" than t
 					{
-						target_ = head_;
+						target = head_;
 						return false;
 					}break;
 				case 2://the unique element is equal to t
 					{
-						target_ = head_;
+						target = head_;
 						return true;
 					}break;
 			}
 		}
 		std::cerr<<__PRETTY_FUNCTION__<<" : unexpected value returned from cmp"<<std::endl;
+		target =  NULL;
 		return false;
 	} else {
-		target_ = NULL;
+		target = NULL;
 		return false;
 	}
 }

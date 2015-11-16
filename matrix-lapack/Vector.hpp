@@ -41,7 +41,6 @@ class Vector{
 		/*!Sets the last entry of the Vector*/
 		Type& back(){ return vec_[size_-1]; }
 
-
 		/*!Assignment (using Copy-And-Swap Idiom)*/
 		Vector<Type>& operator=(Vector<Type> vec);
 		/*!Additions this vector with another (m1 += m2 : m1 = m1+m2)*/
@@ -52,8 +51,8 @@ class Vector{
 		Vector<Type>& operator-=(Vector<Type> const& vec);
 		/*!Calls operator-=(Vector<Type> const& vec)*/
 		Vector<Type> operator-(Vector<Type> const& vec) const;
-		/*!Multiplies two vectors (v1 *= v2 : v1 = v1*v2)*/
-		Vector<Type> operator*(Vector<Type> const& vec) const;
+		/*!Scalar product (no conjugate complex for complex type)*/
+		Type operator*(Vector<Type> const& vec) const;
 		/*!Multiplies two vectors and get a matrix*/
 		Matrix<Type> operator^(Vector<Type> const& vec) const;
 
@@ -73,7 +72,7 @@ class Vector{
 		/*!Set the whole Vector to val*/
 		void set(unsigned int const& N);
 		/*!Set the vector to val*/
-		void set(unsigned int const& N, Type const& val);
+		void set(unsigned int const& N, Type val);
 
 		/*!Sets the entries to zero if they are close to 0*/
 		Vector<Type> chop(double precision = 1e-10) const;
@@ -254,7 +253,7 @@ Vector<Type>& Vector<Type>::operator+=(Vector<Type> const& vec){
 }
 
 template<typename Type>
-Vector<Type> Vector<Type>::operator+(Vector<Type> const& vec) const{
+Vector<Type> Vector<Type>::operator+(Vector<Type> const& vec) const {
 	Vector<Type> vecout((*this));
 	vecout += vec;
 	return vecout;
@@ -268,21 +267,20 @@ Vector<Type>& Vector<Type>::operator-=(Vector<Type> const& vec){
 }
 
 template<typename Type>
-Vector<Type> Vector<Type>::operator-(Vector<Type> const& vec) const{
+Vector<Type> Vector<Type>::operator-(Vector<Type> const& vec) const {
 	Vector<Type> vecout((*this));
 	vecout -= vec;
 	return vecout;
 }
 
 template<typename Type>
-Vector<Type> Vector<Type>::operator*(Vector<Type> const& vec) const{
-	Type out(0.0);
-	for(unsigned int i(0);i<size_;i++){ out += vec_[i] * vec.vec_[i]; }
-	return out;
+Type Vector<Type>::operator*(Vector<Type> const& vec) const {
+	assert(size_ == vec.size_);
+	return BLAS::dot(size_,vec_,true,1,0,vec.vec_,true,1,0);
 }
 
 template<typename Type>
-Matrix<Type> Vector<Type>::operator^(Vector<Type> const& vec) const{
+Matrix<Type> Vector<Type>::operator^(Vector<Type> const& vec) const {
 	Matrix<Type> out(vec.size(),vec.size());
 	for(unsigned int i(0);i<size_;i++){
 		for(unsigned int j(0);j<size_;j++){
@@ -299,7 +297,7 @@ Vector<Type>& Vector<Type>::operator/=(Type const& d){
 }
 
 template<typename Type>
-Vector<Type> Vector<Type>::operator/(Type const& d) const{
+Vector<Type> Vector<Type>::operator/(Type const& d) const {
 	Vector<Type> tmp(*this);
 	tmp /= d;
 	return tmp;
@@ -312,7 +310,7 @@ Vector<Type>& Vector<Type>::operator*=(Type const& d){
 }
 
 template<typename Type>
-Vector<Type> Vector<Type>::operator*(Type const& d) const{
+Vector<Type> Vector<Type>::operator*(Type const& d) const {
 	Vector<Type> tmp(*this);
 	tmp *= d;
 	return tmp;
@@ -344,7 +342,7 @@ void Vector<Type>::set(unsigned int const& N){
 }
 
 template<typename Type>
-void Vector<Type>::set(unsigned int const& N, Type const& val){
+void Vector<Type>::set(unsigned int const& N, Type val){
 	set(N);
 	for(unsigned int i(0);i<size_;i++){ vec_[i] = val; }
 }
@@ -362,7 +360,7 @@ inline Vector<double> Vector<double>::chop(double precision) const {
 }
 
 template<>
-inline Vector<std::complex<double> > Vector<std::complex<double> >::chop(double precision) const{
+inline Vector<std::complex<double> > Vector<std::complex<double> >::chop(double precision) const {
 	Vector<std::complex<double> > tmp(*this);
 	for(unsigned int i(0);i<size_;i++){
 		if(std::abs(tmp.vec_[i].real()) < precision ){ tmp.vec_[i].real(0.0); }
@@ -471,7 +469,7 @@ bool Vector<Type>::is_sorted(Function cmp) const {
 }
 
 template<typename Type>
-Vector<Type> Vector<Type>::order(Vector<unsigned int> const& index) const{
+Vector<Type> Vector<Type>::order(Vector<unsigned int> const& index) const {
 	assert(size_ == index.size());
 	Vector<Type> out(size_);
 	for(unsigned int i(0);i<size_;i++){ out(i) = vec_[index(i)]; }

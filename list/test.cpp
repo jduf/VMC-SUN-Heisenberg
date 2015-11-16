@@ -169,7 +169,7 @@ int main(){
 		}
 	}
 	{
-		std::cout<<"#### test add_or_fuse_sort ####"<<std::endl;
+		std::cout<<"#### test find_in_sorted_list/add_after_target ####"<<std::endl;
 		auto cmp_for_fuse = [](Vector<int> const& a, Vector<int> const& b) { 
 			unsigned int i(0);
 			while(i<a.size()){
@@ -186,13 +186,17 @@ int main(){
 		List<Vector<int> > a;
 		Vector<int> tmp(2);
 		std::shared_ptr<Vector<int> > tmp_shared;
+		List<Vector<int> >::Node* target(NULL);
 		for(unsigned int i(0);i<10;i++){
 			tmp(0) = rnd.get();
 			tmp(1) = rnd.get();
 			tmp_shared = std::make_shared<Vector<int> >(tmp);
-			if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.handle_twin(tmp_shared,fuse); }
-			else { a.add_after_target(tmp_shared); }
-
+			if( a.find_in_sorted_list(tmp_shared, target, cmp_for_fuse) ){
+				fuse(*target->get(),*tmp_shared);
+			} else {
+				a.set_target(target);
+				a.add_after_target(tmp_shared); 
+			}
 			std::cout<<a<<std::endl;
 		}
 		a.target_next();
@@ -200,8 +204,12 @@ int main(){
 		tmp = a.get();
 		std::cout<<tmp<<std::endl;
 		tmp_shared = std::make_shared<Vector<int> >(tmp);
-		if( a.find_sorted(tmp_shared, cmp_for_fuse) ){ a.handle_twin(tmp_shared,fuse); }
-		else { a.add_after_target(tmp_shared); }
+		if( a.find_in_sorted_list(tmp_shared, target, cmp_for_fuse) ){
+			fuse(*target->get(),*tmp_shared);
+		} else {
+			a.set_target(target);
+			a.add_after_target(tmp_shared); 
+		}
 		std::cout<<a<<std::endl;
 
 		IOFiles out("list_vector.jdbin",true);

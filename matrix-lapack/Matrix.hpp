@@ -84,7 +84,7 @@ class Matrix{
 		/*!Returns the transpose of any matrix*/
 		Matrix<Type> transpose() const;
 		/*!Returns the conjugate transpose of complex matrix*/
-		Matrix<Type> trans_conj() const;
+		Matrix<Type> conjugate_transpose() const;
 		/*!Returns the diagonal elements in an vector*/
 		Vector<Type> diag() const;
 		/*!Returns the trace*/
@@ -421,7 +421,7 @@ Matrix<Type> Matrix<Type>::transpose() const{
 }
 
 template<>
-inline Matrix<std::complex<double> > Matrix<std::complex<double> >::trans_conj() const{
+inline Matrix<std::complex<double> > Matrix<std::complex<double> >::conjugate_transpose() const{
 	Matrix<std::complex<double> > tmp(col_,row_);
 	for(unsigned int i(0);i<col_;i++){
 		for(unsigned int j(0);j<row_;j++){
@@ -432,7 +432,7 @@ inline Matrix<std::complex<double> > Matrix<std::complex<double> >::trans_conj()
 }
 
 template<>
-inline Matrix<double> Matrix<double>::trans_conj() const {
+inline Matrix<double> Matrix<double>::conjugate_transpose() const {
 	std::cerr<<__PRETTY_FUNCTION__<<" : not defined for real matrices, replaced by transpose()"<<std::endl;
 	return (*this).transpose();
 }

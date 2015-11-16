@@ -120,9 +120,9 @@ void Swarm<Type>::minimize(){
 	} else {
 		unsigned int p(0);
 		unsigned int local_p(0);
-#pragma omp parallel for schedule(dynamic,Nparticles_-1) private(local_p)
-		for(unsigned int i=0; i<maxiter_*Nparticles_;i++){
-#pragma omp critical
+#pragma omp parallel for schedule(dynamic,Nparticles_) private(local_p)
+		for(unsigned int i=0;i<maxiter_*Nparticles_;i++){
+#pragma omp critical(Swarm__minimize__local)
 			{
 				local_p=p;
 				p = (p+1) % Nparticles_;
@@ -130,7 +130,7 @@ void Swarm<Type>::minimize(){
 				else { local_p = Nparticles_; }
 			}
 			if(local_p<Nparticles_){
-				next_step(local_p);
+				next_step(local_p);/*!will call the function to minimize*/
 				particle_[local_p]->toggle_free();
 			} else { i--; }
 		}
@@ -150,7 +150,7 @@ template<typename Type>
 void Swarm<Type>::next_step(unsigned int const& p){
 	particle_[p]->move(particle_[bparticle_]->get_x());
 	if(evaluate(p)){
-#pragma omp critical(update_best_pos_particle)
+#pragma omp critical(Swarm__next_step__local)
 		{
 			for(unsigned int p(0);p<Nparticles_;p++){
 				if( particle_[p]->get_fbx() < particle_[bparticle_]->get_fbx() ){ bparticle_ = p; }

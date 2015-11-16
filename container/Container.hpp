@@ -3,65 +3,6 @@
 
 #include "Miscellaneous.hpp"
 
-/*{Variable*/
-/*!Base class that will never be instantiate. It provides a way to create
- * GenericVariable with defferent type.*/
-class Variable{
-	public:
-		/*!Constructor*/
-		Variable(std::string const& name):name_(name){}
-		/*!Destructor*/
-		virtual ~Variable() = default;
-		/*{Forbidden*/
-		Variable() = delete;
-		Variable(Variable&&) = delete;
-		Variable& operator=(Variable const&) = delete;
-		/*}*/
-
-		/*!Method that allows a copy of the derived class*/
-		virtual Variable* clone() const = 0;
-		/*!Returns the name of the data*/
-		std::string const& get_name() const { return name_; }
-
-	protected:
-		/*!Default copy constructor*/
-		Variable(Variable const&) = default;
-		
-		std::string name_;//!< Name of the (Generic)Variable
-};
-/*}*/
-
-/*{GenericVariable*/
-/*!Derived class that can contain any one value of any type and of name
- * Variable::name_*/
-template<typename Type>
-class GenericVariable : public Variable{
-	public:
-		/*!Constructor*/
-		GenericVariable(std::string const& name, Type t):Variable(name),t_(t){}
-		/*!Default destructor*/
-		~GenericVariable() = default;
-		/*{Forbidden*/
-		GenericVariable() = delete;
-		GenericVariable(GenericVariable&&) = delete;
-		GenericVariable& operator=(GenericVariable) = delete;
-		/*}*/
-		/*!Returns a copy of*/
-		GenericVariable<Type>* clone() const { return new GenericVariable<Type>(*this); }
-
-		/*!Returns the value of the data*/
-		Type const& get_val() const { return t_; }
-		/*!Set the value*/
-		void set(Type const& t){ t_=t; }
-
-	private:
-		/*!Default copy constructor accessible via clone()*/
-		GenericVariable(GenericVariable const&) = default;
-
-		Type t_;//!< Value of the GenericVariable
-};
-/*}*/
-
 /*{Container*/
 /*!Contains a vector of Variable*, can store diffrent GenericVariable*/
 class Container{
@@ -110,11 +51,59 @@ class Container{
 			(void)(iffail);
 			i=0;
 			while(i<data_.size()){
-				if(data_[i]->get_name()==pattern){ return true; }
+				if(data_[i]->name_==pattern){ return true; }
 				else { i++; }
 			}
 			return false;
 		}
+
+	private:
+		/*{Variable*/
+		/*!Base class that will never be instantiate. It provides a way to create
+		 * GenericVariable with defferent type.*/
+		class Variable{
+			public:
+				/*!Constructor*/
+				Variable(std::string const& name):name_(name){}
+				/*!Destructor*/
+				virtual ~Variable() = default;
+				/*{Forbidden*/
+				Variable() = delete;
+				Variable(Variable&&) = delete;
+				Variable& operator=(Variable const&) = delete;
+				/*}*/
+
+				/*!Method that allows a copy of the derived class*/
+				virtual Variable* clone() const = 0;
+
+				std::string name_;//!< Name of the (Generic)Variable
+
+			protected:
+				/*!Default copy constructor*/
+				Variable(Variable const&) = default;
+		};
+		/*}*/
+
+		/*{GenericVariable*/
+		/*!Derived class that can contain any value t_ of any type and of name
+		 * Variable::name_*/
+		template<typename Type>
+			class GenericVariable : public Variable{
+				public:
+					/*!Constructor*/
+					GenericVariable(std::string const& name, Type t):Variable(name),t_(t){}
+					/*!Default destructor*/
+					~GenericVariable() = default;
+					/*!Returns a copy of*/
+					GenericVariable<Type>* clone() const { return new GenericVariable<Type>(*this); }
+
+					Type t_;//!< Value of the GenericVariable
+
+				private:
+					/*!Default copy constructor accessible via clone()*/
+					GenericVariable(GenericVariable const&) = default;
+			};
+		/*}*/
 
 	protected:
 		std::vector<Variable*> data_;
@@ -128,7 +117,7 @@ void Container::set(std::string const& name, Type const& t){
 template<typename Type>
 Type Container::get(std::string const& name) const {
 	unsigned int i(0);
-	if(find(name,i)){ return static_cast< GenericVariable<Type> *>(data_[i])->get_val(); }
+	if(find(name,i)){ return static_cast< GenericVariable<Type> *>(data_[i])->t_; }
 	else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : no data with name "<<name<<std::endl;
 		return Type();
@@ -138,20 +127,20 @@ Type Container::get(std::string const& name) const {
 template<typename Type>
 void Container::get(std::string const& name, Type& t) const {
 	unsigned int i(0);
-	if(find(name,i)){ t = static_cast< GenericVariable<Type> *>(data_[i])->get_val(); }
+	if(find(name,i)){ t = static_cast< GenericVariable<Type> *>(data_[i])->t_; }
 	else { std::cerr<<__PRETTY_FUNCTION__<<" : no data with name '"<<name<<"' thus the value is unchanged : "<< t <<std::endl; }
 }
 
 template<typename Type>
 void Container::get(unsigned int i, Type &t) const {
-	if(i<data_.size()){ t = static_cast< GenericVariable<Type> *>(data_[i])->get_val(); }
+	if(i<data_.size()){ t = static_cast< GenericVariable<Type> *>(data_[i])->t_; }
 	else { std::cerr<<__PRETTY_FUNCTION__<<" : "<<i<<"<"<< data_.size()<<"?" <<std::endl; }
 }
 
 template<typename Type>
 Type Container::get(unsigned int i) const {
 	if(i<data_.size()){
-		return static_cast< GenericVariable<Type> *>(data_[i])->get_val();
+		return static_cast< GenericVariable<Type> *>(data_[i])->t_;
 	} else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : "<<i<<"<"<< data_.size()<<"?" <<std::endl;
 		return Type();
