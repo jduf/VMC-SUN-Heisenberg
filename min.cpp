@@ -2,6 +2,7 @@
 
 #include "VMCPSO.hpp"
 #include "VMCInterpolation.hpp"
+#include "VMCSystematic.hpp"
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
@@ -48,9 +49,6 @@ int main(int argc, char* argv[]){
 				}break;
 			case 2:
 				{
-					m.refine();
-					m.save();
-
 					m.set_tmax(30);
 					m.find_and_run_minima(10,-1,1e-4);
 					m.save();
@@ -69,25 +67,115 @@ int main(int argc, char* argv[]){
 				}break;
 			case 5:
 				{
-					VMCPSO m1(P,m,P.get<bool>("symmetry"));
-					VMCInterpolation m2(m);
+					Vector<double> param(11,1.0);
+					Matrix<int> sym(9,3);
+					Vector<double> J(P.get<std::vector<double> >("Jp"));
+					int A(J(0)>J(1)?0:-1); //link between sites 0-1 (rung) 
+					int B(J(0)>J(1)?-1:0); //link between sites 0-2 (leg)
+
+					sym(0,0) = 1;
+					sym(0,1) = B;
+					sym(0,2) = -1;
+
+					sym(1,0) = 2;
+					sym(1,1) = B;
+					sym(1,2) = 1;
+
+					sym(2,0) = 3;
+					sym(2,1) = 0;
+					sym(2,2) = 1;
+
+					sym(3,0) = 4;
+					sym(3,1) = B;
+					sym(3,2) = -1;
+
+					sym(4,0) = 5;
+					sym(4,1) = B;
+					sym(4,2) = 1;
+
+					sym(5,0) = 6;
+					sym(5,1) = 0;
+					sym(5,2) = 1;
+
+					sym(6,0) = 7;
+					sym(6,1) = B;
+					sym(6,2) = -1;
+
+					sym(7,0) = 9;
+					sym(7,1) = A;
+					sym(7,2) = 1;
+
+					sym(8,0) = 10;
+					sym(8,1) = 8;
+					sym(8,2) = -1;
+
+					VMCSystematic m3(m,param,sym,0,8);
+					m.set_tmax(30);
+					m3.run(0,1e-6,20);
+					m3.save();
+					m3.plot();
+					//m3.test();
 				}break;
 			case 6:
 				{
-					/*one hour :  30sec * 10 min * 10 iter*/
-					m.set_tmax(30);
-					m.find_and_run_minima(10,-1,1e-4);
-					m.save();
+					Vector<double> param(11,1.0);
+					Matrix<int> sym(9,3);
+					Vector<double> J(P.get<std::vector<double> >("Jp"));
+					int A(J(0)>J(1)?0:-1); //link between sites 0-1 (rung) 
+					int B(J(0)>J(1)?-1:0); //link between sites 0-2 (leg)
+
+					sym(0,0) = 1;
+					sym(0,1) = B;
+					sym(0,2) = -1;
+
+					sym(1,0) = 2;
+					sym(1,1) = B;
+					sym(1,2) = 1;
+
+					sym(2,0) = 3;
+					sym(2,1) = 0;
+					sym(2,2) = 1;
+
+					sym(3,0) = 4;
+					sym(3,1) = B;
+					sym(3,2) = -1;
+
+					sym(4,0) = 5;
+					sym(4,1) = B;
+					sym(4,2) = 1;
+
+					sym(5,0) = 6;
+					sym(5,1) = 0;
+					sym(5,2) = 1;
+
+					sym(6,0) = 7;
+					sym(6,1) = B;
+					sym(6,2) = -1;
+
+					sym(7,0) = 9;
+					sym(7,1) = A;
+					sym(7,2) = 1;
+
+					sym(8,0) = 10;
+					sym(8,1) = 8;
+					sym(8,2) = -1;
+
+					VMCSystematic m3(m,param,sym,0,8);
+					m.set_tmax(150);
+					m3.rerun(10,0,1e-6,20);
+					m3.save();
+					m3.plot();
+					//m3.test();
 				}break;
 			default:
 				{
 					std::cerr<<__PRETTY_FUNCTION__<<" : unknown option 'what', options are :"<<std::endl;
-					std::cerr<<"    - complete run                       : 0"<<std::endl;
-					std::cerr<<"    - refine + save                      : 1"<<std::endl;
-					std::cerr<<"    - find and run minima + save         : 2"<<std::endl;
-					std::cerr<<"    - redefine phase space + save        : 3"<<std::endl;
-					std::cerr<<"    - plot                               : 4"<<std::endl;
-					std::cerr<<"    - load VMCPSO and VMCInterpolation   : 5"<<std::endl;
+					std::cerr<<"    - complete run                 : 0"<<std::endl;
+					std::cerr<<"    - refine + save                : 1"<<std::endl;
+					std::cerr<<"    - find and run minima + save   : 2"<<std::endl;
+					std::cerr<<"    - redefine phase space + save  : 3"<<std::endl;
+					std::cerr<<"    - plot                         : 4"<<std::endl;
+					std::cerr<<"    - systematic run + save + plot : 5"<<std::endl;
 				}
 		}
 	}

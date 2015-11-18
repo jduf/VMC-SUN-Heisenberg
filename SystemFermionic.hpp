@@ -260,38 +260,38 @@ void SystemFermionic<Type>::update(){
 	row_(new_s_[0],new_p_[0]) = new_r_[1];
 	row_(new_s_[1],new_p_[1]) = new_r_[0];
 
-	Type t_tmp;
-	unsigned int c_tmp;
-	for(unsigned int c(0);c<2;c++){
-		c_tmp = new_c_[c];
-		for(unsigned int j(0);j<M_(c_tmp);j++){
-			if(new_r_[c] == j){ t_tmp = -1.0; }
-			else { t_tmp = 0.0; }
-			for(unsigned int k(0);k<M_(c_tmp);k++){
-				t_tmp += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,j);
-			}
-			t_tmp /= w_[c];
-			for(unsigned int i(0);i<M_(c_tmp);i++){
-				tmp_[c_tmp](i,j) = t_tmp*Ainv_[c_tmp](i,new_r_[c]);
-			}
-		}
-		Ainv_[c_tmp] -= tmp_[c_tmp];
-	}
-
-	/*remove tmp_*/
-	//Type Ainvlk;
+	//Type t_tmp;
+	//unsigned int c_tmp;
 	//for(unsigned int c(0);c<2;c++){
-		///*!compute u.u^T.Ã.A^(-1) = ((A^(-1))^T.Ã^T.u.u^T)^T*/
-		//BLAS::gemv('T',M_(new_c_[c]),M_(new_c_[c]),Ainv_[new_c_[c]].ptr(),this->EVec_[new_c_[c]].ptr()+new_ev_[c],this->EVec_[new_c_[c]].row(),tmp_v[new_c_[c]].ptr());
-		//tmp_v[new_c_[c]](new_r_[c]) -= 1;
-		//for(unsigned int i(0);i<M_(new_c_[c]);i++){
-			///*need to save this temporary value because Ainv_ is overwritten*/
-			//Ainvlk = Ainv_[new_c_[c]](i,new_r_[c])/w_[c];
-			//for(unsigned int j(0);j<M_(new_c_[c]);j++){
-				//Ainv_[new_c_[c]](i,j) -= Ainvlk*tmp_v[new_c_[c]](j);
+		//c_tmp = new_c_[c];
+		//for(unsigned int j(0);j<M_(c_tmp);j++){
+			//if(new_r_[c] == j){ t_tmp = -1.0; }
+			//else { t_tmp = 0.0; }
+			//for(unsigned int k(0);k<M_(c_tmp);k++){
+				//t_tmp += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,j);
+			//}
+			//t_tmp /= w_[c];
+			//for(unsigned int i(0);i<M_(c_tmp);i++){
+				//tmp_[c_tmp](i,j) = t_tmp*Ainv_[c_tmp](i,new_r_[c]);
 			//}
 		//}
+		//Ainv_[c_tmp] -= tmp_[c_tmp];
 	//}
+
+	/*remove tmp_*/
+	Type Ainvlk;
+	for(unsigned int c(0);c<2;c++){
+		/*!compute u.u^T.Ã.A^(-1) = ((A^(-1))^T.Ã^T.u.u^T)^T*/
+		BLAS::gemv('T',M_(new_c_[c]),M_(new_c_[c]),Ainv_[new_c_[c]].ptr(),this->EVec_[new_c_[c]].ptr()+new_ev_[c],this->EVec_[new_c_[c]].row(),tmp_v[new_c_[c]].ptr());
+		tmp_v[new_c_[c]](new_r_[c]) -= 1;
+		for(unsigned int i(0);i<M_(new_c_[c]);i++){
+			/*need to save this temporary value because Ainv_ is overwritten*/
+			Ainvlk = Ainv_[new_c_[c]](i,new_r_[c])/w_[c];
+			for(unsigned int j(0);j<M_(new_c_[c]);j++){
+				Ainv_[new_c_[c]](i,j) -= Ainvlk*tmp_v[new_c_[c]](j);
+			}
+		}
+	}
 }
 
 template<typename Type>

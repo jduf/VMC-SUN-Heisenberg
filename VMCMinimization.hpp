@@ -84,6 +84,6 @@ class VMCMinimization{
 
 		/*!Real call to the MonteCarlo evaluation via MCSim*/
 		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, int const& obs);
-		void evaluate_until_precision(Vector<double> const& param, double const& dE, int const& nobs, unsigned int const& maxiter);
+		void evaluate_until_precision(Vector<double> const& param, int const& nobs, double const& dE, unsigned int const& maxiter);
 };
 #endif

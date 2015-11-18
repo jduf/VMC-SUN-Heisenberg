@@ -114,9 +114,7 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 		}
 		this->obs_.push_back(Observable(tmp));
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link"; }
-	if(this->bc_==0){
-		std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl;
-	}
+	if(this->bc_==0){ std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl; }
 }
 
 template<typename Type>

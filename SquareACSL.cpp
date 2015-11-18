@@ -119,22 +119,24 @@ void SquareACSL::display_results(){
 		}
 	}
 
-	double lr_corr;
-	double rescale(obs_[1].nlinks()?0.75/obs_[1][0].get_x():0);
-	for(unsigned int i(0);i<obs_[1].nlinks();i++){
-		lr_corr = obs_[1][i].get_x()*rescale;
-		if(std::abs(lr_corr)>1e-4){
-			xy1 = get_pos_in_lattice(i);
-			set_pos_LxLy(xy1);
-			xy1 = (LxLy_*xy1).chop();
-			xy1(1) -= 2*y_shift;
+	if(obs_.size()>1){
+		double lr_corr;
+		double rescale(obs_[1].nlinks()?0.75/obs_[1][0].get_x():0);
+		for(unsigned int i(0);i<obs_[1].nlinks();i++){
+			lr_corr = obs_[1][i].get_x()*rescale;
+			if(std::abs(lr_corr)>1e-4){
+				xy1 = get_pos_in_lattice(i);
+				set_pos_LxLy(xy1);
+				xy1 = (LxLy_*xy1).chop();
+				xy1(1) -= 2*y_shift;
 
-			if(i){
-				if(lr_corr<0){ color = "red"; }
-				else { color = "blue"; }
-			} else { color = "black"; }
+				if(i){
+					if(lr_corr<0){ color = "red"; }
+					else { color = "blue"; }
+				} else { color = "black"; }
 
-			ps.circle(xy1,std::abs(lr_corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+				ps.circle(xy1,std::abs(lr_corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
 		}
 	}
 
@@ -166,6 +168,10 @@ void SquareACSL::display_results(){
 }
 
 void SquareACSL::check(){
+	info_ ="";
+	path_ ="";
+	dir_ ="./";
+	filename_ ="square-acsl";
 	display_results();
 }
 /*}*/

@@ -1,5 +1,5 @@
 MACHINE=$(shell uname -n)_
-ifeq ($(MACHINE),ctmcpc33_)
+ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	MACHINE=
 	EXEC = min
 	EXEC+= mc
@@ -38,7 +38,7 @@ KAGOME    = KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp
 
 WF         = $(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)
 MONTECARLO = MonteCarlo.cpp MCSystem.cpp Observable.cpp System.cpp IOSystem.cpp CreateSystem.cpp MCSim.cpp
-VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp
+VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp VMCSystematic.cpp
 ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseMagnetization.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp VMCMinimization.cpp Interpolation.cpp Directory.cpp
 IOFILES    = Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
 OTHER      = Lapack.cpp Parseur.cpp Fit.cpp

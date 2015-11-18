@@ -102,14 +102,19 @@ void Honeycomb0pp::display_results(){
 	Matrix<double> e(2,2);
 	e(0,0) = 1.0/3.0;
 	e(1,0) = 1.0/3.0;
-	e(0,1) = -1.0/2.0;
-	e(1,1) = 1.0/2.0;
+	e(0,1) =-1.0/sqrt(3.0);
+	e(1,1) = 1.0/sqrt(3.0);
+	//e(0,0) = 1.0;
+	//e(1,0) = 0.0;
+	//e(0,1) =-0.0;
+	//e(1,1) = 1.0;
 	Matrix<double> inv_e(2,2);
 	inv_e(0,0) = e(1,1);
 	inv_e(1,0) =-e(1,0);
 	inv_e(0,1) =-e(0,1);
 	inv_e(1,1) = e(0,0);
 	inv_e/=(e(0,0)*e(1,1)-e(1,0)*e(0,1));
+	std::cout<<inv_e * set_ab()<<std::endl;
 
 	Matrix<int> nb;
 	std::string color("black");
@@ -118,75 +123,64 @@ void Honeycomb0pp::display_results(){
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-4,-10,20,10,filename_);
-	for(unsigned int i(0);i<n_;i+=2) {
+	for(unsigned int i(0);i<n_;i++){
 		xy0 = get_pos_in_lattice(i);
 		set_pos_LxLy(xy0);
 		//set_in_basis(xy0);
 		xy0 = (inv_e*LxLy_*xy0).chop();
-		nb = get_neighbourg(i);
+		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
 
-		if(nb(0,1)<0){
-			color = "red";
-			xy1 = xy0;
-			xy1(0) += 0.5;
-			xy1(1) -= 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
-		} else {
-			color = "black";
+		if(!(i%2)){
+			nb = get_neighbourg(i);
+
 			xy1 = get_pos_in_lattice(nb(0,0));
 			set_pos_LxLy(xy1);
 			//set_in_basis(xy1);
 			xy1 = inv_e*LxLy_*xy1;
-		}
-		xy1 = xy1.chop();
-		if(H_(i,nb(0,0))>0){ linestyle = "solid"; }
-		else { linestyle = "dashed"; }
-		/*x-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
+			if((xy0-xy1).norm_squared()>1.0001){
+				color = "red";
+				xy1 = xy0;
+				xy1(0) += 0.5;
+				xy1(1) -= 1.0;
+				ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
+			} else { color = "black"; }
+			xy1 = xy1.chop();
+			if(H_(i,nb(0,0))>0){ linestyle = "solid"; }
+			else { linestyle = "dashed"; }
+			/*(+x)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
 
-		if(nb(1,1)<0){
-			color = "red";
-			xy1 = xy0;
-			xy1(0) -= 0.5;
-			xy1(1) += 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
-		} else {
-			color = "black";
 			xy1 = get_pos_in_lattice(nb(1,0));
 			set_pos_LxLy(xy1);
 			//set_in_basis(xy1);
 			xy1 = inv_e*LxLy_*xy1;
-		}
-		xy1 = xy1.chop();
-		if(H_(i,nb(1,0))>0){ linestyle = "solid"; }
-		else { linestyle = "dashed"; }
-		/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
+			if((xy0-xy1).norm_squared()>1.0001){
+				color = "red";
+				xy1 = xy0;
+				xy1(0) -= 0.5;
+				xy1(1) += 1.0;
+				ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
+			} else { color = "black"; }
+			xy1 = xy1.chop();
+			if(H_(i,nb(1,0))>0){ linestyle = "solid"; }
+			else { linestyle = "dashed"; }
+			/*(+y)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
 
-		if(nb(2,1)<0){
-			color = "red";
-			xy1 = xy0;
-			xy1(0) -= 0.5;
-			xy1(1) -= 1.0;
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(2,0)));
-		} else {
-			color = "black";
 			xy1 = get_pos_in_lattice(nb(2,0));
 			set_pos_LxLy(xy1);
 			//set_in_basis(xy1);
 			xy1 = inv_e*LxLy_*xy1;
+			if((xy0-xy1).norm_squared()>1.0001){
+				color = "red";
+				xy1 = xy0;
+				xy1(0) -= 0.5;
+				xy1(1) -= 1.0;
+				ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(2,0)));
+			} else { color = "black"; }
+			xy1 = xy1.chop();
+			if(H_(i,nb(2,0))>0){ linestyle = "solid"; }
+			else { linestyle = "dashed"; }
+			/*(-y)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
 		}
-		xy1 = xy1.chop();
-		if(H_(i,nb(2,0))>0){ linestyle = "solid"; }
-		else { linestyle = "dashed"; }
-		/*y-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
-	}
-
-	for(unsigned int i(0);i<n_;i++) {
-		xy0 = get_pos_in_lattice(i);
-		set_pos_LxLy(xy0);
-		//set_in_basis(xy0);
-		xy0 = (LxLy_*xy0).chop();
-		xy0 = inv_e*xy0;
-		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
 	}
 
 	Vector<double> Lx(2);
@@ -288,12 +282,16 @@ void Honeycomb0pp::check(){
 	//}
 	///*}*/
 
-	std::cout<<"<<<<<<<<<<<<<<"<<std::endl;
-	std::cout<<0<<" "<<get_site_in_ab(0)<<std::endl;
-	std::cout<<1<<" "<<get_site_in_ab(1)<<std::endl;
-	std::cout<<12<<" "<<get_site_in_ab(12)<<std::endl;
-	std::cout<<9<<" "<<get_site_in_ab(9)<<std::endl;
-	std::cout<<3<<" "<<get_site_in_ab(3)<<std::endl;
+	//std::cout<<"<<<<<<<<<<<<<<"<<std::endl;
+	//std::cout<<0<<" "<<get_site_in_ab(0)<<std::endl;
+	//std::cout<<1<<" "<<get_site_in_ab(1)<<std::endl;
+	//std::cout<<12<<" "<<get_site_in_ab(12)<<std::endl;
+	//std::cout<<9<<" "<<get_site_in_ab(9)<<std::endl;
+	//std::cout<<3<<" "<<get_site_in_ab(3)<<std::endl;
+	info_ ="";
+	path_ ="";
+	dir_ ="./";
+	filename_ ="honeycomb0pp";
 	display_results();
 }
 /*}*/

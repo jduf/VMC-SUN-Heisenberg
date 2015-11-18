@@ -7,7 +7,9 @@ void MCParticle::move(Vector<double> const& bx_all){
 	 * MCParticle::get_param() to set the correct sign to param.*/
 	for(unsigned int i(0);i<sym_.row();i++){
 		if(sym_(i,1)<0){
-			x_(sym_(i,0)) = 0.1;/*if set to zero will bug but maybe only because of the bug, see header file*/
+			/*if set to zero will bug but maybe only because of
+			 * MCParticle::get_param() see header MCPartice.hpp*/
+			x_(sym_(i,0)) = 0.1;
 			v_(sym_(i,0)) = 0.0;
 		} else {
 			x_(sym_(i,0)) = x_(sym_(i,1));

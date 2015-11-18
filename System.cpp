@@ -209,7 +209,7 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 	//C_.set("t",param?param->range(0,3):C->get<std::vector<double> >("t"));
 	//C_.set("mu",param?param->range(3,5):C->get<std::vector<double> >("mu"));
 	//}
-	if( wf == "squarea-csl" ){
+	if( wf == "square-acsl" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 3;
