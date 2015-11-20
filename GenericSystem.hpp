@@ -119,7 +119,6 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 
 template<typename Type>
 void GenericSystem<Type>::check_lattice(){
-	Matrix<int> nb;
 	Vector<int> dir;
 	Rand<unsigned int> rnd(0,z_-1);
 	unsigned int j;
@@ -128,24 +127,18 @@ void GenericSystem<Type>::check_lattice(){
 	std::cout<<"check"<<std::endl;
 	for(unsigned int iter(10);iter<1e4;iter*=5){
 		dir.set(z_,0);
-		d=0;
 		p0=0;
 		for(unsigned int i(0);i<iter;i++){
 			d=rnd.get();
-			nb=get_neighbourg(p0);
-			p0 = nb(d,0);
+			p0=get_neighbourg(p0)(d,0);
 			dir(d)++;
 		}
-		d=0;
-		p1=0;
-		j=0;
-		std::cout<<dir<<std::endl;
+		d=p1=j=0;
 		while(j<iter){
-			if(dir(d) != 0){
-				dir(d)--;
+			if(dir(d)){
 				j++;
-				nb=get_neighbourg(p1);
-				p1 = nb(d,0);
+				dir(d)--;
+				p1=get_neighbourg(p1)(d,0);
 			} else { d++; }
 		}
 		if(p0 != p1){

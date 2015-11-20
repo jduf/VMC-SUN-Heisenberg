@@ -882,8 +882,9 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 
 /*{method needed for checking*/
 void LadderFree::check(){
-	compute_H();
-	plot_band_structure();
+	check_lattice();
+	//compute_H();
+	//plot_band_structure();
 	//display_results();
 }
 

@@ -6,12 +6,7 @@
 template<typename Type>
 class Square: public System2D<Type>{
 	public:
-		/*{Description*/
-		/*!Constructor that organises the n sites according to the ratio Lx/Ly
-		 * for a system with spuc sites per unit cell. Calls the
-		 * GenericSystem<Type>(4,filename), to construct a system with 4 links
-		 * per sites */
-		/*}*/
+		/*!Constructor that organises the n=p^2+q^2 sites on a (tilted-)square lattice*/
 		Square(unsigned int const& spuc, unsigned int const& length, unsigned int const& tilting, std::string const& filename);
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Square()=0;
@@ -26,12 +21,13 @@ class Square: public System2D<Type>{
 		Matrix<double> set_geometry(unsigned int const& n) const;
 		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
+		Vector<double> set_linear_jump() const;
 };
 
 /*{constructor*/
 template<typename Type>
 Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsigned int const& tilting, std::string const& filename):
-	System2D<Type>(set_geometry(this->n_),set_ab(spuc,length,tilting),spuc,4,filename)
+	System2D<Type>(set_geometry(this->n_),set_ab(spuc,length,tilting),set_linear_jump(),spuc,4,filename)
 {
 	if(this->status_==2){
 		if(!this->obs_.size()){
@@ -152,6 +148,14 @@ void Square<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& j) con
 	}
 	tn(0) += this->dir_nn_LxLy_(0,0);
 	tn(1) += this->dir_nn_LxLy_(0,1);
+}
+
+template<typename Type>
+Vector<double> Square<Type>::set_linear_jump() const {
+	Vector<double> tmp(2);
+	tmp(0)=1.0;
+	tmp(1)=0.0;
+	return tmp;
 }
 /*}*/
 #endif

@@ -201,66 +201,7 @@ void Honeycomb0pp::display_results(){
 }
 
 void Honeycomb0pp::check(){
-	///*{debug 1*/
-	//Matrix<int> nb;
-	//for(unsigned int i(0);i<n_;i++){
-	//nb = get_neighbourg(i);
-	//std::cout<<i<<" ";
-	//for(unsigned int j(0);j<z_;j++){
-	//std::cout<<nb(j,0)<<" ";
-	//}
-	//std::cout<<std::endl;
-	//}
-	//std::cout<<"<<<<<<<<<<<<<<"<<std::endl;
-	//nb = get_neighbourg(2);
-	//std::cout<<nb<<std::endl;
-	///*}*/
-	///*{debug 2*/
-	//double t(1.0);
-	//Matrix<int> nb;
-	//Matrix<double> Ttest(n_,n_,0);
-	//for(unsigned int s(0);s<n_;s++){
-	//nb = get_neighbourg(s);
-	//for(unsigned int i(0);i<z_;i++){
-	//Ttest(s,nb(i,0)) = t;
-	//}
-	//}
-	//for(unsigned int i(0);i<n_;i++){
-	//for(unsigned int j(0);j<n_;j++){
-	//if(std::abs(Ttest(i,j)-std::abs(H_(i,j)))>0.2){
-	//std::cout<<i<<" "<<j<<std::endl;
-	//}
-	//}
-	//}
-	///*}*/
-	///*{debug 3*/
-	//unsigned int k(0);
-	//for(unsigned int i(0);i<n_;i++){
-	//for(unsigned int j(0);j<n_;j++){
-	//if(H_(i,j)!=0){
-	//k++;
-	//std::cout<<i<<" "<<j<<" "<<H_(i,j)<<std::endl;
-	//}
-	//}
-	//}
-	//std::cout<<k<<" "<<links_.row()<<std::endl;
-	///*}*/
-	///*{debug 4*/
-	//Matrix<int> nb;
-	//for(unsigned int s(0);s<n_;s++){
-	//nb = get_neighbourg(s);
-	//for(unsigned int i(0);i<z_;i++){
-	//if(nb(i,1)<0){ std::cout<<s<<" "<<nb(i,0)<<std::endl; }
-	//}
-	//}
-	///*}*/
-
-	//std::cout<<"<<<<<<<<<<<<<<"<<std::endl;
-	//std::cout<<0<<" "<<get_site_in_ab(0)<<std::endl;
-	//std::cout<<1<<" "<<get_site_in_ab(1)<<std::endl;
-	//std::cout<<12<<" "<<get_site_in_ab(12)<<std::endl;
-	//std::cout<<9<<" "<<get_site_in_ab(9)<<std::endl;
-	//std::cout<<3<<" "<<get_site_in_ab(3)<<std::endl;
+	check_lattice();
 	info_ ="";
 	path_ ="";
 	dir_ ="./";

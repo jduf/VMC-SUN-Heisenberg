@@ -3,25 +3,10 @@
 
 #include "System2D.hpp"
 
-/*{Description*/
-/*!the allowed clusters are that n=2L^2, L integer.
- * as the minimal unit cell contains two sites, the lattice basis vectors are
- * given by the ones that are jumping from one horizontal pair to the
- * neighbouring ones. in the orthogonal basis where the bound lenght is one,
- * this lattice basis is given by ((1/3,1/3),(-1/2,1/2))
- *
- * the cluster basis vectors (Lx,Ly) are colinear with the lattice ones, so one
- * can express the cluster basis as ((L,0),(0,L))
- *
- * the unit cell basis has to be expressed with the lattice basis vectors
- */
-/*}*/
 template<typename Type>
 class Honeycomb: public System2D<Type>{
 	public:
-		/*{Description*/
-		/*!Constructor that organises*/
-		/*}*/
+		/*!Constructor the organises the n=2L^2 sites (L integer)*/
 		Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Honeycomb()=0;
@@ -37,16 +22,19 @@ class Honeycomb: public System2D<Type>{
 		Matrix<double> set_geometry(unsigned int const& n) const;
 		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
+		Vector<double> set_linear_jump() const;
 };
 
 /*{constructor*/
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry(this->n_),ab,spuc,3,filename),
+	System2D<Type>(set_geometry(this->n_),ab,set_linear_jump(),spuc,3,filename),
 	dir_nn_(this->z_,2)
 {
 	if(this->status_==2){
+		/*!as the linear_jump goes over two sites, xloop_ is twice bigger*/
 		this->xloop_ *= 2;
+		/*{Description*/
 		/*!the directions are given for the sublattice with even site number
 		 * in the cartesian basis
 		 * 
@@ -57,7 +45,8 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 		 * (-1,-sqrt(3))/2
 		 *
 		 *  x = 0,2,4,...
-		 * */
+		 */
+		/*}*/
 		Vector<double> dir(2);
 		dir(0) = 1.0;
 		dir(1) = 0.0;
@@ -173,6 +162,23 @@ void Honeycomb<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& i) 
 			tn(1) -= this->dir_nn_LxLy_(1,1);
 		}
 	}
+}
+
+template<typename Type>
+Vector<double> Honeycomb<Type>::set_linear_jump() const {
+	/*{Description*/
+	/*!As the minimal unit cell contains 2 sites, the linear size is given
+	 * by going from 0 to 2
+	 *
+	 * 0--1
+	 *     \
+	 *      2
+	 */
+	/*}*/
+	Vector<double> tmp(2);
+	tmp(0)=1.5;
+	tmp(1)=sqrt(3.0)/2.0;
+	return tmp;
 }
 /*}*/
 #endif

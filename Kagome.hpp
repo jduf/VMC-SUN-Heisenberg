@@ -25,11 +25,13 @@ class Kagome: public System2D<Type>{
 		Matrix<double> set_geometry(unsigned int const& n) const;
 		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const { return Vector<double>(i,dir); }
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const { (void)(tn); (void)(j); }
+		Vector<double> set_linear_jump() const;
 };
 
+/*{constructor*/
 template<typename Type>
 Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry(this->n_),Matrix<double>(Lx,Ly),spuc,4,filename)
+	System2D<Type>(set_geometry(this->n_),Matrix<double>(Lx,Ly),set_linear_jump(),spuc,4,filename)
 {
 	std::cerr<<__PRETTY_FUNCTION__<<" : new def of set_nn_links will be problematic"<<std::endl;
 	if(this->status_==2){ this->set_nn_links(Vector<unsigned int>(1,2)); }
@@ -37,6 +39,7 @@ Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned in
 
 template<typename Type>
 Kagome<Type>::~Kagome() = default;
+/*}*/
 
 template<typename Type>
 void Kagome<Type>::set_observables(int nobs){
@@ -273,10 +276,20 @@ void Kagome<Type>::set_observables(int nobs){
 //return nb;
 //}
 
+/*{private methods*/
 template<typename Type>
 Matrix<double> Kagome<Type>::set_geometry(unsigned int const& n) const {
 	Matrix<double> tmp(n,n);
 	std::cerr<<__PRETTY_FUNCTION__<<" : undefined"<<std::endl;
 	return tmp;
 }
+
+template<typename Type>
+Vector<double> Kagome<Type>::set_linear_jump() const {
+	Vector<double> tmp(2);
+	tmp(0)=1.5;
+	tmp(1)=sqrt(3.0)/2.0;
+	return tmp;
+}
+/*}*/
 #endif

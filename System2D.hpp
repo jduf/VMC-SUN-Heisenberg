@@ -3,19 +3,37 @@
 
 #include "GenericSystem.hpp"
 
+/*{Description*/
+/*!The rules that the arguments of the constructor must obey are the folloing : 
+ *
+ * + **the unit is the lattice spacing**
+ * + **vector expressed in the Cartesian coordinates**
+ *
+ * These two rules must apply to :
+ *
+ * + LxLy
+ * + ab
+ * + linear_jump
+ *
+ * This convention allows the use of local basis in the definitions of :
+ *
+ * + virtual Vector<double> get_pos_in_lattice(unsigned int const& i) const = 0;
+ * + virtual unsigned int match_pos_in_ab(Vector<double> const& x) const = 0;
+ */
+/*}*/
 template<typename Type>
 class System2D: public GenericSystem<Type>{
 	public:
 		/*!Constructor*/
-		System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename);
+		System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, Vector<double> const& linear_jump, unsigned int const& spuc, unsigned int const& z, std::string const& filename);
 		/*!Destructor*/
 		virtual ~System2D() = default;
 
 	protected:
 		unsigned int xloop_;		//!< linear size of the lattice (number jumps before coming back to the origin)
 		Matrix<Type> H_;			//!< matrix used to get the band structure
-		Matrix<double> ab_;  		//!< basis of the unit cell Cartesian coordinates (lattice spacing units)
-		Matrix<double> LxLy_;		//!< basis of the whole lattice Cartesian coordinates (lattice spacing units)
+		Matrix<double> ab_;  		//!< basis of the unit cel
+		Matrix<double> LxLy_;		//!< basis of the whole lattice
 		Matrix<double> dir_nn_LxLy_;//!<direction of the nearest neighbour in the LxLy basis
 		Matrix<std::complex<double> > evec_;//!< eigenvectors of H+Tx+Ty
 
@@ -70,7 +88,7 @@ class System2D: public GenericSystem<Type>{
 
 /*{constructors*/
 template<typename Type>
-System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
+System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, Vector<double> const& linear_jump, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename),
 	xloop_(0),
 	ab_(ab),
@@ -93,16 +111,9 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 		inv_ab_/=(ab_(0,0)*ab_(1,1)-ab_(1,0)*ab_(0,1));
 
 		Vector<double> x(2);
-		Vector<double> a(2);
-		a(0)=1.5;
-		a(1)=sqrt(3.0)/2.0;
-		/* for the square
-		 * a(0) = i;
-		 * a(1) = 0;
-		 */
-		do{
+		do{//might be a more efficient way
 			xloop_++;
-			x = a*xloop_;
+			x = linear_jump*xloop_;
 			set_pos_LxLy(x);
 		} while( !my::are_equal(x(0),0) || !my::are_equal(x(1),0)  );
 
@@ -120,9 +131,7 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, u
 			if(this->spuc_){ this->status_--; }
 			else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell doesn't fit into the cluster"<<std::endl; }
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : the number of site doesn't fit into the cluster"<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : the number of site doesn't fit into the cluster"<<std::endl; }
 }
 /*}*/
 

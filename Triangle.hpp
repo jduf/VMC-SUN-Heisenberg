@@ -27,12 +27,13 @@ class Triangle: public System2D<Type>{
 		Matrix<double> set_geometry(unsigned int const& n) const;
 		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
+		Vector<double> set_linear_jump() const;
 };
 
 /*{constructor*/
 template<typename Type>
 Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry(this->n_),ab,spuc,6,filename)
+	System2D<Type>(set_geometry(this->n_),ab,set_linear_jump(),spuc,6,filename)
 {
 	if(this->status_==2){
 		Vector<double> dir(2);
@@ -135,6 +136,14 @@ void Triangle<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& j) c
 	}
 	tn(0) += this->dir_nn_LxLy_(0,0);
 	tn(1) += this->dir_nn_LxLy_(0,1);
+}
+
+template<typename Type>
+Vector<double> Triangle<Type>::set_linear_jump() const {
+	Vector<double> tmp(2);
+	tmp(0)=1.0;
+	tmp(1)=0.0;
+	return tmp;
 }
 /*}*/
 #endif
