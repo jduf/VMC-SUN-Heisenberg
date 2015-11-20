@@ -198,7 +198,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C)    { t = C->get<double>("td"); }
 										if(param || C){ RGL_ = new Honeycomb0pp(*s_,t); }
 									}break;
-									case 1:{ RGL_ = new HoneycombSU4(*s_); }break;
+									case 1:{ RGL_ = new HoneycombPiFlux(*s_); }break;
 								default:{ error(); }break;
 							}
 						}break;

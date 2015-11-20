@@ -261,10 +261,10 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "honeycomb-su4" ){
+	if( wf == "honeycomb-piflux" ){
 		ref(0) = 6;
 		ref(1) = 1;
-		ref(2) = 0;
+		ref(2) = 1;
 	}
 	return ref;
 }

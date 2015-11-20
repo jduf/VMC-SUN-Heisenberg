@@ -22,7 +22,7 @@
 #include "KagomeVBC.hpp"
 
 #include "Honeycomb0pp.hpp"
-#include "HoneycombSU4.hpp"
+#include "HoneycombPiFlux.hpp"
 
 class CreateSystem{
 	public:

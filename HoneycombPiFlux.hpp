@@ -1,12 +1,12 @@
-#ifndef DEF_HONEYCOMBSU4
-#define DEF_HONEYCOMBSU4
+#ifndef DEF_HONEYCOMBPIFLUX
+#define DEF_HONEYCOMBPIFLUX
 
 #include "Honeycomb.hpp"
 
-class HoneycombSU4: public Honeycomb<double>{
+class HoneycombPiFlux: public Honeycomb<double>{
 	public:
-		HoneycombSU4(System const& s);
-		~HoneycombSU4() = default;
+		HoneycombPiFlux(System const& s);
+		~HoneycombPiFlux() = default;
 
 		void create();
 		void check();

@@ -1,12 +1,12 @@
 MACHINE=$(shell uname -n)_
 ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	MACHINE=
-	EXEC = min
+#	EXEC = min
 	EXEC+= mc
-	EXEC+= load
+#	EXEC+= load
 	EXEC+= check
 	POSTPROCESS= cp $(EXEC) ../sim;
-	EXEC+= study
+#	EXEC+= study
 	POSTPROCESS+= cp study ..
 
 	CXX = g++ -std=c++11
@@ -33,7 +33,7 @@ CHAIN     = ChainFermi.cpp ChainPolymerized.cpp
 LADDER    = LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp
 SQUARE    = SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp
 TRIANGLE  = TriangleFermi.cpp
-HONEYCOMB = Honeycomb0pp.cpp HoneycombSU4.cpp
+HONEYCOMB = Honeycomb0pp.cpp HoneycombPiFlux.cpp
 KAGOME    = KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp
 
 WF         = $(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)
