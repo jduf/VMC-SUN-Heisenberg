@@ -15,6 +15,7 @@ class KagomeDirac: public Kagome<Type>{
 	protected:
 		void compute_H();
 		void display_results();
+		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0; }
 
 		std::string extract_level_7();
 		std::string extract_level_6();
@@ -24,7 +25,7 @@ class KagomeDirac: public Kagome<Type>{
 template<typename Type>
 KagomeDirac<Type>::KagomeDirac(System const& s):
 	System(s),
-	Kagome<Type>(2,3,6,"kagome-dirac")
+	Kagome<Type>(Matrix<double>(2,2),6,"kagome-dirac")
 {
 	if(this->status_==2){
 		this->init_fermionic();

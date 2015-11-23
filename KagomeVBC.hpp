@@ -14,6 +14,8 @@ class KagomeVBC: public Kagome<std::complex<double> >{
 	protected:
 		void compute_H();
 		void display_results();
+		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0; }
+
 		std::string extract_level_7();
 		std::string extract_level_6();
 		std::string extract_level_4();

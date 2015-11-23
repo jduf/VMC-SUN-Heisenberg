@@ -70,7 +70,7 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 {
 	if(this->n_%this->spuc_){
 		this->status_= 4;
-		std::cerr<<__PRETTY_FUNCTION__<<" : the number of sites is not commensurate with the unit cell"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : the number of sites ("<<this->n_<<") is not commensurate with the unit cell ("<<this->spuc_<<")"<<std::endl;
 	} else {
 		/*!Need to redefine the value of status to be 3 because in MCSim::save,
 		 * CreateSystem uses a MCSystem in the constructor. As
@@ -114,7 +114,7 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 		}
 		this->obs_.push_back(Observable(tmp));
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link"; }
-	if(this->bc_==0){ std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl; }
+	if(!this->bc_){ std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl; }
 }
 
 template<typename Type>

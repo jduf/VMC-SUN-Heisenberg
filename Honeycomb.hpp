@@ -12,13 +12,13 @@ class Honeycomb: public System2D<Type>{
 		virtual ~Honeycomb()=0;
 
 	protected:
+		Matrix<double> dir_nn_;
+
 		void set_observables(int nobs);
 		/*!Returns the neighbours of site i*/
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
 	private:
-		Matrix<double> dir_nn_;
-
 		Matrix<double> set_geometry(unsigned int const& n) const;
 		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
 		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
@@ -29,13 +29,13 @@ class Honeycomb: public System2D<Type>{
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
 	System2D<Type>(set_geometry(this->n_),ab,set_linear_jump(),spuc,3,filename),
-	dir_nn_(this->z_,2)
+	dir_nn_(3,2)
 {
 	if(this->status_==2){
+		this->dir_nn_LxLy_.set(3,2);
 		/*!as the linear_jump goes over two sites, xloop_ is twice bigger*/
 		this->xloop_ *= 2;
-		/*{Description*/
-		/*!the directions are given for the sublattice with even site number
+		/*{!the directions are given for the sublattice with even site number
 		 * in the cartesian basis
 		 * 
 		 * (-1,sqrt(3))/2
@@ -45,8 +45,7 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 		 * (-1,-sqrt(3))/2
 		 *
 		 *  x = 0,2,4,...
-		 */
-		/*}*/
+		 *}*/
 		Vector<double> dir(2);
 		dir(0) = 1.0;
 		dir(1) = 0.0;
@@ -131,14 +130,28 @@ Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n) const {
 		tmp(1,0) = L*sqrt(3.0)/2.0;
 		tmp(0,1) = L*1.5;
 		tmp(1,1) =-L*sqrt(3.0)/2.0;
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : unkown geometry"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry"<<std::endl; }
 	return tmp;
 }
 
 template<typename Type>
 Vector<double> Honeycomb<Type>::vector_towards(unsigned int const& i, unsigned int const& dir) const {
+	/*{!the directions were defined as follows
+	 * 1
+	 *  \
+	 *   i--0
+	 *  / 
+	 * 2 
+	 *}*/
 	Vector<double> tmp(2);
 	if(i%2){//i=1,3,5,..
+		/*{!therefore the for odd sites it gives
+		 *     2
+		 *     /
+		 * 0--i
+		 *     \
+		 *      1 
+		 *}*/
 		tmp(0) = -this->dir_nn_LxLy_(dir,0);
 		tmp(1) = -this->dir_nn_LxLy_(dir,1);
 	} else {
@@ -150,10 +163,7 @@ Vector<double> Honeycomb<Type>::vector_towards(unsigned int const& i, unsigned i
 
 template<typename Type>
 void Honeycomb<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& i) const {
-	if(i%this->xloop_==0){
-		tn(0) += 2*this->dir_nn_LxLy_(0,0);
-		tn(1) += 2*this->dir_nn_LxLy_(0,1);
-	} else {
+	if(i%this->xloop_){
 		if(i%2){//i=1,3,5,...
 			tn(0) += this->dir_nn_LxLy_(0,0);
 			tn(1) += this->dir_nn_LxLy_(0,1);
@@ -161,6 +171,9 @@ void Honeycomb<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& i) 
 			tn(0) -= this->dir_nn_LxLy_(1,0);
 			tn(1) -= this->dir_nn_LxLy_(1,1);
 		}
+	} else {
+		tn(0) += 2*this->dir_nn_LxLy_(0,0);
+		tn(1) += 2*this->dir_nn_LxLy_(0,1);
 	}
 }
 

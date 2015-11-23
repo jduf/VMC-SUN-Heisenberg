@@ -36,6 +36,8 @@ Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std
 	System2D<Type>(set_geometry(this->n_),ab,set_linear_jump(),spuc,6,filename)
 {
 	if(this->status_==2){
+		this->dir_nn_LxLy_.set(6,2);
+
 		Vector<double> dir(2);
 		dir(0) = 1.0;
 		dir(1) = 0.0;

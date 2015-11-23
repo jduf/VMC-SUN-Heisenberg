@@ -18,6 +18,9 @@ class KagomeFermi: public Kagome<Type>{
 		void display_results();
 		void lattice();
 
+		Matrix<double> set_ab() const;
+		unsigned int match_pos_in_ab(Vector<double> const& x) const;
+
 		std::string extract_level_7();
 		std::string extract_level_6();
 		std::string extract_level_4();
@@ -26,7 +29,7 @@ class KagomeFermi: public Kagome<Type>{
 template<typename Type>
 KagomeFermi<Type>::KagomeFermi(System const& s):
 	System(s),
-	Kagome<Type>(1,1,3,"kagome-fermi")
+	Kagome<Type>(set_ab(),3,"kagome-fermi")
 {
 	if(this->status_==2){
 		this->init_fermionic();
@@ -38,125 +41,130 @@ KagomeFermi<Type>::KagomeFermi(System const& s):
 /*{method needed for running*/
 template<typename Type>
 void KagomeFermi<Type>::compute_H(){
-	//double t(1.0);
+	double t(1.0);
 	this->H_.set(this->n_,this->n_,0);
-	//Matrix<int> nb;
-	//unsigned int s(0);
-	//for(unsigned int i(0);i<this->Lx_;i++){
-		//for(unsigned int j(0);j<this->Ly_;j++){
-			///*site 0*/
-			//s = this->spuc_*(i + j*this->Lx_);
-			//nb = this->get_neighbourg(s);
-			///*0-1*/this->H_(s,nb(0,0)) = nb(0,1)*t;
-			///*0-1*/this->H_(s,nb(2,0)) = nb(2,1)*t;
-//
-			///*site 1*/
-			//s++;
-			//nb = this->get_neighbourg(s);
-			///*0-1*/this->H_(s,nb(1,0)) = nb(1,1)*t;
-			///*0-1*/this->H_(s,nb(3,0)) = nb(3,1)*t;
-//
-			///*site 2*/
-			//s++;
-			//nb = this->get_neighbourg(s);
-			///*0-1*/this->H_(s,nb(0,0)) = nb(0,1)*t;
-			///*0-1*/this->H_(s,nb(2,0)) = nb(2,1)*t;
-		//}
-	//}
+	Matrix<int> nb;
+	for(unsigned int i(0);i<this->n_;i++){
+		nb = this->get_neighbourg(i);
+		this->H_(i,nb(0,0)) = nb(0,1)*t;
+		this->H_(i,nb(1,0)) = nb(1,1)*t;
+	}
 	this->H_ += this->H_.transpose();
+}
+
+template<typename Type>
+unsigned int KagomeFermi<Type>::match_pos_in_ab(Vector<double> const& x) const {
+	Vector<double> match(2,0);
+	if(my::are_equal(x,match)){ return 0; }
+	match(0) = 0.5;
+	if(my::are_equal(x,match)){ return 1; }
+	match(1) = 0.5;
+	if(my::are_equal(x,match)){ return 2; }
+	return 3;
+}
+
+template<typename Type>
+Matrix<double> KagomeFermi<Type>::set_ab() const {
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 2.0;
+	tmp(1,0) = 0.0;
+	tmp(0,1) =-1.0;
+	tmp(1,1) = sqrt(3.0);
+	return tmp;
 }
 /*}*/
 
 /*{method needed for checking*/
 template<typename Type>
 void KagomeFermi<Type>::lattice(){
-	//Matrix<int> nb;
-	//double x0;
-	//double x1;
-	//double y0;
-	//double y1;
-	//double ll(1.0);
-	//double ex(2.0*ll);
-	//double exy(2.0*ll*cos(2.0*M_PI/6.0));
-	//double ey(2.0*ll*sin(2.0*M_PI/6.0));
-	//std::string color("black");
-//
-	//PSTricks ps(info_+path_+dir_,filename_+"-pstricks");
-	//ps.begin(-1,-1,16,10,this->filename_);
-	//Matrix<double> cell(4,2);
-	//cell(0,0) = 0.0;
-	//cell(0,1) = 0.0;
-	//cell(1,0) = ex;
-	//cell(1,1) = 0.0;
-	//cell(2,0) = ex + exy;
-	//cell(2,1) = ey;
-	//cell(3,0) = exy;
-	//cell(3,1) = ey;
-	//ps.polygon(cell,"linewidth=1pt,linecolor=red");
-	//cell(1,0)*=this->Lx_;
-	//cell(2,0) = this->Lx_*ex + this->Ly_*exy;
-	//cell(2,1)*=this->Ly_;
-	//cell(3,0)*=this->Ly_;
-	//cell(3,1)*=this->Ly_;
-	//ps.polygon(cell,"linewidth=1pt,linecolor=red,linestyle=dashed");
-//
-	//unsigned int s;
-	//for(unsigned int i(0);i<this->Lx_;i++) {
-		//for(unsigned int j(0);j<this->Ly_;j++) {
-			///*site 0*/
-			//s = this->spuc_*(i+j*this->Lx_);
-			//nb = this->get_neighbourg(s);
-			//x0 = 0.2+i*ex+j*exy;
-			///*0.05 is there so there is no problem with latex and it shows
-			// * better which sites are in the unit cell*/
-			//y0 = 0.1+j*ey;
-			//ps.put(x0-0.2,y0+0.2,my::tostring(s));
-			//x1 = x0+ll;
-			//y1 = y0;
-			//if(my::real(this->H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*0-1*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0-ll;
-			//if(my::real(this->H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*0-1*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 1*/
-			//s++;
-			//nb = this->get_neighbourg(s);
-			//x0 = x0+ll;
-			//ps.put(x0+0.2,y0+0.2,my::tostring(s));
-			//x1 = x0+ll*cos(4.0*M_PI/6.0);
-			//y1 = y0+ll*sin(4.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(1,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*1-2*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(10.0*M_PI/6.0);
-			//y1 = y0+ll*sin(10.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(3,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*1-2*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 2*/
-			//s++;
-			//nb = this->get_neighbourg(s);
-			//x0 = x0+ll*cos(4.0*M_PI/6.0);
-			//y0 = y0+ll*sin(4.0*M_PI/6.0);
-			//ps.put(x0+0.2,y0,my::tostring(s));
-			//x1 = x0+ll*cos(2.0*M_PI/6.0);
-			//y1 = y0+ll*sin(2.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(8.0*M_PI/6.0);
-			//y1 = y0+ll*sin(8.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-		//}
-	//}
-//
-	//ps.end(true,true,true);
+	compute_H();
+
+	Matrix<int> nb;
+	std::string color("black");
+	std::string linestyle("solid");
+	std::string linewidth("1pt");
+	Vector<double> xy0(2,0);
+	Vector<double> xy1(2,0);
+	double t;
+	PSTricks ps(this->info_+this->path_+this->dir_,this->filename_);
+	ps.begin(-20,-10,20,10,this->filename_);
+
+	Matrix<double> polygon(4,2);
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=this->LxLy_(0,0);
+	polygon(1,1)=this->LxLy_(1,0);
+	polygon(2,0)=this->LxLy_(0,0)+this->LxLy_(0,1);
+	polygon(2,1)=this->LxLy_(1,0)+this->LxLy_(1,1);
+	polygon(3,0)=this->LxLy_(0,1);
+	polygon(3,1)=this->LxLy_(1,1);
+	ps.polygon(polygon,"linecolor=green");
+
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=this->ab_(0,0);
+	polygon(1,1)=this->ab_(1,0);
+	polygon(2,0)=this->ab_(0,0)+this->ab_(0,1);
+	polygon(2,1)=this->ab_(1,0)+this->ab_(1,1);
+	polygon(3,0)=this->ab_(0,1);
+	polygon(3,1)=this->ab_(1,1);
+	ps.polygon(polygon,"linecolor=black");
+
+	for(unsigned int i(0);i<this->n_;i++){
+		xy0 = this->get_pos_in_lattice(i);
+		this->set_pos_LxLy(xy0);
+		xy0 = (this->LxLy_*xy0).chop();
+		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
+
+		nb = this->get_neighbourg(i);
+
+		t = this->H_(i,nb(0,0));
+		if(std::abs(t)>1e-5){
+			xy1 = this->get_pos_in_lattice(nb(0,0));
+			this->set_pos_LxLy(xy1);
+			xy1 = this->LxLy_*xy1;
+			if((xy0-xy1).norm_squared()>1.0001){
+				linestyle = "dashed"; 
+				xy1 = xy0;
+				if(i%3==2){
+					xy1(0) += this->dir_nn_(2,0);
+					xy1(1) += this->dir_nn_(2,1);
+				} else {
+					xy1(0) += this->dir_nn_(0,0);
+					xy1(1) += this->dir_nn_(0,1);
+				}
+				ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
+			} else { linestyle = "solid";  }
+			xy1 = xy1.chop();
+
+			if(t>0){ color = "blue";}
+			else { color = "red"; }
+			linewidth = my::tostring(std::abs(t))+"mm";
+			/*(+x)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+		}
+
+		t = this->H_(i,nb(1,0));
+		if(std::abs(t)>1e-5){
+			xy1 = this->get_pos_in_lattice(nb(1,0));
+			this->set_pos_LxLy(xy1);
+			xy1 = this->LxLy_*xy1;
+			if((xy0-xy1).norm_squared()>1.0001){
+				linestyle = "dashed"; 
+				xy1 = xy0;
+				xy1(0) += this->dir_nn_(1,0);
+				xy1(1) += this->dir_nn_(1,1);
+				ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
+			} else { linestyle = "solid";  }
+			xy1 = xy1.chop();
+
+			if(t>0){ color = "blue";}
+			else { color = "red"; }
+			linewidth = my::tostring(std::abs(t))+"mm";
+			/*(+y)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+		}
+
+	}
+	ps.end(true,true,true);
 }
 
 template<typename Type>
@@ -210,7 +218,7 @@ void KagomeFermi<Type>::check(){
 	//}
 	///*}*/
 
-	this->plot_band_structure();
+	//this->plot_band_structure();
 
 	///*{Rotation matrix : [R,T]!=0*/
 	//Matrix<Type> R(this->H_.row(),this->H_.col(),0);
@@ -219,48 +227,54 @@ void KagomeFermi<Type>::check(){
 	//unsigned int rs;
 	//int bc;
 	//for(unsigned int j(0); j<this->Ly_;j++){
-		//for(unsigned int i(0); i<this->Lx_;i++){
-			//bc = 1;
-			//s = this->spuc_*(i + j*this->Lx_);
-//
-			//nb = this->get_neighbourg(s);
-			//rs = nb(0,0);
-			//bc*= nb(0,1);
-			//nb = this->get_neighbourg(rs);
-			//rs = nb(1,0);
-			//bc*= nb(1,1);
-			//for(unsigned int k(0); k<2*i;k++){
-				//nb = this->get_neighbourg(rs);
-				//rs = nb(1,0);
-				//bc*= nb(1,1);
-			//}
-			//if(j!=0){
-				//nb = this->get_neighbourg(rs);
-				//rs = nb(1,0);
-				//bc*= nb(1,1);
-				//for(unsigned int k(0); k<2*j-1;k++){
-					//nb = this->get_neighbourg(rs);
-					//rs = nb(2,0);
-					//bc*= nb(2,1);
-				//}
-				//nb = this->get_neighbourg(rs);
-				//rs = nb(3,0);
-				//bc*= nb(3,1);
-			//}
-			//nb = this->get_neighbourg(rs);
-			//R(s,rs) = bc;
-			//R(s+1,nb(0,0)) = bc*nb(0,1);
-			//R(s+2,nb(1,0)) = bc*nb(1,1);
-			////std::cout<<s<<" "<<rs<<" "<<bc<<std::endl;
-			////std::cout<<s+1<<" "<<nb(0,0)<<" "<<bc*nb(0,1)<<std::endl;
-			////std::cout<<s+2<<" "<<nb(1,0)<<" "<<bc*nb(1,1)<<std::endl;
-		//}
+	//for(unsigned int i(0); i<this->Lx_;i++){
+	//bc = 1;
+	//s = this->spuc_*(i + j*this->Lx_);
+	//
+	//nb = this->get_neighbourg(s);
+	//rs = nb(0,0);
+	//bc*= nb(0,1);
+	//nb = this->get_neighbourg(rs);
+	//rs = nb(1,0);
+	//bc*= nb(1,1);
+	//for(unsigned int k(0); k<2*i;k++){
+	//nb = this->get_neighbourg(rs);
+	//rs = nb(1,0);
+	//bc*= nb(1,1);
+	//}
+	//if(j!=0){
+	//nb = this->get_neighbourg(rs);
+	//rs = nb(1,0);
+	//bc*= nb(1,1);
+	//for(unsigned int k(0); k<2*j-1;k++){
+	//nb = this->get_neighbourg(rs);
+	//rs = nb(2,0);
+	//bc*= nb(2,1);
+	//}
+	//nb = this->get_neighbourg(rs);
+	//rs = nb(3,0);
+	//bc*= nb(3,1);
+	//}
+	//nb = this->get_neighbourg(rs);
+	//R(s,rs) = bc;
+	//R(s+1,nb(0,0)) = bc*nb(0,1);
+	//R(s+2,nb(1,0)) = bc*nb(1,1);
+	////std::cout<<s<<" "<<rs<<" "<<bc<<std::endl;
+	////std::cout<<s+1<<" "<<nb(0,0)<<" "<<bc*nb(0,1)<<std::endl;
+	////std::cout<<s+2<<" "<<nb(1,0)<<" "<<bc*nb(1,1)<<std::endl;
+	//}
 	//}
 	////std::cout<<R*R*R*R*R*R<<std::endl;
 	////std::cout<<R*this->H_-this->H_*R<<std::endl;
 	////std::cout<<R*R*R*this->Tx_-this->Tx_*R*R*R<<std::endl;
 	///*}*/
 	//this->plot_band_structure();
+	this->info_ ="";
+	this->path_ ="";
+	this->dir_ ="./";
+	this->filename_ ="kagome-fermi";
+	display_results();
+	std::cout<<this->H_<<std::endl;
 }
 
 template<typename Type>

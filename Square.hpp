@@ -31,6 +31,8 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 {
 	if(this->status_==2){
 		if(!this->obs_.size()){
+			this->dir_nn_LxLy_.set(3,2);
+
 			Vector<double> dir(2);
 			dir(0) = 1.0;
 			dir(1) = 0.0;
@@ -108,7 +110,7 @@ Matrix<double> Square<Type>::set_ab(unsigned int const& spuc, unsigned int const
 		tmp(1,1) = spuc/length;
 		return tmp;
 	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : unkown unit cell geometry"<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : unknown unit cell geometry"<<std::endl;
 		return Matrix<double>();
 	}
 }

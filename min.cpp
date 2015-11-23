@@ -206,80 +206,80 @@ int main(int argc, char* argv[]){
 						case 2:
 							{
 								/*shifted by 2 tetramerization*/
-								tmp(0,0) = 1;
-								tmp(0,1) = B;
-								tmp(0,2) = 1;
+								sym(0,0) = 1;
+								sym(0,1) = B;
+								sym(0,2) = 1;
 
-								tmp(1,0) = 2;
-								tmp(1,1) = B;
-								tmp(1,2) = 1;
+								sym(1,0) = 2;
+								sym(1,1) = B;
+								sym(1,2) = 1;
 
-								tmp(2,0) = 3;
-								tmp(2,1) = A;
-								tmp(2,2) = 1;
+								sym(2,0) = 3;
+								sym(2,1) = A;
+								sym(2,2) = 1;
 
-								tmp(3,0) = 4;
-								tmp(3,1) = 8;
-								tmp(3,2) = 1;
+								sym(3,0) = 4;
+								sym(3,1) = 8;
+								sym(3,2) = 1;
 
-								tmp(4,0) = 5;
-								tmp(4,1) = B;
-								tmp(4,2) = 1;
+								sym(4,0) = 5;
+								sym(4,1) = B;
+								sym(4,2) = 1;
 
-								tmp(5,0) = 6;
-								tmp(5,1) = A;
-								tmp(5,2) = 1;
+								sym(5,0) = 6;
+								sym(5,1) = A;
+								sym(5,2) = 1;
 
-								tmp(6,0) = 7;
-								tmp(6,1) = B;
-								tmp(6,2) = 1;
+								sym(6,0) = 7;
+								sym(6,1) = B;
+								sym(6,2) = 1;
 
-								tmp(7,0) = 9;
-								tmp(7,1) = A;
-								tmp(7,2) = 1;
+								sym(7,0) = 9;
+								sym(7,1) = A;
+								sym(7,2) = 1;
 
-								tmp(8,0) = 10;
-								tmp(8,1) = B;
-								tmp(8,2) = 1;
+								sym(8,0) = 10;
+								sym(8,1) = B;
+								sym(8,2) = 1;
 							}break;
 						case 3:
 							{
 								/*shifted by 2 tetramerization with pi*/
-								tmp(0,0) = 1;
-								tmp(0,1) = B;
-								tmp(0,2) = -1;
+								sym(0,0) = 1;
+								sym(0,1) = B;
+								sym(0,2) = -1;
 
-								tmp(1,0) = 2;
-								tmp(1,1) = B;
-								tmp(1,2) = 1;
+								sym(1,0) = 2;
+								sym(1,1) = B;
+								sym(1,2) = 1;
 
-								tmp(2,0) = 3;
-								tmp(2,1) = A;
-								tmp(2,2) = 1;
+								sym(2,0) = 3;
+								sym(2,1) = A;
+								sym(2,2) = 1;
 
-								tmp(3,0) = 4;
-								tmp(3,1) = 8;
-								tmp(3,2) = -1;
+								sym(3,0) = 4;
+								sym(3,1) = 8;
+								sym(3,2) = -1;
 
-								tmp(4,0) = 5;
-								tmp(4,1) = B;
-								tmp(4,2) = 1;
+								sym(4,0) = 5;
+								sym(4,1) = B;
+								sym(4,2) = 1;
 
-								tmp(5,0) = 6;
-								tmp(5,1) = A;
-								tmp(5,2) = 1;
+								sym(5,0) = 6;
+								sym(5,1) = A;
+								sym(5,2) = 1;
 
-								tmp(6,0) = 7;
-								tmp(6,1) = B;
-								tmp(6,2) = -1;
+								sym(6,0) = 7;
+								sym(6,1) = B;
+								sym(6,2) = -1;
 
-								tmp(7,0) = 9;
-								tmp(7,1) = A;
-								tmp(7,2) = 1;
+								sym(7,0) = 9;
+								sym(7,1) = A;
+								sym(7,2) = 1;
 
-								tmp(8,0) = 10;
-								tmp(8,1) = B;
-								tmp(8,2) = -1;
+								sym(8,0) = 10;
+								sym(8,1) = B;
+								sym(8,2) = -1;
 							}break;
 					}
 					VMCSystematic m3(m,param,sym,0,8);

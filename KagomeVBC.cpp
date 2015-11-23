@@ -2,7 +2,7 @@
 
 KagomeVBC::KagomeVBC(System const& s):
 	System(s),
-	Kagome<std::complex<double> >(1,1,9,"kagome-vbc")
+	Kagome<std::complex<double> >(Matrix<double>(2,2),9,"kagome-vbc")
 {
 	if(status_==2){
 		init_fermionic();

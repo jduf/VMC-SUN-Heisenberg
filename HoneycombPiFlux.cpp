@@ -65,7 +65,7 @@ unsigned int HoneycombPiFlux::match_pos_in_ab(Vector<double> const& x) const{
 	return 4;
 }
 
-Matrix<double> HoneycombPiFlux::set_ab(){
+Matrix<double> HoneycombPiFlux::set_ab() const {
 	Matrix<double> tmp(2,2);
 	tmp(0,0) = 3.0;
 	tmp(1,0) = 0;
@@ -127,8 +127,8 @@ void HoneycombPiFlux::display_results(){
 				if((xy0-xy1).norm_squared()>1.0001){
 					linestyle = "dashed"; 
 					xy1 = xy0;
-					xy1(0) += 0.5;
-					xy1(1) -= 1.0;
+					xy1(0) += dir_nn_(0,0);
+					xy1(1) += dir_nn_(0,1);
 					ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
 				} else { linestyle = "solid";  }
 				xy1 = xy1.chop();
@@ -147,8 +147,8 @@ void HoneycombPiFlux::display_results(){
 				if((xy0-xy1).norm_squared()>1.0001){
 					linestyle = "dashed"; 
 					xy1 = xy0;
-					xy1(0) -= 0.5;
-					xy1(1) += 1.0;
+					xy1(0) += dir_nn_(1,0);
+					xy1(1) += dir_nn_(1,1);
 					ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
 				} else { linestyle = "solid";  }
 				xy1 = xy1.chop();
@@ -167,8 +167,8 @@ void HoneycombPiFlux::display_results(){
 				if((xy0-xy1).norm_squared()>1.0001){
 					linestyle = "dashed"; 
 					xy1 = xy0;
-					xy1(0) -= 0.5;
-					xy1(1) -= 1.0;
+					xy1(0) += dir_nn_(2,0);
+					xy1(1) += dir_nn_(2,1);
 					ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(2,0)));
 				} else { linestyle = "solid";  }
 				xy1 = xy1.chop();

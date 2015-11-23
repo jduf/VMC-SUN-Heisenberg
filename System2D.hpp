@@ -93,7 +93,6 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, V
 	xloop_(0),
 	ab_(ab),
 	LxLy_(LxLy),
-	dir_nn_LxLy_(this->z_,2),
 	inv_LxLy_(2,2),
 	inv_ab_(2,2)
 {
@@ -388,7 +387,7 @@ void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<in
 	if(set_in_basis(nn)){ nb(dir,1) = this->bc_; }
 
 	unsigned int j(0);
-	while( !my::are_equal(tn,nn) && j<this->n_+2 ){
+	while(!my::are_equal(tn,nn) && j<this->n_+2){
 		j++;
 		try_neighbourg(tn,j);
 		set_in_basis(tn);

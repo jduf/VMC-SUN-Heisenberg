@@ -12,35 +12,82 @@ class Kagome: public System2D<Type>{
 		 * GenericSystem<Type>(4,filename), to construct a system with 4 links
 		 * per sites */
 		/*}*/
-		Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename);
+		Kagome(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Kagome()=0;
 
 	protected:
+		Matrix<double> dir_nn_;
+
 		void set_observables(int nobs);
-		Vector<double> get_pos_in_lattice(unsigned int const& i) const { return Vector<double>(i); }
-		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0; }
+		/*!Returns the neighbours of site i*/
+		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
 	private:
-		Matrix<double> set_geometry(unsigned int const& n) const;
-		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const { return Vector<double>(i,dir); }
-		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const { (void)(tn); (void)(j); }
+		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& spuc) const;
+		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
+		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
 		Vector<double> set_linear_jump() const;
 };
 
 /*{constructor*/
 template<typename Type>
-Kagome<Type>::Kagome(unsigned int const& Lx, unsigned int const& Ly, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry(this->n_),Matrix<double>(Lx,Ly),set_linear_jump(),spuc,4,filename)
+Kagome<Type>::Kagome(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
+	System2D<Type>(set_geometry(this->n_,spuc),ab,set_linear_jump(),spuc,4,filename),
+	dir_nn_(3,2)
 {
-	std::cerr<<__PRETTY_FUNCTION__<<" : new def of set_nn_links will be problematic"<<std::endl;
-	if(this->status_==2){ this->set_nn_links(Vector<unsigned int>(1,2)); }
+	if(this->status_==2){
+		this->dir_nn_LxLy_.set(3,2);
+		/*!as the linear_jump goes over tree sites, xloop_ is tree times bigger*/
+		this->xloop_ *= 3;
+		/*{!the directions are given for the sublattice with even site number
+		 *  in the cartesian basis
+		 * 
+		 * f--g
+		 *  \/  
+		 *  d   
+		 *  /\
+		 * a--b
+		 *
+		 * a-b = (1,0)
+		 * b-d = (-1,sqrt(3))/2
+		 * a-d = (1,sqrt(3))/2
+		 *}*/
+		Vector<double> dir(2);
+		dir(0) = 1.0;
+		dir(1) = 0.0;
+		dir_nn_(0,0) = dir(0);
+		dir_nn_(0,1) = dir(1);
+		this->set_pos_LxLy(dir);
+		this->dir_nn_LxLy_(0,0) = dir(0);
+		this->dir_nn_LxLy_(0,1) = dir(1);
+
+		dir(0) = -0.5;
+		dir(1) = sqrt(3.0)/2.0;
+		dir_nn_(1,0) = dir(0);
+		dir_nn_(1,1) = dir(1);
+		this->set_pos_LxLy(dir);
+		this->dir_nn_LxLy_(1,0) = dir(0);
+		this->dir_nn_LxLy_(1,1) = dir(1);
+
+		dir(0) = 0.5;
+		dir(1) = sqrt(3.0)/2.0;
+		dir_nn_(2,0) = dir(0);
+		dir_nn_(2,1) = dir(1);
+		this->set_pos_LxLy(dir);
+		this->dir_nn_LxLy_(2,0) = dir(0);
+		this->dir_nn_LxLy_(2,1) = dir(1);
+
+		Vector<unsigned int> l(3,2);
+		this->set_nn_links(l);
+	}
 }
 
 template<typename Type>
 Kagome<Type>::~Kagome() = default;
 /*}*/
 
+/*{protected methods*/
 template<typename Type>
 void Kagome<Type>::set_observables(int nobs){
 	this->E_.set(50,5,false);
@@ -54,241 +101,210 @@ void Kagome<Type>::set_observables(int nobs){
 	}
 }
 
-//template<typename Type>
-//Matrix<int> Kagome<Type>::get_neighbourg(unsigned int i) const {
-//Matrix<int> nb(this->z_,2,1);
-//switch(this->spuc_){
-//case 3: case 6:
-//{
-//switch(i%3){
-//case 0:
-//{
-///*+x neighbour*/
-//nb(0,0) = i+1;
-///*+x+y neighbour*/
-//nb(1,0) = i+2;
-///*-x neighbour*/
-//if(i%(this->spuc_*this->Lx_)){ nb(2,0) = i-2; }
-//else {
-//nb(2,0) = i-2+this->spuc_*this->Lx_;
-//nb(2,1) = this->bc_;
-//}
-///*-x-y neighbour*/
-//if(i+1>=this->spuc_*this->Lx_){ nb(3,0) = i+2-this->spuc_*this->Lx_; }
-//else {
-//nb(3,0) = i+2+(this->Ly_-1)*this->spuc_*this->Lx_;
-//nb(3,1) = this->bc_;
-//}
-//}break;
-//case 1:
-//{
-///*+x neighbour*/
-//if((i+2)%(this->spuc_*this->Lx_)){ nb(0,0) = i+2; }
-//else {
-//nb(0,0) = i+2-this->spuc_*this->Lx_;
-//nb(0,1) = this->bc_;
-//}
-///*-x+y neighbour*/
-//nb(1,0) = i+1;
-///*-x neighbour*/
-//nb(2,0) = i-1;
-///*+x-y neighbour*/
-//if(i+1>=this->spuc_*this->Lx_){
-//if((i+2)%(this->spuc_*this->Lx_)){ nb(3,0) = i+4-this->spuc_*this->Lx_; }
-//else {
-//nb(3,0) = i+4-2*this->spuc_*this->Lx_;
-//nb(3,1) = this->bc_;
-//}
-//} else {
-//if((i+2)%(this->spuc_*this->Lx_)){
-//nb(3,0) = i+4+(this->Ly_-1)*this->spuc_*this->Lx_;
-//nb(3,1) = this->bc_;
-//} else {
-//nb(3,0) = this->Lx_*(this->Ly_-1)*this->spuc_+2;
-//nb(3,1) = this->bc_*this->bc_;
-//}
-//}
-//}break;
-//case 2:
-//{
-///*+x+y neighbour*/
-//if(i<this->n_-this->spuc_*this->Lx_){ nb(0,0) = i+this->spuc_*this->Lx_-2; }
-//else {
-//nb(0,0) = i-2-this->spuc_*this->Lx_*(this->Ly_-1);
-//nb(0,1) = this->bc_;
-//}
-///*-x+y neighbour*/
-//if((i-2)%(this->spuc_*this->Lx_)){
-//if(i<this->n_-this->spuc_*this->Lx_){ nb(1,0) = i-4+this->spuc_*this->Lx_; }
-//else {
-//nb(1,0) = i-4-this->spuc_*this->Lx_*(this->Ly_-1);
-//nb(1,1) = this->bc_;
-//}
-//} else {
-//if(i<this->n_-this->spuc_*this->Lx_){
-//nb(1,0) = i-4+2*this->spuc_*this->Lx_;
-//nb(1,1) = this->bc_;
-//} else {
-//nb(1,0) = this->spuc_*this->Lx_-2;
-//nb(1,1) = this->bc_*this->bc_;
-//}
-//}
-///*-x-y neighbour*/
-//nb(2,0) = i-2;
-///*+x-y neighbour*/
-//nb(3,0) = i-1;
-//}break;
-//}
-//}break;
-//case 9:
-//{
-//switch(i%9){
-//case 0:
-//{
-//nb(0,0) = i+1;
-//if(i%(this->Lx_*this->spuc_)){ nb(1,0) = i-1; }
-//else {
-//nb(1,0) = i-1+this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_;
-//}
-//if(i>=(this->Lx_*this->spuc_)){ nb(2,0) = i+6-this->Lx_*this->spuc_; }
-//else {
-//nb(2,0) = i+6+(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(2,1) = this->bc_;
-//}
-//nb(3,0) = i+5;
-//}break;
-//case 1:
-//{
-//nb(0,0) = i+1;
-//if((i-1)%(this->Lx_*this->spuc_)!=0){ nb(1,0) = i-3; }
-//else {
-//nb(1,0) = i-3+this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_;
-//}
-//if((i-1)%(this->Lx_*this->spuc_)){ nb(2,0) = i-2; }
-//else {
-//nb(2,0) = i-2+this->Lx_*this->spuc_;
-//nb(2,1) = this->bc_;
-//}
-//nb(3,0) = i-1;
-//}break;
-//case 2:
-//{
-//nb(0,0) = i+1;
-//nb(1,0) = i+4;
-//if((i-2)%(this->Lx_*this->spuc_)!=0){ nb(2,0) = i-4; }
-//else {
-//nb(2,0) = i-4+this->Lx_*this->spuc_;
-//nb(2,1) = this->bc_;
-//}
-//nb(3,0) = i-1;
-//}break;
-//case 3:
-//{
-//nb(0,0) = i+1;
-//nb(1,0) = i+5;
-//nb(2,0) = i+3;
-//nb(3,0) = i-1;
-//}break;
-//case 4:
-//{
-//nb(0,0) = i+1;
-//if(i>=(this->Lx_*this->spuc_)){ nb(1,0) = i+3-this->Lx_*this->spuc_; }
-//else {
-//nb(1,0) = i+3+(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_;
-//}
-//nb(2,0) = i+4;
-//nb(3,0) = i-1;
-//}break;
-//case 5:
-//{
-//nb(0,0) = i-5;
-//if(i>=(this->Lx_*this->spuc_)){ nb(1,0) = i+1-this->Lx_*this->spuc_; }
-//else {
-//nb(1,0) = i+1+(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_;
-//}
-//if(i>=(this->Lx_*this->spuc_)){ nb(2,0) = i+2-this->Lx_*this->spuc_; }
-//else {
-//nb(2,0) = i+2+(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(2,1) = this->bc_;
-//}
-//nb(3,0) = i-1;
-//}break;
-//case 6:
-//{
-//if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(0,0) = i-1+this->Lx_*this->spuc_; }
-//else {
-//nb(0,0) = i-1-(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(0,1) = this->bc_;
-//}
-//if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(1,0) = i-6+this->Lx_*this->spuc_; }
-//else {
-//nb(1,0) = i-6-(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_;
-//}
-//nb(2,0) = i-4;
-//nb(3,0) = i-3;
-//}break;
-//case 7:
-//{
-//if((i+2)%(this->Lx_*this->spuc_)!=0){ nb(0,0) = i+3; }
-//else {
-//nb(0,0) = i+3-this->Lx_*this->spuc_;
-//nb(0,1) = this->bc_;
-//}
-//if((i+2)%(this->Lx_*this->spuc_)!=0){ nb(1,0) = i+4; }
-//else {
-//nb(1,0) = i+4-this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_;
-//}
-//if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(2,0) = i-3+this->Lx_*this->spuc_; }
-//else {
-//nb(2,0) = i-3-(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(2,1) = this->bc_;
-//}
-//if(i<(this->Ly_-1)*this->Lx_*this->spuc_){ nb(3,0) = i-2+this->Lx_*this->spuc_; }
-//else {
-//nb(3,0) = i-2-(this->Ly_-1)*this->Lx_*this->spuc_;
-//nb(3,1) = this->bc_;
-//}
-//}break;
-//case 8:
-//{
-//if((i+1)%(this->Lx_*this->spuc_)!=0){ nb(0,0) = i+1; }
-//else {
-//nb(0,0) = i+1-this->Lx_*this->spuc_;
-//nb(0,1) = this->bc_;
-//}
-//if((i+1)%(this->Lx_*this->spuc_)!=0){ nb(1,0) = i+2; }
-//else {
-//nb(1,0) = i+2-this->Lx_*this->spuc_;
-//nb(1,1) = this->bc_;
-//}
-//nb(2,0) = i-5;
-//nb(3,0) = i-4;
-//}break;
-//}
-//}break;
-//}
-//return nb;
-//}
+template<typename Type>
+Vector<double> Kagome<Type>::get_pos_in_lattice(unsigned int const& i) const {
+	Vector<double> tmp(2,0);
+	unsigned int j(i/this->xloop_);
+	tmp(0) = 2*j*dir_nn_(1,0);
+	tmp(1) = 2*j*dir_nn_(1,1);
+	j = i-j*this->xloop_;
+	tmp(0) += 2*j/3*dir_nn_(0,0);
+	tmp(1) += 2*j/3*dir_nn_(0,1);
+	switch(j%3){
+		case 1:
+			{
+				tmp(0) += dir_nn_(0,0);
+				tmp(1) += dir_nn_(0,1);
+			}break;
+		case 2:
+			{
+				tmp(0) += dir_nn_(1,0);
+				tmp(1) += dir_nn_(1,1);
+			}break;
+	}
+	return tmp;
+}
+/*}*/
 
 /*{private methods*/
 template<typename Type>
-Matrix<double> Kagome<Type>::set_geometry(unsigned int const& n) const {
-	Matrix<double> tmp(n,n);
-	std::cerr<<__PRETTY_FUNCTION__<<" : undefined"<<std::endl;
+Matrix<double> Kagome<Type>::set_geometry(unsigned int const& n, unsigned int const& spuc) const {
+	Matrix<double> tmp;
+	if(n%3){ std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry"<<std::endl; }
+	else {
+		//if(spuc==9){
+			//double L(sqrt(n/spuc));
+			//if(my::are_equal(L,floor(L))){
+				//tmp.set(2,2);
+				//tmp(0,0) = 9;
+				//tmp(1,0) = -3*sqrt(3.0);
+				//tmp(0,1) = 0;
+				//tmp(1,1) = 6*sqrt(3.0);
+			//}
+		//} else {
+			double L(sqrt(n/3));
+			if(my::are_equal(L,floor(L))){
+				tmp.set(2,2);
+				tmp(0,0) = L*2;
+				tmp(1,0) = 0;
+				tmp(0,1) =-L;
+				tmp(1,1) = L*sqrt(3.0);
+			}
+		//}
+	}
 	return tmp;
+}
+
+template<typename Type>
+Vector<double> Kagome<Type>::vector_towards(unsigned int const& i, unsigned int const& dir) const {
+	/*{The directions were defined as follows
+	 * f--g
+	 *  \/ 
+	 *  d  
+	 *  /\
+	 * a--b
+	 *
+	 * a-b = 0
+	 * b-d = 1
+	 * a-d = 2 
+	 *}*/
+	Vector<double> tmp(2);
+	switch(i%3){
+		case 0:
+			{
+				/*{!therefore for these sites
+				 *    f--g
+				 *     \/ 
+				 *     1  
+				 *     /\
+				 * 2--x--0
+				 *   /
+				 *  3 
+				 *}*/
+				switch(dir){
+					case 0:
+						{
+							tmp(0) = this->dir_nn_LxLy_(0,0);
+							tmp(1) = this->dir_nn_LxLy_(0,1);
+						}break;
+					case 1:
+						{
+							tmp(0) = this->dir_nn_LxLy_(2,0);
+							tmp(1) = this->dir_nn_LxLy_(2,1);
+						}break;
+					case 2:
+						{
+							tmp(0) =-this->dir_nn_LxLy_(0,0);
+							tmp(1) =-this->dir_nn_LxLy_(0,1);
+						}break;
+					case 3:
+						{
+							tmp(0) =-this->dir_nn_LxLy_(2,0);
+							tmp(1) =-this->dir_nn_LxLy_(2,1);
+						}break;
+				}
+			}break;
+		case 1:
+			{
+				/*{!therefore for these sites
+				 * f--g
+				 *  \/ 
+				 *  1  
+				 *  /\
+				 * 2--x--0
+				 *     \
+				 *      3 
+				 *}*/
+				switch(dir){
+					case 0:
+						{
+							tmp(0) = this->dir_nn_LxLy_(0,0);
+							tmp(1) = this->dir_nn_LxLy_(0,1);
+						}break;
+					case 1:
+						{
+							tmp(0) = this->dir_nn_LxLy_(1,0);
+							tmp(1) = this->dir_nn_LxLy_(1,1);
+						}break;
+					case 2:
+						{
+							tmp(0) =-this->dir_nn_LxLy_(0,0);
+							tmp(1) =-this->dir_nn_LxLy_(0,1);
+						}break;
+					case 3:
+						{
+							tmp(0) =-this->dir_nn_LxLy_(1,0);
+							tmp(1) =-this->dir_nn_LxLy_(1,1);
+						}break;
+				}
+			}break;
+		case 2:
+			{
+				/*{!therefore for these sites
+				 * 1--0
+				 *  \/ 
+				 *  x  
+				 *  /\
+				 * 2--3
+				 *}*/
+				switch(dir){
+					case 0:
+						{
+							tmp(0) = this->dir_nn_LxLy_(2,0);
+							tmp(1) = this->dir_nn_LxLy_(2,1);
+						}break;
+					case 1:
+						{
+							tmp(0) = this->dir_nn_LxLy_(1,0);
+							tmp(1) = this->dir_nn_LxLy_(1,1);
+						}break;
+					case 2:
+						{
+							tmp(0) =-this->dir_nn_LxLy_(2,0);
+							tmp(1) =-this->dir_nn_LxLy_(2,1);
+						}break;
+					case 3:
+						{
+							tmp(0) =-this->dir_nn_LxLy_(1,0);
+							tmp(1) =-this->dir_nn_LxLy_(1,1);
+						}break;
+				}
+			}break;
+	}
+	return tmp;
+}
+
+template<typename Type>
+void Kagome<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& i) const {
+	if(i%this->xloop_){
+		switch(i%3){
+			case 0:
+				{
+					tn(0) += this->dir_nn_LxLy_(0,0)-this->dir_nn_LxLy_(1,0); 
+					tn(1) += this->dir_nn_LxLy_(0,1)-this->dir_nn_LxLy_(1,1); 
+				}break;
+			case 1:
+				{
+					tn(0) += this->dir_nn_LxLy_(0,0);
+					tn(1) += this->dir_nn_LxLy_(0,1);
+				}break;
+			case 2:
+				{
+					tn(0) += this->dir_nn_LxLy_(1,0);
+					tn(1) += this->dir_nn_LxLy_(1,1);
+				}break;
+		}
+	} else {
+		tn(0) += this->dir_nn_LxLy_(2,0);
+		tn(1) += this->dir_nn_LxLy_(2,1);
+	}
 }
 
 template<typename Type>
 Vector<double> Kagome<Type>::set_linear_jump() const {
 	Vector<double> tmp(2);
-	tmp(0)=1.5;
-	tmp(1)=sqrt(3.0)/2.0;
+	tmp(0) = 2.0;
+	tmp(1) = 0;
 	return tmp;
 }
 /*}*/
