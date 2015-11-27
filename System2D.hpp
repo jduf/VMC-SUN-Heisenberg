@@ -4,7 +4,7 @@
 #include "GenericSystem.hpp"
 
 /*{Description*/
-/*!The rules that the arguments of the constructor must obey are the folloing : 
+/*!The rules that the arguments of the constructor must obey are the folloing :
  *
  * + **the unit is the lattice spacing**
  * + **vector expressed in the Cartesian coordinates**
@@ -77,8 +77,6 @@ class System2D: public GenericSystem<Type>{
 		/*!Evaluates the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
 
-		/*!Sets the neighbour of site i in direction dir in nb*/
-		void find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const;
 		virtual Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const = 0;
 		virtual void try_neighbourg(Vector<double>& tn, unsigned int const& i) const = 0;
 
@@ -253,7 +251,33 @@ void System2D<Type>::select_eigenvectors(){
 template<typename Type>
 Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 	Matrix<int> nb(this->z_,2,1);
-	for(unsigned int dir(0);dir<this->z_;dir++){ find_neighbourg(i,dir,nb); }
+	std::vector<unsigned int> dir(this->z_);
+	Vector<double>* nn(new Vector<double>[this->z_]);
+	Vector<double> tn(get_pos_in_lattice(i));
+	set_pos_LxLy(tn);
+	set_in_LxLy(tn);
+	for(unsigned int d(0);d<this->z_;d++){
+		dir[d]= d;
+		nn[d] = tn;
+		nn[d]+= vector_towards(i,d);
+		if(set_in_LxLy(nn[d])){ nb(d,1) = this->bc_; }
+	}
+
+	tn.set(2,0);
+	unsigned int j(0);
+	while(dir.size() && j<this->n_+2){
+		for(unsigned int d(0);d<dir.size();d++){
+			if(my::are_equal(tn,nn[dir[d]])){
+				nb(dir[d],0) = j;
+				dir.erase(dir.begin()+d);
+			}
+		}
+		j++;
+		try_neighbourg(tn,j);
+		set_in_LxLy(tn);
+	}
+	assert(j<this->n_+1);
+	delete[] nn;
 	return nb;
 }
 
@@ -376,28 +400,6 @@ std::complex<double> System2D<Type>::projection(Matrix<Type> const& O, unsigned 
 		out += std::conj(evec_(i,idx))*tmp;
 	}
 	return out;
-}
-
-template<typename Type>
-void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<int>& nb) const {
-	/*!trial neighbour of the site i in the (Lx,Ly) basis*/
-	Vector<double> tn(2,0);
-	/*!nearest neighbour of the site i in the (Lx,Ly) basis*/
-	Vector<double> nn(get_pos_in_lattice(i));
-	set_pos_LxLy(nn);
-	set_in_LxLy(nn);
-
-	nn += vector_towards(i,dir);
-	if(set_in_LxLy(nn)){ nb(dir,1) = this->bc_; }
-
-	unsigned int j(0);
-	while(!my::are_equal(tn,nn) && j<this->n_+2){
-		j++;
-		try_neighbourg(tn,j);
-		set_in_LxLy(tn);
-	}
-	assert(j<this->n_);
-	nb(dir,0) = j;
 }
 
 template<typename Type>
