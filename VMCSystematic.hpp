@@ -16,7 +16,6 @@ class VMCSystematic : public VMCMinimization{
 		/*}*/
 
 		void run(int const& nobs, double const& dE, unsigned int const& maxiter);
-		void rerun(unsigned int const& nmin, int const& nobs, double const& dE, unsigned int const& maxiter);
 		void plot();
 		void test();
 

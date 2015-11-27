@@ -80,7 +80,7 @@ std::unique_ptr<MCSystem> SystemBosonic<Type>::clone() const {
 /*void methods*/
 /*{*/
 template<typename Type>
-void SystemBosonic<Type>::write(IOFiles& w) const{
+void SystemBosonic<Type>::write(IOFiles& w) const {
 	System::write(w);
 	MCSystem::write(w);
 	w<<this->sl_<<this->nn_<<this->cc_<<this->nu_<<this->omega_;

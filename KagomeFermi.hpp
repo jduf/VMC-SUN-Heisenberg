@@ -11,7 +11,6 @@ class KagomeFermi: public Kagome<Type>{
 
 		void create();
 		void check();
-		bool is_over(){std::cout<<"bla"<<std::endl; return this->over_; }
 
 	protected:
 		void compute_H();
@@ -85,7 +84,7 @@ void KagomeFermi<Type>::lattice(){
 	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	double t;
+	Type t;
 	PSTricks ps(this->info_+this->path_+this->dir_,this->filename_);
 	ps.begin(-20,-10,20,10,this->filename_);
 
@@ -137,7 +136,7 @@ void KagomeFermi<Type>::lattice(){
 			} else { linestyle = "solid";  }
 			xy1 = xy1.chop();
 
-			if(t>0){ color = "blue";}
+			if(my::real(t)>0){ color = "blue";}
 			else { color = "red"; }
 			linewidth = my::tostring(std::abs(t))+"mm";
 			/*(+x)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
@@ -157,7 +156,7 @@ void KagomeFermi<Type>::lattice(){
 			} else { linestyle = "solid";  }
 			xy1 = xy1.chop();
 
-			if(t>0){ color = "blue";}
+			if(my::real(t)>0){ color = "blue";}
 			else { color = "red"; }
 			linewidth = my::tostring(std::abs(t))+"mm";
 			/*(+y)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
@@ -269,12 +268,11 @@ void KagomeFermi<Type>::check(){
 	////std::cout<<R*R*R*this->Tx_-this->Tx_*R*R*R<<std::endl;
 	///*}*/
 	//this->plot_band_structure();
-	this->info_ ="";
-	this->path_ ="";
-	this->dir_ ="./";
+	this->info_ = "";
+	this->path_ = "";
+	this->dir_  = "./";
 	this->filename_ ="kagome-fermi";
 	display_results();
-	std::cout<<this->H_<<std::endl;
 }
 
 template<typename Type>

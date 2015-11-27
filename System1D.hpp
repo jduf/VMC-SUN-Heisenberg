@@ -76,17 +76,16 @@ void System1D<Type>::plot_band_structure(){
 	if(full_diagonalization()){
 		IOFiles spectrum("spectrum.dat",true);
 		for(unsigned int i(0);i<this->n_;i++){
-			spectrum<<p_(i)<<" "<<e_(i)<<IOFiles::endl;
+			spectrum<<p_(i)<<" "<<e_(i)<<" "<<(i<this->M_(0))<<IOFiles::endl;
 		}
 
 		Gnuplot gp("./","spectrum");
 		gp.range("x","-pi","pi");
-		gp+="plot 'spectrum.dat' u 1:2 w p ps 1.5 lt 1 lc 7";
+		gp+="plot 'spectrum.dat' u ($3==1?$1:1/0):2 w p ps 1.5 lt 1 lc 4 t 'selected ev',\\";
+		gp+="     'spectrum.dat' u ($3==0?$1:1/0):2 w p ps 1.5 lt 1 lc 7 notitle";
 		gp.save_file();
 		gp.create_image(true,false);
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : diagonalization failed, the band structure can't be computed"<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : diagonalization failed, the band structure can't be computed"<<std::endl; }
 }
 /*}*/
 

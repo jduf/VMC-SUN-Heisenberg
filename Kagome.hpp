@@ -6,12 +6,7 @@
 template<typename Type>
 class Kagome: public System2D<Type>{
 	public:
-		/*{Description*/
-		/*!Constructor that organises the n sites according to the ratio Lx/Ly
-		 * for a system with spuc sites per unit cell. Calls the
-		 * GenericSystem<Type>(4,filename), to construct a system with 4 links
-		 * per sites */
-		/*}*/
+		/*!Constructor that organises the n=3L^2 sites (L integer)*/
 		Kagome(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Kagome()=0;
@@ -80,6 +75,12 @@ Kagome<Type>::Kagome(Matrix<double> const& ab, unsigned int const& spuc, std::st
 
 		Vector<unsigned int> l(3,2);
 		this->set_nn_links(l);
+
+		/*!sets the bond energy if it has not been set yet*/
+		if(this->obs_[0].nlinks() != this->J_.size()){
+			if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
+			else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
+		}
 	}
 }
 
@@ -103,13 +104,12 @@ void Kagome<Type>::set_observables(int nobs){
 
 template<typename Type>
 Vector<double> Kagome<Type>::get_pos_in_lattice(unsigned int const& i) const {
-	Vector<double> tmp(2,0);
-	unsigned int j(i/this->xloop_);
-	tmp(0) = 2*j*dir_nn_(1,0);
-	tmp(1) = 2*j*dir_nn_(1,1);
-	j = i-j*this->xloop_;
-	tmp(0) += 2*j/3*dir_nn_(0,0);
-	tmp(1) += 2*j/3*dir_nn_(0,1);
+	unsigned int j(i/3);
+	Vector<double> tmp(this->linear_jump_*j);
+	j = i/this->xloop_;
+	tmp(0) += 2*j*dir_nn_(1,0);
+	tmp(1) += 2*j*dir_nn_(1,1);
+	j = i%this->xloop_;
 	switch(j%3){
 		case 1:
 			{
@@ -118,11 +118,12 @@ Vector<double> Kagome<Type>::get_pos_in_lattice(unsigned int const& i) const {
 			}break;
 		case 2:
 			{
-				tmp(0) += dir_nn_(1,0);
-				tmp(1) += dir_nn_(1,1);
+				tmp(0) += dir_nn_(2,0);
+				tmp(1) += dir_nn_(2,1);
 			}break;
 	}
-	return tmp;
+	this->set_pos_LxLy(tmp);
+	return this->LxLy_*tmp;
 }
 /*}*/
 
@@ -132,25 +133,26 @@ Matrix<double> Kagome<Type>::set_geometry(unsigned int const& n, unsigned int co
 	Matrix<double> tmp;
 	if(n%3){ std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry"<<std::endl; }
 	else {
-		//if(spuc==9){
-			//double L(sqrt(n/spuc));
-			//if(my::are_equal(L,floor(L))){
-				//tmp.set(2,2);
-				//tmp(0,0) = 9;
-				//tmp(1,0) = -3*sqrt(3.0);
-				//tmp(0,1) = 0;
-				//tmp(1,1) = 6*sqrt(3.0);
-			//}
-		//} else {
+		if(spuc==9){
+			double L(sqrt(n/spuc));
+			if(my::are_equal(L,floor(L))){
+				tmp.set(2,2);
+				tmp(0,0) = 9;
+				tmp(1,0) = -3*sqrt(3.0);
+				tmp(0,1) = 0;
+				tmp(1,1) = 6*sqrt(3.0);
+			}
+			if(n!=81){ std::cerr<<__PRETTY_FUNCTION__<<" : can make it work but need some modification here"<<std::endl; }
+		} else {
 			double L(sqrt(n/3));
 			if(my::are_equal(L,floor(L))){
 				tmp.set(2,2);
 				tmp(0,0) = L*2;
 				tmp(1,0) = 0;
-				tmp(0,1) =-L;
+				tmp(0,1) = L;
 				tmp(1,1) = L*sqrt(3.0);
 			}
-		//}
+		}
 	}
 	return tmp;
 }
@@ -302,6 +304,13 @@ void Kagome<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& i) con
 
 template<typename Type>
 Vector<double> Kagome<Type>::set_linear_jump() const {
+	/*{!As the minimal unit cell contains 3 sites, the linear size is given by
+	 * going from 0 to 3
+	 *
+	 *  2
+	 *  /\
+	 * 0--1--3
+	 *}*/
 	Vector<double> tmp(2);
 	tmp(0) = 2.0;
 	tmp(1) = 0;

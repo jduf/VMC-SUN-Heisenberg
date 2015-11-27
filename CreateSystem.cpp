@@ -103,6 +103,19 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								default:{ error(); }break;
 							}
 						}break;
+					case 2:
+						{
+							switch(ref_(2)){
+								case 2: 
+									{ 
+										double phi;
+										if(param){ phi = (*param)(0); }
+										if(C)    { phi = C->get<double>("phi"); }
+										CGL_ = new TrianglePhi(*s_,phi);
+									}break;
+								default:{ error(); }break;
+							}
+						}break;
 					default:{ error(); }break;
 				}
 			}break;
@@ -177,6 +190,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 2:
 						{
 							switch(ref_(2)){
+								case 0: { CGL_ = new KagomeFermi<std::complex<double> >(*s_); }break;
 								case 1: { CGL_ = new KagomeDirac<std::complex<double> >(*s_); }break;
 								case 2: { CGL_ = new KagomeVBC(*s_); }break;
 								default:{ error(); }break;
@@ -198,7 +212,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C)    { t = C->get<double>("td"); }
 										if(param || C){ RGL_ = new Honeycomb0pp(*s_,t); }
 									}break;
-									case 1:{ RGL_ = new HoneycombPiFlux(*s_); }break;
+								case 1:{ RGL_ = new HoneycombPiFlux(*s_); }break;
 								default:{ error(); }break;
 							}
 						}break;

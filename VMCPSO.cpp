@@ -102,16 +102,18 @@ void VMCPSO::init(bool const& clear_particle_history, bool const& create_particl
 }
 
 void VMCPSO::run(){
-	std::string msg1("explore with "+my::tostring(Nparticles_)+" particles for "+my::tostring(maxiter_)+" steps,");
-	msg1 += " estimated time "+my::tostring(1.1*Nparticles_*maxiter_*m_->effective_time_/omp_get_max_threads())+"s";
-	std::cout<<"#"<<msg1<<std::flush;
-	Time chrono;
+	if(m_->tmax_){
+		std::string msg1("explore with "+my::tostring(Nparticles_)+" particles for "+my::tostring(maxiter_)+" steps,");
+		msg1 += " estimated time "+my::tostring(1.1*Nparticles_*maxiter_*m_->effective_time_/omp_get_max_threads())+"s";
+		std::cout<<"#"<<msg1<<std::flush;
+		Time chrono;
 
-	minimize();
+		minimize();
 
-	std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
-	std::cout<<msg2<<std::endl;
-	m_->info_.item(msg1+msg2);
+		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
+		std::cout<<msg2<<std::endl;
+		m_->info_.item(msg1+msg2);
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 /*}*/
 

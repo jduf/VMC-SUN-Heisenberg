@@ -37,7 +37,7 @@ void SquareFreeHopping::compute_H(){
 	H_ += H_.transpose();
 }
 
-unsigned int SquareFreeHopping::match_pos_in_ab(Vector<double> const& x) const{
+unsigned int SquareFreeHopping::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match)){ return 0; }
 	match(0) = 0.5;

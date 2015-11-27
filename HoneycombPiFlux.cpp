@@ -17,25 +17,14 @@ void HoneycombPiFlux::compute_H(){
 	H_.set(n_,n_,0);
 	double th(1.0);
 	double td(-1.0);
-	Matrix<int> nb;
-	unsigned int s(0);
-	for(unsigned int i(0);i<n_;i+=2){
-		s = get_site_in_ab(i);
-		nb = get_neighbourg(i);
-		switch(s){
-			case 0:
-				{
-					H_(i,nb(0,0))= nb(0,1)*th;
-					H_(i,nb(1,0))= nb(1,1)*th;
-					H_(i,nb(2,0))= nb(2,1)*th;
-				}break;
-			case 2:
-				{
-					H_(i,nb(0,0))= nb(0,1)*th;
-					H_(i,nb(1,0))= nb(1,1)*th;
-					H_(i,nb(2,0))= nb(2,1)*td;
-				}break;
-		}
+
+	unsigned int s0(0);
+	unsigned int s1(0);
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		s0 = obs_[0](i,0);
+		s1 = obs_[0](i,1);
+		if(get_site_in_ab(s0)==2 && get_site_in_ab(s1)==1 && obs_[0](i,3)==2){ H_(s0,s1) = obs_[0](i,4)*td; }
+		else { H_(s0,s1) = obs_[0](i,4)*th; }
 	}
 	H_ += H_.transpose();
 }
@@ -52,16 +41,17 @@ void HoneycombPiFlux::create(){
 	}
 }
 
-unsigned int HoneycombPiFlux::match_pos_in_ab(Vector<double> const& x) const{
+unsigned int HoneycombPiFlux::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
-	if(my::are_equal(x,match)){ return 0; }
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
 	match(0) = 1.0/3.0;
-	if(my::are_equal(x,match)){ return 1; }
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
 	match(0) = 0.5;
 	match(1) = 0.5;
-	if(my::are_equal(x,match)){ return 2; }
-	match(0) = 1.0/3.0;
-	if(my::are_equal(x,match)){ return 3; }
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+	match(0)+= 1.0/3.0;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	return 4;
 }
 
@@ -79,7 +69,6 @@ Matrix<double> HoneycombPiFlux::set_ab() const {
 void HoneycombPiFlux::display_results(){
 	compute_H();
 
-	Matrix<int> nb;
 	std::string color("black");
 	std::string linestyle("solid");
 	std::string linewidth("1pt");
@@ -87,7 +76,7 @@ void HoneycombPiFlux::display_results(){
 	Vector<double> xy1(2,0);
 	double t;
 	PSTricks ps(info_+path_+dir_,filename_);
-	ps.begin(-20,-10,20,10,filename_);
+	ps.begin(-2,-20,40,20,filename_);
 
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=0;
@@ -110,83 +99,45 @@ void HoneycombPiFlux::display_results(){
 	polygon(3,1)=ab_(1,1);
 	ps.polygon(polygon,"linecolor=black");
 
-	for(unsigned int i(0);i<n_;i++){
-		xy0 = get_pos_in_lattice(i);
-		set_pos_LxLy(xy0);
-		xy0 = (LxLy_*xy0).chop();
-		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
+	unsigned int s0;
+	unsigned int s1;
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		s0 = obs_[0](i,0);
+		xy0 = get_pos_in_lattice(s0);
 
-		if(!(i%2)){
-			nb = get_neighbourg(i);
+		s1 = obs_[0](i,1);
+		xy1 = get_pos_in_lattice(s1);
 
-			t = H_(i,nb(0,0));
-			if(std::abs(t)>1e-5){
-				xy1 = get_pos_in_lattice(nb(0,0));
-				set_pos_LxLy(xy1);
-				xy1 = LxLy_*xy1;
-				if((xy0-xy1).norm_squared()>1.0001){
-					linestyle = "dashed"; 
-					xy1 = xy0;
-					xy1(0) += dir_nn_(0,0);
-					xy1(1) += dir_nn_(0,1);
-					ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
-				} else { linestyle = "solid";  }
+		t = H_(s0,s1);
+		if(std::abs(t)>1e-5){
+			if((xy0-xy1).norm_squared()>1.0001){
+				linestyle = "dashed"; 
+				xy1 = xy0;
+				xy1(0) += dir_nn_(obs_[0](i,3),0);
+				xy1(1) += dir_nn_(obs_[0](i,3),1);
 				xy1 = xy1.chop();
-
-				if(t>0){ color = "blue";}
-				else { color = "red"; }
-				linewidth = my::tostring(std::abs(t))+"mm";
-				/*(+x)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+				ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(s1));
+			} else { 
+				linestyle = "solid";  
+				if(s0<s1){
+					ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(s0)); 
+					ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(s1)); 
+				}
 			}
 
-			t = H_(i,nb(1,0));
-			if(std::abs(t)>1e-5){
-				xy1 = get_pos_in_lattice(nb(1,0));
-				set_pos_LxLy(xy1);
-				xy1 = LxLy_*xy1;
-				if((xy0-xy1).norm_squared()>1.0001){
-					linestyle = "dashed"; 
-					xy1 = xy0;
-					xy1(0) += dir_nn_(1,0);
-					xy1(1) += dir_nn_(1,1);
-					ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
-				} else { linestyle = "solid";  }
-				xy1 = xy1.chop();
-
-				if(t>0){ color = "blue";}
-				else { color = "red"; }
-				linewidth = my::tostring(std::abs(t))+"mm";
-				/*(+y)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-			}
-
-			t = H_(i,nb(2,0));
-			if(std::abs(t)>1e-5){
-				xy1 = get_pos_in_lattice(nb(2,0));
-				set_pos_LxLy(xy1);
-				xy1 = LxLy_*xy1;
-				if((xy0-xy1).norm_squared()>1.0001){
-					linestyle = "dashed"; 
-					xy1 = xy0;
-					xy1(0) += dir_nn_(2,0);
-					xy1(1) += dir_nn_(2,1);
-					ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(2,0)));
-				} else { linestyle = "solid";  }
-				xy1 = xy1.chop();
-
-				if(t>0){ color = "blue";}
-				else { color = "red"; }
-				linewidth = my::tostring(std::abs(t))+"mm";
-				/*(-y)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-			}
+			if(t>0){ color = "blue";}
+			else { color = "red"; }
+			linewidth = my::tostring(std::abs(t))+"mm";
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 	}
 	ps.end(true,true,true);
 }
 
 void HoneycombPiFlux::check(){
-	info_ ="";
-	path_ ="";
-	dir_ ="./";
+	info_ = "";
+	path_ = "";
+	dir_  = "./";
 	filename_ ="honeycomb-piflux";
 	display_results();
 }

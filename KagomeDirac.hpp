@@ -15,7 +15,9 @@ class KagomeDirac: public Kagome<Type>{
 	protected:
 		void compute_H();
 		void display_results();
-		unsigned int match_pos_in_ab(Vector<double> const& x) const { (void)(x); return 0; }
+
+		Matrix<double> set_ab() const;
+		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 
 		std::string extract_level_7();
 		std::string extract_level_6();
@@ -25,7 +27,7 @@ class KagomeDirac: public Kagome<Type>{
 template<typename Type>
 KagomeDirac<Type>::KagomeDirac(System const& s):
 	System(s),
-	Kagome<Type>(Matrix<double>(2,2),6,"kagome-dirac")
+	Kagome<Type>(set_ab(),6,"kagome-dirac")
 {
 	if(this->status_==2){
 		this->init_fermionic();
@@ -82,6 +84,27 @@ void KagomeDirac<Type>::compute_H(){
 		//}
 	//}
 	this->H_ += this->H_.transpose();
+}
+
+template<typename Type>
+unsigned int KagomeDirac<Type>::match_pos_in_ab(Vector<double> const& x) const {
+	Vector<double> match(2,0);
+	if(my::are_equal(x,match)){ return 0; }
+	match(0) = 0.5;
+	if(my::are_equal(x,match)){ return 1; }
+	match(1) = 0.5;
+	if(my::are_equal(x,match)){ return 2; }
+	return 3;
+}
+
+template<typename Type>
+Matrix<double> KagomeDirac<Type>::set_ab() const {
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 2.0;
+	tmp(1,0) = 0.0;
+	tmp(0,1) =-1.0;
+	tmp(1,1) = sqrt(3.0);
+	return tmp;
 }
 /*}*/
 

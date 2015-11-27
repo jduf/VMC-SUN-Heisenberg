@@ -2,7 +2,7 @@
 
 KagomeVBC::KagomeVBC(System const& s):
 	System(s),
-	Kagome<std::complex<double> >(Matrix<double>(2,2),9,"kagome-vbc")
+	Kagome<std::complex<double> >(set_ab(),9,"kagome-vbc")
 {
 	if(status_==2){
 		init_fermionic();
@@ -14,57 +14,23 @@ KagomeVBC::KagomeVBC(System const& s):
 
 /*{method needed for running*/
 void KagomeVBC::compute_H(){
-	//double t(1.0);
-	//double phi(M_PI/6.0);
 	H_.set(n_,n_,0);
-	//Matrix<int> nb;
-	//unsigned int s(0);
-	//for(unsigned int j(0);j<Ly_;j++){
-		//for(unsigned int i(0);i<Lx_;i++){
-			///*site 0*/
-			//s = spuc_*(i + j*Lx_);
-			//nb = get_neighbourg(s);
-			///*0-1*/ H_(s, nb(0,0)) = std::polar(nb(0,1)*t,phi);
-			///*0-8*/ H_(s, nb(1,0)) = std::polar(nb(1,1)*t,phi);
-			///*0-6*/ H_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
-//
-			///*site 1*/
-			//s++;
-			//nb = get_neighbourg(s);
-			///*1-2*/ H_(s, nb(0,0)) = std::polar(nb(0,1)*t,-phi);
-			///*1-7*/ H_(s, nb(1,0)) = std::polar(nb(1,1)*t,phi);
-			///*1-8*/ H_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
-//
-			///*site 2*/
-			//s++;
-			//nb = get_neighbourg(s);
-			///*2-3*/ H_(s, nb(0,0)) = std::polar(nb(0,1)*t,phi);
-			///*2-6*/ H_(s, nb(1,0)) = std::polar(nb(1,1)*t,phi);
-			///*2-7*/ H_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
-//
-			///*site 3*/
-			//s++;
-			//nb = get_neighbourg(s);
-			///*3-4*/ H_(s, nb(0,0)) = std::polar(nb(0,1)*t,-phi);
-			///*3-8*/ H_(s, nb(1,0)) = std::polar(nb(1,1)*t,-phi);
-			///*3-6*/ H_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
-//
-			///*site 4*/
-			//s++;
-			//nb = get_neighbourg(s);
-			///*4-5*/ H_(s, nb(0,0)) = std::polar(nb(0,1)*t,phi);
-			///*4-7*/ H_(s, nb(1,0)) = std::polar(nb(1,1)*t,-phi);
-			///*4-8*/ H_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
-//
-			///*site 5*/
-			//s++;
-			//nb = get_neighbourg(s);
-			///*5-0*/ H_(s, nb(0,0)) = std::polar(nb(0,1)*t,-phi);
-			///*5-6*/ H_(s, nb(1,0)) = std::polar(nb(1,1)*t,-phi);
-			///*5-7*/ H_(s, nb(2,0)) = std::polar(nb(2,1)*t,-phi);
-//
-		//}
-	//}
+	double t(1.0);
+	double phi(M_PI/6.0);
+
+	unsigned int s0(0);
+	unsigned int s1(0);
+	unsigned int ab0(0);
+	unsigned int ab1(0);
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		s0 = obs_[0](i,0);
+		s1 = obs_[0](i,1);
+		ab0 = get_site_in_ab(s0);
+		ab1 = get_site_in_ab(s1);
+		if((ab0==3 && ab1==5) || (ab0==4 && ab1==6) || (ab0==5 && ab1==2) || (ab0==7 && ab1==8) || (ab0==8 && ab1==0)){
+			H_(s0,s1) = std::polar(obs_[0](i,4)*t,-phi); 
+		} else { H_(s0,s1) = std::polar(obs_[0](i,4)*t,phi); }
+	}
 	H_ += H_.conjugate_transpose();
 }
 
@@ -83,208 +49,136 @@ void KagomeVBC::create(){
 	}
 	compute_H();
 }
+
+unsigned int KagomeVBC::match_pos_in_ab(Vector<double> const& x) const {
+	Vector<double> match(2,0);
+	if(my::are_equal(x,match)){ return 0; }
+	match(0) = 0.5;
+	if(my::are_equal(x,match)){ return 1; }
+	match(0) = 0.0;
+	match(1) = 0.5;
+	if(my::are_equal(x,match)){ return 2; }
+	double a(1.0/3.0);
+	double b(1.0/6.0);
+	match(0) = a;
+	match(1) = b; 
+	if(my::are_equal(x,match)){ return 3; }
+	match(0) += a;
+	match(1) += b; 
+	if(my::are_equal(x,match)){ return 4; }
+	match(0) -= 0.5;
+	if(my::are_equal(x,match)){ return 5; }
+	match(0) += 2*a;
+	match(1) += 2*b;
+	if(my::are_equal(x,match)){ return 6; }
+	match(0) -= 0.5;
+	if(my::are_equal(x,match)){ return 7; }
+	match(0) += a;
+	match(1) += b;
+	if(my::are_equal(x,match)){ return 8; }
+	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
+	return 9;
+}
+
+Matrix<double> KagomeVBC::set_ab() const {
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 3.0;
+	tmp(1,0) =-sqrt(3.0);
+	tmp(0,1) = 0.0;
+	tmp(1,1) = 2*sqrt(3.0);
+	return tmp;
+}
 /*}*/
 
 /*{method needed for checking*/
 void KagomeVBC::display_results(){
-	//Matrix<int> nb;
-	//double x0;
-	//double x1;
-	//double y0;
-	//double y1;
-	//double ll(1.0);
-	//double ex(4.0*ll*cos(M_PI/6.0));
-	//double exy(2.0*ll*cos(M_PI/6.0));
-	//double ey(3.0);
-	//std::string color("black");
+	compute_H();
 
-	//PSTricks ps("./","lattice");
-	//ps.add("\\begin{pspicture}(-1,-1)(16,10)%"+filename_);
-	//Matrix<double> cell(4,2);
-	//cell(0,0) = 0.0;
-	//cell(0,1) = 0.0;
-	//cell(1,0) = ex;
-	//cell(1,1) = 0.0;
-	//cell(2,0) = ex + exy;
-	//cell(2,1) = ey;
-	//cell(3,0) = exy;
-	//cell(3,1) = ey;
-	//ps.polygon(cell,"linewidth=1pt,linecolor=red");
-	//cell(1,0)*= Lx_;
-	//cell(2,0) = Lx_*ex + Ly_*exy;
-	//cell(2,1)*= Ly_;
-	//cell(3,0)*= Ly_;
-	//cell(3,1)*= Ly_;
-	//ps.polygon(cell,"linewidth=1pt,linecolor=red,linestyle=dashed");
-//
-	//unsigned int s;
-	//for(unsigned int i(0);i<Lx_;i++) {
-		//for(unsigned int j(0);j<Ly_;j++) {
-			///*site 0*/
-			//s = spuc_*(i+j*Lx_);
-			//nb = get_neighbourg(s);
-			//x0 = ll*(0.5+sin(M_PI/6.0)) + i*ex + j*exy;
-			///*0.05 is there so there is no problem with latex and it shows
-			// * better which sites are in the unit cell*/
-			//y0 = 0.05 + ll/2.0 + j*ey;
-			//ps.put(x0+0.2,y0+0.2,my::tostring(s));
-			//x1 = x0+ll*cos(3.0*M_PI/6.0);
-			//y1 = y0+ll*sin(3.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*0-1*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(9.0*M_PI/6.0);
-			//y1 = y0+ll*sin(9.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*0-6*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-//
-			///*site 1*/
-			//s++;
-			//nb = get_neighbourg(s);
-			//x0 = x0+ll*cos(3.0*M_PI/6.0);
-			//y0 = y0+ll*sin(3.0*M_PI/6.0);
-			//ps.put(x0+0.2,y0-0.2,my::tostring(s));
-			//x1 = x0+ll*cos(1.0*M_PI/6.0);
-			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*1-2*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(7.0*M_PI/6.0);
-			//y1 = y0+ll*sin(7.0*M_PI/6.0);
-			//double x8(x1);
-			//double y8(y1);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*1-8*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 2*/
-			//s++;
-			//nb = get_neighbourg(s);
-			//x0 = x0+ll*cos(1.0*M_PI/6.0);
-			//y0 = y0+ll*sin(1.0*M_PI/6.0);
-			//ps.put(x0,y0-0.2,my::tostring(s));
-			//x1 = x0+ll*cos(-1.0*M_PI/6.0);
-			//y1 = y0+ll*sin(-1.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-3*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(5.0*M_PI/6.0);
-			//y1 = y0+ll*sin(5.0*M_PI/6.0);
-			//double x7(x1);
-			//double y7(y1);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-7*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 3*/
-			//s++;
-			//nb = get_neighbourg(s);
-			//x0 = x0+ll*cos(-1.0*M_PI/6.0);
-			//y0 = y0+ll*sin(-1.0*M_PI/6.0);
-			//ps.put(x0-0.2,y0-0.2,my::tostring(s));
-			//x1 = x0+ll*cos(9.0*M_PI/6.0);
-			//y1 = y0+ll*sin(9.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*3-4*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(3.0*M_PI/6.0);
-			//y1 = y0+ll*sin(3.0*M_PI/6.0);
-			//double x6(x1);
-			//double y6(y1);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*3-6*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 4*/
-			//s++;
-			//nb = get_neighbourg(s);
-			//x0 = x0+ll*cos(-3.0*M_PI/6.0);
-			//y0 = y0+ll*sin(-3.0*M_PI/6.0);
-			//ps.put(x0-0.2,y0+0.2,my::tostring(s));
-			//x1 = x0+ll*cos(7.0*M_PI/6.0);
-			//y1 = y0+ll*sin(7.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*4-5*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(1.0*M_PI/6.0);
-			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*4-8*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 5*/
-			//s++;
-			//nb = get_neighbourg(s);
-			//x0 = x0-ll*cos(1.0*M_PI/6.0);
-			//y0 = y0-ll*sin(1.0*M_PI/6.0);
-			//ps.put(x0,y0+0.2,my::tostring(s));
-			//x1 = x0+ll*cos(5.0*M_PI/6.0);
-			//y1 = y0+ll*sin(5.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*5-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(11.0*M_PI/6.0);
-			//y1 = y0+ll*sin(11.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*5-7*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 6*/
-			//s++;
-			//nb = get_neighbourg(s);
-			//x0 = x6;
-			//y0 = y6;
-			//ps.put(x0+0.2,y0-0.2,my::tostring(s));
-			//x1 = x0+ll*cos(1.0*M_PI/6.0);
-			//y1 = y0+ll*sin(1.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*6-5*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(7.0*M_PI/6.0);
-			//y1 = y0+ll*sin(7.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*6-2*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 7*/
-			//s++;
-			//nb = get_neighbourg(s);
-			//x0 = x7+ex;
-			//y0 = y7;
-			//ps.put(x0-0.2,y0-0.2,my::tostring(s));
-			//x1 = x0+ll*cos(3.0*M_PI/6.0);
-			//y1 = y0+ll*sin(3.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*7-1*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(9.0*M_PI/6.0);
-			//y1 = y0+ll*sin(9.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*7-4*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 8*/
-			//s++;
-			//nb = get_neighbourg(s);
-			//x0 = x8+ex;
-			//y0 = y8;
-			//ps.put(x0,y0+0.2,my::tostring(s));
-			//x1 = x0+ll*cos(11.0*M_PI/6.0);
-			//y1 = y0+ll*sin(11.0*M_PI/6.0);
-			//if(imag(H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*8-0*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(5.0*M_PI/6.0);
-			//y1 = y0+ll*sin(5.0*M_PI/6.0);
-			//if(imag(H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*8-3*/	ps.line("->",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-		//}
-	//}
-	//ps.add("\\end{pspicture}");
-	//ps.save(true,true);
+	std::string color("black");
+	std::string linestyle("solid");
+	std::string linewidth("1pt");
+	Vector<double> xy0(2,0);
+	Vector<double> xy1(2,0);
+	std::complex<double> t;
+	PSTricks ps(info_+path_+dir_,filename_);
+	ps.begin(-2,-20,40,20,filename_);
+
+	Matrix<double> polygon(4,2);
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=LxLy_(0,0);
+	polygon(1,1)=LxLy_(1,0);
+	polygon(2,0)=LxLy_(0,0)+LxLy_(0,1);
+	polygon(2,1)=LxLy_(1,0)+LxLy_(1,1);
+	polygon(3,0)=LxLy_(0,1);
+	polygon(3,1)=LxLy_(1,1);
+	ps.polygon(polygon,"linecolor=green");
+
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=ab_(0,0);
+	polygon(1,1)=ab_(1,0);
+	polygon(2,0)=ab_(0,0)+ab_(0,1);
+	polygon(2,1)=ab_(1,0)+ab_(1,1);
+	polygon(3,0)=ab_(0,1);
+	polygon(3,1)=ab_(1,1);
+	ps.polygon(polygon,"linecolor=black");
+
+	unsigned int s0;
+	unsigned int s1;
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		s0 = obs_[0](i,0);
+		xy0 = get_pos_in_lattice(s0);
+
+		s1 = obs_[0](i,1);
+		xy1 = get_pos_in_lattice(s1);
+
+		t = H_(s0,s1);
+		if(std::abs(t)>1e-5){
+			if((xy0-xy1).norm_squared()>1.0001){
+				linestyle = "dashed";
+				xy1 = xy0;
+				switch(get_site_in_ab(s0)){
+					case 2:
+						{
+							xy1(0) += dir_nn_(1,0);
+							xy1(1) += dir_nn_(1,1);
+						}break;
+					case 4:
+						{
+							xy1(0) += dir_nn_(0,0);
+							xy1(1) += dir_nn_(0,1);
+						}break;
+					case 6:
+						{
+							xy1(0) += dir_nn_(2,0);
+							xy1(1) += dir_nn_(2,1);
+						}break;
+					case 7:
+						{
+							xy1(0) += dir_nn_(2,0);
+							xy1(1) += dir_nn_(2,1);
+						}break;
+					case 8:
+						{
+							xy1(0) += dir_nn_(1,0);
+							xy1(1) += dir_nn_(1,1);
+						}break;
+					default:
+						{ std::cerr<<__PRETTY_FUNCTION__<<" : boundary not defined"<<std::endl; }
+				}
+				xy1 = xy1.chop();
+				ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
+			} else { linestyle = "solid"; }
+
+			if(t.imag()>0){ color = "blue"; }
+			else { color = "red"; }
+			linewidth = my::tostring(std::abs(t))+"mm";
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+		}
+		ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
+	}
+	ps.end(true,true,true);
 }
 
 void KagomeVBC::check(){
@@ -337,8 +231,12 @@ void KagomeVBC::check(){
 	//}
 	///*}*/
 
-	//BandStructure<std::complex<double> > bs(H_,Lx_,Ly_,spuc_,bc_);
-	plot_band_structure();
+	//plot_band_structure();
+	info_ = "";
+	path_ = "";
+	dir_  = "./";
+	filename_ ="kagome-vbc";
+	display_results();
 }
 /*}*/
 

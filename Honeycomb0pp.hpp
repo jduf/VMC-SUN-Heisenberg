@@ -25,4 +25,3 @@ class Honeycomb0pp: public Honeycomb<double>{
 		std::string extract_level_6();
 };
 #endif
-

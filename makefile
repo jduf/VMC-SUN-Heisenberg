@@ -1,7 +1,7 @@
 MACHINE=$(shell uname -n)_
 ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	MACHINE=
-#	EXEC = min
+	EXEC = min
 	EXEC+= mc
 #	EXEC+= load
 	EXEC+= check
@@ -32,7 +32,7 @@ endif
 CHAIN     = ChainFermi.cpp ChainPolymerized.cpp
 LADDER    = LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp
 SQUARE    = SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp
-TRIANGLE  = TriangleFermi.cpp
+TRIANGLE  = TriangleFermi.cpp TrianglePhi.cpp
 HONEYCOMB = Honeycomb0pp.cpp HoneycombPiFlux.cpp
 KAGOME    = KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp
 

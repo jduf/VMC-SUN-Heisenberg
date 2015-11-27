@@ -53,7 +53,7 @@ void SquarePiFlux::create(){
 	}
 }
 
-unsigned int SquarePiFlux::match_pos_in_ab(Vector<double> const& x) const{
+unsigned int SquarePiFlux::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match)){ return 0; }
 	match(0) = 0.5;

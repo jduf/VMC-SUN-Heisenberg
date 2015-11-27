@@ -31,11 +31,13 @@ class System2D: public GenericSystem<Type>{
 
 	protected:
 		unsigned int xloop_;		//!< linear size of the lattice (number jumps before coming back to the origin)
+		Vector<double> linear_jump_;//!< set_pos_LxLy(xloop_*linear_jump_) must come back to (0,0)
 		Matrix<Type> H_;			//!< matrix used to get the band structure
 		Matrix<double> ab_;  		//!< basis of the unit cel
 		Matrix<double> LxLy_;		//!< basis of the whole lattice
 		Matrix<double> dir_nn_LxLy_;//!<direction of the nearest neighbour in the LxLy basis
 		Matrix<std::complex<double> > evec_;//!< eigenvectors of H+Tx+Ty
+		double const eq_prec_;		//!< precision for equality (important for matchinf position in lattice)
 
 		/*!Plots the band structure E(px,py)*/
 		void plot_band_structure();
@@ -58,13 +60,13 @@ class System2D: public GenericSystem<Type>{
 		void set_pos_ab(Vector<double>& x) const;
 
 	private:
-		Matrix<Type> Tx_;	//!< translation operator along x-axis
-		Matrix<Type> Ty_;	//!< translation operator along y-axis
-		Vector<double> px_;	//!< eigenvalue of Tx
-		Vector<double> py_;	//!< eigenvalue of Ty
-		Vector<double> e_;	//!< eigenvalue of H_
-		Matrix<double> inv_LxLy_;
-		Matrix<double> inv_ab_;
+		Matrix<Type> Tx_;		//!< translation operator along x-axis
+		Matrix<Type> Ty_;		//!< translation operator along y-axis
+		Vector<double> px_;		//!< eigenvalue of Tx
+		Vector<double> py_;		//!< eigenvalue of Ty
+		Vector<double> e_;		//!< eigenvalue of H_
+		Matrix<double> inv_LxLy_;//!<inverse of the matrix LxLy_
+		Matrix<double> inv_ab_;	//!< inverse of the matrix ab_
 
 		/*!Computes the translation operators*/
 		void compute_TxTy();
@@ -83,7 +85,7 @@ class System2D: public GenericSystem<Type>{
 		/*!Makes sure that 0<=x_i<1, i=1,2*/
 		void set_pos(Vector<double>& x) const;
 		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
-		bool set_in_basis(Vector<double>& x) const;
+		bool set_in_LxLy(Vector<double>& x) const;
 };
 
 /*{constructors*/
@@ -91,8 +93,10 @@ template<typename Type>
 System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, Vector<double> const& linear_jump, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename),
 	xloop_(0),
+	linear_jump_(linear_jump),
 	ab_(ab),
 	LxLy_(LxLy),
+	eq_prec_(1e-12),
 	inv_LxLy_(2,2),
 	inv_ab_(2,2)
 {
@@ -112,9 +116,9 @@ System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, V
 		Vector<double> x(2);
 		do{//might be a more efficient way
 			xloop_++;
-			x = linear_jump*xloop_;
+			x = linear_jump_*xloop_;
 			set_pos_LxLy(x);
-		} while( !my::are_equal(x(0),0) || !my::are_equal(x(1),0)  );
+		} while(!my::are_equal(x(0),0) || !my::are_equal(x(1),0));
 
 		Vector<double> Lx(2);
 		Lx(0) = LxLy_(0,0);
@@ -257,7 +261,7 @@ template<typename Type>
 unsigned int System2D<Type>::get_site_in_ab(unsigned int const& i) const {
 	Vector<double> x(get_pos_in_lattice(i));
 	set_pos_ab(x);
-	set_in_basis(x);
+	set_in_LxLy(x);
 	return match_pos_in_ab(x);
 }
 
@@ -331,7 +335,7 @@ bool System2D<Type>::full_diagonalization(){
 
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(i+1);j<this->n_;j++){
-			if(my::are_equal(eval(i),eval(j),1e-10,1e-10)){
+			if(my::are_equal(eval(i),eval(j),eq_prec_,eq_prec_)){
 				std::cerr<<__PRETTY_FUNCTION__<<" : eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
 				return false;
 			}
@@ -381,16 +385,16 @@ void System2D<Type>::find_neighbourg(unsigned int i, unsigned int dir, Matrix<in
 	/*!nearest neighbour of the site i in the (Lx,Ly) basis*/
 	Vector<double> nn(get_pos_in_lattice(i));
 	set_pos_LxLy(nn);
-	set_in_basis(nn);
+	set_in_LxLy(nn);
 
 	nn += vector_towards(i,dir);
-	if(set_in_basis(nn)){ nb(dir,1) = this->bc_; }
+	if(set_in_LxLy(nn)){ nb(dir,1) = this->bc_; }
 
 	unsigned int j(0);
 	while(!my::are_equal(tn,nn) && j<this->n_+2){
 		j++;
 		try_neighbourg(tn,j);
-		set_in_basis(tn);
+		set_in_LxLy(tn);
 	}
 	assert(j<this->n_);
 	nb(dir,0) = j;
@@ -401,22 +405,22 @@ void System2D<Type>::set_pos(Vector<double>& x) const {
 	double ip;
 	x(0) = std::modf(x(0),&ip);
 	x(1) = std::modf(x(1),&ip);
-	if( my::are_equal(x(0),1) ){ x(0) = 0; }
-	if( my::are_equal(x(1),1) ){ x(1) = 0; }
+	if( my::are_equal(x(0),1,eq_prec_,eq_prec_) ){ x(0) = 0.0; }
+	if( my::are_equal(x(1),1,eq_prec_,eq_prec_) ){ x(1) = 0.0; }
 }
 
 template<typename Type>
-bool System2D<Type>::set_in_basis(Vector<double>& x) const {
+bool System2D<Type>::set_in_LxLy(Vector<double>& x) const {
 	bool out_of_zone(false);
 	double ip;
 	x(0) = std::modf(x(0),&ip);
 	if( x(0)<0 ){ x(0) += 1.0; out_of_zone = !out_of_zone; }
-	if( my::are_equal(x(0),1) ){ x(0) = 0; out_of_zone = !out_of_zone; }
+	if( my::are_equal(x(0),1,eq_prec_,eq_prec_) ){ x(0) = 0; out_of_zone = !out_of_zone; }
 	if( ip>0 ){ out_of_zone = !out_of_zone; }
 
 	x(1) = std::modf(x(1),&ip);
 	if( x(1)<0 ){ x(1) += 1.0; out_of_zone = !out_of_zone; }
-	if( my::are_equal(x(1),1) ){ x(1) = 0; out_of_zone = !out_of_zone; }
+	if( my::are_equal(x(1),1,eq_prec_,eq_prec_) ){ x(1) = 0; out_of_zone = !out_of_zone; }
 	if( ip>0 ){ out_of_zone = !out_of_zone ; }
 	return out_of_zone;
 }

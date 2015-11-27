@@ -41,32 +41,9 @@ void VMCSystematic::plot(){
 	gp.save_file();
 	gp.create_image(true,true);
 }
+/*}*/
 
-void VMCSystematic::rerun(unsigned int const& nmin, int const& nobs, double const& dE, unsigned int const& maxiter){
-	double E_range(0.0);
-	double tmp;
-	m_->samples_list_.set_target();
-	while(m_->samples_list_.target_next()){
-		tmp = m_->samples_list_.get().get_MCS()->get_energy().get_x();
-		if(tmp<E_range){ E_range=tmp; }
-	}
-	E_range *= 0.99;
-
-	List<MCSim> sorted_list;
-	m_->samples_list_.set_target();
-	while(m_->samples_list_.target_next()){
-		if(m_->samples_list_.get().get_MCS()->get_energy().get_x()<E_range){
-			sorted_list.add_sort(m_->samples_list_.get_ptr(),MCSim::sort_by_E);
-		}
-	}
-
-	sorted_list.set_target();
-	unsigned int i(0);
-	while(sorted_list.target_next() && i++<nmin){
-		evaluate_until_precision(sorted_list.get().get_param(),nobs,dE,maxiter);
-	}
-}
-
+/*{private methods*/
 void VMCSystematic::apply_symmetry(){
 	for(unsigned int i(0);i<sym_.row();i++){
 		if(sym_(i,1)<0){ param_(sym_(i,0)) = sym_(i,2); }

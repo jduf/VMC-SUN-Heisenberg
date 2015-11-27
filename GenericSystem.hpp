@@ -96,7 +96,7 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 				if(nb(j,1)!=0){ k++; }
 			}
 		}
-		Matrix<int> tmp(k,3);
+		Matrix<int> tmp(k,5);
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
 			nb = get_neighbourg(i);
@@ -108,6 +108,8 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 					 * bond energy, one has to redefine the correct mapping
 					 * between all bonds and the representative ones*/
 					tmp(k,2) = -1;
+					tmp(k,3) = j;
+					tmp(k,4) = nb(j,1);
 					k++;
 				}
 			}

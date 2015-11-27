@@ -9,6 +9,7 @@
 #include "LadderFreeFlux.hpp"
 
 #include "TriangleFermi.hpp"
+#include "TrianglePhi.hpp"
 
 #include "SquareFermi.hpp"
 #include "SquarePiFlux.hpp"

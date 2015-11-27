@@ -190,7 +190,7 @@ SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
 			tmp_[c].set(M_(c),M_(c));
 			tmp_v[c].set(M_(c));
 		}
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" very caca "<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore"<<std::endl; }
 }
 
 template<typename Type>
@@ -219,7 +219,7 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 			tmp_v[c].set(M_(c));
 			Lapack<Type>(Ainv_[c],false,'G').inv();
 		}
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" very caca "<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore "<<std::endl; }
 }
 
 template<typename Type>
@@ -295,7 +295,7 @@ void SystemFermionic<Type>::update(){
 }
 
 template<typename Type>
-void SystemFermionic<Type>::write(IOFiles& w) const{
+void SystemFermionic<Type>::write(IOFiles& w) const {
 	System::write(w);
 	MCSystem::write(w);
 	w<<this->same_wf_;

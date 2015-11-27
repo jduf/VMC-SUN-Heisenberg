@@ -31,7 +31,7 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 {
 	if(this->status_==2){
 		if(!this->obs_.size()){
-			this->dir_nn_LxLy_.set(3,2);
+			this->dir_nn_LxLy_.set(4,2);
 
 			Vector<double> dir(2);
 			dir(0) = 1.0;
@@ -46,14 +46,14 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 			this->dir_nn_LxLy_(1,0) = dir(0);
 			this->dir_nn_LxLy_(1,1) = dir(1);
 
-			dir(0) = -1.0;
+			dir(0) =-1.0;
 			dir(1) = 0.0;
 			this->set_pos_LxLy(dir);
 			this->dir_nn_LxLy_(2,0) = dir(0);
 			this->dir_nn_LxLy_(2,1) = dir(1);
 
 			dir(0) = 0.0;
-			dir(1) = -1.0;
+			dir(1) =-1.0;
 			this->set_pos_LxLy(dir);
 			this->dir_nn_LxLy_(3,0) = dir(0);
 			this->dir_nn_LxLy_(3,1) = dir(1);
@@ -62,8 +62,9 @@ Square<Type>::Square(unsigned int const& spuc, unsigned int const& length, unsig
 		}
 
 		/*!sets the bond energy if it has not been set yet*/
-		if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() == 1){
-			this->J_.set(this->obs_[0].nlinks(),1);
+		if(this->obs_[0].nlinks() != this->J_.size()){
+			if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
+			else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
 		}
 	}
 }
@@ -93,35 +94,33 @@ Vector<double> Square<Type>::get_pos_in_lattice(unsigned int const& i) const {
 	Vector<double> tmp(2);
 	tmp(0) = i;
 	tmp(1) = i/this->xloop_;
-	return tmp;
+	this->set_pos_LxLy(tmp);
+	return (this->LxLy_*tmp).chop();
 }
 /*}*/
 
 /*{private methods*/
 template<typename Type>
 Matrix<double> Square<Type>::set_ab(unsigned int const& spuc, unsigned int const& length, unsigned int const& tilting) const {
-	if(!length){
-		return set_geometry(spuc);
-	} else if(!(spuc%length)){
+	if(!length){ return set_geometry(spuc); }
+	if(!(spuc%length)){
 		Matrix<double> tmp(2,2);
 		tmp(0,0) = length;
 		tmp(1,0) = 0;
 		tmp(0,1) = tilting;
 		tmp(1,1) = spuc/length;
 		return tmp;
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : unknown unit cell geometry"<<std::endl;
-		return Matrix<double>();
-	}
+	} 
+	std::cerr<<__PRETTY_FUNCTION__<<" : unknown unit cell geometry"<<std::endl;
+	return Matrix<double>();
 }
 
 template<typename Type>
 Matrix<double> Square<Type>::set_geometry(unsigned int const& n) const {
-	Matrix<double> tmp;
 	for(unsigned int p(0);p<=sqrt(n);p++){
 		for(unsigned int q(0);q<p+1;q++){
 			if(p*p+q*q==n){
-				tmp.set(2,2);
+				Matrix<double> tmp(2,2);
 				tmp(0,0) = p;
 				tmp(1,0) = q;
 				tmp(0,1) = q;
@@ -130,7 +129,17 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n) const {
 			}
 		}
 	}
-	return tmp;
+	std::cerr<<__PRETTY_FUNCTION__<<" : unknown lattice geometry, possible options are :"<<std::endl;
+	for(unsigned int i(4);i<2*n;i++){
+		for(unsigned int p(0);p<=sqrt(i);p++){
+			for(unsigned int q(0);q<p+1;q++){
+				if(p*p+q*q==i){
+					std::cerr<<"(p="<<p<<", q="<<q<<") : n="<<i<<std::endl;
+				}
+			}
+		}
+	}
+	return Matrix<double>();
 }
 
 template<typename Type>
@@ -154,9 +163,15 @@ void Square<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& j) con
 
 template<typename Type>
 Vector<double> Square<Type>::set_linear_jump() const {
+	/*{!As the minimal unit cell contains 1 sites, the linear size is given by
+	 * going from 0 to 1
+	 *
+	 * |  |
+	 * 0--1--
+	 *}*/
 	Vector<double> tmp(2);
-	tmp(0)=1.0;
-	tmp(1)=0.0;
+	tmp(0) = 1.0;
+	tmp(1) = 0.0;
 	return tmp;
 }
 /*}*/
