@@ -111,13 +111,15 @@ class Container{
 
 template<typename Type>
 void Container::set(std::string const& name, Type const& t){
-	data_.push_back(new GenericVariable<Type>(name,t));
+	unsigned int i(0);
+	if(!find(name,i,false)){ data_.push_back(new GenericVariable<Type>(name,t)); }
+	else { std::cerr<<__PRETTY_FUNCTION__<<" : can't store two values with the same name ("<< name<<")" <<std::endl; }
 }
 
 template<typename Type>
 Type Container::get(std::string const& name) const {
 	unsigned int i(0);
-	if(find(name,i)){ return static_cast< GenericVariable<Type> *>(data_[i])->t_; }
+	if(find(name,i)){ return static_cast<GenericVariable<Type>*>(data_[i])->t_; }
 	else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : no data with name "<<name<<std::endl;
 		return Type();
@@ -134,7 +136,7 @@ void Container::get(std::string const& name, Type& t) const {
 template<typename Type>
 void Container::get(unsigned int i, Type &t) const {
 	if(i<data_.size()){ t = static_cast< GenericVariable<Type> *>(data_[i])->t_; }
-	else { std::cerr<<__PRETTY_FUNCTION__<<" : "<<i<<"<"<< data_.size()<<"?" <<std::endl; }
+	else { std::cerr<<__PRETTY_FUNCTION__<<" : trying to get an unindexed value ("<<i<<"<"<< data_.size()<<"?)"<<std::endl; }
 }
 
 template<typename Type>

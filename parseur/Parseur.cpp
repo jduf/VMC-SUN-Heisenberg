@@ -14,9 +14,8 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 			if(name.find(":") != std::string::npos){
 				if(i+1<argc){
 					val = argv[i+1];
-					if(name[1] == 's'){
-						set(name.substr(3),val);
-					} else{
+					if(name[1] == 's'){ set(name.substr(3),val); }
+					else {
 						type = 0;
 						if(val.find(":") != std::string::npos){ type = 1; }
 						if(val.find(",") != std::string::npos){ type = 2; }

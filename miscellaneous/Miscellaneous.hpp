@@ -68,6 +68,21 @@ namespace my{
 		return elems;
 	}
 
+	/*sign*/
+	/*{*/
+	//template<typename Type> inline constexpr
+	//int sign(Type x, std::false_type is_signed) { return Type(0) < x; }
+
+	//template<typename Type> inline constexpr
+	//int sign(Type x, std::true_type is_signed) { return (Type(0) < x) - (x < Type(0)); }
+
+	//template<typename Type> inline constexpr
+	//int sign(Type x) { return sign(x, std::is_signed<Type>()); }
+
+	inline int sign(unsigned int const& x) { return 0 < x; }
+	inline int sign(int const& x) { return (0 < x) - (x < 0); }
+	/*}*/
+
 	/*double real(T)*/
 	/*{*/
 	inline double real(double const& x){ return x; }

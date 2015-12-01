@@ -12,10 +12,16 @@ int main(int argc, char* argv[]){
 	std::string directory_name_1(P.get<std::string>(0));
 	std::string directory_name_2(P.get<std::string>(1));
 	unsigned int i(0);
-	std::string ext(P.find("e",i,false)?P.get<std::string>(i):"");
-	std::string keyword(P.find("k",i,false)?P.get<std::string>(i):"");
+	std::string ext("");
+	std::string keyword("");
+	std::string host("");
 	std::string dft_answer(P.find("y",i,false)?"y":"n");
 	std::string dft_string(dft_answer=="y"?" ? [Y/n]:":" ? [y/N]:");
+	bool ssh(P.find("ssh",i,false));
+	if(ssh){ 
+		std::cerr<<"diffdir : will only take into account the local directory"<<std::endl;
+		host = P.get<std::string>(i); 
+	}
 
 	if(!P.locked()){
 		Linux command;
@@ -25,11 +31,13 @@ int main(int argc, char* argv[]){
 		if(directory_name_2[directory_name_2.size()-1] != '/'){ directory_name_2 += "/"; }
 		Directory d1;
 		Directory d2;
-		if(ext!=""){
+		if(P.find("e",i,false)){
+			ext = P.get<std::string>(i);
 			d1.search_file_ext(ext,directory_name_1,true,false);
 			d2.search_file_ext(ext,directory_name_2,true,false);
 		}
-		if(keyword!=""){
+		if(P.find("k",i,false)){
+			keyword = P.get<std::string>(i);
 			d1.search_file(keyword,directory_name_1,true,false);
 			d2.search_file(keyword,directory_name_2,true,false);
 		}
@@ -46,15 +54,17 @@ int main(int argc, char* argv[]){
 				for(unsigned int k(old_j+1); k<j; k++){
 					std::cout<<"     B : "<< d2.get_name(k) << d2.get_ext(k)<<std::endl;
 				}
-				command("diff -q " + d1[i] + " " + d2[j] + " >> /tmp/diff.txt",false);
+				if(ssh){ command("ssh " + host + " cat '"+ d2[j] + "' | diff -q " + d1[i] + " - > /dev/null",false); } 
+				else {   command("diff -q " + d1[i] + " " + d2[j]+ "> /dev/null",false); }
 				if(command.status()){
 					std::cout<<"A != B : "<< d1.get_name(i) << d1.get_ext(i) << dft_string;
 					std::getline(std::cin,answer);
 					if(answer==""){ answer = dft_answer; }
-					if(answer=="y"){ command("vimdiff " + d1[i] + " " + d2[j],false); }
-				} else {
-					std::cout<<"A == B : "<<d1.get_name(i)<<d1.get_ext(i)<<std::endl;
-				}
+					if(answer=="y"){ 
+						if(ssh){ command("vimdiff " + d1[i] + " scp://" + host + "/" + d2[j],false); } 
+						else {   command("vimdiff " + d1[i] + " " + d2[j],false); }
+					}
+				} else { std::cout<<"A == B : "<<d1.get_name(i)<<d1.get_ext(i)<<std::endl; }
 				old_j = j;
 				i++;
 			}

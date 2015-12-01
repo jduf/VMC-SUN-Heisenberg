@@ -239,7 +239,7 @@ Matrix<Type>& Matrix<Type>::operator+=(Matrix<Type> const& mat){
 }
 
 template<typename Type>
-Matrix<Type> Matrix<Type>::operator+(Matrix<Type> const& mat) const{
+Matrix<Type> Matrix<Type>::operator+(Matrix<Type> const& mat) const {
 	Matrix<Type> matout((*this));
 	matout += mat;
 	return matout;
@@ -253,7 +253,7 @@ Matrix<Type>& Matrix<Type>::operator-=(Matrix<Type> const& mat){
 }
 
 template<typename Type>
-Matrix<Type> Matrix<Type>::operator-(Matrix<Type> const& mat) const{
+Matrix<Type> Matrix<Type>::operator-(Matrix<Type> const& mat) const {
 	Matrix<Type> matout((*this));
 	matout -= mat;
 	return matout;
@@ -281,7 +281,7 @@ Matrix<Type>& Matrix<Type>::operator*=(Matrix<Type> const& mat){
 }
 
 template<typename Type>
-Matrix<Type> Matrix<Type>::operator*(Matrix<Type> const& mat) const{
+Matrix<Type> Matrix<Type>::operator*(Matrix<Type> const& mat) const {
 	assert(col_==mat.row_);
 	Matrix<Type> matout(row_,mat.col_);
 	for(unsigned int i(0);i<matout.row_;i++){
@@ -311,7 +311,7 @@ Matrix<Type>& Matrix<Type>::operator*=(Type const& d){
 }
 
 template<typename Type>
-Matrix<Type> Matrix<Type>::operator*(Type const& d) const{
+Matrix<Type> Matrix<Type>::operator*(Type const& d) const {
 	Matrix<Type> tmp(*this);
 	tmp *= d;
 	return tmp;
@@ -364,7 +364,7 @@ inline Matrix<double> Matrix<double>::chop(double precision) const {
 }
 
 template<>
-inline Matrix<std::complex<double> > Matrix<std::complex<double> >::chop(double precision) const{
+inline Matrix<std::complex<double> > Matrix<std::complex<double> >::chop(double precision) const {
 	Matrix<std::complex<double> > tmp(*this);
 	for(unsigned int i(0);i<tmp.size_;i++){
 		if(std::abs(tmp.mat_[i].imag()) < precision ){ tmp.mat_[i].imag(0.0); }
@@ -410,7 +410,7 @@ void Matrix<Type>::set(unsigned int row, unsigned int col, Type val){
 /*methods that return something related to the class*/
 /*{*/
 template<typename Type>
-Matrix<Type> Matrix<Type>::transpose() const{
+Matrix<Type> Matrix<Type>::transpose() const {
 	Matrix<Type> tmp(col_,row_);
 	for(unsigned int i(0);i<col_;i++){
 		for(unsigned int j(0);j<row_;j++){
@@ -421,7 +421,7 @@ Matrix<Type> Matrix<Type>::transpose() const{
 }
 
 template<>
-inline Matrix<std::complex<double> > Matrix<std::complex<double> >::conjugate_transpose() const{
+inline Matrix<std::complex<double> > Matrix<std::complex<double> >::conjugate_transpose() const {
 	Matrix<std::complex<double> > tmp(col_,row_);
 	for(unsigned int i(0);i<col_;i++){
 		for(unsigned int j(0);j<row_;j++){
@@ -438,7 +438,7 @@ inline Matrix<double> Matrix<double>::conjugate_transpose() const {
 }
 
 template<typename Type>
-Vector<Type> Matrix<Type>::diag() const{
+Vector<Type> Matrix<Type>::diag() const {
 	unsigned int N(0);
 	if(row_<col_){
 		N=col_;

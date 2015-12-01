@@ -55,8 +55,6 @@ void Parseur::set_vector_from_range(std::string const& name, std::string const& 
 		std::vector<Type> v((max-min)/dx+1);
 		for(unsigned int j(0);j<v.size();j++){ v[j] = min+j*dx; }
 		set(name.substr(3,name.size()-3),v);
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : -t:name min:dx:max : "<<name<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : -t:name min:dx:max : "<<name<<std::endl; }
 }
 #endif

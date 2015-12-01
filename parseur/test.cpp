@@ -14,5 +14,5 @@ int main(int argc,char* argv[]){
 	std::cout<<"b="<<b<<std::endl;
 	std::cout<<"c="<<c<<std::endl;
 	std::cout<<Vector<double>(P.get<std::vector<double> >("s_vec"))<<std::endl;
-	std::cout<<P.get<Vector<double> >("vec")<<std::endl;
+	std::cout<<Vector<double>(P.get<std::vector<double> >("vec"))<<std::endl;
 }
