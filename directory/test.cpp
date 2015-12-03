@@ -2,7 +2,6 @@
 
 int main(){
 	Directory d;
-	d.search_file_ext(".dat","/home/jdufour/travail/cpp-dev/",true,true);
+	d.search_file_ext(".cpp","./",true,true);
 	d.print();
 }
-

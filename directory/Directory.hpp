@@ -1,12 +1,12 @@
 #ifndef DEF_DIRECTORY
 #define DEF_DIRECTORY
 
-#include<dirent.h>
-#include<sys/stat.h>
-#include<iostream>
-#include<vector>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <iostream>
+#include <vector>
 
-class Directory {
+class Directory{
 	public:
 		/*!Default constructor*/
 		Directory() = default;
@@ -21,18 +21,18 @@ class Directory {
 		/*}*/
 
 		/*!Returns the ith filename_*/
-		inline std::string get_name(unsigned int i) const { return filename_[i]; }
-		/*!Returns the ith path_*/
-		inline std::string get_path(unsigned int i) const { return path_[i]; }
-		/*!Returns the ith extension_*/
-		inline std::string get_ext(unsigned int i) const { return ext_[i]; }
-		/*!Returns the ith path_+filename_+extension_*/
+		inline std::string const& get_name(unsigned int i) const { return filename_[i]; }
+		/*!Returns the ith const& path_*/
+		inline std::string const& get_path(unsigned int i) const { return path_[i]; }
+		/*!Returns the ith const& extension_*/
+		inline std::string const& get_ext(unsigned int i) const { return ext_[i]; }
+		/*!Returns the ith const& path_+filename_+extension_*/
 		inline std::string operator[](unsigned int i) const { return path_[i]+filename_[i]+ext_[i]; }
 		/*!Returns the number of files*/
 		inline unsigned int size() const { return path_.size(); }
 
 		/*!Prints all the path_+filename_+extension_*/
-		void print();
+		void print() const;
 		/*!Lists all directories stored in curr_dir*/
 		void list_dir(std::string curr_dir);
 		/*!Lists all files matching part ok keyword*/

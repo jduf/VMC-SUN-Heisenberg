@@ -186,7 +186,38 @@ namespace BLAS{
 		}
 	}
 
+#ifdef __AVX__
+#include <immintrin.h>
+	extern "C" {
+		std::complex<double> zdotu_(unsigned int const& N, std::complex<double> const* const dx, unsigned int const& ix, std::complex<double> const* const dy, unsigned int const& iy){
+			double const* x = reinterpret_cast<double const*>(dx);
+			double const* y = reinterpret_cast<double const*>(dy);
+
+			__m256d dmm0;
+			__m256d dmm1;
+			__m256d dmm2;
+			__m256d dmm4 = _mm256_setzero_pd();
+			__m256d dmm5 = _mm256_setzero_pd();
+			for(unsigned int ii(0);ii<N/2;ii+=4){
+				dmm0 = _mm256_loadu_pd(x + ii);
+				dmm1 = _mm256_loadu_pd(y + ii);
+				
+				//dmm0 = _mm256_set_pd(x[ix*ii], x[ix*(ii+1)], x[ix*(ii+2)], x[ix*(ii+3)]);
+				//dmm1 = _mm256_set_pd(y[iy*ii], y[iy*(ii+1)], y[iy*(ii+2)], y[iy*(ii+3)]);
+
+				dmm4 = _mm256_fmadd_pd(dmm1, dmm0, dmm4);
+				dmm2 = _mm256_permute_pd(dmm1, 0x5);/*could overwrite dmm1 and get rid of dmm2*/
+				dmm5 = _mm256_fmadd_pd(dmm2, dmm0, dmm5);
+			}
+			double* re = (double*)&dmm4;
+			double* im = (double*)&dmm5;
+			if(N%2) { std::cerr<<__PRETTY_FUNCTION__<<"do something for odd vector sizes"<<std::endl; }
+			return std::complex<double>(re[0]-re[1]+re[2]-re[3],im[0]+im[1]+im[2]+im[3]);
+		}
+	}
+#else
 	extern "C" std::complex<double> zdotu_(unsigned int const& N, std::complex<double> const* const dx, unsigned int const& ix, std::complex<double> const* const dy, unsigned int const& iy);
+#endif
 	inline std::complex<double> dot(
 			unsigned int const& N,
 			std::complex<double> const* const a,

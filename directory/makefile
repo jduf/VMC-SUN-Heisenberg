@@ -7,7 +7,7 @@ test_SRCS=test.cpp Directory.cpp
 CXX = g++ -std=c++11
 
 ERRORS = -Wall -Wextra -pedantic
-OPTION = 
+OPTION =
 
 BUILD=build
 
