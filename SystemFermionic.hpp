@@ -103,7 +103,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	/*!Make sure that the matrices Ainv_ are invertible by going to a state of
 	 * heigh weight*/
 	unsigned int l(0);
-	unsigned int TRY_MAX(1e5);
+	unsigned int TRY_MAX(1e6);
 	Matrix<Type>* A;
 	A = new Matrix<Type>[N_];
 	Vector<Type> det_A(N_,1.0);

@@ -157,9 +157,7 @@ std::vector<std::string> GenericSystem<Type>::generate_names() const {
 	parameter_names.push_back("m" + my::tostring(this->m_));
 	parameter_names.push_back("n" + my::tostring(this->n_));
 	std::string tmp("M");
-	for(unsigned int i(0);i<this->M_.size();i++){
-		tmp  += "_" + my::tostring(this->M_(i));
-	}
+	for(unsigned int i(0);i<this->M_.size();i++){ tmp  += "_" + my::tostring(this->M_(i)); }
 	parameter_names.push_back(tmp);
 	switch(this->bc_){
 		case -1:{ parameter_names.push_back("A"); }break;

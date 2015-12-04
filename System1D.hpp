@@ -56,8 +56,9 @@ System1D<Type>::System1D(unsigned int const& spuc, unsigned int const& z, std::s
 	GenericSystem<Type>(spuc,z,filename),
 	L_(this->n_/spuc)
 {
-	if(this->N_%this->m_){ std::cout<<"System1D : maybe problematric, m doesn't devide N, so check everywhere in the code where N/m appears"<<std::endl; }
-	this->status_--;
+	if(this->N_%this->m_){ std::cout<<"System1D : maybe problematric, m doesn't divide N, so check everywhere in the code where N/m appears"<<std::endl; }
+	if(spuc%(this->N_/this->m_)){ std::cout<<"System1D : problem in the definition of the unit cell"<<std::endl; }
+	else { this->status_--; }
 }
 
 template<typename Type>

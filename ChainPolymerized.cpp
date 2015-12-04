@@ -8,9 +8,7 @@ ChainPolymerized::ChainPolymerized(System const& s, Vector<double> const& t):
 	if(status_==2){
 		init_fermionic();
 		filename_ += "-t";
-		for(unsigned int j(0);j<t_.size();j++){
-			filename_ += ((t_(j)>0)?"+":"")+my::tostring(t_(j));
-		}
+		for(unsigned int i(0);i<t_.size();i++){ filename_ += ((t_(i)>0)?"+":"")+my::tostring(t_(i)); }
 		if(spuc_ != 1){
 			system_info_.text("Trial wavefunction with different real hopping ");
 			system_info_.text("terms for a "+RST::math("\\mathrm{SU}(N)")+" chain :"+RST::nl_);
@@ -96,6 +94,7 @@ unsigned int ChainPolymerized::set_spuc(Vector<double> const& t, unsigned int co
 	if(t.size() == spuc && !my::are_equal(t,Vector<double>(spuc,1.0))){ return spuc; }
 	else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : invalid t size : "<<t.size()<<std::endl;
+		status_++;
 		return 1;
 	}
 }

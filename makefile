@@ -29,7 +29,7 @@ else
 	OPTION = -fopenmp
 endif
 
-CHAIN     = ChainFermi.cpp ChainPolymerized.cpp
+CHAIN     = ChainFermi.cpp ChainPolymerized.cpp ChainFree.cpp
 LADDER    = LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp
 SQUARE    = SquareFermi.cpp SquarePiFlux.cpp SquareACSL.cpp SquareFreeFlux.cpp SquareFreeHopping.cpp SquareJastrow.cpp
 TRIANGLE  = TriangleFermi.cpp TrianglePhi.cpp

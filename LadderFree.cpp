@@ -1019,6 +1019,7 @@ void LadderFree::plot(bool const& create_image){
 
 void LadderFree::lattice(){
 	compute_H();
+
 	std::string color("black");
 	std::string linestyle("solid");
 	std::string linewidth("1pt");
@@ -1068,12 +1069,12 @@ void LadderFree::lattice(){
 
 				ps.line("-",xy0(0)+x_shift,xy0(1),xy1(0)+x_shift,xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
-			if(i%3==0){ 
-				ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}"); 
+			if(i%3==0){
+				ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}");
 				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1),"\\tiny{"+my::tostring(corr).substr(0,5)+"}");
 			}
-			if(i%3==1){ 
-				ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}"); 
+			if(i%3==1){
+				ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}");
 				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(corr).substr(0,5)+"}");
 			}
 			if(i%3==2){

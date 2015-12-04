@@ -59,6 +59,7 @@ class Chain: public System1D<Type>{
 		bool compute_critical_exponents(Vector<double> const& lrc, unsigned int& xi, unsigned int& xf, Vector<double>& p);
 		void display_results();
 
+		virtual void energy_bound(){};
 		void long_range_correlation_and_structure_factor();
 
 	private:
@@ -77,11 +78,17 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 		if(!this->obs_.size()){
 			this->set_nn_links(Vector<unsigned int>(1,1));
 		}
-		if(this->J_.ptr()){
+		if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() != 0){
 			Vector<double> tmp(this->J_);
 			this->J_.set(this->obs_[0].nlinks());
 			for(unsigned int i(0);i<this->J_.size();i++){ this->J_(i) = tmp(i%tmp.size()); }
 		} else { this->J_.set(this->obs_[0].nlinks(),1); }
+
+		if(this->J_.size()==this->obs_[0].nlinks()){
+			std::string tmp("balbal");
+			this->filename_.replace(this->filename_.find("Juniform"),8,tmp);
+			this->path_.replace(this->path_.find("Juniform"),8,tmp);
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : J_ has an incoherent size"<<std::endl; }
 	}
 }
 
@@ -240,8 +247,23 @@ void Chain<Type>::do_fit(Vector<double> const& lrc, unsigned int const& xi, unsi
 
 template<typename Type>
 void Chain<Type>::display_results(){
-	//energy_bound();
+	energy_bound();
 	long_range_correlation_and_structure_factor();
+	if(this->rst_file_){
+		std::string relative_path(this->analyse_+this->path_+this->dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+		//std::string title(RST::math("\\theta=")+my::tostring(acos(this->J_(0))) + " : t=(");
+		//for(unsigned int i(0);i<t_.size()-1;i++){ title += my::tostring(t_(i)) + ","; }
+		//title += my::tostring(t_.back()) + ")";
+		//if(dir_ == "P/" || dir_ == "O/" || dir_ == "A/"){
+		//rst_file_->title("|theta"+my::tostring(acos(this->J_(0)))+"|_",'-');
+		//rst_file_->replace("theta"+my::tostring(acos(this->J_(0))),title);
+		//} else { rst_file_->title(title,'-'); }
+		this->rst_file_->figure(relative_path+this->filename_+"-pstricks.png","energy bond",RST::target(relative_path+this->filename_+"-pstricks.pdf")+RST::scale("200"));
+		this->rst_file_->figure(relative_path+this->filename_+"-lr.png","long range correlations",RST::target(relative_path+this->filename_+"-lr.gp")+RST::scale("200"));
+		this->rst_file_->figure(relative_path+this->filename_+"-sf.png","structure factor",RST::target(relative_path+this->filename_+"-sf.gp")+RST::scale("200"));
+	}
 }
 
 template<typename Type>
@@ -298,12 +320,12 @@ void Chain<Type>::long_range_correlation_and_structure_factor(){
 	}
 	Ck /= dk*normalize;
 
-	IOFiles data_sf(this->analyse_+this->path_+this->dir_+this->filename_+"-lr-sf.dat",true);
+	IOFiles data_sf(this->analyse_+this->path_+this->dir_+this->filename_+"-sf.dat",true);
 	for(unsigned int k(0);k<llr;k++){
 		data_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<IOFiles::endl;
 	}
 
-	Gnuplot gpsf(this->analyse_+this->path_+this->dir_,this->filename_+"-as");
+	Gnuplot gpsf(this->analyse_+this->path_+this->dir_,this->filename_+"-sf");
 	gpsf+="set key bottom";
 	gpsf.range("x","0","2*pi");
 	switch(this->N_/this->m_){
@@ -313,8 +335,8 @@ void Chain<Type>::long_range_correlation_and_structure_factor(){
 	}
 	gpsf.label("x","$k$","offset 0,0.5");
 	gpsf.label("y2","$<S(k)>$");
-	gpsf+="plot '"+this->filename_+"-lr-sf.dat' u 1:2 lt 1 lc 6 t 'real',\\";
-	gpsf+="     '"+this->filename_+"-lr-sf.dat' u 1:3 lt 1 lc 7 t 'imag'";
+	gpsf+="plot '"+this->filename_+"-sf.dat' u 1:2 lt 1 lc 6 t 'real',\\";
+	gpsf+="     '"+this->filename_+"-sf.dat' u 1:3 lt 1 lc 7 t 'imag'";
 	gpsf.save_file();
 	gpsf.create_image(true,true);
 	/*}*/

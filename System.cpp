@@ -145,6 +145,11 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		std::vector<double> Jp(1,1);
 		P.set("Jp",Jp);
 	}
+	if( wf == "chain-free" ){
+		ref(0) = 1;
+		ref(1) = 1;
+		ref(2) = 2;
+	}
 
 	if( wf == "ladder-fermi"){
 		ref(0) = 2;

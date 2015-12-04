@@ -124,7 +124,7 @@ void Honeycomb0pp::display_results(){
 		xy1 = get_pos_in_lattice(s1);
 
 		t = H_(s0,s1);
-		if(std::abs(t)>1e-5){
+		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
 				xy1 = xy0;

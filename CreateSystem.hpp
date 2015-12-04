@@ -3,6 +3,7 @@
 
 #include "ChainFermi.hpp"
 #include "ChainPolymerized.hpp"
+#include "ChainFree.hpp"
 
 #include "LadderFermi.hpp"
 #include "LadderFree.hpp"

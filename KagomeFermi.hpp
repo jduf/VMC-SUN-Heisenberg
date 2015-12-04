@@ -118,7 +118,7 @@ void KagomeFermi<Type>::lattice(){
 		nb = this->get_neighbourg(i);
 
 		t = this->H_(i,nb(0,0));
-		if(std::abs(t)>1e-5){
+		if(std::abs(t)>1e-4){
 			xy1 = this->get_pos_in_lattice(nb(0,0));
 			this->set_pos_LxLy(xy1);
 			xy1 = this->LxLy_*xy1;
@@ -143,7 +143,7 @@ void KagomeFermi<Type>::lattice(){
 		}
 
 		t = this->H_(i,nb(1,0));
-		if(std::abs(t)>1e-5){
+		if(std::abs(t)>1e-4){
 			xy1 = this->get_pos_in_lattice(nb(1,0));
 			this->set_pos_LxLy(xy1);
 			xy1 = this->LxLy_*xy1;

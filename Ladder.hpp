@@ -65,16 +65,12 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 			std::string tmp("theta"+my::tostring(acos(this->J_(0))));
 			this->filename_.replace(this->filename_.find("Juniform"),8,tmp);
 			this->path_.replace(this->path_.find("Juniform"),8,tmp);
-		} else {
-			std::cerr<<__PRETTY_FUNCTION__<<" : J_ has an incoherent size"<<std::endl;
-		}
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : J_ has an incoherent size"<<std::endl; }
 	} else {
 		/*!if the ladder has a spuc_ equal to one, the creation is impossible
 		 * but the construction should be silent to have a nice display when
 		 * used with Analyse* */
-		if(this->spuc_!=1){
-			std::cerr<<__PRETTY_FUNCTION__<<" creation is problematic"<<std::endl;
-		}
+		if(this->spuc_!=1){ std::cerr<<__PRETTY_FUNCTION__<<" creation is problematic"<<std::endl; }
 	}
 }
 

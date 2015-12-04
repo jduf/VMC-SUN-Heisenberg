@@ -47,14 +47,6 @@ int main(int argc, char* argv[]){
 				sys.complete_analysis(1e-5);
 				sys.delete_binning();
 
-				std::vector<Observable> obs(sys.get_obs());
-				if(obs[0].nval()){
-					double c(0);
-					for(unsigned int i(0);i<obs[0].nval();i++){ c += obs[0][i].get_x(); }
-					c /= (obs[0].nval()*2/3);/*to get the energy per site for the ladder*/
-					//c /= obs[0].nval();/*to get the energy per site for the chain*/
-					std::cout<<"this should be equal to the energy "<<c<<" "<<c/sys.get_energy().get_x()<<std::endl;
-				}
 				std::cout<<sys.get_energy()<<std::endl;
 
 				Linux command;
