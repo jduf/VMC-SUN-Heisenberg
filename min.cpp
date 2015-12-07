@@ -20,11 +20,12 @@ int main(int argc, char* argv[]){
 						for(unsigned int i(0);i<loop;i++){
 							m1.init(true, 3*i<loop?false:true);
 							m1.run();
-							m1.save();
 
-							m2.init();
-							m2.run(true);
-							m2.save();
+							m.refine(10,0,1e-5,5);
+							m.save();
+							//m2.init();
+							//m2.run(true);
+							//m2.save();
 						}
 
 						m.get_header().title("Minimization",'>');

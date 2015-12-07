@@ -1,6 +1,6 @@
-#include "AnalyseLadder.hpp"
+#include "AnalyseMin.hpp"
 
-AnalyseLadder::AnalyseLadder(std::string const& path, unsigned int const& max_level, bool const& run_cmd):
+AnalyseMin::AnalyseMin(std::string const& path, unsigned int const& max_level, bool const& run_cmd):
 	Analyse(path,max_level,run_cmd),
 	complete_jobs_(sim_+"to_run.bash",true)
 {
@@ -8,7 +8,7 @@ AnalyseLadder::AnalyseLadder(std::string const& path, unsigned int const& max_le
 	do_analyse();
 }
 
-void AnalyseLadder::open_files(){
+void AnalyseMin::open_files(){
 	if(level_>1){
 		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
 
@@ -24,7 +24,7 @@ void AnalyseLadder::open_files(){
 	}
 }
 
-void AnalyseLadder::close_files(){
+void AnalyseMin::close_files(){
 	switch(level_){
 		case 9:
 			{ list_rst_.last().figure(rel_level_+analyse_+path_+dir_+filename_+".png","Parameter sets",RST::target(rel_level_+analyse_+path_+dir_+filename_+".gp")+RST::width("1000")); } break;
@@ -43,7 +43,7 @@ void AnalyseLadder::close_files(){
 }
 
 /*extract VMCMinimization and plot*/
-std::string AnalyseLadder::extract_level_9(){
+std::string AnalyseMin::extract_level_9(){
 	IOFiles in(sim_+path_+dir_+filename_+".jdbin",false);
 
 	RSTFile rst(info_+path_+dir_,filename_);
@@ -58,7 +58,7 @@ std::string AnalyseLadder::extract_level_9(){
 }
 
 /*show best solutions*/
-std::string AnalyseLadder::extract_level_8(){
+std::string AnalyseMin::extract_level_8(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
 
@@ -96,7 +96,7 @@ std::string AnalyseLadder::extract_level_8(){
 }
 
 /*compare wavefunction (different ref_)*/
-std::string AnalyseLadder::extract_level_7(){
+std::string AnalyseMin::extract_level_7(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
 
@@ -142,7 +142,7 @@ std::string AnalyseLadder::extract_level_7(){
 }
 
 /*plot energy for different J*/
-std::string AnalyseLadder::extract_level_6(){
+std::string AnalyseMin::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
 	Vector<double> tmp(read_->read<Vector<double> >());
@@ -160,7 +160,7 @@ std::string AnalyseLadder::extract_level_6(){
 	return link_name;
 }
 
-std::string AnalyseLadder::extract_level_5(){
+std::string AnalyseMin::extract_level_5(){
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp.range("x","0","pi/2");
 	gp.label("x","$\\theta$");

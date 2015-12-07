@@ -21,10 +21,12 @@ class ChainFermi: public Chain<Type>{
 
 	private:
 		void compute_H();
+
+		void display_results();
+		void energy_bound();
+
 		std::string extract_level_8();
 		std::string extract_level_7();
-
-		void energy_bound();
 };
 
 template<typename Type>
@@ -78,6 +80,21 @@ void ChainFermi<Type>::energy_bound(){
 	gp.create_image(true,true);
 
 	if(this->jd_write_){ this->jd_write_->write("polymerization strength",0.0); }
+}
+
+template<typename Type>
+void ChainFermi<Type>::display_results(){
+	this->energy_bound();
+	this->long_range_correlation_and_structure_factor();
+	if(this->rst_file_){
+		std::string relative_path(this->analyse_+this->path_+this->dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
+		this->rst_file_->figure(this->dir_+this->filename_+"-pstricks.png",RST::math("E="+my::tostring(this->E_.get_x())+"\\pm"+my::tostring(this->E_.get_dx())),RST::target(relative_path+this->filename_+"-pstricks.pdf")+RST::scale("200"));
+		this->rst_file_->figure(relative_path+this->filename_+"-lr.png","long range correlations",RST::target(relative_path+this->filename_+"-lr.gp")+RST::scale("200"));
+		this->rst_file_->figure(relative_path+this->filename_+"-sf.png","structure factor",RST::target(relative_path+this->filename_+"-sf.gp")+RST::scale("200"));
+	}
 }
 /*}*/
 

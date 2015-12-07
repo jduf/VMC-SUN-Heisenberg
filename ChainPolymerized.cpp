@@ -130,6 +130,20 @@ void ChainPolymerized::energy_bound(){
 
 	if(jd_write_){ jd_write_->write("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2)); }
 }
+
+void ChainPolymerized::display_results(){
+	energy_bound();
+	long_range_correlation_and_structure_factor();
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
+		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(relative_path+filename_+"-pstricks.pdf")+RST::scale("200"));
+		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
+		rst_file_->figure(relative_path+filename_+"-sf.png","structure factor",RST::target(relative_path+filename_+"-sf.gp")+RST::scale("200"));
+	}
+}
 /*}*/
 
 /*{method needed for analysing*/

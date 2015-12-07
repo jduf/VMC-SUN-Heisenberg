@@ -4,8 +4,9 @@
 #include "AnalyseEnergy.hpp"
 
 #include "AnalyseChain.hpp"
-#include "AnalyseLadder.hpp"
 #include "AnalyseHoneycomb.hpp"
+
+#include "AnalyseMin.hpp"
 
 int main(int argc, char* argv[]){
 	Linux command;
@@ -19,16 +20,16 @@ int main(int argc, char* argv[]){
 		switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
 			case 0: { AnalyseEnergy ana(path,max_level,run_cmd); }break;
 			case 1: { AnalyseChain ana(path,max_level,run_cmd); }break;
-			case 2: { AnalyseLadder ana(path,max_level,run_cmd); }break;
-			case 3: { AnalyseHoneycomb ana(path,max_level,run_cmd); }break;
-			case 4: { AnalyseMagnetization ana(path,max_level,run_cmd); }break;
+			case 2: { AnalyseHoneycomb ana(path,max_level,run_cmd); }break;
+			case 3: { AnalyseMagnetization ana(path,max_level,run_cmd); }break;
+			case 4: { AnalyseMin ana(path,max_level,run_cmd); }break;
 			default:{
 						std::cerr<<__PRETTY_FUNCTION__<<" : unknown option 'what', options are :"<<std::endl;
 						std::cerr<<"    - Energy        : 0"<<std::endl;
 						std::cerr<<"    - Chain         : 1"<<std::endl;
-						std::cerr<<"    - Ladder        : 2"<<std::endl;
-						std::cerr<<"    - Honeycomb     : 3"<<std::endl;
-						std::cerr<<"    - Magnetization : 4"<<std::endl;
+						std::cerr<<"    - Honeycomb     : 2"<<std::endl;
+						std::cerr<<"    - Magnetization : 3"<<std::endl;
+						std::cerr<<"    - Min           : 4"<<std::endl;
 					}
 		}
 	} else {

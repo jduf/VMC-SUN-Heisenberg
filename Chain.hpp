@@ -57,7 +57,6 @@ class Chain: public System1D<Type>{
 		std::string extract_level_3();
 		/*!Find the best range to compute the critcal exponents*/
 		bool compute_critical_exponents(Vector<double> const& lrc, unsigned int& xi, unsigned int& xf, Vector<double>& p);
-		void display_results();
 
 		virtual void energy_bound(){};
 		void long_range_correlation_and_structure_factor();
@@ -78,14 +77,18 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 		if(!this->obs_.size()){
 			this->set_nn_links(Vector<unsigned int>(1,1));
 		}
+
 		if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() != 0){
 			Vector<double> tmp(this->J_);
 			this->J_.set(this->obs_[0].nlinks());
 			for(unsigned int i(0);i<this->J_.size();i++){ this->J_(i) = tmp(i%tmp.size()); }
-		} else { this->J_.set(this->obs_[0].nlinks(),1); }
+		}
 
 		if(this->J_.size()==this->obs_[0].nlinks()){
-			std::string tmp("balbal");
+			std::string tmp("J");
+			for(unsigned int i(0);i<this->spuc_;i++){ 
+				tmp += ((this->J_(i)>0)?"+":"")+my::tostring(this->J_(i)); 
+			}
 			this->filename_.replace(this->filename_.find("Juniform"),8,tmp);
 			this->path_.replace(this->path_.find("Juniform"),8,tmp);
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : J_ has an incoherent size"<<std::endl; }
@@ -246,101 +249,82 @@ void Chain<Type>::do_fit(Vector<double> const& lrc, unsigned int const& xi, unsi
 }
 
 template<typename Type>
-void Chain<Type>::display_results(){
-	energy_bound();
-	long_range_correlation_and_structure_factor();
-	if(this->rst_file_){
-		std::string relative_path(this->analyse_+this->path_+this->dir_);
-		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
-		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-		//std::string title(RST::math("\\theta=")+my::tostring(acos(this->J_(0))) + " : t=(");
-		//for(unsigned int i(0);i<t_.size()-1;i++){ title += my::tostring(t_(i)) + ","; }
-		//title += my::tostring(t_.back()) + ")";
-		//if(dir_ == "P/" || dir_ == "O/" || dir_ == "A/"){
-		//rst_file_->title("|theta"+my::tostring(acos(this->J_(0)))+"|_",'-');
-		//rst_file_->replace("theta"+my::tostring(acos(this->J_(0))),title);
-		//} else { rst_file_->title(title,'-'); }
-		this->rst_file_->figure(relative_path+this->filename_+"-pstricks.png","energy bond",RST::target(relative_path+this->filename_+"-pstricks.pdf")+RST::scale("200"));
-		this->rst_file_->figure(relative_path+this->filename_+"-lr.png","long range correlations",RST::target(relative_path+this->filename_+"-lr.gp")+RST::scale("200"));
-		this->rst_file_->figure(relative_path+this->filename_+"-sf.png","structure factor",RST::target(relative_path+this->filename_+"-sf.gp")+RST::scale("200"));
-	}
-}
-
-template<typename Type>
 void Chain<Type>::long_range_correlation_and_structure_factor(){
-	/*!long range correlations*/
-	/*{*/
-	IOFiles lr_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-lr-c.dat",true);
-	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
+	if(this->obs_.size()>1){
+		/*!long range correlations*/
+		/*{*/
+		IOFiles lr_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-lr-c.dat",true);
+		lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
-	Vector<double> lr_corr(this->obs_[1].nval());
-	for(unsigned int i(0);i<this->obs_[1].nval();i++){
-		lr_corr_file<<i<<" "<<this->obs_[1][i]<<IOFiles::endl;
-		lr_corr(i) = this->obs_[1][i].get_x();
-	}
-
-	unsigned int xi;
-	unsigned int xf;
-	Vector<double> exponents;
-	bool fit(this->compute_critical_exponents(lr_corr,xi,xf,exponents));
-
-	Gnuplot gplr(this->analyse_+this->path_+this->dir_,this->filename_+"-lr");
-	gplr.range("x",this->N_/this->m_,this->n_-this->N_/this->m_);
-	gplr.label("x","$\\|i-j\\|$","offset 0,0.5");
-	gplr.label("y2","$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$","offset 1");
-	gplr+="set key center bottom";
-	gplr+="set sample 1000";
-	gplr+="m="+my::tostring(this->m_)+".0";
-	gplr+="N="+my::tostring(this->N_)+".0";
-	gplr+="n="+my::tostring(this->n_)+".0";
-	gplr+="p0 = 1.0";
-	gplr+="p1 = 2.0-2.0/N";
-	gplr+="p2 = -1.0";
-	gplr+="p3 = 2.0";
-	gplr+="f(x) = p0*cos(2.0*pi*x*m/N)*(x**(-p1)+(n-x)**(-p1))+p2*(x**(-p3)+(n-x)**(-p3))";
-	gplr+="set fit quiet";
-	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+this->filename_+"-lr-c.dat' u 1:2 noerrors via p0,p1,p2,p3";
-	gplr+="plot '"+this->filename_+"-lr-c.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
-	gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
-	gplr.save_file();
-	gplr.create_image(true,true);
-	/*}*/
-	/*!structure factor*/
-	/*{*/
-	unsigned int llr(this->obs_[1].nval());
-	Vector<std::complex<double> > Ck(llr,0.0);
-	std::complex<double> normalize(0.0);
-	double dk(2.0*M_PI/llr);
-
-	for(unsigned int k(0);k<llr;k++){
-		for(unsigned int i(0);i<llr;i++){
-			Ck(k) += std::polar(lr_corr(i),dk*k*i);
+		Vector<double> lr_corr(this->obs_[1].nval());
+		for(unsigned int i(0);i<this->obs_[1].nval();i++){
+			lr_corr_file<<i<<" "<<this->obs_[1][i]<<IOFiles::endl;
+			lr_corr(i) = this->obs_[1][i].get_x();
 		}
-		normalize += Ck(k);
-	}
-	Ck /= dk*normalize;
 
-	IOFiles data_sf(this->analyse_+this->path_+this->dir_+this->filename_+"-sf.dat",true);
-	for(unsigned int k(0);k<llr;k++){
-		data_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<IOFiles::endl;
-	}
+		unsigned int xi;
+		unsigned int xf;
+		Vector<double> exponents;
+		bool fit(this->compute_critical_exponents(lr_corr,xi,xf,exponents));
 
-	Gnuplot gpsf(this->analyse_+this->path_+this->dir_,this->filename_+"-sf");
-	gpsf+="set key bottom";
-	gpsf.range("x","0","2*pi");
-	switch(this->N_/this->m_){
-		case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0, '$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
-		case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
-		default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
-	}
-	gpsf.label("x","$k$","offset 0,0.5");
-	gpsf.label("y2","$<S(k)>$");
-	gpsf+="plot '"+this->filename_+"-sf.dat' u 1:2 lt 1 lc 6 t 'real',\\";
-	gpsf+="     '"+this->filename_+"-sf.dat' u 1:3 lt 1 lc 7 t 'imag'";
-	gpsf.save_file();
-	gpsf.create_image(true,true);
-	/*}*/
+		Gnuplot gplr(this->analyse_+this->path_+this->dir_,this->filename_+"-lr");
+		gplr.range("x",this->N_/this->m_,this->n_-this->N_/this->m_);
+		gplr.label("x","$\\|i-j\\|$","offset 0,0.5");
+		gplr.label("y2","$<S_{\\alpha}^{\\alpha}(i)S_{\\alpha}^{\\alpha}(j)>-\\dfrac{m^2}{N}$","offset 1");
+		gplr+="set key center bottom";
+		gplr+="set sample 1000";
+		gplr+="m="+my::tostring(this->m_)+".0";
+		gplr+="N="+my::tostring(this->N_)+".0";
+		gplr+="n="+my::tostring(this->n_)+".0";
+		gplr+="p0 = 1.0";
+		gplr+="p1 = 2.0-2.0/N";
+		gplr+="p2 = -1.0";
+		gplr+="p3 = 2.0";
+		gplr+="f(x) = p0*cos(2.0*pi*x*m/N)*(x**(-p1)+(n-x)**(-p1))+p2*(x**(-p3)+(n-x)**(-p3))";
+		gplr+="set fit quiet";
+		gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+this->filename_+"-lr-c.dat' u 1:2 noerrors via p0,p1,p2,p3";
+		gplr+="plot '"+this->filename_+"-lr-c.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
+		gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
+		gplr.save_file();
+		gplr.create_image(true,true);
+		/*}*/
+		/*!structure factor*/
+		/*{*/
+		unsigned int llr(this->obs_[1].nval());
+		Vector<std::complex<double> > Ck(llr,0.0);
+		std::complex<double> normalize(0.0);
+		double dk(2.0*M_PI/llr);
 
-	if(this->jd_write_){ this->jd_write_->write("critical exponents",exponents); }
+		for(unsigned int k(0);k<llr;k++){
+			for(unsigned int i(0);i<llr;i++){
+				Ck(k) += std::polar(lr_corr(i),dk*k*i);
+			}
+			normalize += Ck(k);
+		}
+		Ck /= dk*normalize;
+
+		IOFiles data_sf(this->analyse_+this->path_+this->dir_+this->filename_+"-sf.dat",true);
+		for(unsigned int k(0);k<llr;k++){
+			data_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<IOFiles::endl;
+		}
+
+		Gnuplot gpsf(this->analyse_+this->path_+this->dir_,this->filename_+"-sf");
+		gpsf+="set key bottom";
+		gpsf.range("x","0","2*pi");
+		switch(this->N_/this->m_){
+			case 3: { gpsf+="set xtics ('0' 0,'$2\\pi/3$' 2.0*pi/3.0, '$4\\pi/3$' 4.0*pi/3.0,'$2\\pi$' 2.0*pi)"; } break;
+			case 5: { gpsf+="set xtics ('0' 0,'$2\\pi/5$' 2.0*pi/5.0, '$4\\pi/5$' 4.0*pi/5.0, '$6\\pi/5$' 6.0*pi/5.0, '$8\\pi/5$' 8.0*pi/5.0, '$2\\pi$' 2.0*pi)"; } break;
+			default:{ gpsf+="set xtics ('0' 0,'$\\pi/2$' pi/2.0,'$\\pi$' pi,'$3\\pi/2$' 3.0*pi/2.0,'$2\\pi$' 2.0*pi)"; } break;
+		}
+		gpsf.label("x","$k$","offset 0,0.5");
+		gpsf.label("y2","$<S(k)>$");
+		gpsf+="plot '"+this->filename_+"-sf.dat' u 1:2 lt 1 lc 6 t 'real',\\";
+		gpsf+="     '"+this->filename_+"-sf.dat' u 1:3 lt 1 lc 7 t 'imag'";
+		gpsf.save_file();
+		gpsf.create_image(true,true);
+		/*}*/
+
+		//if(this->jd_write_){ this->jd_write_->write("critical exponents",exponents); }
+	}
 }
 #endif

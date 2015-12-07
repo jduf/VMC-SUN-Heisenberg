@@ -18,8 +18,7 @@ ChainFree::ChainFree(System const& s, Vector<double> const& t, Vector<double> co
 }
 
 /*{method needed for running*/
-void ChainFree::compute_H(unsigned int const& c){
-	(void)(c);
+void ChainFree::compute_H(){
 	H_.set(n_,n_,0);
 
 	unsigned int s0(0);
@@ -29,42 +28,48 @@ void ChainFree::compute_H(unsigned int const& c){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
 		ab = s0%spuc_;
-		H_(s0,s1) = obs_[0](i,4)*t_(ab);
-		//if(ab==c){ H_(s0,s0) = mu_(ab); }
-		H_(s0,s0) = mu_(ab);
+		if(ab){ H_(s0,s1) = obs_[0](i,4)*t_(ab-1); }
+		else { H_(s0,s1) = obs_[0](i,4); }
+		H_(s0,s0) = mu_(ab)/2.0;
 	}
 	H_ += H_.transpose();
 }
 
 void ChainFree::create(){
-	for(unsigned int c(0);c<N_;c++){
-		compute_H(c);
-		diagonalize(true);
-		if(status_==1){
+	compute_H();
+	diagonalize(true);
+	if(status_==1){
+		for(unsigned int c(0);c<N_;c++){
 			for(unsigned int i(0);i<n_;i++){
 				for(unsigned int j(0);j<M_(c);j++){
 					EVec_[c](i,j) = H_(i,j);
 				}
 			}
 		}
-		if(c!=N_-1){status_++;}
 	}
 }
 
 void ChainFree::save_param(IOFiles& w) const {
-	std::string t_string("");
-	for(unsigned int i(0);i<t_.size()-1;i++){ t_string += my::tostring(t_(i))+","; }
-	t_string += my::tostring(t_.back());
-	w.write("t ("+t_string+")",t_);
-
-	std::string mu_string("");
-	for(unsigned int i(0);i<mu_.size()-1;i++){ mu_string += my::tostring(mu_(i))+","; }
-	mu_string += my::tostring(mu_.back());
-	w.write("mu ("+mu_string+")",mu_);
+	///*{Description*/
+	//std::string t_string("");
+	//for(unsigned int i(0);i<t_.size()-1;i++){ t_string += my::tostring(t_(i))+","; }
+	//t_string += my::tostring(t_.back());
+	//w.write("t ("+t_string+")",t_);
+//
+	//std::string mu_string("");
+	//for(unsigned int i(0);i<mu_.size()-1;i++){ mu_string += my::tostring(mu_(i))+","; }
+	//mu_string += my::tostring(mu_.back());
+	//w.write("mu ("+mu_string+")",mu_);
+	///*}*/
+	Vector<double> param(t_.size()+mu_.size());
+	for(unsigned int i(0);i<t_.size();i++){ param(i) = t_(i); }
+	for(unsigned int i(0);i<mu_.size();i++){ param(i+t_.size()) = mu_(i); }
+	
+	w.write("param (t,mu)",param);
 }
 
 unsigned int ChainFree::set_spuc(Vector<double> const& t, Vector<double> const& mu, unsigned int const& spuc){
-	if(t.size() == spuc && mu.size() == spuc && !my::are_equal(t,Vector<double>(spuc,1.0))){ return spuc; }
+	if(t.size()+1 == spuc && mu.size() == spuc && !my::are_equal(t,Vector<double>(spuc,1.0))){ return spuc; }
 	else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : invalid or incoherent t and mu sizes : t:="<<t.size()<<", mu:="<<mu.size()<<std::endl;
 		return spuc+1;
@@ -78,7 +83,7 @@ void ChainFree::check(){
 }
 
 void ChainFree::energy_bound(){
-	compute_H(0);
+	compute_H();
 
 	std::string color("black");
 	std::string linestyle("solid");
@@ -112,9 +117,8 @@ void ChainFree::energy_bound(){
 			linewidth = my::tostring(std::abs(t))+"mm";
 
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-
-			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.2,"\\tiny{"+my::tostring(t)+"}");
 		}
+		ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.2,"\\tiny{"+my::tostring(t)+"}");
 
 		mu = H_(s0,s0);
 		if(std::abs(mu)>1e-4){
@@ -122,6 +126,7 @@ void ChainFree::energy_bound(){
 			else { color = "cyan"; }
 			ps.circle(xy0,std::abs(mu),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 		}
+		ps.put(xy0(0),-0.2,"\\tiny{"+my::tostring(mu)+"}");
 
 		if(obs_[0].nval()){/*bound energy*/
 			corr = obs_[0][i].get_x();
@@ -135,8 +140,6 @@ void ChainFree::energy_bound(){
 				ps.put((xy0(0)+xy1(0))/2.0+x_shift,xy0(1)+0.2,"\\tiny{"+my::tostring(corr).substr(0,5)+"}");
 			}
 		}
-
-		ps.put(xy0(0),-0.2,"\\tiny{"+my::tostring(s0)+"}");
 	}
 	if(obs_.size()==2){/*long range correlations*/
 		xy0(1) = -1.5;
@@ -159,5 +162,28 @@ void ChainFree::energy_bound(){
 		}
 	}
 	ps.end(true,true,true);
+}
+
+void ChainFree::display_results(){
+	energy_bound();
+	long_range_correlation_and_structure_factor();
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
+		std::string title("J=(");
+		for(unsigned int i(0);i<spuc_-1;i++){ title += my::tostring(J_(i)) + ","; }
+		title += my::tostring(J_(spuc_-1)) + "), t=(";
+		for(unsigned int i(0);i<t_.size()-1;i++){ title += my::tostring(t_(i)) + ","; }
+		title += my::tostring(t_.back()) + "), "+RST::math("\\mu")+"=(";
+		for(unsigned int i(0);i<mu_.size()-1;i++){ title += my::tostring(mu_(i)) + ","; }
+		title += my::tostring(mu_.back()) + ")";
+		rst_file_->title(title,'-');
+
+		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(relative_path+filename_+"-pstricks.pdf")+RST::scale("200"));
+		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
+		rst_file_->figure(relative_path+filename_+"-sf.png","structure factor",RST::target(relative_path+filename_+"-sf.gp")+RST::scale("200"));
+	}
 }
 /*}*/

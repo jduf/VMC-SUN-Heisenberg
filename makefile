@@ -6,7 +6,7 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 #	EXEC+= load
 	EXEC+= check
 	POSTPROCESS= cp $(EXEC) ../sim;
-#	EXEC+= study
+	EXEC+= study
 	POSTPROCESS+= cp study ..
 
 	CXX = g++ -std=c++11
@@ -39,7 +39,7 @@ KAGOME    = KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp
 WF         = $(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)
 MONTECARLO = MonteCarlo.cpp MCSystem.cpp Observable.cpp System.cpp IOSystem.cpp CreateSystem.cpp MCSim.cpp
 VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp VMCSystematic.cpp
-ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseMagnetization.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp VMCMinimization.cpp Interpolation.cpp Directory.cpp
+ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseHoneycomb.cpp AnalyseMagnetization.cpp AnalyseMin.cpp VMCMinimization.cpp Interpolation.cpp Directory.cpp
 IOFILES    = Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
 OTHER      = Lapack.cpp Parseur.cpp Fit.cpp
 

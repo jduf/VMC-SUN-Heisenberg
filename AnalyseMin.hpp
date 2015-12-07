@@ -1,13 +1,13 @@
-#ifndef DEF_ANALYSELADDER
-#define DEF_ANALYSELADDER
+#ifndef DEF_ANALYSEMIN
+#define DEF_ANALYSEMIN
 
 #include "Analyse.hpp"
 #include "VMCMinimization.hpp"
 
-class AnalyseLadder : public Analyse{
+class AnalyseMin : public Analyse{
 	public:
-		AnalyseLadder(std::string const& path, unsigned int const& max_level, bool const& run_cmd);
-		~AnalyseLadder() = default;
+		AnalyseMin(std::string const& path, unsigned int const& max_level, bool const& run_cmd);
+		~AnalyseMin() = default;
 
 	protected:
 		IOFiles complete_jobs_;

@@ -1122,6 +1122,7 @@ void LadderFree::display_results(){
 		std::string relative_path(analyse_+path_+dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
 		std::string title(RST::math("\\theta=")+my::tostring(acos(this->J_(0))) + " : t=(");
 		for(unsigned int i(0);i<t_.size()-1;i++){ title += my::tostring(t_(i)) + ","; }
 		title += my::tostring(t_.back()) + ")";
@@ -1129,6 +1130,7 @@ void LadderFree::display_results(){
 			rst_file_->title("|theta"+my::tostring(acos(this->J_(0)))+"|_",'-');
 			rst_file_->replace("theta"+my::tostring(acos(this->J_(0))),title);
 		} else { rst_file_->title(title,'-'); }
+
 		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+filename_+"-as.gp")+RST::scale("200"));

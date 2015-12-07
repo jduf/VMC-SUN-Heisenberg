@@ -40,8 +40,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 									{
 										Vector<double> t;
 										Vector<double> mu;
-										if(param){ t = *param; }
-										if(C)    { 
+										if(param){ 
+											t.set(param->size()/2);
+											mu.set(param->size()/2+1);
+											for(unsigned int i(0);i<t.size();i++){ t(i) = (*param)(i); }
+											for(unsigned int i(0);i<mu.size();i++){ mu(i) = (*param)(i+t.size()); }
+										}
+										if(C){ 
 											t = C->get<std::vector<double> >("t"); 
 											mu = C->get<std::vector<double> >("mu"); 
 										}

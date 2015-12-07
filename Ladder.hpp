@@ -44,10 +44,10 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 	if(this->status_==2){
 		/*!create the links if necessary*/
 		if(!this->obs_.size()){
-			Vector<unsigned int> l(2);
-			l(0) = 2;
-			l(1) = 1;
-			this->set_nn_links(l);
+			Vector<unsigned int> tmp(2);
+			tmp(0) = 2;
+			tmp(1) = 1;
+			this->set_nn_links(tmp);
 		}
 
 		/*!sets the bond energy if it has not been set yet*/
