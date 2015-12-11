@@ -27,6 +27,7 @@ class RST{
 		void figure(std::string const& image, std::string const& legend, std::string const& option="");
 		void comment(std::string const& t);
 		void replace(std::string const& pattern, std::string const& replace);
+		void change_text_onclick(std::string const& old_txt, std::string const& new_txt);
 		void np();
 		void nl();
 

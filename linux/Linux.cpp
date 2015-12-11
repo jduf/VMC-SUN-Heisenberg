@@ -136,6 +136,7 @@ std::string Linux::rst2html(std::string const& path, std::string const& filename
 	cmd+= " -st";
 	cmd+= " --stylesheet=" + std::string(MY_RST2HTML_STYLESHEET);
 	cmd+= " --field-name-limit=0 ";
+	cmd+= " --link-stylesheet ";
 	cmd+= path + filename + ".rst ";
 	cmd+= path + filename + ".html ";
 	return cmd;

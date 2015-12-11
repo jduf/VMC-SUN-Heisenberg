@@ -50,9 +50,9 @@ void Particle::move(Vector<double> const& bx_all){
 		v_(i) = chi_*(v_(i) + cp_*rnd_.get()*(bx_(i)-x_(i)) + cg_*rnd_.get()*(bx_all(i)-x_(i)));
 		if( x_(i)+v_(i) > max_(i)){ v_(i) = log(1.0+rnd_.get()*(exp(max_(i)-x_(i))-1.0)); }
 		if( x_(i)+v_(i) < min_(i)){ v_(i) =-log(1.0+rnd_.get()*(exp(x_(i)-min_(i))-1.0)); }
-		x_(i) += v_(i);
-		assert( x_(i) <= max_(i));
-		assert( x_(i) >= min_(i));
+		x_(i) = my::chop(x_(i)+v_(i));
+		assert( x_(i) <= max_(i) );
+		assert( x_(i) >= min_(i) );
 	}
 }
 

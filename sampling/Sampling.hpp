@@ -632,7 +632,6 @@ DataSet<Type>& DataSet<Type>::operator=(DataSet<Type> ds){
 	swap_to_assign(*this,ds);
 	return (*this);
 }
-
 /*}*/
 
 /*public methods that modify the class*/

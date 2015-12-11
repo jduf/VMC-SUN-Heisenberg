@@ -121,7 +121,7 @@ Type Container::get(std::string const& name) const {
 	unsigned int i(0);
 	if(find(name,i)){ return static_cast<GenericVariable<Type>*>(data_[i])->t_; }
 	else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : no data with name "<<name<<std::endl;
+		std::cerr<<__PRETTY_FUNCTION__<<" : no variable with name "<<name<<std::endl;
 		return Type();
 	}
 }
