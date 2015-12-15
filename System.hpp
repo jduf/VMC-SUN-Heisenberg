@@ -28,7 +28,6 @@ class System{
 		/*}*/
 
 		/*{Handles class attributes*/
-		std::vector<Observable> const& get_obs() const { return obs_; }
 		void set_observables(std::vector<Observable> const& obs, int const& nobs);
 		/*!Sets the observables to default (0) values and initilizes binning*/
 		void clear_measurments();
@@ -45,7 +44,7 @@ class System{
 		/*{Write in IOFiles methods*/
 		virtual void write(IOFiles& w) const;
 		/*{Description*/
-		/*!Saves ref_, N_, m_, n_, M_ bc_ and J_ in w. The file will contain a
+		/*!Saves ref_, N_, m_, n_, bc_, M_ and J_ in w. The file will contain a
 		 * brief description for each variable and eventually a header. As the
 		 * method is virtual, a call on this method will call first
 		 * child::save() const if it exists*/
@@ -61,6 +60,8 @@ class System{
 		unsigned int const& get_status() const { return status_; }
 		/*!Returns the energy*/
 		Data<double> const& get_energy() const { return E_; }
+		/*!Returns all observables*/
+		std::vector<Observable> const& get_obs() const { return obs_; }
 		/*}*/
 
 	protected:
@@ -78,7 +79,7 @@ class System{
 		int const bc_;					//!< boundary condition
 		Vector<unsigned int> const M_;	//!< number of particles of each color
 
-		/*the following attributes will be set by GenericSystem and can't be
+		/*!the following attributes will be set by GenericSystem and can't be
 		 * defined within System*/
 		Vector<double> J_;				//!< coupling strength
 		unsigned int status_;			//!< status of the simulation

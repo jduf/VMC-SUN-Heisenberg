@@ -40,15 +40,15 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 									{
 										Vector<double> t;
 										Vector<double> mu;
-										if(param){ 
+										if(param){
 											t.set(param->size()/2);
 											mu.set(param->size()/2+1);
 											for(unsigned int i(0);i<t.size();i++){ t(i) = (*param)(i); }
 											for(unsigned int i(0);i<mu.size();i++){ mu(i) = (*param)(i+t.size()); }
 										}
-										if(C){ 
-											t = C->get<std::vector<double> >("t"); 
-											mu = C->get<std::vector<double> >("mu"); 
+										if(C){
+											t = C->get<std::vector<double> >("t");
+											mu = C->get<std::vector<double> >("mu");
 										}
 										if(t.ptr()){ RGL_ = new ChainFree(*s_,t,mu); }
 									}break;
@@ -76,9 +76,18 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 4:
 									{
 										Vector<double> t;
-										if(param){ t = *param; }
-										if(C)    { t = C->get<std::vector<double> >("t"); }
-										RGL_ = new LadderFree(*s_,t);
+										Vector<double> mu;
+										if(param){
+											mu.set((param->size()+1)*2/5);
+											t.set(param->size()-mu.size());
+											for(unsigned int i(0);i<t.size();i++){ t(i) = (*param)(i); }
+											for(unsigned int i(0);i<mu.size();i++){ mu(i) = (*param)(i+t.size()); }
+										}
+										if(C){
+											t = C->get<std::vector<double> >("t");
+											mu = C->get<std::vector<double> >("mu");
+										}
+										RGL_ = new LadderFree(*s_,t,mu);
 									}break;
 								default:{ error(); }break;
 							}
@@ -87,7 +96,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 0: { CGL_ = new LadderFermi<std::complex<double> >(*s_); }break;
-								case 1: { 
+								case 1: {
 											Vector<double> t;
 											Vector<double> flux;
 											if(param){
@@ -98,10 +107,10 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 												for(unsigned int i(0);i<param->size()-l;i++){ flux(i) = (*param)(l+i); }
 											}
 											if(C){
-												t = C->get<std::vector<double> >("t"); 
-												flux = C->get<std::vector<double> >("flux"); 
+												t = C->get<std::vector<double> >("t");
+												flux = C->get<std::vector<double> >("flux");
 											}
-											CGL_ = new LadderFreeFlux(*s_,t,flux); 
+											CGL_ = new LadderFreeFlux(*s_,t,flux);
 										}break;
 								default:{ error(); }break;
 							}
@@ -122,8 +131,8 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 2:
 						{
 							switch(ref_(2)){
-								case 2: 
-									{ 
+								case 2:
+									{
 										double phi;
 										if(param){ phi = (*param)(0); }
 										if(C)    { phi = C->get<double>("phi"); }

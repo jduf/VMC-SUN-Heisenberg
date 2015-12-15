@@ -65,11 +65,13 @@ void ChainFree::save_param(IOFiles& w) const {
 	for(unsigned int i(0);i<t_.size();i++){ param(i) = t_(i); }
 	for(unsigned int i(0);i<mu_.size();i++){ param(i+t_.size()) = mu_(i); }
 	
-	w.write("param (t,mu)",param);
+	w.add_header()->title("param (t,mu)",'<');
+	w<<param;
+	GenericSystem<double>::save_param(w);
 }
 
 unsigned int ChainFree::set_spuc(Vector<double> const& t, Vector<double> const& mu, unsigned int const& spuc){
-	if(t.size()+1 == spuc && mu.size() == spuc && !my::are_equal(t,Vector<double>(spuc,1.0))){ return spuc; }
+	if(t.size()+1 == mu.size() && mu.size()%spuc==0 && !my::are_equal(t,Vector<double>(spuc,1.0))){ return spuc; }
 	else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : invalid or incoherent t and mu sizes : t:="<<t.size()<<", mu:="<<mu.size()<<std::endl;
 		return spuc+1;

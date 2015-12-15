@@ -147,18 +147,28 @@ int main(int argc, char* argv[]){
 		case 7:/*check symmetries*/
 			{
 				Vector<double> t_ref(P.get<std::vector<double> >("t"));
-				Vector<double> flux_ref(P.get<std::vector<double> >("flux"));
+				Vector<double> mu_ref(P.get<std::vector<double> >("mu"));
+				Vector<double> param_ref(t_ref.size()+mu_ref.size());
+				for(unsigned int i(0);i<t_ref.size();i++){ param_ref(i) = t_ref(i); }
+				for(unsigned int i(0);i<mu_ref.size();i++){ param_ref(t_ref.size()+i) = mu_ref(i); }
 				cs.init(NULL,&P);
 				std::vector<Matrix<int> > all_sym;
 				cs.get_wf_symmetries(all_sym);
 				for(unsigned int j(0);j<all_sym.size();j++){
-					Vector<double> t(t_ref);
+					Vector<double> param(param_ref);
 					Matrix<int> sym(all_sym[j]);
 					for(unsigned int i(0);i<sym.row();i++){
-						if(sym(i,1)<0){ t(sym(i,0)) = sym(i,2)*0.1; }
-						else { t(sym(i,0)) = sym(i,2)*t(sym(i,1)); }
+						if(sym(i,1)<0){ param(sym(i,0)) = sym(i,2)*66; }
+						else { param(sym(i,0)) = sym(i,2)*param(sym(i,1)); }
 					}
-					std::cout<<"sim["<<j<<"]"<<" "<<i<<" -> "<<t<<std::endl;
+					for(unsigned int i(0);i<param.size();i++){
+						if( my::are_equal(std::abs(param(i)),66) ){
+							std::cout<<(param(i)>=0?" A ":"-A ");
+						} else {
+							std::cout<<(param(i)>=0?" ":"")<<param(i)<<" ";
+						}
+					}
+					std::cout<<std::endl;
 				}
 			} break;
 		default:

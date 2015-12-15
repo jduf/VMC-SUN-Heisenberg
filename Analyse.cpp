@@ -12,6 +12,8 @@ Analyse::Analyse(std::string const& path, unsigned int const& max_level, bool co
 	if(path.find(".jdbin")!=std::string::npos){ study_=3; }
 }
 
+Analyse::~Analyse(){ Linux::close(run_cmd_); }
+
 void Analyse::do_analyse(){
 	switch(study_){
 		case 0: /*treat everything*/
@@ -92,8 +94,6 @@ void Analyse::recursive_search(){
 	search_jdbin();
 	level_--;
 	rel_level_.erase(0,3);
-
-	if(level_ == 1){ Linux::close(run_cmd_); }
 }
 
 void Analyse::search_jdbin(){

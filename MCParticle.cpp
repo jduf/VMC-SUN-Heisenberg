@@ -70,14 +70,15 @@ bool MCParticle::select_new_best(){
 	} else { return false; }
 }
 
-void MCParticle::set_bx_via(Vector<double> const& param){
+void MCParticle::set_bx_via(Vector<double> param){
+	/*!need to restore the symmetry otherwise negative parameters won't be
+	 * found ( maybe better to do param(sym_(i,0)) = param(sym_(i,1)) ); */
+	for(unsigned int i(0);i<sym_.row();i++){ param(sym_(i,0)) *= sym_(i,2); }
 	bool found;
 	for(unsigned int i(0);i<dof_;i++){
 		found = false;
 		for(unsigned int j(0);j<ps_[i].size();j++){
-			/*the absolute value is required because even if m_->ps_[i]>0, some
-			 * pi-flux configuration need negative parameters*/
-			if( my::are_equal(ps_[i](j),std::abs(param(i))) ){
+			if( my::are_equal(ps_[i](j),param(i)) ){
 				bx_(i) = j;
 				j = ps_[i].size();
 				found = true;
@@ -93,8 +94,8 @@ void MCParticle::set_bx_via(Vector<double> const& param){
 Vector<double> MCParticle::get_param() const {
 	Vector<double> param(dof_);
 	for(unsigned int i(0);i<dof_;i++){
-		if(x_(i)<=min_(i) || x_(i)>=max_(i)){
-			std::cerr<<__PRETTY_FUNCTION__<<" : bug "<<x_<<" | "<<min_<<" | "<<max_<<std::endl;
+		if(x_(i)<min_(i) || x_(i)>=max_(i)){
+			std::cerr<<__PRETTY_FUNCTION__<<" : "<<i<<" bug "<<x_<<" | "<<min_<<" | "<<max_<<std::endl;
 			for(unsigned int j(0);j<dof_;j++){ std::cout<<ps_[j]<<std::endl; }
 		}
 		param(i) = ps_[i](floor(x_(i)));

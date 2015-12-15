@@ -19,7 +19,7 @@ class ChainPolymerized: public Chain<double> {
 		void check();
 
 	private:
-		Vector<double> t_;//!< polymerization parameter
+		Vector<double> const t_;//!< polymerization parameter
 
 		void compute_H();
 		unsigned int set_spuc(Vector<double> const& t, unsigned int const& spuc);

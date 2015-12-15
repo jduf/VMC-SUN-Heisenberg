@@ -18,7 +18,7 @@ int main(int argc, char* argv[]){
 					unsigned int loop(P.get<unsigned int>("loop"));
 					if(!P.locked()){
 						for(unsigned int i(0);i<loop;i++){
-							m1.init(true, 3*i<loop?false:true);
+							m1.init(i%3);
 							m1.run();
 
 							m.refine(10,0,1e-5,5);

@@ -68,8 +68,10 @@ void Observable::write(IOFiles& w) const {
 }
 
 void Observable::print() const {
-	for(unsigned int i(0);i<links_.row();i++){
-		std::cout<<links_(i,0)<<" "<<links_(i,1)<<" "<<links_(i,2)<<" "<<val_[links_(i,2)]<<std::endl;
-	}
+	if(val_.size()){
+		for(unsigned int i(0);i<links_.row();i++){
+			std::cout<<links_(i,0)<<" "<<links_(i,1)<<" "<<links_(i,2)<<" "<<val_[links_(i,2)]<<std::endl;
+		}
+	} else { std::cout<<links_<<std::endl; }
 }
 /*}*/

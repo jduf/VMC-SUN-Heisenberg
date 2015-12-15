@@ -82,7 +82,7 @@ void VMCMinimization::refine(double const& E, double const& dE){
 
 		if(N>5 && N<700){
 			best.set_target();
-			while(best.target_next()){ evaluate_until_precision(best.get().get_param(),-1,dE,maxiter); }
+			while(best.target_next()){ evaluate_until_precision(best.get().get_param(),0,dE,maxiter); }
 		} else {
 			if(N<700){ msg = "not enough samples to be usefull, skip the evaluation"; }
 			else { msg = "too many samples, would take too much time, skip the evaluation"; }
@@ -461,13 +461,13 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	dof_= P.get<unsigned int>("dof");
 	ps_ = new Vector<double>[dof_];
 
-	/*!Sets obs_ and gives s_ the list of nearest neighbour links*/
+	/*!Sets obs_ so its contains all possible observables that can be measured
+	 * for this given System*/
 	Vector<double> tmp(dof_,1.0);
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
 	cs.set_observables(-1);
 	obs_ = cs.get_GS()->get_obs();
-	//s_->set_observables(obs_,0);
 
 	std::string msg("no samples loaded");
 	std::cout<<"#"+msg<<std::endl;
@@ -488,7 +488,8 @@ std::string VMCMinimization::Minimization::load(IOFiles& in, std::string& path, 
 	in>>dof_;
 	ps_= new Vector<double>[dof_];
 
-	/*!Sets obs_ (s_ should already know the list of nearest neighbour links)*/
+	/*!Sets obs_ so its contains all possible observables that can be measured
+	 * for this given System*/
 	Vector<double> tmp(dof_,1.0);
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);

@@ -103,7 +103,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	/*!Make sure that the matrices Ainv_ are invertible by going to a state of
 	 * heigh weight*/
 	unsigned int l(0);
-	unsigned int TRY_MAX(1e6);
+	unsigned int TRY_MAX(1e5);
 	Matrix<Type>* A;
 	A = new Matrix<Type>[N_];
 	Vector<Type> det_A(N_,1.0);
@@ -159,7 +159,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 			Lapack<Type> inv(Ainv_[c],false,'G');
 			inv.inv();
 		}
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no initial state found after "<<TRY_MAX<<" trials"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no initial state found after "<<TRY_MAX<<" attempts"<<std::endl; }
 
 	delete[] A;
 }
@@ -190,7 +190,10 @@ SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
 			tmp_[c].set(M_(c),M_(c));
 			tmp_v[c].set(M_(c));
 		}
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore"<<std::endl; }
+	} else { 
+		this->status_++;
+		std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore"<<std::endl; 
+	}
 }
 
 template<typename Type>
@@ -219,7 +222,10 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 			tmp_v[c].set(M_(c));
 			Lapack<Type>(Ainv_[c],false,'G').inv();
 		}
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore "<<std::endl; }
+	} else { 
+		this->status_++;
+		std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore "<<std::endl; 
+	}
 }
 
 template<typename Type>
@@ -280,16 +286,20 @@ void SystemFermionic<Type>::update(){
 
 	/*remove tmp_*/
 	Type Ainvlk;
-	for(unsigned int c(0);c<2;c++){
+	unsigned int c;
+	unsigned int M;
+	unsigned int r;
+	for(unsigned int i(0);i<2;i++){
+		c = new_c_[i];
+		r = new_r_[i];
+		M = M_(c);
 		/*!compute u.u^T.Ã.A^(-1) = ((A^(-1))^T.Ã^T.u.u^T)^T*/
-		BLAS::gemv('T',M_(new_c_[c]),M_(new_c_[c]),Ainv_[new_c_[c]].ptr(),this->EVec_[new_c_[c]].ptr()+new_ev_[c],this->EVec_[new_c_[c]].row(),tmp_v[new_c_[c]].ptr());
-		tmp_v[new_c_[c]](new_r_[c]) -= 1;
-		for(unsigned int i(0);i<M_(new_c_[c]);i++){
+		BLAS::gemv('T',M,M,Ainv_[c].ptr(),this->EVec_[c].ptr()+new_ev_[i],this->EVec_[c].row(),tmp_v[c].ptr());
+		tmp_v[c](r) -= 1.0;
+		for(unsigned int j(0);j<M;j++){
 			/*need to save this temporary value because Ainv_ is overwritten*/
-			Ainvlk = Ainv_[new_c_[c]](i,new_r_[c])/w_[c];
-			for(unsigned int j(0);j<M_(new_c_[c]);j++){
-				Ainv_[new_c_[c]](i,j) -= Ainvlk*tmp_v[new_c_[c]](j);
-			}
+			Ainvlk = Ainv_[c](j,r)/w_[i];
+			for(unsigned int k(0);k<M;k++){ Ainv_[c](j,k) -= Ainvlk*tmp_v[c](k); }
 		}
 	}
 }
@@ -322,7 +332,7 @@ template<typename Type>
 double SystemFermionic<Type>::ratio(){
 	if(new_c_[0] == new_c_[1]){
 		/*!there is no minus sign because if the same color is inverted, the
-		 * matrices will be identical up to the invertion of two columns, this
+		 * matrices will be identical up to the inversion of two columns, this
 		 * minus sign is then cancelled by the reordering of the operators */
 		return 1.0;
 	} else {

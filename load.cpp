@@ -6,14 +6,23 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 
-	IOFiles read(P.get<std::string>("sim"),false);
+	unsigned int i;
+	if(P.find("sim",i,false)){
+		IOFiles read(P.get<std::string>(i),false);
 
-	Vector<double> tmp;
-	read>>tmp;
-	System s(read);
-	CreateSystem cs(&s);
-	cs.init(&tmp,NULL);
+		Vector<double> tmp(read);
+		System sys(read);
+		CreateSystem cs(&sys);
+		cs.init(&tmp,NULL);
 
-	//cs.lattice("./","lattice");
-	cs.check();
+		RSTFile rst("/tmp/",cs.get_filename());
+		IOSystem ios(cs.get_filename(),"","","","","/tmp/",&rst);
+		cs.set_IOSystem(&ios);
+
+		cs.display_results();
+
+		rst.text(out.get_header());
+		rst.save(false,true);
+		command(Linux::html_browser("/tmp/"+cs.get_filename()+".html"),true);
+	}
 }

@@ -9,7 +9,7 @@ class Analyse: public IOSystem{
 	public:
 		Analyse(std::string const& path, unsigned int const& max_level, bool const& run_cmd);
 		/*Default destructor*/
-		virtual ~Analyse() = default;
+		virtual ~Analyse();
 		/*{Forbidden*/
 		Analyse() = delete;
 		Analyse(Analyse const&) = delete;
