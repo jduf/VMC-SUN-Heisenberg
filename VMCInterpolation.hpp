@@ -20,7 +20,6 @@ class VMCInterpolation : public VMCMinimization{
 		void run(bool const& explore_around_minima);
 
 		void plot();
-		void print();
 
 	private:
 		Interpolation<Vector<double> > interp_;

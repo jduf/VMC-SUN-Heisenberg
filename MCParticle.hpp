@@ -26,7 +26,6 @@ class MCParticle: public Particle{
 		//might also crash if x_[i] is set to 0
 		void move(Vector<double> const& bx_all);
 		bool update(std::shared_ptr<MCSim> const& new_elem);
-		void add_to_history(std::shared_ptr<MCSim> const& new_elem){ history_.add_end(new_elem); }
 		void clear_history(){ history_.set(); }
 		bool select_new_best();
 
@@ -41,5 +40,7 @@ class MCParticle: public Particle{
 
 		/*!sets Particle::bx_ to the correct index of ps_*/
 		void set_bx_via(Vector<double> param);
+		/*!use update() to add a MCSim because also update fbx_ and bx_ */
+		void add_to_history(std::shared_ptr<MCSim> const& new_elem){ history_.add_end(new_elem); }
 };
 #endif

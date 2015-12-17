@@ -6,7 +6,7 @@
 
 class VMCPSO: public VMCMinimization, public Swarm<MCParticle>{
 	public:
-		VMCPSO(Parseur const& P, VMCMinimization const& vmcm, bool set_symmetry);
+		VMCPSO(Parseur const& P, VMCMinimization const& vmcm, int const& set_symmetry);
 		/*!Default destructor*/
 		virtual ~VMCPSO() = default;
 		/*{Forbidden*/
@@ -16,6 +16,7 @@ class VMCPSO: public VMCMinimization, public Swarm<MCParticle>{
 		VMCPSO& operator=(VMCPSO) = delete;
 		/*}*/
 
+		void init_param_and_symmetry(Vector<double> const& param);
 		void init(bool const& clear_particle_history);
 		void run();
 

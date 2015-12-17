@@ -27,9 +27,6 @@ class MCSim{
 		/*!Creates MonteCarlo, then run on MCS_*/
 		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
 		/*}*/
-		void set_observables(std::vector<Observable> const& obs, int const& nobs){
-			MCS_->set_observables(obs,nobs);
-		}
 
 		/*{System and MCSystem calls*/
 		/*!Calls bool System::check_conv(double const& convergence_criterion)*/
@@ -40,6 +37,12 @@ class MCSim{
 		void complete_analysis(double const& convergence_criterion){
 			MCS_->complete_analysis(convergence_criterion);
 		}
+		/*!Calls void System::set_observables(...)*/
+		void set_observables(std::vector<Observable> const& obs, int const& nobs){
+			MCS_->set_observables(obs,nobs);
+		}
+		/*!Calls void System::clear_measurments(...)*/
+		void clear_observables(int const& nobs){ MCS_->clear_observables(nobs); }
 		/*!Calls virtual void MCSystem::free_memory() = 0*/
 		void free_memory(){ MCS_->free_memory(); }
 		/*}*/
@@ -52,7 +55,8 @@ class MCSim{
 
 		/*{Static methods*/
 		static bool sort_by_E(MCSim const& a, MCSim const& b);
-		static unsigned int sort_by_param_for_merge(MCSim const& list, MCSim const& new_elem);
+		static unsigned int sort_for_merge(MCSim const& list, MCSim const& new_elem);
+		static unsigned int sort_by_param_for_merge(Vector<double> const& a, Vector<double> const& b);
 		/*}*/
 
 		/*{Simple value return*/

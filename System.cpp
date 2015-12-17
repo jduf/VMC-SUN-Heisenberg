@@ -46,8 +46,8 @@ void System::set_observables(std::vector<Observable> const& obs, int const& nobs
 	}
 }
 
-void System::clear_measurments(){
-	E_.set();
+void System::clear_observables(int const& nobs){
+	if(nobs<0){ E_.set(); }
 	obs_.clear();
 }
 
@@ -221,7 +221,7 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		std::vector<double> Jp(1,1);
 		P.set("Jp",Jp);
 	}
-	if( wf == "square-freecomplex" ){
+	if( wf == "square-freeflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 4;

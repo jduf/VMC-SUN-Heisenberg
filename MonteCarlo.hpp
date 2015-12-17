@@ -3,6 +3,7 @@
 
 #include "SystemBosonic.hpp"
 #include "SystemFermionic.hpp"
+#include <omp.h>
 
 /*{!Class MonteCarlo
  *

@@ -25,13 +25,13 @@ void VMCSystematic::run(int const& nobs, double const& dE, unsigned int const& m
 }
 
 void VMCSystematic::plot(){
-	std::cout<<"will save "<<m_->samples_list_.size()<<" samples"<<std::endl;
+	std::cout<<"will save "<<m_->samples_.size()<<" samples"<<std::endl;
 	IOFiles data("systematic.dat",true);
-	m_->samples_list_.set_target();
+	m_->samples_.set_target();
 	Vector<double> param;
-	while(m_->samples_list_.target_next()){
-		param = m_->samples_list_.get().get_param(); 
-		data<<m_->samples_list_.get().get_param()<<" "<<m_->samples_list_.get().get_MCS()->get_energy()<<IOFiles::endl;
+	while(m_->samples_.target_next()){
+		param = m_->samples_.get().get_param(); 
+		data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_MCS()->get_energy()<<IOFiles::endl;
 	}
 
 	Gnuplot gp("./","systematic");

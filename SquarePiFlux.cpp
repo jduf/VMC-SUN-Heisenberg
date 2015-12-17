@@ -2,7 +2,7 @@
 
 SquarePiFlux::SquarePiFlux(System const& s):
 	System(s),
-	Square<std::complex<double> >((N_/m_==2?2:0),2,1,"square-csl")
+	Square<std::complex<double> >((N_/m_==2?2:0),2,1,"square-piflux")
 {
 	if(status_==2){
 		init_fermionic();
@@ -15,39 +15,26 @@ SquarePiFlux::SquarePiFlux(System const& s):
 void SquarePiFlux::compute_H(){
 	double phi(M_PI/4.0);
 	H_.set(n_,n_,0);
-	Matrix<int> nb;
-	unsigned int s(0);
-	for(unsigned int i(0);i<n_;i++){
-		s = get_site_in_ab(i);
-		nb = get_neighbourg(i);
-		switch(s){
-			case 0:
-				{
-					H_(i,nb(0,0)) = std::polar(double(nb(0,1)),phi);
-					H_(i,nb(1,0)) = std::polar(double(nb(1,1)),-phi);
-				}break;
-			case 1:
-				{
-					H_(i,nb(0,0)) = std::polar(double(nb(0,1)),-phi);
-					H_(i,nb(1,0)) = std::polar(double(nb(1,1)),phi);
-				}break;
-			default:{ std::cerr<<__PRETTY_FUNCTION__<<" : undefined site in unit cell"<<std::endl; }break;
-		}
+	unsigned int s0;
+	unsigned int s1;
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		s0 = obs_[0](i,0);
+		s1 = obs_[0](i,1);
+		if(obs_[0](i,3)){ H_(s0,s1) = std::polar(double(obs_[0](i,4)),get_site_in_ab(s0)?-phi:phi); }
+		else{ H_(s0,s1) = obs_[0](i,4); }
 	}
-	std::cerr<<__PRETTY_FUNCTION__<<" : new use of polar, check that it is correct"<<std::endl;
-	std::cerr<<__PRETTY_FUNCTION__<<" : modified the flux disposition..."<<std::endl;
-	std::cerr<<__PRETTY_FUNCTION__<<" : it seems that std::polar is not very stable for std::polar(1,-pi)=(0,1e-6)"<<std::endl;
 	H_ += H_.conjugate_transpose();
 }
 
 void SquarePiFlux::create(){
 	compute_H();
 	diagonalize(true);
-	for(unsigned int c(0);c<N_;c++){
-		EVec_[c].set(n_,M_(c));
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = H_(i,j);
+	if(status_==1){
+		for(unsigned int c(0);c<N_;c++){
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = H_(i,j);
+				}
 			}
 		}
 	}
@@ -55,10 +42,10 @@ void SquarePiFlux::create(){
 
 unsigned int SquarePiFlux::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
-	if(my::are_equal(x,match)){ return 0; }
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
 	match(0) = 0.5;
-	match(1) = 0;
-	if(my::are_equal(x,match)){ return 1; }
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<" | "<<x.size()<<std::endl;
 	return 2;
 }
 /*}*/
@@ -66,77 +53,15 @@ unsigned int SquarePiFlux::match_pos_in_ab(Vector<double> const& x) const {
 /*{method needed for checking*/
 void SquarePiFlux::display_results(){
 	compute_H();
+
 	std::string color("black");
 	std::string linestyle("solid");
 	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps(info_+path_+dir_,filename_);
-	ps.begin(-9,-10,16,10,filename_);
 	std::complex<double> t;
-	unsigned int s0;
-	unsigned int s1;
-	double y_shift(4);
-	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		s0 = obs_[0](i,0);
-		xy0 = get_pos_in_lattice(s0);
-		set_pos_LxLy(xy0);
-		xy0 = (LxLy_*xy0).chop();
-
-		s1 = obs_[0](i,1);
-		xy1 = get_pos_in_lattice(s1);
-		set_pos_LxLy(xy1);
-		xy1 = (LxLy_*xy1).chop();
-
-		if((xy0-xy1).norm_squared()<1.1){ linestyle = "solid"; }
-		else {
-			linestyle = "dashed";
-			if(i%2 && xy1(1)<xy0(1)){
-				xy1(0) = xy0(0);
-				xy1(1) = xy0(1)+1.0;
-			}
-			if(!(i%2) && xy1(0)<xy0(0)){
-				xy1(0) = xy0(0)+1.0;
-				xy1(1) = xy0(1);
-			}
-			ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-		}
-
-		t = H_(s0,s1);
-		if(i%2){
-			ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
-		}
-
-		if(std::abs(t)>1e-4){
-			if(t.real()<0){ color = "red"; }
-			else { color = "blue"; }
-
-			if(t.imag()>0){ arrow = "->"; }
-			else { arrow = "<-"; }
-			xy0 = xy0.chop();
-			xy1 = xy1.chop();
-			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
-		}
-	}
-
-	double lr_corr;
-	double rescale(obs_[1].nlinks()?0.75/obs_[1][0].get_x():0);
-	for(unsigned int i(0);i<obs_[1].nlinks();i++){
-		lr_corr = obs_[1][i].get_x()*rescale;
-		if(std::abs(lr_corr)>1e-4){
-			xy1 = get_pos_in_lattice(i);
-			set_pos_LxLy(xy1);
-			xy1 = (LxLy_*xy1).chop();
-			xy1(1) -= 2*y_shift;
-
-			if(i){
-				if(lr_corr<0){ color = "red"; }
-				else { color = "blue"; }
-			} else { color = "black"; }
-
-			ps.circle(xy1,std::abs(lr_corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
-		}
-	}
+	PSTricks ps(info_+path_+dir_,filename_);
+	ps.begin(-2,-20,20,20,filename_);
 
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=0;
@@ -157,15 +82,77 @@ void SquarePiFlux::display_results(){
 	polygon(2,1)=ab_(1,0)+ab_(1,1);
 	polygon(3,0)=ab_(0,1);
 	polygon(3,1)=ab_(1,1);
-	for(unsigned int i(0);i<polygon.row();i++){
-		polygon(i,0) -= 0.2;
-		polygon(i,1) -= 0.1;
+	for(unsigned int i(0);i<4;i++){
+		polygon(i,0) -= ab_(0,0)/2.0; 
+		polygon(i,1) -= ab_(1,1)/2.0; 
 	}
 	ps.polygon(polygon,"linecolor=black");
+
+	unsigned int s0;
+	unsigned int s1;
+	double phi(-M_PI/4.0);
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		s0 = obs_[0](i,0);
+		xy0 = get_pos_in_lattice(s0);
+
+		s1 = obs_[0](i,1);
+		xy1 = get_pos_in_lattice(s1);
+
+		t = H_(s0,s1);
+		if(std::abs(t)>1e-4){
+			if((xy0-xy1).norm_squared()>1.0001){
+				linestyle = "dashed";
+				xy1 = xy0;
+				if(obs_[0](i,3)){ xy1(1) += 1.0; }
+				else { xy1(0) += 1.0; }
+				xy1 = xy1.chop();
+				ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
+			} else { linestyle = "solid"; }
+
+			if(t.real()>0){ color = "blue"; }
+			else { color = "red"; }
+
+			arrow = "-";
+			if(std::arg(t)>0){ arrow = "->"; }
+			if(std::arg(t)<0){ arrow = "<-"; }
+
+			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1mm,linecolor="+color+",linestyle="+linestyle);
+		}
+		if(i%2){
+			ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
+			ps.put(my::chop((2*xy0(0)+1)/2.0),my::chop((xy0(1)+xy1(1))/2.0),"\\tiny{"+my::tostring(2.*(phi-std::arg(t))/M_PI)+"}");
+			phi =  std::arg(t);
+		}
+	}
+
+	if(obs_.size()>1){
+		double y_shift(4);
+		double corr;
+		double rescale(0.75/obs_[1][0].get_x());
+		for(unsigned int i(0);i<obs_[1].nlinks();i++){
+			corr = obs_[1][i].get_x()*rescale;
+			if(std::abs(corr)>1e-4){
+				s0 = obs_[0](i,0);
+				xy1 = get_pos_in_lattice(s0);
+				xy1(1) -= 2*y_shift;
+
+				if(i){
+					if(corr<0){ color = "red"; }
+					else { color = "blue"; }
+				} else { color = "black"; }
+
+				ps.circle(xy1,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
+		}
+	}
 	ps.end(true,true,true);
 }
 
 void SquarePiFlux::check(){
+	info_ = "";
+	path_ = "";
+	dir_  = "./";
+	filename_ ="square-piflux";
 	display_results();
 }
 /*}*/

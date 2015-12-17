@@ -34,7 +34,7 @@ void MCParticle::print() const {
 }
 
 bool MCParticle::update(std::shared_ptr<MCSim> const& new_elem){
-	if(!history_.find_in_sorted_list(new_elem,MCSim::sort_by_param_for_merge)){
+	if(!history_.find_in_sorted_list(new_elem,MCSim::sort_for_merge)){
 		history_.add_after_target(new_elem); 
 	}
 
@@ -57,6 +57,7 @@ bool MCParticle::update(std::shared_ptr<MCSim> const& new_elem){
 bool MCParticle::select_new_best(){
 	double tmp;
 	Vector<double> param;
+	history_.set_target();
 	while(history_.target_next()){
 		tmp = history_.get().get_MCS()->get_energy().get_x();
 		if(tmp<fbx_){
@@ -85,7 +86,7 @@ void MCParticle::set_bx_via(Vector<double> param){
 			}
 		}
 		if(!found){
-			std::cerr<<__PRETTY_FUNCTION__<<" : can't find a match for dof "<<i<<" for param "<<param<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : can't find a match for dof "<<i<<" for param "<<param(i)<<" in "<<ps_[i]<<std::endl;
 		}
 		assert(found);
 	}

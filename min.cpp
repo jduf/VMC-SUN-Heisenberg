@@ -13,31 +13,26 @@ int main(int argc, char* argv[]){
 		switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
 			case 0:
 				{
-					VMCPSO m1(P,m,P.get<bool>("symmetry"));
+					VMCPSO m1(P,m,P.get<int>("symmetry"));
 					VMCInterpolation m2(m);
 					unsigned int loop(P.get<unsigned int>("loop"));
 					if(!P.locked()){
 						for(unsigned int i(0);i<loop;i++){
 							m1.init(i%3);
 							m1.run();
+							m1.save();
 
 							m.refine(10,0,1e-5,5);
+							m.explore_around_minima(10,0,1e-5,0.05);
+							m.complete_analysis(1e-5);
 							m.save();
+
 							//m2.init();
 							//m2.run(true);
 							//m2.save();
 						}
 
-						m.get_header().title("Minimization",'>');
-						m.complete_analysis(1e-5);
-						m.save();
-
 						m.refine();
-						m.save();
-
-						m.set_tmax(20);
-						m.find_and_run_minima(10,-1,1e-4);
-						m.save();
 					} else { std::cerr<<__PRETTY_FUNCTION__<<" : some argument are not corretly set"<<std::endl; }
 				}break;
 			case 1:
@@ -45,22 +40,13 @@ int main(int argc, char* argv[]){
 					unsigned int i(0);
 					unsigned int j(0);
 					if(P.find("dE",j,false)){
-						if(P.find("E",i,false)){
-							m.refine(P.get<double>(i),P.get<double>(j));
-							m.save();
-						}
-						if(P.find("nmin",i,false)){
-							m.refine(P.get<unsigned int>(i),0,P.get<double>(j),P.get<unsigned int>("maxiter"));
-							m.save();
-						}
-					} else {
-						m.refine();
-						m.save();
-					}
+						if(P.find("E",i,false)){ m.refine(P.get<double>(i),P.get<double>(j)); }
+						if(P.find("nmin",i,false)){ m.refine(P.get<unsigned int>(i),0,P.get<double>(j),P.get<unsigned int>("maxiter")); }
+					} else { m.refine(); }
 				}break;
 			case 2:
 				{
-					m.find_and_run_minima(10,-1,1e-4);
+					m.find_and_run_minima(10,-1,1e-5);
 					m.save();
 				}break;
 			case 3:
@@ -248,15 +234,35 @@ int main(int argc, char* argv[]){
 					m3.save();
 					m3.plot();
 				}break;
+			case 6:
+				{
+					m.clean();
+					m.save();
+				}break;
+			case 7:
+				{
+					VMCPSO m1(P,m,P.get<int>("symmetry"));
+
+					m1.init_param_and_symmetry(P.get<std::vector<double> >("param"));
+					m1.run();
+					m1.complete_analysis(1e-5);
+					m1.save();
+				}break;
+			case 8:
+				{
+					m.improve_bad_samples(P.get<double>("dE"));
+					m.save();
+				}break;
 			default:
 				{
 					std::cerr<<__PRETTY_FUNCTION__<<" : unknown option 'what', options are :"<<std::endl;
 					std::cerr<<"    - complete run                 : 0"<<std::endl;
-					std::cerr<<"    - refine + save                : 1"<<std::endl;
+					std::cerr<<"    - refine                       : 1"<<std::endl;
 					std::cerr<<"    - find and run minima + save   : 2"<<std::endl;
 					std::cerr<<"    - redefine phase space + save  : 3"<<std::endl;
 					std::cerr<<"    - plot                         : 4"<<std::endl;
 					std::cerr<<"    - systematic run + save + plot : 5"<<std::endl;
+					std::cerr<<"    - clean                        : 6"<<std::endl;
 				}
 		}
 	}

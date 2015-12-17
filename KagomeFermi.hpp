@@ -40,13 +40,9 @@ KagomeFermi<Type>::KagomeFermi(System const& s):
 /*{method needed for running*/
 template<typename Type>
 void KagomeFermi<Type>::compute_H(){
-	double t(1.0);
 	this->H_.set(this->n_,this->n_,0);
-	Matrix<int> nb;
-	for(unsigned int i(0);i<this->n_;i++){
-		nb = this->get_neighbourg(i);
-		this->H_(i,nb(0,0)) = nb(0,1)*t;
-		this->H_(i,nb(1,0)) = nb(1,1)*t;
+	for(unsigned int i(0);i<this->obs_[0].nlinks(); i++){
+		this->H_(this->obs_[0](i,0),this->obs_[0](i,1)) = this->obs_[0](i,4);
 	}
 	this->H_ += this->H_.transpose();
 }

@@ -87,10 +87,14 @@ bool MCSim::sort_by_E(MCSim const& a, MCSim const& b){
 	return a.get_MCS()->get_energy().get_x()<b.get_MCS()->get_energy().get_x();
 }
 
-unsigned int MCSim::sort_by_param_for_merge(MCSim const& list, MCSim const& new_elem){
-	for(unsigned int i(0);i<list.param_.size();i++){
-		if(list.param_(i) - new_elem.param_(i) > 0.0001){ return 0; }
-		if(list.param_(i) - new_elem.param_(i) <-0.0001){ return 1; }
+unsigned int MCSim::sort_for_merge(MCSim const& list, MCSim const& new_elem){
+	return sort_by_param_for_merge(list.param_, new_elem.param_);
+}
+
+unsigned int MCSim::sort_by_param_for_merge(Vector<double> const& a, Vector<double> const& b){
+	for(unsigned int i(0);i<a.size();i++){
+		if(a(i) - b(i) > 0.0001){ return 0; }
+		if(a(i) - b(i) <-0.0001){ return 1; }
 	}
 	return 2;
 }

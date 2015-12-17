@@ -15,6 +15,17 @@ SquareFreeHopping::SquareFreeHopping(System const& s, Vector<double> const& t):
 }
 
 /*{method needed for running*/
+void SquareFreeHopping::compute_H(){
+	H_.set(n_,n_,0);
+	unsigned int s0;
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		s0 = obs_[0](i,0);
+		if(s0) { H_(s0,obs_[0](i,1)) = obs_[0](i,4)*t_(s0-1); }
+		else { H_(s0,obs_[0](i,1)) = obs_[0](i,4);  }
+	}
+	H_ += H_.transpose();
+}
+
 void SquareFreeHopping::create(){
 	compute_H();
 	diagonalize(true);
@@ -27,14 +38,6 @@ void SquareFreeHopping::create(){
 			}
 		}
 	}
-}
-
-void SquareFreeHopping::compute_H(){
-	H_.set(n_,n_,0);
-	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		H_(obs_[0](i,0),obs_[0](i,1)) = t_(i%t_.size());
-	}
-	H_ += H_.transpose();
 }
 
 unsigned int SquareFreeHopping::match_pos_in_ab(Vector<double> const& x) const {

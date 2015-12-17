@@ -21,14 +21,14 @@ void VMCInterpolation::init(){
 	std::cout<<"#"<<get_filename()<<std::endl;
 	m_->info_.item(get_filename());
 
-	msg="contains "+my::tostring(m_->samples_list_.size())+" samples";
+	msg="contains "+my::tostring(m_->samples_.size())+" samples";
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.item(msg);
 
-	if(m_->samples_list_.size()){ search_minima(); }
+	if(m_->samples_.size()){ search_minima(); }
 	else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : empty samples_list_"<<std::endl;
-		m_->info_.item("error : empty samples_list_");
+		std::cerr<<__PRETTY_FUNCTION__<<" : empty samples_"<<std::endl;
+		m_->info_.item("error : empty samples_");
 	}
 }
 
@@ -96,11 +96,11 @@ void VMCInterpolation::run(bool const& explore_around_minima){
 void VMCInterpolation::plot(){
 	if(m_->dof_<4){
 		out_ = new IOFiles(get_path()+get_filename()+".dat",true);
-		m_->samples_list_.set_target();
+		m_->samples_.set_target();
 		double min(0);
-		while(m_->samples_list_.target_next()){
-			if(m_->samples_list_.get().get_MCS()->get_energy().get_x()<min){ min = m_->samples_list_.get().get_MCS()->get_energy().get_x(); }
-			(*out_)<<m_->samples_list_.get().get_param()<<" "<<m_->samples_list_.get().get_MCS()->get_energy()<<IOFiles::endl;
+		while(m_->samples_.target_next()){
+			if(m_->samples_.get().get_MCS()->get_energy().get_x()<min){ min = m_->samples_.get().get_MCS()->get_energy().get_x(); }
+			(*out_)<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_MCS()->get_energy()<<IOFiles::endl;
 		}
 		delete out_;
 
@@ -142,8 +142,8 @@ void VMCInterpolation::plot(){
 			}
 			std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 			(*out_)<<param.norm_squared()<<" "<<interp_(param)<<" ";
-			if(m_->samples_list_.find_in_sorted_list(sim,MCSim::sort_by_param_for_merge)){
-				(*out_)<<m_->samples_list_.get().get_MCS()->get_energy().get_x()<<" "<<m_->samples_list_.get().get_MCS()->get_energy().get_dx()<<IOFiles::endl;
+			if(m_->samples_.find_in_sorted_list(sim,MCSim::sort_for_merge)){
+				(*out_)<<m_->samples_.get().get_MCS()->get_energy().get_x()<<" "<<m_->samples_.get().get_MCS()->get_energy().get_dx()<<IOFiles::endl;
 			} else {
 				(*out_)<<0<<" "<<0<<IOFiles::endl;
 			}
@@ -157,19 +157,6 @@ void VMCInterpolation::plot(){
 		plot.save_file();
 	}
 }
-
-void VMCInterpolation::print(){
-	Vector<double> param(m_->dof_);
-#pragma omp parallel for firstprivate(param)
-	for(unsigned int i=0;i<list_min_idx_.size();i++){
-		for(unsigned int j(0);j<m_->dof_;j++){ param(j) = m_->ps_[j](list_min_idx_[i](j)); }
-		std::shared_ptr<MCSim> sim(VMCMinimization::evaluate(param,0));
-		if(sim.get()){
-#pragma omp critical(cout)
-			std::cerr<<__PRETTY_FUNCTION__<<" : "<<param<<" "<<interp_(param)<<" "<<sim->get_MCS()->get_energy()<<std::endl;
-		}
-	}
-}
 /*}*/
 
 /*{private methods*/
@@ -178,9 +165,9 @@ void VMCInterpolation::search_minima(){
 	std::string msg1("computing the weights");
 	std::cout<<"#"<<msg1<<std::flush;
 
-	m_->samples_list_.set_target();
-	while(m_->samples_list_.target_next()){
-		interp_.add_data(m_->samples_list_.get().get_param(),m_->samples_list_.get().get_MCS()->get_energy().get_x());
+	m_->samples_.set_target();
+	while(m_->samples_.target_next()){
+		interp_.add_data(m_->samples_.get().get_param(),m_->samples_.get().get_MCS()->get_energy().get_x());
 	}
 
 	double dx(0.0);

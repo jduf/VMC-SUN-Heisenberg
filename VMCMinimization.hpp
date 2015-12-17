@@ -24,16 +24,19 @@ class VMCMinimization{
 		void refine();
 		void refine(double const& E, double const& dE);
 		void refine(unsigned int const& nmin, int const& nobs, double const& dE, unsigned int const& maxiter);
+
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
-		void find_minima(unsigned int const& max_n_minima, List<MCSim>& list_min, Vector<double>& best_param, double& E_range) const;
-		void find_and_run_minima(unsigned int const& max_n_minima, int const& nobs, double const& dE);
-		void explore_around_minima(unsigned int const& max_n_minima, int const& nobs, double const& dE, double const& dx);
-		void find_save_and_plot_minima(unsigned int const& max_n_minima, IOFiles& w, std::string path="", std::string filename="") const;
-		void improve_bad_samples(double const& dE);
 
-		virtual void print() const;
-		bool ready(){ return m_.get(); }
+		double find_minima(unsigned int const& max_local_minima, List<MCSim>& sorted_list, List<MCSim>& list_min) const;
+		void find_and_run_minima(unsigned int const& max_samples, int const& nobs, double const& dE);
+		void find_save_and_plot_minima(unsigned int const& max_samples, IOFiles& w, std::string path="", std::string filename="") const;
+		void explore_around_minima(unsigned int const& max_local_minima, int const& nobs, double const& dE, double const& dx);
+
+		void improve_bad_samples(double const& dE);
+		void clean();
+
+		bool ready() const { return m_.get(); }
 		RST& get_header(){ return m_->info_; }
 
 	private:
@@ -58,10 +61,10 @@ class VMCMinimization{
 				std::string load(IOFiles& in, std::string& path, std::string& basename);
 				void set_phase_space(Parseur const& P);
 
-				bool within_limit(Vector<double> const& x);
+				bool within_limit(Vector<double> const& x) const;
 				void save(IOFiles& out) const;
 
-				List<MCSim> samples_list_;
+				List<MCSim> samples_;
 				Container system_param_;
 				RST info_;
 				System* s_             = NULL;

@@ -45,6 +45,7 @@ void MonteCarlo::run(unsigned int const& maxiter){
 				measures++;
 			}
 			S_->add_sample();
+			if(iter%100000==0 && omp_get_thread_num()==0){ my::display_progress(time_.elapsed(),tmax_); }
 		} while(keepon() && ++iter<maxiter);
 #pragma omp critical(cout)
 		std::cout<<"done "<<iter<<" steps in "<<chrono.elapsed()<<"s with "<<measures<<" measures"<<std::endl;
@@ -68,7 +69,7 @@ bool MonteCarlo::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
 	if(std::abs(S_->get_energy().get_x())>1e2){
 		std::cerr<<__PRETTY_FUNCTION__<<" : simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
-		S_->clear_measurments();
+		S_->clear_observables(-1);
 	}
 	return true;
 }

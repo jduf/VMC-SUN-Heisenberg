@@ -2,7 +2,7 @@
 
 SquareFreeFlux::SquareFreeFlux(System const& s, Vector<double> const& phi):
 	System(s),
-	Square<std::complex<double> >((N_%m_?0:N_/m_),0,1,"square-free-flux"),
+	Square<std::complex<double> >((N_%m_?0:N_/m_),0,1,"square-freeflux"),
 	phi_(phi)
 {
 	if(status_==2){
@@ -15,14 +15,13 @@ SquareFreeFlux::SquareFreeFlux(System const& s, Vector<double> const& phi):
 /*{method needed for running*/
 void SquareFreeFlux::compute_H(){
 	H_.set(n_,n_,0);
-	unsigned int s(0);
 	unsigned int s0(0);
 	unsigned int s1(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		s = get_site_in_ab(s0);
-		H_(s0,s1) = std::polar(obs_[0](i,3)*1.0,phi_(s));
+		if(obs_[0](i,3)==1){ H_(s0,s1) = my::chop(std::polar(double(obs_[0](i,4)),phi_(get_site_in_ab(s0)))); }
+		else { H_(s0,s1) = obs_[0](i,4); }
 	}
 	H_ += H_.conjugate_transpose();
 }
@@ -64,7 +63,7 @@ void SquareFreeFlux::display_results(){
 
 	std::string color("black");
 	std::string linestyle("solid");
-	std::string linewidth("1pt");
+	std::string linewidth("1mm");
 	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
@@ -73,28 +72,30 @@ void SquareFreeFlux::display_results(){
 	ps.begin(-2,-20,20,20,filename_);
 
 	Matrix<double> polygon(4,2);
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=LxLy_(0,0);
-	polygon(1,1)=LxLy_(1,0);
-	polygon(2,0)=LxLy_(0,0)+LxLy_(0,1);
-	polygon(2,1)=LxLy_(1,0)+LxLy_(1,1);
-	polygon(3,0)=LxLy_(0,1);
-	polygon(3,1)=LxLy_(1,1);
+	polygon(0,0) = 0;
+	polygon(0,1) = 0;
+	polygon(1,0) = LxLy_(0,0);
+	polygon(1,1) = LxLy_(1,0);
+	polygon(2,0) = LxLy_(0,0)+LxLy_(0,1);
+	polygon(2,1) = LxLy_(1,0)+LxLy_(1,1);
+	polygon(3,0) = LxLy_(0,1);
+	polygon(3,1) = LxLy_(1,1);
 	ps.polygon(polygon,"linecolor=green");
 
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=ab_(0,0);
-	polygon(1,1)=ab_(1,0);
-	polygon(2,0)=ab_(0,0)+ab_(0,1);
-	polygon(2,1)=ab_(1,0)+ab_(1,1);
-	polygon(3,0)=ab_(0,1);
-	polygon(3,1)=ab_(1,1);
+	polygon(0,0) = 0;
+	polygon(0,1) = 0;
+	polygon(1,0) = ab_(0,0);
+	polygon(1,1) = ab_(1,0);
+	polygon(2,0) = ab_(0,0)+ab_(0,1);
+	polygon(2,1) = ab_(1,0)+ab_(1,1);
+	polygon(3,0) = ab_(0,1);
+	polygon(3,1) = ab_(1,1);
+	polygon -= 0.1;
 	ps.polygon(polygon,"linecolor=black");
 
 	unsigned int s0;
 	unsigned int s1;
+	double phi(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		xy0 = get_pos_in_lattice(s0);
@@ -117,15 +118,17 @@ void SquareFreeFlux::display_results(){
 			else { color = "red"; }
 
 			arrow = "-";
-			if(std::arg(t)>0){ arrow = "-"+std::string(std::arg(t)/(2*M_PI*m_/N_),'>'); }
-			if(std::arg(t)<0){ arrow = std::string(-std::arg(t)/(2*M_PI*m_/N_),'<')+"-"; }
+			if(std::arg(t)>0){ arrow = "-"+std::string(std::arg(t)/(2*M_PI),'>'); }
+			if(std::arg(t)<0){ arrow = std::string(-std::arg(t)/(2*M_PI),'<')+"-"; }
 
 			linewidth = my::tostring(std::abs(t))+"mm";
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 		if(i%2){
-			ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
+			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
 			if(my::real(H_(s0,s0))){ ps.circle(xy0,t.real(),"linecolor=magenta,fillstyle=solid,fillcolor=magenta"); }
+			ps.put(my::chop((2*xy0(0)-1)/2.0),my::chop((xy0(1)+xy1(1))/2.0),"\\tiny{"+my::tostring((std::arg(t)-phi)/(2*M_PI))+"}");
+			phi =  std::arg(t);
 		}
 	}
 
@@ -150,7 +153,6 @@ void SquareFreeFlux::display_results(){
 			}
 		}
 	}
-
 	ps.end(true,true,true);
 }
 
