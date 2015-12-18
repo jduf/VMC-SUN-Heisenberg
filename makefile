@@ -18,15 +18,15 @@ else
 	EXEC+= $(MACHINE)mc
 	POSTPROCESS= cp $(EXEC) ../sim
 
-	#CXX = icpc -std=c++11
+	CXX = icpc -std=c++11
+	LAPACK = -Wl,--no-as-needed -L${MKL_ROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
+	ERRORS = -Wall -Wextra -pedantic
+	OPTION = -openmp -mkl -D MY_BLAS_ZDOTU
+
+	#CXX = g++ -std=c++11
 	#LAPACK = -Wl,--no-as-needed -L${MKL_ROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
 	#ERRORS = -Wall -Wextra -pedantic
-	#OPTION = -openmp -mkl -D MY_BLAS_ZDOTU
-
-	CXX = g++ -std=c++11
-	LAPACK = -L $(LIBLAPACK_DIR) -llapack -lgfortran -lblas
-	ERRORS = -Wall -Wextra -pedantic
-	OPTION = -fopenmp
+	#OPTION = -fopenmp
 endif
 
 CHAIN     = ChainFermi.cpp ChainPolymerized.cpp ChainFree.cpp

@@ -27,6 +27,8 @@ class VMCMinimization{
 
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
+		void save_parameters(unsigned int nbest) const;
+		void run_parameters(Parseur& P);
 
 		double find_minima(unsigned int const& max_local_minima, List<MCSim>& sorted_list, List<MCSim>& list_min) const;
 		void find_and_run_minima(unsigned int const& max_samples, int const& nobs, double const& dE);
@@ -58,11 +60,11 @@ class VMCMinimization{
 				void set(Parseur& P, std::string& path, std::string& basename);
 
 				void create(Parseur& P, std::string& path, std::string& basename);
-				std::string load(IOFiles& in, std::string& path, std::string& basename);
+				void load(IOFiles& in, std::string& path, std::string& basename);
 				void set_phase_space(Parseur const& P);
 
 				bool within_limit(Vector<double> const& x) const;
-				void save(IOFiles& out) const;
+				void save(IOFiles& out, bool const& all) const;
 
 				List<MCSim> samples_;
 				Container system_param_;

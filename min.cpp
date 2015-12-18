@@ -18,14 +18,14 @@ int main(int argc, char* argv[]){
 					unsigned int loop(P.get<unsigned int>("loop"));
 					if(!P.locked()){
 						for(unsigned int i(0);i<loop;i++){
-							m1.init(i%3);
+							m1.init(false);
 							m1.run();
 							m1.save();
 
-							m.refine(10,0,1e-5,5);
-							m.explore_around_minima(10,0,1e-5,0.05);
-							m.complete_analysis(1e-5);
-							m.save();
+							//m.refine(10,0,1e-5,5);
+							//m.explore_around_minima(10,0,1e-5,0.05);
+							//m.complete_analysis(1e-5);
+							//m.save();
 
 							//m2.init();
 							//m2.run(true);
@@ -251,6 +251,15 @@ int main(int argc, char* argv[]){
 			case 8:
 				{
 					m.improve_bad_samples(P.get<double>("dE"));
+					m.save();
+				}break;
+			case 9:
+				{
+					m.save_parameters(P.get<unsigned int>("nparam"));
+				}break;
+			case 10:
+				{
+					m.run_parameters(P);
 					m.save();
 				}break;
 			default:
