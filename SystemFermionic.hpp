@@ -21,9 +21,9 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 		SystemFermionic& operator=(SystemFermionic<Type>) = delete;
 		/*}*/
 
-		/*!Set row and new_ev_*/
+		/*!Set row_ and new_ev_*/
 		void swap();
-		/*!Set row and new_ev_*/
+		/*!Set row_ and new_ev_*/
 		void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
 
 		/*{Description
@@ -42,14 +42,15 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 		/*}*/
 		void update();
 
-		/*!Returns a copy of this instance*/
+		/*!Returns a copy of this instance of SystemFermionic*/
 		std::unique_ptr<MCSystem> clone() const;
-		/*!Set to most of the matrices to NULL*/
+		/*!Sets most of the matrices to NULL*/
 		void free_memory();
-
+		/*!Writes the curent state of the system, the color configuration, the
+		 * observables and everything relevent to the simulation*/
+		void write(IOFiles& w) const;
 		/*!Prints some info related to the system*/
 		void print();
-		void write(IOFiles& w) const;
 
 	private:
 		/*!Authorizes copy only via clone()*/
@@ -87,16 +88,16 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 	}
 
 	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
-	unsigned int c_tmp(0);
-	Vector<unsigned int> row_tmp(N_,0);
+	unsigned int c(0);
+	Vector<unsigned int> row(N_,0);
 	for(unsigned int s(0);s<n_;s++){
 		for(unsigned int p(0);p<m_;p++){
-			c_tmp = s_(s,p);
-			for(unsigned int j(0);j<M_(c_tmp);j++){
-				Ainv_[c_tmp](row_tmp(c_tmp),j) = this->EVec_[c_tmp](s,j);
+			c = s_(s,p);
+			for(unsigned int j(0);j<M_(c);j++){
+				Ainv_[c](row(c),j) = this->EVec_[c](s,j);
 			}
-			row_(s,p) = row_tmp(c_tmp);
-			row_tmp(c_tmp)++;
+			row_(s,p) = row(c);
+			row(c)++;
 		}
 	}
 
@@ -174,7 +175,10 @@ SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
 	tmp_(new Matrix<Type>[N_]),
 	tmp_v(new Vector<Type>[N_])
 {
+	/*!Initialized class variables*/
 	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
+
+	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
 	unsigned int c(0);
 	for(unsigned int s(0);s<n_;s++){
 		for(unsigned int p(0);p<m_;p++){
@@ -206,7 +210,10 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 	tmp_(N_?new Matrix<Type>[N_]:NULL),
 	tmp_v(N_?new Vector<Type>[N_]:NULL)
 {
+	/*!Initialized class variables*/
 	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
+
+	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
 	unsigned int c(0);
 	for(unsigned int s(0);s<n_;s++){
 		for(unsigned int p(0);p<m_;p++){
@@ -232,6 +239,7 @@ template<typename Type>
 SystemFermionic<Type>::~SystemFermionic(){
 	delete[] Ainv_;
 	delete[] tmp_;
+	delete[] tmp_v;
 }
 
 template<typename Type>
@@ -316,13 +324,26 @@ void SystemFermionic<Type>::write(IOFiles& w) const {
 
 template<typename Type>
 void SystemFermionic<Type>::free_memory(){
+	std::cout<<"free"<<std::endl;
 	Ainv_[0].set();
 	tmp_[0].set();
+	tmp_v[0].set();
 	for(unsigned int c(1);c<N_;c++){
 		if(this->same_wf_){ this->EVec_[c].set(); }
 		Ainv_[c].set();
 		tmp_[c].set();
+		tmp_v[c].set();
 	}
+
+	//delete[] Ainv_;
+	//Ainv_ = NULL;
+	//delete[] tmp_;
+	//tmp_ = NULL;
+	//delete[] tmp_v;
+	//tmp_v = NULL;
+	//if(this->same_wf_){
+		//for(unsigned int c(1);c<N_;c++){ this->EVec_[c].set(); }
+	//}
 }
 /*}*/
 
@@ -342,7 +363,7 @@ double SystemFermionic<Type>::ratio(){
 			//c_tmp = new_c_[c];
 			//w_[c] = 0.0;
 			//for(unsigned int k(0);k<M_(c_tmp);k++){
-				//w_[c] += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,new_r_[c]);
+			//w_[c] += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,new_r_[c]);
 			//}
 		}
 		/*!the minus sign is correct, it comes from <C|H|C'> because when H is

@@ -25,7 +25,7 @@ class Ladder: public System1D<Type>{
 		virtual ~Ladder()=0;
 
 	protected:
-		void set_observables(int nobs);
+		void set_obs(int nobs);
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Given N and m, save the best simulation in a text file for any n*/
@@ -78,7 +78,7 @@ template<typename Type>
 Ladder<Type>::~Ladder() = default;
 
 template<typename Type>
-void Ladder<Type>::set_observables(int nobs){
+void Ladder<Type>::set_obs(int nobs){
 	this->E_.set(50,5,false);
 
 	if(nobs<0){ nobs = 5; }

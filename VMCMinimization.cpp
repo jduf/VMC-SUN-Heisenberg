@@ -89,7 +89,7 @@ void VMCMinimization::refine(double const& E, double const& dE){
 			}
 			save();
 		} else {
-			if(N<700){ msg = "not enough samples to be usefull, skip the evaluation"; }
+			if(N<1000){ msg = "not enough samples to be usefull, skip the evaluation"; }
 			else { msg = "too many samples, would take too much time, skip the evaluation"; }
 			std::cout<<"#"<<msg<<std::endl;
 			m_->info_.item(msg);
@@ -101,7 +101,7 @@ void VMCMinimization::refine(unsigned int const& nmin, int const& nobs, double c
 	if(m_->samples_.size() && m_->tmax_){
 		List<MCSim> potential_minima;
 		List<MCSim> sorted_samples;
-		find_minima(0,sorted_samples,potential_minima);
+		find_minima(0,0.999,sorted_samples,potential_minima);
 
 		std::string msg("refines "+my::tostring(nmin)+" samples (max time "+my::tostring(nmin*m_->tmax_*maxiter)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
@@ -139,7 +139,7 @@ void VMCMinimization::save() const {
 	out<<path_<<basename_;
 }
 
-double VMCMinimization::find_minima(unsigned int const& max_pm, List<MCSim>& sorted_samples, List<MCSim>& potential_minima) const {
+double VMCMinimization::find_minima(unsigned int const& max_pm, double const& range, List<MCSim>& sorted_samples, List<MCSim>& potential_minima) const {
 	double E_range(666);
 	if(m_->samples_.size()){
 		sorted_samples.set();
@@ -149,7 +149,7 @@ double VMCMinimization::find_minima(unsigned int const& max_pm, List<MCSim>& sor
 		while(m_->samples_.target_next()){
 			E_range = m_->samples_.get().get_MCS()->get_energy().get_x()<E_range?m_->samples_.get().get_MCS()->get_energy().get_x():E_range;
 		}
-		E_range *= 0.995;
+		E_range *= range;
 
 		/*!sort by energy all MCSim with energy lower than a threshold*/
 		m_->samples_.set_target();
@@ -213,7 +213,7 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, int const&
 	if(m_->samples_.size() && m_->tmax_){
 		List<MCSim> potential_minima;
 		List<MCSim> sorted_samples;
-		find_minima(max_pm,sorted_samples,potential_minima);
+		find_minima(max_pm,0.999,sorted_samples,potential_minima);
 
 		unsigned int maxiter(1);
 		std::cout<<"#######################"<<std::endl;
@@ -238,39 +238,56 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_pm, IOFi
 
 		List<MCSim> potential_minima;
 		List<MCSim> sorted_samples;
-		double E_range(find_minima(max_pm,sorted_samples,potential_minima));
+		double E_range(find_minima(max_pm,0.999,sorted_samples,potential_minima));
 
-		IOFiles data(path+filename+".dat",true);
-		IOFiles data_Er(path+filename+"-Er.dat",true);
 		w.write("number of samples",potential_minima.size());
 
 		potential_minima.set_target();
 		potential_minima.target_next();
 		Vector<double> best_param(potential_minima.get().get_param());
-		do {
+		IOFiles data_Er(path+filename+"-Er.dat",true);
+		do{
 			data_Er<<(best_param-potential_minima.get().get_param()).norm_squared()<<" "<<potential_minima.get().get_MCS()->get_energy().get_x()<<IOFiles::endl;
 			potential_minima.get().save(w);
 		} while(potential_minima.target_next());
 
+		IOFiles data(path+filename+".dat",true);
 		m_->samples_.target_next();
 		while(m_->samples_.target_next()){
 			data<<m_->samples_.get().get_param()<<" "<<(best_param-m_->samples_.get().get_param()).norm_squared()<<" "<<m_->samples_.get().get_MCS()->get_energy()<<IOFiles::endl;
 		}
 
+		IOFiles bond_energy(path+filename+"-be.dat",true);//bond energy
+		sorted_samples.pop_end();
+		sorted_samples.set_target();
+		unsigned int i(0);
+		while(sorted_samples.target_next()){
+			Observable be(sorted_samples.get().get_MCS()->get_obs()[0]);
+			if(be.nval()==12){
+				bond_energy<<sorted_samples.get().get_MCS()->get_energy()<<" "<<be[0]<<" "<<be[3]<<" "<<be[6]<<" "<<be[9]<<IOFiles::endl;
+			}
+			if(i++==1000){ E_range = sorted_samples.get().get_MCS()->get_energy().get_x(); }
+		}
+
 		Gnuplot gp(path,filename);
 		gp+="E_range="+my::tostring(E_range);
 		gp.multiplot();
-		gp.range("x","[:E_range] writeback");
-		gp.margin("0.1","0.9","0.5","0.10");
-		gp+="plot '"+filename+".dat'        u "+my::tostring(m_->dof_+2)+":"+my::tostring(m_->dof_+1)+":"+my::tostring(m_->dof_+3)+" w xe           notitle,\\";
-		gp+="     '"+filename+"-Er.dat'     u 2:1   lc 4 ps 2 pt 7 t 'selected minima'";
-		gp.margin("0.1","0.9","0.9","0.50");
 		gp.tics("x");
+		gp.range("x","[:E_range] writeback");
+		gp.margin("0.1","0.9","0.6","0.3");
+		gp+="plot '"+filename+".dat'    u "+my::tostring(m_->dof_+2)+":"+my::tostring(m_->dof_+1)+":"+my::tostring(m_->dof_+3)+" w xe notitle,\\";
+		gp+="     '"+filename+"-Er.dat' u 2:1 lc 4 ps 2 pt 7 t 'selected minima'";
+		gp.margin("0.1","0.9","0.9","0.6");
 		gp.range("x","restore");
 		gp.key("left Left");
 		for(unsigned int i(0);i<m_->dof_;i++){
 			gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(m_->dof_+2)+":"+my::tostring(i+1)+":"+my::tostring(m_->dof_+3)+" w xe t '$"+my::tostring(i)+"$'"+(i==m_->dof_-1?"":",\\");
 		}
+		gp.margin("0.1","0.9","0.3","0.1");
+		gp.tics("x","");
+		gp+="plot '"+filename+"-be.dat' u 1:($5/$9):2:(($5*$10/$9+$6)/$9) w xye t '0/3',\\";
+		gp+="     '"+filename+"-be.dat' u 1:($5/$13):2:(($5*$14/$13+$6)/$13) w xye t '0/6',\\";
+		gp+="     '"+filename+"-be.dat' u 1:($5/$17):2:(($5*$18/$17+$6)/$17) w xye t '0/9'";
 		gp.save_file();
 		gp.create_image(true,true);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
@@ -281,7 +298,7 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, int cons
 		/*!find the minima and sort by energy*/
 		List<MCSim> sorted_samples;
 		List<MCSim> potential_minima;
-		find_minima(max_pm,sorted_samples,potential_minima);
+		find_minima(max_pm,0.999,sorted_samples,potential_minima);
 
 		Vector<double> p;
 		List<Vector<double> > param;
@@ -362,7 +379,7 @@ void VMCMinimization::improve_bad_samples(double const& dE){
 void VMCMinimization::save_parameters(unsigned int nbest) const {
 	List<MCSim> potential_minima;
 	List<MCSim> sorted_samples;
-	find_minima(0,sorted_samples,potential_minima);
+	find_minima(0,0.999,sorted_samples,potential_minima);
 	nbest = (sorted_samples.size()>nbest+1?nbest:sorted_samples.size()-1);
 
 	set_time();
@@ -403,7 +420,7 @@ void VMCMinimization::run_parameters(Parseur& P){
 void VMCMinimization::clean(){
 	m_->samples_.set_target();
 	while(m_->samples_.target_next()){
-		m_->samples_.get().clear_observables(0);
+		m_->samples_.get().clear_obs(0);
 	}
 }
 /*}*/
@@ -419,10 +436,11 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, in
 	}
 
 	if(sim->is_created()){
-		sim->set_observables(m_->obs_,nobs);
+		sim->set_obs(m_->obs_,nobs);
 		sim->run(sample?10:1e6,m_->tmax_);
 
 		if(!sample){
+			sim->free_memory();
 			/*!if the sample wasn't found before, search again because another
 			 * thread may have created it*/
 #pragma omp critical(List__global)
@@ -439,7 +457,6 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, in
 			sample->get()->get_MCS()->merge(sim->get_MCS().get());
 			sim = sample->get();
 		}
-		sim->free_memory();
 		return sim;
 	} else { return NULL; }
 }
@@ -500,8 +517,8 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	Vector<double> tmp(dof_,1.0);
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
-	cs.set_observables(-1);
-	obs_ = cs.get_GS()->get_obs();
+	cs.set_obs(-1);
+	obs_ = cs.get_GenericSystem()->get_obs();
 
 	std::string msg("no samples loaded");
 	std::cout<<"#"+msg<<std::endl;
@@ -527,8 +544,8 @@ void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::st
 	Vector<double> tmp(dof_,1.0);
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
-	cs.set_observables(-1);
-	obs_ = cs.get_GS()->get_obs();
+	cs.set_obs(-1);
+	obs_ = cs.get_GenericSystem()->get_obs();
 
 	ps_size_ = 1;
 	for(unsigned int i(0);i<dof_;i++){

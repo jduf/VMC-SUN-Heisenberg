@@ -29,7 +29,7 @@ class Observable{
 		unsigned int nlinks() const { return links_.row(); }
 		Matrix<int> const& get_links() const { return links_; }
 
-		void merge(Observable & obs){ val_.merge(obs.val_); }
+		void merge(Observable& obs){ val_.merge(obs.val_); }
 		void delete_binning(){ val_.delete_binning(); }
 		void complete_analysis(double const& convergence_criterion){ val_.complete_analysis(convergence_criterion); }
 

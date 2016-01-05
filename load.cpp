@@ -21,8 +21,9 @@ int main(int argc, char* argv[]){
 
 		cs.display_results();
 
-		rst.text(out.get_header());
+		rst.text(read.get_header());
 		rst.save(false,true);
+		Linux command;
 		command(Linux::html_browser("/tmp/"+cs.get_filename()+".html"),true);
 	}
 }

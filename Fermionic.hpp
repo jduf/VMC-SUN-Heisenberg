@@ -74,4 +74,3 @@ Fermionic<Type>::~Fermionic(){
 }
 /*}*/
 #endif
-

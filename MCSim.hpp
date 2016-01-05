@@ -37,12 +37,12 @@ class MCSim{
 		void complete_analysis(double const& convergence_criterion){
 			MCS_->complete_analysis(convergence_criterion);
 		}
-		/*!Calls void System::set_observables(...)*/
-		void set_observables(std::vector<Observable> const& obs, int const& nobs){
-			MCS_->set_observables(obs,nobs);
+		/*!Calls void System::set_obs(...)*/
+		void set_obs(std::vector<Observable> const& obs, int const& nobs){
+			MCS_->set_obs(obs,nobs);
 		}
-		/*!Calls void System::clear_measurments(...)*/
-		void clear_observables(int const& nobs){ MCS_->clear_observables(nobs); }
+		/*!Calls void System::clear_obs(...)*/
+		void clear_obs(int const& nobs){ MCS_->clear_obs(nobs); }
 		/*!Calls virtual void MCSystem::free_memory() = 0*/
 		void free_memory(){ MCS_->free_memory(); }
 		/*}*/

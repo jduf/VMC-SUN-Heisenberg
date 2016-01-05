@@ -36,7 +36,7 @@ System::System(IOFiles& r):
 
 /*handles class attributes*/
 /*{*/
-void System::set_observables(std::vector<Observable> const& obs, int const& nobs){
+void System::set_obs(std::vector<Observable> const& obs, int const& nobs){
 	E_.set(50,5,false);
 	if(nobs<0){ obs_ = obs; }
 	else {
@@ -46,7 +46,7 @@ void System::set_observables(std::vector<Observable> const& obs, int const& nobs
 	}
 }
 
-void System::clear_observables(int const& nobs){
+void System::clear_obs(int const& nobs){
 	if(nobs<0){ E_.set(); }
 	obs_.clear();
 }

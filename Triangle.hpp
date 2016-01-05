@@ -14,7 +14,7 @@ class Triangle: public System2D<Type>{
 	protected:
 		Matrix<double> dir_nn_;
 
-		void set_observables(int nobs);
+		void set_obs(int nobs);
 		/*!Returns the neighbours of site i*/
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
@@ -100,7 +100,7 @@ Triangle<Type>::~Triangle() = default;
 
 /*{protected methods*/
 template<typename Type>
-void Triangle<Type>::set_observables(int nobs){
+void Triangle<Type>::set_obs(int nobs){
 	this->E_.set(50,5,false);
 
 	if(nobs<0){ nobs = 1; }

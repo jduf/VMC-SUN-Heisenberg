@@ -93,10 +93,10 @@ class CreateSystem{
 			if(RGL_){ RGL_->save_input(w); }
 			if(CGL_){ CGL_->save_input(w); }
 		}
-		/*!Calls GenericSystem::set_observables(unsigned int const& which) pure virtual method*/
-		void set_observables(int const& nobs) const {
-			if(RGL_){ return RGL_->set_observables(nobs); }
-			if(CGL_){ return CGL_->set_observables(nobs); }
+		/*!Calls GenericSystem::set_obs(unsigned int const& which) pure virtual method*/
+		void set_obs(int const& nobs) const {
+			if(RGL_){ return RGL_->set_obs(nobs); }
+			if(CGL_){ return CGL_->set_obs(nobs); }
 		}
 		/*!Calls GenericSystem::get_wf_symmetries(std::vector<Matrix<int> >& sym) pure virtual method*/
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
@@ -119,7 +119,7 @@ class CreateSystem{
 		/*!Returns ref*/
 		Vector<unsigned int> const&  get_ref() const { return ref_; }
 		/*!Returns a pointer on the GenericSystem created*/
-		System const* get_GS() const {
+		System const* get_GenericSystem() const {
 			if(RGL_){ return RGL_; }
 			if(CGL_){ return CGL_; }
 			return NULL;

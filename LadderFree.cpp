@@ -11,7 +11,11 @@ LadderFree::LadderFree(System const& s, Vector<double> const& t, Vector<double> 
 		system_info_.text("LadderFree : all colors experience the same Hamiltonian");
 		filename_ += "-t";
 		for(unsigned int i(0);i<t_.size();i++){
-			filename_ += ((t_(i)>0)?"+":"")+my::tostring(t_(i));
+			filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
+		}
+		filename_ += "-mu";
+		for(unsigned int i(0);i<mu_.size();i++){
+			filename_ += ((mu_(i)>=0)?"+":"")+my::tostring(mu_(i));
 		}
 	}
 }
@@ -1424,6 +1428,7 @@ void LadderFree::lattice(){
 	double corr;
 	unsigned int s0;
 	unsigned int s1;
+	std::string str;
 	for(unsigned int i(0);i<3*spuc_/2;i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
@@ -1467,16 +1472,29 @@ void LadderFree::lattice(){
 
 				ps.line("-",xy0(0)+x_shift,xy0(1),xy1(0)+x_shift,xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
-			if(i%3==0){
-				ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}");
-				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1),"\\tiny{"+my::tostring(corr).substr(0,5)+"}");
-			}
-			if(i%3==1){
+
+			if(i%3!=1){
+				if(i%3==0){
+					ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}");
+				}
+				str = my::tostring(corr);
+				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1),"\\tiny{"+str.substr(0,8)+"}");
+				str = my::tostring(obs_[0][i].get_dx());
+				if(obs_[0][i].get_dx()<1e-4){
+					ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
+				} else {
+					ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,8)+"}");
+				}
+			} else {
 				ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}");
-				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(corr).substr(0,5)+"}");
-			}
-			if(i%3==2){
-				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy1(1),"\\tiny{"+my::tostring(corr).substr(0,5)+"}");
+				str = my::tostring(corr);
+				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0,"\\tiny{"+str.substr(0,8)+"}");
+				str = my::tostring(obs_[0][i].get_dx());
+				if(obs_[0][i].get_dx()<1e-4){
+					ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
+				} else {
+					ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,8)+"}");
+				}
 			}
 		}
 	}

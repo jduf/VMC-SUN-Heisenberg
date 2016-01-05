@@ -28,30 +28,34 @@ class MCSystem: public virtual System{
 		virtual double ratio()=0;
 		/*!Updates only s_*/
 		virtual void update();
-
-		/*!Sample the system for the new step*/
+		/*!Measures the system for the new step*/
 		void measure_new_step();
-		/*!Add the sample to the statistic*/
+		/*!Adds the sample to the statistic*/
 		void add_sample();
 
+		/*!Returns a copy of the instance of the relevant child class*/
 		virtual std::unique_ptr<MCSystem> clone() const = 0;
+		/*!Saves some RAM*/
 		virtual void free_memory() = 0;
+		/*!Writes the curent state of the system, the color configuration, the
+		 * observables and everything relevent to the simulation*/
 		virtual void write(IOFiles& w) const;
 		
 	protected:
-		/*!Allow copy if called from child class*/
+		/*!Allows copy if called from child class*/
 		MCSystem(MCSystem const& mcsim);
 
 		unsigned int new_c_[2];//!< colors of the exchanged sites
 		unsigned int new_s_[2];//!< sites that are exchanged
-		unsigned int new_p_[2];//!< sites that are exchanged
+		unsigned int new_p_[2];//!< particle on site that are exchanged
 
-		Matrix<unsigned int> s_;  //!< s(site,particle)=color
-		Rand<unsigned int> n_rnd_;//!< generator of random numbers
-		Rand<unsigned int> m_rnd_;//!< generator of random numbers
+		Matrix<unsigned int> s_;  //!< s_(site,particle)=color
 
 	private:
-		/*!Check only if the new state has not the same color on one site*/
+		/*!Checks only if the new state has not the same color on one site*/
 		bool is_new_state_forbidden();
+
+		Rand<unsigned int> n_rnd_;//!< generator of random numbers
+		Rand<unsigned int> m_rnd_;//!< generator of random numbers
 };
 #endif

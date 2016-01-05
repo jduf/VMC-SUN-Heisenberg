@@ -41,7 +41,7 @@ int main(int argc, char* argv[]){
 					unsigned int j(0);
 					if(P.find("dE",j,false)){
 						if(P.find("E",i,false)){ m.refine(P.get<double>(i),P.get<double>(j)); }
-						if(P.find("nmin",i,false)){ m.refine(P.get<unsigned int>(i),0,P.get<double>(j),P.get<unsigned int>("maxiter")); }
+						if(P.find("nmin",i,false)){ m.refine(P.get<unsigned int>(i),P.get<int>("nobs"),P.get<double>(j),P.get<unsigned int>("maxiter")); }
 					} else { m.refine(); }
 				}break;
 			case 2:
@@ -261,6 +261,16 @@ int main(int argc, char* argv[]){
 				{
 					m.run_parameters(P);
 					m.save();
+				}break;
+			case 11:
+				{
+					m.improve_bad_samples(1e-4);
+					m.save();
+
+					m.refine(); 
+
+					m.set_tmax(P.get<unsigned int>("tmax"));
+					m.refine(1000,0,1e-5,10); 
 				}break;
 			default:
 				{

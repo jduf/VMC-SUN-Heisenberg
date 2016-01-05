@@ -12,7 +12,7 @@ class Square: public System2D<Type>{
 		virtual ~Square()=0;
 
 	protected:
-		void set_observables(int nobs);
+		void set_obs(int nobs);
 		/*!Returns the neighbours of site i*/
 		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
@@ -75,7 +75,7 @@ Square<Type>::~Square() = default;
 
 /*{protected methods*/
 template<typename Type>
-void Square<Type>::set_observables(int nobs){
+void Square<Type>::set_obs(int nobs){
 	this->E_.set(50,5,false);
 
 	if(nobs<0){ nobs = 1; }

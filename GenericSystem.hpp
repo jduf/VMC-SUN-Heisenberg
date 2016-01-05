@@ -34,8 +34,8 @@ class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSyst
 		virtual void display_results() = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
-		/*!Sets the binning for E_(>=0), corr_(>=1), lr_corr(>=2)*/
-		virtual void set_observables(int nobs) = 0;
+		/*!Sets E(>=0), bond energy(>=1), long range correlations(>=2)*/
+		virtual void set_obs(int nobs) = 0;
 
 	protected:
 		unsigned int const spuc_;//!< site per unit cell
@@ -51,7 +51,8 @@ class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSyst
 		/*}*/
 		virtual Matrix<int> get_neighbourg(unsigned int const& i) const = 0;
 		/*{Description*/
-		/*!Computes the array of links between neighbouring sites
+		/*!Computes the array of links between neighbouring sites.
+		 *
 		 * The argument l gives the number of links that need to be computed
 		 * for the site i%l.size()*/
 		/*}*/

@@ -30,15 +30,15 @@ void MCSim::create_S(System const* const s){
 		if(cs.get_status()==1){
 			if(cs.use_complex()){
 				if(cs.is_bosonic()){
-					MCS_.reset(new SystemBosonic<std::complex<double> >(*dynamic_cast<const Bosonic<std::complex<double> >*>(cs.get_GS())));
+					MCS_.reset(new SystemBosonic<std::complex<double> >(*dynamic_cast<const Bosonic<std::complex<double> >*>(cs.get_GenericSystem())));
 				} else {
-					MCS_.reset(new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_GS())));
+					MCS_.reset(new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_GenericSystem())));
 				}
 			} else {
 				if(cs.is_bosonic()){
-					MCS_.reset(new SystemBosonic<double>(*dynamic_cast<const Bosonic<double>*>(cs.get_GS())));
+					MCS_.reset(new SystemBosonic<double>(*dynamic_cast<const Bosonic<double>*>(cs.get_GenericSystem())));
 				} else {
-					MCS_.reset(new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GS())));
+					MCS_.reset(new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GenericSystem())));
 				}
 			}
 		}
