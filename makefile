@@ -3,6 +3,7 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	MACHINE=
 	EXEC = min
 	EXEC+= mc
+	EXEC+= mcbi
 	EXEC+= load
 	EXEC+= check
 	POSTPROCESS= cp $(EXEC) ../sim;
@@ -45,6 +46,7 @@ IOFILES    = Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp G
 OTHER      = Lapack.cpp Parseur.cpp Fit.cpp
 
 $(MACHINE)mc_SRCS    = mc.cpp    $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
+$(MACHINE)mcbi_SRCS  = mcbi.cpp  $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 $(MACHINE)min_SRCS   = min.cpp   $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN)
 $(MACHINE)check_SRCS = check.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 $(MACHINE)study_SRCS = study.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN) $(ANALYSE)

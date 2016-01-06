@@ -8,8 +8,8 @@
 template<typename Type>
 class Fermionic : public virtual System{
 	public:
-		/*!Copy Constructor*/
-		Fermionic(Fermionic<Type> const& f);
+		/*!Copy constructor*/
+		Fermionic(Fermionic<Type> const& F);
 		/*!Constructor that reads from file*/
 		Fermionic(IOFiles& r);
 		/*!Destructor*/
@@ -19,8 +19,11 @@ class Fermionic : public virtual System{
 		Fermionic<Type>& operator=(Fermionic<Type>) = delete;
 		/*}*/
 
-		Matrix<Type> const& get_EVec() const { return EVec_; }
-		Fermionic<Type> const& get_fermionic() const { return (*this); }
+		Fermionic<Type> const& get_Fermionic() const { return (*this); }
+
+		Matrix<Type> const& get_EVec(unsigned int const& c) const { assert(c<N_); return EVec_[c]; }
+		Matrix<Type>* get_EVec() const { return EVec_; }
+		bool const& use_same_wf() const { return same_wf_; }
 
 	protected:
 		/*!Constructor*/
@@ -36,24 +39,28 @@ class Fermionic : public virtual System{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-Fermionic<Type>::Fermionic(Fermionic<Type> const& f):
-	System(f),
-	same_wf_(f.same_wf_),
-	EVec_(f.EVec_?new Matrix<Type>[f.N_]:NULL)
+Fermionic<Type>::Fermionic(Fermionic<Type> const& F):
+	System(F),
+	same_wf_(F.same_wf_),
+	EVec_(new Matrix<Type>[N_])
 {
-	if(same_wf_){ for(unsigned int c(0);c<N_;c++){ EVec_[c] = f.EVec_[0]; } }
-	else { for(unsigned int c(0);c<N_;c++){ EVec_[c] = f.EVec_[c]; } }
+	if(F.EVec_){
+		if(same_wf_){ for(unsigned int c(0);c<N_;c++){ EVec_[c] = F.EVec_[0]; } }
+		else { for(unsigned int c(0);c<N_;c++){ EVec_[c] = F.EVec_[c]; } }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : EVec_ == NULL"<<std::endl; }
 }
 
 template<typename Type>
 Fermionic<Type>::Fermionic(IOFiles& r):
 	System(r),
 	same_wf_(r.read<bool>()),
-	EVec_(N_?new Matrix<Type>[N_]:NULL)
+	EVec_(new Matrix<Type>[N_])
 {
-	r>>EVec_[0];
-	if(same_wf_){ for(unsigned int c(1);c<N_;c++){ EVec_[c] = EVec_[0]; } }
-	else { for(unsigned int c(1);c<N_;c++){ r>>EVec_[c]; } }
+	if(N_){
+		r>>EVec_[0];
+		if(same_wf_){ for(unsigned int c(1);c<N_;c++){ EVec_[c] = EVec_[0]; } }
+		else { for(unsigned int c(1);c<N_;c++){ r>>EVec_[c]; } }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : N_ == 0"<<std::endl; }
 }
 
 template<typename Type>

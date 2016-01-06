@@ -10,7 +10,7 @@ template<typename Type>
 class SystemFermionic: public MCSystem, public Fermionic<Type>{
 	public:
 		/*!Constructor that creates an initial state*/
-		SystemFermionic(Fermionic<Type> const& S);
+		SystemFermionic(Fermionic<Type> const& F);
 		/*!Constructor that reads from file*/
 		SystemFermionic(IOFiles& r);
 		/*!Destructor that deletes Ainv and tmp*/
@@ -54,7 +54,7 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 
 	private:
 		/*!Authorizes copy only via clone()*/
-		SystemFermionic(SystemFermionic<Type> const& S);
+		SystemFermionic(SystemFermionic<Type> const& SF);
 
 		Matrix<unsigned int> row_;//!< row of the matrix A that is modified
 		Matrix<Type>* Ainv_;	  //!< inverse of A
@@ -71,10 +71,10 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 /*constructors and destructor and initialization*/
 /*{*/
 template<typename Type>
-SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
-	System(S),
-	MCSystem(S),
-	Fermionic<Type>(S),
+SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& F):
+	System(F),
+	MCSystem(F),
+	Fermionic<Type>(F),
 	row_(n_,m_),
 	Ainv_(new Matrix<Type>[N_]),
 	tmp_(new Matrix<Type>[N_]),
@@ -166,11 +166,11 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& S):
 }
 
 template<typename Type>
-SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& S):
-	System(S),
-	MCSystem(S),
-	Fermionic<Type>(S),
-	row_(S.row_),
+SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& SF):
+	System(SF),
+	MCSystem(SF),
+	Fermionic<Type>(SF),
+	row_(SF.row_),
 	Ainv_(new Matrix<Type>[N_]),
 	tmp_(new Matrix<Type>[N_]),
 	tmp_v(new Vector<Type>[N_])
