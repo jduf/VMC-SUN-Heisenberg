@@ -33,26 +33,28 @@ int main(int argc, char* argv[]){
 		if(cs->get_status()==2){
 			cs->create(true);
 			if(cs->get_status()==1){
-
 #pragma omp parallel for
 				for(unsigned int j=0;j<nruns;j++){
 					MCSystem* mcsys(NULL);
 					if(cs->use_complex()){
 						if(cs->is_bosonic()){ mcsys = new SystemBosonic<std::complex<double> >(*dynamic_cast<const Bosonic<std::complex<double> >*>(cs->get_GenericSystem())); }
-						else               { mcsys = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs->get_GenericSystem())); }
+						else                { mcsys = new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs->get_GenericSystem())); }
 					} else {
 						if(cs->is_bosonic()){ mcsys = new SystemBosonic<double>(*dynamic_cast<const Bosonic<double>*>(cs->get_GenericSystem())); }
-						else               { mcsys = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs->get_GenericSystem())); }
+						else                { mcsys = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs->get_GenericSystem())); }
 					}
+					if(!mcsys){ std::cout<<__PRETTY_FUNCTION__<<" MCSystem was not constructed"<<std::endl; }
+					else {
 
-					MonteCarlo sim(mcsys,tmax);
-					sim.thermalize(1e7);
-					sim.run(1e8);
+						MonteCarlo sim(mcsys,tmax);
+						sim.thermalize(1e7);
+						sim.run(1e8);
 
 #pragma omp critical(System__merge)
-					{ sys->merge(mcsys); }
+						{ sys->merge(mcsys); }
 
-					delete mcsys;
+						delete mcsys;
+					}
 				}
 
 				sys->complete_analysis(1e-5);
@@ -79,10 +81,10 @@ int main(int argc, char* argv[]){
 					//std::cerr<<"should implement this move"<<std::endl;
 					//}
 				}
-			}
-		}
+			} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
+		} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
+	} else { std::cout<<__PRETTY_FUNCTION__<<" : Parseur locked"<<std::endl; }
 
-		delete sys;
-		delete cs;
-	}
+	delete sys;
+	delete cs;
 }

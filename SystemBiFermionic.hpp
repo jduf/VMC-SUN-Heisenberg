@@ -41,8 +41,10 @@ class SystemBiFermionic: public MCSystem, public BiFermionic<Type>{
 		 * - updates the A_ matrices */
 		/*}*/
 		void update();
-		/*!Sample the system for the new step*/
+		/*!Measures the system for the new step*/
 		void measure_new_step();
+		/*!Adds the sample to the statistic*/
+		virtual void add_sample();
 
 		/*!Returns a copy of this instance of SystemBiFermionic*/
 		std::unique_ptr<MCSystem> clone() const;
@@ -58,13 +60,13 @@ class SystemBiFermionic: public MCSystem, public BiFermionic<Type>{
 		/*!Authorizes copy only via clone()*/
 		SystemBiFermionic(SystemBiFermionic<Type> const& SBF);
 
+		bool ratio_for_measure_;  //!< allows the correct matrices' selection to compute the ratio
 		Matrix<unsigned int> row_;//!< row of the matrix A that is modified
-		Matrix<Type>* A_[2];	  //!< A matrices
-		Matrix<Type> det_;
-		unsigned int new_r_[2];	  //!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
-		unsigned int new_ev_[2];  //!< newly selected rows of the EVec matrix
-		Data<Type> overlap_;
-		bool ratio_for_measure_;
+		Matrix<Type>* A_[2];	  //!< A matrices (one for each wavefunction and colors)
+		Matrix<Type> det_;		  //!< determinant of the A matrices
+		Data<Type> overlap_;  	  //!< overlap of the two wavefunctions <0|1>
+		unsigned int new_r_[2];	  //!< selected rows of the A matrices
+		unsigned int new_ev_[2];  //!< selected rows of the EVec matrices
 };
 
 /*constructors and destructor and initialization*/
@@ -74,14 +76,17 @@ SystemBiFermionic<Type>::SystemBiFermionic(Fermionic<Type> const& F0, Fermionic<
 	System(F0),
 	MCSystem(F0),
 	BiFermionic<Type>(F0,F1),
+	ratio_for_measure_(true),
 	row_(n_,m_),
 	A_{new Matrix<Type>[N_],new Matrix<Type>[N_]},
-	det_(2,N_),
-	ratio_for_measure_(true)
+	det_(2,N_)
 {
 	/*!Initialized class variables*/
 	overlap_.set(50,5,false);
-	for(unsigned int c(0);c<N_;c++){ A_[0][c].set(M_(c),M_(c)); }
+	for(unsigned int c(0);c<N_;c++){
+		A_[0][c].set(M_(c),M_(c)); 
+		A_[1][c].set(M_(c),M_(c)); 
+	}
 
 	/*!Initialized A_ and row_ with the correct eigenvectors according to s_*/
 	unsigned int c(0);
@@ -99,9 +104,11 @@ SystemBiFermionic<Type>::SystemBiFermionic(Fermionic<Type> const& F0, Fermionic<
 	}
 
 	for(unsigned int c(0);c<N_;c++){
-		det_(0,c) = Lapack<Type>(A_[0][c],false,'G').det();
-		det_(1,c) = Lapack<Type>(A_[1][c],false,'G').det();
+		det_(0,c) = Lapack<Type>(A_[0][c],true,'G').det();
+		det_(1,c) = Lapack<Type>(A_[1][c],true,'G').det();
 	}
+
+	status_--;
 }
 
 template<typename Type>
@@ -109,14 +116,17 @@ SystemBiFermionic<Type>::SystemBiFermionic(SystemBiFermionic<Type> const& SBF):
 	System(SBF),
 	MCSystem(SBF),
 	BiFermionic<Type>(SBF),
+	ratio_for_measure_(true),
 	row_(SBF.row_),
 	A_{new Matrix<Type>[N_],new Matrix<Type>[N_]},
 	det_(SBF.det_),
-	overlap_(SBF.overlap_),
-	ratio_for_measure_(true)
+	overlap_(SBF.overlap_)
 {
 	/*!Initialized class variables*/
-	for(unsigned int c(0);c<N_;c++){ A_[0][c].set(M_(c),M_(c)); }
+	for(unsigned int c(0);c<N_;c++){ 
+		A_[0][c].set(M_(c),M_(c)); 
+		A_[1][c].set(M_(c),M_(c)); 
+	}
 
 	/*!Initialized A_ and row_ with the correct eigenvectors according to s_*/
 	unsigned int c(0);
@@ -136,14 +146,17 @@ SystemBiFermionic<Type>::SystemBiFermionic(IOFiles& r):
 	System(r),
 	MCSystem(r),
 	BiFermionic<Type>(r),
+	ratio_for_measure_(true),
 	row_(r),
-	A_{N_?new Matrix<Type>[N_]:NULL,N_?new Matrix<Type>[N_]:NULL},
+	A_{new Matrix<Type>[N_],new Matrix<Type>[N_]},
 	det_(r),
-	overlap_(r),
-	ratio_for_measure_(true)
+	overlap_(r)
 {
 	/*!Initialized class variables*/
-	for(unsigned int c(0);c<N_;c++){ A_[0][c].set(M_(c),M_(c)); }
+	for(unsigned int c(0);c<N_;c++){
+		A_[0][c].set(M_(c),M_(c)); 
+		A_[1][c].set(M_(c),M_(c)); 
+	}
 
 	/*!Initialized A_ and row_ with the correct eigenvectors according to s_*/
 	unsigned int c(0);
@@ -160,6 +173,7 @@ SystemBiFermionic<Type>::SystemBiFermionic(IOFiles& r):
 
 template<typename Type>
 SystemBiFermionic<Type>::~SystemBiFermionic(){
+	std::cout<<overlap_<<std::endl;
 	delete[] A_[0];
 	delete[] A_[1];
 }
@@ -196,32 +210,40 @@ void SystemBiFermionic<Type>::update(){
 	row_(new_s_[0],new_p_[0]) = new_r_[1];
 	row_(new_s_[1],new_p_[1]) = new_r_[0];
 
-	unsigned int c_tmp;
-	unsigned int r_tmp;
-	unsigned int ev_tmp;
-	for(unsigned int c(0);c<2;c++){
-		c_tmp = new_c_[c];
-		r_tmp = new_r_[c];
-		ev_tmp= new_ev_[c];
-		for(unsigned int j(0);j<M_(c_tmp);j++){
-			A_[0][c_tmp](r_tmp,j) = this->EVec_[0][c_tmp](ev_tmp,j);
-			A_[1][c_tmp](r_tmp,j) = this->EVec_[1][c_tmp](ev_tmp,j);
+	unsigned int c;
+	unsigned int r;
+	unsigned int ev;
+	for(unsigned int i(0);i<2;i++){
+		c = new_c_[i];
+		r = new_r_[i];
+		ev= new_ev_[i];
+		for(unsigned int j(0);j<M_(i);j++){
+			A_[0][c](r,j) = this->EVec_[0][c](ev,j);
+			A_[1][c](r,j) = this->EVec_[1][c](ev,j);
 		}
-		det_(0,c_tmp) = Lapack<Type>(A_[0][c_tmp],false,'G').det();
-		det_(1,c_tmp) = Lapack<Type>(A_[1][c_tmp],false,'G').det();
+		det_(0,c) = Lapack<Type>(A_[0][c],true,'G').det();
+		det_(1,c) = Lapack<Type>(A_[1][c],true,'G').det();
 	}
-
-	ratio_for_measure_ = true;
 }
 
 template<typename Type>
 void SystemBiFermionic<Type>::measure_new_step(){
+	ratio_for_measure_ = true;
 	MCSystem::measure_new_step();
 
 	Type r(1.0);
+	for(unsigned int c(0);c<N_;c++){
+		r *= det_(1,c)/det_(0,c);
+	}
 	overlap_.set_x(r);
 
 	ratio_for_measure_ = false;
+}
+
+template<typename Type>
+void SystemBiFermionic<Type>::add_sample(){
+	MCSystem::add_sample();
+	overlap_.add_sample();
 }
 
 template<typename Type>
@@ -272,8 +294,8 @@ double SystemBiFermionic<Type>::ratio(){
 		return 1.0;
 	} else {
 		/*!the ratio computed to find the new configuration only involve one
-		 * wavefunction, hence m=0. for the measurements, the ratio invoves two
-		 * wavefunctions, hence m=1 */
+		 * wavefunction, hence m=0. for the measurements, the ratio invoves
+		 * two wavefunctions, hence m=1 */
 		unsigned int m(ratio_for_measure_?1:0);
 		Type r(1.0);
 		Matrix<Type> Atmp;
@@ -282,14 +304,14 @@ double SystemBiFermionic<Type>::ratio(){
 				unsigned int i(c==new_c_[0]?0:1);
 				Atmp = A_[m][c];
 				for(unsigned int j(0);j<M_(c);j++){
-					Atmp(new_r_[i],j) = this->EVec_[i][c](new_ev_[0],j);
+					Atmp(new_r_[i],j) = this->EVec_[m][c](new_ev_[i],j);
 				}
-				r *= Lapack<Type>(Atmp,true,'G').det()/det_(0,c);
+				r *= Lapack<Type>(Atmp,false,'G').det()/det_(0,c);
 			} else { r *= det_(m,c)/det_(0,c); }
 		}
 		/*!the minus sign is correct, it comes from <C|H|C'> because when H is
-		 * applied on |C>, the operators are not in the correct color order, so
-		 * they need to be exchanged*/
+		 * applied on |C>, the operators are not in the correct color order,
+		 * so they need to be exchanged*/
 		return -my::real(r);
 	}
 }

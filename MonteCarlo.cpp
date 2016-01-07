@@ -27,7 +27,7 @@ void MonteCarlo::run(){
 	if(!S_->get_status()){
 		do{ next_step(); }
 		while(keepon());
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : MCSystem bad status (status="<<S_->get_status()<<")"<<std::endl; }
 }
 
 void MonteCarlo::run(unsigned int const& maxiter){
@@ -49,7 +49,7 @@ void MonteCarlo::run(unsigned int const& maxiter){
 		} while(keepon() && ++iter<maxiter);
 #pragma omp critical(cout)
 		std::cout<<"done "<<iter<<" steps in "<<chrono.elapsed()<<"s with "<<measures<<" measures"<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : MCSystem bad status (status="<<S_->get_status()<<")"<<std::endl; }
 }
 /*}*/
 
@@ -69,7 +69,7 @@ bool MonteCarlo::keepon(){
 	if(time_.limit_reached(tmax_)){ return false; }
 	if(std::abs(S_->get_energy().get_x())>1e2){
 		std::cerr<<__PRETTY_FUNCTION__<<" : simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
-		S_->clear_obs(-1);
+		S_->reset_obs();
 	}
 	return true;
 }

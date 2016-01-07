@@ -23,7 +23,7 @@ class Observable{
 		Observable() = delete;
 		/*}*/
 
-		void set(unsigned int const& nval, unsigned int const& B, unsigned int const& b, bool const& conv);
+		void set(unsigned int nval, unsigned int const& B, unsigned int const& b, bool const& conv);
 
 		unsigned int nval() const { return val_.size(); }
 		unsigned int nlinks() const { return links_.row(); }

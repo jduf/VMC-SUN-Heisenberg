@@ -20,7 +20,7 @@ Observable::Observable(Matrix<int> const& links):
 	modulo_(0)
 {}
 
-void Observable::set(unsigned int const& nval, unsigned int const& B, unsigned int const& b, bool const& conv){
+void Observable::set(unsigned int nval, unsigned int const& B, unsigned int const& b, bool const& conv){
 	if(links_.row()%nval){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number"<<std::endl; }
 	else {
 		modulo_ = links_.row()/nval;

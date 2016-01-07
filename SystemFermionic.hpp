@@ -61,8 +61,8 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 		Matrix<Type>* tmp_;		  //!< temporary matrix used during the update
 		Vector<Type>* tmp_v;	  //!< temporary vector used during the update
 		Type w_[2];				  //!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0;0,w22)
-		unsigned int new_r_[2];	  //!< rows of the Ainv_ matrix that are modified (the rows of the related A matrix are modified)
-		unsigned int new_ev_[2];  //!< newly selected rows of the EVec matrix
+		unsigned int new_r_[2];	  //!< selected rows of the A matrices
+		unsigned int new_ev_[2];  //!< selected rows of the EVec matrices
 
 		/*!Returns true if the Ainv_ matrices are invertible*/
 		bool are_invertible();
@@ -206,9 +206,9 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 	MCSystem(r),
 	Fermionic<Type>(r),
 	row_(r),
-	Ainv_(N_?new Matrix<Type>[N_]:NULL),
-	tmp_(N_?new Matrix<Type>[N_]:NULL),
-	tmp_v(N_?new Vector<Type>[N_]:NULL)
+	Ainv_(new Matrix<Type>[N_]),
+	tmp_(new Matrix<Type>[N_]),
+	tmp_v(new Vector<Type>[N_])
 {
 	/*!Initialized class variables*/
 	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
@@ -357,18 +357,18 @@ double SystemFermionic<Type>::ratio(){
 		 * minus sign is then cancelled by the reordering of the operators */
 		return 1.0;
 	} else {
-		//unsigned int c_tmp;
-		for(unsigned int c(0);c<2;c++){
-			w_[c] = BLAS::dot(M_(new_c_[c]),this->EVec_[new_c_[c]].ptr(),true,this->EVec_[new_c_[c]].row(),new_ev_[c],Ainv_[new_c_[c]].ptr(),false,M_(new_c_[c]),new_r_[c]);
-			//c_tmp = new_c_[c];
-			//w_[c] = 0.0;
-			//for(unsigned int k(0);k<M_(c_tmp);k++){
-			//w_[c] += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,new_r_[c]);
+		//unsigned int c;
+		for(unsigned int i(0);i<2;i++){
+			w_[i] = BLAS::dot(M_(new_c_[i]),this->EVec_[new_c_[i]].ptr(),true,this->EVec_[new_c_[i]].row(),new_ev_[i],Ainv_[new_c_[i]].ptr(),false,M_(new_c_[i]),new_r_[i]);
+			//c= new_c_[i];
+			//w_[i] = 0.0;
+			//for(unsigned int k(0);k<M_(c);k++){
+			//w_[i] += this->EVec_[c](new_ev_[i],k)*Ainv_[c](k,new_r_[i]);
 			//}
 		}
 		/*!the minus sign is correct, it comes from <C|H|C'> because when H is
-		 * applied on |C>, the operators are not in the correct color order, so
-		 * they need to be exchanged*/
+		 * applied on |C>, the operators are not in the correct color order,
+		 * so they need to be exchanged*/
 		return -my::real(w_[0]*w_[1]);
 	}
 }

@@ -51,6 +51,13 @@ void System::clear_obs(int const& nobs){
 	obs_.clear();
 }
 
+void System::reset_obs(){
+	E_.set(50,5,false);
+	for(unsigned int i(0);i<obs_.size();i++){
+		obs_[i].set(obs_[i].nval(),50,5,false);
+	}
+}
+
 bool System::check_conv(double const& convergence_criterion){
 	E_.complete_analysis(convergence_criterion);
 	return E_.get_conv();

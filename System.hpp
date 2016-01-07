@@ -31,6 +31,8 @@ class System{
 		void set_obs(std::vector<Observable> const& obs, int const& nobs);
 		/*!Sets the observables to default (0) values and initilizes binning*/
 		void clear_obs(int const& nobs);
+		/*!Resets the observables*/
+		void reset_obs();
 		/*!Checks if the energy has converged to a stable value*/
 		bool check_conv(double const& convergence_criterion);
 		/*!Calls complete_analysis of the sampled datas*/
