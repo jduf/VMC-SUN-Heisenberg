@@ -166,12 +166,10 @@ std::string SquarePiFlux::extract_level_7(){
 
 	(*read_)>>nruns>>tmax;
 	(*data_write_)<<"% E dE 0|1"<<IOFiles::endl;
-	/* the +1 is the averages over all runs */
-	for(unsigned int i(0);i<nruns+1;i++){
-		(*read_)>>E_>>obs_[0]>>obs_[1];
-		(*data_write_)<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
-	}
-	jd_write_->write("energy per site",E_);
+	obs_.push_back(Observable(*read_));
+	obs_.push_back(Observable(*read_));
+	(*data_write_)<<obs_[0][0]<<IOFiles::endl;
+	jd_write_->write("E",obs_[0][0]);
 
 	rst_file_->text(read_->get_header());
 	rst_file_->save(false,true);
@@ -182,8 +180,8 @@ std::string SquarePiFlux::extract_level_7(){
 }
 
 std::string SquarePiFlux::extract_level_3(){
-	(*read_)>>E_;
-	(*data_write_)<<n_<<" "<<E_<<" "<<bc_<<IOFiles::endl;
+	(*read_)>>obs_[0][0];
+	(*data_write_)<<n_<<" "<<obs_[0][0]<<" "<<bc_<<IOFiles::endl;
 
 	return filename_;
 }

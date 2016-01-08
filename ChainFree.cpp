@@ -183,7 +183,7 @@ void ChainFree::display_results(){
 		title += my::tostring(mu_.back()) + ")";
 		rst_file_->title(title,'-');
 
-		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(relative_path+filename_+"-pstricks.pdf")+RST::scale("200"));
+		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(relative_path+filename_+"-pstricks.pdf")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-sf.png","structure factor",RST::target(relative_path+filename_+"-sf.gp")+RST::scale("200"));
 	}

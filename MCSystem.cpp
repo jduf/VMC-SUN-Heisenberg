@@ -70,10 +70,10 @@ void MCSystem::update(){
 }
 
 void MCSystem::measure_new_step(){
-	E_.set_x(0.0);
-	if(obs_[0].nval()){
+	obs_[0][0].set_x(0.0);
+	if(obs_[1].nval()){
 		double r;
-		obs_[0].set_x(0.0);
+		obs_[1].set_x(0.0);
 		for(unsigned int l(0);l<obs_[0].nlinks();l++){
 			for(unsigned int p0(0);p0<m_;p0++){
 				for(unsigned int p1(0);p1<m_;p1++){
@@ -82,8 +82,8 @@ void MCSystem::measure_new_step(){
 					 * need to complete the else condition*/
 					if(!is_new_state_forbidden()){
 						r = J_(l)*ratio();
-						E_.add(r);
-						obs_[0].add(l,r);
+						obs_[0][0].add(r);
+						obs_[1].add(obs_[0](l,2),r);
 					}
 				}
 			}
@@ -95,23 +95,23 @@ void MCSystem::measure_new_step(){
 					swap(obs_[0](l,0),obs_[0](l,1),p0,p1);
 					/*!if the new state is forbidden, r=0 and therefore there is no
 					 * need to complete the else condition*/
-					if(!is_new_state_forbidden()){ E_.add(J_(l)*ratio()); }
+					if(!is_new_state_forbidden()){ obs_[0][0].add(J_(l)*ratio()); }
 				}
 			}
 		}
 	}
-	E_.divide(n_);
+	obs_[0][0].divide(n_);
 
 	double diag_term(1.0*m_*m_/N_);
 	unsigned int s0,s1;
-	for(unsigned int i(1);i<obs_.size();i++){
+	for(unsigned int i(2);i<obs_.size();i++){
 		obs_[i].set_x(-diag_term);
 		for(unsigned int l(0);l<obs_[i].nlinks();l++){
 			s0 = obs_[i](l,0);
 			s1 = obs_[i](l,1);
 			for(unsigned int p0(0);p0<m_;p0++){
 				for(unsigned int p1(0);p1<m_;p1++){
-					if(s_(s0,p0) == s_(s1,p1)){ obs_[i].add(l,1.0); }
+					if(s_(s0,p0) == s_(s1,p1)){ obs_[i].add(obs_[i](i,2),1.0); }
 				}
 			}
 		}
@@ -119,7 +119,6 @@ void MCSystem::measure_new_step(){
 }
 
 void MCSystem::add_sample(){
-	E_.add_sample();
 	for(unsigned int i(0);i<obs_.size();i++){ obs_[i].add_sample(); }
 }
 

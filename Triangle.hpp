@@ -101,15 +101,14 @@ Triangle<Type>::~Triangle() = default;
 /*{protected methods*/
 template<typename Type>
 void Triangle<Type>::set_obs(int nobs){
-	this->E_.set(50,5,false);
-
 	if(nobs<0){ nobs = 1; }
 	if(nobs>1){ /*the long range correlation*/
+		/*missing bond energy*/
 		this->obs_.push_back(Observable(this->n_,this->n_,50,5,false));
 		for(unsigned int i(0);i<this->n_;i++){
-			this->obs_[1](i,0) = 0;
-			this->obs_[1](i,1) = i;
-			this->obs_[1](i,2) = i;
+			this->obs_[2](i,0) = 0;
+			this->obs_[2](i,1) = i;
+			this->obs_[2](i,2) = i;
 		}
 	}
 }

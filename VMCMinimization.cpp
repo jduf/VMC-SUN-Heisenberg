@@ -419,9 +419,7 @@ void VMCMinimization::run_parameters(Parseur& P){
 
 void VMCMinimization::clean(){
 	m_->samples_.set_target();
-	while(m_->samples_.target_next()){
-		m_->samples_.get().clear_obs(0);
-	}
+	while(m_->samples_.target_next()){ m_->samples_.get().clear_obs(1); }
 }
 /*}*/
 

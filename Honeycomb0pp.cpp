@@ -166,15 +166,13 @@ std::string Honeycomb0pp::extract_level_7(){
 	unsigned int tmax;
 
 	(*read_)>>nruns>>tmax;
+	obs_.push_back(Observable(*read_));
 	(*data_write_)<<"% td E dE 0|1"<<IOFiles::endl;
 	/* the +1 is the averages over all runs */
-	for(unsigned int i(0);i<nruns+1;i++){
-		(*read_)>>E_>>obs_[0]>>obs_[1];
-		(*data_write_)<<td_<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<(i<nruns?true:false)<<IOFiles::endl;
-	}
+	(*data_write_)<<td_<<" "<<obs_[0][0]<<IOFiles::endl;
 
 	jd_write_->write("td/th (ratio of the hopping parameters)",td_);
-	jd_write_->write("E",E_);
+	jd_write_->write("E",obs_[0][0]);
 
 	rst_file_->text(read_->get_header());
 	rst_file_->save(false,true);
@@ -186,27 +184,26 @@ std::string Honeycomb0pp::extract_level_7(){
 
 std::string Honeycomb0pp::extract_level_6(){
 	Data<double> tmp_E;
-	E_.set_x(1e33);
+	obs_[0][0].set_x(1e33);
 	double tmp_td(0);
 	unsigned int nof(0);
 	(*read_)>>nof;
 	for(unsigned int i(0);i<nof;i++){
 		(*read_)>>tmp_td>>tmp_E;
-		if(tmp_E.get_x()<E_.get_x()){
-			E_ = tmp_E;
+		if(tmp_E.get_x()<obs_[0][0].get_x()){
+			obs_[0][0] = tmp_E;
 			td_ = tmp_td;
 		}
 	}
 
 	jd_write_->add_header()->nl();
 	save_input(*jd_write_);
-	jd_write_->write("energy per site",E_);
+	jd_write_->write("E",obs_[0][0]);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp+="set xlabel '$\\frac{t_d}{t_h}$' offset 17,1.4";
 	gp+="set y2label '$\\dfrac{E}{n}$'";
-	gp+="plot '"+filename_+".dat' u 1:($4==1?$2:1/0):3 w e t 'Independant measures',\\";
-	gp+="     '"+filename_+".dat' u 1:($4==0?$2:1/0):3 w e t 'Mean'";
+	gp+="plot '"+filename_+".dat' u 1:2:3 w e notitle";
 	gp.save_file();
 	gp.create_image(true,true);
 

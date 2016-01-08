@@ -311,11 +311,8 @@ std::string KagomeDirac<Type>::extract_level_7(){
 	unsigned int tmax;
 
 	(*this->read_)>>nruns>>tmax;
-	/* the +1 is the averages over all runs */
-	for(unsigned int i(0);i<nruns+1;i++){
-		(*this->read_)>>this->E_>>this->obs_[0]>>this->obs_[1];
-	}
-	this->jd_write_->write("energy per site",this->E_);
+	this->obs_.push_back(Observable(*this->read_));
+	this->jd_write_->write("E",this->obs_[0][0]);
 
 	this->rst_file_->text(this->read_->get_header());
 	this->rst_file_->save(false,true);
@@ -331,19 +328,19 @@ std::string KagomeDirac<Type>::extract_level_6(){
 	(*this->read_)>>nof;
 	this->save_input(*this->jd_write_);
 	for(unsigned int i(0);i<nof;i++){
-		(*this->read_)>>this->E_;
-		(*this->data_write_)<<this->M_(0)<<" "<<this->E_.get_x()<<" "<<this->E_.get_dx()<<" "<<this->ref_(0)<<this->ref_(1)<<this->ref_(2)<<IOFiles::endl;
+		(*this->read_)>>this->obs_[0][0];
+		(*this->data_write_)<<this->M_(0)<<" "<<this->obs_[0][0]<<" "<<this->ref_(0)<<this->ref_(1)<<this->ref_(2)<<IOFiles::endl;
 	}
-	this->jd_write_->write("energy per site",this->E_);
+	this->jd_write_->write("E",this->obs_[0][0]);
 
 	return this->filename_;
 }
 
 template<typename Type>
 std::string KagomeDirac<Type>::extract_level_4(){
-	(*this->read_)>>this->E_;
-	this->jd_write_->write("energy per site",this->E_);
-	(*this->data_write_)<<this->M_(0)<<" "<<this->E_.get_x()<<" "<<this->E_.get_dx()<<" "<<this->ref_(0)<<this->ref_(1)<<this->ref_(2)<<IOFiles::endl;
+	(*this->read_)>>this->obs_[0][0];
+	this->jd_write_->write("E",this->obs_[0][0]);
+	(*this->data_write_)<<this->M_(0)<<" "<<this->obs_[0][0]<<" "<<this->ref_(0)<<this->ref_(1)<<this->ref_(2)<<IOFiles::endl;
 
 	return this->filename_;
 }

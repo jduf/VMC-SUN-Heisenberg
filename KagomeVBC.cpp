@@ -247,11 +247,9 @@ std::string KagomeVBC::extract_level_7(){
 	unsigned int tmax;
 
 	(*read_)>>nruns>>tmax;
+	obs_.push_back(Observable(*read_));
 	/* the +1 is the averages over all runs */
-	for(unsigned int i(0);i<nruns+1;i++){
-		(*read_)>>E_>>obs_[0]>>obs_[1];
-	}
-	jd_write_->write("energy per site",E_);
+	jd_write_->write("E",obs_[0][0]);
 
 	rst_file_->text(read_->get_header());
 	rst_file_->save(false,true);
@@ -266,18 +264,18 @@ std::string KagomeVBC::extract_level_6(){
 	(*read_)>>nof;
 	save_input(*jd_write_);
 	for(unsigned int i(0);i<nof;i++){
-		(*read_)>>E_;
-		(*data_write_)<<M_(0)<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<ref_(0)<<ref_(1)<<ref_(2)<<IOFiles::endl;
+		(*read_)>>obs_[0][0];
+		(*data_write_)<<M_(0)<<" "<<obs_[0][0]<<" "<<ref_(0)<<ref_(1)<<ref_(2)<<IOFiles::endl;
 	}
-	jd_write_->write("energy per site",E_);
+	jd_write_->write("E",obs_[0][0]);
 
 	return filename_;
 }
 
 std::string KagomeVBC::extract_level_4(){
-	(*read_)>>E_;
-	jd_write_->write("energy per site",E_);
-	(*data_write_)<<M_(0)<<" "<<E_.get_x()<<" "<<E_.get_dx()<<" "<<ref_(0)<<ref_(1)<<ref_(2)<<IOFiles::endl;
+	(*read_)>>obs_[0];
+	jd_write_->write("E",obs_[0][0]);
+	(*data_write_)<<M_(0)<<" "<<obs_[0][0]<<" "<<ref_(0)<<ref_(1)<<ref_(2)<<IOFiles::endl;
 
 	return filename_;
 }

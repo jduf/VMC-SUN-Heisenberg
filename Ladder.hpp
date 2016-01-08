@@ -55,8 +55,8 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 			Vector<double> tmp(this->J_);
 			this->J_.set(this->obs_[0].nlinks());
 			for (unsigned int i=0; i<this->J_.size();i++){
-				if (i%3==1){ this->J_(i) = tmp(1); } //rungs (J⊥) -> sin(theta)
-				else{ this->J_(i) = tmp(0); }        //legs  (J‖) -> cos(theta)
+				if(i%3==1){ this->J_(i) = tmp(1); } //rungs (J⊥) -> sin(theta)
+				else { this->J_(i) = tmp(0); }        //legs  (J‖) -> cos(theta)
 			}
 		}
 
@@ -79,8 +79,6 @@ Ladder<Type>::~Ladder() = default;
 
 template<typename Type>
 void Ladder<Type>::set_obs(int nobs){
-	this->E_.set(50,5,false);
-
 	if(nobs<0){ nobs = 5; }
 	unsigned int nlinks;
 	unsigned int nval;
@@ -88,7 +86,8 @@ void Ladder<Type>::set_obs(int nobs){
 	if(nobs>0){/*bond energy*/
 		nlinks = this->obs_[0].nlinks();
 		nval = 3*this->spuc_/2;
-		this->obs_[0].set(nval,50,5,false);
+		this->obs_.push_back(Observable(nlinks,nval));
+		this->obs_[1].remove_links();
 		for(unsigned int i(0);i<nlinks;i++){
 			this->obs_[0](i,2) = i%nval;
 		}
@@ -97,28 +96,28 @@ void Ladder<Type>::set_obs(int nobs){
 		m = this->n_/2;
 		nval = this->n_/2;
 		nlinks = m*nval;
-		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
-		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
-		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
-		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
+		this->obs_.push_back(Observable(nlinks,nval));
+		this->obs_.push_back(Observable(nlinks,nval));
+		this->obs_.push_back(Observable(nlinks,nval));
+		this->obs_.push_back(Observable(nlinks,nval));
 		for(unsigned int i(0);i<m;i++){
 			for(unsigned int j(0);j<nval;j++){
 				/*obs_[1]=S_10*S_1i*/
-				this->obs_[1](i*nval+j,0) = 2*i;
-				this->obs_[1](i*nval+j,1) = (2*(i+j))%this->n_;
-				this->obs_[1](i*nval+j,2) = j;
-				/*obs_[2]=S_10*S_2i*/
 				this->obs_[2](i*nval+j,0) = 2*i;
-				this->obs_[2](i*nval+j,1) = (2*(i+j)+1)%this->n_;
+				this->obs_[2](i*nval+j,1) = (2*(i+j))%this->n_;
 				this->obs_[2](i*nval+j,2) = j;
-				/*obs_[3]=S_20*S_1i*/
-				this->obs_[3](i*nval+j,0) = 2*i+1;
-				this->obs_[3](i*nval+j,1) = (2*(i+j))%this->n_;
+				/*obs_[2]=S_10*S_2i*/
+				this->obs_[3](i*nval+j,0) = 2*i;
+				this->obs_[3](i*nval+j,1) = (2*(i+j)+1)%this->n_;
 				this->obs_[3](i*nval+j,2) = j;
-				/*obs_[4]=S_20*S_2i*/
+				/*obs_[3]=S_20*S_1i*/
 				this->obs_[4](i*nval+j,0) = 2*i+1;
-				this->obs_[4](i*nval+j,1) = (2*(i+j)+1)%this->n_;
+				this->obs_[4](i*nval+j,1) = (2*(i+j))%this->n_;
 				this->obs_[4](i*nval+j,2) = j;
+				/*obs_[4]=S_20*S_2i*/
+				this->obs_[5](i*nval+j,0) = 2*i+1;
+				this->obs_[5](i*nval+j,1) = (2*(i+j)+1)%this->n_;
+				this->obs_[5](i*nval+j,2) = j;
 			}
 		}
 	}
@@ -157,8 +156,8 @@ Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {
 
 template<typename Type>
 std::string Ladder<Type>::extract_level_3(){
-	(*this->read_)>>this->E_;
-	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<IOFiles::endl;
+	(*this->read_)>>this->obs_[0][0];
+	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->obs_[0][0]<<IOFiles::endl;
 
 	return this->filename_;
 }

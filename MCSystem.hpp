@@ -31,7 +31,7 @@ class MCSystem: public virtual System{
 		/*!Measures the system for the new step*/
 		virtual void measure_new_step();
 		/*!Adds the sample to the statistic*/
-		virtual void add_sample();
+		void add_sample();
 
 		/*!Returns a copy of the instance of the relevant child class*/
 		virtual std::unique_ptr<MCSystem> clone() const = 0;

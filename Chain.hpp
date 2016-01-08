@@ -100,8 +100,6 @@ Chain<Type>::~Chain() = default;
 
 template<typename Type>
 void Chain<Type>::set_obs(int nobs){
-	this->E_.set(50,5,false);
-
 	if(nobs<0){ nobs = 2; }
 	unsigned int nlinks;
 	unsigned int nval;
@@ -109,7 +107,7 @@ void Chain<Type>::set_obs(int nobs){
 	if(nobs>0){/*bond energy*/
 		nlinks = this->obs_[0].nlinks();
 		nval = this->spuc_;
-		this->obs_[0].set(nval,50,5,false);
+		this->obs_.push_back(Observable(0,nval));
 		for(unsigned int i(0);i<nlinks;i++){
 			this->obs_[0](i,2) = i%nval;
 		}
@@ -150,7 +148,7 @@ std::string Chain<Type>::extract_level_3(){
 	double polymerization_strength;
 	Vector<double> exponents;
 	(*this->read_)>>polymerization_strength>>exponents;
-	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->E_<<" "<<polymerization_strength<<" "<<exponents<<IOFiles::endl;
+	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->obs_[0][0]<<" "<<polymerization_strength<<" "<<exponents<<IOFiles::endl;
 
 	return this->filename_;
 }

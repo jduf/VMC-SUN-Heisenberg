@@ -28,9 +28,10 @@ class System{
 		/*}*/
 
 		/*{Handles class attributes*/
-		void set_obs(std::vector<Observable> const& obs, int const& nobs);
 		/*!Sets the observables to default (0) values and initilizes binning*/
-		void clear_obs(int const& nobs);
+		void set_obs(std::vector<Observable> const& obs, int const& nobs);
+		/*!Remove all osbservable with index higher than from*/
+		void clear_obs(unsigned int const& from);
 		/*!Resets the observables*/
 		void reset_obs();
 		/*!Checks if the energy has converged to a stable value*/
@@ -61,7 +62,7 @@ class System{
 		/*!Returns the status of the system*/
 		unsigned int const& get_status() const { return status_; }
 		/*!Returns the energy*/
-		Data<double> const& get_energy() const { return E_; }
+		Data<double> const& get_energy() const { return obs_[0][0]; }
 		/*!Returns all observables*/
 		std::vector<Observable> const& get_obs() const { return obs_; }
 		/*}*/
@@ -83,9 +84,8 @@ class System{
 
 		/*!the following attributes will be set by GenericSystem and can't be
 		 * defined within System*/
-		Vector<double> J_;				//!< coupling strength
-		unsigned int status_;			//!< status of the simulation
-		Data<double> E_; 				//!< energy of the system
-		std::vector<Observable> obs_;	//!< all other observables (bond energy, correlations...)
+		Vector<double> J_;			//!< coupling strength
+		unsigned int status_;		//!< status of the simulation
+		std::vector<Observable> obs_;//!< observables (energy, bond energy, correlations, overlap...)
 };
 #endif

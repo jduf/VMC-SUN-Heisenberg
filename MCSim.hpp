@@ -42,7 +42,7 @@ class MCSim{
 			MCS_->set_obs(obs,nobs);
 		}
 		/*!Calls void System::clear_obs(...)*/
-		void clear_obs(int const& nobs){ MCS_->clear_obs(nobs); }
+		void clear_obs(unsigned int const& from){ MCS_->clear_obs(from); }
 		/*!Calls virtual void MCSystem::free_memory() = 0*/
 		void free_memory(){ MCS_->free_memory(); }
 		/*}*/

@@ -68,11 +68,14 @@ int main(int argc, char* argv[]){
 				sys->save_output(out);
 
 				if(P.find("d",i,false)){
-					RSTFile rst("/tmp/",cs->get_filename());
-					IOSystem ios(cs->get_filename(),"","","","","/tmp/",&rst);
-					cs->set_IOSystem(&ios);
+					CreateSystem tmp(sys);
+					tmp.init(NULL,&P);
+					tmp.set_obs(P.find("nobs",i,false)?P.get<int>(i):-1);
+					RSTFile rst("/tmp/",tmp.get_filename());
+					IOSystem ios(tmp.get_filename(),"","","","","/tmp/",&rst);
+					tmp.set_IOSystem(&ios);
 
-					cs->display_results();
+					tmp.display_results();
 
 					rst.text(out.get_header());
 					rst.save(false,true);

@@ -43,8 +43,6 @@ class SystemBiFermionic: public MCSystem, public BiFermionic<Type>{
 		void update();
 		/*!Measures the system for the new step*/
 		void measure_new_step();
-		/*!Adds the sample to the statistic*/
-		virtual void add_sample();
 
 		/*!Returns a copy of this instance of SystemBiFermionic*/
 		std::unique_ptr<MCSystem> clone() const;
@@ -238,12 +236,6 @@ void SystemBiFermionic<Type>::measure_new_step(){
 	overlap_.set_x(r);
 
 	ratio_for_measure_ = false;
-}
-
-template<typename Type>
-void SystemBiFermionic<Type>::add_sample(){
-	MCSystem::add_sample();
-	overlap_.add_sample();
 }
 
 template<typename Type>

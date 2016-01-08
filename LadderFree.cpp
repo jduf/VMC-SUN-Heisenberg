@@ -1463,8 +1463,8 @@ void LadderFree::lattice(){
 			case 2: { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)-0.2,"\\tiny{"+my::tostring(t)+"}"); }break;
 		}
 
-		if(obs_[0].nval()){/*bound energy*/
-			corr = obs_[0][i].get_x();
+		if(obs_[1].nval()){/*bound energy*/
+			corr = obs_[1][i].get_x();
 			if(std::abs(corr)>1e-4){
 				if(corr<0){ color = "red"; }
 				else { color = "blue"; }
@@ -1479,8 +1479,8 @@ void LadderFree::lattice(){
 				}
 				str = my::tostring(corr);
 				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1),"\\tiny{"+str.substr(0,8)+"}");
-				str = my::tostring(obs_[0][i].get_dx());
-				if(obs_[0][i].get_dx()<1e-4){
+				str = my::tostring(obs_[1][i].get_dx());
+				if(obs_[1][i].get_dx()<1e-4){
 					ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
 				} else {
 					ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,8)+"}");
@@ -1489,8 +1489,8 @@ void LadderFree::lattice(){
 				ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}");
 				str = my::tostring(corr);
 				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0,"\\tiny{"+str.substr(0,8)+"}");
-				str = my::tostring(obs_[0][i].get_dx());
-				if(obs_[0][i].get_dx()<1e-4){
+				str = my::tostring(obs_[1][i].get_dx());
+				if(obs_[1][i].get_dx()<1e-4){
 					ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
 				} else {
 					ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,8)+"}");
@@ -1499,13 +1499,13 @@ void LadderFree::lattice(){
 		}
 	}
 	if(obs_.size()==5){/*long range correlations*/
-		double rescale(0.75/obs_[1][0].get_x());
-		unsigned int n(std::min(4*N_/m_+1,obs_[1].nval()));
+		double rescale(0.75/obs_[2][0].get_x());
+		unsigned int n(std::min(4*N_/m_+1,obs_[2].nval()));
 		unsigned int idx;
 		for(unsigned int i(0);i<n;i++){
-			idx = (obs_[1].nval()-n/2+i)%obs_[1].nval();
+			idx = (obs_[2].nval()-n/2+i)%obs_[1].nval();
 
-			corr = obs_[1][idx].get_x()*rescale;
+			corr = obs_[2][idx].get_x()*rescale;
 			xy0(0) = i;
 			xy0(1) = -2;
 			if(std::abs(corr)>1e-4){
@@ -1516,7 +1516,7 @@ void LadderFree::lattice(){
 				ps.circle(xy0,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
 
-			corr = obs_[2][idx].get_x()*rescale;
+			corr = obs_[3][idx].get_x()*rescale;
 			xy0(1) = -1;
 			if(std::abs(corr)>1e-4){
 				if(corr<0){ color = "red"; }
@@ -1563,7 +1563,7 @@ void LadderFree::display_results(){
 
 		rst_file_->change_text_onclick("run command",run_cmd);
 
-		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
+		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
 		if(obs_[0].nval()){
 			rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
 		} 
@@ -1576,7 +1576,7 @@ void LadderFree::display_results(){
 
 /*{method needed for analysing*/
 std::string LadderFree::extract_level_6(){
-	(*data_write_)<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<asin(J_(1))<<" "<<E_<<IOFiles::endl;
+	(*data_write_)<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<asin(J_(1))<<" "<<obs_[0][0]<<IOFiles::endl;
 
 	display_results();
 

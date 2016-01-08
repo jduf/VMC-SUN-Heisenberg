@@ -139,7 +139,7 @@ void ChainPolymerized::display_results(){
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(E_.get_x())+"\\pm"+my::tostring(E_.get_dx())),RST::target(relative_path+filename_+"-pstricks.pdf")+RST::scale("200"));
+		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(relative_path+filename_+"-pstricks.pdf")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-sf.png","structure factor",RST::target(relative_path+filename_+"-sf.gp")+RST::scale("200"));
 	}
@@ -157,7 +157,7 @@ std::string ChainPolymerized::extract_level_8(){
 	t_string += my::tostring(t_.back())+")";
 	std::string title("$N="+my::tostring(N_)+"$ $m="+my::tostring(m_)+"$ $n="+my::tostring(n_)+"$ bc="+my::tostring(bc_)+" $t_{ij}="+t_string+"$");
 
-	(*data_write_)<<t_<<" "<<E_<<IOFiles::endl;
+	(*data_write_)<<t_<<" "<<obs_[0][0]<<IOFiles::endl;
 	jd_write_->add_header()->title("System's parameters",'-');
 	save_param(*jd_write_);
 	save_input(*jd_write_);
@@ -186,7 +186,7 @@ std::string ChainPolymerized::extract_level_7(){
 		gp.label("y2","$\\dfrac{E}{n}$","rotate by 0");
 		gp.range("x","0.0","");
 		gp+="f(x) = "+std::string(my::are_equal(t_(N_/m_-1),0)?"a+b*x**c":"a+b*(x-c)*(x-c)");
-		gp+="a="+my::tostring(E_.get_x());
+		gp+="a="+my::tostring(obs_[0][0].get_x());
 		gp+="b=1";
 		gp+="c=1";
 		gp+="set fit quiet";

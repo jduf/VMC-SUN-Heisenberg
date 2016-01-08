@@ -89,7 +89,7 @@ void ChainFermi<Type>::display_results(){
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		this->rst_file_->figure(this->dir_+this->filename_+"-pstricks.png",RST::math("E="+my::tostring(this->E_.get_x())+"\\pm"+my::tostring(this->E_.get_dx())),RST::target(relative_path+this->filename_+"-pstricks.pdf")+RST::scale("200"));
+		this->rst_file_->figure(this->dir_+this->filename_+"-pstricks.png",RST::math("E="+my::tostring(this->obs_[0][0].get_x())+"\\pm"+my::tostring(this->obs_[0][0].get_dx())),RST::target(relative_path+this->filename_+"-pstricks.pdf")+RST::scale("200"));
 		this->rst_file_->figure(relative_path+this->filename_+"-lr.png","long range correlations",RST::target(relative_path+this->filename_+"-lr.gp")+RST::scale("200"));
 		this->rst_file_->figure(relative_path+this->filename_+"-sf.png","structure factor",RST::target(relative_path+this->filename_+"-sf.gp")+RST::scale("200"));
 	}
@@ -103,7 +103,7 @@ std::string ChainFermi<Type>::extract_level_8(){
 	std::string basename("../../../../../../../../"+this->analyse_+this->path_+this->dir_+this->filename_);
 	std::string title("$N="+my::tostring(this->N_)+"$ $m="+my::tostring(this->m_)+"$ $n="+my::tostring(this->n_)+"$ bc="+my::tostring(this->bc_));
 
-	(*this->data_write_)<<this->E_<<IOFiles::endl;
+	(*this->data_write_)<<this->obs_[0][0]<<IOFiles::endl;
 	this->jd_write_->add_header()->title("System's parameters",'-');
 	this->save_param(*this->jd_write_);
 	this->save_input(*this->jd_write_);
@@ -130,7 +130,7 @@ std::string ChainFermi<Type>::extract_level_7(){
 	this->save_param(*this->jd_write_);
 	this->save_input(*this->jd_write_);
 	this->save_output(*this->jd_write_);
-	this->jd_write_->write("energy per site",this->E_);
+	this->jd_write_->write("E",this->obs_[0][0]);
 	double polymerization_strength;
 	Vector<double> exponents;
 	(*this->read_)>>polymerization_strength>>exponents;

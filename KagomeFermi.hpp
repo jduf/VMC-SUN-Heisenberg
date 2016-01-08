@@ -301,7 +301,7 @@ std::string KagomeFermi<Type>::extract_level_6(){
 	unsigned int nof(0);
 	(*this->read_)>>nof;
 	for(unsigned int i(0);i<nof;i++){
-		(*this->data_write_)<<this->M_(0)<<" "<<this->E_.get_x()<<" "<<this->E_.get_dx()<<" "<<this->ref_(0)<<this->ref_(1)<<this->ref_(2)<<IOFiles::endl;
+		(*this->data_write_)<<this->M_(0)<<" "<<this->obs_[0][0]<<" "<<this->ref_(0)<<this->ref_(1)<<this->ref_(2)<<IOFiles::endl;
 	}
 	this->save_input(*this->jd_write_);
 	this->save_output(*this->jd_write_);
@@ -311,9 +311,9 @@ std::string KagomeFermi<Type>::extract_level_6(){
 
 template<typename Type>
 std::string KagomeFermi<Type>::extract_level_4(){
-	(*this->read_)>>this->E_;
-	this->jd_write_->write("energy per site",this->E_);
-	(*this->data_write_)<<this->M_(0)<<" "<<this->E_.get_x()<<" "<<this->E_.get_dx()<<" "<<this->ref_(0)<<this->ref_(1)<<this->ref_(2)<<IOFiles::endl;
+	(*this->read_)>>this->obs_[0][0];
+	this->jd_write_->write("E",this->obs_[0][0]);
+	(*this->data_write_)<<this->M_(0)<<" "<<this->obs_[0][0]<<" "<<this->ref_(0)<<this->ref_(1)<<this->ref_(2)<<IOFiles::endl;
 
 	return this->filename_;
 }

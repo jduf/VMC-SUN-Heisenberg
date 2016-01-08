@@ -26,8 +26,7 @@ System::System(IOFiles& r):
 	bc_(r.read<int>()),
 	M_(r),
 	J_(r),
-	status_(r.read<unsigned int>()),
-	E_(r)
+	status_(r.read<unsigned int>())
 {
 	int nobs_(r.read<int>());
 	for(int i(0);i<nobs_;i++){ obs_.push_back(Observable(r)); }
@@ -37,60 +36,39 @@ System::System(IOFiles& r):
 /*handles class attributes*/
 /*{*/
 void System::set_obs(std::vector<Observable> const& obs, int const& nobs){
-	E_.set(50,5,false);
 	if(nobs<0){ obs_ = obs; }
 	else {
 		obs_.clear();
-		if(nobs == 0 && obs_.size() == 0){ obs_.push_back(Observable(obs[0].get_links())); }
-		else { for(int i(0);i<nobs;i++){ obs_.push_back(obs[i]); } }
+		for(int i(0);i<nobs;i++){ obs_.push_back(obs[i]); }
 	}
 }
 
-void System::clear_obs(int const& nobs){
-	if(nobs<0){ E_.set(); }
-	obs_.clear();
+void System::clear_obs(unsigned int const& from){
+	for(unsigned int i(from);i<obs_.size();i++){ obs_.pop_back(); }
 }
 
 void System::reset_obs(){
-	E_.set(50,5,false);
-	for(unsigned int i(0);i<obs_.size();i++){
-		obs_[i].set(obs_[i].nval(),50,5,false);
-	}
+	for(unsigned int i(0);i<obs_.size();i++){ obs_[i].reset(); }
 }
 
 bool System::check_conv(double const& convergence_criterion){
-	E_.complete_analysis(convergence_criterion);
-	return E_.get_conv();
+	/*check only the energy*/
+	obs_[0][0].complete_analysis(convergence_criterion);
+	return obs_[0][0].get_conv();
 }
 
 void System::complete_analysis(double const& convergence_criterion){
-	E_.complete_analysis(convergence_criterion);
-	for(unsigned int i(0);i<obs_.size();i++){
-		obs_[i].complete_analysis(convergence_criterion);
-	}
+	for(unsigned int i(0);i<obs_.size();i++){ obs_[i].complete_analysis(convergence_criterion); }
 }
 
 void System::merge(System* const s){
-	E_.merge(s->E_);
-	if(obs_.size() > s->obs_.size()){
-		for(unsigned int i(0);i<s->obs_.size();i++){
-			obs_[i].merge(s->obs_[i]);
-		}
-	} else {
-		for(unsigned int i(0);i<obs_.size();i++){
-			obs_[i].merge(s->obs_[i]);
-		}
-		for(unsigned int i(obs_.size());i<s->obs_.size();i++){
-			obs_.push_back(s->obs_[i]);
-		}
-	}
+	unsigned int i(0);
+	while(i<obs_.size()){ obs_[i].merge(s->obs_[i]); i++; }
+	while(i<s->obs_.size()){ obs_.push_back(s->obs_[i]); i++; }
 }
 
 void System::delete_binning(){
-	E_.delete_binning();
-	for(unsigned int i(0);i<obs_.size();i++){
-		obs_[i].delete_binning();
-	}
+	for(unsigned int i(0);i<obs_.size();i++){ obs_[i].delete_binning(); }
 }
 /*}*/
 
@@ -99,11 +77,9 @@ void System::delete_binning(){
 void System::write(IOFiles& w) const {
 	if(w.is_binary()){
 		int nobs(obs_.size());
-		w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<E_<<nobs;
+		w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<nobs;
 		for(int i(0);i<nobs;i++){ w<<obs_[i]; }
-	} else {
-		w<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<M_<<" "<<E_<<IOFiles::endl;
-	}
+	} else { w<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<M_<<" "<<obs_[0][0]<<IOFiles::endl; }
 }
 
 void System::save_input(IOFiles& w) const {
@@ -111,13 +87,13 @@ void System::save_input(IOFiles& w) const {
 	rst.title("Input",'+');
 	w.add_header()->add(rst.get());
 
-	w.write("ref (type of wavefunction)",ref_);
-	w.write("N (N of SU(N))",N_);
-	w.write("m (# of particles per site)",m_);
-	w.write("n (# of site)",n_);
+	w.write("ref (wavefunction)",ref_);
+	w.write("SU",N_);
+	w.write("m (#particles per site)",m_);
+	w.write("n (#site)",n_);
 	w.write("bc (boundary condition)",bc_);
-	w.write("M (# of particles of each color, "+my::tostring(M_(0))+")",M_);
-	w.write("J (coupling strength)",J_);
+	w.write("M (#particles per color, "+my::tostring(M_(0))+")",M_);
+	w.write("J (bond strength)",J_);
 }
 
 void System::save_output(IOFiles& w) const {
@@ -126,9 +102,8 @@ void System::save_output(IOFiles& w) const {
 	w.add_header()->add(rst.get());
 
 	w.write("status",status_);
-	w.write("energy per site",E_);
 	int nobs(obs_.size());
-	w.write("number of types of correlations (saved as well)",nobs);
+	w.write("#obs (E="+my::tostring(obs_[0][0].get_x())+", dE="+my::tostring(obs_[0][0].get_dx())+")",nobs);
 	for(int i(0);i<nobs;i++){ w<<obs_[i]; }
 }
 /*}*/

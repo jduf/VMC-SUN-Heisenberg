@@ -6,38 +6,37 @@
 class Observable{
 	public:
 		/*!Constructor*/
-		Observable(unsigned int const& nlinks, unsigned int const& nval, unsigned int const& B, unsigned int const& b, bool const& conv);
-		/*Constructor that only sets links_*/
-		Observable(Matrix<int> const& links);
+		Observable(Matrix<int> const& links, unsigned int const& nval, unsigned int const& B=50, unsigned int const& b=5, bool const& conv=false);
+		/*!Constructor*/
+		Observable(unsigned int const& nlinks, unsigned int const& nval, unsigned int const& B=50, unsigned int const& b=5, bool const& conv=false);
 		/*!Constructor that reads from file*/
 		Observable(IOFiles& r);
 		/*!Copy constructor*/
-		Observable(Observable const&) = default;
-		/*!Default move constructor*/
-		Observable(Observable&&) = default;
+		Observable(Observable const&);
+		/*!Move constructor*/
+		Observable(Observable&& obs);
 		/*!Default destructor*/
-		virtual ~Observable() = default;
+		virtual ~Observable();
 		/*!Assignment operator that uses the copy-and-swap idiom*/
 		Observable& operator=(Observable obs);
 		/*{Forbidden*/
 		Observable() = delete;
 		/*}*/
 
-		void set(unsigned int nval, unsigned int const& B, unsigned int const& b, bool const& conv);
-
-		unsigned int nval() const { return val_.size(); }
-		unsigned int nlinks() const { return links_.row(); }
+		unsigned int const& nval() const { return nval_; }
+		unsigned int const& nlinks() const { return links_.row(); }
 		Matrix<int> const& get_links() const { return links_; }
 
-		void merge(Observable& obs){ val_.merge(obs.val_); }
-		void delete_binning(){ val_.delete_binning(); }
-		void complete_analysis(double const& convergence_criterion){ val_.complete_analysis(convergence_criterion); }
+		void merge(Observable& obs);
+		void delete_binning();
+		void complete_analysis(double const& convergence_criterion);
 
-		void set_x(double const& val){ for(unsigned int i(0);i<val_.size();i++){ val_[i].set_x(val); } }
-		void add(unsigned int const& i, double const& val){ val_[links_(i,2)].add(val/modulo_); }
-		void add_sample(){ val_.add_sample(); }
+		void set_x(double const& val);
+		void add(unsigned int const& i, double const& val);
+		void add_sample();
 
-		Data<double> const& operator[](unsigned int const& i) const { return val_[i]; }
+		Data<double> const& operator[](unsigned int const& i) const { assert(i<nval_); return val_[i]; }
+		Data<double>& operator[](unsigned int const& i){ assert(i<nval_); return val_[i]; }
 
 		int const& operator()(unsigned int const& i, unsigned int const& j) const { return links_(i,j); }
 		int& operator()(unsigned int const& i, unsigned int const& j){ return links_(i,j); }
@@ -45,12 +44,17 @@ class Observable{
 		void write(IOFiles& w) const;
 		void print() const;
 
+		void reset(){ std::cerr<<__PRETTY_FUNCTION__<<std::endl; }
+		void remove_links(){ links_.set(); }
+
 	protected:
-		Matrix<int> links_;
-		DataSet<double> val_;
 		unsigned int modulo_ = 0;
+		unsigned int nval_   = 0;
+		Data<double>* val_   = NULL;
+		Matrix<int> links_;
 
 	private:
+		void set(unsigned int const& B, unsigned int const& b, bool const& conv);
 		void swap_to_assign(Observable& ds1, Observable& ds2);
 };
 
