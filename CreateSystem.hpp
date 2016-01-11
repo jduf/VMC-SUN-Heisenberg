@@ -49,11 +49,15 @@ class CreateSystem{
 		/*}*/
 
 		/*{System calls*/
-		/*!Calls System::get_status() : see System.hpp*/
-		unsigned int get_status() const {
-			if(RGL_){ return RGL_->get_status(); }
-			if(CGL_){ return CGL_->get_status(); }
-			return 10;
+		/*!Calls System::merge(...) : see System.hpp*/
+		void merge(System* const s) const {
+			if(RGL_){ return RGL_->merge(s); }
+			if(CGL_){ return CGL_->merge(s); }
+		}
+		/*!Calls System::complete_analysis(...) : see System.hpp*/
+		void complete_analysis(double const& convergence_criterion) const {
+			if(RGL_){ RGL_->complete_analysis(convergence_criterion); }
+			if(CGL_){ CGL_->complete_analysis(convergence_criterion); }
 		}
 		/*}*/
 
@@ -69,30 +73,9 @@ class CreateSystem{
 			if(CGL_){ return CGL_->analyse(level); }
 			return "";
 		}
-		/*!Returns the filename*/
-		std::string get_filename() const {
-			if(RGL_){ return RGL_->get_filename(); }
-			if(CGL_){ return CGL_->get_filename(); }
-			return "";
-		}
-		/*!Returns the path*/
-		std::string get_path() const {
-			if(RGL_){ return RGL_->get_path(); }
-			if(CGL_){ return CGL_->get_path(); }
-			return "";
-		}
 		/*}*/
 
 		/*{GenericSystem calls*/
-		/*!Calls GenericSystem::save_input() virtual method*/
-		void save_param(IOFiles& w) const {
-			if(RGL_){ RGL_->save_param(w); }
-			if(CGL_){ CGL_->save_param(w); }
-		}
-		void save_input(IOFiles& w) const {
-			if(RGL_){ RGL_->save_input(w); }
-			if(CGL_){ CGL_->save_input(w); }
-		}
 		/*!Calls GenericSystem::set_obs(unsigned int const& which) pure virtual method*/
 		void set_obs(int const& nobs) const {
 			if(RGL_){ return RGL_->set_obs(nobs); }
@@ -116,8 +99,6 @@ class CreateSystem{
 		/*}*/
 
 		/*{Simple value return*/
-		/*!Returns ref*/
-		Vector<unsigned int> const&  get_ref() const { return ref_; }
 		/*!Returns a pointer on the GenericSystem created*/
 		System const* get_GenericSystem() const {
 			if(RGL_){ return RGL_; }
@@ -125,14 +106,58 @@ class CreateSystem{
 			return NULL;
 		}
 		/*!Returns true if ref_(1)==2 : complex eigenvectors*/
-		bool use_complex() const {
-			if(ref_(1) == 2){ return true; }
-			else { return false; }
-		}
+		bool use_complex() const { return ref_(1)==2; }
 		/*!Returns true if ref_(1)==0 : Jastrow wavefunction*/
-		bool is_bosonic() const {
-			if(ref_(1) == 0){ return true; }
-			else { return false; }
+		bool is_bosonic() const { return ref_(1)==0; }
+		/*!Returns the filename*/
+		std::string get_filename() const {
+			if(RGL_){ return RGL_->get_filename(); }
+			if(CGL_){ return CGL_->get_filename(); }
+			return "";
+		}
+		/*!Returns the path*/
+		std::string get_path() const {
+			if(RGL_){ return RGL_->get_path(); }
+			if(CGL_){ return CGL_->get_path(); }
+			return "";
+		}
+		/*!Calls System::get_status() : see System.hpp*/
+		unsigned int get_status() const {
+			if(RGL_){ return RGL_->get_status(); }
+			if(CGL_){ return CGL_->get_status(); }
+			return 10;
+		}
+		/*!Calls System::get_obs() : see System.hpp*/
+		std::vector<Observable> const& get_obs() const {
+			if(RGL_){ return RGL_->get_obs(); }
+			else { return CGL_->get_obs(); }
+		}
+		/*}*/
+
+		/*{write in IOFiles methods and print*/
+		/*!Calls GenericSystem::save_param(), GenericSystem::save_input()
+		 * virtual method and System::save_output*/
+		void save(IOFiles& w) const {
+			if(RGL_){
+				RGL_->save_param(w); 
+				RGL_->save_input(w); 
+				RGL_->save_output(w); 
+			}
+			if(CGL_){ 
+				CGL_->save_param(w); 
+				CGL_->save_input(w); 
+				CGL_->save_output(w); 
+			}
+		}
+		/*!Calls GenericSystem::save_input() virtual method (only useful in MCSim)*/
+		void save_param(IOFiles& w) const {
+			if(RGL_){ RGL_->save_param(w); }
+			if(CGL_){ CGL_->save_param(w); }
+		}
+		/*!Calls System::print(...)*/
+		void print(unsigned int const& nobs) const {
+			if(RGL_){ RGL_->print(nobs); }
+			if(CGL_){ CGL_->print(nobs); }
 		}
 		/*}*/
 

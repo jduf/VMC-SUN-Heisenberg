@@ -2,25 +2,33 @@
 
 /*constructors and destructor*/
 /*{*/
-Observable::Observable(Matrix<int> const& links, unsigned int const& nval, unsigned int const& B, unsigned int const& b, bool const& conv):
+Observable::Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, Matrix<int> const& links, unsigned int const& B, unsigned int const& b, bool const& conv):
+	name_(name),
+	type_(type),
+	modulo_(0),
 	nval_(nval),
-	val_(NULL),
-	links_(links)
+	links_(links),
+	val_(NULL)
 { set(B,b,conv); }
 
-Observable::Observable(unsigned int const& nlinks, unsigned int const& nval, unsigned int const& B, unsigned int const& b, bool const& conv):
+Observable::Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, unsigned int const& nlinks, unsigned int const& B, unsigned int const& b, bool const& conv):
+	name_(name),
+	type_(type),
+	modulo_(0),
 	nval_(nval),
-	val_(NULL),
-	links_(nlinks,3)
+	links_(nlinks,3),
+	val_(NULL)
 { set(B,b,conv); }
 
 Observable::Observable(IOFiles& r):
+	name_(r.read<std::string>()),
+	type_(r.read<unsigned int>()),
+	modulo_(r.read<unsigned int>()),
 	nval_(r.read<unsigned int>()),
-	val_(new Data<double>[nval_]),
-	links_(r)
+	links_(r),
+	val_(new Data<double>[nval_])
 {
 	if(nval_){
-		modulo_ = links_.row()/nval_;
 		for(unsigned int i(0);i<nval_;i++){
 			val_[i] = std::move(Data<double>(r));
 		}
@@ -28,19 +36,23 @@ Observable::Observable(IOFiles& r):
 }
 
 Observable::Observable(Observable const& obs):
+	name_(obs.name_),
+	type_(obs.type_),
 	modulo_(obs.modulo_),
 	nval_(obs.nval_),
-	val_(obs.val_?new Data<double>[nval_]:NULL),
-	links_(obs.links_)
+	links_(obs.links_),
+	val_(obs.val_?new Data<double>[nval_]:NULL)
 {
 	for(unsigned int i(0);i<nval_;i++){ val_[i] = obs.val_[i]; }
 }
 
 Observable::Observable(Observable&& obs):
+	name_(std::move(obs.name_)),
+	type_(obs.type_),
 	modulo_(obs.modulo_),
 	nval_(obs.nval_),
-	val_(obs.val_),
-	links_(std::move(obs.links_))
+	links_(std::move(obs.links_)),
+	val_(obs.val_)
 {
 	obs.val_ = NULL;
 	obs.nval_= 0;
@@ -75,41 +87,8 @@ void Observable::swap_to_assign(Observable& obs1, Observable& obs2){
 }
 /*}*/
 
-/*read/write in IOFiles methods and print*/
+/*handles class attributes*/
 /*{*/
-IOFiles& operator<<(IOFiles& w, Observable const& obs){
-	if(w.is_binary()){ obs.write(w); }
-	else { w.stream()<<obs; }
-	return w;
-}
-
-IOFiles& operator>>(IOFiles& r, Observable& obs){
-	if(r.is_binary()){ obs = Observable(r); }
-	else { obs = Observable(r); }
-	return r;
-}
-
-std::ostream& operator<<(std::ostream& flux, Observable const& obs){
-	for(unsigned int i(0);i<obs.nval();i++){
-		flux<<obs(i,0)<<" "<<obs(i,1)<<" "<<obs(i,2)<<" "<<obs[i]<<std::endl;
-	}
-	return flux;
-}
-
-void Observable::write(IOFiles& w) const {
-	std::cout<<"check alk"<<__PRETTY_FUNCTION__<<std::endl;
-	w<<links_<<val_;
-}
-
-void Observable::print() const {
-	if(nval_>1){
-		for(unsigned int i(0);i<links_.row();i++){
-			std::cout<<links_(i,0)<<" "<<links_(i,1)<<" "<<links_(i,2)<<" "<<val_[links_(i,2)]<<std::endl;
-		}
-	} else { std::cout<<links_<<std::endl; }
-}
-/*}*/
-
 void Observable::set_x(double const& val){
 	for(unsigned int i(0);i<nval_;i++){
 		val_[i].set_x(val);
@@ -138,5 +117,39 @@ void Observable::complete_analysis(double const& convergence_criterion){
 	for(unsigned int i(0);i<nval_;i++){
 		val_[i].complete_analysis(convergence_criterion);
 	}
+}
+/*}*/
+
+/*reads/writes in IOFiles methods and print*/
+/*{*/
+IOFiles& operator<<(IOFiles& w, Observable const& obs){
+	if(w.is_binary()){ obs.write(w); }
+	else { w.stream()<<obs; }
+	return w;
+}
+
+IOFiles& operator>>(IOFiles& r, Observable& obs){
+	if(r.is_binary()){ obs = Observable(r); }
+	else { obs = Observable(r); }
+	return r;
+}
+
+std::ostream& operator<<(std::ostream& flux, Observable const& obs){
+	flux<<obs.get_name()<<std::endl;
+	for(unsigned int i(0);i<obs.nval();i++){ flux<<obs[i]<<std::endl; }
+	return flux;
+}
+
+void Observable::print() const {
+	std::cout<<name_<<std::endl;
+	if(nval_>1){
+		for(unsigned int i(0);i<links_.row();i++){
+			std::cout<<links_(i,0)<<" "<<links_(i,1)<<" "<<links_(i,2)<<" "<<val_[links_(i,2)]<<std::endl;
+		}
+	} else { std::cout<<links_<<std::endl; }
+}
+
+void Observable::write(IOFiles& w) const {
+	w<<name_<<type_<<modulo_<<nval_<<links_<<val_;
 }
 /*}*/

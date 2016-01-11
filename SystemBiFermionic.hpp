@@ -51,8 +51,6 @@ class SystemBiFermionic: public MCSystem, public BiFermionic<Type>{
 		/*!Writes the curent state of the system, the color configuration, the
 		 * observables and everything relevent to the simulation*/
 		void write(IOFiles& w) const;
-		/*!Prints some info related to the system*/
-		void print();
 
 	private:
 		/*!Authorizes copy only via clone()*/
@@ -62,9 +60,9 @@ class SystemBiFermionic: public MCSystem, public BiFermionic<Type>{
 		Matrix<unsigned int> row_;//!< row of the matrix A that is modified
 		Matrix<Type>* A_[2];	  //!< A matrices (one for each wavefunction and colors)
 		Matrix<Type> det_;		  //!< determinant of the A matrices
-		Data<Type> overlap_;  	  //!< overlap of the two wavefunctions <0|1>
 		unsigned int new_r_[2];	  //!< selected rows of the A matrices
 		unsigned int new_ev_[2];  //!< selected rows of the EVec matrices
+		unsigned int oi_; 		  //!< overlap index : index of the observable related to <0|1>
 };
 
 /*constructors and destructor and initialization*/
@@ -77,10 +75,11 @@ SystemBiFermionic<Type>::SystemBiFermionic(Fermionic<Type> const& F0, Fermionic<
 	ratio_for_measure_(true),
 	row_(n_,m_),
 	A_{new Matrix<Type>[N_],new Matrix<Type>[N_]},
-	det_(2,N_)
+	det_(2,N_),
+	oi_(obs_.size())
 {
 	/*!Initialized class variables*/
-	overlap_.set(50,5,false);
+	obs_.push_back(Observable("Overlap",3,2,0));
 	for(unsigned int c(0);c<N_;c++){
 		A_[0][c].set(M_(c),M_(c)); 
 		A_[1][c].set(M_(c),M_(c)); 
@@ -118,9 +117,12 @@ SystemBiFermionic<Type>::SystemBiFermionic(SystemBiFermionic<Type> const& SBF):
 	row_(SBF.row_),
 	A_{new Matrix<Type>[N_],new Matrix<Type>[N_]},
 	det_(SBF.det_),
-	overlap_(SBF.overlap_)
+	oi_(0)
 {
 	/*!Initialized class variables*/
+	for(unsigned int i(0);i<obs_.size();i++){
+		if(obs_[i].get_type() == 3){ oi_ = i; i = obs_.size(); }
+	}
 	for(unsigned int c(0);c<N_;c++){ 
 		A_[0][c].set(M_(c),M_(c)); 
 		A_[1][c].set(M_(c),M_(c)); 
@@ -147,10 +149,12 @@ SystemBiFermionic<Type>::SystemBiFermionic(IOFiles& r):
 	ratio_for_measure_(true),
 	row_(r),
 	A_{new Matrix<Type>[N_],new Matrix<Type>[N_]},
-	det_(r),
-	overlap_(r)
+	det_(r)
 {
 	/*!Initialized class variables*/
+	for(unsigned int i(0);i<obs_.size();i++){
+		if(obs_[i].get_type() == 3){ oi_ = i; i = obs_.size(); }
+	}
 	for(unsigned int c(0);c<N_;c++){
 		A_[0][c].set(M_(c),M_(c)); 
 		A_[1][c].set(M_(c),M_(c)); 
@@ -171,7 +175,6 @@ SystemBiFermionic<Type>::SystemBiFermionic(IOFiles& r):
 
 template<typename Type>
 SystemBiFermionic<Type>::~SystemBiFermionic(){
-	std::cout<<overlap_<<std::endl;
 	delete[] A_[0];
 	delete[] A_[1];
 }
@@ -233,7 +236,8 @@ void SystemBiFermionic<Type>::measure_new_step(){
 	for(unsigned int c(0);c<N_;c++){
 		r *= det_(1,c)/det_(0,c);
 	}
-	overlap_.set_x(r);
+	obs_[oi_][0].set_x(my::real(r));
+	obs_[oi_][1].set_x(my::imag(r));
 
 	ratio_for_measure_ = false;
 }
@@ -242,13 +246,12 @@ template<typename Type>
 void SystemBiFermionic<Type>::write(IOFiles& w) const {
 	System::write(w);
 	MCSystem::write(w);
-	w<<overlap_;
 	for(unsigned int i(0);i<2;i++){
 		w<<this->same_wf_[i];
 		if(this->same_wf_[i]){ w<<this->EVec_[i][0]; }
 		else { for(unsigned int c(0);c<N_;c++){ w<<this->EVec_[i][c]; } }
 	}
-	w<<row_<<det_<<overlap_;
+	w<<row_<<det_;
 }
 
 template<typename Type>
@@ -306,10 +309,6 @@ double SystemBiFermionic<Type>::ratio(){
 		 * so they need to be exchanged*/
 		return -my::real(r);
 	}
-}
-
-template<typename Type>
-void SystemBiFermionic<Type>::print(){
 }
 /*}*/
 #endif

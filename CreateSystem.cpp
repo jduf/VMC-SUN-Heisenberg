@@ -30,28 +30,28 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 							switch(ref_(2)){
 								case 0: { RGL_ = new ChainFermi<double>(*s_); }break;
 								case 1:
-									{
-										Vector<double> t;
-										if(param){ t = *param; }
-										if(C)    { t = C->get<std::vector<double> >("t"); }
-										if(t.ptr()){ RGL_ = new ChainPolymerized(*s_,t); }
-									}break;
+										{
+											Vector<double> t;
+											if(param){ t = *param; }
+											if(C)    { t = C->get<std::vector<double> >("t"); }
+											if(t.ptr()){ RGL_ = new ChainPolymerized(*s_,t); }
+										}break;
 								case 2:
-									{
-										Vector<double> t;
-										Vector<double> mu;
-										if(param){
-											t.set(param->size()/2);
-											mu.set(param->size()/2+1);
-											for(unsigned int i(0);i<t.size();i++){ t(i) = (*param)(i); }
-											for(unsigned int i(0);i<mu.size();i++){ mu(i) = (*param)(i+t.size()); }
-										}
-										if(C){
-											t = C->get<std::vector<double> >("t");
-											mu = C->get<std::vector<double> >("mu");
-										}
-										if(t.ptr()){ RGL_ = new ChainFree(*s_,t,mu); }
-									}break;
+										{
+											Vector<double> t;
+											Vector<double> mu;
+											if(param){
+												t.set(param->size()/2);
+												mu.set(param->size()/2+1);
+												for(unsigned int i(0);i<t.size();i++){ t(i) = (*param)(i); }
+												for(unsigned int i(0);i<mu.size();i++){ mu(i) = (*param)(i+t.size()); }
+											}
+											if(C){
+												t = C->get<std::vector<double> >("t");
+												mu = C->get<std::vector<double> >("mu");
+											}
+											if(t.ptr()){ RGL_ = new ChainFree(*s_,t,mu); }
+										}break;
 								default:{ error(); }break;
 							}
 						}break;

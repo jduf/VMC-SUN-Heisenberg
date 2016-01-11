@@ -51,31 +51,25 @@ int main(int argc, char* argv[]){
 						sim.run(1e8);
 
 #pragma omp critical(System__merge)
-						{ sys->merge(mcsys); }
+						{ cs->merge(mcsys); }
 
 						delete mcsys;
 					}
 				}
-
-				sys->complete_analysis(1e-5);
-				std::cout<<sys->get_energy()<<std::endl;
+				cs->complete_analysis(1e-5);
+				cs->print(1);
 
 				Linux command;
 				command.mkpath(cs->get_path().c_str());
 				IOFiles out(cs->get_path() + cs->get_filename()+".jdbin",true);
-				cs->save_param(out);
-				cs->save_input(out);
-				sys->save_output(out);
+				cs->save(out);
 
 				if(P.find("d",i,false)){
-					CreateSystem tmp(sys);
-					tmp.init(NULL,&P);
-					tmp.set_obs(P.find("nobs",i,false)?P.get<int>(i):-1);
-					RSTFile rst("/tmp/",tmp.get_filename());
-					IOSystem ios(tmp.get_filename(),"","","","","/tmp/",&rst);
-					tmp.set_IOSystem(&ios);
+					RSTFile rst("/tmp/",cs->get_filename());
+					IOSystem ios(cs->get_filename(),"","","","","/tmp/",&rst);
+					cs->set_IOSystem(&ios);
 
-					tmp.display_results();
+					cs->display_results();
 
 					rst.text(out.get_header());
 					rst.save(false,true);

@@ -79,7 +79,7 @@ void Square<Type>::set_obs(int nobs){
 	if(nobs<0){ nobs = 1; }
 	if(nobs>1){ /*the long range correlation*/
 		/*bond energy missing*/
-		this->obs_.push_back(Observable(this->n_,this->n_,50,5,false));
+		this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_));
 		for(unsigned int i(0);i<this->n_;i++){
 			this->obs_[2](i,0) = 0;
 			this->obs_[2](i,1) = i;

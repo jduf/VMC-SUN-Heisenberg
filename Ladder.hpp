@@ -86,7 +86,7 @@ void Ladder<Type>::set_obs(int nobs){
 	if(nobs>0){/*bond energy*/
 		nlinks = this->obs_[0].nlinks();
 		nval = 3*this->spuc_/2;
-		this->obs_.push_back(Observable(nlinks,nval));
+		this->obs_.push_back(Observable("Bond energy",1,nval,nlinks));
 		this->obs_[1].remove_links();
 		for(unsigned int i(0);i<nlinks;i++){
 			this->obs_[0](i,2) = i%nval;
@@ -96,10 +96,10 @@ void Ladder<Type>::set_obs(int nobs){
 		m = this->n_/2;
 		nval = this->n_/2;
 		nlinks = m*nval;
-		this->obs_.push_back(Observable(nlinks,nval));
-		this->obs_.push_back(Observable(nlinks,nval));
-		this->obs_.push_back(Observable(nlinks,nval));
-		this->obs_.push_back(Observable(nlinks,nval));
+		this->obs_.push_back(Observable("S_10*S1i",2,nval,nlinks));
+		this->obs_.push_back(Observable("S_10*S2i",2,nval,nlinks));
+		this->obs_.push_back(Observable("S_20*S1i",2,nval,nlinks));
+		this->obs_.push_back(Observable("S_10*S2i",2,nval,nlinks));
 		for(unsigned int i(0);i<m;i++){
 			for(unsigned int j(0);j<nval;j++){
 				/*obs_[1]=S_10*S_1i*/

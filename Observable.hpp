@@ -6,9 +6,9 @@
 class Observable{
 	public:
 		/*!Constructor*/
-		Observable(Matrix<int> const& links, unsigned int const& nval, unsigned int const& B=50, unsigned int const& b=5, bool const& conv=false);
+		Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, Matrix<int> const& links, unsigned int const& B=50, unsigned int const& b=5, bool const& conv=false);
 		/*!Constructor*/
-		Observable(unsigned int const& nlinks, unsigned int const& nval, unsigned int const& B=50, unsigned int const& b=5, bool const& conv=false);
+		Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, unsigned int const& nlinks, unsigned int const& B=50, unsigned int const& b=5, bool const& conv=false);
 		/*!Constructor that reads from file*/
 		Observable(IOFiles& r);
 		/*!Copy constructor*/
@@ -23,6 +23,8 @@ class Observable{
 		Observable() = delete;
 		/*}*/
 
+		std::string const& get_name() const { return name_; }
+		unsigned int const& get_type() const { return type_; }
 		unsigned int const& nval() const { return nval_; }
 		unsigned int const& nlinks() const { return links_.row(); }
 		Matrix<int> const& get_links() const { return links_; }
@@ -41,17 +43,19 @@ class Observable{
 		int const& operator()(unsigned int const& i, unsigned int const& j) const { return links_(i,j); }
 		int& operator()(unsigned int const& i, unsigned int const& j){ return links_(i,j); }
 
-		void write(IOFiles& w) const;
 		void print() const;
+		void write(IOFiles& w) const;
 
 		void reset(){ std::cerr<<__PRETTY_FUNCTION__<<std::endl; }
 		void remove_links(){ links_.set(); }
 
 	protected:
-		unsigned int modulo_ = 0;
-		unsigned int nval_   = 0;
-		Data<double>* val_   = NULL;
+		std::string name_;
+		unsigned int type_;
+		unsigned int modulo_;
+		unsigned int nval_;
 		Matrix<int> links_;
+		Data<double>* val_;
 
 	private:
 		void set(unsigned int const& B, unsigned int const& b, bool const& conv);

@@ -143,7 +143,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& F):
 			row_(new_s_[0],new_p_[0]) = new_r_[1];
 			row_(new_s_[1],new_p_[1]) = new_r_[0];
 		} else {
-			/*restore the s_ and row_ to match Ainv_ state*/
+			/*restore A_ match previous Ainv_ state*/
 			for(unsigned int j(0);j<M_(new_c_[0]);j++){
 				A[new_c_[0]](new_r_[0],j) = this->EVec_[new_c_[0]](new_s_[0],j);
 			}

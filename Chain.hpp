@@ -107,7 +107,7 @@ void Chain<Type>::set_obs(int nobs){
 	if(nobs>0){/*bond energy*/
 		nlinks = this->obs_[0].nlinks();
 		nval = this->spuc_;
-		this->obs_.push_back(Observable(0,nval));
+		this->obs_.push_back(Observable("Bond energy",1,nval,0));
 		for(unsigned int i(0);i<nlinks;i++){
 			this->obs_[0](i,2) = i%nval;
 		}
@@ -116,7 +116,7 @@ void Chain<Type>::set_obs(int nobs){
 		m = this->n_;
 		nval = this->n_;
 		nlinks = m*nval;
-		this->obs_.push_back(Observable(nlinks,nval,50,5,false));
+		this->obs_.push_back(Observable("Long range correlations",2,nval,nlinks));
 		for(unsigned int i(0);i<m;i++){
 			for(unsigned int j(0);j<nval;j++){
 				this->obs_[1](i*nval+j,0) = i%this->n_;

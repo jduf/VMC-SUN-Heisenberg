@@ -57,5 +57,7 @@ class MCSystem: public virtual System{
 
 		Rand<unsigned int> n_rnd_;//!< generator of random numbers
 		Rand<unsigned int> m_rnd_;//!< generator of random numbers
+
+		unsigned int bei_;
 };
 #endif

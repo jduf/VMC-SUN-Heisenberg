@@ -45,7 +45,7 @@ void MonteCarlo::run(unsigned int const& maxiter){
 				measures++;
 			}
 			S_->add_sample();
-			if(iter%100000==0 && omp_get_thread_num()==0){ my::display_progress(time_.elapsed(),tmax_); }
+			if(iter%(maxiter/100)==0 && omp_get_thread_num()==0){ my::display_progress(time_.elapsed(),tmax_); }
 		} while(keepon() && ++iter<maxiter);
 #pragma omp critical(cout)
 		std::cout<<"done "<<iter<<" steps in "<<chrono.elapsed()<<"s with "<<measures<<" measures"<<std::endl;

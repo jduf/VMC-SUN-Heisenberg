@@ -72,7 +72,7 @@ void System::delete_binning(){
 }
 /*}*/
 
-/*write in IOFiles methods*/
+/*write in IOFiles methods and print*/
 /*{*/
 void System::write(IOFiles& w) const {
 	if(w.is_binary()){
@@ -105,6 +105,13 @@ void System::save_output(IOFiles& w) const {
 	int nobs(obs_.size());
 	w.write("#obs (E="+my::tostring(obs_[0][0].get_x())+", dE="+my::tostring(obs_[0][0].get_dx())+")",nobs);
 	for(int i(0);i<nobs;i++){ w<<obs_[i]; }
+}
+
+void System::print(unsigned int nobs) const {
+	if(nobs>obs_.size()){ nobs = obs_.size(); }
+	for(unsigned int i(0);i<nobs;i++){
+		std::cout<<obs_[i]<<std::endl;
+	}
 }
 /*}*/
 

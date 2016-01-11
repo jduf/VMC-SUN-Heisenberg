@@ -44,7 +44,7 @@ class System{
 		void delete_binning();
 		/*}*/
 
-		/*{Write in IOFiles methods*/
+		/*{Write in IOFiles methods and print*/
 		virtual void write(IOFiles& w) const;
 		/*{Description*/
 		/*!Saves ref_, N_, m_, n_, bc_, M_ and J_ in w. The file will contain a
@@ -54,6 +54,7 @@ class System{
 		/*}*/
 		virtual void save_input(IOFiles& w) const;
 		void save_output(IOFiles& w) const;
+		void print(unsigned int nobs) const;
 		/*}*/
 
 		/*{Simple value return*/
@@ -63,6 +64,8 @@ class System{
 		unsigned int const& get_status() const { return status_; }
 		/*!Returns the energy*/
 		Data<double> const& get_energy() const { return obs_[0][0]; }
+		/*!Returns the number of observables*/
+		unsigned int nobs() const { return obs_.size(); }
 		/*!Returns all observables*/
 		std::vector<Observable> const& get_obs() const { return obs_; }
 		/*}*/
