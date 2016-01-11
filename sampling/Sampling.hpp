@@ -71,7 +71,7 @@ class Data{
 				/*!Set x_ to the mean value, dx_ to the variance*/
 				void complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv);
 				/*!Compute the mean value*/
-				Type get_x() const { return (m_bin_(0)*Ml_(0)*DPL_+bin_[0](Ml_(0)))/get_N(); }
+				Type get_x() const { return (m_bin_(0)*double(Ml_(0)*DPL_)+bin_[0](Ml_(0)))/get_N(); }
 				/*!Compute the number of samples*/
 				double get_N() const { return 1.0*Ml_(0)*DPL_+dpl_; }
 				/*!Merge this with b*/
@@ -232,7 +232,7 @@ template<typename Type>
 void Data<Type>::Binning::add_sample(Type const& x){
 	/*!add new entry to the bins*/
 	if(DPL_ == ++dpl_){
-		add_bin(0,2.0*x/DPL_,2.0*bin_[0](Ml_(0))/DPL_);
+		add_bin(0,2.0/DPL_*x,2.0/DPL_*bin_[0](Ml_(0)));
 		recompute_dx_usefull_ = true;
 		dpl_ = 0;
 		/*!update the bins if the bigger bin is big enough*/
@@ -340,7 +340,7 @@ void Data<Type>::Binning::write(IOFiles& w) const {
 template<typename Type>
 void Data<Type>::Binning::add_bin(unsigned int l, Type const& a, Type const& b){
 	bin_[l](Ml_(l)) = (a+b)/2.0;
-	m_bin_(l) = (m_bin_(l)*Ml_(l)+bin_[l](Ml_(l)))/(Ml_(l)+1);
+	m_bin_(l) = (m_bin_(l)*double(Ml_(l))+bin_[l](Ml_(l)))/(Ml_(l)+1.0);
 	Ml_(l)++;
 	/*!Create the next (bigger) bin*/
 	if(Ml_(l)%2==0 && l<b_-1){

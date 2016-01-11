@@ -92,7 +92,7 @@ namespace my{
 
 	/*double imag(T)*/
 	/*{*/
-	inline double imag(double const& x){ return x; }
+	inline double imag(double const& x){ (void)(x); return 0; }
 
 	inline double imag(std::complex<double> const& x){ return std::imag(x); }
 	/*}*/
@@ -158,6 +158,10 @@ namespace my{
 			r *= t;
 		}
 		return r;
+	}
+
+	inline void display_progress(double const& step, double const& total){
+		std::cout<<" "<<100.*step/total<<"%       \r"<<std::flush;
 	}
 }
 

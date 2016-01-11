@@ -5,12 +5,7 @@ Gnuplot::Gnuplot(std::string const& path, std::string const& filename):
 	filename_(filename),
 	plot_(""),
 	multiplot_(false)
-{
-	if(path_[0] != '/'){
-		Linux c;
-		path_ = c.pwd() + path_;
-	}
-}
+{}
 
 void Gnuplot::multiplot(){
 	plot_ += "set multiplot\n";
@@ -71,7 +66,7 @@ void Gnuplot::save_file(){
 void Gnuplot::create_image(bool silent, bool png){
 	std::string texfile(filename_);
 	size_t pos(texfile.find("."));
-	while (pos != std::string::npos) {
+	while(pos != std::string::npos){
 		texfile.replace(pos,1,"");
 		pos = texfile.find(".");
 	}
@@ -83,7 +78,5 @@ void Gnuplot::create_image(bool silent, bool png){
 		if(png){ command(Linux::pdf2png("/tmp/" + texfile, path_ + filename_),silent); }
 		command("mv /tmp/" + texfile + ".pdf " + path_ + filename_ + ".pdf",silent);
 		command("rm /tmp/" + texfile + ".* /tmp/" + texfile + "*-inc-eps-converted-to.pdf /tmp/" + texfile + "*-inc.eps",silent);
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : Linux::gp2latex(\"/tmp/\"+texfile,path_,filename_) returned an error ("<<command.status()<<")"<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : Linux::gp2latex(\"/tmp/\"+texfile,path_,filename_) returned an error ("<<command.status()<<")"<<std::endl; }
 }

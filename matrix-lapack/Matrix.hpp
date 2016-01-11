@@ -91,11 +91,11 @@ class Matrix{
 		Type trace() const;
 
 		/*!Returns the size of the matrix*/
-		unsigned int size() const { return size_; }
+		unsigned int const& size() const { return size_; }
 		/*!Returns the number of rows of the matrix*/
-		unsigned int row() const { return row_; }
+		unsigned int const& row() const { return row_; }
 		/*!Returns the number of columns of the matrix*/
-		unsigned int col() const { return col_; }
+		unsigned int const& col() const { return col_; }
 		/*!Returns the pointer to the matrix*/
 		Type* ptr() const { return mat_; }
 

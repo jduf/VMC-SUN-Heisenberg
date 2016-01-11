@@ -69,8 +69,6 @@ class Interpolation{
 		double phi7(double const& r) const { return (r<1.0?(1-r)*(1-r):0.0); }
 		double phi8(double const& r) const { return (r<1.0?(1-r)*(1-r)*(1-r)*(1-r)*(4*r+1):0.0); }
 		double phi9(double const& r) const { return (r<1.0?(1-r)*(1-r)*(1-r)*(1-r)*(1-r)*(1-r)*(32*r*r*r+25*r*r+8*r+1):0.0); }
-
-
 };
 
 template<typename Type>

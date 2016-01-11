@@ -14,6 +14,7 @@ Linux::Bash::~Bash(){
 Linux::Bash Linux::bash_;
 
 void Linux::open(std::string const& filename){
+	std::cerr<<__PRETTY_FUNCTION__<<" : open Bash file ("<<filename<<")"<<std::endl;
 	if(bash_.file_.is_open()){
 		std::cerr<<__PRETTY_FUNCTION__<<" : can't open more than one Bash file at the same time"<<std::endl;
 	} else {
@@ -21,21 +22,22 @@ void Linux::open(std::string const& filename){
 		if(bash_.file_.is_open()){
 			bash_.filename_ = filename;
 			bash_.file_<<"#!/bin/bash\n";
-		} else {
-			std::cerr<<__PRETTY_FUNCTION__<<" : the bash file can't be openend"<<std::endl;
-		}
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the bash file can't be openend"<<std::endl; }
 	}
 }
 
 void Linux::close(bool const& run_now){
-	if(bash_.file_.is_open()){ 
-		bash_.file_.close(); 
+	if(bash_.file_.is_open()){
+		std::cerr<<__PRETTY_FUNCTION__<<" : close Bash file ("<<bash_.filename_<<")";
+		bash_.file_.close();
 		if(run_now){
 			Linux command;
 			command("chmod 755 "+Linux::bash_.filename_,false);
 			command("./"+Linux::bash_.filename_+" &",false);
 			bash_.filename_ = "";
+			std::cerr<<" and run commands";
 		}
+		std::cerr<<std::endl;
 	}
 }
 
@@ -72,7 +74,7 @@ void Linux::mkpath(const char *path, mode_t mode){
 }
 /*}*/
 
-/*{ methods returning a std::string that is then to by executed by system*/
+/*{methods returning a std::string that is then to by executed by system*/
 std::string Linux::latex(std::string const& path, std::string const& filename){
 	std::string cmd(MY_BIN_LATEX);
 	cmd+= " -output-directory " +path + " ";
@@ -118,7 +120,7 @@ std::string Linux::gp2latex(std::string const& texfile, std::string const& path,
 		std::cerr<<__PRETTY_FUNCTION__<<" : set size "<<size<<std::endl;
 	} else { size = "12.15cm,7.54"; }
 	cmd+= " -e \"set terminal epslatex color size "+size+" standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'" + texfile + ".tex\'\" ";
-	cmd+= path + gpfile + ".gp";
+	cmd+= gpfile + ".gp";
 	cmd+= "; cd - > /dev/null";
 	return cmd;
 }
