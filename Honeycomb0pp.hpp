@@ -16,7 +16,9 @@ class Honeycomb0pp: public Honeycomb<double>{
 		double td_;
 
 		void compute_H();
+
 		void display_results();
+		void lattice();
 
 		Matrix<double> set_ab() const;
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;

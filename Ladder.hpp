@@ -85,7 +85,7 @@ void Ladder<Type>::set_obs(int nobs){
 	unsigned int m;
 	if(nobs>0){/*bond energy*/
 		nlinks = this->obs_[0].nlinks();
-		nval = 3*this->spuc_/2;
+		nval = this->z_*this->spuc_/2;
 		this->obs_.push_back(Observable("Bond energy",1,nval,nlinks));
 		this->obs_[1].remove_links();
 		for(unsigned int i(0);i<nlinks;i++){

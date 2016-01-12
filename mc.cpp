@@ -45,9 +45,8 @@ int main(int argc, char* argv[]){
 					}
 					if(!mcsys){ std::cout<<__PRETTY_FUNCTION__<<" MCSystem was not constructed"<<std::endl; }
 					else {
-
 						MonteCarlo sim(mcsys,tmax);
-						sim.thermalize(1e7);
+						sim.thermalize(1e6);
 						sim.run(1e8);
 
 #pragma omp critical(System__merge)
@@ -57,7 +56,7 @@ int main(int argc, char* argv[]){
 					}
 				}
 				cs->complete_analysis(1e-5);
-				cs->print(1);
+				cs->print(2);
 
 				Linux command;
 				command.mkpath(cs->get_path().c_str());

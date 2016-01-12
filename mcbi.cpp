@@ -4,8 +4,9 @@
 #include "CreateSystem.hpp"
 #include <omp.h>
 
-void run(Matrix<double>& H, Matrix<double>& O, Matrix<double> const& MP, System const& sys, unsigned int const& tmax, unsigned int const& nruns, unsigned int const& i, unsigned int const& j);
-void run(Matrix<double>& H, Matrix<double>& O, Matrix<double> const& MP, System const& sys, unsigned int const& tmax, unsigned int const& nruns, unsigned int const& i);
+void run(Matrix<double>& H, Matrix<double>& dH, Matrix<double>& O, Matrix<double>& dO, Matrix<double> const& MP, System const& sys, unsigned int const& tmax, unsigned int const& nruns, unsigned int const& i, unsigned int const& j);
+void run(Matrix<double>& H, Matrix<double>& dH, Matrix<double>& O, Matrix<double>& dO, Matrix<double> const& MP, System const& sys, unsigned int const& tmax, unsigned int const& nruns, unsigned int const& i);
+void compute_E(Matrix<double>& H, Matrix<double>& dH, Matrix<double>& O, Matrix<double>& dO);
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
@@ -20,43 +21,26 @@ int main(int argc, char* argv[]){
 	System sys(P);
 	if(!P.locked()){
 		IOFiles r("param.dat",false);
-		Matrix<double> MP(2,18);
+		Matrix<double> MP(3,18);
 		r>>MP;
 		std::cout<<MP<<std::endl;
 		Matrix<double> H(MP.row(),MP.row(),0);
-		Matrix<double> O(MP.row(),MP.row(),0);
+		Matrix<double> O(H);
+		Matrix<double> dH(H);
+		Matrix<double> dO(H);
 
 		for(unsigned int i(0);i<MP.row();i++){
 			for(unsigned int j(0);j<MP.row();j++){
-				if(i!=j){ run(H,O,MP,sys,tmax,nruns,i,j); }
-				else { run(H,O,MP,sys,tmax,nruns,i); }
+				if(i!=j){ run(H,dH,O,dO,MP,sys,tmax,nruns,i,j); }
+				else { run(H,dH,O,dO,MP,sys,tmax,nruns,i); }
 			}
 		}
 
-		for(unsigned int i(0);i<MP.row();i++){
-			for(unsigned int j(i+1);j<MP.row();j++){
-				H(i,j) = sqrt(H(i,j)*H(j,i));
-				H(i,j) = H(j,i);
-				O(i,j) = sqrt(O(i,j)*O(j,i));
-				O(i,j) = O(j,i);
-			}
-		}
-
-		std::cout<<H<<std::endl;
-		std::cout<<std::endl;
-		std::cout<<O<<std::endl;
-
-		H.print_mathematica();
-		O.print_mathematica();
-
-		Vector<double> E;
-		Lapack<double>(H,true,'S').generalized_eigensystem(O,E);
-		std::cout<<E<<std::endl;
-
+		compute_E(H,dH,O,dO);
 	} else { std::cout<<__PRETTY_FUNCTION__<<" : Parseur locked"<<std::endl; }
 }
 
-void run(Matrix<double>& H, Matrix<double>& O, Matrix<double> const& MP, System const& sys, unsigned int const& tmax, unsigned int const& nruns, unsigned int const& i, unsigned int const& j){
+void run(Matrix<double>& H, Matrix<double>& dH, Matrix<double>& O, Matrix<double>& dO, Matrix<double> const& MP, System const& sys, unsigned int const& tmax, unsigned int const& nruns, unsigned int const& i, unsigned int const& j){
 	Vector<double> p0(MP.col());
 	Vector<double> p1(MP.col());
 	for(unsigned int k(0);k<MP.col();k++){
@@ -97,12 +81,14 @@ void run(Matrix<double>& H, Matrix<double>& O, Matrix<double> const& MP, System 
 			}
 			cs0.complete_analysis(1e-5);
 			H(i,j) = cs0.get_obs()[0][0].get_x();
+			dH(i,j)= cs0.get_obs()[0][0].get_dx();
 			O(i,j) = cs0.get_obs().back()[0].get_x();
+			dO(i,j)= cs0.get_obs().back()[0].get_dx();
 		} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
 	} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
 }
 
-void run(Matrix<double>& H, Matrix<double>& O, Matrix<double> const& MP, System const& sys, unsigned int const& tmax, unsigned int const& nruns, unsigned int const& i){
+void run(Matrix<double>& H, Matrix<double>& dH, Matrix<double>& O, Matrix<double>& dO, Matrix<double> const& MP, System const& sys, unsigned int const& tmax, unsigned int const& nruns, unsigned int const& i){
 	Vector<double> p(MP.col());
 	for(unsigned int k(0);k<MP.col();k++){
 		p(k) = MP(i,k);
@@ -137,7 +123,99 @@ void run(Matrix<double>& H, Matrix<double>& O, Matrix<double> const& MP, System 
 			}
 			cs.complete_analysis(1e-5);
 			H(i,i) = cs.get_obs()[0][0].get_x();
+			dH(i,i) = cs.get_obs()[0][0].get_dx();
 			O(i,i) = 1;
+			dO(i,i) = 0;
 		} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
 	} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
+}
+
+void compute_E(Matrix<double>& H, Matrix<double>& dH, Matrix<double>& O, Matrix<double>& dO){
+	unsigned int n_wfs(H.row());// number of wavefunctions
+	unsigned int n_rnd(1000);	// number of random evaluations
+	unsigned int n_bin(20);		// number of bin for the history
+
+	for(unsigned int i(0);i<n_wfs;i++){
+		for(unsigned int j(i+1);j<n_wfs;j++){
+			H(i,j) = sqrt(H(i,j)*H(j,i));
+			H(i,j) = H(j,i);
+			dH(i,j)= (dH(i,j)+dH(j,i))/(2*sqrt(2));
+			dH(i,j)= dH(j,i);
+			O(i,j) = sqrt(O(i,j)*O(j,i));
+			O(i,j) = O(j,i);
+			dO(i,j)= (dO(i,j)+dO(j,i))/(2*sqrt(2));
+			dO(i,j)= dO(j,i);
+		}
+	}
+
+	Matrix<double> Htmp;
+	Matrix<double> Otmp;
+
+	Vector<double> E(n_wfs);
+	Vector<double> dE(n_wfs);
+	Matrix<double> EM(n_wfs,n_rnd); // the eigenvalues are stored in vertical
+
+	Rand<double> rnd(-1,1);
+	for(unsigned int i(0);i<n_rnd;i++){
+		Htmp = H;
+		Otmp = O;
+		for(unsigned int j(0);j<n_wfs;j++){
+			for(unsigned int k(j);k<n_wfs;k++){
+				Htmp(j,k)+= rnd.get()*dH(j,k);
+				Htmp(k,j) = Htmp(j,k);
+				Otmp(j,k)+= rnd.get()*dO(j,k);
+				Otmp(k,j) = Otmp(j,k);
+			}
+		}
+		Lapack<double>(Htmp,false,'S').generalized_eigensystem(Otmp,E);
+		for(unsigned int j(0);j<n_wfs;j++){ EM(j,i) = E(j); }
+	}
+
+	double min;
+	double max;
+	double dx;
+
+	Vector<double> x(n_bin);
+	Vector<double> y(n_bin,0.0);
+
+	auto gaussian = [](double const& x, const double* p){
+		return exp(-(x-p[0])*(x-p[0])/(2*p[1]))/p[2];
+	};
+
+	for(unsigned int i(0);i<n_wfs;i++){
+		min = EM(i,0);
+		max = EM(i,0);
+		for(unsigned int j(1);j<n_rnd;j++){
+			if( EM(i,j) < min ){ min = EM(i,j); }
+			if( EM(i,j) > max ){ max = EM(i,j); }
+		}
+		dx  = (max-min)/n_bin;
+		for(unsigned int j(0);j<n_bin;j++){ x(j) = min+(j+0.5)*dx; }
+		for(unsigned int j(0);j<n_wfs;j++){
+			for(unsigned int k(0);k<n_bin;k++){
+				if(EM(i,j)>=min+k*dx && EM(i,j)<min+(k+1)*dx){ y(k)+=1.0; k=n_bin; }
+			}
+		}
+		y.back()++;//because the maximal value won't enter any bin
+		y /= n_rnd;
+		std::cout<<"fit"<<std::endl;
+		std::cout<<x<<std::endl;
+		std::cout<<y<<std::endl;
+
+		Vector<double> p(3,1.0);
+		Fit(x,y,p,gaussian);
+		std::cout<<p<<std::endl;
+		dE(i) = p(1);
+	}
+
+	Lapack<double>(H,true,'S').generalized_eigensystem(O,E);
+
+	//std::cout<<H<<std::endl;
+	//std::cout<<std::endl;
+	//std::cout<<O<<std::endl;
+	//H.print_mathematica();
+	//O.print_mathematica();
+	
+	std::cout<<E<<std::endl;
+	std::cout<<dE<<std::endl;
 }

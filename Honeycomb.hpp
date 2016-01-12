@@ -94,13 +94,16 @@ Honeycomb<Type>::~Honeycomb() = default;
 template<typename Type>
 void Honeycomb<Type>::set_obs(int nobs){
 	if(nobs<0){ nobs = 1; }
-	if(nobs>1){ /*the long range correlation*/
-		/*bond energy missing*/
-		this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_));
-		for(unsigned int i(0);i<this->n_;i++){
-			this->obs_[2](i,0) = 0;
-			this->obs_[2](i,1) = i;
-			this->obs_[2](i,2) = i;
+	unsigned int nlinks;
+	unsigned int nval;
+	if(nobs>0){/*bond energy (valid for Honeycomb0pp*/
+		nlinks = this->obs_[0].nlinks();
+		nval = this->z_*this->spuc_/2;
+		this->obs_.push_back(Observable("Bond energy",1,nval,nlinks));
+		this->obs_[1].remove_links();
+		for(unsigned int i(0);i<nlinks;i++){
+			this->obs_[0](i,2) = this->get_site_in_ab(this->obs_[0](i,0))/2*3;
+			this->obs_[0](i,2)+=(this->get_site_in_ab(this->obs_[0](i,1))-1)/2;
 		}
 	}
 }

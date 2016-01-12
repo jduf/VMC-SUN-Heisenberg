@@ -1463,7 +1463,7 @@ void LadderFree::lattice(){
 			case 2: { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)-0.2,"\\tiny{"+my::tostring(t)+"}"); }break;
 		}
 
-		if(obs_[1].nval()){/*bound energy*/
+		if(obs_.size()>1){/*bound energy*/
 			corr = obs_[1][i].get_x();
 			if(std::abs(corr)>1e-4){
 				if(corr<0){ color = "red"; }
