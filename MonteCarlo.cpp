@@ -12,9 +12,9 @@ MonteCarlo::MonteCarlo(MCSystem* S, unsigned int const& tmax):
 
 /*public methods*/
 /*{*/
-void MonteCarlo::thermalize(unsigned int const& thermalization_steps){
+void MonteCarlo::thermalize(unsigned int const& ts){
 	if(!S_->get_status()){
-		for(unsigned int i(0);i<thermalization_steps;i++){
+		for(unsigned int i(0);i<ts;i++){
 			S_->swap();
 			ratio_ = my::norm_squared(S_->ratio());
 			if( ratio_ > 1.0 || ratio_ > rnd_.get() ){ S_->update(); }

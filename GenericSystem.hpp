@@ -9,15 +9,22 @@
 #include "Rand.hpp"
 #include "Fit.hpp"
 
-/*!Abstract class that can produce any kind of system*/
+/*{*//*!Abstract class used by CreateSystem to produce any wavefunction
+	   (Fermionic or Bosonic)
+
+	   This class makes the connection between CreateSystem and more
+	   specialized System like ChainPolymerized. This is the reason why it is
+	   an abstract class with many (pure) virtual methods.
+
+	   Any instance of a child of this class will, at least, contain everything
+	   that is required to compute the variational energy of the child related
+	   trial wavefunction.*//*}*/
 template<typename Type>
 class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSystem{
 	public:
-		/*{Description*/
-		/*!Constructor requiring the coordination number and the name of the
-		 * system, all other parameters of System have already been set by the
-		 * most derived class (multiple inheritance)*/
-		/*}*/
+		/*{*//*!Constructor requiring only local parameters.
+			   All other parameters of System have already been set by the most
+			   derived class (multiple inheritance)*//*}*/
 		GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename);
 		/*!Default destructor*/
 		virtual ~GenericSystem() = default;
@@ -42,20 +49,13 @@ class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSyst
 		unsigned int const z_;	 //!< coordination number
 		RST system_info_;		 //!< store information about the system
 
-		/*{Description*/
-		/*!Returns the neighbours of site i.
-		 *
-		 * This pure virtual method must be defined here because it is needed
-		 * by GenericSystem<Type>::set_nn_links()
-		 */
-		/*}*/
+		/*{*//*!Returns the neighbours of site i.
+			   This pure virtual method must be defined here because it is
+			   needed by GenericSystem<Type>::set_nn_links() *//*}*/
 		virtual Matrix<int> get_neighbourg(unsigned int const& i) const = 0;
-		/*{Description*/
-		/*!Computes the array of links between neighbouring sites.
-		 *
-		 * The argument l gives the number of links that need to be computed
-		 * for the site i%l.size()*/
-		/*}*/
+		/*{*//*! Computes the array of links between neighbouring sites.
+			   The argument l gives the number of links that need to be
+			   computed for the site i%l.size() *//*}*/
 		void set_nn_links(Vector<unsigned int> const& l);
 		void check_lattice();
 

@@ -26,14 +26,24 @@
 #include "Honeycomb0pp.hpp"
 #include "HoneycombPiFlux.hpp"
 
+/*{*//*!Class that creates any kind of wavefunctions
+	   and gives a way to act on it (set observable, merge simulation, compute
+	   errors on measurments, save...) 
+
+	   This class handles everything that is required to create a wavefunction
+	   from a child of GenergicSystem. 
+
+	   It can also store (CreateSystem::merge) and handle
+	   (CreateSystem::complete_analysis, CreateSystem::save,
+	   CreateSystem::display_results,..)  the results of the VMC simulation
+	   contained in a child of MCSystem.*//*}*/
 class CreateSystem{
 	public:
-		/*{Description*/
-		/*!Takes a pointer to an already existing System (better than to create
-		 * a System within this class because in VMCMinimization, many
-		 * GenericSystem will be created therefore if one can avoid the
-		 * re-creation of a System, it saves ressources) */
-		/*}*/
+		/*{*//*!Takes a pointer to an already existing System 
+			   (better than to create a System within this class because in
+			   VMCMinimization, many GenericSystem will be created therefore if
+			   one can avoid the re-creation of a System, it saves ressources)
+			   *//*}*/
 		CreateSystem(System const* const s);
 		virtual ~CreateSystem();
 		/*{Forbidden*/
@@ -49,12 +59,12 @@ class CreateSystem{
 		/*}*/
 
 		/*{System calls*/
-		/*!Calls System::merge(...) : see System.hpp*/
+		/*!Calls System::merge : see System*/
 		void merge(System* const s) const {
 			if(RGL_){ return RGL_->merge(s); }
 			if(CGL_){ return CGL_->merge(s); }
 		}
-		/*!Calls System::complete_analysis(...) : see System.hpp*/
+		/*!Calls System::complete_analysis : see System*/
 		void complete_analysis(double const& convergence_criterion) const {
 			if(RGL_){ RGL_->complete_analysis(convergence_criterion); }
 			if(CGL_){ CGL_->complete_analysis(convergence_criterion); }
@@ -67,7 +77,7 @@ class CreateSystem{
 			if(RGL_){ RGL_->set_IOSystem(ios); }
 			if(CGL_){ CGL_->set_IOSystem(ios); }
 		}
-		/*!Calls IOSystem::analyse(unsigned int const& level)*/
+		/*!Calls IOSystem::analyse*/
 		std::string analyse(unsigned int const& level) {
 			if(RGL_){ return RGL_->analyse(level); }
 			if(CGL_){ return CGL_->analyse(level); }
@@ -76,22 +86,22 @@ class CreateSystem{
 		/*}*/
 
 		/*{GenericSystem calls*/
-		/*!Calls GenericSystem::set_obs(unsigned int const& which) pure virtual method*/
+		/*!Calls GenericSystem::set_obs pure virtual method*/
 		void set_obs(int const& nobs) const {
 			if(RGL_){ return RGL_->set_obs(nobs); }
 			if(CGL_){ return CGL_->set_obs(nobs); }
 		}
-		/*!Calls GenericSystem::get_wf_symmetries(std::vector<Matrix<int> >& sym) pure virtual method*/
+		/*!Calls GenericSystem::get_wf_symmetries pure virtual method*/
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 			if(RGL_){ RGL_->get_wf_symmetries(sym); }
 			if(CGL_){ CGL_->get_wf_symmetries(sym); }
 		}
-		/*!Calls GenericSystem::check() pure virtual method*/
+		/*!Calls GenericSystem::check pure virtual method*/
 		void check() const {
 			if(RGL_){ return RGL_->check(); }
 			if(CGL_){ return CGL_->check(); }
 		}
-		/*!Calls GenericSystem::display_results() pure virtual method*/
+		/*!Calls GenericSystem::display_results pure virtual method*/
 		void display_results() const {
 			if(RGL_){ RGL_->display_results(); }
 			if(CGL_){ CGL_->display_results(); }
@@ -121,13 +131,13 @@ class CreateSystem{
 			if(CGL_){ return CGL_->get_path(); }
 			return "";
 		}
-		/*!Calls System::get_status() : see System.hpp*/
+		/*!Calls System::get_status : see System*/
 		unsigned int get_status() const {
 			if(RGL_){ return RGL_->get_status(); }
 			if(CGL_){ return CGL_->get_status(); }
 			return 10;
 		}
-		/*!Calls System::get_obs() : see System.hpp*/
+		/*!Calls System::get_obs : see System*/
 		std::vector<Observable> const& get_obs() const {
 			if(RGL_){ return RGL_->get_obs(); }
 			else { return CGL_->get_obs(); }
@@ -135,7 +145,7 @@ class CreateSystem{
 		/*}*/
 
 		/*{write in IOFiles methods and print*/
-		/*!Calls GenericSystem::save_param() and System::save()*/
+		/*!Calls GenericSystem::save_param and System::save*/
 		void save(IOFiles& w) const {
 			if(RGL_){
 				RGL_->save_param(w); 
@@ -146,7 +156,7 @@ class CreateSystem{
 				CGL_->save(w); 
 			}
 		}
-		/*!Calls System::print(...)*/
+		/*!Calls System::print*/
 		void print(unsigned int const& nobs) const {
 			if(RGL_){ RGL_->print(nobs); }
 			if(CGL_){ CGL_->print(nobs); }
@@ -161,6 +171,7 @@ class CreateSystem{
 		GenericSystem<double>* RGL_;
 		GenericSystem<std::complex<double> >* CGL_;
 
+		/*Returns an error message when a wavefunction isn't found*/
 		void error() const {
 			std::cerr<<__PRETTY_FUNCTION__<<" : ref_ = ["<<ref_<<"] unknown"<<std::endl;
 		}

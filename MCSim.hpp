@@ -25,7 +25,7 @@ class MCSim{
 		/*!Sets MCS_ to a copy obtained via MCSystem::clone() run on MCS*/
 		void copy_S(std::unique_ptr<MCSystem> const& MCS);
 		/*!Creates MonteCarlo, then run on MCS_*/
-		void run(unsigned int const& thermalization_steps, unsigned int const& tmax);
+		void run(unsigned int const& ts, unsigned int const& tmax);
 		/*}*/
 
 		/*{System and MCSystem calls*/
@@ -69,7 +69,7 @@ class MCSim{
 		/*}*/
 
 	private:
-		Vector<double> param_;
-		std::unique_ptr<MCSystem> MCS_;
+		Vector<double> param_;			//!< variational parameters used to create the wavefunction
+		std::unique_ptr<MCSystem> MCS_; //!< pointer on a MCSystem that can be measured via MonteCarlo
 };
 #endif

@@ -4,16 +4,22 @@
 #include "Parseur.hpp"
 #include "Observable.hpp"
 
-/*!{Class that contains the information on the state*/
-/*
- * status_ = 5 : System is initialized (in System)
- * status_ = 4 : System is allowed (in System)
- * status_ = 3 : Boundary condition is allowed
- * status_ = 2 : Degenerated wavefunction
- * status_ = 1 : System*D is allowed (in System*D)
- * status_ = 0 : Found an initial state (in SystemFermionic)
- */
-/*}*/
+/*{*//*!Class that contains the parameters of the Hamiltonian and observables.
+	   (SU(N), number of particles, bond strength,... and energy,
+	   correlations,...)
+
+	   Main class, everything relies on this class. It contains all the
+	   important variables and results.
+
+	   The status_ variables gives a way to stop a simulation if the
+	   initialization failed and also indicates up to where it went :
+	   + status_ = 5 : System is initialized (in System)
+	   + status_ = 4 : System is allowed (in System)
+	   + status_ = 3 : Boundary condition is allowed
+	   + status_ = 2 : Degenerated wavefunction
+	   + status_ = 1 : System*D is allowed (in System*D)
+	   + status_ = 0 : Found an initial state (in SystemFermionic)
+	   *//*}*/
 class System{
 	public:
 		/*!Constructor*/

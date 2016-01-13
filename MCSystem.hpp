@@ -5,7 +5,13 @@
 #include "Rand.hpp"
 #include <memory>
 
-/*!Abstract class that is used by MonteCarlo.hpp to sample the system.*/
+/*{*//*!Abstract class that is used by MonteCarlo to sample the System 
+	   using the Variational Monte-Carlo algorithm.
+
+	   This class makes the connection between MonteCarlo and more specialized
+	   System like SystemFermionic, SystemBiFermionic and SystemBosonic. This
+	   is the reason why it is an abstract class with many (pure) virtual
+	   methods.*//*}*/
 class MCSystem: public virtual System{
 	public:
 		/*!Constructor*/
@@ -40,7 +46,7 @@ class MCSystem: public virtual System{
 		/*!Writes the curent state of the system, the color configuration, the
 		 * observables and everything relevent to the simulation*/
 		virtual void write(IOFiles& w) const;
-		
+
 	protected:
 		/*!Allows copy if called from child class*/
 		MCSystem(MCSystem const& mcsim);

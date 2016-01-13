@@ -50,10 +50,10 @@ void MCSim::copy_S(std::unique_ptr<MCSystem> const& S){
 	MCS_ = S->clone();
 }
 
-void MCSim::run(unsigned int const& thermalization_steps, unsigned int const& tmax){
+void MCSim::run(unsigned int const& ts, unsigned int const& tmax){
 	if(is_created()){
 		MonteCarlo mc(MCS_.get(),tmax);
-		mc.thermalize(thermalization_steps);
+		mc.thermalize(ts);
 		mc.run();
 	} else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : faulty parameters : "<<param_<<std::endl;

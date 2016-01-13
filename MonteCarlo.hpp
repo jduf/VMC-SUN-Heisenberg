@@ -6,27 +6,27 @@
 #include "SystemBiFermionic.hpp"
 #include <omp.h>
 
-/*{!Class MonteCarlo
- *
- * Implement the Monte-Carlo algorithm. This alorithm lets a System evolve
- * according to a Markov process. To work properly, MCSystem has to contain at
- * least these methods :
- *
- * - Type System::ratio() : compute the probability to accept the next
- *   configuration
- * - void System::update() : update the old cufiguration to the new one
- * - void System::measure() : measure an observable according to the current
- *   configuration
- *
- * The MonteCarlo class contains a pointer to MCSystem. The MCSystem is in
- * reality either a SystemFermionic or a SystemBosonic.
- *
- * Once the System is created, it is thermalized.
- *
- * - void MonteCarlo::run() : lunch the Monte-Carlo simulation.
- * - void MonteCarlo::complete_analysis(double tol) : make sure that the
- *   computed quantities are fully computed
- }*/
+/*{*//*!Class that implement the Monte-Carlo importance sampling algorithm on
+	   configuration stored in MCSystem.
+
+	   This alorithm lets a System evolve according to a Markov process. To
+	   work properly, MCSystem has to contain at least these methods :
+
+	   + Type System::ratio() : compute the probability to accept the next
+	   configuration
+	   + void System::update() : update the old cufiguration to the new one
+	   + void System::measure() : measure an observable according to the
+	   current configuration
+
+	   The MonteCarlo class contains a pointer to MCSystem. The MCSystem is in
+	   reality a child of MCSystem (e.g. SystemFermionic).
+
+	   Once the System is created, it should be measured as follows :
+
+	   + void MonteCarlo::thermalize(unsigned int const& ts) : thermalization
+	   phase to reach configuration of relevant importance.
+	   + void MonteCarlo::run() : lunch the Monte-Carlo simulation.
+	   *//*}*/
 class MonteCarlo{
 	public:
 		/*!Constructor*/
@@ -41,7 +41,7 @@ class MonteCarlo{
 		/*}*/
 
 		/*!Thermalize the Monte-Carlo algorithm*/
-		void thermalize(unsigned int const& thermalization_steps);
+		void thermalize(unsigned int const& ts);
 		/*!Run the Monte-Carlo algorithm*/
 		void run();
 		/*!Run the Monte-Carlo algorithm*/

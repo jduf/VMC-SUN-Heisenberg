@@ -4,7 +4,14 @@
 #include "System.hpp"
 #include "Lapack.hpp"
 
-/*!Class that contains the information on the state*/
+/*{*//*!Class that connects GenericSystem and MCSystem
+
+	   This class is essential because it allows to transfer relevant variables
+	   from an instance of a child of GenericSystem (e.g. ChainPolymerized) to
+	   an instance of a child of MCSystem (e.g. SystemFermionic)
+
+	   The most important variable is EVec_ which contains, for a given color
+	   c, the M_(c) lowest eigenvectors of the trial Hamiltonian.*//*}*/
 template<typename Type>
 class Fermionic : public virtual System{
 	public:

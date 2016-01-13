@@ -4,8 +4,11 @@
 #include "MCSystem.hpp"
 #include "Fermionic.hpp"
 
-/*!Class that contains all the necessary informations to sample the
- * configuration of a fermionic system.*/
+/*{*//*!Class that makes the connection between MCSystem and Fermionic
+
+	   All MCSystem's pure virtual methods are redefined in this class. It has
+	   access to all the necessary informations to sample the configurations of
+	   a fermionic system.*//*}*/
 template<typename Type>
 class SystemFermionic: public MCSystem, public Fermionic<Type>{
 	public:
@@ -26,28 +29,27 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 		/*!Set row_ and new_ev_*/
 		void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
 
-		/*{Description
-		 *!Computes the ratio of the two determinants related to the current
-		 * and next configuration
-		 * - when particle of the same color are exchanged a minus sign arises
-		 *   to conserve the Marshall-Peierls sign rule
-		 * - when two different colors are exchanged, computes the ratio using
-		 *   the determinant lemma
-		 }*/
+		/*{*//*!Computes the ratio of two determinants
+			   related to the current and next configuration
+			   + when particle of the same color are exchanged a minus sign
+			   arises to conserve the Marshall-Peierls sign rule
+			   + when two different colors are exchanged, computes the ratio
+			   using the determinant lemma
+			   *//*}*/
 		double ratio();
-		/*{Description*/
-		/*!Calls System::update() and then
-		 * - updates row_
-		 * - updates the Ainv_ matrices */
-		/*}*/
+		/*{*//*!Updates the variables to the new configuration
+			   by calling System::update() and then
+			   + updates row_
+			   + updates the Ainv_ matrices
+			   *//*}*/
 		void update();
 
 		/*!Returns a copy of this instance of SystemFermionic*/
 		std::unique_ptr<MCSystem> clone() const;
 		/*!Sets most of the matrices to NULL*/
 		void free_memory();
-		/*!Writes the curent state of the system, the color configuration, the
-		 * observables and everything relevent to the simulation*/
+		/*!Writes the current state of the system, the color configuration, the
+		 * observables and everything relevant to the simulation*/
 		void write(IOFiles& w) const;
 		/*!Prints some info related to the system*/
 		void print();
@@ -194,9 +196,9 @@ SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& SF):
 			tmp_[c].set(M_(c),M_(c));
 			tmp_v[c].set(M_(c));
 		}
-	} else { 
+	} else {
 		this->status_++;
-		std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore"<<std::endl; 
+		std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore"<<std::endl;
 	}
 }
 
@@ -229,9 +231,9 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 			tmp_v[c].set(M_(c));
 			Lapack<Type>(Ainv_[c],false,'G').inv();
 		}
-	} else { 
+	} else {
 		this->status_++;
-		std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore "<<std::endl; 
+		std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore "<<std::endl;
 	}
 }
 
@@ -277,19 +279,19 @@ void SystemFermionic<Type>::update(){
 	//Type t_tmp;
 	//unsigned int c_tmp;
 	//for(unsigned int c(0);c<2;c++){
-		//c_tmp = new_c_[c];
-		//for(unsigned int j(0);j<M_(c_tmp);j++){
-			//if(new_r_[c] == j){ t_tmp = -1.0; }
-			//else { t_tmp = 0.0; }
-			//for(unsigned int k(0);k<M_(c_tmp);k++){
-				//t_tmp += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,j);
-			//}
-			//t_tmp /= w_[c];
-			//for(unsigned int i(0);i<M_(c_tmp);i++){
-				//tmp_[c_tmp](i,j) = t_tmp*Ainv_[c_tmp](i,new_r_[c]);
-			//}
-		//}
-		//Ainv_[c_tmp] -= tmp_[c_tmp];
+	//c_tmp = new_c_[c];
+	//for(unsigned int j(0);j<M_(c_tmp);j++){
+	//if(new_r_[c] == j){ t_tmp = -1.0; }
+	//else { t_tmp = 0.0; }
+	//for(unsigned int k(0);k<M_(c_tmp);k++){
+	//t_tmp += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,j);
+	//}
+	//t_tmp /= w_[c];
+	//for(unsigned int i(0);i<M_(c_tmp);i++){
+	//tmp_[c_tmp](i,j) = t_tmp*Ainv_[c_tmp](i,new_r_[c]);
+	//}
+	//}
+	//Ainv_[c_tmp] -= tmp_[c_tmp];
 	//}
 
 	/*remove tmp_*/
@@ -342,7 +344,7 @@ void SystemFermionic<Type>::free_memory(){
 	//delete[] tmp_v;
 	//tmp_v = NULL;
 	//if(this->same_wf_){
-		//for(unsigned int c(1);c<N_;c++){ this->EVec_[c].set(); }
+	//for(unsigned int c(1);c<N_;c++){ this->EVec_[c].set(); }
 	//}
 }
 /*}*/
