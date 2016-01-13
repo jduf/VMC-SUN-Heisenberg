@@ -163,6 +163,17 @@ namespace my{
 	inline void display_progress(double const& step, double const& total){
 		std::cout<<" "<<100.*step/total<<"%       \r"<<std::flush;
 	}
+
+	/*!check wether a point in inside a polygon (see https://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html) */
+	inline bool in_polygon(unsigned int const& nvert, double const* const vertx, double const* const verty, double const& testx, double const& testy){
+		unsigned int i(0);
+		unsigned int j(0);
+		bool c(false);
+		for (i = 0, j = nvert-1; i < nvert; j = i++){
+			if ( ((verty[i]>testy) != (verty[j]>testy)) && (testx < (vertx[j]-vertx[i]) * (testy-verty[i]) / (verty[j]-verty[i]) + vertx[i]) ){ c = !c; }
+		}
+		return c;
+	}
 }
 
 namespace BLAS{

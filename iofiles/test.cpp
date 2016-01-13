@@ -74,4 +74,3 @@ int main(){
 	//write_txt();
 	//read_txt();
 }
-

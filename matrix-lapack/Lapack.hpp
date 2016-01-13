@@ -59,6 +59,20 @@ extern "C" void zgeev_( /*eigensystem of a complex general matrix*/
 		double *rwork,
 		int& info
 		);
+extern "C" void dsygv_( /*generalized eigensystem of a symmetric-definite eigenproblem*/
+		unsigned int const& itype,
+		char const& jobl,
+		char const& uplo,
+		unsigned int const& n,
+		double *a,
+		unsigned int const& lda,
+		double *b,
+		unsigned int const& ldb,
+		double *w,
+		double *work,
+		int const& lwork,
+		int& info
+		);
 
 extern "C" void dgetrf_( /*lu factorization of real general matrix*/
 		unsigned int const& row,
@@ -252,6 +266,12 @@ class Lapack{
 		 * in EVec. In any case, mat_ is overwritten*/
 		/*}*/
 		void eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec=NULL, Matrix<std::complex<double> >* LEVec=NULL);
+		/*{Description*/
+		/*!Specialized routine that computes the generalized eigensystem. If the
+		 * eigenvectors are computed (EVec != NULL), they are stored in column
+		 * in EVec.*/
+		/*}*/
+		void generalized_eigensystem(Matrix<Type>& B, Vector<double>& EVal);
 		/*!Computes the determinant*/
 		Type det();
 		/*!Computes the LU decomposition*/
@@ -314,6 +334,9 @@ class Lapack{
 		 * required, they are stored in column in EVec, In any case, mat_ is
 		 * overwritten*/
 		void geev(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec);
+		/*!Specialized subroutine that calls a LAPACK routine to compute the
+		 * norm of an general real or complex matrix*/
+		void sygv(Matrix<Type>& B, Vector<double>& EVal);
 		/*!Specialized subroutine that calls a LAPACK routine to compute the
 		 * norm of an general real or complex matrix*/
 		double lange();
@@ -579,6 +602,22 @@ void Lapack<Type>::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::
 		case 'G':
 			{
 				geev(EVal,REVec,LEVec);
+				mat_->set();
+			} break;
+		default:
+			{
+				std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl;
+			} break;
+	}
+}
+
+template<typename Type>
+void Lapack<Type>::generalized_eigensystem(Matrix<Type>& B, Vector<double>& EVal){
+	if(B.row() != mat_->row() || B.col() != mat_->col() || mat_->col() != mat_->row()){ std::cerr<<__PRETTY_FUNCTION__<<" : matrix is not square or matrices dimension don't match"<<std::endl; }
+	switch(matrix_type_){
+		case 'S':
+			{
+				sygv(B,EVal);
 				mat_->set();
 			} break;
 		default:

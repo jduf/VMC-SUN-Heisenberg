@@ -1,8 +1,8 @@
 #include "Sampling.hpp"
 #include "Gnuplot.hpp"
 #include "Rand.hpp"
-#include<stdlib.h>
-#include<time.h>
+#include <stdlib.h>
+#include <time.h>
 
 void check_troyer();
 void check_flip_coin();

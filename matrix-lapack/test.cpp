@@ -368,6 +368,36 @@ int main(){
 	//Keep2.solve(b2);
 	//std::cout<<b2.chop()<<std::endl<<std::endl;
 	///*}*/
+	//
+	///*{generalized eigenvalue problem*/
+	unsigned int n(10);
+	Matrix<double> H(n,n);
+	Matrix<double> O(n,n);
+	Rand<double> rnd(0,0.5);
+	for(unsigned int i(0);i<n;i++){
+		for(unsigned int j(0);j<n;j++){
+			H(i,j) = rnd.get();
+			O(i,j) = rnd.get();
+		}
+		H(i,i) += n/2;
+		O(i,i) += n/2;
+	}
+	H += H.transpose();
+	O += O.transpose();
+
+	Matrix<double> Htmp(H);
+	Matrix<double> Otmp(O);
+
+	H.print_mathematica();
+	O.print_mathematica();
+
+	Vector<double> E;
+	Lapack<double>(Htmp,false,'S').generalized_eigensystem(Otmp,E);
+	std::cout<<E<<std::endl;
+
+	Matrix<double> A(H-E(0)*O);
+	std::cout<<Lapack<double>(A,false,'G').det()<<std::endl;
+	/*}*/
 }
 
 std::complex<double> projection(Matrix<double> const& O, Matrix<std::complex<double> > const& base, unsigned int bra, unsigned int ket){

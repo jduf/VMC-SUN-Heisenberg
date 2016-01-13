@@ -410,6 +410,34 @@ void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >& EVal, Ma
 }
 /*}*/
 
+/*compute the generalized eigensystem : dsygv*/
+/*{*/
+template<>
+void Lapack<double>::sygv(Matrix<double>& B, Vector<double>& EVal){
+	unsigned int N(mat_->row());
+	EVal.set(N);
+	double wopt;
+	int lwork(-1);
+	int info(1);
+	char jobl('N');
+
+	dsygv_(1,jobl, 'U', N, mat_->ptr(), N, B.ptr(), N, EVal.ptr(), &wopt, lwork, info);
+	lwork = int(wopt);
+	double* work(new double[lwork]);
+	dsygv_(1,jobl, 'U', N, mat_->ptr(), N, B.ptr(), N, EVal.ptr(), work, lwork, info);
+
+	delete[] work;
+	if(info){ std::cerr<<__PRETTY_FUNCTION__<<" : info="<<info<<std::endl; }
+}
+
+template<>
+void Lapack<std::complex<double> >::sygv(Matrix<std::complex<double> >& B, Vector<double>& EVal){
+	(void)(B);
+	(void)(EVal);
+	std::cerr<<__PRETTY_FUNCTION__<<" : not implemented for complex"<<std::endl;
+}
+/*}*/
+
 /*solve Ax=b : dposv*/
 /*{*/
 template<>
