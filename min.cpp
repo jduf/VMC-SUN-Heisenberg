@@ -1,4 +1,4 @@
-/*! @file min.cpp */
+/*!@file min.cpp */
 
 #include "VMCPSO.hpp"
 #include "VMCInterpolation.hpp"

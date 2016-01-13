@@ -629,8 +629,7 @@ bool VMCMinimization::Minimization::within_limit(Vector<double> const& x) const 
 void VMCMinimization::Minimization::save(IOFiles& out, bool const& all) const {
 	/*!Saves a system that has not been measured but it is required for the
 	 * eventual call of System(IOFiles& r).*/
-	s_->save_input(out);
-	s_->save_output(out);
+	s_->save(out);
 
 	out.write("dof",dof_);
 	for(unsigned int i(0);i<dof_;i++){ out<<ps_[i]; }

@@ -515,8 +515,7 @@ std::string LadderFreeFlux::extract_level_6(){
 	display_results();
 
 	save_param(*jd_write_);
-	save_input(*jd_write_);
-	save_output(*jd_write_);
+	save(*jd_write_);
 
 	return filename_;
 }

@@ -28,8 +28,8 @@ System::System(IOFiles& r):
 	J_(r),
 	status_(r.read<unsigned int>())
 {
-	int nobs_(r.read<int>());
-	for(int i(0);i<nobs_;i++){ obs_.push_back(Observable(r)); }
+	int nobs(r.read<int>());
+	for(int i(0);i<nobs;i++){ obs_.push_back(Observable(r)); }
 }
 /*}*/
 
@@ -75,10 +75,15 @@ void System::delete_binning(){
 /*write in IOFiles methods and print*/
 /*{*/
 void System::write(IOFiles& w) const {
+	int nobs(obs_.size());
+	w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<nobs;
+	for(int i(0);i<nobs;i++){ w<<obs_[i]; }
+}
+
+void System::save(IOFiles& w) const {
 	if(w.is_binary()){
-		int nobs(obs_.size());
-		w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<nobs;
-		for(int i(0);i<nobs;i++){ w<<obs_[i]; }
+		save_input(w);
+		save_output(w);
 	} else { w<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<M_<<" "<<obs_[0][0]<<IOFiles::endl; }
 }
 
@@ -108,10 +113,9 @@ void System::save_output(IOFiles& w) const {
 }
 
 void System::print(unsigned int nobs) const {
+	std::cout<<std::endl<<"SU("<<N_<<") m="<<m_<<" n="<<n_<<" BC="<<bc_<<" nobs="<<obs_.size()<<std::endl<<std::endl;
 	if(nobs>obs_.size()){ nobs = obs_.size(); }
-	for(unsigned int i(0);i<nobs;i++){
-		std::cout<<obs_[i]<<std::endl;
-	}
+	for(unsigned int i(0);i<nobs;i++){ std::cout<<obs_[i]<<std::endl; }
 }
 /*}*/
 
@@ -140,12 +144,12 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(2) = 2;
 	}
 
-	if( wf == "ladder-fermi"){
+	if( wf == "ladder-fermi" ){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "ladder-free"){
+	if( wf == "ladder-free" ){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 4;
@@ -155,7 +159,7 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		Jp[1] = sin(theta); //rungs (J⊥)
 		P.set("Jp",Jp);
 	}
-	if( wf == "ladder-freeflux"){
+	if( wf == "ladder-freeflux" ){
 		ref(0) = 2;
 		ref(1) = 2;
 		ref(2) = 1;

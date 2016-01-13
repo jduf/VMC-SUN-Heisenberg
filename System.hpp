@@ -44,16 +44,12 @@ class System{
 		void delete_binning();
 		/*}*/
 
-		/*{Write in IOFiles methods and print*/
+		/*{Saves/prints ref_, N_, m_, n_, bc_, M_, J_, status_ and obs_*/
+		/*!Call child method to save the whole VMC without descritption*/
 		virtual void write(IOFiles& w) const;
-		/*{Description*/
-		/*!Saves ref_, N_, m_, n_, bc_, M_ and J_ in w. The file will contain a
-		 * brief description for each variable and eventually a header. As the
-		 * method is virtual, a call on this method will call first
-		 * child::save() const if it exists*/
-		/*}*/
-		virtual void save_input(IOFiles& w) const;
-		void save_output(IOFiles& w) const;
+		/*!Saves only this class with description*/
+		void save(IOFiles& w) const;
+		/*!Prints the values of the nobs first observables*/
 		void print(unsigned int nobs) const;
 		/*}*/
 
@@ -76,8 +72,6 @@ class System{
 		/*!Default constructor*/
 		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),M_(0),status_(5){ std::cout<<__PRETTY_FUNCTION__<<" : should never be called"<<std::endl; }
 
-		Vector<unsigned int> set_ref(Parseur& P);
-
 		Vector<unsigned int> const ref_;//!< type of system
 		unsigned int const N_;			//!< number of colors
 		unsigned int const m_;			//!< number of particles per site
@@ -90,5 +84,11 @@ class System{
 		Vector<double> J_;			//!< coupling strength
 		unsigned int status_;		//!< status of the simulation
 		std::vector<Observable> obs_;//!< observables (energy, bond energy, correlations, overlap...)
+
+		Vector<unsigned int> set_ref(Parseur& P);
+		/*!Saves ref_, N_, m_, n_, bc_, M_ and J_ in w (with description)*/
+		void save_input(IOFiles& w) const;
+		/*!Saves status_ and obs in w (with description)*/
+		void save_output(IOFiles& w) const;
 };
 #endif

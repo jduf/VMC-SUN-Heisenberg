@@ -106,8 +106,7 @@ std::string ChainFermi<Type>::extract_level_8(){
 	(*this->data_write_)<<this->obs_[0][0]<<IOFiles::endl;
 	this->jd_write_->add_header()->title("System's parameters",'-');
 	this->save_param(*this->jd_write_);
-	this->save_input(*this->jd_write_);
-	this->save_output(*this->jd_write_);
+	this->save(*this->jd_write_);
 
 	energy_bound();
 	this->rst_file_->figure(basename+"-corr.png","Correlation on links",RST::target(basename+"-corr.gp")+RST::width("1000"));
@@ -128,9 +127,8 @@ template<typename Type>
 std::string ChainFermi<Type>::extract_level_7(){
 	this->jd_write_->add_header()->title("System's parameters",'-');
 	this->save_param(*this->jd_write_);
-	this->save_input(*this->jd_write_);
-	this->save_output(*this->jd_write_);
-	this->jd_write_->write("E",this->obs_[0][0]);
+	this->save(*this->jd_write_);
+
 	double polymerization_strength;
 	Vector<double> exponents;
 	(*this->read_)>>polymerization_strength>>exponents;

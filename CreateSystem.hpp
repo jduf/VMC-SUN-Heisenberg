@@ -135,24 +135,16 @@ class CreateSystem{
 		/*}*/
 
 		/*{write in IOFiles methods and print*/
-		/*!Calls GenericSystem::save_param(), GenericSystem::save_input()
-		 * virtual method and System::save_output*/
+		/*!Calls GenericSystem::save_param() and System::save()*/
 		void save(IOFiles& w) const {
 			if(RGL_){
 				RGL_->save_param(w); 
-				RGL_->save_input(w); 
-				RGL_->save_output(w); 
+				RGL_->save(w); 
 			}
 			if(CGL_){ 
 				CGL_->save_param(w); 
-				CGL_->save_input(w); 
-				CGL_->save_output(w); 
+				CGL_->save(w); 
 			}
-		}
-		/*!Calls GenericSystem::save_input() virtual method (only useful in MCSim)*/
-		void save_param(IOFiles& w) const {
-			if(RGL_){ RGL_->save_param(w); }
-			if(CGL_){ CGL_->save_param(w); }
 		}
 		/*!Calls System::print(...)*/
 		void print(unsigned int const& nobs) const {

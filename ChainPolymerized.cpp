@@ -82,12 +82,15 @@ void ChainPolymerized::create(){
 }
 
 void ChainPolymerized::save_param(IOFiles& w) const {
-	std::string t_string("");
+	std::string s("t=(");
 	for(unsigned int i(0);i<t_.size()-1;i++){
-		t_string += my::tostring(t_(i))+",";
+		s += my::tostring(t_(i))+",";
 	}
-	t_string += my::tostring(t_.back());
-	w.write("t ("+t_string+")",t_);
+	s += my::tostring(t_.back())+")";
+
+	w.add_header()->title(s,'<');
+	w<<t_;
+	GenericSystem<double>::save_param(w);
 }
 
 unsigned int ChainPolymerized::set_spuc(Vector<double> const& t, unsigned int const& spuc){
@@ -160,8 +163,7 @@ std::string ChainPolymerized::extract_level_8(){
 	(*data_write_)<<t_<<" "<<obs_[0][0]<<IOFiles::endl;
 	jd_write_->add_header()->title("System's parameters",'-');
 	save_param(*jd_write_);
-	save_input(*jd_write_);
-	save_output(*jd_write_);
+	save(*jd_write_);
 
 	energy_bound();
 	rst_file_->figure(basename+"-corr.png","Correlation on links",RST::target(basename+"-corr.gp")+RST::width("1000"));
@@ -206,8 +208,7 @@ std::string ChainPolymerized::extract_level_7(){
 
 	jd_write_->add_header()->title("System's parameters",'-');
 	save_param(*jd_write_);
-	save_input(*jd_write_);
-	save_output(*jd_write_);
+	save(*jd_write_);
 	jd_write_->write("polymerization strength",read_->read<double>());
 	jd_write_->write("critical exponents",read_->read<Vector<double> >());
 

@@ -71,12 +71,12 @@ void SquareJastrow::compute_omega_cc(){
 	//}
 }
 
-void SquareJastrow::save_input(IOFiles& w) const {
-	GenericSystem<double>::save_input(w);
+void SquareJastrow::save_param(IOFiles& w) const {
 	w.write("nn (nearst neighbours)",nn_);
 	w.write("cc (to match nu and x)",cc_);
 	w.write("sl (sublattice)",sl_);
 	w.write("omega (omega)",omega_);
+	GenericSystem<double>::save_param(w);
 }
 
 unsigned int SquareJastrow::match_pos_in_ab(Vector<double> const& x) const {

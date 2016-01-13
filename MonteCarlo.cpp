@@ -4,6 +4,7 @@
 /*{*/
 MonteCarlo::MonteCarlo(MCSystem* S, unsigned int const& tmax):
 	tmax_(tmax),
+	iter_(0),
 	S_(S),
 	rnd_(0.0,1.0)
 {}
@@ -33,7 +34,6 @@ void MonteCarlo::run(){
 void MonteCarlo::run(unsigned int const& maxiter){
 	time_.set();
 	if(!S_->get_status()){
-		Time chrono;
 		unsigned int iter(0);
 		unsigned int measures(0);
 		do{
@@ -45,10 +45,9 @@ void MonteCarlo::run(unsigned int const& maxiter){
 				measures++;
 			}
 			S_->add_sample();
-			if(iter%(maxiter/100)==0 && omp_get_thread_num()==0){ my::display_progress(time_.elapsed(),tmax_); }
 		} while(keepon() && ++iter<maxiter);
 #pragma omp critical(cout)
-		std::cout<<"done "<<iter<<" steps in "<<chrono.elapsed()<<"s with "<<measures<<" measures"<<std::endl;
+		std::cout<<"done "<<iter<<" steps in "<<time_.elapsed()<<"s with "<<measures<<" measures"<<std::endl;
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : MCSystem bad status (status="<<S_->get_status()<<")"<<std::endl; }
 }
 /*}*/
@@ -66,11 +65,16 @@ void MonteCarlo::next_step(){
 }
 
 bool MonteCarlo::keepon(){
-	if(time_.limit_reached(tmax_)){ return false; }
-	if(std::abs(S_->get_energy().get_x())>1e2){
-		std::cerr<<__PRETTY_FUNCTION__<<" : simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
-		S_->reset_obs();
+	if(!iter_){
+		iter_ = 1e5;
+		if(time_.limit_reached(tmax_)){ return false; }
+		if(std::abs(S_->get_energy().get_x())>1e2){
+			std::cerr<<__PRETTY_FUNCTION__<<" : simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
+			S_->reset_obs();
+		}
+		if(omp_get_thread_num()==0){ my::display_progress(time_.elapsed(),tmax_); }
 	}
+	iter_--;
 	return true;
 }
 /*}*/

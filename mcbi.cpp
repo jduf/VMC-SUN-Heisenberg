@@ -1,4 +1,4 @@
-/*!  @file mcbi.cpp */
+/*!@file mcbi.cpp */
 
 #include "MonteCarlo.hpp"
 #include "CreateSystem.hpp"
@@ -19,9 +19,9 @@ int main(int argc, char* argv[]){
 	}
 
 	System sys(P);
+	IOFiles r(P.get<std::string>("params"),false);
+	Matrix<double> MP(P.get<unsigned int>("nwfs"),20);
 	if(!P.locked()){
-		IOFiles r("param.dat",false);
-		Matrix<double> MP(3,18);
 		r>>MP;
 		std::cout<<MP<<std::endl;
 		Matrix<double> H(MP.row(),MP.row(),0);
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]){
 
 		for(unsigned int i(0);i<MP.row();i++){
 			for(unsigned int j(0);j<MP.row();j++){
-				if(i!=j){ run(H,dH,O,dO,MP,sys,tmax,nruns,i,j); }
+				if(i!=j){ run(H,dH,O,dO,MP,sys,tmax*50,nruns,i,j); }
 				else { run(H,dH,O,dO,MP,sys,tmax,nruns,i); }
 			}
 		}
@@ -69,7 +69,7 @@ void run(Matrix<double>& H, Matrix<double>& dH, Matrix<double>& O, Matrix<double
 				}
 				if(!mcsys){ std::cout<<__PRETTY_FUNCTION__<<" MCSystem was not constructed"<<std::endl; }
 				else {
-					MonteCarlo sim(mcsys,tmax*10);
+					MonteCarlo sim(mcsys,tmax);
 					sim.thermalize(1e6);
 					sim.run(1e7);
 
@@ -189,22 +189,23 @@ void compute_E(Matrix<double>& H, Matrix<double>& dH, Matrix<double>& O, Matrix<
 			if( EM(i,j) < min ){ min = EM(i,j); }
 			if( EM(i,j) > max ){ max = EM(i,j); }
 		}
-		dx  = (max-min)/n_bin;
-		for(unsigned int j(0);j<n_bin;j++){ x(j) = min+(j+0.5)*dx; }
-		for(unsigned int j(0);j<n_wfs;j++){
+		dx = (max-min)/n_bin;
+		for(unsigned int j(0);j<n_bin;j++){ 
+			x(j) = min+j*dx; 
+			y(j) = 0.0;
+		}
+		for(unsigned int j(0);j<n_rnd;j++){
 			for(unsigned int k(0);k<n_bin;k++){
-				if(EM(i,j)>=min+k*dx && EM(i,j)<min+(k+1)*dx){ y(k)+=1.0; k=n_bin; }
+				if(EM(i,j)>=x(k)){ y(k)+=1.0; k=n_bin; }
 			}
 		}
-		y.back()++;//because the maximal value won't enter any bin
 		y /= n_rnd;
-		std::cout<<"fit"<<std::endl;
-		std::cout<<x<<std::endl;
-		std::cout<<y<<std::endl;
 
-		Vector<double> p(3,1.0);
+		Vector<double> p(3);
+		p(0) = x.mean();
+		p(1) = x.variance();
+		p(2) = 1;
 		Fit(x,y,p,gaussian);
-		std::cout<<p<<std::endl;
 		dE(i) = p(1);
 	}
 

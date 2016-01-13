@@ -36,11 +36,12 @@ void AnalyseMagnetization::close_files(){
 std::string AnalyseMagnetization::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
+	Vector<double> tmp(*read_);
 	System s(*read_);
 	CreateSystem cs(&s);
-	Vector<double> tmp(read_->read<Vector<double> >());
 	cs.init(&tmp,NULL);
 	cs.set_IOSystem(this);
+
 	if(!all_link_names_.size()){ jd_write_->write("number of jdfiles",nof_); }
 	jd_write_->add_header()->nl();
 	std::string link_name(cs.analyse(level_));
@@ -56,20 +57,17 @@ std::string AnalyseMagnetization::extract_level_5(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
 	unsigned int idx(0);
-	Data<double> E;
-	Data<double> min_E;
-	min_E.set_x(10.0);
-	Vector<unsigned int> M;
+	double E(666);
 	for(unsigned int i(0);i<nof_;i++){
+		Vector<double> tmp(*read_);
 		System s(*read_);
 		CreateSystem cs(&s);
-		Vector<double> tmp(read_->read<Vector<double> >());
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
-		(*read_)>>E;
-		if(E.get_x()<min_E.get_x()){
+
+		if(s.get_energy().get_x()<E){
 			idx = i;
-			min_E = E;
+			E = s.get_energy().get_x();
 		}
 	}
 	delete read_;
@@ -80,16 +78,13 @@ std::string AnalyseMagnetization::extract_level_5(){
 	jd_write_->write("number of jdfiles",nof_);
 	jd_write_->add_header()->nl();
 	for(unsigned int i(0);i<nof_;i++){
+		Vector<double> tmp(*read_);
 		System s(*read_);
 		CreateSystem cs(&s);
-		Vector<double> tmp(read_->read<Vector<double> >());
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
-		(*read_)>>E;
-		if(i==idx){
-			s.save_input(*jd_write_);
-			jd_write_->write("energy per site",E);
-		}
+
+		if(i==idx){ cs.save(*jd_write_); }
 	}
 
 	delete read_;
@@ -102,12 +97,13 @@ std::string AnalyseMagnetization::extract_level_4(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
 
-	Vector<double> tmp(read_->read<Vector<double> >());
+	Vector<double> tmp(*read_);
 	System s(*read_);
 	CreateSystem cs(&s);
 	cs.init(&tmp,NULL);
 	cs.set_IOSystem(this);
-	s.save_input(*jd_write_);
+	cs.save(*jd_write_);
+
 	std::string link_name(cs.analyse(level_));
 	jd_write_->add_header()->nl();
 

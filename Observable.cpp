@@ -28,11 +28,7 @@ Observable::Observable(IOFiles& r):
 	links_(r),
 	val_(new Data<double>[nval_])
 {
-	if(nval_){
-		for(unsigned int i(0);i<nval_;i++){
-			val_[i] = std::move(Data<double>(r));
-		}
-	}
+	for(unsigned int i(0);i<nval_;i++){ val_[i] = std::move(Data<double>(r)); }
 }
 
 Observable::Observable(Observable const& obs):
@@ -140,6 +136,11 @@ std::ostream& operator<<(std::ostream& flux, Observable const& obs){
 	return flux;
 }
 
+void Observable::write(IOFiles& w) const {
+	w<<name_<<type_<<modulo_<<nval_<<links_;
+	for(unsigned int i(0);i<nval_;i++){ w<<val_[i]; }
+}
+
 void Observable::print() const {
 	std::cout<<name_<<std::endl;
 	if(nval_>1){
@@ -147,9 +148,5 @@ void Observable::print() const {
 			std::cout<<links_(i,0)<<" "<<links_(i,1)<<" "<<links_(i,2)<<" "<<val_[links_(i,2)]<<std::endl;
 		}
 	} else { std::cout<<links_<<std::endl; }
-}
-
-void Observable::write(IOFiles& w) const {
-	w<<name_<<type_<<modulo_<<nval_<<links_<<val_;
 }
 /*}*/

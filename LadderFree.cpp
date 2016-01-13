@@ -32,23 +32,9 @@ void LadderFree::compute_H(){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
 		ab = s0%spuc_;
-		if(ab){
-			H_(s0,s1) = obs_[0](i,4)*t_(k++); 
-			if(!obs_[0](i,3)){ H_(s0,s0) = mu_(ab-1)/2.0; }
-		} else {
-			/*!decoupled chains in the limit J⊥(0)=J_(1)->0, therefore, in
-			 * that case the variational parameter is t⊥ (t‖ is set to 1),
-			 * otherwise the inverse is done*/
-			if(i%3==0){
-				if(J_(0)>J_(1)){ H_(s0,s1) = obs_[0](i,4);  }
-				else { H_(s0,s1) = obs_[0](i,4)*t_(0); }
-			}
-			if(i%3==1){
-				if(J_(0)>J_(1)){ H_(s0,s1) = obs_[0](i,4)*t_(0);  }
-				else { H_(s0,s1) = obs_[0](i,4); }
-			}
-			k = 1;
-		}
+		H_(s0,s1) = obs_[0](i,4)*t_(k++); 
+		if(!obs_[0](i,3)){ H_(s0,s0) = mu_(ab)/2.0; }
+		k = k%t_.size();
 	}
 	H_ += H_.transpose();
 }
@@ -92,7 +78,7 @@ void LadderFree::save_param(IOFiles& w) const {
 }
 
 unsigned int LadderFree::set_spuc(Vector<double> const& t, Vector<double> const& mu, unsigned int const& spuc){
-	if(((t.size()+1)*2/3)%spuc == 0 && (mu.size()+1)%spuc==0 && mu.size()<8){ return mu.size()+1; }
+	if((t.size()*2/3)%spuc == 0 && mu.size()%spuc==0 && mu.size()<9){ return mu.size(); }
 	else { 
 		std::cerr<<__PRETTY_FUNCTION__<<" : invalid or incoherent t and mu sizes : t:="<<t.size()<<", mu:="<<mu.size()<<std::endl;
 		return 1; 
@@ -919,7 +905,7 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(0,2) = -1;
 				sym.push_back(tmp);
 				/*}*/
-				
+
 				/*{ 2 pi-flux*/
 				tmp.set(2,3);
 				/*pi,pi,0,0*/
@@ -971,7 +957,7 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(1,2) = -1;
 				sym.push_back(tmp);
 				/*}*/
-				
+
 				/*{ 3 pi-flux*/
 				tmp.set(3,3);
 				/*pi,pi,pi,0*/
@@ -1019,7 +1005,7 @@ void LadderFree::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 				tmp(2,2) = -1;
 				sym.push_back(tmp);
 				/*}*/
-				
+
 				/*{ 4 pi-flux*/
 				tmp.set(4,3);
 				/*pi,pi,pi,pi*/
@@ -1581,8 +1567,7 @@ std::string LadderFree::extract_level_6(){
 	display_results();
 
 	save_param(*jd_write_);
-	save_input(*jd_write_);
-	save_output(*jd_write_);
+	save(*jd_write_);
 
 	return filename_;
 }

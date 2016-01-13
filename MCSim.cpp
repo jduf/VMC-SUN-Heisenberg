@@ -71,13 +71,8 @@ void MCSim::write(IOFiles& w) const {
 void MCSim::save(IOFiles& w) const {
 	CreateSystem cs(MCS_.get());
 	cs.init(&param_,NULL);
-	if(cs.get_status()==2){
-		cs.save_param(w);
-		MCS_->save_input(w);
-		MCS_->save_output(w);
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : status="<<cs.get_status()<<std::endl;
-	}
+	if(cs.get_status()==2){ cs.save(w); }
+	else { std::cerr<<__PRETTY_FUNCTION__<<" : status="<<cs.get_status()<<std::endl; }
 }
 /*}*/
 

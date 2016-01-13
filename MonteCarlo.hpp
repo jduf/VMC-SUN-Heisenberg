@@ -62,6 +62,7 @@ class MonteCarlo{
 		bool keepon();
 
 		unsigned int const tmax_;//!< Time limit in second, by default 5min
+		unsigned int iter_;		 //!< internal counter (keepon() check each iter=1e5)
 		double ratio_;			 //!< Ratio between current and next step
 		MCSystem* S_;			 //!< Pointer to a Fermionic or Bosonic System
 		Time time_; 			 //!< To stop the simulation after time_limit seconds

@@ -10,7 +10,7 @@ class SquareJastrow: public Square<double>{
 
 		void create();
 		void check();
-		void save_input(IOFiles& w) const;
+		void save_param(IOFiles& w) const;
 
 	protected:
 		void compute_nn();

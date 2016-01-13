@@ -28,9 +28,9 @@ void AnalyseHoneycomb::close_files(){
 std::string AnalyseHoneycomb::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
+	Vector<double> tmp(*read_);
 	System s(*read_);
 	CreateSystem cs(&s);
-	Vector<double> tmp(read_->read<Vector<double> >());
 	cs.init(&tmp,NULL);
 	cs.set_IOSystem(this);
 	std::string link_name(cs.analyse(level_));

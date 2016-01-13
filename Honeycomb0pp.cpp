@@ -237,20 +237,12 @@ void Honeycomb0pp::check(){
 
 /*{method needed for analysing*/
 std::string Honeycomb0pp::extract_level_7(){
-	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
-
-	unsigned int nruns;
-	unsigned int tmax;
-
-	(*read_)>>nruns>>tmax;
-	obs_.push_back(Observable(*read_));
-	(*data_write_)<<"% td E dE 0|1"<<IOFiles::endl;
-	/* the +1 is the averages over all runs */
 	(*data_write_)<<td_<<" "<<obs_[0][0]<<IOFiles::endl;
 
-	jd_write_->write("td/th (ratio of the hopping parameters)",td_);
-	jd_write_->write("E",obs_[0][0]);
+	save_param(*jd_write_);
+	save_output(*jd_write_);
 
+	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
 	rst_file_->text(read_->get_header());
 	rst_file_->save(false,true);
 	delete rst_file_;
@@ -260,22 +252,24 @@ std::string Honeycomb0pp::extract_level_7(){
 }
 
 std::string Honeycomb0pp::extract_level_6(){
-	Data<double> tmp_E;
-	obs_[0][0].set_x(1e33);
-	double tmp_td(0);
+	double td(0);
 	unsigned int nof(0);
 	(*read_)>>nof;
+	int nobs;
+	std::vector<Observable> obs;
 	for(unsigned int i(0);i<nof;i++){
-		(*read_)>>tmp_td>>tmp_E;
-		if(tmp_E.get_x()<obs_[0][0].get_x()){
-			obs_[0][0] = tmp_E;
-			td_ = tmp_td;
+		(*read_)>>td>>nobs;
+		obs.clear();
+		for(int i(0);i<nobs;i++){ obs.push_back(Observable(*read_)); }
+		if(obs[0][0].get_x()<get_energy().get_x()){
+			obs_ = obs ;
+			td_ = td;
 		}
 	}
 
 	jd_write_->add_header()->nl();
-	save_input(*jd_write_);
-	jd_write_->write("E",obs_[0][0]);
+	save_param(*jd_write_);
+	save(*jd_write_);
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);
 	gp+="set xlabel '$\\frac{t_d}{t_h}$' offset 17,1.4";

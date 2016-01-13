@@ -285,8 +285,7 @@ std::string KagomeFermi<Type>::extract_level_7(){
 	unsigned int tmax;
 
 	(*this->read_)>>nruns>>tmax;
-	this->save_input(*this->jd_write_);
-	this->save_output(*this->jd_write_);
+	this->save(*this->jd_write_);
 
 	this->rst_file_->text(this->read_->get_header());
 	this->rst_file_->save(false,true);
@@ -303,8 +302,7 @@ std::string KagomeFermi<Type>::extract_level_6(){
 	for(unsigned int i(0);i<nof;i++){
 		(*this->data_write_)<<this->M_(0)<<" "<<this->obs_[0][0]<<" "<<this->ref_(0)<<this->ref_(1)<<this->ref_(2)<<IOFiles::endl;
 	}
-	this->save_input(*this->jd_write_);
-	this->save_output(*this->jd_write_);
+	this->save(*this->jd_write_);
 
 	return this->filename_;
 }

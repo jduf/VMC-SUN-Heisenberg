@@ -73,7 +73,7 @@ void AnalyseChain::close_files(){
 std::string AnalyseChain::extract_level_8(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	Vector<double> tmp(read_->read<Vector<double> >());
+	Vector<double> tmp(*read_);
 	System s(*read_);
 	CreateSystem cs(&s);
 	cs.init(&tmp,NULL);
@@ -164,14 +164,12 @@ std::string AnalyseChain::extract_level_6(){
 				cs.init(&t,NULL);
 				cs.set_IOSystem(this);
 
-				cs.save_param(*jd_write_);
-				s.save_input(*jd_write_);
-				s.save_output(*jd_write_);
+				cs.save(*jd_write_);
 				jd_write_->write("polymerization strength",polymerization_strength);
 				jd_write_->write("critical exponents",exponents);
 
 				if(outfile_){
-					s.write(*outfile_);
+					s.save(*outfile_);
 					(*outfile_)<<t<<" "<<exponents<<" "<<polymerization_strength<<IOFiles::endl;
 					//(*outfile_)<<N<<" "<<m<<" "<<n<<" "<<bc<<" "<<ti<<" ";
 					//(*outfile_)<<E<<" "<<exponents<<" "<<polymerization_strength<<IOFiles::endl;
@@ -181,7 +179,7 @@ std::string AnalyseChain::extract_level_6(){
 			}break;
 		case 2:
 			{
-				/*This part should load the two different wavefunctions. If
+				/*!This part should load the two different wavefunctions. If
 				 * the ChainPolymerization has a vector set to 1, there this
 				 * wavefunction is equivalent to the ChainFermi one. In that
 				 * case the energy obtained with this wavefunction is correct
@@ -193,7 +191,7 @@ std::string AnalyseChain::extract_level_6(){
 				 * Fermi one is then wrong) and ChainPolymerized is the
 				 * wavefunction to save.
 				 *
-				 *As we know that SU(9) m=3 is gapless, it will save the
+				 * As we know that SU(9) m=3 is gapless, it will save the
 				 * correct critical exponent
 				unsigned int eta_idx(( (N==9&&m==3) || ref(2)==0)?0:1);
 				*/
@@ -214,9 +212,7 @@ std::string AnalyseChain::extract_level_5(){
 	cs.init(&t,NULL);
 	cs.set_IOSystem(this);
 
-	cs.save_param(*jd_write_);
-	s.save_input(*jd_write_);
-	s.save_output(*jd_write_);
+	cs.save(*jd_write_);
 	jd_write_->write("polymerization strength",read_->read<double>());
 	jd_write_->write("critical exponents",read_->read<Vector<double> >());
 
@@ -239,9 +235,7 @@ std::string AnalyseChain::extract_level_4(){
 		cs.init(&t,NULL);
 		cs.set_IOSystem(this);
 
-		cs.save_param(*jd_write_);
-		s.save_input(*jd_write_);
-		s.save_output(*jd_write_);
+		cs.save(*jd_write_);
 		jd_write_->write("polymerization strength",read_->read<double>());
 		jd_write_->write("critical exponents",read_->read<Vector<double> >());
 	}
@@ -267,7 +261,7 @@ std::string AnalyseChain::extract_level_3(){
 
 		cs.analyse(level_);
 
-		s.save_input(*jd_write_);
+		s.save(*jd_write_);
 	}
 
 	delete read_;
@@ -280,7 +274,7 @@ std::string AnalyseChain::extract_level_3(){
 std::string AnalyseChain::extract_level_2(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	Vector<unsigned int> ref(read_->read<Vector<unsigned int> >());
+	Vector<unsigned int> ref(*read_);
 	unsigned int N(read_->read<unsigned int>());
 	unsigned int m(read_->read<unsigned int>());
 

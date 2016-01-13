@@ -39,22 +39,20 @@ std::string AnalyseEnergy::extract_level_5(){ return extract_default(); }
 std::string AnalyseEnergy::extract_level_4(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
-	/*!must save now nof_ because it doesn't refer to the number of file in the
-	 * next directory but in the next-next directory*/
+	/*!must save now nof_ because it doesn't refer to the number of file in
+	 * the next directory but in the next-next directory*/
 	jd_write_->write("number of different boundary condition",nof_);
 
 	Data<double> E;
 	for(unsigned int i(0);i<nof_;i++){
+		Vector<double> tmp(*read_);
 		System s(*read_);
 		CreateSystem cs(&s);
-		Vector<double> tmp(read_->read<Vector<double> >());
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
-		(*read_)>>E;
 
 		jd_write_->add_header()->nl();
-		s.save_input(*jd_write_);
-		jd_write_->write("energy per site",E);
+		cs.save(*jd_write_);
 	}
 
 	delete read_;
@@ -68,15 +66,12 @@ std::string AnalyseEnergy::extract_level_3(){
 	(*read_)>>nof_;
 
 	for(unsigned int i(0);i<nof_;i++){
+		Vector<double> tmp(*read_);
 		System s(*read_);
 		CreateSystem cs(&s);
-		Vector<double> tmp(read_->read<Vector<double> >());
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
 		std::string link_name(cs.analyse(level_));
-
-		jd_write_->add_header()->nl();
-		s.save_input(*jd_write_);
 	}
 
 	delete read_;
@@ -107,18 +102,15 @@ std::string AnalyseEnergy::extract_level_2(){
 std::string AnalyseEnergy::extract_default(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	jd_write_->add_header()->nl();
-	Data<double> E;
+	Vector<double> tmp(*read_);
 	System s(*read_);
 	CreateSystem cs(&s);
-	Vector<double> tmp(read_->read<Vector<double> >());
 	cs.init(&tmp,NULL);
 	cs.set_IOSystem(this);
 	if(level_ == 6){ (*read_)>>nof_; }
-	(*read_)>>E;
 
-	s.save_input(*jd_write_);
-	jd_write_->write("energy per site",E);
+	jd_write_->add_header()->nl();
+	cs.save(*jd_write_);
 
 	delete read_;
 	read_ = NULL;

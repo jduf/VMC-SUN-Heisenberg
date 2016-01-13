@@ -79,11 +79,8 @@ std::string AnalyseMin::extract_level_8(){
 		cs.display_results();
 		rst_file_ = NULL;
 
-		if(!i){/*only the best set of parameter is kept*/
-			cs.save_param(*jd_write_);
-			s.save_input(*jd_write_);
-			s.save_output(*jd_write_);
-		}
+		/*only the best set of parameter is kept*/
+		if(!i){ cs.save(*jd_write_); }
 	}
 	std::cout<<std::endl;
 	
@@ -128,9 +125,7 @@ std::string AnalyseMin::extract_level_7(){
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
 		if(i==idx){
-			cs.save_param(*jd_write_);
-			s.save_input(*jd_write_);
-			s.save_output(*jd_write_);
+			cs.save(*jd_write_);
 			i=nof_;
 		}
 	}
@@ -145,7 +140,7 @@ std::string AnalyseMin::extract_level_7(){
 std::string AnalyseMin::extract_level_6(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
-	Vector<double> tmp(read_->read<Vector<double> >());
+	Vector<double> tmp(*read_);
 	System s(*read_);
 	CreateSystem cs(&s);
 	cs.init(&tmp,NULL);

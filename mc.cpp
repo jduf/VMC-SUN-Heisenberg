@@ -1,30 +1,29 @@
-/*!  @file mc.cpp */
+/*!@file mc.cpp */
 
 #include "MonteCarlo.hpp"
 #include "CreateSystem.hpp"
-#include <omp.h>
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	unsigned int i(0);
 	unsigned int tmax(P.get<unsigned int>("tmax"));
 	unsigned int nruns(P.find("nruns",i,false)?P.get<unsigned int>(i):omp_get_max_threads());
+	bool load_sim(P.find("sim",i,false));
 
-	System* sys;
 	CreateSystem* cs;
-	if(P.find("sim",i,false)){
+	if(load_sim){
 		IOFiles read(P.get<std::string>(i),false);
 		Vector<double> tmp(read);
-		sys = new System(read);
-		cs  = new CreateSystem(sys);
+		System sys(read);
+		sys.print(1);
+		cs  = new CreateSystem(&sys);
 		cs->init(&tmp,NULL);
 	} else {
 		if(!P.find("M",i,false)){
-			std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
-			P.set("M",M);
+			P.set("M",std::vector<unsigned int>(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N")));
 		}
-		sys = new System(P);
-		cs  = new CreateSystem(sys);
+		System sys(P);
+		cs  = new CreateSystem(&sys);
 		cs->init(NULL,&P);
 		cs->set_obs(P.find("nobs",i,false)?P.get<int>(i):-1);
 	}
@@ -46,8 +45,8 @@ int main(int argc, char* argv[]){
 					if(!mcsys){ std::cout<<__PRETTY_FUNCTION__<<" MCSystem was not constructed"<<std::endl; }
 					else {
 						MonteCarlo sim(mcsys,tmax);
-						sim.thermalize(1e6);
-						sim.run(1e8);
+						sim.thermalize(load_sim?10:1e6);
+						sim.run();
 
 #pragma omp critical(System__merge)
 						{ cs->merge(mcsys); }
@@ -67,7 +66,6 @@ int main(int argc, char* argv[]){
 					RSTFile rst("/tmp/",cs->get_filename());
 					IOSystem ios(cs->get_filename(),"","","","","/tmp/",&rst);
 					cs->set_IOSystem(&ios);
-
 					cs->display_results();
 
 					rst.text(out.get_header());
@@ -81,6 +79,5 @@ int main(int argc, char* argv[]){
 		} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
 	} else { std::cout<<__PRETTY_FUNCTION__<<" : Parseur locked"<<std::endl; }
 
-	delete sys;
 	delete cs;
 }
