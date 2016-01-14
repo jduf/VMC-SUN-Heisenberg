@@ -113,7 +113,8 @@ void System::save_output(IOFiles& w) const {
 }
 
 void System::print(unsigned int nobs) const {
-	std::cout<<std::endl<<"SU("<<N_<<") m="<<m_<<" n="<<n_<<" BC="<<bc_<<" nobs="<<obs_.size()<<std::endl<<std::endl;
+	std::cout<<std::string(35,'-')<<std::endl;
+	std::cout<<"SU("<<N_<<") m="<<m_<<" n="<<n_<<" BC="<<bc_<<" nobs="<<obs_.size()<<std::endl<<std::endl;
 	if(nobs>obs_.size()){ nobs = obs_.size(); }
 	for(unsigned int i(0);i<nobs;i++){ std::cout<<obs_[i]<<std::endl; }
 }

@@ -8,10 +8,9 @@ int main(int argc, char* argv[]){
 	unsigned int i(0);
 	unsigned int tmax(P.get<unsigned int>("tmax"));
 	unsigned int nruns(P.find("nruns",i,false)?P.get<unsigned int>(i):omp_get_max_threads());
-	bool load_sim(P.find("sim",i,false));
 
 	CreateSystem* cs;
-	if(load_sim){
+	if(P.find("sim",i,false)){
 		IOFiles read(P.get<std::string>(i),false);
 		Vector<double> tmp(read);
 		System sys(read);
@@ -45,7 +44,7 @@ int main(int argc, char* argv[]){
 					if(!mcsys){ std::cout<<__PRETTY_FUNCTION__<<" MCSystem was not constructed"<<std::endl; }
 					else {
 						MonteCarlo sim(mcsys,tmax);
-						sim.thermalize(load_sim?10:1e6);
+						sim.thermalize(1e6);
 						sim.run();
 
 #pragma omp critical(System__merge)
