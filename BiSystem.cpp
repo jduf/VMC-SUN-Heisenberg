@@ -10,19 +10,15 @@ BiSystem::BiSystem(IOFiles& r):
 	s_(r)
 {
 	unsigned int size(r.read<unsigned int>());
-	for(unsigned int i(0);i<size;i++){ 
-		param_.push_back(Vector<double>(r));
-	}
-	for(unsigned int i(0);i<size;i++){ 
+	for(unsigned int i(0);i<size;i++){ param_.push_back(Vector<double>(r)); }
+	for(unsigned int i(0);i<size;i++){
 		mcsys_.push_back(std::vector<std::unique_ptr<MCSystem> >());
-		for(unsigned int j(0);j<size;j++){ 
-			if(i!=j){
-				mcsys_[i].push_back(std::unique_ptr<MCSystem>(new SystemBiFermionic<double>(r)));
-			} else {
-				mcsys_[i].push_back(std::unique_ptr<MCSystem>(new SystemFermionic<double>(r)));
-			}
+		for(unsigned int j(0);j<size;j++){
+			if(i!=j){ mcsys_[i].push_back(std::unique_ptr<MCSystem>(new SystemBiFermionic<double>(r))); }
+			else { mcsys_[i].push_back(std::unique_ptr<MCSystem>(new SystemFermionic<double>(r))); }
 		}
 	}
+	r>>H_>>O_>>dH_>>dO_>>E_>>dE_;
 }
 /*}*/
 
@@ -42,17 +38,16 @@ void BiSystem::add_new_param(Vector<double> const& param){
 
 			unsigned int j(param_.size()-1);
 			if(cs.use_complex()){
-				//mcsys = new SystemFermionic<std::complex<double> >(fer_[i]);
+				mcsys_[j][j].reset(new SystemFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(cs.get_GenericSystem())));
 			} else {
 				mcsys_[j][j].reset(new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GenericSystem())));
 			}
 
 			for(unsigned int i(0);i<j;i++){
 				if(cs.use_complex()){
-					//mcsys = new SystemBiFermionic<std::complex<double> >(fer_[i],fer_[j]);
+					mcsys_[i][j].reset(new SystemBiFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(mcsys_[i][i].get()),*dynamic_cast<const Fermionic<std::complex<double> >*>(mcsys_[j][j].get())));
+					mcsys_[j][i].reset(new SystemBiFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(mcsys_[j][j].get()),*dynamic_cast<const Fermionic<std::complex<double> >*>(mcsys_[i][i].get())));
 				} else {
-					//mcsys_[i][j].reset(new SystemBiFermionic<double>(fer_[i],fer_[j]));
-					//mcsys_[j][i].reset(new SystemBiFermionic<double>(fer_[j],fer_[i]));
 					mcsys_[i][j].reset(new SystemBiFermionic<double>(*dynamic_cast<const Fermionic<double>*>(mcsys_[i][i].get()),*dynamic_cast<const Fermionic<double>*>(mcsys_[j][j].get())));
 					mcsys_[j][i].reset(new SystemBiFermionic<double>(*dynamic_cast<const Fermionic<double>*>(mcsys_[j][j].get()),*dynamic_cast<const Fermionic<double>*>(mcsys_[i][i].get())));
 				}
@@ -68,7 +63,7 @@ void BiSystem::run(unsigned int const& nruns, unsigned int const& tmax){
 			for(unsigned int k=0;k<nruns;k++){
 				std::unique_ptr<MCSystem> tmp(mcsys_[i][j]->clone());
 
-				MonteCarlo sim(tmp.get(),(i==j?tmax:10*tmax));
+				MonteCarlo sim(tmp.get(),(i==j?tmax:50*tmax));
 				sim.thermalize(1e6);
 				sim.run();
 
@@ -83,8 +78,6 @@ void BiSystem::run(unsigned int const& nruns, unsigned int const& tmax){
 
 void BiSystem::compute_E(){
 	unsigned int n_wfs(param_.size());// # of wavefunctions
-	unsigned int n_rnd(1000); 	 	  // # of random evaluations
-	unsigned int n_bin(20);		 	  // # of bin for the history
 	H_.set(n_wfs,n_wfs);
 	dH_.set(n_wfs,n_wfs);
 	O_.set(n_wfs,n_wfs);
@@ -94,10 +87,9 @@ void BiSystem::compute_E(){
 
 	for(unsigned int i(0);i<n_wfs;i++){
 		for(unsigned int j(0);j<n_wfs;j++){
-			/*be careful with complex values, not to scew the phase taking the square root*/
 			H_(i,j) = mcsys_[i][j]->get_energy().get_x();
 			dH_(i,j)= mcsys_[i][j]->get_energy().get_dx();
-			if(i==j){ 
+			if(i==j){
 				O_(i,j) = 1;
 				dO_(i,j)= 0;
 			} else {
@@ -106,12 +98,6 @@ void BiSystem::compute_E(){
 			}
 		}
 	}
-
-	std::cout<<H_<<std::endl;
-	std::cout<<dH_<<std::endl;
-	std::cout<<O_<<std::endl;
-	std::cout<<dO_<<std::endl;
-	std::cout<<std::endl;
 
 	for(unsigned int i(0);i<n_wfs;i++){
 		for(unsigned int j(i+1);j<n_wfs;j++){
@@ -127,20 +113,25 @@ void BiSystem::compute_E(){
 		}
 	}
 
-	std::cout<<H_<<std::endl;
-	std::cout<<dH_<<std::endl;
-	std::cout<<O_<<std::endl;
-	std::cout<<dO_<<std::endl;
+	Lapack<double>(H_,true,'S').generalized_eigensystem(O_,E_);
+}
+
+void BiSystem::compute_dE(){
+	unsigned int n_wfs(param_.size());// # of wavefunctions
+	unsigned int n_rnd(1000); 	 	  // # of random evaluations
+	unsigned int n_bin(20);		 	  // # of bin for the history
 
 	Matrix<double> Htmp;
 	Matrix<double> Otmp;
+	Vector<double> Etmp;
 
 	Matrix<double> EM(n_wfs,n_rnd); // the eigenvalues are stored in vertical
 
-	Rand<double> rnd(-1,1);
+	Rand<double> rnd(-1.0,1.0);
 	for(unsigned int i(0);i<n_rnd;i++){
 		Htmp = H_;
 		Otmp = O_;
+		Etmp.set();
 		for(unsigned int j(0);j<n_wfs;j++){
 			for(unsigned int k(j);k<n_wfs;k++){
 				Htmp(j,k)+= rnd.get()*dH_(j,k);
@@ -149,8 +140,8 @@ void BiSystem::compute_E(){
 				Otmp(k,j) = Otmp(j,k);
 			}
 		}
-		Lapack<double>(Htmp,false,'S').generalized_eigensystem(Otmp,E_);
-		for(unsigned int j(0);j<n_wfs;j++){ EM(j,i) = E_(j); }
+		Lapack<double>(Htmp,false,'S').generalized_eigensystem(Otmp,Etmp);
+		if(Etmp.ptr()){ for(unsigned int j(0);j<n_wfs;j++){ EM(j,i) = Etmp(j); } }
 	}
 
 	double min;
@@ -172,8 +163,8 @@ void BiSystem::compute_E(){
 			if( EM(i,j) > max ){ max = EM(i,j); }
 		}
 		dx = (max-min)/n_bin;
-		for(unsigned int j(0);j<n_bin;j++){ 
-			x(j) = min+j*dx; 
+		for(unsigned int j(0);j<n_bin;j++){
+			x(j) = min+j*dx;
 			y(j) = 0.0;
 		}
 		for(unsigned int j(0);j<n_rnd;j++){
@@ -190,20 +181,22 @@ void BiSystem::compute_E(){
 		Fit(x,y,p,gaussian);
 		dE_(i) = p(1);
 	}
-
-	Lapack<double>(H_,true,'S').generalized_eigensystem(O_,E_);
-	std::cout<<O_<<std::endl;
 }
 /*}*/
 
-void BiSystem::save(IOFiles& w) const {
+void BiSystem::save() const {
+	CreateSystem cs(&s_);
+	cs.init(&param_[0],NULL);
+
+	IOFiles w(cs.get_filename()+".jdbin",true);
 	s_.write(w);
 	unsigned int size(param_.size());
 	w<<size;
 	for(unsigned int i(0);i<size;i++){ w<<param_[i]; }
-	for(unsigned int i(0);i<size;i++){ 
-		for(unsigned int j(0);j<size;j++){ 
+	for(unsigned int i(0);i<size;i++){
+		for(unsigned int j(0);j<size;j++){
 			mcsys_[i][j]->write(w);
 		}
 	}
+	w<<H_<<O_<<dH_<<dO_<<E_<<dE_;
 }

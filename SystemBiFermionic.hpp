@@ -246,8 +246,8 @@ template<typename Type>
 void SystemBiFermionic<Type>::write(IOFiles& w) const {
 	System::write(w);
 	MCSystem::write(w);
+	w<<this->same_wf_[0]<<this->same_wf_[1];
 	for(unsigned int i(0);i<2;i++){
-		w<<this->same_wf_[i];
 		if(this->same_wf_[i]){ w<<this->EVec_[i][0]; }
 		else { for(unsigned int c(0);c<N_;c++){ w<<this->EVec_[i][c]; } }
 	}

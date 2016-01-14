@@ -23,6 +23,7 @@ class BiSystem {
 		void add_new_param(Vector<double> const& param);
 		void run(unsigned int const& nruns, unsigned int const& tmax);
 		void compute_E();
+		void compute_dE();
 
 		Matrix<double> const& get_H() const { return H_; }
 		Matrix<double> const& get_dH() const { return dH_; }
@@ -32,7 +33,7 @@ class BiSystem {
 		Vector<double> const& get_E() const { return E_; }
 		Vector<double> const& get_dE() const { return dE_; }
 
-		void save(IOFiles& w) const;
+		void save() const;
 
 	private:
 		System s_;
