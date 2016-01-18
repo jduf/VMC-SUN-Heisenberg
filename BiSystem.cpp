@@ -25,12 +25,12 @@ BiSystem::BiSystem(IOFiles& r):
 /*core methods*/
 /*{*/
 void BiSystem::add_new_param(Vector<double> const& param){
-	std::cout<<param<<std::endl;
 	CreateSystem cs(&s_);
 	cs.init(&param,NULL);
 	if(cs.get_status()==2){
 		cs.create(true);
 		if(cs.get_status()==1){
+			std::cout<<"add parameter : "<<param<<std::endl;
 			param_.push_back(param);
 
 			mcsys_.push_back(std::vector<std::unique_ptr<MCSystem> >(param_.size()));
@@ -63,7 +63,7 @@ void BiSystem::run(unsigned int const& nruns, unsigned int const& tmax){
 			for(unsigned int k=0;k<nruns;k++){
 				std::unique_ptr<MCSystem> tmp(mcsys_[i][j]->clone());
 
-				MonteCarlo sim(tmp.get(),(i==j?tmax:50*tmax));
+				MonteCarlo sim(tmp.get(),(i==j?tmax:60*tmax));
 				sim.thermalize(1e6);
 				sim.run();
 
@@ -113,13 +113,14 @@ void BiSystem::compute_E(){
 		}
 	}
 
-	Lapack<double>(H_,true,'S').generalized_eigensystem(O_,E_);
+	Matrix<double> Otmp(O_);
+	Lapack<double>(H_,true,'S').generalized_eigensystem(Otmp,E_);
 }
 
 void BiSystem::compute_dE(){
 	unsigned int n_wfs(param_.size());// # of wavefunctions
-	unsigned int n_rnd(1000); 	 	  // # of random evaluations
-	unsigned int n_bin(20);		 	  // # of bin for the history
+	unsigned int n_rnd(100000); 	 	  // # of random evaluations
+	unsigned int n_bin(100);		 	  // # of bin for the history
 
 	Matrix<double> Htmp;
 	Matrix<double> Otmp;
@@ -142,6 +143,7 @@ void BiSystem::compute_dE(){
 		}
 		Lapack<double>(Htmp,false,'S').generalized_eigensystem(Otmp,Etmp);
 		if(Etmp.ptr()){ for(unsigned int j(0);j<n_wfs;j++){ EM(j,i) = Etmp(j); } }
+		else { i--; }
 	}
 
 	double min;
@@ -162,17 +164,25 @@ void BiSystem::compute_dE(){
 			if( EM(i,j) < min ){ min = EM(i,j); }
 			if( EM(i,j) > max ){ max = EM(i,j); }
 		}
-		dx = (max-min)/n_bin;
+		dx = (max-min)/(n_bin-1);
 		for(unsigned int j(0);j<n_bin;j++){
 			x(j) = min+j*dx;
 			y(j) = 0.0;
 		}
 		for(unsigned int j(0);j<n_rnd;j++){
 			for(unsigned int k(0);k<n_bin;k++){
-				if(EM(i,j)>=x(k)){ y(k)+=1.0; k=n_bin; }
+				if(EM(i,j)<=x(k)){ y(k)+=1.0; k=n_bin; }
 			}
 		}
 		y /= n_rnd;
+
+		if(i==1){
+			IOFiles data("data.dat",true);
+			for(unsigned int j(0);j<n_bin;j++){
+				data<<x(j)<<" "<<y(j)<<IOFiles::endl;
+			}
+		}
+
 
 		Vector<double> p(3);
 		p(0) = x.mean();
@@ -181,6 +191,90 @@ void BiSystem::compute_dE(){
 		Fit(x,y,p,gaussian);
 		dE_(i) = p(1);
 	}
+
+	//min = EM.min();
+	//max = EM.max();
+	//dx = (max-min)/(n_bin-1);
+	//for(unsigned int j(0);j<n_bin;j++){
+	//x(j) = min+j*dx;
+	//y(j) = 0.0;
+	//}
+	//for(unsigned int i(0);i<n_wfs;i++){
+	//for(unsigned int j(0);j<n_rnd;j++){
+	//for(unsigned int k(0);k<n_bin;k++){
+	//if(EM(i,j)<=x(k)){ y(k)+=1.0; k=n_bin; }
+	//}
+	//}
+	//}
+	//y /= n_rnd;
+	//
+	//for(unsigned int i(0);i<n_bin/2;i++){
+	//if(y(i)<1e-4){ min = x(i); }
+	//if(y(y.size()-1-i)<1e-4){ max = x(y.size()-1-i); }
+	//}
+	//std::cout<<min<<max<<std::endl;
+	//
+	////n_bin /= 2;
+	////x.set(n_bin);
+	////y.set(n_bin);
+	//dx = (max-min)/(n_bin-1);
+	//for(unsigned int j(0);j<n_bin;j++){
+	//x(j) = min+j*dx;
+	//y(j) = 0.0;
+	//}
+	//for(unsigned int i(0);i<n_wfs;i++){
+	//for(unsigned int j(0);j<n_rnd;j++){
+	//for(unsigned int k(0);k<n_bin;k++){
+	//if(EM(i,j)<=x(k)){ y(k)+=1.0; k=n_bin; }
+	//}
+	//}
+	//}
+	//y /= n_rnd;
+	//
+	//IOFiles data("data.dat",true);
+	//for(unsigned int j(0);j<n_bin;j++){
+	//data<<x(j)<<" "<<y(j)<<IOFiles::endl;
+	//}
+}
+
+void BiSystem::study(){
+	Matrix<double> Ovec(O_);
+	Vector<double> Oval;
+	Lapack<double>(Ovec,false,'S').eigensystem(Oval,true);
+
+	std::cout<<Oval/Oval.sum()<<std::endl;
+	std::cout<<E_;
+	for(unsigned int c(1);c<3;c++){ //# of rejected eigenvalue
+		Vector<double> E;
+		Matrix<double> H(H_.row()-c,H_.row()-c,0);
+		for(unsigned int a(0);a<H.row();a++){
+			for(unsigned int b(0);b<H.col();b++){
+				for(unsigned int i(0);i<H_.row();i++){
+					for(unsigned int j(0);j<H_.col();j++){
+						H(a,b) += Ovec(i,a+c)*Ovec(j,b+c)*H_(i,j);
+					}
+				}
+				H(a,b) /= sqrt(Oval(a+c)*Oval(b+c));
+			}
+		}
+		Lapack<double>(H,true,'S').eigensystem(E,false);
+		std::cout<<" "<<E;
+	}
+	std::cout<<std::endl;
+
+
+	std::cout<<"------- overlap matrix"<<std::endl;
+	std::cout<<O_<<std::endl;
+	//std::cout<<"------- overlap matrix eigenvalues"<<std::endl;
+	//std::cout<<Oval/Oval.sum()<<std::endl;
+
+	//std::cout<<"------- H_"<<std::endl;
+	//std::cout<<H_<<std::endl;
+	//std::cout<<"------- reduced H"<<std::endl;
+	//std::cout<<H<<std::endl;
+	//std::cout<<"------- eigenvalue of the reduced H"<<std::endl;
+	//std::cout<<Oval<<std::endl;
+	
 }
 /*}*/
 

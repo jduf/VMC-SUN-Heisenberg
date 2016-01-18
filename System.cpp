@@ -265,5 +265,10 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 1;
 	}
+	if( wf == "honeycomb-free" ){
+		ref(0) = 6;
+		ref(1) = 1;
+		ref(2) = 2;
+	}
 	return ref;
 }

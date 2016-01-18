@@ -12,29 +12,65 @@ int main(int argc, char* argv[]){
 		IOFiles r(P.get<std::string>(i),false);
 		BiSystem bs(r);
 
-		bs.compute_dE();
-		std::cout<<bs.get_E()<<std::endl;
-		std::cout<<bs.get_dE()<<std::endl;
+		//bs.compute_dE();
+		//std::cout<<bs.get_E()<<std::endl;
+		//std::cout<<bs.get_dE()<<std::endl;
+		//std::cout<<std::endl;
+		//std::cout<<bs.get_H()<<std::endl;
+		//std::cout<<bs.get_dH()<<std::endl;
+		//std::cout<<std::endl;
+		//std::cout<<bs.get_O()<<std::endl;
+		//std::cout<<bs.get_dO()<<std::endl;
+		//bs.run(nruns,tmax);
+		//bs.compute_E();
+		//bs.save();
+		bs.study();
 	} else {
 		if(!P.find("M",i,false)){
 			std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
 			P.set("M",M);
 		}
 
+		double t(P.get<double>("t"));
 		BiSystem bs(P);
-		IOFiles r(P.get<std::string>("params"),false);
-		Matrix<double> MP(P.get<unsigned int>("nwfs"),4);
 		if(!P.locked()){
-			r>>MP;
-			Vector<double> param(MP.col());
-			for(unsigned int i(0);i<MP.row();i++){
-				for(unsigned int j(0);j<MP.col();j++){ param(j) = MP(i,j); }
-				bs.add_new_param(param);
+			if(P.find("chain",i,false)){
+				for(unsigned int s(0);s<4;s++){
+					Vector<double> param(4,1);
+					param(s) = t;
+					bs.add_new_param(param);
+				}
+			}
+			if(P.find("ladder",i,false)){
+				Vector<double> param(20,0);
+				for(unsigned int s(0);s<4;s++){
+					for(unsigned int i(0);i<12;i++){
+						switch(i%3){
+							case 0: { param(i) = 1.00; } break;
+							case 1: { param(i) = 0.15; } break;
+							case 2: { param(i) =-1.00; } break;
+						}
+					}
+					param(s*3)  = t;
+					param(s*3+2)=-t;
+					bs.add_new_param(param);
+				}
+			}
+			if(P.find("honeycomb",i,false)){
+				for(unsigned int s(0);s<3;s++){
+					Vector<double> param(9,1);
+					param(s) = t;
+					param((s+1)%3+3) = t;
+					param((s+2)%3+6) = t;
+					bs.add_new_param(param);
+				}
 			}
 			bs.run(nruns,tmax);
 			bs.compute_E();
 			std::cout<<bs.get_E()<<std::endl;
+			std::cout<<std::endl;
 			std::cout<<bs.get_H()<<std::endl;
+			std::cout<<std::endl;
 			std::cout<<bs.get_O()<<std::endl;
 			bs.save();
 		} else { std::cout<<__PRETTY_FUNCTION__<<" : Parseur locked"<<std::endl; }

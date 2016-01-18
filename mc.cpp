@@ -9,20 +9,21 @@ int main(int argc, char* argv[]){
 	unsigned int tmax(P.get<unsigned int>("tmax"));
 	unsigned int nruns(P.find("nruns",i,false)?P.get<unsigned int>(i):omp_get_max_threads());
 
+	System* sys;
 	CreateSystem* cs;
 	if(P.find("sim",i,false)){
 		IOFiles read(P.get<std::string>(i),false);
 		Vector<double> tmp(read);
-		System sys(read);
-		sys.print(1);
-		cs  = new CreateSystem(&sys);
+		sys = new System(read);
+		sys->print(1);
+		cs  = new CreateSystem(sys);
 		cs->init(&tmp,NULL);
 	} else {
 		if(!P.find("M",i,false)){
 			P.set("M",std::vector<unsigned int>(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N")));
 		}
-		System sys(P);
-		cs  = new CreateSystem(&sys);
+		sys = new System(P);
+		cs  = new CreateSystem(sys);
 		cs->init(NULL,&P);
 		cs->set_obs(P.find("nobs",i,false)?P.get<int>(i):-1);
 	}
@@ -79,4 +80,5 @@ int main(int argc, char* argv[]){
 	} else { std::cout<<__PRETTY_FUNCTION__<<" : Parseur locked"<<std::endl; }
 
 	delete cs;
+	delete sys;
 }

@@ -1550,7 +1550,7 @@ void LadderFree::display_results(){
 		rst_file_->change_text_onclick("run command",run_cmd);
 
 		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
-		if(obs_[0].nval()){
+		if(obs_.size()>1){
 			rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
 		} 
 		if(obs_.size()==5){

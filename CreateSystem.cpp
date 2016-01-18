@@ -18,7 +18,6 @@ CreateSystem::~CreateSystem(){
 /*core methods*/
 /*{*/
 void CreateSystem::init(Vector<double> const* const param, Container* C){
-	if(C){ C_ = C; }
 	if(RGL_){ delete RGL_; }
 	if(CGL_){ delete CGL_; }
 	switch(ref_(0)){
@@ -238,6 +237,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(param || C){ RGL_ = new Honeycomb0pp(*s_,t); }
 									}break;
 								case 1:{ RGL_ = new HoneycombPiFlux(*s_); }break;
+								case 2:{ 
+
+										   Vector<double> t;
+										   if(param){ t = *param; }
+										   if(C){ t = C->get<std::vector<double> >("t"); }
+										   RGL_ = new HoneycombFree(*s_,t); 
+									   }break;
 								default:{ error(); }break;
 							}
 						}break;
@@ -257,11 +263,9 @@ void CreateSystem::create(bool const& try_solve_degeneracy){
 				RGL_ = NULL;
 				ref_(1)=2;
 				init(NULL,C_);
-				std::cerr<<__PRETTY_FUNCTION__<<" : need to check if this works"<<std::endl;
+				std::cerr<<__PRETTY_FUNCTION__<<" : would work if C_ knows the parameters"<<std::endl;
 				if(CGL_){ CGL_->create(); }
-			} else {
-				std::cerr<<__PRETTY_FUNCTION__<<" : giving up"<<std::endl;
-			}
+			} else { std::cerr<<__PRETTY_FUNCTION__<<" : giving up"<<std::endl; }
 		}
 	} else {
 		if(CGL_){ CGL_->create(); }

@@ -32,7 +32,7 @@ class ChainFermi: public Chain<Type>{
 template<typename Type>
 ChainFermi<Type>::ChainFermi(System const& s):
 	System(s),
-	Chain<Type>(1,"chain-fermi")
+	Chain<Type>(this->N_,"chain-fermi")
 {
 	if(this->status_==2){
 		this->init_fermionic();

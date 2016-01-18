@@ -25,6 +25,7 @@
 
 #include "Honeycomb0pp.hpp"
 #include "HoneycombPiFlux.hpp"
+#include "HoneycombFree.hpp"
 
 /*{*//*!Class that creates any kind of wavefunctions
 	   and gives a way to act on it (set observable, merge simulation, compute

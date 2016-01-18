@@ -94,7 +94,7 @@ void ChainPolymerized::save_param(IOFiles& w) const {
 }
 
 unsigned int ChainPolymerized::set_spuc(Vector<double> const& t, unsigned int const& spuc){
-	if(t.size() == spuc && !my::are_equal(t,Vector<double>(spuc,1.0))){ return spuc; }
+	if(t.size() == spuc){ return spuc; }
 	else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : invalid t size : "<<t.size()<<std::endl;
 		status_++;
