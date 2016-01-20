@@ -23,16 +23,15 @@ void ChainFree::compute_H(){
 
 	unsigned int s0(0);
 	unsigned int s1(0);
-	unsigned int ab(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		ab = s0%spuc_;
-		if(ab){ H_(s0,s1) = obs_[0](i,4)*t_(ab-1); }
-		else { H_(s0,s1) = obs_[0](i,4); }
-		H_(s0,s0) = mu_(ab)/2.0;
+		if(obs_[0](i,4)){ H_(s0,s1) = t_.back(); }
+		else { H_(s0,s1) = t_(0); }
+		//H_(s0,s0) = mu_(ab)/2.0;
 	}
 	H_ += H_.transpose();
+	std::cout<<H_<<std::endl;
 }
 
 void ChainFree::create(){
@@ -71,7 +70,7 @@ void ChainFree::save_param(IOFiles& w) const {
 }
 
 unsigned int ChainFree::set_spuc(Vector<double> const& t, Vector<double> const& mu, unsigned int const& spuc){
-	if(t.size()+1 == mu.size() && mu.size()%spuc==0 && !my::are_equal(t,Vector<double>(spuc,1.0))){ return spuc; }
+	if(t.size() == mu.size() && mu.size()%spuc==0 && !my::are_equal(t,Vector<double>(spuc,1.0))){ return spuc; }
 	else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : invalid or incoherent t and mu sizes : t:="<<t.size()<<", mu:="<<mu.size()<<std::endl;
 		return spuc+1;

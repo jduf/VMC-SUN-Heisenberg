@@ -49,6 +49,7 @@ void ChainFermi<Type>::compute_H(){
 		this->H_(this->obs_[0](i,0),this->obs_[0](i,1)) = this->obs_[0](i,4);
 	}
 	this->H_ += this->H_.transpose();
+	std::cout<<this->H_<<std::endl;
 }
 /*}*/
 

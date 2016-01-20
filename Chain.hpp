@@ -119,9 +119,9 @@ void Chain<Type>::set_obs(int nobs){
 		this->obs_.push_back(Observable("Long range correlations",2,nval,nlinks));
 		for(unsigned int i(0);i<m;i++){
 			for(unsigned int j(0);j<nval;j++){
-				this->obs_[1](i*nval+j,0) = i%this->n_;
-				this->obs_[1](i*nval+j,1) = (i+j)%this->n_;
-				this->obs_[1](i*nval+j,2) = j;
+				this->obs_[2](i*nval+j,0) = i%this->n_;
+				this->obs_[2](i*nval+j,1) = (i+j)%this->n_;
+				this->obs_[2](i*nval+j,2) = j;
 			}
 		}
 	}
@@ -129,16 +129,20 @@ void Chain<Type>::set_obs(int nobs){
 
 template<typename Type>
 Matrix<int> Chain<Type>::get_neighbourg(unsigned int const& i) const {
-	Matrix<int> nb(this->z_,2,1);
-	if( i != this->n_-1){ nb(0,0) = i+1; }
-	else {
+	Matrix<int> nb(this->z_,2);
+	if(i!=this->n_-1){
+		nb(0,0) = i+1; 
+		nb(0,1) = 0;
+	} else {
 		nb(0,0) = 0;
-		nb(0,1) = this->bc_;
+		nb(0,1) = 1;
 	}
-	if( i != 0){ nb(1,0) = i-1; }
-	else {
+	if(i!=0){
+		nb(1,0) = i-1; 
+		nb(1,1) = 0;
+	} else {
 		nb(1,0) = this->n_-1;
-		nb(1,1) = this->bc_;
+		nb(1,1) = 1;
 	}
 	return nb;
 }

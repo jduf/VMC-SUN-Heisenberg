@@ -282,17 +282,21 @@ void SystemBiFermionic<Type>::free_memory(){
 /*{*/
 template<typename Type>
 double SystemBiFermionic<Type>::ratio(){
+	/*!the ratio computed to find the new configuration only involve one
+	 * wavefunction, hence m=0. for the measurements, the ratio invoves
+	 * two wavefunctions, hence m=1 */
+	unsigned int m(ratio_for_measure_?1:0);
+	Type r(1.0);
 	if(new_c_[0] == new_c_[1]){
-		/*!there is no minus sign because if the same color is inverted, the
-		 * matrices will be identical up to the inversion of two columns, this
-		 * minus sign is then cancelled by the reordering of the operators */
-		return 1.0;
+		if(m){
+			for(unsigned int c(0);c<N_;c++){ r *= det_(m,c)/det_(0,c); }
+			/*!there is no minus sign because if the same color is inverted,
+			 * the matrices will be identical up to the inversion of two
+			 * columns, this minus sign is then cancelled by the reordering of
+			 * the operators */
+			return my::real(r);
+		} else { return 1; }
 	} else {
-		/*!the ratio computed to find the new configuration only involve one
-		 * wavefunction, hence m=0. for the measurements, the ratio invoves
-		 * two wavefunctions, hence m=1 */
-		unsigned int m(ratio_for_measure_?1:0);
-		Type r(1.0);
 		Matrix<Type> Atmp;
 		for(unsigned int c(0);c<N_;c++){
 			if(c == new_c_[0] || c == new_c_[1]){
@@ -302,11 +306,11 @@ double SystemBiFermionic<Type>::ratio(){
 					Atmp(new_r_[i],j) = this->EVec_[m][c](new_ev_[i],j);
 				}
 				r *= Lapack<Type>(Atmp,false,'G').det()/det_(0,c);
-			} else { r *= det_(m,c)/det_(0,c); }
+			} else if(m){ r *= det_(m,c)/det_(0,c); }
 		}
 		/*!the minus sign is correct, it comes from <C|H|C'> because when H is
-		 * applied on |C>, the operators are not in the correct color order,
-		 * so they need to be exchanged*/
+		 * applied on |C>, the operators are not in the correct color order, so
+		 * they need to be exchanged*/
 		return -my::real(r);
 	}
 }

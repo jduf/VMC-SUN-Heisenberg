@@ -66,6 +66,8 @@ class System{
 		unsigned int const& get_status() const { return status_; }
 		/*!Returns the energy*/
 		Data<double> const& get_energy() const { return obs_[0][0]; }
+		/*!Returns the energy*/
+		unsigned int const& get_n() const { return n_; }
 		/*!Returns the number of observables*/
 		unsigned int nobs() const { return obs_.size(); }
 		/*!Returns all observables*/

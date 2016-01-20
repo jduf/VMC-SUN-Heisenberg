@@ -250,19 +250,23 @@ void System2D<Type>::select_eigenvectors(){
 
 template<typename Type>
 Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
-	Matrix<int> nb(this->z_,2,1);
-	std::vector<unsigned int> dir(this->z_);
-	Vector<double>* nn(new Vector<double>[this->z_]);
+	/*!tn is the position in the lattice of site i*/
 	Vector<double> tn(get_pos_in_lattice(i));
 	set_pos_LxLy(tn);
 	set_in_LxLy(tn);
+
+	/*!nn* are the nearest neighbours */
+	Vector<double>* nn(new Vector<double>[this->z_]);
+	Matrix<int> nb(this->z_,2);
+	std::vector<unsigned int> dir(this->z_);
 	for(unsigned int d(0);d<this->z_;d++){
 		dir[d]= d;
 		nn[d] = tn;
 		nn[d]+= vector_towards(i,d);
-		if(set_in_LxLy(nn[d])){ nb(d,1) = this->bc_; }
+		nb(d,1) = set_in_LxLy(nn[d]);
 	}
 
+	/*!tn will be the trial neighbour*/
 	tn.set(2,0);
 	unsigned int j(0);
 	while(dir.size() && j<this->n_+2){
@@ -273,6 +277,7 @@ Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 			}
 		}
 		j++;
+		/*!go to the trial next neighbour*/
 		try_neighbourg(tn,j);
 		set_in_LxLy(tn);
 	}

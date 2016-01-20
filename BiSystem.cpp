@@ -238,13 +238,50 @@ void BiSystem::compute_dE(){
 }
 
 void BiSystem::study(){
+	O_(0,1) = (O_(0,1)+O_(0,3)+O_(1,0)+O_(1,2)+O_(2,1)+O_(2,3)+O_(3,0)+O_(3,2))/8;
+	O_(0,3) = O_(0,1);
+	O_(1,0) = O_(0,1);
+	O_(1,2) = O_(0,1);
+	O_(2,1) = O_(0,1);
+	O_(2,3) = O_(0,1);
+	O_(3,0) = O_(0,1);
+	O_(3,2) = O_(0,1);
+
+	O_(0,2) = (O_(0,2)+O_(1,3)+O_(2,0)+O_(3,1))/4;
+	O_(1,3) = O_(0,2);
+	O_(2,0) = O_(0,2);
+	O_(3,1) = O_(0,2);
+
+	O_(0,0) = (O_(1,1)+O_(2,2)+O_(3,3)+O_(0,0))/4;
+	O_(1,1) = O_(0,0);
+	O_(2,2) = O_(0,0);
+	O_(3,3) = O_(0,0);
+
+	H_(0,1) = (H_(0,1)+H_(0,3)+H_(1,0)+H_(1,2)+H_(2,1)+H_(2,3)+H_(3,0)+H_(3,2))/8;
+	H_(0,3) = H_(0,1);
+	H_(1,0) = H_(0,1);
+	H_(1,2) = H_(0,1);
+	H_(2,1) = H_(0,1);
+	H_(2,3) = H_(0,1);
+	H_(3,0) = H_(0,1);
+	H_(3,2) = H_(0,1);
+
+	H_(0,2) = (H_(0,2)+H_(1,3)+H_(2,0)+H_(3,1))/4;
+	H_(1,3) = H_(0,2);
+	H_(2,0) = H_(0,2);
+	H_(3,1) = H_(0,2);
+
+	H_(0,0) = (H_(1,1)+H_(2,2)+H_(3,3)+H_(0,0))/4;
+	H_(1,1) = H_(0,0);
+	H_(2,2) = H_(0,0);
+	H_(3,3) = H_(0,0);
+
 	Matrix<double> Ovec(O_);
 	Vector<double> Oval;
 	Lapack<double>(Ovec,false,'S').eigensystem(Oval,true);
 
-	std::cout<<Oval/Oval.sum()<<std::endl;
-	std::cout<<E_;
-	for(unsigned int c(1);c<3;c++){ //# of rejected eigenvalue
+	std::cout<<s_.get_n()<<" "<<param_[0](0)<<" "<<E_;
+	for(unsigned int c(1);c<O_.row();c++){ //# of rejected eigenvalue
 		Vector<double> E;
 		Matrix<double> H(H_.row()-c,H_.row()-c,0);
 		for(unsigned int a(0);a<H.row();a++){
@@ -260,11 +297,11 @@ void BiSystem::study(){
 		Lapack<double>(H,true,'S').eigensystem(E,false);
 		std::cout<<" "<<E;
 	}
-	std::cout<<std::endl;
+	std::cout<<" "<<H_(0,0)<<" "<<H_(0,1)<<" "<<H_(0,2);
+	std::cout<<" "<<Oval/Oval.sum()<<" "<<O_(0,1)<<" "<<O_(0,2)<<std::endl;
 
-
-	std::cout<<"------- overlap matrix"<<std::endl;
-	std::cout<<O_<<std::endl;
+	//std::cout<<"------- overlap matrix"<<std::endl;
+	//std::cout<<O_<<std::endl;
 	//std::cout<<"------- overlap matrix eigenvalues"<<std::endl;
 	//std::cout<<Oval/Oval.sum()<<std::endl;
 
@@ -274,7 +311,7 @@ void BiSystem::study(){
 	//std::cout<<H<<std::endl;
 	//std::cout<<"------- eigenvalue of the reduced H"<<std::endl;
 	//std::cout<<Oval<<std::endl;
-	
+
 }
 /*}*/
 
@@ -282,7 +319,7 @@ void BiSystem::save() const {
 	CreateSystem cs(&s_);
 	cs.init(&param_[0],NULL);
 
-	IOFiles w(cs.get_filename()+".jdbin",true);
+	IOFiles w("bi/"+cs.get_filename()+".jdbin",true);
 	s_.write(w);
 	unsigned int size(param_.size());
 	w<<size;

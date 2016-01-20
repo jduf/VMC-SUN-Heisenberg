@@ -65,6 +65,33 @@ int main(int argc, char* argv[]){
 					bs.add_new_param(param);
 				}
 			}
+			if(P.find("boundary",i,false)){
+				//Vector<double> param(8,0);
+				//param(0) = 1;
+				//param(1) = 1;
+				//param(2) = 1;
+				//param(3) = 0.99999999;
+				//bs.add_new_param(param);
+				//param(3) =-0.99999999;
+				//bs.add_new_param(param); 
+				Vector<double> param(20,0);
+				param(0) = 1;
+				param(1) = 0.15;
+				param(2) =-1;
+				param(3) = 1;
+				param(4) = 0.15;
+				param(5) =-1;
+				param(6) = 1;
+				param(7) = 0.15;
+				param(8) =-1;
+				param(9) = 1;
+				param(10)= 0.15;
+				param(11)=-1;
+				param(12)= 0.9999999;
+				bs.add_new_param(param); 
+				param(12)=-0.9999999;
+				bs.add_new_param(param); 
+			}
 			bs.run(nruns,tmax);
 			bs.compute_E();
 			std::cout<<bs.get_E()<<std::endl;
