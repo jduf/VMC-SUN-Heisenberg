@@ -1,35 +1,40 @@
-#include "TrianglePhi.hpp"
+#include "HoneycombChiral.hpp"
 
-TrianglePhi::TrianglePhi(System const& s, double const& phi):
+HoneycombChiral::HoneycombChiral(System const& s):
 	System(s),
-	Triangle<std::complex<double> >(set_ab(),1,"triangle-phi"),
-	phi_(phi)
+	Honeycomb<std::complex<double> >(set_ab(),6,"honeyomb-chiral")
 {
 	if(status_==2){
 		init_fermionic();
 
-		filename_ += "-phi" + my::tostring(phi_);
-		system_info_.text("phi-flux : each neighbouring triangle has a flux of opposite sign");
+		system_info_.text("chiral wavefunction with homogeneous flux");
 	}
 }
 
 /*{method needed for running*/
-void TrianglePhi::compute_H(){
+void HoneycombChiral::compute_H(){
 	H_.set(n_,n_,0);
 
 	unsigned int s0(0);
 	unsigned int s1(0);
-	double unit_flux(2*M_PI*m_/N_);
+	double unit_flux(2*M_PI/3);
+	unsigned int ab0(0);
+	unsigned int ab1(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		if(obs_[0](i,3)==1){ H_(s0,s1) = std::polar(double(obs_[0](i,4)?bc_:1),phi_*unit_flux); }
-		else { H_(s0,s1) = (obs_[0](i,4)?bc_:1); }
+		ab0 = get_site_in_ab(s0);
+		ab1 = get_site_in_ab(s1);
+		H_(s0,s1) = (obs_[0](i,4)?bc_:1);
+		if(ab1==5){
+			if(ab0==0){ H_(s0,s1) *= std::polar(1.0,unit_flux); }
+			if(ab0==2){ H_(s0,s1) *= std::polar(1.0,-unit_flux); }
+		}
 	}
 	H_ += H_.conjugate_transpose();
 }
 
-void TrianglePhi::create(){
+void HoneycombChiral::create(){
 	compute_H();
 	diagonalize(true);
 	for(unsigned int c(0);c<N_;c++){
@@ -41,22 +46,36 @@ void TrianglePhi::create(){
 	}
 }
 
-Matrix<double> TrianglePhi::set_ab() const {
-	Matrix<double> tmp(2,2);
-	tmp(0,0) = 1;
-	tmp(1,0) = 0;
-	tmp(0,1) = 0.5;
-	tmp(1,1) = sqrt(3.0)/2.0;
-	return tmp;
+unsigned int HoneycombChiral::match_pos_in_ab(Vector<double> const& x) const {
+	Vector<double> match(2,0);
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
+	match(0) = 1.0/3.0;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+	match(1) = 1.0/3.0;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+	match(0) = 0;
+	match(1) = 2.0/3.0;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+	match(0) = 2.0/3.0;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
+	match(1) = 1.0/3.0;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 5; }
+	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
+	return 6;
 }
 
-void TrianglePhi::save_param(IOFiles& w) const {
-	w.write("phi",phi_);
+Matrix<double> HoneycombChiral::set_ab() const {
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 3.0;
+	tmp(1,0) = 0.0;
+	tmp(0,1) = 1.5;
+	tmp(1,1) = 1.5*sqrt(3.0);
+	return tmp;
 }
 /*}*/
 
 /*{method needed for checking*/
-void TrianglePhi::display_results(){
+void HoneycombChiral::display_results(){
 	compute_H();
 
 	std::string color("black");
@@ -89,8 +108,8 @@ void TrianglePhi::display_results(){
 	polygon(3,1)=ab_(1,1);
 	ps.polygon(polygon,"linecolor=black");
 
-	double x_shift((LxLy_(0,0)+LxLy_(0,1)-ab_(0,0)-ab_(0,1))/2);
-	double y_shift((LxLy_(1,0)+LxLy_(1,1)-ab_(1,0)-ab_(1,1))/2);
+	double x_shift((LxLy_(0,0)+LxLy_(0,1))/2-13*ab_(0,1)/6.0);
+	double y_shift((-ab_(1,0)-ab_(1,1))/2);
 	//double x_shift(-ab_(0,0)/4);
 	//double y_shift(0.0);
 	polygon(0,0)+=x_shift;
@@ -105,7 +124,7 @@ void TrianglePhi::display_results(){
 
 	unsigned int s0;
 	unsigned int s1;
-	double unit_flux(2*M_PI*m_/N_);
+	double unit_flux(2*M_PI/3);
 	std::complex<double> t;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
@@ -123,7 +142,13 @@ void TrianglePhi::display_results(){
 				xy1(1) += dir_nn_(obs_[0](i,3),1);
 				xy1 = xy1.chop();
 				ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-			} else { linestyle = "solid"; }
+			} else {
+				linestyle = "solid"; 
+				if(s0<s1){
+					ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
+					ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}"); 
+				}
+			}
 
 			if(t.real()>0){ color = "blue"; }
 			else { color = "red"; }
@@ -137,12 +162,11 @@ void TrianglePhi::display_results(){
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 
 		}
-		ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
 	}
 	ps.end(true,true,true);
 }
 
-void TrianglePhi::check(){
+void HoneycombChiral::check(){
 	//Matrix<int> nb;
 	//std::cout<<"######################"<<std::endl;
 	//for(unsigned int i(0);i<n_;i++){
@@ -156,7 +180,7 @@ void TrianglePhi::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="triangle-phi";
+	filename_ ="honeyomb-chiral";
 	display_results();
 }
 /*}*/

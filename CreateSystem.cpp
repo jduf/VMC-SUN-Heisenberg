@@ -124,7 +124,31 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 0: { RGL_ = new TriangleFermi(*s_); }break;
+								case 2: {
+											double t;
+											if(param){ t = (*param)(0); }
+											if(C){ t = C->get<double>("t"); }
+											RGL_ = new TrianglePlaquette(*s_,t);
+										}break;
+								case 3: {
+											double mu;
+											if(param){ mu = (*param)(0); }
+											if(C){ mu = C->get<double>("mu"); }
+											RGL_ = new TriangleMu(*s_,mu);
+										}break;
+								case 4: {
+											Vector<double> t;
+											Vector<double> mu;
+											if(param){
+											}
+											if(C){
+												t = C->get<std::vector<double> >("t");
+												mu = C->get<std::vector<double> >("mu");
+											}
+											RGL_ = new TriangleFree(*s_,t,mu);
+										}break;
 								default:{ error(); }break;
+
 							}
 						}break;
 					case 2:
@@ -244,6 +268,14 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										   if(C){ t = C->get<std::vector<double> >("t"); }
 										   RGL_ = new HoneycombFree(*s_,t); 
 									   }break;
+								default:{ error(); }break;
+							}
+						}break;
+					case 2:
+						{
+							switch(ref_(2)){
+								case 0:
+									{ CGL_ = new HoneycombChiral(*s_); }break;
 								default:{ error(); }break;
 							}
 						}break;

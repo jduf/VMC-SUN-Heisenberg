@@ -14,7 +14,7 @@ class LadderFree: public Ladder<double>{
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const;
 
 	private:
-		Vector<double> const t_; //!< polymerization parameter
+		Vector<double> const t_; //!< hopping term
 		Vector<double> const mu_;//!< chemical potential
 
 		void compute_H();

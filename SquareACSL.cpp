@@ -28,8 +28,8 @@ void SquareACSL::compute_H(){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
 		ab = get_site_in_ab(s0);
-		if(obs_[0](i,3)==1){ H_(s0,s1) = my::chop(std::polar(obs_[0](i,4)*t_(2*ab+1),ab*phi)); }
-		else { H_(s0,s1) = obs_[0](i,4)*t_(2*ab); }
+		if(obs_[0](i,3)==1){ H_(s0,s1) = my::chop(std::polar((obs_[0](i,4)?bc_:1)*t_(2*ab+1),ab*phi)); }
+		else { H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(2*ab); }
 	}
 	H_ += H_.conjugate_transpose();
 }
@@ -69,7 +69,6 @@ void SquareACSL::display_results(){
 	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	std::complex<double> t;
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-2,-20,20,20,filename_);
 
@@ -99,6 +98,7 @@ void SquareACSL::display_results(){
 	unsigned int s1;
 	double unit_flux(2.0*M_PI*m_/N_);
 	double phi(-unit_flux);
+	std::complex<double> t;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		xy0 = get_pos_in_lattice(s0);

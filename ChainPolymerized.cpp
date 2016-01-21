@@ -29,12 +29,10 @@ ChainPolymerized::ChainPolymerized(System const& s, Vector<double> const& t):
 /*{method needed for running*/
 void ChainPolymerized::compute_H(){
 	H_.set(n_,n_,0);
-	Matrix<int> nb;
-	for(unsigned int i(0);i<n_;i+=spuc_){
-		for(unsigned int j(0);j<spuc_;j++){
-			nb = get_neighbourg(i+j);
-			H_(i+j,nb(0,0)) = nb(0,1)*t_(j);
-		}
+	unsigned int k(0);
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_:1)*t_(k);
+		k = (k+1)%spuc_;
 	}
 	H_ += H_.transpose();
 }

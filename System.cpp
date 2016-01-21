@@ -9,7 +9,7 @@ System::System(Parseur& P):
 	n_(P.get<unsigned int>("n")),
 	bc_(P.get<int>("bc")),
 	M_(P.get<std::vector<unsigned int> >("M")),
-	J_(P.get<std::vector<double> >("Jp")),
+	J_(P.get<std::vector<double> >("J")),
 	status_(5)
 {
 	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : Bad initialization"<<std::endl; }
@@ -39,7 +39,7 @@ void System::set_obs(std::vector<Observable> const& obs, int const& nobs){
 	if(nobs<0){ obs_ = obs; }
 	else {
 		obs_.clear();
-		for(int i(0);i<nobs;i++){ obs_.push_back(obs[i]); }
+		for(int i(0);i<nobs+1;i++){ obs_.push_back(obs[i]); }
 	}
 }
 
@@ -108,8 +108,10 @@ void System::save_output(IOFiles& w) const {
 
 	w.write("status",status_);
 	int nobs(obs_.size());
-	w.write("#obs (E="+my::tostring(obs_[0][0].get_x())+", dE="+my::tostring(obs_[0][0].get_dx())+")",nobs);
-	for(int i(0);i<nobs;i++){ w<<obs_[i]; }
+	if(nobs){
+		w.write("#obs (E="+my::tostring(obs_[0][0].get_x())+", dE="+my::tostring(obs_[0][0].get_dx())+")",nobs);
+		for(int i(0);i<nobs;i++){ w<<obs_[i]; }
+	}
 }
 
 void System::print(unsigned int nobs) const {
@@ -127,17 +129,11 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(0) = 1;
 		ref(1) = 1;
 		ref(2) = 0;
-
-		std::vector<double> Jp(1,1);
-		P.set("Jp",Jp);
 	}
 	if( wf == "chain-polymerized" ){
 		ref(0) = 1;
 		ref(1) = 1;
 		ref(2) = 1;
-
-		std::vector<double> Jp(1,1);
-		P.set("Jp",Jp);
 	}
 	if( wf == "chain-free" ){
 		ref(0) = 1;
@@ -154,21 +150,21 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 4;
-		std::vector<double> Jp(2);
+		std::vector<double> J(2);
 		double theta(P.get<double>("theta"));
-		Jp[0] = cos(theta); //legs  (J‖)
-		Jp[1] = sin(theta); //rungs (J⊥)
-		P.set("Jp",Jp);
+		J[0] = cos(theta); //legs  (J‖)
+		J[1] = sin(theta); //rungs (J⊥)
+		P.set("J",J);
 	}
 	if( wf == "ladder-freeflux" ){
 		ref(0) = 2;
 		ref(1) = 2;
 		ref(2) = 1;
-		std::vector<double> Jp(2);
+		std::vector<double> J(2);
 		double theta(P.get<double>("theta"));
-		Jp[0] = cos(theta); //legs  (J‖)
-		Jp[1] = sin(theta); //rungs (J⊥)
-		P.set("Jp",Jp);
+		J[0] = cos(theta); //legs  (J‖)
+		J[1] = sin(theta); //rungs (J⊥)
+		P.set("J",J);
 	}
 
 	if( wf == "triangle-fermi" ){
@@ -179,7 +175,17 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 	if( wf == "triangle-mu" ){
 		ref(0) = 3;
 		ref(1) = 1;
-		ref(2) = 1;
+		ref(2) = 3;
+	}
+	if( wf == "triangle-plaquette" ){
+		ref(0) = 3;
+		ref(1) = 1;
+		ref(2) = 2;
+	}
+	if( wf == "triangle-free" ){
+		ref(0) = 3;
+		ref(1) = 1;
+		ref(2) = 4;
 	}
 	if( wf == "triangle-phi" ){
 		ref(0) = 3;
@@ -212,22 +218,16 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 3;
-		std::vector<double> Jp(1,1);
-		P.set("Jp",Jp);
 	}
 	if( wf == "square-freeflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 4;
-		std::vector<double> Jp(1,1);
-		P.set("Jp",Jp);
 	}
 	if( wf == "square-piflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 2;
-		std::vector<double> Jp(1,1);
-		P.set("Jp",Jp);
 	}
 	if( wf == "square-phi" ){
 		ref(0) = 4;
@@ -269,6 +269,16 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(0) = 6;
 		ref(1) = 1;
 		ref(2) = 2;
+	}
+	if( wf == "honeycomb-chiral" ){
+		ref(0) = 6;
+		ref(1) = 2;
+		ref(2) = 0;
+	}
+
+	unsigned int i;
+	if(!P.find("J",i,false)){
+		P.set("J",std::vector<double>(1,1));
 	}
 	return ref;
 }

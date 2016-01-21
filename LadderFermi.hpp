@@ -41,15 +41,8 @@ LadderFermi<Type>::LadderFermi(System const& s):
 template<typename Type>
 void LadderFermi<Type>::compute_H(){
 	this->H_.set(this->n_,this->n_,0);
-	Matrix<int> nb;
-	for(unsigned int i(0);i<this->n_;i++){
-		nb = this->get_neighbourg(i);
-		if( ( i % 2 ) == 0){				//even sites => top
-			this->H_(i,nb(0,0)) = nb(0,1);
-			this->H_(i,nb(1,0)) = nb(1,1);	
-		} else {							//odd sites => bottom
-			this->H_(i,nb(0,0)) = nb(0,1);
-		}
+	for(unsigned int i(0);i<this->obs_[0].nlinks(); i++){
+		this->H_(this->obs_[0](i,0),this->obs_[0](i,1)) = (this->obs_[0](i,4)?this->bc_:1);
 	}
 	this->H_ += this->H_.transpose();
 }

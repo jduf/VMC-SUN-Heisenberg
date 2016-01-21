@@ -10,6 +10,9 @@
 #include "LadderFreeFlux.hpp"
 
 #include "TriangleFermi.hpp"
+#include "TriangleMu.hpp"
+#include "TrianglePlaquette.hpp"
+#include "TriangleFree.hpp"
 #include "TrianglePhi.hpp"
 
 #include "SquareFermi.hpp"
@@ -26,6 +29,7 @@
 #include "Honeycomb0pp.hpp"
 #include "HoneycombPiFlux.hpp"
 #include "HoneycombFree.hpp"
+#include "HoneycombChiral.hpp"
 
 /*{*//*!Class that creates any kind of wavefunctions
 	   and gives a way to act on it (set observable, merge simulation, compute

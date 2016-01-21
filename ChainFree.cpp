@@ -23,15 +23,15 @@ void ChainFree::compute_H(){
 
 	unsigned int s0(0);
 	unsigned int s1(0);
+	unsigned int k(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		if(obs_[0](i,4)){ H_(s0,s1) = t_.back(); }
-		else { H_(s0,s1) = t_(0); }
-		//H_(s0,s0) = mu_(ab)/2.0;
+		H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(k);
+		H_(s0,s0) = mu_(k)/2.0;
+		k = (k+1)%spuc_;
 	}
 	H_ += H_.transpose();
-	std::cout<<H_<<std::endl;
 }
 
 void ChainFree::create(){

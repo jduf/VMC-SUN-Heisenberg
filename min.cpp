@@ -61,179 +61,179 @@ int main(int argc, char* argv[]){
 					VMCInterpolation m2(m);
 					m2.plot();
 				}break;
-			case 5:
-				{
-					Vector<double> param(11,1.0);
-					Vector<double> J(P.get<std::vector<double> >("Jp"));
-					int A(J(0)>J(1)?0:-1); //link between sites 0-1 (rung)
-					int B(J(0)>J(1)?-1:0); //link between sites 0-2 (leg)
-
-					Matrix<int> sym(9,3);
-					switch(P.get<unsigned int>("s")){
-						case 0:
-							{
-								/*facing tetramerization*/
-								sym(0,0) = 1;
-								sym(0,1) = B;
-								sym(0,2) = 1;
-
-								sym(1,0) = 2;
-								sym(1,1) = B;
-								sym(1,2) = 1;
-
-								sym(2,0) = 3;
-								sym(2,1) = 0;
-								sym(2,2) = 1;
-
-								sym(3,0) = 4;
-								sym(3,1) = B;
-								sym(3,2) = 1;
-
-								sym(4,0) = 5;
-								sym(4,1) = B;
-								sym(4,2) = 1;
-
-								sym(5,0) = 6;
-								sym(5,1) = 0;
-								sym(5,2) = 1;
-
-								sym(6,0) = 7;
-								sym(6,1) = B;
-								sym(6,2) = 1;
-
-								sym(7,0) = 9;
-								sym(7,1) = A;
-								sym(7,2) = 1;
-
-								sym(8,0) = 10;
-								sym(8,1) = 8;
-								sym(8,2) = 1;
-							}break;
-						case 1:
-							{
-								/*facing tetramerization with pi*/
-								sym(0,0) = 1;
-								sym(0,1) = B;
-								sym(0,2) = -1;
-
-								sym(1,0) = 2;
-								sym(1,1) = B;
-								sym(1,2) = 1;
-
-								sym(2,0) = 3;
-								sym(2,1) = 0;
-								sym(2,2) = 1;
-
-								sym(3,0) = 4;
-								sym(3,1) = B;
-								sym(3,2) = -1;
-
-								sym(4,0) = 5;
-								sym(4,1) = B;
-								sym(4,2) = 1;
-
-								sym(5,0) = 6;
-								sym(5,1) = 0;
-								sym(5,2) = 1;
-
-								sym(6,0) = 7;
-								sym(6,1) = B;
-								sym(6,2) = -1;
-
-								sym(7,0) = 9;
-								sym(7,1) = A;
-								sym(7,2) = 1;
-
-								sym(8,0) = 10;
-								sym(8,1) = 8;
-								sym(8,2) = -1;
-							}break;
-						case 2:
-							{
-								/*shifted by 2 tetramerization*/
-								sym(0,0) = 1;
-								sym(0,1) = B;
-								sym(0,2) = 1;
-
-								sym(1,0) = 2;
-								sym(1,1) = B;
-								sym(1,2) = 1;
-
-								sym(2,0) = 3;
-								sym(2,1) = A;
-								sym(2,2) = 1;
-
-								sym(3,0) = 4;
-								sym(3,1) = 8;
-								sym(3,2) = 1;
-
-								sym(4,0) = 5;
-								sym(4,1) = B;
-								sym(4,2) = 1;
-
-								sym(5,0) = 6;
-								sym(5,1) = A;
-								sym(5,2) = 1;
-
-								sym(6,0) = 7;
-								sym(6,1) = B;
-								sym(6,2) = 1;
-
-								sym(7,0) = 9;
-								sym(7,1) = A;
-								sym(7,2) = 1;
-
-								sym(8,0) = 10;
-								sym(8,1) = B;
-								sym(8,2) = 1;
-							}break;
-						case 3:
-							{
-								/*shifted by 2 tetramerization with pi*/
-								sym(0,0) = 1;
-								sym(0,1) = B;
-								sym(0,2) = -1;
-
-								sym(1,0) = 2;
-								sym(1,1) = B;
-								sym(1,2) = 1;
-
-								sym(2,0) = 3;
-								sym(2,1) = A;
-								sym(2,2) = 1;
-
-								sym(3,0) = 4;
-								sym(3,1) = 8;
-								sym(3,2) = -1;
-
-								sym(4,0) = 5;
-								sym(4,1) = B;
-								sym(4,2) = 1;
-
-								sym(5,0) = 6;
-								sym(5,1) = A;
-								sym(5,2) = 1;
-
-								sym(6,0) = 7;
-								sym(6,1) = B;
-								sym(6,2) = -1;
-
-								sym(7,0) = 9;
-								sym(7,1) = A;
-								sym(7,2) = 1;
-
-								sym(8,0) = 10;
-								sym(8,1) = B;
-								sym(8,2) = -1;
-							}break;
-					}
-
-					VMCSystematic m3(m,param,sym,0,8);
-					m.set_tmax(60);
-					m3.run(0,1e-5,10);
-					m3.save();
-					m3.plot();
-				}break;
+			//case 5:
+				//{
+					//Vector<double> param(11,1.0);
+					//Vector<double> J(P.get<std::vector<double> >("Jp"));
+					//int A(J(0)>J(1)?0:-1); //link between sites 0-1 (rung)
+					//int B(J(0)>J(1)?-1:0); //link between sites 0-2 (leg)
+//
+					//Matrix<int> sym(9,3);
+					//switch(P.get<unsigned int>("s")){
+						//case 0:
+							//{
+								///*facing tetramerization*/
+								//sym(0,0) = 1;
+								//sym(0,1) = B;
+								//sym(0,2) = 1;
+//
+								//sym(1,0) = 2;
+								//sym(1,1) = B;
+								//sym(1,2) = 1;
+//
+								//sym(2,0) = 3;
+								//sym(2,1) = 0;
+								//sym(2,2) = 1;
+//
+								//sym(3,0) = 4;
+								//sym(3,1) = B;
+								//sym(3,2) = 1;
+//
+								//sym(4,0) = 5;
+								//sym(4,1) = B;
+								//sym(4,2) = 1;
+//
+								//sym(5,0) = 6;
+								//sym(5,1) = 0;
+								//sym(5,2) = 1;
+//
+								//sym(6,0) = 7;
+								//sym(6,1) = B;
+								//sym(6,2) = 1;
+//
+								//sym(7,0) = 9;
+								//sym(7,1) = A;
+								//sym(7,2) = 1;
+//
+								//sym(8,0) = 10;
+								//sym(8,1) = 8;
+								//sym(8,2) = 1;
+							//}break;
+						//case 1:
+							//{
+								///*facing tetramerization with pi*/
+								//sym(0,0) = 1;
+								//sym(0,1) = B;
+								//sym(0,2) = -1;
+//
+								//sym(1,0) = 2;
+								//sym(1,1) = B;
+								//sym(1,2) = 1;
+//
+								//sym(2,0) = 3;
+								//sym(2,1) = 0;
+								//sym(2,2) = 1;
+//
+								//sym(3,0) = 4;
+								//sym(3,1) = B;
+								//sym(3,2) = -1;
+//
+								//sym(4,0) = 5;
+								//sym(4,1) = B;
+								//sym(4,2) = 1;
+//
+								//sym(5,0) = 6;
+								//sym(5,1) = 0;
+								//sym(5,2) = 1;
+//
+								//sym(6,0) = 7;
+								//sym(6,1) = B;
+								//sym(6,2) = -1;
+//
+								//sym(7,0) = 9;
+								//sym(7,1) = A;
+								//sym(7,2) = 1;
+//
+								//sym(8,0) = 10;
+								//sym(8,1) = 8;
+								//sym(8,2) = -1;
+							//}break;
+						//case 2:
+							//{
+								///*shifted by 2 tetramerization*/
+								//sym(0,0) = 1;
+								//sym(0,1) = B;
+								//sym(0,2) = 1;
+//
+								//sym(1,0) = 2;
+								//sym(1,1) = B;
+								//sym(1,2) = 1;
+//
+								//sym(2,0) = 3;
+								//sym(2,1) = A;
+								//sym(2,2) = 1;
+//
+								//sym(3,0) = 4;
+								//sym(3,1) = 8;
+								//sym(3,2) = 1;
+//
+								//sym(4,0) = 5;
+								//sym(4,1) = B;
+								//sym(4,2) = 1;
+//
+								//sym(5,0) = 6;
+								//sym(5,1) = A;
+								//sym(5,2) = 1;
+//
+								//sym(6,0) = 7;
+								//sym(6,1) = B;
+								//sym(6,2) = 1;
+//
+								//sym(7,0) = 9;
+								//sym(7,1) = A;
+								//sym(7,2) = 1;
+//
+								//sym(8,0) = 10;
+								//sym(8,1) = B;
+								//sym(8,2) = 1;
+							//}break;
+						//case 3:
+							//{
+								///*shifted by 2 tetramerization with pi*/
+								//sym(0,0) = 1;
+								//sym(0,1) = B;
+								//sym(0,2) = -1;
+//
+								//sym(1,0) = 2;
+								//sym(1,1) = B;
+								//sym(1,2) = 1;
+//
+								//sym(2,0) = 3;
+								//sym(2,1) = A;
+								//sym(2,2) = 1;
+//
+								//sym(3,0) = 4;
+								//sym(3,1) = 8;
+								//sym(3,2) = -1;
+//
+								//sym(4,0) = 5;
+								//sym(4,1) = B;
+								//sym(4,2) = 1;
+//
+								//sym(5,0) = 6;
+								//sym(5,1) = A;
+								//sym(5,2) = 1;
+//
+								//sym(6,0) = 7;
+								//sym(6,1) = B;
+								//sym(6,2) = -1;
+//
+								//sym(7,0) = 9;
+								//sym(7,1) = A;
+								//sym(7,2) = 1;
+//
+								//sym(8,0) = 10;
+								//sym(8,1) = B;
+								//sym(8,2) = -1;
+							//}break;
+					//}
+//
+					//VMCSystematic m3(m,param,sym,0,8);
+					//m.set_tmax(60);
+					//m3.run(0,1e-5,10);
+					//m3.save();
+					//m3.plot();
+				//}break;
 			case 6:
 				{
 					m.clean();
@@ -271,6 +271,14 @@ int main(int argc, char* argv[]){
 
 					m.set_tmax(P.get<unsigned int>("tmax"));
 					m.refine(1000,0,1e-5,10); 
+				}break;
+			case 12:
+				{
+					VMCSystematic m3(m,P);
+					m.set_tmax(60);
+					m3.run(0,1e-5,10);
+					m3.save();
+					m3.plot();
 				}break;
 			default:
 				{

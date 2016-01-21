@@ -1,26 +1,19 @@
 #include "VMCSystematic.hpp"
 
-VMCSystematic::VMCSystematic(VMCMinimization const& m, Vector<double> const& param, Matrix<int> const& sym, unsigned int const& p1, unsigned int const& p2):
-	VMCMinimization(m,"SYS"),
-	param_(param),
-	sym_(sym),
-	p1_(p1),
-	p2_(p2)
+VMCSystematic::VMCSystematic(VMCMinimization const& m, Parseur& P):
+	VMCMinimization(m,"SYS")
 {
-	if(m_->dof_ - sym.row() != 2){
-		std::cout<<__PRETTY_FUNCTION__<<"bug"<<std::endl;
-	}
+	set_phase_space(P);
 }
 
 /*{public methods*/
 void VMCSystematic::run(int const& nobs, double const& dE, unsigned int const& maxiter){
-	for(unsigned int i(0);i<m_->ps_[p1_].size();i++){
-		param_(p1_) = m_->ps_[p1_](i);
-		for(unsigned int j(0);j<m_->ps_[p2_].size();j++){
-			param_(p2_) = m_->ps_[p2_](j);
-			apply_symmetry();
-			evaluate_until_precision(param_,nobs,dE,maxiter);
-		}
+	Vector<double> param(1);
+	for(unsigned int i(0);i<m_->ps_[0].size();i++){
+		param(0) = m_->ps_[0](i);
+		std::cout<<std::endl;
+		std::cout<<param<<std::endl;
+		evaluate_until_precision(param,nobs,dE,maxiter);
 	}
 }
 
@@ -36,18 +29,8 @@ void VMCSystematic::plot(){
 
 	Gnuplot gp("./","systematic");
 	gp+="set xyplane 0";
-	gp+="splot 'systematic.dat' u 1:9:($12+$13) w p pt 10,\\";
-	gp+="      'systematic.dat' u 1:9:($12-$13) w p pt 8";
+	gp+="plot 'systematic.dat' u 1:2:3 w e notitle";
 	gp.save_file();
 	gp.create_image(true,true);
-}
-/*}*/
-
-/*{private methods*/
-void VMCSystematic::apply_symmetry(){
-	for(unsigned int i(0);i<sym_.row();i++){
-		if(sym_(i,1)<0){ param_(sym_(i,0)) = sym_(i,2); }
-		else { param_(sym_(i,0)) = sym_(i,2)*param_(sym_(i,1)); }
-	}
 }
 /*}*/

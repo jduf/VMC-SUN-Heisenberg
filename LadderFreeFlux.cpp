@@ -25,33 +25,31 @@ LadderFreeFlux::LadderFreeFlux(System const& s, Vector<double> const& t, Vector<
 void LadderFreeFlux::compute_H(){
 	H_.set(n_,n_,0);
 	Matrix<int> nb;
-	unsigned int k(0);
-	unsigned int f(0);
-
-	for(unsigned int i(0);i<n_;i++){
-		nb = get_neighbourg(i);
-		if(i%spuc_){
-			if(i%2){
-				H_(i,nb(0,0)) = my::chop(std::polar(nb(0,1)*t_(k++),flux_(f++)*M_PI));
-			} else {
-				H_(i,nb(0,0)) = nb(0,1)*t_(k++);
-				H_(i,nb(1,0)) = nb(1,1)*t_(k++);
-			}
-		} else {
-			/*!decoupled chains in the limit J⊥(0)=J_(1)->0, therefore, in
-			 * that case the variational parameter is t⊥ (t‖ is set to 1),
-			 * otherwise the inverse is done*/
-			if(J_(0)>J_(1)){
-				H_(i,nb(0,0)) = nb(0,1);
-				H_(i,nb(1,0)) = nb(1,1)*t_(k++);
-			} else {
-				H_(i,nb(0,0)) = nb(0,1)*t_(k++);
-				H_(i,nb(1,0)) = nb(1,1);
-			}
-		}
-		k = k%t_.size();
-		f = f%flux_.size();
-	}
+	std::cerr<<__PRETTY_FUNCTION__<<" : undefined"<<std::endl;
+	//for(unsigned int i(0);i<n_;i++){
+		//nb = get_neighbourg(i);
+		//if(i%spuc_){
+			//if(i%2){
+				//H_(i,nb(0,0)) = my::chop(std::polar(nb(0,1)*t_(k++),flux_(f++)*M_PI));
+			//} else {
+				//H_(i,nb(0,0)) = nb(0,1)*t_(k++);
+				//H_(i,nb(1,0)) = nb(1,1)*t_(k++);
+			//}
+		//} else {
+			///*!decoupled chains in the limit J⊥(0)=J_(1)->0, therefore, in
+			// * that case the variational parameter is t⊥ (t‖ is set to 1),
+			// * otherwise the inverse is done*/
+			//if(J_(0)>J_(1)){
+				//H_(i,nb(0,0)) = nb(0,1);
+				//H_(i,nb(1,0)) = nb(1,1)*t_(k++);
+			//} else {
+				//H_(i,nb(0,0)) = nb(0,1)*t_(k++);
+				//H_(i,nb(1,0)) = nb(1,1);
+			//}
+		//}
+		//k = k%t_.size();
+		//f = f%flux_.size();
+	//}
 	H_ += H_.conjugate_transpose();
 }
 

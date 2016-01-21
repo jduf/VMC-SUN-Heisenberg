@@ -28,15 +28,15 @@ void HoneycombFree::compute_H(){
 		s1 = obs_[0](i,1);
 		ab0 = get_site_in_ab(s0);
 		ab1 = get_site_in_ab(s1);
-		if(ab0==0 && ab1==1){ H_(s0,s1) = obs_[0](i,4)*t_(0); }
-		if(ab0==0 && ab1==3){ H_(s0,s1) = obs_[0](i,4)*t_(1); }
-		if(ab0==0 && ab1==5){ H_(s0,s1) = obs_[0](i,4)*t_(2); }
-		if(ab0==2 && ab1==1){ H_(s0,s1) = obs_[0](i,4)*t_(3); }
-		if(ab0==2 && ab1==3){ H_(s0,s1) = obs_[0](i,4)*t_(4); }
-		if(ab0==2 && ab1==5){ H_(s0,s1) = obs_[0](i,4)*t_(5); }
-		if(ab0==4 && ab1==1){ H_(s0,s1) = obs_[0](i,4)*t_(6); }
-		if(ab0==4 && ab1==3){ H_(s0,s1) = obs_[0](i,4)*t_(7); }
-		if(ab0==4 && ab1==5){ H_(s0,s1) = obs_[0](i,4)*t_(8); }
+		if(ab0==0 && ab1==1){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(0); }
+		if(ab0==0 && ab1==3){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(1); }
+		if(ab0==0 && ab1==5){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(2); }
+		if(ab0==2 && ab1==1){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(3); }
+		if(ab0==2 && ab1==3){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(4); }
+		if(ab0==2 && ab1==5){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(5); }
+		if(ab0==4 && ab1==1){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(6); }
+		if(ab0==4 && ab1==3){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(7); }
+		if(ab0==4 && ab1==5){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(8); }
 	}
 	H_ += H_.transpose();
 }

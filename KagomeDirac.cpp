@@ -3,7 +3,7 @@
 template<>
 void KagomeDirac<double>::create(){
 	compute_H();
-	diagonalize(false);
+	diagonalize(true);
 	if(status_==2){
 		std::cout<<"double"<<std::endl;
 		for(unsigned int c(0);c<N_;c++){

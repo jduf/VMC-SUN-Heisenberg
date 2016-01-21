@@ -18,7 +18,6 @@ Honeycomb0pp::Honeycomb0pp(System const& s, double td):
 /*{method needed for running*/
 void Honeycomb0pp::compute_H(){
 	H_.set(n_,n_,0);
-	double th(1.0);
 
 	unsigned int s0(0);
 	unsigned int s1(0);
@@ -29,9 +28,8 @@ void Honeycomb0pp::compute_H(){
 		s1 = obs_[0](i,1);
 		ab0 = get_site_in_ab(s0);
 		ab1 = get_site_in_ab(s1);
-		if((ab0==0 && ab1==1) || (ab0==2 && ab1==3) || (ab0==4 && ab1==5)){
-			H_(s0,s1) = obs_[0](i,4)*td_; 
-		} else { H_(s0,s1) = obs_[0](i,4)*th; }
+		if((ab0==0 && ab1==1) || (ab0==2 && ab1==3) || (ab0==4 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*td_; } 
+		else { H_(s0,s1) = (obs_[0](i,4)?bc_:1); }
 	}
 	H_ += H_.transpose();
 }
@@ -89,8 +87,8 @@ void Honeycomb0pp::lattice(){
 	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	PSTricks ps(info_+path_+dir_,filename_+"-pstricks");
-	ps.begin(-2,-20,40,20,filename_+"-pstricks");
+	PSTricks ps(info_+path_+dir_,filename_);
+	ps.begin(-2,-20,40,20,filename_);
 
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=0;
@@ -113,7 +111,7 @@ void Honeycomb0pp::lattice(){
 	polygon(3,1)=ab_(1,1);
 	ps.polygon(polygon,"linecolor=black");
 
-	double x_shift((LxLy_(0,0)+LxLy_(0,1)-ab_(0,0)-ab_(0,1))/2);
+	double x_shift((LxLy_(0,0)+LxLy_(0,1))/2-13*ab_(0,1)/6.0);
 	double y_shift((-ab_(1,0)-ab_(1,1))/2);
 	polygon(0,0)+=x_shift;
 	polygon(0,1)+=y_shift;
@@ -137,7 +135,7 @@ void Honeycomb0pp::lattice(){
 		s1 = obs_[0](i,1);
 		xy1 = get_pos_in_lattice(s1);
 
-		if(!(my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy0(0),xy0(1)) || my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy1(0),xy1(1))) ){
+		//if(!(my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy0(0),xy0(1)) || my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy1(0),xy1(1))) ){
 			t = H_(s0,s1);
 			if(std::abs(t)>1e-4){
 				if((xy0-xy1).norm_squared()>1.0001){
@@ -160,7 +158,7 @@ void Honeycomb0pp::lattice(){
 				linewidth = my::tostring(std::abs(t))+"mm";
 				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
-		} else {
+		//} else {
 			if(obs_.size()>1){/*bound energy*/
 				corr = obs_[1][obs_[0](i,2)].get_x();
 				if(std::abs(corr)>1e-4){
@@ -195,7 +193,7 @@ void Honeycomb0pp::lattice(){
 				////}
 				//}
 			}
-		}
+		//}
 	}
 	ps.end(true,true,true);
 }
@@ -216,7 +214,7 @@ void Honeycomb0pp::display_results(){
 		run_cmd += " -d:Jp 1 -u:tmax 10 -d";
 		rst_file_->change_text_onclick("run command",run_cmd);
 
-		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 		if(obs_[0].nval()){
 			rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
 		} 

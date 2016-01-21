@@ -87,15 +87,6 @@ unsigned int SquareJastrow::match_pos_in_ab(Vector<double> const& x) const {
 	if(my::are_equal(x,match)){ return 1; }
 	return 2;
 }
-
-//Matrix<double> SquareJastrow::set_ab(){
-//Matrix<double> tmp(2,2);
-//tmp(0,0) = 2;
-//tmp(1,0) = 0;
-//tmp(0,1) = 1;
-//tmp(1,1) = 1;
-//return tmp;
-//}
 /*}*/
 
 /*{method needed for checking*/

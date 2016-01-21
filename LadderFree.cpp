@@ -27,15 +27,19 @@ void LadderFree::compute_H(){
 	unsigned int s0(0);
 	unsigned int s1(0);
 	unsigned int k(0);
+	unsigned int l(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		if(obs_[0](i,4)){ H_(s0,s1) = mu_(0)*t_(k++); }
-		else { H_(s0,s1) = t_(k++); }
-		k = k%t_.size();
+		if(obs_[0](i,4)){ H_(s0,s1) = mu_(0)*t_(k); }
+		else { H_(s0,s1) = t_(k); }
+		if(!obs_[0](i,3)){
+			H_(s0,s0) = mu_(l)/2.0; 
+			l = (l+1)%spuc_;
+		}
+		k = (k+1)%spuc_;
 	}
 	H_ += H_.transpose();
-	std::cout<<H_<<std::endl;
 }
 
 void LadderFree::create(){

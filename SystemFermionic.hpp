@@ -326,7 +326,7 @@ void SystemFermionic<Type>::write(IOFiles& w) const {
 
 template<typename Type>
 void SystemFermionic<Type>::free_memory(){
-	std::cout<<"free"<<std::endl;
+	//std::cout<<"free"<<std::endl;
 	Ainv_[0].set();
 	tmp_[0].set();
 	tmp_v[0].set();

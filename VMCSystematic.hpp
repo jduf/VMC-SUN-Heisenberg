@@ -5,7 +5,7 @@
 
 class VMCSystematic : public VMCMinimization{
 	public:
-		VMCSystematic(VMCMinimization const& m, Vector<double> const& param, Matrix<int> const& sym, unsigned int const& p1, unsigned int const& p2);
+		VMCSystematic(VMCMinimization const& m, Parseur& P);
 		/*!Default destructor*/
 		virtual ~VMCSystematic() = default;
 		/*{Forbidden*/
@@ -20,11 +20,5 @@ class VMCSystematic : public VMCMinimization{
 		void test();
 
 	private:
-		Vector<double> param_;
-		Matrix<int> sym_;
-		unsigned int p1_;
-		unsigned int p2_;
-
-		void apply_symmetry();
 };
 #endif

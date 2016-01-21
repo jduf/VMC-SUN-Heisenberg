@@ -27,16 +27,15 @@ void KagomeVBC::compute_H(){
 		s1 = obs_[0](i,1);
 		ab0 = get_site_in_ab(s0);
 		ab1 = get_site_in_ab(s1);
-		if((ab0==3 && ab1==5) || (ab0==4 && ab1==6) || (ab0==5 && ab1==2) || (ab0==7 && ab1==8) || (ab0==8 && ab1==0)){
-			H_(s0,s1) = std::polar(obs_[0](i,4)*t,-phi); 
-		} else { H_(s0,s1) = std::polar(obs_[0](i,4)*t,phi); }
+		if((ab0==3 && ab1==5) || (ab0==4 && ab1==6) || (ab0==5 && ab1==2) || (ab0==7 && ab1==8) || (ab0==8 && ab1==0)){ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_:1)*t,-phi); }
+		else { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_:1)*t,phi); }
 	}
 	H_ += H_.conjugate_transpose();
 }
 
 void KagomeVBC::create(){
 	compute_H();
-	diagonalize(false);
+	diagonalize(true);
 	if(status_==2){
 		for(unsigned int c(0);c<N_;c++){
 			EVec_[c].set(n_,M_(c));

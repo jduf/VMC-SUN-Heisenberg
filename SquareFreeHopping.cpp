@@ -5,8 +5,6 @@ SquareFreeHopping::SquareFreeHopping(System const& s, Vector<double> const& t):
 	Square<double>((N_/m_==2?2:0),0,1,"square-free-real"),
 	t_(t)
 {
-	//std::cout<<t_<<std::endl;
-	//std::cout<<mu_<<std::endl;
 	if(status_==2){
 		init_fermionic();
 
@@ -17,11 +15,10 @@ SquareFreeHopping::SquareFreeHopping(System const& s, Vector<double> const& t):
 /*{method needed for running*/
 void SquareFreeHopping::compute_H(){
 	H_.set(n_,n_,0);
-	unsigned int s0;
+	unsigned int k(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		s0 = obs_[0](i,0);
-		if(s0) { H_(s0,obs_[0](i,1)) = obs_[0](i,4)*t_(s0-1); }
-		else { H_(s0,obs_[0](i,1)) = obs_[0](i,4);  }
+		H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_:1)*t_(k);
+		k = (k+1)%t_.size();
 	}
 	H_ += H_.transpose();
 }
