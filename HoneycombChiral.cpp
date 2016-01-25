@@ -85,34 +85,20 @@ void HoneycombChiral::display_results(){
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
-	ps.begin(-2,-20,20,20,filename_);
-
-
+	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(lattice_corners_,"linecolor=green");
 
-	Matrix<double> polygon(4,2);
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=ab_(0,0);
-	polygon(1,1)=ab_(1,0);
-	polygon(2,0)=ab_(0,0)+ab_(0,1);
-	polygon(2,1)=ab_(1,0)+ab_(1,1);
-	polygon(3,0)=ab_(0,1);
-	polygon(3,1)=ab_(1,1);
-	ps.polygon(polygon,"linecolor=black");
-
-	double x_shift((lattice_corners_(0,0)+lattice_corners_(0,1))/2-13*ab_(0,1)/6.0);
+	double x_shift(-ab_(0,1)*3.0/2.0);
 	double y_shift((-ab_(1,0)-ab_(1,1))/2);
-	//double x_shift(-ab_(0,0)/4);
-	//double y_shift(0.0);
-	polygon(0,0)+=x_shift;
-	polygon(0,1)+=y_shift;
-	polygon(1,0)+=x_shift;
-	polygon(1,1)+=y_shift;
-	polygon(2,0)+=x_shift;
-	polygon(2,1)+=y_shift;
-	polygon(3,0)+=x_shift;
-	polygon(3,1)+=y_shift;
+	Matrix<double> polygon(4,2);
+	polygon(0,0)=x_shift;
+	polygon(0,1)=y_shift;
+	polygon(1,0)=x_shift+ab_(0,0);
+	polygon(1,1)=y_shift+ab_(1,0);
+	polygon(2,0)=x_shift+ab_(0,0)+ab_(0,1);
+	polygon(2,1)=y_shift+ab_(1,0)+ab_(1,1);
+	polygon(3,0)=x_shift+ab_(0,1);
+	polygon(3,1)=y_shift+ab_(1,1);
 	ps.polygon(polygon,"linecolor=black");
 
 	unsigned int s0;
@@ -121,10 +107,10 @@ void HoneycombChiral::display_results(){
 	std::complex<double> t;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
-		xy0 = x_[0];
+		xy0 = x_[s0];
 
 		s1 = obs_[0](i,1);
-		xy1 = x_[1];
+		xy1 = x_[s1];
 
 		t = H_(s0,s1);
 		if(std::abs(t)>1e-4){

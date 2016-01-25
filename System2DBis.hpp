@@ -44,7 +44,7 @@ class System2DBis: public GenericSystem<Type>{
 		unsigned int get_site_in_ab(unsigned int const& i) const;
 		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
 		bool pos_out_of_lattice(Vector<double> const& x) const;
-		virtual bool reset_pos_in_lattice(Vector<double>& x, unsigned int const& dir) const = 0;
+		virtual bool reset_pos_in_lattice(Vector<double>& x) const = 0;
 		virtual Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const = 0;
 
 	private:
@@ -219,18 +219,26 @@ Matrix<int> System2DBis<Type>::get_neighbourg(unsigned int const& i) const {
 		dir[d]= d;
 		nn[d] = x_[i];
 		nn[d]+= get_relative_neighbourg_position(i,d);
-		nb(d,1) = reset_pos_in_lattice(nn[d],d);
+		nb(d,1) = reset_pos_in_lattice(nn[d]);
 	}
 
 	unsigned int j(0);
 	do {
 		for(unsigned int d(0);d<dir.size();d++){
-			if(my::are_equal(x_[j],nn[dir[d]])){
+			if(my::are_equal(x_[j],nn[dir[d]],eq_prec_,eq_prec_)){
 				nb(dir[d],0) = j;
 				dir.erase(dir.begin()+d);
 			}
 		}
 	} while(dir.size() && ++j<this->n_+1);
+	//if(j>=this->n_+1){
+		//std::cout<<"-----"<<std::endl;
+		//std::cout<<i<<std::endl;
+		//for(unsigned int d(0);d<this->z_;d++){
+			//std::cout<< nn[d]<<std::endl;
+		//}
+		//std::cout<<nb<<std::endl;
+	//}
 	assert(j<this->n_+1);
 	delete[] nn;
 	return nb;

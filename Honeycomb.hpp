@@ -19,7 +19,7 @@ class Honeycomb: public System2DBis<Type>{
 		unsigned int lattice_type_;
 
 		Matrix<double> set_geometry(unsigned int const& n);
-		bool reset_pos_in_lattice(Vector<double>& x, unsigned int const& dir) const;
+		bool reset_pos_in_lattice(Vector<double>& x) const;
 		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const;
 };
 
@@ -31,11 +31,11 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 	if(this->status_==2){
 		/*{!the directions are given for the sublattice with even site number
 		 * in the cartesian basis
-		 *g
+		 *
 		 * (-1,sqrt(3))/2
 		 *       \
 		 *        x--(1,0)
-		 *       /g
+		 *       /
 		 * (-1,-sqrt(3))/2
 		 *
 		 *  x = 0,2,4,...
@@ -49,28 +49,37 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 		this->dir_nn_[2](0) =-0.5;
 		this->dir_nn_[2](1) =-sqrt(3.0)/2.0;
 
-		this->x_[0] = (this->dir_nn_[2]-this->dir_nn_[0])*(L_-1.0)-this->dir_nn_[0]-this->dir_nn_[1];
+		if(lattice_type_){ this->x_[0] = this->dir_nn_[2]; }
+		else {
+			this->x_[0] = this->dir_nn_[0]*(-0.5);
+			this->x_[0](0)+= 0.01;
+			this->x_[0](1)+= 0.01;
+		}
 
 		//PSTricks ps("./","test");
 		//ps.begin(-20,-20,40,20,"balj");
 		//ps.polygon(this->lattice_corners_,"linecolor=green");
 		//ps.put(this->x_[0](0),this->x_[0](1),"0");
-		//std::cout<<this->lattice_corners_<<std::endl;
-		//std::cout<<0<<"->"<<this->x_[0]<<std::endl;
 
 		Vector<double> x_loop(this->x_[0]);
 		bool check_if_loop(false);
 		for(unsigned int i(1);i<this->n_;i++){
-			if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[0]; }
-			else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[1]; }
-			this->x_[i] = this->x_[i].chop();
-			if(reset_pos_in_lattice(this->x_[i],!(i%2))){ check_if_loop = true; }
+			if(lattice_type_){
+				if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[0]; }
+				else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[1]; }
+			} else {
+				if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[1]; }
+				else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[2]; }
+			}
+			if(reset_pos_in_lattice(this->x_[i])){ check_if_loop = true; }
 			if(check_if_loop && my::are_equal(this->x_[i],x_loop)){
 				check_if_loop = false;
-				this->x_[i](1) += sqrt(3.0);
+				if(lattice_type_){ this->x_[i](1) += sqrt(3.0); }
+				else { this->x_[i] += this->dir_nn_[0]-this->dir_nn_[1]; }
+				reset_pos_in_lattice(this->x_[i]);
 				x_loop = this->x_[i];
 			}
-			this->x_[i] = this->x_[i].chop();
+			//this->x_[i] = this->x_[i].chop();
 			//ps.put(this->x_[i](0),this->x_[i](1),my::tostring(i));
 		}
 		//ps.end(true,true,true);
@@ -118,22 +127,23 @@ template<typename Type>
 Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n){
 	L_ = sqrt(n/2.0);
 	if(my::are_equal(L_,floor(L_))){
-		std::cout<<"aldkj"<<L_<<" "<<floor(L_)<<" "<<n<<std::endl;
 		lattice_type_ = 0;
 		double a(sqrt(3.0)/2);
-		Matrix<double> tmp(6,2);
-		tmp(0,0) =-L_*0.5;
-		tmp(0,1) = 0.0;
-		tmp(1,0) = L_*0.5;
+		Matrix<double> tmp(7,2);
+		tmp(0,0) =-0.5*L_;
+		tmp(0,1) =-a*L_;
+		tmp(1,0) =-tmp(0,0);
 		tmp(1,1) = tmp(0,1);
-		tmp(2,0) = L_*(a+0.5);
-		tmp(2,1) = L_*a;
-		tmp(3,0) = tmp(1,0);
-		tmp(3,1) = L_*a*2.0;
-		tmp(4,0) =-tmp(2,0);
-		tmp(4,1) = tmp(2,1);
-		tmp(5,0) =-tmp(1,0);
-		tmp(5,1) = tmp(1,1);
+		tmp(2,0) = L_;
+		tmp(2,1) = 0;
+		tmp(3,0) =-tmp(0,0);
+		tmp(3,1) =-tmp(0,1);
+		tmp(4,0) =-tmp(1,0);
+		tmp(4,1) =-tmp(1,1);
+		tmp(5,0) =-tmp(2,0);
+		tmp(5,1) = tmp(2,1);
+		tmp(6,0) = tmp(0,0);
+		tmp(6,1) = tmp(0,1);
 		return tmp;
 	}
 	L_ = sqrt(n/6.0);
@@ -162,24 +172,38 @@ Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n){
 }
 
 template<typename Type>
-bool Honeycomb<Type>::reset_pos_in_lattice(Vector<double>& x, unsigned int const& dir) const {
+bool Honeycomb<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 	if(this->pos_out_of_lattice(x)){
-		switch(dir){
-			case 0:
-				{
-					if(x(0)<0){ x+= this->dir_nn_[0]*L_*3.0; }
-					else      { x-= this->dir_nn_[0]*L_*3.0; }
-				}break;
-			case 1:
-				{
-					if(x(1)<0){ x+= this->dir_nn_[1]*L_*3.0;  }
-					else      { x-= this->dir_nn_[1]*L_*3.0;  }
-				}break;
-			case 2:
-				{
-					if(x(1)<0){ x-= this->dir_nn_[2]*L_*3.0; }
-					else      { x+= this->dir_nn_[2]*L_*3.0; }
-				}break;
+		if(lattice_type_){
+			double t(tan(M_PI/6.0)*x(0)/x(1));
+			if(x(0)>0){
+				if(std::abs(t)>1){ x-= this->dir_nn_[0]*L_*3.0; }
+				else {
+					if(t>0){       x+= this->dir_nn_[2]*L_*3.0; }
+					else   {       x+= this->dir_nn_[1]*L_*3.0; }
+				}
+			} else {
+				if(std::abs(t)>1){ x+= this->dir_nn_[0]*L_*3.0; }
+				else {
+					if(t>0){       x-= this->dir_nn_[2]*L_*3.0; }
+					else   {       x-= this->dir_nn_[1]*L_*3.0; }
+				}
+			}
+		} else {
+			double t(tan(M_PI/3.0)*x(0)/x(1));
+			if(x(1)>0){
+				if(std::abs(t)<1){ x-=(this->dir_nn_[1]-this->dir_nn_[2])*L_; }
+				else {
+					if(t>0){       x-=(this->dir_nn_[0]-this->dir_nn_[2])*L_; }
+					else   {       x-=(this->dir_nn_[1]-this->dir_nn_[0])*L_; }
+				}
+			} else {
+				if(std::abs(t)<1){ x+=(this->dir_nn_[1]-this->dir_nn_[2])*L_; }
+				else {
+					if(t>0){       x+=(this->dir_nn_[0]-this->dir_nn_[2])*L_; }
+					else   {       x+=(this->dir_nn_[1]-this->dir_nn_[0])*L_; }
+				}
+			}
 		}
 		return true;
 	} else { return false; }
@@ -187,7 +211,7 @@ bool Honeycomb<Type>::reset_pos_in_lattice(Vector<double>& x, unsigned int const
 
 template<typename Type>
 Vector<double> Honeycomb<Type>::get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const {
-	if(i%2){ return -this->dir_nn_[d]; } 
+	if(i%2){ return -this->dir_nn_[d]; }
 	else { return this->dir_nn_[d]; }
 }
 /*}*/

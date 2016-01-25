@@ -89,18 +89,19 @@ void Honeycomb0pp::lattice(){
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
-
-	Matrix<double> polygon(4,2);
 	ps.polygon(lattice_corners_,"linecolor=green");
 
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=ab_(0,0);
-	polygon(1,1)=ab_(1,0);
-	polygon(2,0)=ab_(0,0)+ab_(0,1);
-	polygon(2,1)=ab_(1,0)+ab_(1,1);
-	polygon(3,0)=ab_(0,1);
-	polygon(3,1)=ab_(1,1);
+	double x_shift(-ab_(0,1)*3.0/2.0);
+	double y_shift((-ab_(1,0)-ab_(1,1))/2);
+	Matrix<double> polygon(4,2);
+	polygon(0,0)=x_shift;
+	polygon(0,1)=y_shift;
+	polygon(1,0)=x_shift+ab_(0,0);
+	polygon(1,1)=y_shift+ab_(1,0);
+	polygon(2,0)=x_shift+ab_(0,0)+ab_(0,1);
+	polygon(2,1)=y_shift+ab_(1,0)+ab_(1,1);
+	polygon(3,0)=x_shift+ab_(0,1);
+	polygon(3,1)=y_shift+ab_(1,1);
 	ps.polygon(polygon,"linecolor=black");
 
 	double t;
@@ -116,63 +117,63 @@ void Honeycomb0pp::lattice(){
 		xy1 = x_[s1];
 
 		//if(!(my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy0(0),xy0(1)) || my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy1(0),xy1(1))) ){
-			t = H_(s0,s1);
-			if(std::abs(t)>1e-4){
-				if((xy0-xy1).norm_squared()>1.0001){
-					linestyle = "dashed";
-					xy1 = xy0;
-					xy1(0) += dir_nn_[obs_[0](i,3)](0);
-					xy1(1) += dir_nn_[obs_[0](i,3)](1);
-					xy1 = xy1.chop();
-					ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-				} else { 
-					linestyle = "solid";  
-					if(s0<s1){
-						ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
-						ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}"); 
-					}
+		t = H_(s0,s1);
+		if(std::abs(t)>1e-4){
+			if((xy0-xy1).norm_squared()>1.0001){
+				linestyle = "dashed";
+				xy1 = xy0;
+				xy1(0) += dir_nn_[obs_[0](i,3)](0);
+				xy1(1) += dir_nn_[obs_[0](i,3)](1);
+				xy1 = xy1.chop();
+				ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
+			} else { 
+				linestyle = "solid";  
+				if(s0<s1){
+					ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
+					ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}"); 
 				}
+			}
 
-				if(t>0){ color = "blue";}
-				else { color = "red"; }
-				linewidth = my::tostring(std::abs(t))+"mm";
+			if(t>0){ color = "blue";}
+			else { color = "red"; }
+			linewidth = my::tostring(std::abs(t))+"mm";
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+		}
+		//} else {
+		if(obs_.size()>1){/*bound energy*/
+			corr = obs_[1][obs_[0](i,2)].get_x();
+			if(std::abs(corr)>1e-4){
+				if(corr<0){ color = "red"; }
+				else { color = "blue"; }
+				linewidth = my::tostring(std::abs(corr))+"mm";
+
 				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
-		//} else {
-			if(obs_.size()>1){/*bound energy*/
-				corr = obs_[1][obs_[0](i,2)].get_x();
-				if(std::abs(corr)>1e-4){
-					if(corr<0){ color = "red"; }
-					else { color = "blue"; }
-					linewidth = my::tostring(std::abs(corr))+"mm";
 
-					ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-				}
-
-				//if(i%3!=1){
-				//if(i%3==0){
-				//ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}");
-				//}
-				//str = my::tostring(corr);
-				//ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1),"\\tiny{"+str.substr(0,8)+"}");
-				//str = my::tostring(obs_[1][i].get_dx());
-				////if(obs_[1][i].get_dx()<1e-4){
-				////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
-				////} else {
-				////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,8)+"}");
-				////}
-				//} else {
-				//ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}");
-				//str = my::tostring(corr);
-				//ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0,"\\tiny{"+str.substr(0,8)+"}");
-				//str = my::tostring(obs_[1][i].get_dx());
-				////if(obs_[1][i].get_dx()<1e-4){
-				////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
-				////} else {
-				////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,8)+"}");
-				////}
-				//}
-			}
+			//if(i%3!=1){
+			//if(i%3==0){
+			//ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}");
+			//}
+			//str = my::tostring(corr);
+			//ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1),"\\tiny{"+str.substr(0,8)+"}");
+			//str = my::tostring(obs_[1][i].get_dx());
+			////if(obs_[1][i].get_dx()<1e-4){
+			////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
+			////} else {
+			////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,8)+"}");
+			////}
+			//} else {
+			//ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}");
+			//str = my::tostring(corr);
+			//ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0,"\\tiny{"+str.substr(0,8)+"}");
+			//str = my::tostring(obs_[1][i].get_dx());
+			////if(obs_[1][i].get_dx()<1e-4){
+			////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
+			////} else {
+			////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,8)+"}");
+			////}
+			//}
+		}
 		//}
 	}
 	ps.end(true,true,true);
