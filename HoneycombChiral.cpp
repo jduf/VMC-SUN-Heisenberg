@@ -87,17 +87,10 @@ void HoneycombChiral::display_results(){
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-2,-20,20,20,filename_);
 
-	Matrix<double> polygon(4,2);
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=LxLy_(0,0);
-	polygon(1,1)=LxLy_(1,0);
-	polygon(2,0)=LxLy_(0,0)+LxLy_(0,1);
-	polygon(2,1)=LxLy_(1,0)+LxLy_(1,1);
-	polygon(3,0)=LxLy_(0,1);
-	polygon(3,1)=LxLy_(1,1);
-	ps.polygon(polygon,"linecolor=green");
 
+	ps.polygon(lattice_corners_,"linecolor=green");
+
+	Matrix<double> polygon(4,2);
 	polygon(0,0)=0;
 	polygon(0,1)=0;
 	polygon(1,0)=ab_(0,0);
@@ -108,7 +101,7 @@ void HoneycombChiral::display_results(){
 	polygon(3,1)=ab_(1,1);
 	ps.polygon(polygon,"linecolor=black");
 
-	double x_shift((LxLy_(0,0)+LxLy_(0,1))/2-13*ab_(0,1)/6.0);
+	double x_shift((lattice_corners_(0,0)+lattice_corners_(0,1))/2-13*ab_(0,1)/6.0);
 	double y_shift((-ab_(1,0)-ab_(1,1))/2);
 	//double x_shift(-ab_(0,0)/4);
 	//double y_shift(0.0);
@@ -128,18 +121,18 @@ void HoneycombChiral::display_results(){
 	std::complex<double> t;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
-		xy0 = get_pos_in_lattice(s0);
+		xy0 = x_[0];
 
 		s1 = obs_[0](i,1);
-		xy1 = get_pos_in_lattice(s1);
+		xy1 = x_[1];
 
 		t = H_(s0,s1);
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
 				xy1 = xy0;
-				xy1(0) += dir_nn_(obs_[0](i,3),0);
-				xy1(1) += dir_nn_(obs_[0](i,3),1);
+				xy1(0) += dir_nn_[obs_[0](i,3)](0);
+				xy1(1) += dir_nn_[obs_[0](i,3)](1);
 				xy1 = xy1.chop();
 				ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 			} else {

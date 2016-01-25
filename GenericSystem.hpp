@@ -90,28 +90,35 @@ template<typename Type>
 void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 	if(2*l.sum()==l.size()*z_){
 		unsigned int k(0);
+		unsigned int l_tmp;
 		Matrix<int> nb;
 		for(unsigned int i(0);i<this->n_;i++){
-			nb = get_neighbourg(i);
-			for(unsigned int j(0);j<l(i%l.size());j++){
-				if(this->bc_ || nb(j,1)==0){ k++; }
+			l_tmp =l(i%l.size());
+			if(l_tmp){
+				nb = get_neighbourg(i);
+				for(unsigned int j(0);j<l_tmp;j++){
+					if(this->bc_ || nb(j,1)==0){ k++; }
+				}
 			}
 		}
 		Matrix<int> tmp(k,5);
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
-			nb = get_neighbourg(i);
-			for(unsigned int j(0);j<l(i%l.size());j++){
-				if(this->bc_ || nb(j,1)==0 ){
-					tmp(k,0) = i;
-					tmp(k,1) = nb(j,0);
-					/*!set tmp(k,2) to -1 so that when one wants to measure the
-					 * bond energy, one has to redefine the correct mapping
-					 * between all bonds and the representative ones*/
-					tmp(k,2) =-1;
-					tmp(k,3) = j;
-					tmp(k,4) = nb(j,1);
-					k++;
+			l_tmp =l(i%l.size());
+			if(l_tmp){
+				nb = get_neighbourg(i);
+				for(unsigned int j(0);j<l_tmp;j++){
+					if(this->bc_ || nb(j,1)==0 ){
+						tmp(k,0) = i;
+						tmp(k,1) = nb(j,0);
+						/*!set tmp(k,2) to -1 so that when one wants to measure the
+						 * bond energy, one has to redefine the correct mapping
+						 * between all bonds and the representative ones*/
+						tmp(k,2) =-1;
+						tmp(k,3) = j;
+						tmp(k,4) = nb(j,1);
+						k++;
+					}
 				}
 			}
 		}

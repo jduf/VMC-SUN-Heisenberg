@@ -88,18 +88,10 @@ void Honeycomb0pp::lattice(){
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
-	ps.begin(-2,-20,40,20,filename_);
+	ps.begin(-20,-20,20,20,filename_);
 
 	Matrix<double> polygon(4,2);
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=LxLy_(0,0);
-	polygon(1,1)=LxLy_(1,0);
-	polygon(2,0)=LxLy_(0,0)+LxLy_(0,1);
-	polygon(2,1)=LxLy_(1,0)+LxLy_(1,1);
-	polygon(3,0)=LxLy_(0,1);
-	polygon(3,1)=LxLy_(1,1);
-	ps.polygon(polygon,"linecolor=green");
+	ps.polygon(lattice_corners_,"linecolor=green");
 
 	polygon(0,0)=0;
 	polygon(0,1)=0;
@@ -111,18 +103,6 @@ void Honeycomb0pp::lattice(){
 	polygon(3,1)=ab_(1,1);
 	ps.polygon(polygon,"linecolor=black");
 
-	double x_shift((LxLy_(0,0)+LxLy_(0,1))/2-13*ab_(0,1)/6.0);
-	double y_shift((-ab_(1,0)-ab_(1,1))/2);
-	polygon(0,0)+=x_shift;
-	polygon(0,1)+=y_shift;
-	polygon(1,0)+=x_shift;
-	polygon(1,1)+=y_shift;
-	polygon(2,0)+=x_shift;
-	polygon(2,1)+=y_shift;
-	polygon(3,0)+=x_shift;
-	polygon(3,1)+=y_shift;
-	ps.polygon(polygon,"linecolor=black");
-
 	double t;
 	double corr;
 	unsigned int s0;
@@ -130,10 +110,10 @@ void Honeycomb0pp::lattice(){
 	std::string str;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
-		xy0 = get_pos_in_lattice(s0);
+		xy0 = x_[s0];
 
 		s1 = obs_[0](i,1);
-		xy1 = get_pos_in_lattice(s1);
+		xy1 = x_[s1];
 
 		//if(!(my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy0(0),xy0(1)) || my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy1(0),xy1(1))) ){
 			t = H_(s0,s1);
@@ -141,8 +121,8 @@ void Honeycomb0pp::lattice(){
 				if((xy0-xy1).norm_squared()>1.0001){
 					linestyle = "dashed";
 					xy1 = xy0;
-					xy1(0) += dir_nn_(obs_[0](i,3),0);
-					xy1(1) += dir_nn_(obs_[0](i,3),1);
+					xy1(0) += dir_nn_[obs_[0](i,3)](0);
+					xy1(1) += dir_nn_[obs_[0](i,3)](1);
 					xy1 = xy1.chop();
 					ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 				} else { 
@@ -225,11 +205,13 @@ void Honeycomb0pp::display_results(){
 }
 
 void Honeycomb0pp::check(){
+	//obs_[0].print();
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
 	filename_ ="honeycomb-0pp";
 	display_results();
+	//std::cout<<get_site_in_ab(18)<<std::endl;
 }
 /*}*/
 

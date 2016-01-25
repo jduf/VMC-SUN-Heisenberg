@@ -1,19 +1,10 @@
-#ifndef DEF_SYSTEM2D
-#define DEF_SYSTEM2D
+#ifndef DEF_SYSTEM2DBIS
+#define DEF_SYSTEM2DBIS
 
 #include "GenericSystem.hpp"
 
 /*{Description*/
 /*!The rules that the arguments of the constructor must obey are the folloing :
- *
- * + **the unit is the lattice spacing**
- * + **vector expressed in the Cartesian coordinates**
- *
- * These two rules must apply to :
- *
- * + LxLy
- * + ab
- * + linear_jump
  *
  * This convention allows the use of local basis in the definitions of :
  *
@@ -22,20 +13,19 @@
  */
 /*}*/
 template<typename Type>
-class System2D: public GenericSystem<Type>{
+class System2DBis: public GenericSystem<Type>{
 	public:
 		/*!Constructor*/
-		System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, Vector<double> const& linear_jump, unsigned int const& spuc, unsigned int const& z, std::string const& filename);
+		System2DBis(Matrix<double> const& lattice_corners, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename);
 		/*!Destructor*/
-		virtual ~System2D() = default;
+		virtual ~System2DBis();
 
 	protected:
-		unsigned int xloop_;		//!< linear size of the lattice (number jumps before coming back to the origin)
-		Vector<double> linear_jump_;//!< set_pos_LxLy(xloop_*linear_jump_) must come back to (0,0)
-		Matrix<Type> H_;			//!< matrix used to get the band structure
+		Matrix<double> lattice_corners_;//!< basis of the whole lattice
+		Vector<double>* dir_nn_;
+		Vector<double>* x_;
 		Matrix<double> ab_;  		//!< basis of the unit cel
-		Matrix<double> LxLy_;		//!< basis of the whole lattice
-		Matrix<double> dir_nn_LxLy_;//!<direction of the nearest neighbour in the LxLy basis
+		Matrix<Type> H_;			//!< matrix used to get the band structure
 		Matrix<std::complex<double> > evec_;//!< eigenvectors of H+Tx+Ty
 		double const eq_prec_;		//!< precision for equality (important for matchinf position in lattice)
 
@@ -48,16 +38,14 @@ class System2D: public GenericSystem<Type>{
 
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
-		/*!Returns the position of the site i in the lattice basis*/
-		virtual Vector<double> get_pos_in_lattice(unsigned int const& i) const = 0;
 		/*!Returns the index of the position x the unit cell basis (a,b)*/
 		virtual unsigned int match_pos_in_ab(Vector<double> const& x) const = 0;
 		/*!Returns the index of the site i in the unit cell basis (a,b)*/
 		unsigned int get_site_in_ab(unsigned int const& i) const;
-		/*!Makes a change of basis to express the position x in the lattice basis (Lx,Ly)*/
-		void set_pos_LxLy(Vector<double>& x) const;
-		/*!Makes a change of basis to express the position x in the unit cell (a,b)*/
-		void set_pos_ab(Vector<double>& x) const;
+		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
+		bool pos_out_of_lattice(Vector<double> const& x) const;
+		virtual bool reset_pos_in_lattice(Vector<double>& x, unsigned int const& dir) const = 0;
+		virtual Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const = 0;
 
 	private:
 		Matrix<Type> Tx_;		//!< translation operator along x-axis
@@ -65,7 +53,6 @@ class System2D: public GenericSystem<Type>{
 		Vector<double> px_;		//!< eigenvalue of Tx
 		Vector<double> py_;		//!< eigenvalue of Ty
 		Vector<double> e_;		//!< eigenvalue of H_
-		Matrix<double> inv_LxLy_;//!<inverse of the matrix LxLy_
 		Matrix<double> inv_ab_;	//!< inverse of the matrix ab_
 
 		/*!Computes the translation operators*/
@@ -76,75 +63,49 @@ class System2D: public GenericSystem<Type>{
 		bool full_diagonalization();
 		/*!Evaluates the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
-
-		virtual Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const = 0;
-		virtual void try_neighbourg(Vector<double>& tn, unsigned int const& i) const = 0;
-
-		/*!Makes sure that 0<=x_i<1, i=1,2*/
-		void set_pos(Vector<double>& x) const;
-		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
-		bool set_in_LxLy(Vector<double>& x) const;
 };
 
 /*{constructors*/
 template<typename Type>
-System2D<Type>::System2D(Matrix<double> const& LxLy, Matrix<double> const& ab, Vector<double> const& linear_jump, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
+System2DBis<Type>::System2DBis(Matrix<double> const& lattice_corners, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename),
-	xloop_(0),
-	linear_jump_(linear_jump),
+	lattice_corners_(lattice_corners),
+	dir_nn_(new Vector<double>[this->z_]),
+	x_(new Vector<double>[this->n_]),
 	ab_(ab),
-	LxLy_(LxLy),
-	eq_prec_(1e-12),
-	inv_LxLy_(2,2),
-	inv_ab_(2,2)
+	eq_prec_(1e-12)
 {
-	if(LxLy_.size()){
-		inv_LxLy_(0,0) = LxLy_(1,1);
-		inv_LxLy_(1,0) =-LxLy_(1,0);
-		inv_LxLy_(0,1) =-LxLy_(0,1);
-		inv_LxLy_(1,1) = LxLy_(0,0);
-		inv_LxLy_/=(LxLy_(0,0)*LxLy_(1,1)-LxLy_(1,0)*LxLy_(0,1));
+	if(lattice_corners_.size()){
+		for(unsigned int i(0);i<this->n_;i++){ x_[i].set(2); }
+		for(unsigned int i(0);i<this->z_;i++){ dir_nn_[i].set(2); }
 
+		inv_ab_.set(2,2);
 		inv_ab_(0,0) = ab_(1,1);
 		inv_ab_(1,0) =-ab_(1,0);
 		inv_ab_(0,1) =-ab_(0,1);
 		inv_ab_(1,1) = ab_(0,0);
 		inv_ab_/=(ab_(0,0)*ab_(1,1)-ab_(1,0)*ab_(0,1));
 
-		Vector<double> x(2);
-		do{//might be a more efficient way
-			xloop_++;
-			x = linear_jump_*xloop_;
-			set_pos_LxLy(x);
-		} while(!my::are_equal(x(0),0) || !my::are_equal(x(1),0));
-
-		Vector<double> Lx(2);
-		Lx(0) = LxLy_(0,0);
-		Lx(1) = LxLy_(1,0);
-		set_pos_ab(Lx);
-		Vector<double> Ly(2);
-		Ly(0) = LxLy_(0,1);
-		Ly(1) = LxLy_(1,1);
-		set_pos_ab(Ly);
-
-		Vector<double> zero(2,0);
-		if( my::are_equal(Lx,zero) &&  my::are_equal(Ly,zero) ){
-			if(this->spuc_){ this->status_--; }
-			else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
-		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell doesn't fit into the cluster"<<std::endl; }
+		if(this->spuc_){ this->status_--; }
+		else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : the number of site doesn't fit into the cluster"<<std::endl; }
+}
+
+template<typename Type>
+System2DBis<Type>::~System2DBis(){
+	if(dir_nn_){ delete[] dir_nn_; }
 }
 /*}*/
 
 /*{protected methods*/
 template<typename Type>
-void System2D<Type>::diagonalize(bool simple){
+void System2DBis<Type>::diagonalize(bool simple){
 	if(simple){ if(simple_diagonalization()){ this->status_--; } }
 	else { if(full_diagonalization()){ this->status_--; } }
 }
 
 template<typename Type>
-void System2D<Type>::plot_band_structure(){
+void System2DBis<Type>::plot_band_structure(){
 	full_diagonalization();
 
 	IOFiles spectrum("spectrum.dat",true);
@@ -161,7 +122,7 @@ void System2D<Type>::plot_band_structure(){
 }
 
 template<typename Type>
-void System2D<Type>::select_eigenvectors(){
+void System2DBis<Type>::select_eigenvectors(){
 	/*{*/
 	/*!
 	  unsigned int iter(0);
@@ -249,67 +210,54 @@ void System2D<Type>::select_eigenvectors(){
 }
 
 template<typename Type>
-Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
-	/*!tn is the position in the lattice of site i*/
-	Vector<double> tn(get_pos_in_lattice(i));
-	set_pos_LxLy(tn);
-	set_in_LxLy(tn);
-
+Matrix<int> System2DBis<Type>::get_neighbourg(unsigned int const& i) const {
 	/*!nn* are the nearest neighbours */
 	Vector<double>* nn(new Vector<double>[this->z_]);
 	Matrix<int> nb(this->z_,2);
 	std::vector<unsigned int> dir(this->z_);
 	for(unsigned int d(0);d<this->z_;d++){
 		dir[d]= d;
-		nn[d] = tn;
-		nn[d]+= vector_towards(i,d);
-		nb(d,1) = set_in_LxLy(nn[d]);
+		nn[d] = x_[i];
+		nn[d]+= get_relative_neighbourg_position(i,d);
+		nb(d,1) = reset_pos_in_lattice(nn[d],d);
 	}
 
-	/*!tn will be the trial neighbour*/
-	tn.set(2,0);
 	unsigned int j(0);
-	while(dir.size() && j<this->n_+2){
+	do {
 		for(unsigned int d(0);d<dir.size();d++){
-			if(my::are_equal(tn,nn[dir[d]])){
+			if(my::are_equal(x_[j],nn[dir[d]])){
 				nb(dir[d],0) = j;
 				dir.erase(dir.begin()+d);
 			}
 		}
-		j++;
-		/*!go to the trial next neighbour*/
-		try_neighbourg(tn,j);
-		set_in_LxLy(tn);
-	}
+	} while(dir.size() && ++j<this->n_+1);
 	assert(j<this->n_+1);
 	delete[] nn;
 	return nb;
 }
 
 template<typename Type>
-unsigned int System2D<Type>::get_site_in_ab(unsigned int const& i) const {
-	Vector<double> x(get_pos_in_lattice(i));
-	set_pos_ab(x);
-	set_in_LxLy(x);
+unsigned int System2DBis<Type>::get_site_in_ab(unsigned int const& i) const {
+	double ip;
+	Vector<double> x(inv_ab_*(x_[i]-x_[0]));
+	x(0) = std::modf(x(0),&ip);
+	x(1) = std::modf(x(1),&ip);
+	if( x(0)<0 ){ x(0)+= 1.0; }
+	if( x(1)<0 ){ x(1)+= 1.0; }
+	if( my::are_equal(x(0),1.0,eq_prec_,eq_prec_) ){ x(0) = 0.0; }
+	if( my::are_equal(x(1),1.0,eq_prec_,eq_prec_) ){ x(1) = 0.0; }
 	return match_pos_in_ab(x);
 }
 
 template<typename Type>
-void System2D<Type>::set_pos_LxLy(Vector<double>& x) const {
-	x=inv_LxLy_*x;
-	set_pos(x);
-}
-
-template<typename Type>
-void System2D<Type>::set_pos_ab(Vector<double>& x) const {
-	x=inv_ab_*x;
-	set_pos(x);
+bool System2DBis<Type>::pos_out_of_lattice(Vector<double> const& x) const {
+	return !my::in_polygon(lattice_corners_.row(),lattice_corners_.ptr(),lattice_corners_.ptr()+lattice_corners_.row(),x(0),x(1));
 }
 /*}*/
 
 /*{private methods*/
 template<typename Type>
-void System2D<Type>::compute_TxTy(){
+void System2DBis<Type>::compute_TxTy(){
 	Tx_.set(this->n_,this->n_,0);
 	Ty_.set(this->n_,this->n_,0);
 	//unsigned int tmp;
@@ -341,7 +289,7 @@ void System2D<Type>::compute_TxTy(){
 }
 
 template<typename Type>
-bool System2D<Type>::simple_diagonalization(){
+bool System2DBis<Type>::simple_diagonalization(){
 	Vector<double> eval;
 	Lapack<Type>(H_,false,(this->ref_(1)==1?'S':'H')).eigensystem(eval,true);
 	for(unsigned int c(0);c<this->N_;c++){
@@ -354,7 +302,7 @@ bool System2D<Type>::simple_diagonalization(){
 }
 
 template<typename Type>
-bool System2D<Type>::full_diagonalization(){
+bool System2DBis<Type>::full_diagonalization(){
 	compute_TxTy();
 	Matrix<Type> M(H_);
 	M += Tx_*Type(3.0);
@@ -394,7 +342,7 @@ bool System2D<Type>::full_diagonalization(){
 }
 
 template<typename Type>
-std::complex<double> System2D<Type>::projection(Matrix<Type> const& O, unsigned int const& idx){
+std::complex<double> System2DBis<Type>::projection(Matrix<Type> const& O, unsigned int const& idx){
 	std::complex<double> tmp;
 	std::complex<double> out(0.0);
 	for(unsigned int i(0);i<O.row();i++){
@@ -405,31 +353,6 @@ std::complex<double> System2D<Type>::projection(Matrix<Type> const& O, unsigned 
 		out += std::conj(evec_(i,idx))*tmp;
 	}
 	return out;
-}
-
-template<typename Type>
-void System2D<Type>::set_pos(Vector<double>& x) const {
-	double ip;
-	x(0) = std::modf(x(0),&ip);
-	x(1) = std::modf(x(1),&ip);
-	if( my::are_equal(x(0),1,eq_prec_,eq_prec_) ){ x(0) = 0.0; }
-	if( my::are_equal(x(1),1,eq_prec_,eq_prec_) ){ x(1) = 0.0; }
-}
-
-template<typename Type>
-bool System2D<Type>::set_in_LxLy(Vector<double>& x) const {
-	bool out_of_zone(false);
-	double ip;
-	x(0) = std::modf(x(0),&ip);
-	if( x(0)<0 ){ x(0) += 1.0; out_of_zone = !out_of_zone; }
-	if( my::are_equal(x(0),1,eq_prec_,eq_prec_) ){ x(0) = 0; out_of_zone = !out_of_zone; }
-	if( ip>0 ){ out_of_zone = !out_of_zone; }
-
-	x(1) = std::modf(x(1),&ip);
-	if( x(1)<0 ){ x(1) += 1.0; out_of_zone = !out_of_zone; }
-	if( my::are_equal(x(1),1,eq_prec_,eq_prec_) ){ x(1) = 0; out_of_zone = !out_of_zone; }
-	if( ip>0 ){ out_of_zone = !out_of_zone ; }
-	return out_of_zone;
 }
 /*}*/
 #endif

@@ -1,10 +1,10 @@
 #ifndef DEF_HONEYCOMB
 #define DEF_HONEYCOMB
 
-#include "System2D.hpp"
+#include "System2DBis.hpp"
 
 template<typename Type>
-class Honeycomb: public System2D<Type>{
+class Honeycomb: public System2DBis<Type>{
 	public:
 		/*!Constructor that organises the n=2L^2 sites (L integer)*/
 		Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
@@ -12,66 +12,70 @@ class Honeycomb: public System2D<Type>{
 		virtual ~Honeycomb()=0;
 
 	protected:
-		Matrix<double> dir_nn_;
-
 		void set_obs(int nobs);
-		/*!Returns the neighbours of site i*/
-		Vector<double> get_pos_in_lattice(unsigned int const& i) const;
 
 	private:
-		Matrix<double> set_geometry(unsigned int const& n) const;
-		Vector<double> vector_towards(unsigned int const& i, unsigned int const& dir) const;
-		void try_neighbourg(Vector<double>& tn, unsigned int const& j) const;
-		Vector<double> set_linear_jump() const;
+		double L_;
+		unsigned int lattice_type_;
+
+		Matrix<double> set_geometry(unsigned int const& n);
+		bool reset_pos_in_lattice(Vector<double>& x, unsigned int const& dir) const;
+		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const;
 };
 
 /*{constructor*/
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry(this->n_),ab,set_linear_jump(),spuc,3,filename),
-	dir_nn_(3,2)
+	System2DBis<Type>(set_geometry(this->n_),ab,spuc,3,filename)
 {
 	if(this->status_==2){
+		/*{!the directions are given for the sublattice with even site number
+		 * in the cartesian basis
+		 *g
+		 * (-1,sqrt(3))/2
+		 *       \
+		 *        x--(1,0)
+		 *       /g
+		 * (-1,-sqrt(3))/2
+		 *
+		 *  x = 0,2,4,...
+		 *}*/
+		this->dir_nn_[0](0) = 1.0;
+		this->dir_nn_[0](1) = 0.0;
+
+		this->dir_nn_[1](0) =-0.5;
+		this->dir_nn_[1](1) = sqrt(3.0)/2.0;
+
+		this->dir_nn_[2](0) =-0.5;
+		this->dir_nn_[2](1) =-sqrt(3.0)/2.0;
+
+		this->x_[0] = (this->dir_nn_[2]-this->dir_nn_[0])*(L_-1.0)-this->dir_nn_[0]-this->dir_nn_[1];
+
+		//PSTricks ps("./","test");
+		//ps.begin(-20,-20,40,20,"balj");
+		//ps.polygon(this->lattice_corners_,"linecolor=green");
+		//ps.put(this->x_[0](0),this->x_[0](1),"0");
+		//std::cout<<this->lattice_corners_<<std::endl;
+		//std::cout<<0<<"->"<<this->x_[0]<<std::endl;
+
+		Vector<double> x_loop(this->x_[0]);
+		bool check_if_loop(false);
+		for(unsigned int i(1);i<this->n_;i++){
+			if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[0]; }
+			else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[1]; }
+			this->x_[i] = this->x_[i].chop();
+			if(reset_pos_in_lattice(this->x_[i],!(i%2))){ check_if_loop = true; }
+			if(check_if_loop && my::are_equal(this->x_[i],x_loop)){
+				check_if_loop = false;
+				this->x_[i](1) += sqrt(3.0);
+				x_loop = this->x_[i];
+			}
+			this->x_[i] = this->x_[i].chop();
+			//ps.put(this->x_[i](0),this->x_[i](1),my::tostring(i));
+		}
+		//ps.end(true,true,true);
+
 		if(!this->obs_.size()){
-			this->dir_nn_LxLy_.set(3,2);
-			/*!as the linear_jump goes over two sites, xloop_ is twice bigger*/
-			this->xloop_ *= 2;
-			/*{!the directions are given for the sublattice with even site number
-			 *  in the cartesian basis
-			 * 
-			 * (-1,sqrt(3))/2
-			 *       \
-			 *        x--(1,0)
-			 *       / 
-			 * (-1,-sqrt(3))/2
-			 *
-			 *  x = 0,2,4,...
-			 *}*/
-			Vector<double> dir(2);
-			dir(0) = 1.0;
-			dir(1) = 0.0;
-			dir_nn_(0,0) = dir(0);
-			dir_nn_(0,1) = dir(1);
-			this->set_pos_LxLy(dir);
-			this->dir_nn_LxLy_(0,0) = dir(0);
-			this->dir_nn_LxLy_(0,1) = dir(1);
-
-			dir(0) =-0.5;
-			dir(1) = sqrt(3.0)/2.0;
-			dir_nn_(1,0) = dir(0);
-			dir_nn_(1,1) = dir(1);
-			this->set_pos_LxLy(dir);
-			this->dir_nn_LxLy_(1,0) = dir(0);
-			this->dir_nn_LxLy_(1,1) = dir(1);
-
-			dir(0) =-0.5;
-			dir(1) =-sqrt(3.0)/2.0;
-			dir_nn_(2,0) = dir(0);
-			dir_nn_(2,1) = dir(1);
-			this->set_pos_LxLy(dir);
-			this->dir_nn_LxLy_(2,0) = dir(0);
-			this->dir_nn_LxLy_(2,1) = dir(1);
-
 			Vector<unsigned int> l(2);
 			l(0) = 3;
 			l(1) = 0;
@@ -107,105 +111,84 @@ void Honeycomb<Type>::set_obs(int nobs){
 		}
 	}
 }
-
-template<typename Type>
-Vector<double> Honeycomb<Type>::get_pos_in_lattice(unsigned int const& i) const {
-	unsigned int j(i/2);
-	Vector<double> tmp(this->linear_jump_*j);
-	j = i/this->xloop_;
-	tmp(0) += j*(dir_nn_(0,0)-dir_nn_(2,0));
-	tmp(1) += j*(dir_nn_(0,1)-dir_nn_(2,1));
-	j = i%this->xloop_;
-	if(j%2){
-		tmp(0) += dir_nn_(0,0);
-		tmp(1) += dir_nn_(0,1);
-	}
-	this->set_pos_LxLy(tmp);
-	return (this->LxLy_*tmp).chop();
-}
 /*}*/
 
 /*{private methods*/
 template<typename Type>
-Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n) const {
-	double L(sqrt(n/2));
-	if(my::are_equal(L,floor(L))){
-		Matrix<double> tmp(2,2);
-		tmp(0,0) = L*1.5;
-		tmp(1,0) = L*sqrt(3.0)/2.0;
-		tmp(0,1) = L*1.5;
-		tmp(1,1) =-L*sqrt(3.0)/2.0;
+Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n){
+	L_ = sqrt(n/2.0);
+	if(my::are_equal(L_,floor(L_))){
+		std::cout<<"aldkj"<<L_<<" "<<floor(L_)<<" "<<n<<std::endl;
+		lattice_type_ = 0;
+		double a(sqrt(3.0)/2);
+		Matrix<double> tmp(6,2);
+		tmp(0,0) =-L_*0.5;
+		tmp(0,1) = 0.0;
+		tmp(1,0) = L_*0.5;
+		tmp(1,1) = tmp(0,1);
+		tmp(2,0) = L_*(a+0.5);
+		tmp(2,1) = L_*a;
+		tmp(3,0) = tmp(1,0);
+		tmp(3,1) = L_*a*2.0;
+		tmp(4,0) =-tmp(2,0);
+		tmp(4,1) = tmp(2,1);
+		tmp(5,0) =-tmp(1,0);
+		tmp(5,1) = tmp(1,1);
 		return tmp;
 	}
-	std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry"<<std::endl; 
-	for(unsigned int i(4);i<2*n;i+=2){
-		for(unsigned int p(0);p<=sqrt(i/2);p++){
-			for(unsigned int q(0);q<p+1;q++){
-				if(p*p+q*q==i){
-					std::cerr<<"(p="<<p<<", q="<<q<<") : n="<<i<<std::endl;
-				}
-			}
-		}
+	L_ = sqrt(n/6.0);
+	if(my::are_equal(L_,floor(L_))){
+		lattice_type_ = 1;
+		double a(sqrt(3.0)/2.0);
+		Matrix<double> tmp(7,2);
+		tmp(0,0) = 0;
+		tmp(0,1) =-2.0*a*L_;
+		tmp(1,0) = 1.5*L_;
+		tmp(1,1) =-a*L_;
+		tmp(2,0) = tmp(1,0);
+		tmp(2,1) =-tmp(1,1);
+		tmp(3,0) = tmp(0,0);
+		tmp(3,1) =-tmp(0,1);
+		tmp(4,0) =-tmp(1,0);
+		tmp(4,1) =-tmp(1,1);
+		tmp(5,0) =-tmp(1,0);
+		tmp(5,1) = tmp(1,1);
+		tmp(6,0) = tmp(0,0);
+		tmp(6,1) = tmp(0,1);
+		return tmp;
 	}
+	std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry"<<std::endl;
 	return Matrix<double>();
 }
 
 template<typename Type>
-Vector<double> Honeycomb<Type>::vector_towards(unsigned int const& i, unsigned int const& dir) const {
-	/*{!the directions were defined as follows
-	 * 1
-	 *  \
-	 *   i--0
-	 *  / 
-	 * 2 
-	 *}*/
-	Vector<double> tmp(2);
-	if(i%2){//i=1,3,5,..
-		/*{!therefore the for odd sites it gives
-		 *     2
-		 *     /
-		 * 0--i
-		 *     \
-		 *      1 
-		 *}*/
-		tmp(0) = -this->dir_nn_LxLy_(dir,0);
-		tmp(1) = -this->dir_nn_LxLy_(dir,1);
-	} else {
-		tmp(0) = this->dir_nn_LxLy_(dir,0);
-		tmp(1) = this->dir_nn_LxLy_(dir,1);
-	}
-	return tmp;
-}
-
-template<typename Type>
-void Honeycomb<Type>::try_neighbourg(Vector<double>& tn, unsigned int const& j) const {
-	if(j%this->xloop_){
-		if(j%2){//j=1,3,5,...
-			tn(0) += this->dir_nn_LxLy_(0,0);
-			tn(1) += this->dir_nn_LxLy_(0,1);
-		} else {
-			tn(0) -= this->dir_nn_LxLy_(1,0);
-			tn(1) -= this->dir_nn_LxLy_(1,1);
+bool Honeycomb<Type>::reset_pos_in_lattice(Vector<double>& x, unsigned int const& dir) const {
+	if(this->pos_out_of_lattice(x)){
+		switch(dir){
+			case 0:
+				{
+					if(x(0)<0){ x+= this->dir_nn_[0]*L_*3.0; }
+					else      { x-= this->dir_nn_[0]*L_*3.0; }
+				}break;
+			case 1:
+				{
+					if(x(1)<0){ x+= this->dir_nn_[1]*L_*3.0;  }
+					else      { x-= this->dir_nn_[1]*L_*3.0;  }
+				}break;
+			case 2:
+				{
+					if(x(1)<0){ x-= this->dir_nn_[2]*L_*3.0; }
+					else      { x+= this->dir_nn_[2]*L_*3.0; }
+				}break;
 		}
-	} else {
-		tn(0) += 2*this->dir_nn_LxLy_(0,0);
-		tn(1) += 2*this->dir_nn_LxLy_(0,1);
-	}
+		return true;
+	} else { return false; }
 }
 
 template<typename Type>
-Vector<double> Honeycomb<Type>::set_linear_jump() const {
-	/*{!As the minimal unit cell contains 2 sites, the linear size is given by
-	 * going from 0 to 2
-	 *
-	 * 0--1
-	 *     \
-	 *      2
-	 *}*/
-	Vector<double> tmp(2);
-	tmp(0) = 1.5;
-	tmp(1) =-sqrt(3.0)/2.0;
-	return tmp;
+Vector<double> Honeycomb<Type>::get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const {
+	if(i%2){ return -this->dir_nn_[d]; } 
+	else { return this->dir_nn_[d]; }
 }
 /*}*/
 #endif

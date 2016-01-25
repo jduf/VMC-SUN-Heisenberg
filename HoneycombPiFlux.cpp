@@ -81,12 +81,12 @@ void HoneycombPiFlux::display_results(){
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=0;
 	polygon(0,1)=0;
-	polygon(1,0)=LxLy_(0,0);
-	polygon(1,1)=LxLy_(1,0);
-	polygon(2,0)=LxLy_(0,0)+LxLy_(0,1);
-	polygon(2,1)=LxLy_(1,0)+LxLy_(1,1);
-	polygon(3,0)=LxLy_(0,1);
-	polygon(3,1)=LxLy_(1,1);
+	polygon(1,0)=lattice_corners_(0,0);
+	polygon(1,1)=lattice_corners_(1,0);
+	polygon(2,0)=lattice_corners_(0,0)+lattice_corners_(0,1);
+	polygon(2,1)=lattice_corners_(1,0)+lattice_corners_(1,1);
+	polygon(3,0)=lattice_corners_(0,1);
+	polygon(3,1)=lattice_corners_(1,1);
 	ps.polygon(polygon,"linecolor=green");
 
 	polygon(0,0)=0;
@@ -103,18 +103,18 @@ void HoneycombPiFlux::display_results(){
 	unsigned int s1;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
-		xy0 = get_pos_in_lattice(s0);
+		xy0 = x_[s0];
 
 		s1 = obs_[0](i,1);
-		xy1 = get_pos_in_lattice(s1);
+		xy1 = x_[s1];
 
 		t = H_(s0,s1);
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed"; 
 				xy1 = xy0;
-				xy1(0) += dir_nn_(obs_[0](i,3),0);
-				xy1(1) += dir_nn_(obs_[0](i,3),1);
+				xy1(0) += dir_nn_[obs_[0](i,3)](0);
+				xy1(1) += dir_nn_[obs_[0](i,3)](1);
 				xy1 = xy1.chop();
 				ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(s1));
 			} else { 
