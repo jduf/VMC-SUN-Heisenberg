@@ -148,12 +148,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 											RGL_ = new TriangleFree(*s_,t,mu);
 										}break;
 								default:{ error(); }break;
-
 							}
 						}break;
 					case 2:
 						{
 							switch(ref_(2)){
+								case 1:
+									{ CGL_ = new TriangleChiral(*s_); }break;
 								case 2:
 									{
 										double phi;

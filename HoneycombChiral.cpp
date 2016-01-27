@@ -117,8 +117,7 @@ void HoneycombChiral::display_results(){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
 				xy1 = xy0;
-				xy1(0) += dir_nn_[obs_[0](i,3)](0);
-				xy1(1) += dir_nn_[obs_[0](i,3)](1);
+				xy1+= dir_nn_[obs_[0](i,3)];
 				xy1 = xy1.chop();
 				ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 			} else {
@@ -130,7 +129,7 @@ void HoneycombChiral::display_results(){
 			}
 
 			if(t.real()>0){ color = "blue"; }
-			else { color = "red"; }
+			else          { color = "red"; }
 
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			arrow = "-";

@@ -8,10 +8,6 @@ int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	std::cout<<"############# Init System #################"<<std::endl;
 	unsigned int i(0);
-	if(!P.find("M",i,false)){
-		std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
-		P.set("M",M);
-	}
 	unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
 	System s(P);
 	std::cout<<"############# Init CreateSystem ###########"<<std::endl;

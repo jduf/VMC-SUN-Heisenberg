@@ -133,7 +133,7 @@ void KagomeFermi<Type>::lattice(){
 			xy1 = xy1.chop();
 
 			if(my::real(t)>0){ color = "blue";}
-			else { color = "red"; }
+			else             { color = "red"; }
 			linewidth = my::tostring(std::abs(t))+"mm";
 			/*(+x)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
@@ -153,7 +153,7 @@ void KagomeFermi<Type>::lattice(){
 			xy1 = xy1.chop();
 
 			if(my::real(t)>0){ color = "blue";}
-			else { color = "red"; }
+			else             { color = "red"; }
 			linewidth = my::tostring(std::abs(t))+"mm";
 			/*(+y)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}

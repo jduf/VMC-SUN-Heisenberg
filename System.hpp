@@ -93,10 +93,13 @@ class System{
 		unsigned int status_;		//!< status of the simulation
 		std::vector<Observable> obs_;//!< observables (energy, bond energy, correlations, overlap...)
 
-		Vector<unsigned int> set_ref(Parseur& P);
 		/*!Saves ref_, N_, m_, n_, bc_, M_ and J_ in w (with description)*/
 		void save_input(IOFiles& w) const;
 		/*!Saves status_ and obs in w (with description)*/
 		void save_output(IOFiles& w) const;
+
+	private:
+		/*!Complete the required parameters that are not yet in Parseur*/
+		Vector<unsigned int> complete_system_info(Parseur& P);
 };
 #endif

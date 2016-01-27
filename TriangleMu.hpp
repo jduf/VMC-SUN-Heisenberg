@@ -9,6 +9,7 @@ class TriangleMu: public Triangle<double>{
 		~TriangleMu() = default;
 
 		void create();
+		void save_param(IOFiles& w) const;
 		void check();
 
 	protected:

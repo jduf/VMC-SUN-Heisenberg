@@ -18,8 +18,7 @@ void VMCSystematic::run(int const& nobs, double const& dE, unsigned int const& m
 }
 
 void VMCSystematic::plot(){
-	std::cout<<"will save "<<m_->samples_.size()<<" samples"<<std::endl;
-	IOFiles data("systematic.dat",true);
+	IOFiles data(get_filename()+".dat",true);
 	m_->samples_.set_target();
 	Vector<double> param;
 	while(m_->samples_.target_next()){
@@ -27,9 +26,9 @@ void VMCSystematic::plot(){
 		data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_MCS()->get_energy()<<IOFiles::endl;
 	}
 
-	Gnuplot gp("./","systematic");
+	Gnuplot gp("./",get_filename());
 	gp+="set xyplane 0";
-	gp+="plot 'systematic.dat' u 1:2:3 w e notitle";
+	gp+="plot '"+get_filename()+".dat' u 1:2:3 w e notitle";
 	gp.save_file();
 	gp.create_image(true,true);
 }

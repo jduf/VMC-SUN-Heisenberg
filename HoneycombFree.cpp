@@ -157,8 +157,7 @@ void HoneycombFree::lattice(){
 				if((xy0-xy1).norm_squared()>1.0001){
 					linestyle = "dashed";
 					xy1 = xy0;
-					xy1(0) += dir_nn_[obs_[0](i,3)](0);
-					xy1(1) += dir_nn_[obs_[0](i,3)](1);
+					xy1+= dir_nn_[obs_[0](i,3)];
 					xy1 = xy1.chop();
 					ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 				} else { 
@@ -170,7 +169,7 @@ void HoneycombFree::lattice(){
 				}
 
 				if(t>0){ color = "blue";}
-				else { color = "red"; }
+				else   { color = "red"; }
 				linewidth = my::tostring(std::abs(t))+"mm";
 				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
@@ -178,8 +177,8 @@ void HoneycombFree::lattice(){
 			if(obs_.size()>1){/*bound energy*/
 				corr = obs_[1][obs_[0](i,2)].get_x();
 				if(std::abs(corr)>1e-4){
-					if(corr<0){ color = "red"; }
-					else { color = "blue"; }
+					if(corr>0){ color = "blue"; }
+					else      { color = "red"; }
 					linewidth = my::tostring(std::abs(corr))+"mm";
 
 					ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);

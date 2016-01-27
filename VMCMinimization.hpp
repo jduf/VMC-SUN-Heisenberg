@@ -1,7 +1,6 @@
 #ifndef DEF_VMCMINIMIZATION
 #define DEF_VMCMINIMIZATION
 
-#include "List.hpp"
 #include "MCSim.hpp"
 #include "omp.h"
 

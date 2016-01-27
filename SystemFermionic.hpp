@@ -276,42 +276,42 @@ void SystemFermionic<Type>::update(){
 	row_(new_s_[0],new_p_[0]) = new_r_[1];
 	row_(new_s_[1],new_p_[1]) = new_r_[0];
 
-	//Type t_tmp;
-	//unsigned int c_tmp;
-	//for(unsigned int c(0);c<2;c++){
-	//c_tmp = new_c_[c];
-	//for(unsigned int j(0);j<M_(c_tmp);j++){
-	//if(new_r_[c] == j){ t_tmp = -1.0; }
-	//else { t_tmp = 0.0; }
-	//for(unsigned int k(0);k<M_(c_tmp);k++){
-	//t_tmp += this->EVec_[c_tmp](new_ev_[c],k)*Ainv_[c_tmp](k,j);
-	//}
-	//t_tmp /= w_[c];
-	//for(unsigned int i(0);i<M_(c_tmp);i++){
-	//tmp_[c_tmp](i,j) = t_tmp*Ainv_[c_tmp](i,new_r_[c]);
-	//}
-	//}
-	//Ainv_[c_tmp] -= tmp_[c_tmp];
-	//}
-
-	/*remove tmp_*/
-	Type Ainvlk;
+	Type t_tmp;
 	unsigned int c;
-	unsigned int M;
-	unsigned int r;
 	for(unsigned int i(0);i<2;i++){
 		c = new_c_[i];
-		r = new_r_[i];
-		M = M_(c);
-		/*!compute u.u^T.Ã.A^(-1) = ((A^(-1))^T.Ã^T.u.u^T)^T*/
-		BLAS::gemv('T',M,M,Ainv_[c].ptr(),this->EVec_[c].ptr()+new_ev_[i],this->EVec_[c].row(),tmp_v[c].ptr());
-		tmp_v[c](r) -= 1.0;
-		for(unsigned int j(0);j<M;j++){
-			/*need to save this temporary value because Ainv_ is overwritten*/
-			Ainvlk = Ainv_[c](j,r)/w_[i];
-			for(unsigned int k(0);k<M;k++){ Ainv_[c](j,k) -= Ainvlk*tmp_v[c](k); }
+		for(unsigned int j(0);j<M_(c);j++){
+			if(new_r_[i] == j){ t_tmp = -1.0; }
+			else { t_tmp = 0.0; }
+			for(unsigned int k(0);k<M_(c);k++){
+				t_tmp += this->EVec_[c](new_ev_[i],k)*Ainv_[c](k,j);
+			}
+			t_tmp /= w_[i];
+			for(unsigned int k(0);k<M_(c);k++){
+				tmp_[c](k,j) = t_tmp*Ainv_[c](k,new_r_[i]);
+			}
 		}
+		Ainv_[c] -= tmp_[c];
 	}
+
+	/*remove tmp_*/
+	//Type Ainvlk;
+	//unsigned int c;
+	//unsigned int M;
+	//unsigned int r;
+	//for(unsigned int i(0);i<2;i++){
+		//c = new_c_[i];
+		//r = new_r_[i];
+		//M = M_(c);
+		///*!compute u.u^T.Ã.A^(-1) = ((A^(-1))^T.Ã^T.u.u^T)^T*/
+		//BLAS::gemv('T',M,M,Ainv_[c].ptr(),this->EVec_[c].ptr()+new_ev_[i],this->EVec_[c].row(),tmp_v[c].ptr());
+		//tmp_v[c](r) -= 1.0;
+		//for(unsigned int j(0);j<M;j++){
+			///*need to save this temporary value because Ainv_ is overwritten*/
+			//Ainvlk = Ainv_[c](j,r)/w_[i];
+			//for(unsigned int k(0);k<M;k++){ Ainv_[c](j,k) -= Ainvlk*tmp_v[c](k); }
+		//}
+	//}
 }
 
 template<typename Type>
@@ -359,14 +359,14 @@ double SystemFermionic<Type>::ratio(){
 		 * minus sign is then cancelled by the reordering of the operators */
 		return 1.0;
 	} else {
-		//unsigned int c;
+		unsigned int c;
 		for(unsigned int i(0);i<2;i++){
-			w_[i] = BLAS::dot(M_(new_c_[i]),this->EVec_[new_c_[i]].ptr(),true,this->EVec_[new_c_[i]].row(),new_ev_[i],Ainv_[new_c_[i]].ptr(),false,M_(new_c_[i]),new_r_[i]);
-			//c= new_c_[i];
-			//w_[i] = 0.0;
-			//for(unsigned int k(0);k<M_(c);k++){
-			//w_[i] += this->EVec_[c](new_ev_[i],k)*Ainv_[c](k,new_r_[i]);
-			//}
+			//w_[i] = BLAS::dot(M_(new_c_[i]),this->EVec_[new_c_[i]].ptr(),true,this->EVec_[new_c_[i]].row(),new_ev_[i],Ainv_[new_c_[i]].ptr(),false,M_(new_c_[i]),new_r_[i]);
+			c= new_c_[i];
+			w_[i] = 0.0;
+			for(unsigned int k(0);k<M_(c);k++){
+				w_[i] += this->EVec_[c](new_ev_[i],k)*Ainv_[c](k,new_r_[i]);
+			}
 		}
 		/*!the minus sign is correct, it comes from <C|H|C'> because when H is
 		 * applied on |C>, the operators are not in the correct color order,

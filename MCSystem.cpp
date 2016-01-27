@@ -91,17 +91,13 @@ void MCSystem::measure_new_step(){
 		O = &obs_[bei_];
 		O->set_x(0.0);
 		//Matrix<int> const* M(&obs_[0].get_links()); /*to check if idx[] are correct*/
-		if(m_ == 1){
+		if(m_==1){
 			for(unsigned int l(0);l<L;l++){
 				//std::cout<<*idx[0]-(*M)(l,0)<<" "<<*idx[1]-(*M)(l,1)<<" "<<*idx[2]-(*M)(l,2)<<std::endl;
 				swap(*idx[0],*idx[1],0,0);
-				/*!if the new state is forbidden, r=0 and therefore there is no
-				 * need to complete the else condition*/
-				if(!is_new_state_forbidden()){
-					r = J_(l)*ratio();
-					E->add(r);
-					O->add(*idx[2],r);
-				}
+				r = J_(l)*ratio();
+				E->add(r);
+				O->add(*idx[2],r);
 				idx[0]++;
 				idx[1]++;
 				idx[2]++;
@@ -127,12 +123,10 @@ void MCSystem::measure_new_step(){
 			}
 		}
 	} else {
-		if(m_ == 1){
+		if(m_==1){
 			for(unsigned int l(0);l<L;l++){
 				swap(*idx[0],*idx[1],0,0);
-				/*!if the new state is forbidden, r=0 and therefore there is no
-				 * need to complete the else condition*/
-				if(!is_new_state_forbidden()){ E->add(J_(l)*ratio()); }
+				E->add(J_(l)*ratio());
 				idx[0]++;
 				idx[1]++;
 			}

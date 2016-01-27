@@ -3,7 +3,6 @@
 
 #include "MCSim.hpp"
 #include "PSO.hpp"
-#include "List.hpp"
 
 class MCParticle: public Particle{
 	public:

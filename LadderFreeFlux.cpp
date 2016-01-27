@@ -416,8 +416,8 @@ void LadderFreeFlux::lattice(){
 				linestyle="dashed";
 			} else { linestyle="solid"; }
 
-			if(t.real()<0){ color = "red"; }
-			else { color = "blue"; }
+			if(t.real()>0){ color = "blue"; }
+			else          { color = "red"; }
 			linewidth = my::tostring(std::abs(t))+"mm";
 
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);

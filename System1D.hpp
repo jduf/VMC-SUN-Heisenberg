@@ -25,7 +25,6 @@ class System1D: public GenericSystem<Type>{
 
 	protected:
 		Matrix<Type> H_;		//!< matrix used to get the band structure
-		unsigned int const L_;	//!< number of unit cell along the x-axis
 		Matrix<std::complex<double> > evec_;//!< eigenvector of H+T
 
 		/*!Plot the band structure E(p)*/
@@ -53,8 +52,7 @@ class System1D: public GenericSystem<Type>{
 /*{constructors*/
 template<typename Type>
 System1D<Type>::System1D(unsigned int const& spuc, unsigned int const& z, std::string const& filename):
-	GenericSystem<Type>(spuc,z,filename),
-	L_(this->n_/spuc)
+	GenericSystem<Type>(spuc,z,filename)
 {
 	if(this->N_%this->m_){ std::cerr<<"System1D : maybe problematric, m doesn't divide N, so check everywhere in the code where N/m appears"<<std::endl; }
 	if(spuc%(this->N_/this->m_)){ std::cerr<<"System1D : problem in the definition of the unit cell"<<std::endl; }
@@ -95,7 +93,8 @@ template<typename Type>
 void System1D<Type>::compute_T(){
 	T_.set(this->n_,this->n_,0);
 	unsigned int tmp;
-	for(unsigned int i(0); i<L_-1; i++){
+	unsigned int const L(this->n_/this->spuc_);
+	for(unsigned int i(0); i<L-1; i++){
 		tmp = this->spuc_*i;
 		for(unsigned int k(0);k<this->spuc_;k++){
 			T_(tmp+k,tmp+k+this->spuc_) = 1;

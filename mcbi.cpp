@@ -26,11 +26,6 @@ int main(int argc, char* argv[]){
 		//bs.save();
 		bs.study();
 	} else {
-		if(!P.find("M",i,false)){
-			std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
-			P.set("M",M);
-		}
-
 		double t(P.get<double>("t"));
 		BiSystem bs(P);
 		if(!P.locked()){

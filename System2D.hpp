@@ -310,21 +310,21 @@ void System2D<Type>::set_pos_ab(Vector<double>& x) const {
 /*{private methods*/
 template<typename Type>
 void System2D<Type>::compute_TxTy(){
-	Tx_.set(this->n_,this->n_,0);
-	Ty_.set(this->n_,this->n_,0);
+	//Tx_.set(this->n_,this->n_,0);
+	//Ty_.set(this->n_,this->n_,0);
 	//unsigned int tmp;
 	//double t(1);
 	//for(unsigned int j(0);j<Ly_;j++){
-	//for(unsigned int i(0);i<Lx_-1;i++){
-	//tmp = this->spuc_*(i + j*Lx_);
-	//for(unsigned int k(0);k<this->spuc_;k++){
-	//Tx_(tmp+k, tmp+k+this->spuc_) = t;
-	//}
-	//}
-	//tmp = this->spuc_*((Lx_-1) + j*Lx_);
-	//for(unsigned int k(0);k<this->spuc_;k++){
-	//Tx_(tmp+k,this->spuc_*j*Lx_ + k) = this->bc_*t;
-	//}
+		//for(unsigned int i(0);i<Lx_-1;i++){
+			//tmp = this->spuc_*(i + j*Lx_);
+			//for(unsigned int k(0);k<this->spuc_;k++){
+				//Tx_(tmp+k, tmp+k+this->spuc_) = t;
+			//}
+		//}
+		//tmp = this->spuc_*((Lx_-1) + j*Lx_);
+		//for(unsigned int k(0);k<this->spuc_;k++){
+			//Tx_(tmp+k,this->spuc_*j*Lx_ + k) = this->bc_*t;
+		//}
 	//}
 	//for(unsigned int i(0);i<Lx_;i++){
 	//for(unsigned int j(0);j<Ly_-1;j++){

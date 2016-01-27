@@ -113,8 +113,8 @@ void ChainFree::energy_bound(){
 				linestyle="dashed";
 			} else { linestyle="solid"; }
 
-			if(t<0){ color = "red"; }
-			else { color = "blue"; }
+			if(t>0){ color = "blue"; }
+			else   { color = "red"; }
 			linewidth = my::tostring(std::abs(t))+"mm";
 
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
@@ -132,8 +132,8 @@ void ChainFree::energy_bound(){
 		if(obs_[0].nval()){/*bound energy*/
 			corr = obs_[0][i].get_x();
 			if(std::abs(corr)>1e-4){
-				if(corr<0){ color = "red"; }
-				else { color = "blue"; }
+				if(corr>0){ color = "blue"; }
+				else      { color = "red"; }
 				linewidth = my::tostring(std::abs(corr))+"mm";
 
 				ps.line("-",xy0(0)+x_shift,xy0(1),xy1(0)+x_shift,xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
@@ -155,8 +155,8 @@ void ChainFree::energy_bound(){
 			xy0(0) = i;
 			if(std::abs(corr)>1e-4){
 				if(i!=idx){
-					if(corr<0){ color = "red"; }
-					else { color = "blue"; }
+					if(corr>0){ color = "blue"; }
+					else      { color = "red"; }
 				} else { color = "black"; }
 				ps.circle(xy0,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}

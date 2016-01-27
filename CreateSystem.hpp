@@ -14,6 +14,7 @@
 #include "TrianglePlaquette.hpp"
 #include "TriangleFree.hpp"
 #include "TrianglePhi.hpp"
+#include "TriangleChiral.hpp"
 
 #include "SquareFermi.hpp"
 #include "SquarePiFlux.hpp"

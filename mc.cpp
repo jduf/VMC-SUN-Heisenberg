@@ -19,9 +19,6 @@ int main(int argc, char* argv[]){
 		cs  = new CreateSystem(sys);
 		cs->init(&tmp,NULL);
 	} else {
-		if(!P.find("M",i,false)){
-			P.set("M",std::vector<unsigned int>(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N")));
-		}
 		sys = new System(P);
 		cs  = new CreateSystem(sys);
 		cs->init(NULL,&P);

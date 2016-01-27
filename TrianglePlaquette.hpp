@@ -9,6 +9,7 @@ class TrianglePlaquette: public Triangle<double>{
 		~TrianglePlaquette() = default;
 
 		void create();
+		void save_param(IOFiles& w) const;
 		void check();
 
 	protected:

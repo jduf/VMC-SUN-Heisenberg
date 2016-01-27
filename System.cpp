@@ -3,7 +3,7 @@
 /*constructors*/
 /*{*/
 System::System(Parseur& P):
-	ref_(set_ref(P)),
+	ref_(complete_system_info(P)),
 	N_(P.get<unsigned int>("N")),
 	m_(P.get<unsigned int>("m")),
 	n_(P.get<unsigned int>("n")),
@@ -122,7 +122,7 @@ void System::print(unsigned int nobs) const {
 }
 /*}*/
 
-Vector<unsigned int> System::set_ref(Parseur& P){
+Vector<unsigned int> System::complete_system_info(Parseur& P){
 	std::string const& wf(P.get<std::string>("wf"));
 	Vector<unsigned int> ref(3,6);
 	if( wf == "chain-fermi" ){
@@ -172,29 +172,30 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "triangle-mu" ){
-		ref(0) = 3;
-		ref(1) = 1;
-		ref(2) = 3;
-	}
 	if( wf == "triangle-plaquette" ){
 		ref(0) = 3;
 		ref(1) = 1;
 		ref(2) = 2;
+	}
+	if( wf == "triangle-mu" ){
+		ref(0) = 3;
+		ref(1) = 1;
+		ref(2) = 3;
 	}
 	if( wf == "triangle-free" ){
 		ref(0) = 3;
 		ref(1) = 1;
 		ref(2) = 4;
 	}
+	if( wf == "triangle-chiral" ){
+		ref(0) = 3;
+		ref(1) = 2;
+		ref(2) = 1;
+	}
 	if( wf == "triangle-phi" ){
 		ref(0) = 3;
 		ref(1) = 2;
 		ref(2) = 2;
-	}
-	if( wf == "triangle-jastrow" ){
-		ref(0) = 3;
-		ref(1) = 0;
 	}
 
 	if( wf == "square-fermi" ){
@@ -279,6 +280,9 @@ Vector<unsigned int> System::set_ref(Parseur& P){
 	unsigned int i;
 	if(!P.find("J",i,false)){
 		P.set("J",std::vector<double>(1,1));
+	}
+	if(!P.find("M",i,false)){
+		P.set("M",std::vector<unsigned int>(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N")));
 	}
 	return ref;
 }

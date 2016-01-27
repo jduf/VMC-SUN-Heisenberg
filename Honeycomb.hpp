@@ -79,17 +79,15 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 				reset_pos_in_lattice(this->x_[i]);
 				x_loop = this->x_[i];
 			}
-			//this->x_[i] = this->x_[i].chop();
+			this->x_[i] = this->x_[i].chop();
 			//ps.put(this->x_[i](0),this->x_[i](1),my::tostring(i));
 		}
 		//ps.end(true,true,true);
 
-		if(!this->obs_.size()){
-			Vector<unsigned int> l(2);
-			l(0) = 3;
-			l(1) = 0;
-			this->set_nn_links(l);
-		}
+		Vector<unsigned int> l(2);
+		l(0) = 3;
+		l(1) = 0;
+		this->set_nn_links(l);
 
 		/*!sets the bond energy if it has not been set yet*/
 		if(this->obs_[0].nlinks() != this->J_.size()){
@@ -167,7 +165,9 @@ Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n){
 		tmp(6,1) = tmp(0,1);
 		return tmp;
 	}
-	std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
+	for(unsigned int l(2);l<10;l++){ std::cerr<<"n="<<2*l*l<<" or "<<6*l*l<<std::endl; }
+	std::cerr<<"n=2*l*l or 6*l*l"<<std::endl;
 	return Matrix<double>();
 }
 

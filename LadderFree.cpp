@@ -1432,8 +1432,8 @@ void LadderFree::lattice(){
 				xy1(0) = xy0(0)+1;
 				linestyle="dashed";
 			} else { linestyle="solid"; }
-			if(t<0){ color = "red"; }
-			else { color = "blue"; }
+			if(t>0){ color = "blue"; }
+			else   { color = "red"; }
 			linewidth = my::tostring(std::abs(t))+"mm";
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
@@ -1455,8 +1455,8 @@ void LadderFree::lattice(){
 		if(obs_.size()>1){/*bound energy*/
 			corr = obs_[1][i].get_x();
 			if(std::abs(corr)>1e-4){
-				if(corr<0){ color = "red"; }
-				else { color = "blue"; }
+				if(corr>0){ color = "blue"; }
+				else      { color = "red"; }
 				linewidth = my::tostring(std::abs(corr))+"mm";
 
 				ps.line("-",xy0(0)+x_shift,xy0(1),xy1(0)+x_shift,xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
@@ -1499,8 +1499,8 @@ void LadderFree::lattice(){
 			xy0(1) = -2;
 			if(std::abs(corr)>1e-4){
 				if(i!=idx){
-					if(corr<0){ color = "red"; }
-					else { color = "blue"; }
+					if(corr>0){ color = "blue"; }
+					else      { color = "red"; }
 				} else { color = "black"; }
 				ps.circle(xy0,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
@@ -1508,8 +1508,8 @@ void LadderFree::lattice(){
 			corr = obs_[3][idx].get_x()*rescale;
 			xy0(1) = -1;
 			if(std::abs(corr)>1e-4){
-				if(corr<0){ color = "red"; }
-				else { color = "blue"; }
+				if(corr>0){ color = "blue"; }
+				else      { color = "red"; }
 				ps.circle(xy0,std::abs(corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
 		}

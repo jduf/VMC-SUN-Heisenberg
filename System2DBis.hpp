@@ -2,6 +2,7 @@
 #define DEF_SYSTEM2DBIS
 
 #include "GenericSystem.hpp"
+#include "List.hpp"
 
 /*{Description*/
 /*!The rules that the arguments of the constructor must obey are the folloing :
@@ -21,12 +22,12 @@ class System2DBis: public GenericSystem<Type>{
 		virtual ~System2DBis();
 
 	protected:
-		Matrix<double> lattice_corners_;//!< basis of the whole lattice
+		Matrix<Type> H_;					//!< matrix used to get the band structure
+		Matrix<std::complex<double> > evec_;//!< eigenvectors of H+Tx+Ty
+		Matrix<double> lattice_corners_;	//!< basis of the whole lattice
 		Vector<double>* dir_nn_;
 		Vector<double>* x_;
 		Matrix<double> ab_;  		//!< basis of the unit cel
-		Matrix<Type> H_;			//!< matrix used to get the band structure
-		Matrix<std::complex<double> > evec_;//!< eigenvectors of H+Tx+Ty
 		double const eq_prec_;		//!< precision for equality (important for matchinf position in lattice)
 
 		/*!Plots the band structure E(px,py)*/
@@ -38,14 +39,10 @@ class System2DBis: public GenericSystem<Type>{
 
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
-		/*!Returns the index of the position x the unit cell basis (a,b)*/
-		virtual unsigned int match_pos_in_ab(Vector<double> const& x) const = 0;
 		/*!Returns the index of the site i in the unit cell basis (a,b)*/
 		unsigned int get_site_in_ab(unsigned int const& i) const;
 		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
 		bool pos_out_of_lattice(Vector<double> const& x) const;
-		virtual bool reset_pos_in_lattice(Vector<double>& x) const = 0;
-		virtual Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const = 0;
 
 	private:
 		Matrix<Type> Tx_;		//!< translation operator along x-axis
@@ -63,6 +60,12 @@ class System2DBis: public GenericSystem<Type>{
 		bool full_diagonalization();
 		/*!Evaluates the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
+		/*!Returns the index of the position x the unit cell basis (a,b)*/
+		virtual unsigned int match_pos_in_ab(Vector<double> const& x) const = 0;
+		/*!Resets x so it pos_out_of_lattice returns true*/
+		virtual bool reset_pos_in_lattice(Vector<double>& x) const = 0;
+		/*!Get the vector that separates the site i from its neighbourg in the direction d*/
+		virtual Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const = 0;
 };
 
 /*{constructors*/
@@ -108,17 +111,55 @@ template<typename Type>
 void System2DBis<Type>::plot_band_structure(){
 	full_diagonalization();
 
-	IOFiles spectrum("spectrum.dat",true);
+	List<Vector<double> > l;
+	std::shared_ptr<Vector<double> > a;
+	List<Vector<double> >::Node* b;
+	auto cmp = [](Vector<double> const& a, Vector<double> const& b){
+		for(unsigned int i(0);i<2;i++){
+			if(a(i) - b(i) > 0.0001){ return 0; }
+			if(a(i) - b(i) <-0.0001){ return 1; }
+		}
+		return 2;
+	};
 	for(unsigned int i(0);i<this->n_;i++){
-		spectrum<<(my::are_equal(std::abs(px_(i)),M_PI,1e-12)?-M_PI:px_(i))<<" "<<(my::are_equal(std::abs(py_(i)),M_PI,1e-12)?-M_PI:py_(i))<<" "<<e_(i)<<IOFiles::endl;
+		a = std::make_shared<Vector<double> >(2+this->spuc_,666);
+		b = NULL;
+		(*a)(0) = my::chop(my::are_equal(std::abs(px_(i)),M_PI,1e-12)?-M_PI:px_(i));
+		(*a)(1) = my::chop(my::are_equal(std::abs(py_(i)),M_PI,1e-12)?-M_PI:py_(i));
+		if(l.find_in_sorted_list(a,b,cmp)){
+			for(unsigned int j(2);j<2+this->spuc_;j++){
+				if(e_(i)<(*b->get())(j)){
+					std::swap(e_(i),(*b->get())(j));
+				}
+			}
+		} else { 
+			(*a)(2) = e_(i);
+			l.set_target(b);
+			l.add_after_target(a); 
+		}
+		l.set_target();
+	}
+
+	IOFiles spectrum("spectrum.dat",true);
+	l.set_target();
+	double x(666);
+	while(l.target_next()){
+		if(!my::are_equal(x,l.get()(0))){ 
+			x = l.get()(0);
+			spectrum<<IOFiles::endl;
+		}
+		spectrum<<l.get()<<IOFiles::endl;
 	}
 
 	Gnuplot gp("./","spectrum");
 	gp.range("x","-pi","pi");
 	gp.range("y","-pi","pi");
 	gp.range("z","-5","5");
-	gp+="splot 'spectrum.dat' u 1:2:3";
+	for(unsigned int i(0);i<this->spuc_;i++){
+		gp+=std::string(!i?"splot":"     ")+" 'spectrum.dat' u 1:2:"+my::tostring(i+3)+" w l notitle"+(i+1==this->spuc_?"":",\\");
+	}
 	gp.save_file();
+	gp.create_image(true,true);
 }
 
 template<typename Type>
@@ -267,33 +308,29 @@ bool System2DBis<Type>::pos_out_of_lattice(Vector<double> const& x) const {
 template<typename Type>
 void System2DBis<Type>::compute_TxTy(){
 	Tx_.set(this->n_,this->n_,0);
+	Vector<double> x;
+	for(unsigned int i(0);i<this->n_;i++){
+		x = x_[i];
+		x(0)+= ab_(0,0);
+		x(1)+= ab_(1,0);
+		reset_pos_in_lattice(x);
+		for(unsigned int j(0);j<this->n_;j++){
+			if(my::are_equal(x,x_[j],eq_prec_,eq_prec_)){ Tx_(i,j) = 1; j=this->n_; }
+		}
+	}
+
 	Ty_.set(this->n_,this->n_,0);
-	//unsigned int tmp;
-	//double t(1);
-	//for(unsigned int j(0);j<Ly_;j++){
-	//for(unsigned int i(0);i<Lx_-1;i++){
-	//tmp = this->spuc_*(i + j*Lx_);
-	//for(unsigned int k(0);k<this->spuc_;k++){
-	//Tx_(tmp+k, tmp+k+this->spuc_) = t;
-	//}
-	//}
-	//tmp = this->spuc_*((Lx_-1) + j*Lx_);
-	//for(unsigned int k(0);k<this->spuc_;k++){
-	//Tx_(tmp+k,this->spuc_*j*Lx_ + k) = this->bc_*t;
-	//}
-	//}
-	//for(unsigned int i(0);i<Lx_;i++){
-	//for(unsigned int j(0);j<Ly_-1;j++){
-	//tmp = this->spuc_*(i + j*Lx_);
-	//for(unsigned int k(0);k<this->spuc_;k++){
-	//Ty_(tmp+k, tmp+this->spuc_*Lx_+k) = t;
-	//}
-	//}
-	//tmp = this->spuc_*(i + (Ly_-1)*Lx_);
-	//for(unsigned int k(0);k<this->spuc_;k++){
-	//Ty_(tmp+k, this->spuc_*i+k) = this->bc_*t;
-	//}
-	//}
+	for(unsigned int i(0);i<this->n_;i++){
+		x = x_[i];
+		x(0)+= ab_(0,1);
+		x(1)+= ab_(1,1);
+		reset_pos_in_lattice(x);
+		for(unsigned int j(0);j<this->n_;j++){
+			if(my::are_equal(x,x_[j],eq_prec_,eq_prec_)){ Ty_(i,j) = 1; j=this->n_; }
+		}
+	}
+	//std::cout<<H_*Tx_-Tx_*H_<<std::endl;
+	//std::cout<<H_*Ty_-Ty_*H_<<std::endl;
 }
 
 template<typename Type>

@@ -171,7 +171,7 @@ void KagomeVBC::display_results(){
 			} else { linestyle = "solid"; }
 
 			if(t.imag()>0){ color = "blue"; }
-			else { color = "red"; }
+			else          { color = "red"; }
 			linewidth = my::tostring(std::abs(t))+"mm";
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
