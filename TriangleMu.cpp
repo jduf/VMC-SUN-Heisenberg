@@ -18,13 +18,13 @@ TriangleMu::TriangleMu(System const& s, double const& mu):
 void TriangleMu::compute_H(unsigned int const& c){
 	H_.set(n_,n_,0);
 
-	double t(1.0);
+	double t(-1.0);
 	unsigned int s0(0);
 	unsigned int s1(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t;
+		H_(s0,s1) = (obs_[0](i,4)?bc_*t:t);
 		if(get_site_in_ab(s0)==c%spuc_){ H_(s0,s0) = mu_/2; }
 	}
 	H_ += H_.transpose();
@@ -137,6 +137,8 @@ void TriangleMu::display_results(){
 		}
 		if(i%3==2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
+	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

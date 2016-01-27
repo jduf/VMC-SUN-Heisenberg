@@ -25,6 +25,7 @@ class System2DBis: public GenericSystem<Type>{
 		Matrix<Type> H_;					//!< matrix used to get the band structure
 		Matrix<std::complex<double> > evec_;//!< eigenvectors of H+Tx+Ty
 		Matrix<double> lattice_corners_;	//!< basis of the whole lattice
+		Vector<double>* boundary_;
 		Vector<double>* dir_nn_;
 		Vector<double>* x_;
 		Matrix<double> ab_;  		//!< basis of the unit cel
@@ -73,6 +74,7 @@ template<typename Type>
 System2DBis<Type>::System2DBis(Matrix<double> const& lattice_corners, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename),
 	lattice_corners_(lattice_corners),
+	boundary_(new Vector<double>[4]),
 	dir_nn_(new Vector<double>[this->z_]),
 	x_(new Vector<double>[this->n_]),
 	ab_(ab),
@@ -260,7 +262,10 @@ Matrix<int> System2DBis<Type>::get_neighbourg(unsigned int const& i) const {
 		dir[d]= d;
 		nn[d] = x_[i];
 		nn[d]+= get_relative_neighbourg_position(i,d);
-		nb(d,1) = reset_pos_in_lattice(nn[d]);
+		nb(d,1) = 0;
+		if(my::intersect(x_[i].ptr(), nn[d].ptr(), boundary_[0].ptr(), boundary_[1].ptr()) || my::intersect(x_[i].ptr(), nn[d].ptr(), boundary_[2].ptr(), boundary_[3].ptr()) ){ nb(d,1) = !nb(d,1); }
+		if(my::intersect(x_[i].ptr(), nn[d].ptr(), boundary_[1].ptr(), boundary_[2].ptr()) || my::intersect(x_[i].ptr(), nn[d].ptr(), boundary_[3].ptr(), boundary_[0].ptr()) ){ nb(d,1) = !nb(d,1); }
+		reset_pos_in_lattice(nn[d]);
 	}
 
 	unsigned int j(0);
@@ -273,12 +278,12 @@ Matrix<int> System2DBis<Type>::get_neighbourg(unsigned int const& i) const {
 		}
 	} while(dir.size() && ++j<this->n_+1);
 	//if(j>=this->n_+1){
-		//std::cout<<"-----"<<std::endl;
-		//std::cout<<i<<std::endl;
-		//for(unsigned int d(0);d<this->z_;d++){
-			//std::cout<< nn[d]<<std::endl;
-		//}
-		//std::cout<<nb<<std::endl;
+	//std::cout<<"-----"<<std::endl;
+	//std::cout<<i<<std::endl;
+	//for(unsigned int d(0);d<this->z_;d++){
+	//std::cout<< nn[d]<<std::endl;
+	//}
+	//std::cout<<nb<<std::endl;
 	//}
 	assert(j<this->n_+1);
 	delete[] nn;

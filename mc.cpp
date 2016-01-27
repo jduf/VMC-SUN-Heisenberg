@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
 					if(!mcsys){ std::cout<<__PRETTY_FUNCTION__<<" MCSystem was not constructed"<<std::endl; }
 					else {
 						MonteCarlo sim(mcsys,tmax);
-						sim.thermalize(1e7);
+						sim.thermalize(1e6);
 						sim.run();
 
 #pragma omp critical(System__merge)

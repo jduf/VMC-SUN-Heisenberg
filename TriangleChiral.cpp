@@ -16,13 +16,39 @@ TriangleChiral::TriangleChiral(System const& s):
 void TriangleChiral::compute_H(){
 	H_.set(n_,n_,0);
 
-	double t(1.0);
+	double t(-1.0);
+	double phi(M_PI/3.0);
 	unsigned int s0(0);
 	unsigned int s1(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t;
+		switch(get_site_in_ab(s0)){
+			case 0:
+				{
+					switch(obs_[0](i,3)){
+						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),3*phi); }break;
+						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),4*phi); }break;
+						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),5*phi); }break;
+					}
+				}break;
+			case 1:
+				{
+					switch(obs_[0](i,3)){
+						case 0:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
+						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),1*phi); }break;
+						case 2:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
+					}
+				}break;
+			case 2:
+				{ 
+					switch(obs_[0](i,3)){
+						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),6*phi); }break;
+						case 1:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
+						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),2*phi); }break;
+					}
+				}break;
+		}
 	}
 	H_ += H_.transpose();
 }
@@ -70,7 +96,8 @@ void TriangleChiral::display_results(){
 
 	std::string color("black");
 	std::string linestyle("solid");
-	std::string linewidth("1mm");
+	std::string linewidth("1pt");
+	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
@@ -91,6 +118,7 @@ void TriangleChiral::display_results(){
 	ps.polygon(polygon,"linecolor=black");
 
 	std::complex<double> t;
+	double phi(M_PI/3.0);
 	unsigned int s0;
 	unsigned int s1;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
@@ -107,15 +135,25 @@ void TriangleChiral::display_results(){
 				xy1 = xy0;
 				xy1+= dir_nn_[obs_[0](i,3)];
 				xy1 = xy1.chop();
-				ps.put(xy1(0)-0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
+				ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 			} else { linestyle = "solid"; }
 
 			if(t.real()>0){ color = "blue"; }
-			else   { color = "red"; }
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+			else          { color = "red"; }
+			if(my::are_equal(t.imag(),0)){
+				arrow = "-"; 
+			} else {
+				if(t.imag()>0){ arrow = "->"; }
+				else          { arrow = "<-"; }
+				ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(std::arg(t)/phi)+"}");
+			}
+
+			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 		if(i%3==2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
+	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

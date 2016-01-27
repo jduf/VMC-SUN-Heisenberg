@@ -23,20 +23,19 @@ void TrianglePlaquette::compute_H(){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-
 		switch(get_site_in_ab(s0)){
 			case 0:
 				{
-					if(obs_[0](i,3)==2){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_; } 
-					else { H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t; }
+					if(obs_[0](i,3)==2){ H_(s0,s1) = (obs_[0](i,4)?bc_*t_:t_); } 
+					else { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }
 				}break;
 			case 1:
 				{
-					if(obs_[0](i,3)!=2){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_; } 
-					else { H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t; }
+					if(obs_[0](i,3)!=2){ H_(s0,s1) = (obs_[0](i,4)?bc_*t_:t_); } 
+					else { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }
 				}break;
 			case 2:
-				{ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_; }break;
+				{ H_(s0,s1) = (obs_[0](i,4)?bc_*t_:t_); }break;
 		}
 	}
 	H_ += H_.transpose();
@@ -142,6 +141,8 @@ void TrianglePlaquette::display_results(){
 		}
 		if(i%3==2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
+	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

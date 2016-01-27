@@ -51,11 +51,6 @@ Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std
 			this->x_[0](0)+= 0.01;
 			this->x_[0](1)+= 0.01;
 
-			PSTricks ps("./","test");
-			ps.begin(-20,-20,40,20,"balj");
-			ps.put(this->x_[0](0),this->x_[0](1),"0");
-			ps.polygon(this->lattice_corners_,"linecolor=green");
-
 			Vector<double> x_loop(this->x_[0]);
 			bool check_if_loop(false);
 			for(unsigned int i(1);i<this->n_;i++){
@@ -68,9 +63,20 @@ Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std
 					x_loop = this->x_[i];
 				}
 				this->x_[i] = this->x_[i].chop();
-				ps.put(this->x_[i](0),this->x_[i](1),my::tostring(i));
 			}
-			ps.end(true,true,true);
+			
+			if(lattice_type_){
+				this->boundary_[0] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[3]+this->dir_nn_[4])*L_;
+				this->boundary_[1] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[5])*L_;
+				this->boundary_[2] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[1])*L_*2.0;
+				this->boundary_[3] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[1]+this->dir_nn_[2])*L_;
+			} else {
+				this->boundary_[0] = this->dir_nn_[3]*0.25 + this->dir_nn_[4]*L_;
+				this->boundary_[1] = this->dir_nn_[3]*0.25 + this->dir_nn_[0]*L_;
+				this->boundary_[2] = this->dir_nn_[3]*0.25 + this->dir_nn_[1]*L_*2.0;
+				this->boundary_[3] = this->dir_nn_[3]*0.25 + this->dir_nn_[2]*L_;
+			}
+
 
 			this->set_nn_links(Vector<unsigned int>(1,3));
 

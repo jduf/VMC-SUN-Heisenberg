@@ -14,8 +14,9 @@ TriangleFermi::TriangleFermi(System const& s):
 /*{method needed for running*/
 void TriangleFermi::compute_H(){
 	H_.set(n_,n_,0);
+	double t(-1.0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_:1);
+		H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_*t:t);
 	}
 	H_ += H_.transpose();
 }
@@ -96,6 +97,8 @@ void TriangleFermi::display_results(){
 		}
 		if(i%3==2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
+	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

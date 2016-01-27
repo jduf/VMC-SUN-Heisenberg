@@ -18,13 +18,14 @@ void TrianglePhi::compute_H(){
 	H_.set(n_,n_,0);
 
 	double unit_flux(2*M_PI*m_/N_);
+	double t(-1.0);
 	unsigned int s0(0);
 	unsigned int s1(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		if(obs_[0](i,3)==1){ H_(s0,s1) = std::polar(double(obs_[0](i,4)?bc_:1),phi_*unit_flux); }
-		else { H_(s0,s1) = (obs_[0](i,4)?bc_:1); }
+		H_(s0,s1) = (obs_[0](i,4)?bc_*t:t);
+		if(obs_[0](i,3)==1){ H_(s0,s1) *= std::polar(1.0,phi_*unit_flux); }
 	}
 	H_ += H_.conjugate_transpose();
 }
@@ -77,8 +78,8 @@ void TrianglePhi::display_results(){
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(lattice_corners_,"linecolor=green");
 
-	double x_shift(-(ab_(0,0)+ab_(0,1))/2);
-	double y_shift(0.0);
+	double x_shift(-(ab_(0,0)+ab_(0,1))/2.0);
+	double y_shift(-ab_(1,1)/2.0);
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=x_shift;
 	polygon(0,1)=y_shift;
@@ -114,16 +115,17 @@ void TrianglePhi::display_results(){
 			if(t.real()>0){ color = "blue"; }
 			else          { color = "red"; }
 
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			arrow = "-";
-			if(std::arg(t)>0){ arrow = "-"+std::string(std::arg(t)/unit_flux,'>'); }
-			if(std::arg(t)<0){ arrow = std::string(-std::arg(t)/unit_flux,'<')+"-"; }
+			if(t.imag()>0){ arrow = "-"+std::string(std::arg(t)/unit_flux,'>'); }
+			if(t.imag()<0){ arrow = std::string(-std::arg(t)/unit_flux,'<')+"-"; }
 
 			linewidth = my::tostring(std::abs(t))+"mm";
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
-		if(i%3==2){ ps.put(xy0(0)+0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
+		if(i%3==2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
+	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

@@ -1,7 +1,7 @@
 MACHINE=$(shell uname -n)_
 ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	MACHINE=
-	#EXEC = min
+	EXEC = min
 	EXEC+= mc
 	#EXEC+= mcbi
 	#EXEC+= load
