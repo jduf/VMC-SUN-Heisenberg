@@ -79,7 +79,7 @@ Matrix<double> TriangleMu::set_ab() const {
 
 /*{method needed for checking*/
 void TriangleMu::display_results(){
-	compute_H(2);
+	compute_H(0);
 
 	std::string color("black");
 	std::string linestyle("solid");

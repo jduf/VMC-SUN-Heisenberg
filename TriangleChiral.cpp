@@ -27,30 +27,30 @@ void TriangleChiral::compute_H(){
 			case 0:
 				{
 					switch(obs_[0](i,3)){
-						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),3*phi); }break;
-						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),4*phi); }break;
-						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),5*phi); }break;
+						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),1*phi); }break;
+						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),2*phi); }break;
+						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),3*phi); }break;
 					}
 				}break;
 			case 1:
 				{
 					switch(obs_[0](i,3)){
 						case 0:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),1*phi); }break;
+						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),5*phi); }break;
 						case 2:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
 					}
 				}break;
 			case 2:
 				{ 
 					switch(obs_[0](i,3)){
-						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),6*phi); }break;
+						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),4*phi); }break;
 						case 1:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),2*phi); }break;
+						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),6*phi); }break;
 					}
 				}break;
 		}
 	}
-	H_ += H_.transpose();
+	H_ += H_.conjugate_transpose();
 }
 
 void TriangleChiral::create(){
@@ -163,6 +163,7 @@ void TriangleChiral::check(){
 	dir_  = "./";
 	filename_ ="triangle-chiral";
 	display_results();
+
 	plot_band_structure();
 }
 /*}*/

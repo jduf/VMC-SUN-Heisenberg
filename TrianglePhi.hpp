@@ -13,7 +13,7 @@ class TrianglePhi: public Triangle<std::complex<double> >{
 		void check();
 
 	protected:
-		double phi_;
+		double const phi_;
 
 		void compute_H();
 		void display_results();

@@ -111,7 +111,7 @@ void System::save_output(IOFiles& w) const {
 	if(nobs){
 		w.write("#obs (E="+my::tostring(obs_[0][0].get_x())+", dE="+my::tostring(obs_[0][0].get_dx())+")",nobs);
 		for(int i(0);i<nobs;i++){ w<<obs_[i]; }
-	}
+	} else { w.write("#obs",nobs); }
 }
 
 void System::print(unsigned int nobs) const {

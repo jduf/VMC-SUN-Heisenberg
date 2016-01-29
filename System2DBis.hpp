@@ -33,8 +33,6 @@ class System2DBis: public GenericSystem<Type>{
 
 		/*!Plots the band structure E(px,py)*/
 		void plot_band_structure();
-		/*!Creates the selection of optimal eigenvectors*/
-		void select_eigenvectors();
 
 		void diagonalize(bool simple);
 
@@ -111,145 +109,65 @@ void System2DBis<Type>::diagonalize(bool simple){
 
 template<typename Type>
 void System2DBis<Type>::plot_band_structure(){
-	full_diagonalization();
+	if(full_diagonalization()){
+		List<Vector<double> > l;
+		std::shared_ptr<Vector<double> > a;
+		List<Vector<double> >::Node* b;
+		auto cmp = [](Vector<double> const& a, Vector<double> const& b){
+			for(unsigned int i(0);i<2;i++){
+				if(a(i) - b(i) > 0.0001){ return 0; }
+				if(a(i) - b(i) <-0.0001){ return 1; }
+			}
+			return 2;
+		};
 
-	List<Vector<double> > l;
-	std::shared_ptr<Vector<double> > a;
-	List<Vector<double> >::Node* b;
-	auto cmp = [](Vector<double> const& a, Vector<double> const& b){
-		for(unsigned int i(0);i<2;i++){
-			if(a(i) - b(i) > 0.0001){ return 0; }
-			if(a(i) - b(i) <-0.0001){ return 1; }
-		}
-		return 2;
-	};
-	for(unsigned int i(0);i<this->n_;i++){
-		a = std::make_shared<Vector<double> >(2+this->spuc_,666);
-		b = NULL;
-		(*a)(0) = my::chop(my::are_equal(std::abs(px_(i)),M_PI,1e-12)?-M_PI:px_(i));
-		(*a)(1) = my::chop(my::are_equal(std::abs(py_(i)),M_PI,1e-12)?-M_PI:py_(i));
-		if(l.find_in_sorted_list(a,b,cmp)){
-			for(unsigned int j(2);j<2+this->spuc_;j++){
-				if(e_(i)<(*b->get())(j)){
-					std::swap(e_(i),(*b->get())(j));
+		double min_e(e_.min());
+		double max_e(e_.max());
+		IOFiles bs(this->filename_+"-band-structure.dat",true);
+		for(unsigned int i(0);i<this->n_;i++){
+			a = std::make_shared<Vector<double> >(2+this->spuc_,666);
+			b = NULL;
+			(*a)(0) = my::chop(my::are_equal(std::abs(px_(i)),M_PI,1e-12)?-M_PI:px_(i));
+			(*a)(1) = my::chop(my::are_equal(std::abs(py_(i)),M_PI,1e-12)?-M_PI:py_(i));
+
+			bs<<(*a)(0)<<" "<<(*a)(1)<<" "<<e_(i)<<IOFiles::endl;
+
+			if(l.find_in_sorted_list(a,b,cmp)){
+				for(unsigned int j(2);j<2+this->spuc_;j++){
+					if(e_(i)<(*b->get())(j)){
+						std::swap(e_(i),(*b->get())(j));
+					}
 				}
+			} else { 
+				(*a)(2) = e_(i);
+				l.set_target(b);
+				l.add_after_target(a); 
 			}
-		} else { 
-			(*a)(2) = e_(i);
-			l.set_target(b);
-			l.add_after_target(a); 
+			l.set_target();
 		}
+
+		IOFiles bsf(this->filename_+"-band-structure-formated.dat",true);
 		l.set_target();
-	}
-
-	IOFiles spectrum("spectrum.dat",true);
-	l.set_target();
-	double x(666);
-	while(l.target_next()){
-		if(!my::are_equal(x,l.get()(0))){ 
-			x = l.get()(0);
-			spectrum<<IOFiles::endl;
-		}
-		spectrum<<l.get()<<IOFiles::endl;
-	}
-
-	Gnuplot gp("./","spectrum");
-	gp.range("x","-pi","pi");
-	gp.range("y","-pi","pi");
-	gp.range("z","-5","5");
-	for(unsigned int i(0);i<this->spuc_;i++){
-		gp+=std::string(!i?"splot":"     ")+" 'spectrum.dat' u 1:2:"+my::tostring(i+3)+" w l notitle"+(i+1==this->spuc_?"":",\\");
-	}
-	gp.save_file();
-	gp.create_image(true,true);
-}
-
-template<typename Type>
-void System2DBis<Type>::select_eigenvectors(){
-	/*{*/
-	/*!
-	  unsigned int iter(0);
-	  Matrix<double> pxpy[2];
-	  this->degenerate_ = false; //normally useless
-	  for(unsigned int c(0);c<this->N_;c++){
-	  unsigned int a(this->M_(c)-1);
-	  unsigned int b(this->M_(c)-1);
-	  do{ b++; } while (b+1<this->n_ && my::are_equal(e_(b),e_(b-1)));
-	  if(b!=this->M_(c)){ while(a>0 && my::are_equal(e_(a-1),e_(a))){ a--; } }
-	  Vector<unsigned int> cnk;
-	  Combination cbn;
-	  cbn.set(this->M_(c)-a,b-a,cnk);
-	  select_[c].set(this->M_(c));
-	  for(unsigned int i(0);i<a;i++){ select_[c](i) = i; }
-	  while(iter++<sel_[c] && cbn.next());
-	  for(unsigned int i(0);i+a<this->M_(c);i++){ select_[c](a+i) = a+cnk(i); }
-	  double  e(0.0);
-	  double Px(0.0);
-	  double Py(0.0);
-	  for(unsigned int i(0);i<this->M_(c);i++){
-	  Px+= my::are_equal(std::abs(px_(select_[c](i))),M_PI,1e-12,1e-12)?0:px_(select_[c](i));
-	  Py+= my::are_equal(std::abs(py_(select_[c](i))),M_PI,1e-12,1e-12)?0:py_(select_[c](i));
-	  e += e_(select_[c](i));
-	  }
-	  if(!my::are_equal(Px,0.,1e-14) || !my::are_equal(Py,0.,1e-14)){
-	  this->degenerate_ = true;
-	  } else {
-	  pxpy[c].set(this->M_(c)-a,2);
-	  for(unsigned int i(a);i<this->M_(c);i++){
-	  pxpy[c](i-a,0) = px_(select_[c](i));
-	  pxpy[c](i-a,1) = py_(select_[c](i));
-	  }
-	  }
-	  }
-	  if(!this->degenerate_){
-	//for(unsigned int c(0);c<this->N_;c++){
-	//for(unsigned int i(0);i<pxpy[c].row();i++){
-	//std::cout<<pxpy[c](i,0)<<" "<<pxpy[c](i,1)<<" ";
-	//}
-	//}
-	}
-	*/
-	/*}*/
-	unsigned int c(0);
-	unsigned int a(this->M_(c)-1);
-	unsigned int b(this->M_(c)-1);
-	do{ b++; } while (b+1<this->n_ && my::are_equal(e_(b),e_(b-1)));
-	if(b!=this->M_(c)){ while(a>0 && my::are_equal(e_(a-1),e_(a))){ a--; } }
-	std::cout<<a<<" "<<b<<std::endl;
-	std::cout<<e_<<std::endl;
-	for(unsigned int i(a-1);i<b+1;i++){
-		std::cout<<i<<" "<<my::chop(e_(i))<<" "<<px_(i)<<" "<<py_(i)<<std::endl;
-	}
-	Matrix<unsigned int> pair(b-a,2,0);
-	for(unsigned int i(a);i<b;i++){
-		for(unsigned int j(a);j<b;j++){
-			if(my::are_equal(e_(i),e_(j)) && my::are_equal(px_(i),-px_(j)) && my::are_equal(py_(i),-py_(j))){
-				pair(i-a,0) = i;
-				pair(i-a,1) = j;
+		double x(666);
+		while(l.target_next()){
+			if(!my::are_equal(x,l.get()(0))){ 
+				x = l.get()(0);
+				bsf<<IOFiles::endl;
 			}
+			bsf<<l.get()<<IOFiles::endl;
 		}
-	}
-	std::cout<<pair<<std::endl;
-	for(unsigned int j(0);j<pair.row()/2;j++){
-		double n1(0);
-		double n2(0);
-		std::complex<double> tmp1;
-		std::complex<double> tmp2;
-		for(unsigned int i(0);i<this->n_;i++){
-			tmp1 = evec_(i,pair(j,0)) + evec_(i,pair(j,1));
-			tmp2 = evec_(i,pair(j,0)) - evec_(i,pair(j,1));
-			evec_(i,pair(j,0)) = tmp1;
-			evec_(i,pair(j,1)) = tmp2;
-			n1 += my::norm_squared(tmp1);
-			n2 += my::norm_squared(tmp2);
+
+		Gnuplot gp("./",this->filename_+"-band-structure");
+		gp.range("x","-pi","pi");
+		gp.range("y","-pi","pi");
+		gp.range("z",min_e,max_e);
+		gp += "set ticslevel 0";
+		for(unsigned int i(0);i<this->spuc_;i++){
+			gp+=std::string(!i?"splot":"     ")+" '"+this->filename_+"-band-structure-formated.dat' u 1:2:"+my::tostring(i+3)+" w l notitle"+(i+1==this->spuc_?"":",\\");
 		}
-		for(unsigned int i(0);i<this->n_;i++){
-			evec_(i,pair(j,0)) /= sqrt(n1);
-			evec_(i,pair(j,1)) /= sqrt(n2);
-		}
-	}
-	//std::cout<<(evec_*evec_.trans_conj()).chop().diag()<<std::endl;
-	std::cout<<"this selection method is not enough general !"<<std::endl;
+		gp.save_file();
+		gp.create_image(true,true);
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : band structure not plotted"<<std::endl; }
 }
 
 template<typename Type>
@@ -278,12 +196,12 @@ Matrix<int> System2DBis<Type>::get_neighbourg(unsigned int const& i) const {
 		}
 	} while(dir.size() && ++j<this->n_+1);
 	//if(j>=this->n_+1){
-	//std::cout<<"-----"<<std::endl;
-	//std::cout<<i<<std::endl;
+	//std::cerr<<"-----"<<std::endl;
+	//std::cerr<<i<<std::endl;
 	//for(unsigned int d(0);d<this->z_;d++){
-	//std::cout<< nn[d]<<std::endl;
+	//std::cerr<< nn[d]<<std::endl;
 	//}
-	//std::cout<<nb<<std::endl;
+	//std::cerr<<nb<<std::endl;
 	//}
 	assert(j<this->n_+1);
 	delete[] nn;
@@ -358,7 +276,7 @@ bool System2DBis<Type>::full_diagonalization(){
 	M += Tx_*Type(3.0);
 	M += Ty_*Type(7.0);
 	Vector<std::complex<double> > eval;
-	Lapack<Type>(M,true,'G').eigensystem(eval,&evec_);
+	Lapack<Type>(M,false,'G').eigensystem(eval,&evec_);
 
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(i+1);j<this->n_;j++){
