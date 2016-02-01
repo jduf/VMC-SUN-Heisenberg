@@ -1,21 +1,21 @@
-#ifndef DEF_SQUAREJASTROW
-#define DEF_SQUAREJASTROW
+#ifndef DEF_SQUAREMU
+#define DEF_SQUAREMU
 
 #include "Square.hpp"
 
-class SquareJastrow: public Square<double>{
+class SquareMu: public Square<double>{
 	public:
-		SquareJastrow(System const& s, Matrix<double> const& nu);
-		~SquareJastrow() = default;
+		SquareMu(System const& s, double const& mu);
+		~SquareMu() = default;
 
 		void create();
-		void check();
 		void save_param(IOFiles& w) const;
+		void check();
 
 	protected:
-		void compute_nn();
-		void compute_sublattice();
-		void compute_omega_cc();
+		double const mu_;//!< chemical potential
+
+		void compute_H(unsigned int const& c);
 		void display_results();
 
 		/*!Set the unit cell's vectors*/

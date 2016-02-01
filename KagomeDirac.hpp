@@ -87,6 +87,16 @@ void KagomeDirac<Type>::compute_H(){
 }
 
 template<typename Type>
+Matrix<double> KagomeDirac<Type>::set_ab() const {
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 2.0;
+	tmp(1,0) = 0.0;
+	tmp(0,1) =-1.0;
+	tmp(1,1) = sqrt(3.0);
+	return tmp;
+}
+
+template<typename Type>
 unsigned int KagomeDirac<Type>::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match)){ return 0; }
@@ -95,16 +105,6 @@ unsigned int KagomeDirac<Type>::match_pos_in_ab(Vector<double> const& x) const {
 	match(1) = 0.5;
 	if(my::are_equal(x,match)){ return 2; }
 	return 3;
-}
-
-template<typename Type>
-Matrix<double> KagomeDirac<Type>::set_ab() const {
-	Matrix<double> tmp(2,2);
-	tmp(0,0) = 2.0;
-	tmp(1,0) = 0.0;
-	tmp(0,1) =-1.0;
-	tmp(1,1) = sqrt(3.0);
-	return tmp;
 }
 /*}*/
 

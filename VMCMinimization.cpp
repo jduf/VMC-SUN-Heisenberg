@@ -13,7 +13,7 @@ VMCMinimization::VMCMinimization(Parseur& P):
 	std::cout<<"#######################"<<std::endl;
 	std::cout<<"#creating VMCMinimization"<<std::endl;
 	m_->set(P,path_,basename_);
-	if(m_->s_->get_status() != 3 || P.locked()){
+	if(m_->s_->get_status() != 4 || P.locked()){
 		std::cerr<<__PRETTY_FUNCTION__<<" : something went wrong, status="<<m_->s_->get_status()<<std::endl;
 		m_.reset();
 	}
@@ -515,8 +515,16 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	Vector<double> tmp(dof_,1.0);
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
-	cs.set_obs(-1);
-	obs_ = cs.get_GenericSystem()->get_obs();
+	if(cs.get_status()>2){
+		std::cerr<<__PRETTY_FUNCTION__<<" delete s_, status_="<<cs.get_status()<<std::endl; 
+		delete s_;
+		s_ = NULL;
+	} else {
+		cs.set_obs(-1);
+		obs_ = cs.get_GenericSystem()->get_obs();
+		/*!sets what is always required (Energy observable)*/
+		s_->set_obs(obs_,0);
+	}
 
 	std::string msg("no samples loaded");
 	std::cout<<"#"+msg<<std::endl;

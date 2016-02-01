@@ -14,10 +14,10 @@
 	   The status_ variables gives a way to stop a simulation if the
 	   initialization failed and also indicates up to where it went :
 	   + status_ = 5 : System is initialized (in System)
-	   + status_ = 4 : System is allowed (in System)
-	   + status_ = 3 : Boundary condition is allowed
-	   + status_ = 2 : Degenerated wavefunction
-	   + status_ = 1 : System*D is allowed (in System*D)
+	   + status_ = 4 : System is constructed
+	   + status_ = 3 : GenericSystem has a well defined unit cell size
+	   + status_ = 2 : System*D has a good geometry
+	   + status_ = 1 : Non degenerate eigenvalues (in System*D)
 	   + status_ = 0 : Found an initial state (in SystemFermionic)
 	   *//*}*/
 class System{

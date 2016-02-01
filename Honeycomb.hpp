@@ -29,70 +29,77 @@ Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, s
 	System2DBis<Type>(set_geometry(this->n_),ab,spuc,3,filename)
 {
 	if(this->status_==2){
-		/*{!the directions are given for the sublattice with even site number
-		 * in the cartesian basis
-		 *
-		 * (-1,sqrt(3))/2
-		 *       \
-		 *        x--(1,0)
-		 *       /
-		 * (-1,-sqrt(3))/2
-		 *
-		 *  x = 0,2,4,...
-		 *}*/
-		this->dir_nn_[0](0) = 1.0;
-		this->dir_nn_[0](1) = 0.0;
+		if(!this->obs_.size() || !this->obs_[0].nlinks()){
+			/*{!the directions are given in the cartesian basis for the
+			 * sublattice with even site number
+			 *
+			 * (-1,sqrt(3))/2
+			 *       \
+			 *        x--(1,0)
+			 *       /
+			 * (-1,-sqrt(3))/2
+			 *
+			 *  x = 0,2,4,...
+			 *}*/
+			this->dir_nn_[0](0) = 1.0;
+			this->dir_nn_[0](1) = 0.0;
 
-		this->dir_nn_[1](0) =-0.5;
-		this->dir_nn_[1](1) = sqrt(3.0)/2.0;
+			this->dir_nn_[1](0) =-0.5;
+			this->dir_nn_[1](1) = sqrt(3.0)/2.0;
 
-		this->dir_nn_[2](0) =-0.5;
-		this->dir_nn_[2](1) =-sqrt(3.0)/2.0;
+			this->dir_nn_[2](0) =-0.5;
+			this->dir_nn_[2](1) =-sqrt(3.0)/2.0;
 
-		if(lattice_type_){ this->x_[0] = this->dir_nn_[2]; }
-		else {
-			this->x_[0] = this->dir_nn_[0]*(-0.5);
-			this->x_[0](0)+= 0.01;
-			this->x_[0](1)+= 0.01;
-		}
+			if(lattice_type_){ this->x_[0] = this->dir_nn_[2]; }
+			else {
+				this->x_[0] = this->dir_nn_[0]*(-0.5);
+				this->x_[0](0)+= 0.01;
+				this->x_[0](1)+= 0.01;
+			}
 
-		//PSTricks ps("./","test");
-		//ps.begin(-20,-20,40,20,"balj");
-		//ps.polygon(this->lattice_corners_,"linecolor=green");
-		//ps.put(this->x_[0](0),this->x_[0](1),"0");
+			Vector<double> x_loop(this->x_[0]);
+			bool check_if_loop(false);
+			for(unsigned int i(1);i<this->n_;i++){
+				if(lattice_type_){
+					if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[0]; }
+					else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[1]; }
+				} else {
+					if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[1]; }
+					else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[2]; }
+				}
+				if(reset_pos_in_lattice(this->x_[i])){ check_if_loop = true; }
+				if(check_if_loop && my::are_equal(this->x_[i],x_loop)){
+					check_if_loop = false;
+					if(lattice_type_){ this->x_[i](1) += sqrt(3.0); }
+					else { this->x_[i] += this->dir_nn_[0]-this->dir_nn_[1]; }
+					reset_pos_in_lattice(this->x_[i]);
+					x_loop = this->x_[i];
+				}
+				this->x_[i] = this->x_[i].chop();
+			}
 
-		Vector<double> x_loop(this->x_[0]);
-		bool check_if_loop(false);
-		for(unsigned int i(1);i<this->n_;i++){
 			if(lattice_type_){
-				if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[0]; }
-				else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[1]; }
+				this->boundary_[0] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[3]+this->dir_nn_[4])*L_;
+				this->boundary_[1] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[5])*L_;
+				this->boundary_[2] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[1])*L_*2.0;
+				this->boundary_[3] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[1]+this->dir_nn_[2])*L_;
 			} else {
-				if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[1]; }
-				else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[2]; }
+				this->boundary_[0] = this->dir_nn_[3]*0.25 + this->dir_nn_[4]*L_;
+				this->boundary_[1] = this->dir_nn_[3]*0.25 + this->dir_nn_[0]*L_;
+				this->boundary_[2] = this->dir_nn_[3]*0.25 + this->dir_nn_[1]*L_*2.0;
+				this->boundary_[3] = this->dir_nn_[3]*0.25 + this->dir_nn_[2]*L_;
 			}
-			if(reset_pos_in_lattice(this->x_[i])){ check_if_loop = true; }
-			if(check_if_loop && my::are_equal(this->x_[i],x_loop)){
-				check_if_loop = false;
-				if(lattice_type_){ this->x_[i](1) += sqrt(3.0); }
-				else { this->x_[i] += this->dir_nn_[0]-this->dir_nn_[1]; }
-				reset_pos_in_lattice(this->x_[i]);
-				x_loop = this->x_[i];
+
+			Vector<unsigned int> l(2);
+			l(0) = 3;
+			l(1) = 0;
+			this->set_nn_links(l);
+
+			/*!sets the bond energy if it has not been set yet*/
+			if(this->obs_[0].nlinks() != this->J_.size()){
+				if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
+				else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
 			}
-			this->x_[i] = this->x_[i].chop();
-			//ps.put(this->x_[i](0),this->x_[i](1),my::tostring(i));
-		}
-		//ps.end(true,true,true);
-
-		Vector<unsigned int> l(2);
-		l(0) = 3;
-		l(1) = 0;
-		this->set_nn_links(l);
-
-		/*!sets the bond energy if it has not been set yet*/
-		if(this->obs_[0].nlinks() != this->J_.size()){
-			if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
-			else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
 		}
 	}
 }

@@ -6,7 +6,7 @@
 template<typename Type>
 class Triangle: public System2DBis<Type>{
 	public:
-		/*!Constructor that organises the n=L^2 sites (L integer)*/
+		/*!Constructor*/
 		Triangle(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Triangle()=0;
@@ -29,7 +29,15 @@ Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std
 	System2DBis<Type>(set_geometry(this->n_),ab,spuc,6,filename)
 {
 	if(this->status_==2){
-		if(!this->obs_.size()){
+		if(!this->obs_.size() || !this->obs_[0].nlinks()){
+			/*{!the directions are given in the cartesian basis
+			 *
+			 * (-1,sqrt(3))/2  (1,sqrt(3))/2
+			 *               \ /
+			 *        (-1,0)--x--(1,0)
+			 *               / \
+			 * (-1,-sqrt(3))/2 (1,-sqrt(3))/2
+			 *}*/
 			this->dir_nn_[0](0) = 1.0;
 			this->dir_nn_[0](1) = 0.0;
 
@@ -76,7 +84,6 @@ Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std
 				this->boundary_[2] = this->dir_nn_[3]*0.25 + this->dir_nn_[1]*L_*2.0;
 				this->boundary_[3] = this->dir_nn_[3]*0.25 + this->dir_nn_[2]*L_;
 			}
-
 
 			this->set_nn_links(Vector<unsigned int>(1,3));
 

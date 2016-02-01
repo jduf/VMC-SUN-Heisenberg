@@ -106,9 +106,7 @@ void TrianglePhi::display_results(){
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
-				xy1 = xy0;
-				xy1+= dir_nn_[obs_[0](i,3)];
-				xy1 = xy1.chop();
+				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
 				ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 			} else { linestyle = "solid"; }
 

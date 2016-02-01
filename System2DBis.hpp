@@ -72,30 +72,54 @@ template<typename Type>
 System2DBis<Type>::System2DBis(Matrix<double> const& lattice_corners, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename),
 	lattice_corners_(lattice_corners),
-	boundary_(new Vector<double>[4]),
-	dir_nn_(new Vector<double>[this->z_]),
-	x_(new Vector<double>[this->n_]),
+	boundary_(NULL),
+	dir_nn_(NULL),
+	x_(NULL),
 	ab_(ab),
 	eq_prec_(1e-12)
 {
-	if(lattice_corners_.size()){
-		for(unsigned int i(0);i<this->n_;i++){ x_[i].set(2); }
-		for(unsigned int i(0);i<this->z_;i++){ dir_nn_[i].set(2); }
-
+	if(this->spuc_){ 
 		inv_ab_.set(2,2);
 		inv_ab_(0,0) = ab_(1,1);
 		inv_ab_(1,0) =-ab_(1,0);
 		inv_ab_(0,1) =-ab_(0,1);
 		inv_ab_(1,1) = ab_(0,0);
 		inv_ab_/=(ab_(0,0)*ab_(1,1)-ab_(1,0)*ab_(0,1));
+		this->status_ = 2;
 
-		if(this->spuc_){ this->status_--; }
-		else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : the number of site doesn't fit into the cluster"<<std::endl; }
+		if(!this->obs_.size() || !this->obs_[0].nlinks()){
+			if(lattice_corners_.ptr()){
+				boundary_ = new Vector<double>[4];
+				dir_nn_ = new Vector<double>[this->z_];
+				x_ = new Vector<double>[this->n_];		
+				for(unsigned int i(0);i<this->n_;i++){ x_[i].set(2); }
+				for(unsigned int i(0);i<this->z_;i++){ dir_nn_[i].set(2); }
+
+				/*!check if the distance between each corners matches the
+				 * vectors of the unit cell*/
+				double alpha;
+				double beta;
+				double ip;
+				bool fit(true);
+				for(unsigned int i(0);i<lattice_corners_.row()-1;i++){
+					alpha = std::modf(inv_ab_(0,0)*(lattice_corners_(i+1,0)-lattice_corners_(i,0))+inv_ab_(0,1)*(lattice_corners_(i+1,1)-lattice_corners_(i,1)),&ip);
+					beta  = std::modf(inv_ab_(1,0)*(lattice_corners_(i+1,0)-lattice_corners_(i,0))+inv_ab_(1,1)*(lattice_corners_(i+1,1)-lattice_corners_(i,1)),&ip);
+					if( !my::are_equal(alpha,0.0) ||!my::are_equal(beta,0.0) ){ fit = false; }
+				}
+
+				if(!fit){
+					std::cerr<<__PRETTY_FUNCTION__<<" : it seems that the unit cell doesn't fit into the cluster (not sure)"<<std::endl; 
+					this->status_ = 3; 
+				}
+			} else { std::cerr<<__PRETTY_FUNCTION__<<" : undefined geometry"<<std::endl; }
+		}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
 }
 
 template<typename Type>
 System2DBis<Type>::~System2DBis(){
+	if(boundary_){ delete[] boundary_; }
+	if(x_){ delete[] x_; }
 	if(dir_nn_){ delete[] dir_nn_; }
 }
 /*}*/
@@ -103,8 +127,8 @@ System2DBis<Type>::~System2DBis(){
 /*{protected methods*/
 template<typename Type>
 void System2DBis<Type>::diagonalize(bool simple){
-	if(simple){ if(simple_diagonalization()){ this->status_--; } }
-	else { if(full_diagonalization()){ this->status_--; } }
+	if(simple){ if(simple_diagonalization()){ this->status_ = 1; } }
+	else { if(full_diagonalization()){ this->status_ = 1; } }
 }
 
 template<typename Type>
@@ -254,6 +278,8 @@ void System2DBis<Type>::compute_TxTy(){
 	}
 	//std::cout<<H_*Tx_-Tx_*H_<<std::endl;
 	//std::cout<<H_*Ty_-Ty_*H_<<std::endl;
+	//std::cout<<Tx_<<std::endl;
+	//std::cout<<Ty_<<std::endl;
 }
 
 template<typename Type>
@@ -282,7 +308,7 @@ bool System2DBis<Type>::full_diagonalization(){
 		for(unsigned int j(i+1);j<this->n_;j++){
 			if(my::are_equal(eval(i),eval(j),eq_prec_,eq_prec_)){
 				std::cerr<<__PRETTY_FUNCTION__<<" : eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
-				return false;
+				//return false;
 			}
 		}
 	}

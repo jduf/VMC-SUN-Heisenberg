@@ -1,8 +1,8 @@
-#include "TriangleMu.hpp"
+#include "SquareMu.hpp"
 
-TriangleMu::TriangleMu(System const& s, double const& mu):
+SquareMu::SquareMu(System const& s, double const& mu):
 	System(s),
-	Triangle<double>(set_ab(),3,"triangle-mu"),
+	Square<double>(set_ab(),5,"square-mu"),
 	mu_(mu)
 {
 	if(status_==2){
@@ -15,7 +15,7 @@ TriangleMu::TriangleMu(System const& s, double const& mu):
 }
 
 /*{method needed for running*/
-void TriangleMu::compute_H(unsigned int const& c){
+void SquareMu::compute_H(unsigned int const& c){
 	H_.set(n_,n_,0);
 
 	double t(-1.0);
@@ -30,10 +30,10 @@ void TriangleMu::compute_H(unsigned int const& c){
 	H_ += H_.transpose();
 }
 
-void TriangleMu::create(){
+void SquareMu::create(){
 	for(unsigned int c(0);c<N_;c++){
 		compute_H(c);
-		status_=2;
+		status_ = 2;
 		diagonalize(true);
 		if(status_==1){
 			for(unsigned int i(0);i<n_;i++){
@@ -45,7 +45,7 @@ void TriangleMu::create(){
 	}
 }
 
-void TriangleMu::save_param(IOFiles& w) const {
+void SquareMu::save_param(IOFiles& w) const {
 	std::string s("mu=("+my::tostring(mu_)+")");
 	Vector<double> param(1,mu_);
 
@@ -54,31 +54,37 @@ void TriangleMu::save_param(IOFiles& w) const {
 	GenericSystem<double>::save_param(w);
 }
 
-Matrix<double> TriangleMu::set_ab() const {
+Matrix<double> SquareMu::set_ab() const {
 	Matrix<double> tmp(2,2);
-	tmp(0,0) = 1.5;
-	tmp(1,0) =-sqrt(3.0)/2;
-	tmp(0,1) = 1.5;
-	tmp(1,1) = sqrt(3.0)/2;
+	tmp(0,0) = 2.0;
+	tmp(1,0) =-1.0;
+	tmp(0,1) = 1.0;
+	tmp(1,1) = 2.0;
 	return tmp;
 }
 
-unsigned int TriangleMu::match_pos_in_ab(Vector<double> const& x) const {
+unsigned int SquareMu::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-	match(0) = 1.0/3.0;
-	match(1) = 1.0/3.0;
+	match(0) = 0.4;
+	match(1) = 0.2;
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-	match(0) = 2.0/3.0;
-	match(1) = 2.0/3.0;
+	match(0) = 0.8;
+	match(1) = 0.4;
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+	match(0) = 0.2;
+	match(1) = 0.6;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+	match(0) = 0.6;
+	match(1) = 0.8;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return 3;
+	return 5;
 }
 /*}*/
 
 /*{method needed for checking*/
-void TriangleMu::display_results(){
+void SquareMu::display_results(){
 	compute_H(0);
 
 	std::string color("black");
@@ -90,8 +96,8 @@ void TriangleMu::display_results(){
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(lattice_corners_,"linecolor=green");
 
-	double x_shift(-(ab_(0,0)+ab_(0,1))/2);
-	double y_shift(0.0);
+	double x_shift(-(ab_(0,0)+ab_(0,1))/2.0);
+	double y_shift(-(ab_(1,0)+ab_(1,1))/2.0);
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=x_shift;
 	polygon(0,1)=y_shift;
@@ -133,18 +139,18 @@ void TriangleMu::display_results(){
 				ps.circle(xy0,std::abs(mu),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
 		}
-		if(i%3==2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
+		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
 	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
 	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 
-void TriangleMu::check(){
+void SquareMu::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="triangle-mu";
+	filename_ ="square-mu";
 	display_results();
 	plot_band_structure();
 }

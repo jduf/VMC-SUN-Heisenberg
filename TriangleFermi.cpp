@@ -58,7 +58,7 @@ void TriangleFermi::display_results(){
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(lattice_corners_,"linecolor=green");
 
-	double x_shift(-(ab_(0,0)+ab_(0,1))/2);
+	double x_shift(-(ab_(0,0)+ab_(0,1))/2.0);
 	double y_shift(-ab_(1,1)/2.0);
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=x_shift;
@@ -85,9 +85,7 @@ void TriangleFermi::display_results(){
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
-				xy1 = xy0;
-				xy1+= dir_nn_[obs_[0](i,3)];
-				xy1 = xy1.chop();
+				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
 				ps.put(xy1(0)-0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 			} else { linestyle = "solid"; }
 

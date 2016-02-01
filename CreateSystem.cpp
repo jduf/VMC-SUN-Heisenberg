@@ -27,37 +27,39 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0: { RGL_ = new ChainFermi<double>(*s_); }break;
+								case 0: 
+									{ RGL_ = new ChainFermi<double>(*s_); }break;
 								case 1:
-										{
-											Vector<double> t;
-											if(param){ t = *param; }
-											if(C)    { t = C->get<std::vector<double> >("t"); }
-											if(t.ptr()){ RGL_ = new ChainPolymerized(*s_,t); }
-										}break;
+									{
+										Vector<double> t;
+										Vector<double> mu;
+										if(param){
+											t.set(param->size()/2);
+											mu.set(param->size()/2);
+											for(unsigned int i(0);i<t.size();i++){ t(i) = (*param)(i); }
+											for(unsigned int i(0);i<mu.size();i++){ mu(i) = (*param)(i+t.size()); }
+										}
+										if(C){
+											t = C->get<std::vector<double> >("t");
+											mu = C->get<std::vector<double> >("mu");
+										}
+										if(t.ptr()){ RGL_ = new ChainFree(*s_,t,mu); }
+									}break;
 								case 2:
-										{
-											Vector<double> t;
-											Vector<double> mu;
-											if(param){
-												t.set(param->size()/2);
-												mu.set(param->size()/2);
-												for(unsigned int i(0);i<t.size();i++){ t(i) = (*param)(i); }
-												for(unsigned int i(0);i<mu.size();i++){ mu(i) = (*param)(i+t.size()); }
-											}
-											if(C){
-												t = C->get<std::vector<double> >("t");
-												mu = C->get<std::vector<double> >("mu");
-											}
-											if(t.ptr()){ RGL_ = new ChainFree(*s_,t,mu); }
-										}break;
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C)    { t = C->get<std::vector<double> >("t"); }
+										if(t.ptr()){ RGL_ = new ChainPolymerized(*s_,t); }
+									}break;
 								default:{ error(); }break;
 							}
 						}break;
 					case 2:
 						{
 							switch(ref_(2)){
-								case 0: { CGL_ = new ChainFermi<std::complex<double> >(*s_); }break;
+								case 0: 
+									{ CGL_ = new ChainFermi<std::complex<double> >(*s_); }break;
 								default:{ error(); }break;
 							}
 						}break;
@@ -72,7 +74,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 							switch(ref_(2)){
 								case 0:
 									{ RGL_ = new LadderFermi<double>(*s_); }break;
-								case 4:
+								case 1:
 									{
 										Vector<double> t;
 										Vector<double> mu;
@@ -94,23 +96,25 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 2:
 						{
 							switch(ref_(2)){
-								case 0: { CGL_ = new LadderFermi<std::complex<double> >(*s_); }break;
-								case 1: {
-											Vector<double> t;
-											Vector<double> flux;
-											if(param){
-												unsigned int l((3*param->size()-1)/4);
-												t.set(l);
-												flux.set(param->size()-l);
-												for(unsigned int i(0);i<l;i++){ t(i) = (*param)(i); }
-												for(unsigned int i(0);i<param->size()-l;i++){ flux(i) = (*param)(l+i); }
-											}
-											if(C){
-												t = C->get<std::vector<double> >("t");
-												flux = C->get<std::vector<double> >("flux");
-											}
-											CGL_ = new LadderFreeFlux(*s_,t,flux);
-										}break;
+								case 0:
+									{ CGL_ = new LadderFermi<std::complex<double> >(*s_); }break;
+								case 1:
+									{
+										Vector<double> t;
+										Vector<double> flux;
+										if(param){
+											unsigned int l((3*param->size()-1)/4);
+											t.set(l);
+											flux.set(param->size()-l);
+											for(unsigned int i(0);i<l;i++){ t(i) = (*param)(i); }
+											for(unsigned int i(0);i<param->size()-l;i++){ flux(i) = (*param)(l+i); }
+										}
+										if(C){
+											t = C->get<std::vector<double> >("t");
+											flux = C->get<std::vector<double> >("flux");
+										}
+										CGL_ = new LadderFreeFlux(*s_,t,flux);
+									}break;
 								default:{ error(); }break;
 							}
 						}break;
@@ -123,30 +127,34 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0: { RGL_ = new TriangleFermi(*s_); }break;
-								case 2: {
-											double t;
-											if(param){ t = (*param)(0); }
-											if(C){ t = C->get<double>("t"); }
-											RGL_ = new TrianglePlaquette(*s_,t);
-										}break;
-								case 3: {
-											double mu;
-											if(param){ mu = (*param)(0); }
-											if(C){ mu = C->get<double>("mu"); }
-											RGL_ = new TriangleMu(*s_,mu);
-										}break;
-								case 4: {
-											Vector<double> t;
-											Vector<double> mu;
-											if(param){
-											}
-											if(C){
-												t = C->get<std::vector<double> >("t");
-												mu = C->get<std::vector<double> >("mu");
-											}
-											RGL_ = new TriangleFree(*s_,t,mu);
-										}break;
+								case 0:
+									{ RGL_ = new TriangleFermi(*s_); }break;
+								case 1:
+									{
+										Vector<double> t;
+										Vector<double> mu;
+										if(param){
+										}
+										if(C){
+											t = C->get<std::vector<double> >("t");
+											mu = C->get<std::vector<double> >("mu");
+										}
+										RGL_ = new TriangleFree(*s_,t,mu);
+									}break;
+								case 2:
+									{
+										double t;
+										if(param){ t = (*param)(0); }
+										if(C){ t = C->get<double>("t"); }
+										RGL_ = new TrianglePlaquette(*s_,t);
+									}break;
+								case 3:
+									{
+										double mu;
+										if(param){ mu = (*param)(0); }
+										if(C){ mu = C->get<double>("mu"); }
+										RGL_ = new TriangleMu(*s_,mu);
+									}break;
 								default:{ error(); }break;
 							}
 						}break;
@@ -197,12 +205,27 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C){ t=C->get<std::vector<double> >("phi"); }
 										RGL_ = new SquareFreeHopping(*s_,t);
 									}break;
+								case 2:
+									{
+										double mu;
+										if(param){ mu = (*param)(0); }
+										if(C){ mu = C->get<double>("mu"); }
+										RGL_ = new SquareMu(*s_,mu);
+										std::cout<<RGL_->get_status()<<std::endl;
+									}break;
 								default:{ error(); }break;
 							}
 						}break;
 					case 2:
 						{
 							switch(ref_(2)){
+								case 1:
+									{
+										Vector<double> phi;
+										if(param){ phi = param->range(0,0); }
+										if(C){ phi=C->get<std::vector<double> >("phi"); }
+										CGL_ = new SquareFreeFlux(*s_,phi);
+									}break;
 								case 2:
 									{ CGL_ = new SquarePiFlux(*s_); }break;
 								case 3:
@@ -211,13 +234,6 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(param){ t = *param; }
 										if(C)    { t = C->get<std::vector<double> >("t"); }
 										CGL_ = new SquareACSL(*s_,t);
-									}break;
-								case 4:
-									{
-										Vector<double> phi;
-										if(param){ phi = param->range(0,0); }
-										if(C){ phi=C->get<std::vector<double> >("phi"); }
-										CGL_ = new SquareFreeFlux(*s_,phi);
 									}break;
 								default:{ error(); }break;
 							}
@@ -261,14 +277,15 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C)    { t = C->get<double>("td"); }
 										if(param || C){ RGL_ = new Honeycomb0pp(*s_,t); }
 									}break;
-								case 1:{ RGL_ = new HoneycombPiFlux(*s_); }break;
-								case 2:{ 
-
-										   Vector<double> t;
-										   if(param){ t = *param; }
-										   if(C){ t = C->get<std::vector<double> >("t"); }
-										   RGL_ = new HoneycombFree(*s_,t); 
-									   }break;
+								case 1:
+									{ RGL_ = new HoneycombPiFlux(*s_); }break;
+								case 2:
+									{ 
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new HoneycombFree(*s_,t); 
+									}break;
 								default:{ error(); }break;
 							}
 						}break;

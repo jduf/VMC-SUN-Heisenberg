@@ -65,6 +65,15 @@ void TrianglePlaquette::save_param(IOFiles& w) const {
 	GenericSystem<double>::save_param(w);
 }
 
+Matrix<double> TrianglePlaquette::set_ab() const {
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 1.5;
+	tmp(1,0) =-sqrt(3.0)/2;
+	tmp(0,1) = 1.5;
+	tmp(1,1) = sqrt(3.0)/2;
+	return tmp;
+}
+
 unsigned int TrianglePlaquette::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
@@ -76,15 +85,6 @@ unsigned int TrianglePlaquette::match_pos_in_ab(Vector<double> const& x) const {
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	return 3;
-}
-
-Matrix<double> TrianglePlaquette::set_ab() const {
-	Matrix<double> tmp(2,2);
-	tmp(0,0) = 1.5;
-	tmp(1,0) =-sqrt(3.0)/2;
-	tmp(0,1) = 1.5;
-	tmp(1,1) = sqrt(3.0)/2;
-	return tmp;
 }
 /*}*/
 
@@ -128,9 +128,7 @@ void TrianglePlaquette::display_results(){
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
-				xy1 = xy0;
-				xy1+= dir_nn_[obs_[0](i,3)];
-				xy1 = xy1.chop();
+				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
 				ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 			} else { linestyle = "solid"; }
 

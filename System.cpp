@@ -13,9 +13,10 @@ System::System(Parseur& P):
 	status_(5)
 {
 	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : Bad initialization"<<std::endl; }
-	else{ status_--; }
-	if(bc_ != -1 && bc_ != 0 && bc_ != 1){ std::cerr<<__PRETTY_FUNCTION__<<" : unknown boundary condition"<<std::endl; }
-	else { status_--; }
+	else{ 
+		if(bc_ != -1 && bc_ != 0 && bc_ != 1){ std::cerr<<__PRETTY_FUNCTION__<<" : unknown boundary condition"<<std::endl; }
+		else { status_ = 4; }
+	}
 }
 
 System::System(IOFiles& r):
@@ -63,7 +64,7 @@ void System::complete_analysis(double const& convergence_criterion){
 
 void System::merge(System* const s){
 	unsigned int i(0);
-	while(i<obs_.size()){ obs_[i].merge(s->obs_[i]); i++; }
+	while(i<obs_.size())   { obs_[i].merge(s->obs_[i]);  i++; }
 	while(i<s->obs_.size()){ obs_.push_back(s->obs_[i]); i++; }
 }
 
@@ -130,12 +131,12 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "chain-polymerized" ){
+	if( wf == "chain-free" ){
 		ref(0) = 1;
 		ref(1) = 1;
-		ref(2) = 1;
+		ref(2) = 2;
 	}
-	if( wf == "chain-free" ){
+	if( wf == "chain-polymerized" ){
 		ref(0) = 1;
 		ref(1) = 1;
 		ref(2) = 2;
@@ -149,7 +150,7 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 	if( wf == "ladder-free" ){
 		ref(0) = 2;
 		ref(1) = 1;
-		ref(2) = 4;
+		ref(2) = 1;
 		std::vector<double> J(2);
 		double theta(P.get<double>("theta"));
 		J[0] = cos(theta); //legs  (J‖)
@@ -172,6 +173,11 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 0;
 	}
+	if( wf == "triangle-free" ){
+		ref(0) = 3;
+		ref(1) = 1;
+		ref(2) = 1;
+	}
 	if( wf == "triangle-plaquette" ){
 		ref(0) = 3;
 		ref(1) = 1;
@@ -181,11 +187,6 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(0) = 3;
 		ref(1) = 1;
 		ref(2) = 3;
-	}
-	if( wf == "triangle-free" ){
-		ref(0) = 3;
-		ref(1) = 1;
-		ref(2) = 4;
 	}
 	if( wf == "triangle-chiral" ){
 		ref(0) = 3;
@@ -203,34 +204,27 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "square-mu" ){
+	if( wf == "square-freehopping" ){
 		ref(0) = 4;
 		ref(1) = 1;
 		ref(2) = 1;
 	}
-	//if( wf == "square-freereal" ){
-	//ref(0) = 4;
-	//ref(1) = 1;
-	//ref(2) = 3;
-	//C_.set("t",param?param->range(0,3):C->get<std::vector<double> >("t"));
-	//C_.set("mu",param?param->range(3,5):C->get<std::vector<double> >("mu"));
-	//}
-	if( wf == "square-acsl" ){
+	if( wf == "square-mu" ){
 		ref(0) = 4;
-		ref(1) = 2;
-		ref(2) = 3;
+		ref(1) = 1;
+		ref(2) = 2;
 	}
 	if( wf == "square-freeflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
-		ref(2) = 4;
+		ref(2) = 1;
 	}
 	if( wf == "square-piflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 2;
 	}
-	if( wf == "square-phi" ){
+	if( wf == "square-acsl" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 3;

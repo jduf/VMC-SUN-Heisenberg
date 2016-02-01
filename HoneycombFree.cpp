@@ -66,6 +66,15 @@ void HoneycombFree::save_param(IOFiles& w) const {
 	GenericSystem<double>::save_param(w);
 }
 
+Matrix<double> HoneycombFree::set_ab() const {
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 3.0;
+	tmp(1,0) = 0.0;
+	tmp(0,1) = 1.5;
+	tmp(1,1) = 1.5*sqrt(3.0);
+	return tmp;
+}
+
 unsigned int HoneycombFree::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
@@ -82,15 +91,6 @@ unsigned int HoneycombFree::match_pos_in_ab(Vector<double> const& x) const {
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 5; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	return 6;
-}
-
-Matrix<double> HoneycombFree::set_ab() const {
-	Matrix<double> tmp(2,2);
-	tmp(0,0) = 3.0;
-	tmp(1,0) = 0.0;
-	tmp(0,1) = 1.5;
-	tmp(1,1) = 1.5*sqrt(3.0);
-	return tmp;
 }
 /*}*/
 
@@ -156,9 +156,7 @@ void HoneycombFree::lattice(){
 			if(std::abs(t)>1e-4){
 				if((xy0-xy1).norm_squared()>1.0001){
 					linestyle = "dashed";
-					xy1 = xy0;
-					xy1+= dir_nn_[obs_[0](i,3)];
-					xy1 = xy1.chop();
+					xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
 					ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 				} else { 
 					linestyle = "solid";  
@@ -173,7 +171,7 @@ void HoneycombFree::lattice(){
 				linewidth = my::tostring(std::abs(t))+"mm";
 				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
-		//} else {
+			//} else {
 			if(obs_.size()>1){/*bound energy*/
 				corr = obs_[1][obs_[0](i,2)].get_x();
 				if(std::abs(corr)>1e-4){
@@ -208,7 +206,7 @@ void HoneycombFree::lattice(){
 				////}
 				//}
 			}
-		//}
+			//}
 	}
 	ps.end(true,true,true);
 }

@@ -49,6 +49,15 @@ void KagomeVBC::create(){
 	compute_H();
 }
 
+Matrix<double> KagomeVBC::set_ab() const {
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 3.0;
+	tmp(1,0) =-sqrt(3.0);
+	tmp(0,1) = 0.0;
+	tmp(1,1) = 2*sqrt(3.0);
+	return tmp;
+}
+
 unsigned int KagomeVBC::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match)){ return 0; }
@@ -77,15 +86,6 @@ unsigned int KagomeVBC::match_pos_in_ab(Vector<double> const& x) const {
 	if(my::are_equal(x,match)){ return 8; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	return 9;
-}
-
-Matrix<double> KagomeVBC::set_ab() const {
-	Matrix<double> tmp(2,2);
-	tmp(0,0) = 3.0;
-	tmp(1,0) =-sqrt(3.0);
-	tmp(0,1) = 0.0;
-	tmp(1,1) = 2*sqrt(3.0);
-	return tmp;
 }
 /*}*/
 

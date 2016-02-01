@@ -2,7 +2,7 @@
 
 SquareJastrow::SquareJastrow(System const& s, Matrix<double> const& nu):
 	System(s),
-	Square<double>(2,1,1,"square-jastrow")
+	Square<double>(set_ab(),2,"square-jastrow")
 {
 	init_bosonic(z_,nu);
 	compute_nn();
@@ -77,6 +77,15 @@ void SquareJastrow::save_param(IOFiles& w) const {
 	w.write("sl (sublattice)",sl_);
 	w.write("omega (omega)",omega_);
 	GenericSystem<double>::save_param(w);
+}
+
+Matrix<double> SquareJastrow::set_ab() const {
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 2;
+	tmp(1,0) = 0;
+	tmp(0,1) = 0;
+	tmp(1,1) = 1;
+	return tmp;
 }
 
 unsigned int SquareJastrow::match_pos_in_ab(Vector<double> const& x) const {

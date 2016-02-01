@@ -43,7 +43,7 @@ void MCSim::create_S(System const* const s){
 			}
 		}
 	}
-	if(!is_created()){ std::cerr<<__PRETTY_FUNCTION__<<" : faulty parameters : "<<param_<<std::endl; }
+	if(!is_created()){ std::cerr<<__PRETTY_FUNCTION__<<" : status_="<<cs.get_status()<<", faulty parameters="<<param_<<std::endl; }
 }
 
 void MCSim::copy_S(std::unique_ptr<MCSystem> const& S){

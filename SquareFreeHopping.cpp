@@ -2,7 +2,7 @@
 
 SquareFreeHopping::SquareFreeHopping(System const& s, Vector<double> const& t):
 	System(s),
-	Square<double>((N_/m_==2?2:0),0,1,"square-free-real"),
+	Square<double>(set_ab(),2,"square-free-real"),
 	t_(t)
 {
 	if(status_==2){
@@ -37,6 +37,15 @@ void SquareFreeHopping::create(){
 	}
 }
 
+Matrix<double> SquareFreeHopping::set_ab() const {
+	Matrix<double> tmp(2,2);
+	tmp(0,0) = 2;
+	tmp(1,0) = 0;
+	tmp(0,1) = 0;
+	tmp(1,1) = 1;
+	return tmp;
+}
+
 unsigned int SquareFreeHopping::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match)){ return 0; }
@@ -57,32 +66,37 @@ void SquareFreeHopping::display_results(){
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-9,-10,16,10,filename_);
+	ps.polygon(lattice_corners_,"linecolor=green");
+
+	Matrix<double> polygon(4,2);
+	polygon(0,0)=0;
+	polygon(0,1)=0;
+	polygon(1,0)=ab_(0,0);
+	polygon(1,1)=ab_(1,0);
+	polygon(2,0)=ab_(0,0)+ab_(0,1);
+	polygon(2,1)=ab_(1,0)+ab_(1,1);
+	polygon(3,0)=ab_(0,1);
+	polygon(3,1)=ab_(1,1);
+	for(unsigned int i(0);i<polygon.row();i++){
+		polygon(i,0) -= 0.2;
+		polygon(i,1) -= 0.1;
+	}
+	ps.polygon(polygon,"linecolor=black");
+
 	std::complex<double> t;
 	unsigned int s0;
 	unsigned int s1;
-	double y_shift(4);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
-		xy0 = get_pos_in_lattice(s0);
-		set_pos_LxLy(xy0);
-		xy0 = (LxLy_*xy0).chop();
+		xy0 = x_[s0];
 
 		s1 = obs_[0](i,1);
-		xy1 = get_pos_in_lattice(s1);
-		set_pos_LxLy(xy1);
-		xy1 = (LxLy_*xy1).chop();
+		xy1 = x_[s1];
 
 		if((xy0-xy1).norm_squared()<1.1){ linestyle = "solid"; }
 		else {
 			linestyle = "dashed";
-			if(i%2 && xy1(1)<xy0(1)){
-				xy1(0) = xy0(0);
-				xy1(1) = xy0(1)+1.0;
-			}
-			if(!(i%2) && xy1(0)<xy0(0)){
-				xy1(0) = xy0(0)+1.0;
-				xy1(1) = xy0(1);
-			}
+			xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
 			ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 		}
 
@@ -99,56 +113,9 @@ void SquareFreeHopping::display_results(){
 			arrow = "-";
 			if(std::arg(t)>0){ arrow = "-"+std::string(std::arg(t)/(2*M_PI*m_/N_),'>'); }
 			if(std::arg(t)<0){ arrow = std::string(-std::arg(t)/(2*M_PI*m_/N_),'<')+"-"; }
-
-			xy0 = xy0.chop();
-			xy1 = xy1.chop();
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+my::tostring(std::abs(t))+"pt,linecolor="+color+",linestyle="+linestyle);
 		}
 	}
-
-	double lr_corr;
-	double rescale(obs_[1].nlinks()?0.75/obs_[1][0].get_x():0);
-	for(unsigned int i(0);i<obs_[1].nlinks();i++){
-		lr_corr = obs_[1][i].get_x()*rescale;
-		if(std::abs(lr_corr)>1e-4){
-			xy1 = get_pos_in_lattice(i);
-			set_pos_LxLy(xy1);
-			xy1 = (LxLy_*xy1).chop();
-			xy1(1) -= 2*y_shift;
-
-			if(i){
-				if(lr_corr<0){ color = "red"; }
-				else { color = "blue"; }
-			} else { color = "black"; }
-
-			ps.circle(xy1,std::abs(lr_corr),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
-		}
-	}
-
-	Matrix<double> polygon(4,2);
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=LxLy_(0,0);
-	polygon(1,1)=LxLy_(1,0);
-	polygon(2,0)=LxLy_(0,0)+LxLy_(0,1);
-	polygon(2,1)=LxLy_(1,0)+LxLy_(1,1);
-	polygon(3,0)=LxLy_(0,1);
-	polygon(3,1)=LxLy_(1,1);
-	ps.polygon(polygon,"linecolor=green");
-
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=ab_(0,0);
-	polygon(1,1)=ab_(1,0);
-	polygon(2,0)=ab_(0,0)+ab_(0,1);
-	polygon(2,1)=ab_(1,0)+ab_(1,1);
-	polygon(3,0)=ab_(0,1);
-	polygon(3,1)=ab_(1,1);
-	for(unsigned int i(0);i<polygon.row();i++){
-		polygon(i,0) -= 0.2;
-		polygon(i,1) -= 0.1;
-	}
-	ps.polygon(polygon,"linecolor=black");
 	ps.end(true,true,true);
 }
 

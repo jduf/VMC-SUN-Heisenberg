@@ -2,26 +2,27 @@
 #define DEF_CREATESYSTEM
 
 #include "ChainFermi.hpp"
-#include "ChainPolymerized.hpp"
 #include "ChainFree.hpp"
+#include "ChainPolymerized.hpp"
 
 #include "LadderFermi.hpp"
 #include "LadderFree.hpp"
 #include "LadderFreeFlux.hpp"
 
 #include "TriangleFermi.hpp"
-#include "TriangleMu.hpp"
-#include "TrianglePlaquette.hpp"
 #include "TriangleFree.hpp"
+#include "TrianglePlaquette.hpp"
+#include "TriangleMu.hpp"
 #include "TrianglePhi.hpp"
 #include "TriangleChiral.hpp"
 
 #include "SquareFermi.hpp"
-#include "SquarePiFlux.hpp"
-#include "SquareJastrow.hpp"
-#include "SquareACSL.hpp"
 #include "SquareFreeHopping.hpp"
+#include "SquareMu.hpp"
 #include "SquareFreeFlux.hpp"
+#include "SquarePiFlux.hpp"
+#include "SquareACSL.hpp"
+#include "SquareJastrow.hpp"
 
 #include "KagomeFermi.hpp"
 #include "KagomeDirac.hpp"
