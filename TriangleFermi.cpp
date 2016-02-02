@@ -5,6 +5,7 @@ TriangleFermi::TriangleFermi(System const& s):
 	Triangle<double>(set_ab(),1,"triangle-fermi")
 {
 	if(status_==2){
+		init_lattice();
 		init_fermionic();
 
 		system_info_.text("Fermi : all colors experience the same Hamiltonian");

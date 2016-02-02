@@ -14,8 +14,8 @@ class LadderFree: public Ladder<double>{
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const;
 
 	private:
-		Vector<double> const t_; //!< hopping term
-		Vector<double> const mu_;//!< chemical potential
+		Vector<double> const t_; //!< hopping terms
+		Vector<double> const mu_;//!< chemical potentials
 
 		void compute_H();
 		unsigned int set_spuc(Vector<double> const& t, Vector<double> const& mu, unsigned int const& spuc);

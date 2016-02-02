@@ -6,6 +6,7 @@ TrianglePhi::TrianglePhi(System const& s, double const& phi):
 	phi_(phi)
 {
 	if(status_==2){
+		init_lattice();
 		init_fermionic();
 
 		system_info_.text("phi-flux : each neighbouring triangle has a flux of opposite sign");

@@ -48,37 +48,31 @@ void KagomeDirac<Type>::compute_H(){
 		//for(unsigned int j(0);j<this->Ly_;j++){
 			///*site 0*/
 			//s = this->spuc_*(i + j*this->Lx_);
-			//nb = this->get_neighbourg(s);
 			///*0-1*/this->H_(s,nb(0,0)) = nb(0,1)*t;
 			///*0-1*/this->H_(s,nb(2,0)) = nb(2,1)*t;
 //
 			///*site 1*/
 			//s++;
-			//nb = this->get_neighbourg(s);
 			///*0-1*/this->H_(s,nb(1,0)) = nb(1,1)*t;
 			///*0-1*/this->H_(s,nb(3,0)) = -nb(3,1)*t;
 //
 			///*site 2*/
 			//s++;
-			//nb = this->get_neighbourg(s);
 			///*0-1*/this->H_(s,nb(0,0)) = -nb(0,1)*t;
 			///*0-1*/this->H_(s,nb(2,0)) = nb(2,1)*t;
 //
 			///*site 3*/
 			//s++;
-			//nb = this->get_neighbourg(s);
 			///*0-1*/this->H_(s,nb(0,0)) = nb(0,1)*t;
 			///*0-1*/this->H_(s,nb(2,0)) = -nb(2,1)*t;
 //
 			///*site 4*/
 			//s++;
-			//nb = this->get_neighbourg(s);
 			///*0-1*/this->H_(s,nb(1,0)) = nb(1,1)*t;
 			///*0-1*/this->H_(s,nb(3,0)) = -nb(3,1)*t;
 //
 			///*site 5*/
 			//s++;
-			//nb = this->get_neighbourg(s);
 			///*0-1*/this->H_(s,nb(0,0)) = nb(0,1)*t;
 			///*0-1*/this->H_(s,nb(2,0)) = nb(2,1)*t;
 		//}
@@ -144,105 +138,6 @@ void KagomeDirac<Type>::display_results(){
 	//unsigned int s;
 	//for(unsigned int i(0);i<this->Lx_;i++) {
 		//for(unsigned int j(0);j<this->Ly_;j++) {
-			///*site 0*/
-			//s = this->spuc_*(i+j*this->Lx_);
-			//nb = this->get_neighbourg(s);
-			//x0 = 0.2+i*ex+j*exy;
-			//y0 = 0.1+j*ey;
-			//ps.put(x0-0.2,y0+0.2,my::tostring(s));
-			//x1 = x0+ll;
-			//y1 = y0;
-			//if(my::real(this->H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0-ll;
-			//if(my::real(this->H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*0-1*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 1*/
-			//s++;
-			//nb = this->get_neighbourg(s);
-			//x0 = x0+ll;
-			//double x3(x0+ll);
-			//double y3(y0);
-			//ps.put(x0+0.2,y0+0.2,my::tostring(s));
-			//x1 = x0+ll*cos(4.0*M_PI/6.0);
-			//y1 = y0+ll*sin(4.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(1,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*1-2*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(10.0*M_PI/6.0);
-			//y1 = y0+ll*sin(10.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(3,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*1-2*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 2*/
-			//s++;
-			//nb = this->get_neighbourg(s);
-			//x0 = x0+ll*cos(4.0*M_PI/6.0);
-			//y0 = y0+ll*sin(4.0*M_PI/6.0);
-			//ps.put(x0+0.2,y0,my::tostring(s));
-			//x1 = x0+ll*cos(2.0*M_PI/6.0);
-			//y1 = y0+ll*sin(2.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(8.0*M_PI/6.0);
-			//y1 = y0+ll*sin(8.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 3*/
-			//s++;
-			//nb = this->get_neighbourg(s);
-			//x0 = x3;
-			//y0 = y3;
-			//ps.put(x0-0.2,y0+0.2,my::tostring(s));
-			//x1 = x0+ll;
-			//if(my::real(this->H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0-ll;
-			//if(my::real(this->H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 4*/
-			//s++;
-			//nb = this->get_neighbourg(s);
-			//x0 = x0+ll;
-			//ps.put(x0+0.2,y0+0.2,my::tostring(s));
-			//x1 = x0+ll*cos(4.0*M_PI/6.0);
-			//y1 = y0+ll*sin(4.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(1,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(10.0*M_PI/6.0);
-			//y1 = y0+ll*sin(10.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(3,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-//
-			///*site 4*/
-			//s++;
-			//nb = this->get_neighbourg(s);
-			//x0 = x0+ll*cos(4.0*M_PI/6.0);
-			//y0 = y0+ll*sin(4.0*M_PI/6.0);
-			//ps.put(x0+0.2,y0,my::tostring(s));
-			//x1 = x0+ll*cos(2.0*M_PI/6.0);
-			//y1 = y0+ll*sin(2.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(0,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-			//x1 = x0+ll*cos(8.0*M_PI/6.0);
-			//y1 = y0+ll*sin(8.0*M_PI/6.0);
-			//if(my::real(this->H_(s,nb(2,0)))>0){ color = "green"; }
-			//else { color = "blue"; }
-			///*2-0*/	ps.line("-",x0,y0,x1,y1,"linewidth=1pt,linecolor="+color);
-		//}
 	//}
 	//ps.add("\\end{pspicture}");
 	//ps.save(true,true,true);
@@ -250,56 +145,6 @@ void KagomeDirac<Type>::display_results(){
 
 template<typename Type>
 void KagomeDirac<Type>::check(){
-	///*{debug 1*/
-	//Matrix<int> nb;
-	//for(unsigned int i(0);i<this->n_;i++){
-		//nb = this->get_neighbourg(i);
-		//std::cout<<i<<" ";
-		//for(unsigned int j(0);j<z_;j++){
-			//std::cout<<nb(j,0)<<" ";
-		//}
-		//std::cout<<std::endl;
-	//}
-	///*}*/
-	///*{debug 2*/
-	//Matrix<int> nb;
-	//double t(1.0);
-	//Matrix<double> Ttest(this->n_,this->n_,0);
-	//for(unsigned int s(0);s<this->n_;s++){
-		//nb = this->get_neighbourg(s);
-		//for(unsigned int i(0);i<z_;i++){ Ttest(s,nb(i,0)) = t; }
-	//}
-	//for(unsigned int i(0);i<this->n_;i++){
-		//for(unsigned int j(0);j<this->n_;j++){
-			//if(std::abs(Ttest(i,j)-std::abs(this->H_(i,j)))>0.2){
-				//std::cout<<i<<" "<<j<<std::endl;
-			//}
-		//}
-	//}
-	///*}*/
-	///*{debug 3*/
-	//unsigned int k(0);
-	//for(unsigned int i(0);i<this->n_;i++){
-		//for(unsigned int j(0);j<this->n_;j++){
-			//if(this->H_(i,j)!=0){
-				//k++;
-				//std::cout<<i<<" "<<j<<" "<<this->H_(i,j)<<std::endl;
-			//}
-		//}
-	//}
-	//std::cout<<k<<" "<<links_.row()<<std::endl;
-	///*}*/
-	///*{debug 4*/
-	//Matrix<int> nb;
-	//for(unsigned int s(0);s<this->n_;s++){
-		//nb = this->get_neighbourg(s);
-		//for(unsigned int i(0);i<z_;i++){
-			//if(nb(i,1)<0){ std::cout<<s<<" "<<nb(i,0)<<std::endl; }
-		//}
-	//}
-	///*}*/
-	
-	this->plot_band_structure();
 }
 /*}*/
 

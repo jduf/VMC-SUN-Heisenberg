@@ -34,15 +34,17 @@ class System{
 		/*}*/
 
 		/*{Handles class attributes*/
+		/*!Set coupling terms*/
+		void set_J(Vector<double> const& J){ J_ = J; }
 		/*!Sets the observables to default (0) values and initilizes binning*/
 		void set_obs(std::vector<Observable> const& obs, int const& nobs);
-		/*!Remove all osbservable with index higher than from*/
+		/*!Remove all osbservables with index higher than from*/
 		void clear_obs(unsigned int const& from);
 		/*!Resets the observables*/
 		void reset_obs();
-		/*!Checks if the energy has converged to a stable value*/
+		/*!Checks if the energy has converged*/
 		bool check_conv(double const& convergence_criterion);
-		/*!Calls complete_analysis of the sampled datas*/
+		/*!Calls complete_analysis on the observables*/
 		void complete_analysis(double const& convergence_criterion);
 		/*!Merge the binning of all observables of s into (*this)*/
 		void merge(System* const s);
@@ -72,6 +74,8 @@ class System{
 		unsigned int nobs() const { return obs_.size(); }
 		/*!Returns all observables*/
 		std::vector<Observable> const& get_obs() const { return obs_; }
+		/*!Returns the reference to the type of wavefunction*/
+		Vector<double> const& get_J() const { return J_; }
 		/*}*/
 
 	protected:

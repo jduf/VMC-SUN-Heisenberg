@@ -5,6 +5,7 @@ SquarePiFlux::SquarePiFlux(System const& s):
 	Square<std::complex<double> >(set_ab(),2,"square-piflux")
 {
 	if(status_==2){
+		init_lattice();
 		init_fermionic();
 
 		system_info_.text("Chiral spin liquid : pi-flux per plaquette");
@@ -20,7 +21,7 @@ void SquarePiFlux::compute_H(){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		if(obs_[0](i,3)){ H_(s0,s1) = std::polar(double(obs_[0](i,4)?bc_:1),get_site_in_ab(s0)?-phi:phi); }
+		if(obs_[0](i,3)){ H_(s0,s1) = std::polar(double(obs_[0](i,4)?bc_:1),obs_[0](i,5)?-phi:phi); }
 		else{ H_(s0,s1) = (obs_[0](i,4)?bc_:1); }
 	}
 	H_ += H_.conjugate_transpose();

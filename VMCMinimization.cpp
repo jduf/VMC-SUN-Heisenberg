@@ -462,13 +462,14 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, in
 void VMCMinimization::evaluate_until_precision(Vector<double> const& param, int const& nobs, double const& dE, unsigned int const& maxiter){
 	std::shared_ptr<MCSim> sim(NULL);
 	unsigned int iter(0);
-	//std::cout<<"run : "<<param<<std::flush;
+	std::cout<<"param : "<<param<<std::endl;
 	do {
 #pragma omp parallel
 		{ sim = evaluate(param,nobs); }
 	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || sim->get_MCS()->get_energy().get_dx()>dE ) );
 	if(sim.get()){
 		sim->complete_analysis(1e-5);
+		sim->print(0);
 		//std::cout<<" : E="<<sim->get_MCS()->get_energy()<<" ("<<iter<<" times, ok="<<( sim->check_conv(1e-5) && sim->get_MCS()->get_energy().get_dx()<dE )<<")"<<std::endl;
 	} else { std::cerr<<__PRETTY_FUNCTION__<<std::cout<<" : failed"<<std::endl; }
 }
@@ -498,6 +499,7 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 		info_.item(msg+msg_end);
 		std::cout<<msg_end<<std::endl;
 	} else { create(P,path,basename); }
+	s_->print(1);
 }
 
 void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::string& basename){
@@ -524,6 +526,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 		obs_ = cs.get_GenericSystem()->get_obs();
 		/*!sets what is always required (Energy observable)*/
 		s_->set_obs(obs_,0);
+		s_->set_J(cs.get_GenericSystem()->get_J());
 	}
 
 	std::string msg("no samples loaded");

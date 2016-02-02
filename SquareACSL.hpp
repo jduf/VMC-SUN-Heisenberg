@@ -5,14 +5,14 @@
 
 class SquareACSL: public Square<std::complex<double> >{
 	public:
-		SquareACSL(System const& s, Vector<double> const& t);
+		SquareACSL(System const& s);
 		~SquareACSL() = default;
 
 		void create();
 		void check();
 
 	protected:
-		Vector<double> const t_;
+		double const phi_;
 
 		void compute_H();
 		void display_results();

@@ -6,6 +6,7 @@ HoneycombFree::HoneycombFree(System const& s, Vector<double> t):
 	t_(t)
 {
 	if(status_==2){
+		init_lattice();
 		init_fermionic();
 
 		filename_ += "-t";
@@ -26,8 +27,8 @@ void HoneycombFree::compute_H(){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		ab0 = get_site_in_ab(s0);
-		ab1 = get_site_in_ab(s1);
+		ab0 = obs_[0](i,5);
+		ab1 = obs_[0](i,6);
 		if(ab0==0 && ab1==1){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(0); }
 		if(ab0==0 && ab1==3){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(1); }
 		if(ab0==0 && ab1==5){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(2); }

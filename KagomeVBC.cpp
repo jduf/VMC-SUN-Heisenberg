@@ -25,8 +25,8 @@ void KagomeVBC::compute_H(){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		ab0 = get_site_in_ab(s0);
-		ab1 = get_site_in_ab(s1);
+		ab0 = obs_[0](i,5);
+		ab1 = obs_[0](i,6);
 		if((ab0==3 && ab1==5) || (ab0==4 && ab1==6) || (ab0==5 && ab1==2) || (ab0==7 && ab1==8) || (ab0==8 && ab1==0)){ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_:1)*t,-phi); }
 		else { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_:1)*t,phi); }
 	}
@@ -137,7 +137,7 @@ void KagomeVBC::display_results(){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
 				xy1 = xy0;
-				switch(get_site_in_ab(s0)){
+				switch(obs_[0](i,5)){
 					case 2:
 						{
 							xy1(0) += dir_nn_(1,0);

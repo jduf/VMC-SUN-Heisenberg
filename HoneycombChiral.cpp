@@ -5,6 +5,7 @@ HoneycombChiral::HoneycombChiral(System const& s):
 	Honeycomb<std::complex<double> >(set_ab(),6,"honeyomb-chiral")
 {
 	if(status_==2){
+		init_lattice();
 		init_fermionic();
 
 		system_info_.text("chiral wavefunction with homogeneous flux");
@@ -23,8 +24,8 @@ void HoneycombChiral::compute_H(){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		ab0 = get_site_in_ab(s0);
-		ab1 = get_site_in_ab(s1);
+		ab0 = obs_[0](i,5);
+		ab1 = obs_[0](i,6);
 		H_(s0,s1) = (obs_[0](i,4)?bc_:1);
 		if(ab1==5){
 			if(ab0==0){ H_(s0,s1) *= std::polar(1.0,unit_flux); }
@@ -143,16 +144,6 @@ void HoneycombChiral::display_results(){
 }
 
 void HoneycombChiral::check(){
-	//Matrix<int> nb;
-	//std::cout<<"######################"<<std::endl;
-	//for(unsigned int i(0);i<n_;i++){
-	//nb = get_neighbourg(i);
-	//std::cout<<"i="<<i<<std::endl;
-	//std::cout<<nb<<std::endl;
-	//}
-	//std::cout<<"######################"<<std::endl;
-	//nb = get_neighbourg(3);
-	//std::cout<<nb<<std::endl;
 	info_ = "";
 	path_ = "";
 	dir_  = "./";

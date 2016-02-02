@@ -28,6 +28,7 @@ SquareFermi<Type>::SquareFermi(System const& s):
 	Square<Type>(set_ab(),1,"square-fermi")
 {
 	if(this->status_==2){
+		this->init_lattice();
 		this->init_fermionic();
 
 		this->system_info_.text("Fermi : all colors experience the same Hamiltonian");

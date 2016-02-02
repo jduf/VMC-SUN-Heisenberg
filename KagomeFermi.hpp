@@ -111,8 +111,6 @@ void KagomeFermi<Type>::lattice(){
 		xy0 = (this->LxLy_*xy0).chop();
 		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
 
-		nb = this->get_neighbourg(i);
-
 		t = this->H_(i,nb(0,0));
 		if(std::abs(t)>1e-4){
 			xy1 = this->get_pos_in_lattice(nb(0,0));
@@ -164,106 +162,6 @@ void KagomeFermi<Type>::lattice(){
 
 template<typename Type>
 void KagomeFermi<Type>::check(){
-	///*{debug 1*/
-	//Matrix<int> nb;
-	//for(unsigned int i(0);i<this->n_;i++){
-	//nb = this->get_neighbourg(i);
-	//std::cout<<i<<" ";
-	//for(unsigned int j(0);j<z_;j++){
-	//std::cout<<nb(j,0)<<" ";
-	//}
-	//std::cout<<std::endl;
-	//}
-	///*}*/
-	///*{debug 2*/
-	//Matrix<int> nb;
-	//double t(1.0);
-	//Matrix<double> Ttest(this->n_,this->n_,0);
-	//for(unsigned int s(0);s<this->n_;s++){
-	//nb = this->get_neighbourg(s);
-	//for(unsigned int i(0);i<z_;i++){ Ttest(s,nb(i,0)) = t; }
-	//}
-	//for(unsigned int i(0);i<this->n_;i++){
-	//for(unsigned int j(0);j<this->n_;j++){
-	//if(std::abs(Ttest(i,j)-this->H_(i,j))>0.2){
-	//std::cout<<i<<" "<<j<<std::endl;
-	//}
-	//}
-	//}
-	///*}*/
-	///*{debug 3*/
-	//unsigned int k(0);
-	//for(unsigned int i(0);i<this->n_;i++){
-	//for(unsigned int j(0);j<this->n_;j++){
-	//if(this->H_(i,j)!=0){
-	//k++;
-	////std::cout<<i<<" "<<j<<" "<<this->H_(i,j)<<std::endl;
-	//}
-	//}
-	//}
-	//std::cout<<k<<" "<<links_.row()<<std::endl;
-	///*}*/
-	///*{debug 4*/
-	//Matrix<int> nb;
-	//for(unsigned int s(0);s<this->n_;s++){
-	//nb = this->get_neighbourg(s);
-	//for(unsigned int i(0);i<z_;i++){
-	//if(nb(i,1)<0){ std::cout<<s<<" "<<nb(i,0)<<std::endl; }
-	//}
-	//}
-	///*}*/
-
-	//this->plot_band_structure();
-
-	///*{Rotation matrix : [R,T]!=0*/
-	//Matrix<Type> R(this->H_.row(),this->H_.col(),0);
-	//Matrix<int> nb;
-	//unsigned int s;
-	//unsigned int rs;
-	//int bc;
-	//for(unsigned int j(0); j<this->Ly_;j++){
-	//for(unsigned int i(0); i<this->Lx_;i++){
-	//bc = 1;
-	//s = this->spuc_*(i + j*this->Lx_);
-	//
-	//nb = this->get_neighbourg(s);
-	//rs = nb(0,0);
-	//bc*= nb(0,1);
-	//nb = this->get_neighbourg(rs);
-	//rs = nb(1,0);
-	//bc*= nb(1,1);
-	//for(unsigned int k(0); k<2*i;k++){
-	//nb = this->get_neighbourg(rs);
-	//rs = nb(1,0);
-	//bc*= nb(1,1);
-	//}
-	//if(j!=0){
-	//nb = this->get_neighbourg(rs);
-	//rs = nb(1,0);
-	//bc*= nb(1,1);
-	//for(unsigned int k(0); k<2*j-1;k++){
-	//nb = this->get_neighbourg(rs);
-	//rs = nb(2,0);
-	//bc*= nb(2,1);
-	//}
-	//nb = this->get_neighbourg(rs);
-	//rs = nb(3,0);
-	//bc*= nb(3,1);
-	//}
-	//nb = this->get_neighbourg(rs);
-	//R(s,rs) = bc;
-	//R(s+1,nb(0,0)) = bc*nb(0,1);
-	//R(s+2,nb(1,0)) = bc*nb(1,1);
-	////std::cout<<s<<" "<<rs<<" "<<bc<<std::endl;
-	////std::cout<<s+1<<" "<<nb(0,0)<<" "<<bc*nb(0,1)<<std::endl;
-	////std::cout<<s+2<<" "<<nb(1,0)<<" "<<bc*nb(1,1)<<std::endl;
-	//}
-	//}
-	////std::cout<<R*R*R*R*R*R<<std::endl;
-	////std::cout<<R*this->H_-this->H_*R<<std::endl;
-	////std::cout<<R*R*R*this->Tx_-this->Tx_*R*R*R<<std::endl;
-	///*}*/
-	//this->plot_band_structure();
 	this->info_ = "";
 	this->path_ = "";
 	this->dir_  = "./";

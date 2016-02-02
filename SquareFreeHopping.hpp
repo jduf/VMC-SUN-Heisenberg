@@ -5,16 +5,20 @@
 
 class SquareFreeHopping: public Square<double>{
 	public:
-		SquareFreeHopping(System const& s, Vector<double> const& t);
+		SquareFreeHopping(System const& s, Vector<double> const& t, Vector<double> const& mu);
 		~SquareFreeHopping() = default;
 
 		void create();
+		void save_param(IOFiles& w) const;
 		void check();
 
 	protected:
-		void compute_H();
+		Vector<double> const t_; //!< hopping terms
+		Vector<double> const mu_;//!< chemical potentials
+		std::vector<std::pair<unsigned int,unsigned int> > extra_links_;
+
+		void compute_H(unsigned int const& c);
 		void display_results();
-		Vector<double> const t_;
 
 		/*!Set the unit cell's vectors*/
 		Matrix<double> set_ab() const;

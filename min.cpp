@@ -274,8 +274,8 @@ int main(int argc, char* argv[]){
 				}break;
 			case 12:
 				{
-					VMCSystematic m3(m,P);
-					m3.run(0,1e-6,10);
+					VMCSystematic m3(m);
+					m3.run(0,1e-6,1);
 					m3.save();
 					m3.plot();
 				}break;

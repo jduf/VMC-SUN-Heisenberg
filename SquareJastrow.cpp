@@ -4,6 +4,7 @@ SquareJastrow::SquareJastrow(System const& s, Matrix<double> const& nu):
 	System(s),
 	Square<double>(set_ab(),2,"square-jastrow")
 {
+	init_lattice();
 	init_bosonic(z_,nu);
 	compute_nn();
 	compute_sublattice();
@@ -16,29 +17,23 @@ SquareJastrow::SquareJastrow(System const& s, Matrix<double> const& nu):
 /*{method needed for running*/
 void SquareJastrow::create(){ status_--; }
 
-	void SquareJastrow::compute_nn(){
-		Matrix<int> nb;
-		for(unsigned int i(0);i<n_;i++){
-			nb = get_neighbourg(i);
-			for(unsigned int j(0);j<z_;j++){
-				nn_(i,j) = nb(j,0);
-			}
-			//unsigned int l(z_);
-			//for(unsigned int j(0);j<z_;j++){
-			//nb = get_neighbourg(nn_(i,j));
-			//for(unsigned int k(j);k<j+2;k++){
-			//nn_(i,l) = nb(k%z_,0);
-			//l++;
-			//}
-			//}
-		}
+void SquareJastrow::compute_nn(){
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		nn_(obs_[0](i,0),obs_[0](i,1)) = obs_[0](i,1);
 	}
+	//unsigned int l(z_);
+	//for(unsigned int j(0);j<z_;j++){
+	//nb = get_neighbourg(nn_(i,j));
+	//for(unsigned int k(j);k<j+2;k++){
+	//nn_(i,l) = nb(k%z_,0);
+	//l++;
+	//}
+	//}
+}
 
 void SquareJastrow::compute_sublattice(){
-	unsigned int s(0);
 	for(unsigned int i(0);i<n_;i++){
-		s = get_site_in_ab(i);
-		if(s<2){ sl_(i) = s; }
+		if(obs_[0](i,5)<2){ sl_(i) = obs_[0](i,5); }
 		else{ std::cout<<"void SquareJastrow::compute_sublattice() : unknown sublatttice."; }
 	}
 	//std::cout<<"sublattice:"<<std::endl;

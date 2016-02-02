@@ -45,6 +45,7 @@ class MCSim{
 		void clear_obs(unsigned int const& from){ MCS_->clear_obs(from); }
 		/*!Calls virtual void MCSystem::free_memory() = 0*/
 		void free_memory(){ MCS_->free_memory(); }
+		void print(unsigned int const& nobs) const { MCS_->print(nobs); }
 		/*}*/
 
 		/*{Write in IOFiles methods*/

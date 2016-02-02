@@ -116,16 +116,18 @@ void System::save_output(IOFiles& w) const {
 }
 
 void System::print(unsigned int nobs) const {
+	if(nobs){
+		std::cout<<"SU("<<N_<<") m="<<m_<<" n="<<n_<<" BC="<<bc_<<" nobs="<<obs_.size()<<std::endl;
+		if(nobs>obs_.size()){ nobs = obs_.size(); }
+		for(unsigned int i(0);i<nobs;i++){ std::cout<<std::endl<<obs_[i]; }
+	} else { std::cout<<obs_[0][0]<<std::endl; }
 	std::cout<<std::string(35,'-')<<std::endl;
-	std::cout<<"SU("<<N_<<") m="<<m_<<" n="<<n_<<" BC="<<bc_<<" nobs="<<obs_.size()<<std::endl<<std::endl;
-	if(nobs>obs_.size()){ nobs = obs_.size(); }
-	for(unsigned int i(0);i<nobs;i++){ std::cout<<obs_[i]<<std::endl; }
 }
 /*}*/
 
 Vector<unsigned int> System::complete_system_info(Parseur& P){
 	std::string const& wf(P.get<std::string>("wf"));
-	Vector<unsigned int> ref(3,6);
+	Vector<unsigned int> ref(4,0);
 	if( wf == "chain-fermi" ){
 		ref(0) = 1;
 		ref(1) = 1;
@@ -277,6 +279,30 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 	}
 	if(!P.find("M",i,false)){
 		P.set("M",std::vector<unsigned int>(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N")));
+	}
+	switch(ref(0)){
+		case 3:
+			{
+				unsigned int n(P.get<unsigned int>("n"));
+				ref(3) = 2;
+				if(my::are_equal(sqrt(n/3.0),floor(sqrt(n/3.0)))){ ref(3) = 0; }
+				if(my::are_equal(sqrt(n)/3.0,floor(sqrt(n)/3)))  { ref(3) = 1; }
+			}break;
+		case 4:
+			{
+				unsigned int n(P.get<unsigned int>("n"));
+				if(my::are_equal(sqrt(n),floor(sqrt(n)))){
+					if(P.find("cluster",i,false)){ ref(3) = P.get<unsigned int>(i); }
+					else { std::cerr<<__PRETTY_FUNCTION__<<" : tilted cluster chosen by default (to change -u:cluster 1)"<<std::endl; }
+				}
+			}break;
+		case 6:
+			{
+				unsigned int n(P.get<unsigned int>("n"));
+				ref(3) = 2;
+				if(my::are_equal(sqrt(n/2.0),floor(sqrt(n/2.0)))){ ref(3) = 0; }
+				if(my::are_equal(sqrt(n)/6.0,floor(sqrt(n)/6)))  { ref(3) = 1; }
+			}break;
 	}
 	return ref;
 }

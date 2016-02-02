@@ -38,10 +38,9 @@ class System2DBis: public GenericSystem<Type>{
 
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
-		/*!Returns the index of the site i in the unit cell basis (a,b)*/
-		unsigned int get_site_in_ab(unsigned int const& i) const;
 		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
 		bool pos_out_of_lattice(Vector<double> const& x) const;
+		unsigned int find_index(Vector<double> const& x) const;
 
 	private:
 		Matrix<Type> Tx_;		//!< translation operator along x-axis
@@ -65,6 +64,8 @@ class System2DBis: public GenericSystem<Type>{
 		virtual bool reset_pos_in_lattice(Vector<double>& x) const = 0;
 		/*!Get the vector that separates the site i from its neighbourg in the direction d*/
 		virtual Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const = 0;
+		/*!Returns the index of the site i in the unit cell*/
+		unsigned int get_site_in_unit_cell(unsigned int const& i) const;
 };
 
 /*{constructors*/
@@ -78,7 +79,7 @@ System2DBis<Type>::System2DBis(Matrix<double> const& lattice_corners, Matrix<dou
 	ab_(ab),
 	eq_prec_(1e-12)
 {
-	if(this->spuc_){ 
+	if(this->spuc_){
 		inv_ab_.set(2,2);
 		inv_ab_(0,0) = ab_(1,1);
 		inv_ab_(1,0) =-ab_(1,0);
@@ -108,8 +109,8 @@ System2DBis<Type>::System2DBis(Matrix<double> const& lattice_corners, Matrix<dou
 				}
 
 				if(!fit){
-					std::cerr<<__PRETTY_FUNCTION__<<" : it seems that the unit cell doesn't fit into the cluster (not sure)"<<std::endl; 
-					this->status_ = 3; 
+					std::cerr<<__PRETTY_FUNCTION__<<" : it seems that the unit cell doesn't fit into the cluster (not sure)"<<std::endl;
+					this->status_ = 3;
 				}
 			} else { std::cerr<<__PRETTY_FUNCTION__<<" : undefined geometry"<<std::endl; }
 		}
@@ -162,10 +163,10 @@ void System2DBis<Type>::plot_band_structure(){
 						std::swap(e_(i),(*b->get())(j));
 					}
 				}
-			} else { 
+			} else {
 				(*a)(2) = e_(i);
 				l.set_target(b);
-				l.add_after_target(a); 
+				l.add_after_target(a);
 			}
 			l.set_target();
 		}
@@ -174,7 +175,7 @@ void System2DBis<Type>::plot_band_structure(){
 		l.set_target();
 		double x(666);
 		while(l.target_next()){
-			if(!my::are_equal(x,l.get()(0))){ 
+			if(!my::are_equal(x,l.get()(0))){
 				x = l.get()(0);
 				bsf<<IOFiles::endl;
 			}
@@ -233,7 +234,15 @@ Matrix<int> System2DBis<Type>::get_neighbourg(unsigned int const& i) const {
 }
 
 template<typename Type>
-unsigned int System2DBis<Type>::get_site_in_ab(unsigned int const& i) const {
+unsigned int System2DBis<Type>::find_index(Vector<double> const& x) const {
+	for(unsigned int i(0);i<this->n_;i++){
+		if(my::are_equal(x_[i],x,eq_prec_,eq_prec_)){ return i; }
+	}
+	return 1;
+}
+
+template<typename Type>
+unsigned int System2DBis<Type>::get_site_in_unit_cell(unsigned int const& i) const {
 	double ip;
 	Vector<double> x(inv_ab_*(x_[i]-x_[0]));
 	x(0) = std::modf(x(0),&ip);

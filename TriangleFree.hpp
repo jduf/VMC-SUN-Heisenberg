@@ -9,6 +9,7 @@ class TriangleFree: public Triangle<double>{
 		~TriangleFree() = default;
 
 		void create();
+		void save_param(IOFiles& w) const;
 		void check();
 
 	protected:

@@ -52,8 +52,8 @@ class System2D: public GenericSystem<Type>{
 		virtual Vector<double> get_pos_in_lattice(unsigned int const& i) const = 0;
 		/*!Returns the index of the position x the unit cell basis (a,b)*/
 		virtual unsigned int match_pos_in_ab(Vector<double> const& x) const = 0;
-		/*!Returns the index of the site i in the unit cell basis (a,b)*/
-		unsigned int get_site_in_ab(unsigned int const& i) const;
+		/*!Returns the index of the site i in the unit cell*/
+		unsigned int get_site_in_unit_cell(unsigned int const& i) const;
 		/*!Makes a change of basis to express the position x in the lattice basis (Lx,Ly)*/
 		void set_pos_LxLy(Vector<double>& x) const;
 		/*!Makes a change of basis to express the position x in the unit cell (a,b)*/
@@ -287,7 +287,7 @@ Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 }
 
 template<typename Type>
-unsigned int System2D<Type>::get_site_in_ab(unsigned int const& i) const {
+unsigned int System2D<Type>::get_site_in_unit_cell(unsigned int const& i) const {
 	Vector<double> x(get_pos_in_lattice(i));
 	set_pos_ab(x);
 	set_in_LxLy(x);

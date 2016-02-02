@@ -5,8 +5,8 @@ TriangleChiral::TriangleChiral(System const& s):
 	Triangle<std::complex<double> >(set_ab(),3,"triangle-chiral")
 {
 	if(status_==2){
+		init_lattice();
 		init_fermionic();
-		same_wf_ = false;
 
 		system_info_.text("Chiral : each color has the same Hamiltonian");
 	}
@@ -23,7 +23,7 @@ void TriangleChiral::compute_H(){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		switch(get_site_in_ab(s0)){
+		switch(obs_[0](i,5)){
 			case 0:
 				{
 					switch(obs_[0](i,3)){
@@ -104,7 +104,7 @@ void TriangleChiral::display_results(){
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(lattice_corners_,"linecolor=green");
 
-	double x_shift(-(ab_(0,0)+ab_(0,1))/2);
+	double x_shift(-(ab_(0,0)+ab_(0,1))/2.0);
 	double y_shift(0.0);
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=x_shift;

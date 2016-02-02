@@ -12,11 +12,11 @@ class Honeycomb: public System2DBis<Type>{
 		virtual ~Honeycomb()=0;
 
 	protected:
+		void init_lattice();
 		void set_obs(int nobs);
 
 	private:
 		double L_;
-		unsigned int lattice_type_;
 
 		Matrix<double> set_geometry(unsigned int const& n);
 		bool reset_pos_in_lattice(Vector<double>& x) const;
@@ -26,83 +26,8 @@ class Honeycomb: public System2DBis<Type>{
 /*{constructor*/
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2DBis<Type>(set_geometry(this->n_),ab,spuc,3,filename)
-{
-	if(this->status_==2){
-		if(!this->obs_.size() || !this->obs_[0].nlinks()){
-			/*{!the directions are given in the cartesian basis for the
-			 * sublattice with even site number
-			 *
-			 * (-1,sqrt(3))/2
-			 *       \
-			 *        x--(1,0)
-			 *       /
-			 * (-1,-sqrt(3))/2
-			 *
-			 *  x = 0,2,4,...
-			 *}*/
-			this->dir_nn_[0](0) = 1.0;
-			this->dir_nn_[0](1) = 0.0;
-
-			this->dir_nn_[1](0) =-0.5;
-			this->dir_nn_[1](1) = sqrt(3.0)/2.0;
-
-			this->dir_nn_[2](0) =-0.5;
-			this->dir_nn_[2](1) =-sqrt(3.0)/2.0;
-
-			if(lattice_type_){ this->x_[0] = this->dir_nn_[2]; }
-			else {
-				this->x_[0] = this->dir_nn_[0]*(-0.5);
-				this->x_[0](0)+= 0.01;
-				this->x_[0](1)+= 0.01;
-			}
-
-			Vector<double> x_loop(this->x_[0]);
-			bool check_if_loop(false);
-			for(unsigned int i(1);i<this->n_;i++){
-				if(lattice_type_){
-					if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[0]; }
-					else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[1]; }
-				} else {
-					if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[1]; }
-					else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[2]; }
-				}
-				if(reset_pos_in_lattice(this->x_[i])){ check_if_loop = true; }
-				if(check_if_loop && my::are_equal(this->x_[i],x_loop)){
-					check_if_loop = false;
-					if(lattice_type_){ this->x_[i](1) += sqrt(3.0); }
-					else { this->x_[i] += this->dir_nn_[0]-this->dir_nn_[1]; }
-					reset_pos_in_lattice(this->x_[i]);
-					x_loop = this->x_[i];
-				}
-				this->x_[i] = this->x_[i].chop();
-			}
-
-			if(lattice_type_){
-				this->boundary_[0] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[3]+this->dir_nn_[4])*L_;
-				this->boundary_[1] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[5])*L_;
-				this->boundary_[2] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[1])*L_*2.0;
-				this->boundary_[3] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[1]+this->dir_nn_[2])*L_;
-			} else {
-				this->boundary_[0] = this->dir_nn_[3]*0.25 + this->dir_nn_[4]*L_;
-				this->boundary_[1] = this->dir_nn_[3]*0.25 + this->dir_nn_[0]*L_;
-				this->boundary_[2] = this->dir_nn_[3]*0.25 + this->dir_nn_[1]*L_*2.0;
-				this->boundary_[3] = this->dir_nn_[3]*0.25 + this->dir_nn_[2]*L_;
-			}
-
-			Vector<unsigned int> l(2);
-			l(0) = 3;
-			l(1) = 0;
-			this->set_nn_links(l);
-
-			/*!sets the bond energy if it has not been set yet*/
-			if(this->obs_[0].nlinks() != this->J_.size()){
-				if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
-				else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
-			}
-		}
-	}
-}
+	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0),ab,spuc,3,filename)
+{}
 
 template<typename Type>
 Honeycomb<Type>::~Honeycomb() = default;
@@ -110,18 +35,94 @@ Honeycomb<Type>::~Honeycomb() = default;
 
 /*{protected methods*/
 template<typename Type>
+void Honeycomb<Type>::init_lattice(){
+	if(!this->obs_.size() || !this->obs_[0].nlinks()){
+		/*{!the directions are given in the cartesian basis for the
+		 * sublattice with even site number
+		 *
+		 * (-1,sqrt(3))/2
+		 *       \
+		 *        x--(1,0)
+		 *       /
+		 * (-1,-sqrt(3))/2
+		 *
+		 *  x = 0,2,4,...
+		 *}*/
+		this->dir_nn_[0](0) = 1.0;
+		this->dir_nn_[0](1) = 0.0;
+
+		this->dir_nn_[1](0) =-0.5;
+		this->dir_nn_[1](1) = sqrt(3.0)/2.0;
+
+		this->dir_nn_[2](0) =-0.5;
+		this->dir_nn_[2](1) =-sqrt(3.0)/2.0;
+
+		if(this->ref_(3)){ this->x_[0] = this->dir_nn_[2]; }
+		else {
+			this->x_[0] = this->dir_nn_[0]*(-0.5);
+			this->x_[0](0)+= 0.01;
+			this->x_[0](1)+= 0.01;
+		}
+
+		Vector<double> x_loop(this->x_[0]);
+		bool check_if_loop(false);
+		for(unsigned int i(1);i<this->n_;i++){
+			if(this->ref_(3)){
+				if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[0]; }
+				else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[1]; }
+			} else {
+				if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[1]; }
+				else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[2]; }
+			}
+			if(reset_pos_in_lattice(this->x_[i])){ check_if_loop = true; }
+			if(check_if_loop && my::are_equal(this->x_[i],x_loop)){
+				check_if_loop = false;
+				if(this->ref_(3)){ this->x_[i](1) += sqrt(3.0); }
+				else { this->x_[i] += this->dir_nn_[0]-this->dir_nn_[1]; }
+				reset_pos_in_lattice(this->x_[i]);
+				x_loop = this->x_[i];
+			}
+			this->x_[i] = this->x_[i].chop();
+		}
+
+		if(this->ref_(3)){
+			this->boundary_[0] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[3]+this->dir_nn_[4])*L_;
+			this->boundary_[1] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[5])*L_;
+			this->boundary_[2] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[1])*L_*2.0;
+			this->boundary_[3] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[1]+this->dir_nn_[2])*L_;
+		} else {
+			this->boundary_[0] = this->dir_nn_[3]*0.25 + this->dir_nn_[4]*L_;
+			this->boundary_[1] = this->dir_nn_[3]*0.25 + this->dir_nn_[0]*L_;
+			this->boundary_[2] = this->dir_nn_[3]*0.25 + this->dir_nn_[1]*L_*2.0;
+			this->boundary_[3] = this->dir_nn_[3]*0.25 + this->dir_nn_[2]*L_;
+		}
+
+		Vector<unsigned int> l(2);
+		l(0) = 3;
+		l(1) = 0;
+		this->set_nn_links(l);
+
+		/*!sets the bond energy if it has not been set yet*/
+		if(this->obs_[0].nlinks() != this->J_.size()){
+			if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
+			else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
+		}
+	}
+}
+
+template<typename Type>
 void Honeycomb<Type>::set_obs(int nobs){
 	if(nobs<0){ nobs = 1; }
-	unsigned int nlinks;
-	unsigned int nval;
-	if(nobs>0){/*bond energy (valid for Honeycomb0pp*/
+	if(nobs>0){/*bond energy (valid for Honeycomb0pp)*/
+		unsigned int nlinks;
+		unsigned int nval;
 		nlinks = this->obs_[0].nlinks();
 		nval = this->z_*this->spuc_/2;
 		this->obs_.push_back(Observable("Bond energy",1,nval,nlinks));
 		this->obs_[1].remove_links();
 		for(unsigned int i(0);i<nlinks;i++){
-			this->obs_[0](i,2) = this->get_site_in_ab(this->obs_[0](i,0))/2*3;
-			this->obs_[0](i,2)+=(this->get_site_in_ab(this->obs_[0](i,1))-1)/2;
+			this->obs_[0](i,2) = this->obs_[0](i,5)/2*3;
+			this->obs_[0](i,2)+=(this->obs_[0](i,6)-1)/2;
 		}
 	}
 }
@@ -130,58 +131,58 @@ void Honeycomb<Type>::set_obs(int nobs){
 /*{private methods*/
 template<typename Type>
 Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n){
-	L_ = sqrt(n/2.0);
-	if(my::are_equal(L_,floor(L_))){
-		lattice_type_ = 0;
-		double a(sqrt(3.0)/2);
-		Matrix<double> tmp(7,2);
-		tmp(0,0) =-0.5*L_;
-		tmp(0,1) =-a*L_;
-		tmp(1,0) =-tmp(0,0);
-		tmp(1,1) = tmp(0,1);
-		tmp(2,0) = L_;
-		tmp(2,1) = 0;
-		tmp(3,0) =-tmp(0,0);
-		tmp(3,1) =-tmp(0,1);
-		tmp(4,0) =-tmp(1,0);
-		tmp(4,1) =-tmp(1,1);
-		tmp(5,0) =-tmp(2,0);
-		tmp(5,1) = tmp(2,1);
-		tmp(6,0) = tmp(0,0);
-		tmp(6,1) = tmp(0,1);
-		return tmp;
+	if(n){
+		L_ = sqrt(n/2.0);
+		if(my::are_equal(L_,floor(L_))){
+			double a(sqrt(3.0)/2);
+			Matrix<double> tmp(7,2);
+			tmp(0,0) =-0.5*L_;
+			tmp(0,1) =-a*L_;
+			tmp(1,0) =-tmp(0,0);
+			tmp(1,1) = tmp(0,1);
+			tmp(2,0) = L_;
+			tmp(2,1) = 0;
+			tmp(3,0) =-tmp(0,0);
+			tmp(3,1) =-tmp(0,1);
+			tmp(4,0) =-tmp(1,0);
+			tmp(4,1) =-tmp(1,1);
+			tmp(5,0) =-tmp(2,0);
+			tmp(5,1) = tmp(2,1);
+			tmp(6,0) = tmp(0,0);
+			tmp(6,1) = tmp(0,1);
+			return tmp;
+		}
+		L_ = sqrt(n/6.0);
+		if(my::are_equal(L_,floor(L_))){
+			double a(sqrt(3.0)/2.0);
+			Matrix<double> tmp(7,2);
+			tmp(0,0) = 0;
+			tmp(0,1) =-2.0*a*L_;
+			tmp(1,0) = 1.5*L_;
+			tmp(1,1) =-a*L_;
+			tmp(2,0) = tmp(1,0);
+			tmp(2,1) =-tmp(1,1);
+			tmp(3,0) = tmp(0,0);
+			tmp(3,1) =-tmp(0,1);
+			tmp(4,0) =-tmp(1,0);
+			tmp(4,1) =-tmp(1,1);
+			tmp(5,0) =-tmp(1,0);
+			tmp(5,1) = tmp(1,1);
+			tmp(6,0) = tmp(0,0);
+			tmp(6,1) = tmp(0,1);
+			return tmp;
+		}
+		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
+		for(unsigned int l(2);l<10;l++){ std::cerr<<"n="<<2*l*l<<" or "<<6*l*l<<std::endl; }
+		std::cerr<<"n=2*l*l or 6*l*l"<<std::endl;
 	}
-	L_ = sqrt(n/6.0);
-	if(my::are_equal(L_,floor(L_))){
-		lattice_type_ = 1;
-		double a(sqrt(3.0)/2.0);
-		Matrix<double> tmp(7,2);
-		tmp(0,0) = 0;
-		tmp(0,1) =-2.0*a*L_;
-		tmp(1,0) = 1.5*L_;
-		tmp(1,1) =-a*L_;
-		tmp(2,0) = tmp(1,0);
-		tmp(2,1) =-tmp(1,1);
-		tmp(3,0) = tmp(0,0);
-		tmp(3,1) =-tmp(0,1);
-		tmp(4,0) =-tmp(1,0);
-		tmp(4,1) =-tmp(1,1);
-		tmp(5,0) =-tmp(1,0);
-		tmp(5,1) = tmp(1,1);
-		tmp(6,0) = tmp(0,0);
-		tmp(6,1) = tmp(0,1);
-		return tmp;
-	}
-	std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
-	for(unsigned int l(2);l<10;l++){ std::cerr<<"n="<<2*l*l<<" or "<<6*l*l<<std::endl; }
-	std::cerr<<"n=2*l*l or 6*l*l"<<std::endl;
 	return Matrix<double>();
 }
 
 template<typename Type>
 bool Honeycomb<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 	if(this->pos_out_of_lattice(x)){
-		if(lattice_type_){
+		if(this->ref_(3)){
 			double t(tan(M_PI/6.0)*x(0)/x(1));
 			if(x(0)>0){
 				if(std::abs(t)>1){ x-= this->dir_nn_[0]*L_*3.0; }

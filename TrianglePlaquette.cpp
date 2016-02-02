@@ -6,6 +6,7 @@ TrianglePlaquette::TrianglePlaquette(System const& s, double const& t):
 	t_(t)
 {
 	if(status_==2){
+		init_lattice();
 		init_fermionic();
 
 		system_info_.text("Plaquette : all colors experience the same Hamiltonian");
@@ -23,7 +24,7 @@ void TrianglePlaquette::compute_H(){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		switch(get_site_in_ab(s0)){
+		switch(obs_[0](i,5)){
 			case 0:
 				{
 					if(obs_[0](i,3)==2){ H_(s0,s1) = (obs_[0](i,4)?bc_*t_:t_); } 

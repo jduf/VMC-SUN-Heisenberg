@@ -7,6 +7,7 @@ TriangleFree::TriangleFree(System const& s, Vector<double> const& t, Vector<doub
 	mu_(mu)
 {
 	if(status_==2){
+		init_lattice();
 		init_fermionic();
 
 		system_info_.text("Free : all colors experience the same Hamiltonian");
@@ -23,7 +24,7 @@ void TriangleFree::compute_H(){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
 
-		switch(get_site_in_ab(s0)){
+		switch(obs_[0](i,5)){
 			case 0:
 				{
 					if(obs_[0](i,3)==2){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(0); } 
@@ -56,6 +57,29 @@ void TriangleFree::create(){
 			}
 		}
 	}
+}
+
+void TriangleFree::save_param(IOFiles& w) const {
+	std::string s("t=(");
+	Vector<double> param(t_.size()+mu_.size());
+
+	for(unsigned int i(0);i<t_.size()-1;i++){ 
+		param(i) = t_(i); 
+		s += my::tostring(t_(i))+",";
+	}
+	param(t_.size()-1) = t_.back(); 
+	s += my::tostring(t_.back())+") "+RST::math("\\mu")+"=(";
+
+	for(unsigned int i(0);i<mu_.size()-1;i++){
+		param(i+t_.size()) = mu_(i); 
+		s += my::tostring(mu_(i))+",";
+	}
+	param.back() = mu_.back(); 
+	s += my::tostring(mu_.back())+")";
+
+	w.add_header()->title(s,'<');
+	w<<param;
+	GenericSystem<double>::save_param(w);
 }
 
 Matrix<double> TriangleFree::set_ab() const {
@@ -134,8 +158,8 @@ void TriangleFree::display_results(){
 
 		mu = H_(s0,s0);
 		if(std::abs(mu)>1e-4){
-			if(mu<0){ color = "magenta"; }
-			else { color = "cyan"; }
+			if(mu<0){ color = "green"; }
+			else    { color = "cyan"; }
 			ps.circle(xy0,std::abs(mu),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 		}
 		ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
@@ -146,16 +170,6 @@ void TriangleFree::display_results(){
 }
 
 void TriangleFree::check(){
-	//Matrix<int> nb;
-	//std::cout<<"######################"<<std::endl;
-	//for(unsigned int i(0);i<n_;i++){
-	//nb = get_neighbourg(i);
-	//std::cout<<"i="<<i<<std::endl;
-	//std::cout<<nb<<std::endl;
-	//}
-	//std::cout<<"######################"<<std::endl;
-	//nb = get_neighbourg(3);
-	//std::cout<<nb<<std::endl;
 	info_ = "";
 	path_ = "";
 	dir_  = "./";

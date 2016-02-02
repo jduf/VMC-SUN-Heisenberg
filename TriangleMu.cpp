@@ -6,6 +6,7 @@ TriangleMu::TriangleMu(System const& s, double const& mu):
 	mu_(mu)
 {
 	if(status_==2){
+		init_lattice();
 		init_fermionic();
 		same_wf_ = false;
 
@@ -25,7 +26,7 @@ void TriangleMu::compute_H(unsigned int const& c){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
 		H_(s0,s1) = (obs_[0](i,4)?bc_*t:t);
-		if(get_site_in_ab(s0)==c%spuc_){ H_(s0,s0) = mu_/2; }
+		if((unsigned int)(obs_[0](i,5))==c%spuc_){ H_(s0,s0) = mu_/2; }
 	}
 	H_ += H_.transpose();
 }

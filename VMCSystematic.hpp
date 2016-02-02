@@ -5,7 +5,7 @@
 
 class VMCSystematic : public VMCMinimization{
 	public:
-		VMCSystematic(VMCMinimization const& m, Parseur& P);
+		VMCSystematic(VMCMinimization const& m);
 		/*!Default destructor*/
 		virtual ~VMCSystematic() = default;
 		/*{Forbidden*/
@@ -20,5 +20,12 @@ class VMCSystematic : public VMCMinimization{
 		void test();
 
 	private:
+		unsigned int maxiter_;
+		int nobs_;
+		double dE_;
+
+		bool go_through_parameter_space(Vector<double>* x, Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, void (VMCSystematic::*f)(Vector<double>*, Vector<unsigned int> const&));
+		void evaluate(Vector<double>* x, Vector<unsigned int> const& idx);
+
 };
 #endif

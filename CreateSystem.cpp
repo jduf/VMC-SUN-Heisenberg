@@ -200,10 +200,18 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 									{ RGL_ = new SquareFermi<double>(*s_); }break;
 								case 1:
 									{
-										Vector<double> t;
-										if(param){ t = param->range(0,0); }
-										if(C){ t=C->get<std::vector<double> >("phi"); }
-										RGL_ = new SquareFreeHopping(*s_,t);
+										Vector<double> t(2);
+										Vector<double> mu(1);
+										if(param){
+											mu(0)= (*param)(0);
+											t(0) = (*param)(1);
+											t(1) = (*param)(2);
+										}
+										if(C){
+											t = C->get<std::vector<double> >("t");
+											mu = C->get<std::vector<double> >("mu");
+										}
+										RGL_ = new SquareFreeHopping(*s_,t,mu);
 									}break;
 								case 2:
 									{
@@ -211,7 +219,6 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(param){ mu = (*param)(0); }
 										if(C){ mu = C->get<double>("mu"); }
 										RGL_ = new SquareMu(*s_,mu);
-										std::cout<<RGL_->get_status()<<std::endl;
 									}break;
 								default:{ error(); }break;
 							}
@@ -229,12 +236,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 2:
 									{ CGL_ = new SquarePiFlux(*s_); }break;
 								case 3:
-									{
-										Vector<double> t;
-										if(param){ t = *param; }
-										if(C)    { t = C->get<std::vector<double> >("t"); }
-										CGL_ = new SquareACSL(*s_,t);
-									}break;
+									{ CGL_ = new SquareACSL(*s_); }break;
 								default:{ error(); }break;
 							}
 						}break;

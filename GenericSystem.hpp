@@ -58,6 +58,8 @@ class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSyst
 			   computed for the site i%l.size() *//*}*/
 		void set_nn_links(Vector<unsigned int> const& l);
 		void check_lattice();
+		/*!Returns the index of the site i in the unit cell*/
+		virtual unsigned int get_site_in_unit_cell(unsigned int const& i) const = 0;
 
 	private:
 		std::vector<std::string> generate_names() const;
@@ -99,7 +101,7 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 				}
 			}
 		}
-		Matrix<int> tmp(k,5);
+		Matrix<int> tmp(k,7);
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
 			l_tmp =l(i%l.size());
@@ -115,6 +117,8 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 						tmp(k,2) =-1;
 						tmp(k,3) = j;
 						tmp(k,4) = nb(j,1);
+						tmp(k,5) = get_site_in_unit_cell(i);
+						tmp(k,6) = get_site_in_unit_cell(nb(j,0));
 						k++;
 					}
 				}
@@ -138,7 +142,7 @@ void GenericSystem<Type>::check_lattice(){
 		p0=0;
 		for(unsigned int i(0);i<iter;i++){
 			d=rnd.get();
-			p0=get_neighbourg(p0)(d,0);
+			p0 = get_neighbourg(p0)(d,0);
 			dir(d)++;
 		}
 		d=p1=j=0;

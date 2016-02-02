@@ -47,6 +47,8 @@ class System1D: public GenericSystem<Type>{
 		bool full_diagonalization();
 		/*!Evaluate the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
+		/*!Returns the index of the site i in the unit cell*/
+		unsigned int get_site_in_unit_cell(unsigned int const& i) const { return i%this->spuc_; }
 };
 	
 /*{constructors*/

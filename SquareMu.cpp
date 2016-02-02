@@ -6,6 +6,7 @@ SquareMu::SquareMu(System const& s, double const& mu):
 	mu_(mu)
 {
 	if(status_==2){
+		init_lattice();
 		init_fermionic();
 		same_wf_ = false;
 
@@ -25,7 +26,7 @@ void SquareMu::compute_H(unsigned int const& c){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
 		H_(s0,s1) = (obs_[0](i,4)?bc_*t:t);
-		if(get_site_in_ab(s0)==c%spuc_){ H_(s0,s0) = mu_/2; }
+		if((unsigned int)(obs_[0](i,5))==c%spuc_){ H_(s0,s0) = mu_/2; }
 	}
 	H_ += H_.transpose();
 }
@@ -131,14 +132,15 @@ void SquareMu::display_results(){
 			if(t>0){ color = "blue"; }
 			else   { color = "red"; }
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-
-			mu = H_(s0,s0);
-			if(std::abs(mu)>1e-4){
-				if(mu>0){ color = "cyan"; }
-				else    { color = "magenta"; }
-				ps.circle(xy0,std::abs(mu),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
-			}
 		}
+
+		mu = H_(s0,s0);
+		if(std::abs(mu)>1e-4){
+			if(mu>0){ color = "cyan"; }
+			else    { color = "magenta"; }
+			ps.circle(xy0,std::abs(mu),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+		}
+
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
 	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
