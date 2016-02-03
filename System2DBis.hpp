@@ -40,6 +40,7 @@ class System2DBis: public GenericSystem<Type>{
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
 		bool pos_out_of_lattice(Vector<double> const& x) const;
+		/*!Returns the index of the site at position x*/
 		unsigned int find_index(Vector<double> const& x) const;
 		/*!If x1 is outside the cluster, resets x1 inside and returns bc*/
 		bool handle_boundary(Vector<double> const& x0, Vector<double>& x1) const;

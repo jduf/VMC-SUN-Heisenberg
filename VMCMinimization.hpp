@@ -66,7 +66,6 @@ class VMCMinimization{
 				void save(IOFiles& out, bool const& all) const;
 
 				List<MCSim> samples_;
-				Container system_param_;
 				RST info_;
 				System* s_             = NULL;
 				unsigned int dof_ 	   = 0;

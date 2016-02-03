@@ -13,8 +13,8 @@ class TriangleFree: public Triangle<double>{
 		void check();
 
 	protected:
-		Vector<double> const t_; //!< hopping term
-		Vector<double> const mu_;//!< chemical potential
+		Vector<double> const t_; //!< hopping terms
+		Vector<double> const mu_;//!< chemical potentials
 
 		void compute_H();
 		void display_results();

@@ -2,8 +2,8 @@
 
 SquareChiral::SquareChiral(System const& s):
 	System(s),
-	Square<std::complex<double> >(set_ab(N_/m_),N_/m_,"square-chiral"),
-	phi_(2.0*M_PI*m_/N_)
+	Square<std::complex<double> >(set_ab(),5,"square-chiral"),
+	phi_(2.0*M_PI/5.0)
 {
 	if(status_==2){
 		init_lattice();
@@ -23,8 +23,13 @@ void SquareChiral::compute_H(){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		if(obs_[0](i,3)==1){ H_(s0,s1) = my::chop(std::polar((obs_[0](i,4)?bc_*t:t),obs_[0](i,5)*phi_)); }
-		else { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }
+		switch(obs_[0](i,5)){
+			case 0: { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
+			case 1: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?-phi_:phi_)); }break;
+			case 2: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?phi_:0.0)); }break;
+			case 3: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:-phi_)); }break;
+			case 4: { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
+		}
 	}
 	H_ += H_.conjugate_transpose();
 }
@@ -43,23 +48,32 @@ void SquareChiral::create(){
 	}
 }
 
-Matrix<double> SquareChiral::set_ab(unsigned int const& k) const {
+Matrix<double> SquareChiral::set_ab() const {
 	Matrix<double> tmp(2,2);
-	tmp(0,0) = k;
-	tmp(1,0) = 0;
-	tmp(0,1) = 0;
-	tmp(1,1) = 1;
+	tmp(0,0) = 2.0;
+	tmp(1,0) =-1.0;
+	tmp(0,1) = 1.0;
+	tmp(1,1) = 2.0;
 	return tmp;
 }
 
 unsigned int SquareChiral::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
-	for(unsigned int i(0);i<spuc_;i++){
-		match(0) = 1.0/spuc_*i;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return i; }
-	}
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
+	match(0) = 0.4;
+	match(1) = 0.2;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+	match(0) = 0.8;
+	match(1) = 0.4;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+	match(0) = 0.2;
+	match(1) = 0.6;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+	match(0) = 0.6;
+	match(1) = 0.8;
+	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return spuc_;
+	return 5;
 }
 /*}*/
 
@@ -116,7 +130,6 @@ void SquareChiral::display_results(){
 			} else {
 				if(t.imag()>0){ arrow = "->"; }
 				else          { arrow = "<-"; }
-				ps.put(xy0(0)+0.2,(xy0(1)+xy1(1))*2.0/3.0,"\\tiny{"+my::tostring(std::arg(t)/phi_)+"}");
 			}
 
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);

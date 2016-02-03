@@ -56,18 +56,19 @@ int main(int argc, char* argv[]){
 
 				Linux command;
 				command.mkpath(cs->get_path().c_str());
-				IOFiles out(cs->get_path() + cs->get_filename()+".jdbin",true);
+				std::string fname(cs->get_filename() + "-" + Time().date("-") );
+				IOFiles out(cs->get_path() + fname +".jdbin",true);
 				cs->save(out);
 
 				if(P.find("d",i,false)){
-					RSTFile rst("/tmp/",cs->get_filename());
-					IOSystem ios(cs->get_filename(),"","","","","/tmp/",&rst);
+					RSTFile rst("/tmp/",fname);
+					IOSystem ios(fname,"","","","","/tmp/",&rst);
 					cs->set_IOSystem(&ios);
 					cs->display_results();
 
 					rst.text(out.get_header());
 					rst.save(false,true);
-					command(Linux::html_browser("/tmp/"+cs->get_filename()+".html"),true);
+					command(Linux::html_browser("/tmp/"+fname+".html"),true);
 					//if( my::get_yn("move the plot in the correct folder ?") ){
 					//std::cerr<<"should implement this move"<<std::endl;
 					//}

@@ -16,7 +16,9 @@ SquareFree::SquareFree(System const& s, Vector<double> const& t, Vector<double> 
 		if(need_compute_additional_links){ init_additional_links(); }
 		same_wf_ = false;
 
-		system_info_.text("FreeReal : all colors experience the same Hamiltonian");
+		system_info_.text("SquareFree : all colors experience the same Hamiltonian");
+		system_info_.text("           : there is an additional second neighbour hopping");
+		system_info_.text("           : for every 1/k sites");
 	}
 }
 
