@@ -1,14 +1,19 @@
-#include "SquareFreeHopping.hpp"
+#include "SquareFree.hpp"
 
-SquareFreeHopping::SquareFreeHopping(System const& s, Vector<double> const& t, Vector<double> const& mu):
+SquareFree::SquareFree(System const& s, Vector<double> const& t, Vector<double> const& mu):
 	System(s),
-	Square<double>(set_ab(),5,"square-free-real"),
+	Square<double>(set_ab(),5,"square-free"),
 	t_(t),
 	mu_(mu)
 {
 	if(status_==2){
 		init_lattice();
 		init_fermionic();
+		bool need_compute_additional_links(true);
+		for(unsigned int i(0);i<obs_.size();i++){
+			if(obs_[i].get_type() == 4){ need_compute_additional_links = false; i=obs_.size(); }
+		}
+		if(need_compute_additional_links){ init_additional_links(); }
 		same_wf_ = false;
 
 		system_info_.text("FreeReal : all colors experience the same Hamiltonian");
@@ -16,35 +21,41 @@ SquareFreeHopping::SquareFreeHopping(System const& s, Vector<double> const& t, V
 }
 
 /*{method needed for running*/
-void SquareFreeHopping::compute_H(unsigned int const& c){
+void SquareFree::init_additional_links(){
+	Vector<double> x;
+	Matrix<int> tmp(n_*2,3);
+	for(unsigned int i(0);i<n_;i++){
+		x = x_[i]+dir_nn_[0]+dir_nn_[1]*2.0;
+		tmp(2*i,2) = handle_boundary(x_[i],x);
+		tmp(2*i,0) = i;
+		tmp(2*i,1) = find_index(x);
+
+		x = x_[i]-dir_nn_[1]+dir_nn_[0]*2.0;
+		tmp(2*i+1,2) = handle_boundary(x_[i],x);
+		tmp(2*i+1,0) = i;
+		tmp(2*i+1,1) = find_index(x);
+	}
+	obs_.push_back(Observable("Additional links",4,0,tmp));
+}
+
+void SquareFree::compute_H(unsigned int const& c){
 	H_.set(n_,n_,0);
 
 	unsigned int s0(0);
 	unsigned int s1(0);
-	Vector<double> x;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
 		H_(s0,s1) = (obs_[0](i,4)?bc_*t_(0):t_(0));
-		if(obs_[0](i,3) && (unsigned int)(obs_[0](i,5))==c%spuc_){ 
-			H_(s0,s0) = mu_(0)/2; 
-			x = x_[s0]+dir_nn_[0]+dir_nn_[1];
-			reset_pos_in_lattice(x);
-			s1 = find_index(x);
-			H_(s0,s1) += t_(1);
-			extra_links_.push_back(std::pair<unsigned int,unsigned int>(s0,s1));
-
-			x = x_[s0]-dir_nn_[1]+dir_nn_[0];
-			reset_pos_in_lattice(x);
-			s1 = find_index(x);
-			H_(s0,s1) += t_(1);
-			extra_links_.push_back(std::pair<unsigned int,unsigned int>(s0,s1));
+		if((unsigned int)(obs_[0](i,5))==c%spuc_){
+			if(obs_[0](i,3)){ H_(s0,s0) = mu_(0)/2; }
+			H_(obs_[1](i,0),obs_[1](i,1)) = (obs_[1](i,2)?bc_*t_(1):t_(1));
 		}
 	}
 	H_ += H_.transpose();
 }
 
-void SquareFreeHopping::create(){
+void SquareFree::create(){
 	for(unsigned int c(0);c<N_;c++){
 		compute_H(c);
 		status_=2;
@@ -59,7 +70,7 @@ void SquareFreeHopping::create(){
 	}
 }
 
-void SquareFreeHopping::save_param(IOFiles& w) const {
+void SquareFree::save_param(IOFiles& w) const {
 	std::string s("t=(");
 	Vector<double> param(t_.size()+mu_.size());
 
@@ -82,7 +93,7 @@ void SquareFreeHopping::save_param(IOFiles& w) const {
 	GenericSystem<double>::save_param(w);
 }
 
-Matrix<double> SquareFreeHopping::set_ab() const {
+Matrix<double> SquareFree::set_ab() const {
 	Matrix<double> tmp(2,2);
 	tmp(0,0) = 2.0;
 	tmp(1,0) =-1.0;
@@ -91,7 +102,7 @@ Matrix<double> SquareFreeHopping::set_ab() const {
 	return tmp;
 }
 
-unsigned int SquareFreeHopping::match_pos_in_ab(Vector<double> const& x) const {
+unsigned int SquareFree::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
 	match(0) = 0.4;
@@ -112,7 +123,7 @@ unsigned int SquareFreeHopping::match_pos_in_ab(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void SquareFreeHopping::display_results(){
+void SquareFree::display_results(){
 	compute_H(0);
 	std::string color("black");
 	std::string linestyle("solid");
@@ -140,19 +151,19 @@ void SquareFreeHopping::display_results(){
 	double mu;
 	unsigned int s0;
 	unsigned int s1;
-	for(unsigned int i(0);i<extra_links_.size();i++){
-		s0 = extra_links_[i].first;
+	for(unsigned int i(0);i<obs_[1].nlinks();i++){
+		s0 = obs_[1](i,0);
 		xy0 = x_[s0];
 
-		s1 = extra_links_[i].second;
+		s1 = obs_[1](i,1);
 		xy1 = x_[s1];
 
 		t = H_(s0,s1);
 		if(std::abs(t)>1e-4){
-			if((xy0-xy1).norm_squared()>2.001){
+			if((xy0-xy1).norm_squared()>5.001){
 				linestyle = "dashed";
-				if(i%2){ xy1=xy0-dir_nn_[1]+dir_nn_[0]; }
-				else   { xy1=xy0+dir_nn_[0]+dir_nn_[1]; }
+				if(i%2){ xy1=xy0-dir_nn_[1]+dir_nn_[0]*2.0; }
+				else   { xy1=xy0+dir_nn_[0]+dir_nn_[1]*2.0; }
 				ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 			} else { linestyle = "solid"; }
 
@@ -197,11 +208,11 @@ void SquareFreeHopping::display_results(){
 	ps.end(true,true,true);
 }
 
-void SquareFreeHopping::check(){
+void SquareFree::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="square-freehopping";
+	filename_ ="square-free";
 	display_results();
 
 	plot_band_structure();

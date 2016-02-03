@@ -20,6 +20,7 @@ class VMCSystematic : public VMCMinimization{
 		void test();
 
 	private:
+		unsigned int progress_;
 		unsigned int maxiter_;
 		int nobs_;
 		double dE_;

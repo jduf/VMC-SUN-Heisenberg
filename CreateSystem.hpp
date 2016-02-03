@@ -17,11 +17,11 @@
 #include "TriangleChiral.hpp"
 
 #include "SquareFermi.hpp"
-#include "SquareFreeHopping.hpp"
+#include "SquareFree.hpp"
 #include "SquareMu.hpp"
 #include "SquareFreeFlux.hpp"
 #include "SquarePiFlux.hpp"
-#include "SquareACSL.hpp"
+#include "SquareChiral.hpp"
 #include "SquareJastrow.hpp"
 
 #include "KagomeFermi.hpp"

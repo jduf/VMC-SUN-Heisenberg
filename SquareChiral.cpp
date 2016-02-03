@@ -1,6 +1,6 @@
-#include "SquareACSL.hpp"
+#include "SquareChiral.hpp"
 
-SquareACSL::SquareACSL(System const& s):
+SquareChiral::SquareChiral(System const& s):
 	System(s),
 	Square<std::complex<double> >(set_ab(N_/m_),N_/m_,"square-chiral"),
 	phi_(2.0*M_PI*m_/N_)
@@ -14,7 +14,7 @@ SquareACSL::SquareACSL(System const& s):
 }
 
 /*{method needed for running*/
-void SquareACSL::compute_H(){
+void SquareChiral::compute_H(){
 	H_.set(n_,n_,0);
 
 	double t(-1.0);
@@ -29,7 +29,7 @@ void SquareACSL::compute_H(){
 	H_ += H_.conjugate_transpose();
 }
 
-void SquareACSL::create(){
+void SquareChiral::create(){
 	compute_H();
 	diagonalize(true);
 	if(status_==1){
@@ -43,7 +43,7 @@ void SquareACSL::create(){
 	}
 }
 
-Matrix<double> SquareACSL::set_ab(unsigned int const& k) const {
+Matrix<double> SquareChiral::set_ab(unsigned int const& k) const {
 	Matrix<double> tmp(2,2);
 	tmp(0,0) = k;
 	tmp(1,0) = 0;
@@ -52,7 +52,7 @@ Matrix<double> SquareACSL::set_ab(unsigned int const& k) const {
 	return tmp;
 }
 
-unsigned int SquareACSL::match_pos_in_ab(Vector<double> const& x) const {
+unsigned int SquareChiral::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	for(unsigned int i(0);i<spuc_;i++){
 		match(0) = 1.0/spuc_*i;
@@ -64,7 +64,7 @@ unsigned int SquareACSL::match_pos_in_ab(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void SquareACSL::display_results(){
+void SquareChiral::display_results(){
 	compute_H();
 
 	std::string color("black");
@@ -116,22 +116,19 @@ void SquareACSL::display_results(){
 			} else {
 				if(t.imag()>0){ arrow = "->"; }
 				else          { arrow = "<-"; }
-				ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(std::arg(t)/phi_)+"}");
+				ps.put(xy0(0)+0.2,(xy0(1)+xy1(1))*2.0/3.0,"\\tiny{"+my::tostring(std::arg(t)/phi_)+"}");
 			}
 
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
-		if(i%2){
-			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
-			ps.put(my::chop((2*xy0(0)-1)/2.0),my::chop((xy0(1)+xy1(1))/2.0),"\\tiny{"+my::tostring((std::arg(t)-phi_)/(2*M_PI))+"}");
-		}
+		if(i%2){ ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
 	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
 	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 
-void SquareACSL::check(){
+void SquareChiral::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";

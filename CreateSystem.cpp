@@ -211,7 +211,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 											t = C->get<std::vector<double> >("t");
 											mu = C->get<std::vector<double> >("mu");
 										}
-										RGL_ = new SquareFreeHopping(*s_,t,mu);
+										RGL_ = new SquareFree(*s_,t,mu);
 									}break;
 								case 2:
 									{
@@ -236,7 +236,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 2:
 									{ CGL_ = new SquarePiFlux(*s_); }break;
 								case 3:
-									{ CGL_ = new SquareACSL(*s_); }break;
+									{ CGL_ = new SquareChiral(*s_); }break;
 								default:{ error(); }break;
 							}
 						}break;

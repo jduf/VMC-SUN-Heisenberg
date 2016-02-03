@@ -136,8 +136,8 @@ void SquareMu::display_results(){
 
 		mu = H_(s0,s0);
 		if(std::abs(mu)>1e-4){
-			if(mu>0){ color = "cyan"; }
-			else    { color = "magenta"; }
+			if(mu<0){ color = "green"; }
+			else    { color = "cyan"; }
 			ps.circle(xy0,std::abs(mu),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 		}
 

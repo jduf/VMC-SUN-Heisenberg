@@ -1,12 +1,12 @@
-#ifndef DEF_SQUAREFREEREAL
-#define DEF_SQUAREFREEREAL
+#ifndef DEF_SQUAREFREE
+#define DEF_SQUAREFREE
 
 #include "Square.hpp"
 
-class SquareFreeHopping: public Square<double>{
+class SquareFree: public Square<double>{
 	public:
-		SquareFreeHopping(System const& s, Vector<double> const& t, Vector<double> const& mu);
-		~SquareFreeHopping() = default;
+		SquareFree(System const& s, Vector<double> const& t, Vector<double> const& mu);
+		~SquareFree() = default;
 
 		void create();
 		void save_param(IOFiles& w) const;
@@ -15,8 +15,8 @@ class SquareFreeHopping: public Square<double>{
 	protected:
 		Vector<double> const t_; //!< hopping terms
 		Vector<double> const mu_;//!< chemical potentials
-		std::vector<std::pair<unsigned int,unsigned int> > extra_links_;
 
+		void init_additional_links();
 		void compute_H(unsigned int const& c);
 		void display_results();
 

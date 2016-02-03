@@ -55,11 +55,13 @@ Observable::Observable(Observable&& obs):
 }
 
 void Observable::set(unsigned int const& B, unsigned int const& b, bool const& conv){
-	if(links_.row()%nval_){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number"<<std::endl; }
-	else {
-		modulo_ = links_.row()/nval_;
-		val_ = new Data<double>[nval_];
-		for(unsigned int i(0);i<nval_;i++){ val_[i].set(B,b,conv); }
+	if(nval_){
+		if(links_.row()%nval_){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number"<<std::endl; }
+		else {
+			modulo_ = links_.row()/nval_;
+			val_ = new Data<double>[nval_];
+			for(unsigned int i(0);i<nval_;i++){ val_[i].set(B,b,conv); }
+		}
 	}
 }
 
@@ -86,9 +88,7 @@ void Observable::swap_to_assign(Observable& obs1, Observable& obs2){
 /*handles class attributes*/
 /*{*/
 void Observable::set_x(double const& val){
-	for(unsigned int i(0);i<nval_;i++){
-		val_[i].set_x(val);
-	}
+	for(unsigned int i(0);i<nval_;i++){ val_[i].set_x(val); }
 }
 
 void Observable::add(unsigned int const& i, double const& val){
@@ -110,9 +110,7 @@ void Observable::delete_binning(){
 }
 
 void Observable::complete_analysis(double const& convergence_criterion){
-	for(unsigned int i(0);i<nval_;i++){
-		val_[i].complete_analysis(convergence_criterion);
-	}
+	for(unsigned int i(0);i<nval_;i++){ val_[i].complete_analysis(convergence_criterion); }
 }
 /*}*/
 

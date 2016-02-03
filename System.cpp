@@ -42,6 +42,11 @@ void System::set_obs(std::vector<Observable> const& obs, int const& nobs){
 		obs_.clear();
 		for(int i(0);i<nobs+1;i++){ obs_.push_back(obs[i]); }
 	}
+	if(nobs==0){
+		for(unsigned int i(0);i<obs.size();i++){
+			if(obs[i].get_type() == 4){ obs_.push_back(obs[i]); }
+		}
+	}
 }
 
 void System::clear_obs(unsigned int const& from){
@@ -206,7 +211,7 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "square-freehopping" ){
+	if( wf == "square-free" ){
 		ref(0) = 4;
 		ref(1) = 1;
 		ref(2) = 1;
@@ -226,7 +231,7 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 2;
 		ref(2) = 2;
 	}
-	if( wf == "square-acsl" ){
+	if( wf == "square-chiral" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 3;

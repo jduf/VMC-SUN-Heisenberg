@@ -33,7 +33,7 @@ endif
 
 CHAIN     = ChainFermi.cpp ChainPolymerized.cpp ChainFree.cpp
 LADDER    = LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp
-SQUARE    = SquareFermi.cpp SquareFreeHopping.cpp SquareMu.cpp SquareFreeFlux.cpp SquarePiFlux.cpp SquareACSL.cpp SquareJastrow.cpp
+SQUARE    = SquareFermi.cpp SquareFree.cpp SquareMu.cpp SquareFreeFlux.cpp SquarePiFlux.cpp SquareChiral.cpp SquareJastrow.cpp
 TRIANGLE  = TriangleFermi.cpp TriangleFree.cpp TrianglePlaquette.cpp TriangleMu.cpp TrianglePhi.cpp TriangleChiral.cpp
 HONEYCOMB = Honeycomb0pp.cpp HoneycombPiFlux.cpp HoneycombFree.cpp HoneycombChiral.cpp
 KAGOME    = KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp

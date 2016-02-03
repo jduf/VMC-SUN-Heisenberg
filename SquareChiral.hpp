@@ -1,12 +1,12 @@
-#ifndef DEF_SQUAREACSL
-#define DEF_SQUAREACSL
+#ifndef DEF_SQUARECHIRAL
+#define DEF_SQUARECHIRAL
 
 #include "Square.hpp"
 
-class SquareACSL: public Square<std::complex<double> >{
+class SquareChiral: public Square<std::complex<double> >{
 	public:
-		SquareACSL(System const& s);
-		~SquareACSL() = default;
+		SquareChiral(System const& s);
+		~SquareChiral() = default;
 
 		void create();
 		void check();

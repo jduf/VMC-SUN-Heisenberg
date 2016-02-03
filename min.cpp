@@ -275,6 +275,10 @@ int main(int argc, char* argv[]){
 			case 12:
 				{
 					VMCSystematic m3(m);
+					if(P.find("reset",i,false)){ 
+						std::cout<<"new phase space"<<std::endl;
+						m.set_phase_space(P); 
+					}
 					m3.run(0,1e-6,1);
 					m3.save();
 					m3.plot();

@@ -41,6 +41,8 @@ class System2DBis: public GenericSystem<Type>{
 		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
 		bool pos_out_of_lattice(Vector<double> const& x) const;
 		unsigned int find_index(Vector<double> const& x) const;
+		/*!If x1 is outside the cluster, resets x1 inside and returns bc*/
+		bool handle_boundary(Vector<double> const& x0, Vector<double>& x1) const;
 
 	private:
 		Matrix<Type> Tx_;		//!< translation operator along x-axis
@@ -205,10 +207,7 @@ Matrix<int> System2DBis<Type>::get_neighbourg(unsigned int const& i) const {
 		dir[d]= d;
 		nn[d] = x_[i];
 		nn[d]+= get_relative_neighbourg_position(i,d);
-		nb(d,1) = 0;
-		if(my::intersect(x_[i].ptr(), nn[d].ptr(), boundary_[0].ptr(), boundary_[1].ptr()) || my::intersect(x_[i].ptr(), nn[d].ptr(), boundary_[2].ptr(), boundary_[3].ptr()) ){ nb(d,1) = !nb(d,1); }
-		if(my::intersect(x_[i].ptr(), nn[d].ptr(), boundary_[1].ptr(), boundary_[2].ptr()) || my::intersect(x_[i].ptr(), nn[d].ptr(), boundary_[3].ptr(), boundary_[0].ptr()) ){ nb(d,1) = !nb(d,1); }
-		reset_pos_in_lattice(nn[d]);
+		nb(d,1) = handle_boundary(x_[i],nn[d]);
 	}
 
 	unsigned int j(0);
@@ -257,6 +256,17 @@ unsigned int System2DBis<Type>::get_site_in_unit_cell(unsigned int const& i) con
 template<typename Type>
 bool System2DBis<Type>::pos_out_of_lattice(Vector<double> const& x) const {
 	return !my::in_polygon(lattice_corners_.row(),lattice_corners_.ptr(),lattice_corners_.ptr()+lattice_corners_.row(),x(0),x(1));
+}
+
+template<typename Type>
+bool System2DBis<Type>::handle_boundary(Vector<double> const& x0, Vector<double>& x1) const {
+	bool bc(false);
+	if(pos_out_of_lattice(x1)){
+		if(my::intersect(x0.ptr(),x1.ptr(),boundary_[0].ptr(),boundary_[1].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_[2].ptr(),boundary_[3].ptr()) ){ bc=!bc; }
+		if(my::intersect(x0.ptr(),x1.ptr(),boundary_[1].ptr(),boundary_[2].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_[3].ptr(),boundary_[0].ptr()) ){ bc=!bc; }
+		reset_pos_in_lattice(x1);
+	}
+	return bc;
 }
 /*}*/
 
