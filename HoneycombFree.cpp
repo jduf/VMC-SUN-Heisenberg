@@ -105,19 +105,10 @@ void HoneycombFree::lattice(){
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_+"-pstricks");
-	ps.begin(-2,-20,40,20,filename_+"-pstricks");
+	ps.begin(-20,-20,20,20,filename_+"-pstricks");
+	ps.polygon(cluster_vertex_,"linecolor=green");
 
 	Matrix<double> polygon(4,2);
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=lattice_corners_(0,0);
-	polygon(1,1)=lattice_corners_(1,0);
-	polygon(2,0)=lattice_corners_(0,0)+lattice_corners_(0,1);
-	polygon(2,1)=lattice_corners_(1,0)+lattice_corners_(1,1);
-	polygon(3,0)=lattice_corners_(0,1);
-	polygon(3,1)=lattice_corners_(1,1);
-	ps.polygon(polygon,"linecolor=green");
-
 	polygon(0,0)=0;
 	polygon(0,1)=0;
 	polygon(1,0)=ab_(0,0);
@@ -128,7 +119,7 @@ void HoneycombFree::lattice(){
 	polygon(3,1)=ab_(1,1);
 	ps.polygon(polygon,"linecolor=black");
 
-	double x_shift((lattice_corners_(0,0)+lattice_corners_(0,1)-ab_(0,0)-ab_(0,1))/2);
+	double x_shift((cluster_vertex_(0,0)+cluster_vertex_(0,1)-ab_(0,0)-ab_(0,1))/2);
 	double y_shift((-ab_(1,0)-ab_(1,1))/2);
 	polygon(0,0)+=x_shift;
 	polygon(0,1)+=y_shift;
@@ -209,6 +200,8 @@ void HoneycombFree::lattice(){
 			}
 			//}
 	}
+	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

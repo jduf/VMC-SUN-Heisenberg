@@ -81,15 +81,15 @@ void Triangle<Type>::init_lattice(){
 		}
 
 		if(this->ref_(3)){
-			this->boundary_[0] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[3]+this->dir_nn_[4])*L_;
-			this->boundary_[1] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[5])*L_;
-			this->boundary_[2] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[1])*L_*2.0;
-			this->boundary_[3] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[1]+this->dir_nn_[2])*L_;
+			this->boundary_vertex_[0] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[3]+this->dir_nn_[4])*L_;
+			this->boundary_vertex_[1] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[5])*L_;
+			this->boundary_vertex_[2] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[1])*L_*2.0;
+			this->boundary_vertex_[3] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[1]+this->dir_nn_[2])*L_;
 		} else {
-			this->boundary_[0] = this->dir_nn_[3]*0.25 + this->dir_nn_[4]*L_;
-			this->boundary_[1] = this->dir_nn_[3]*0.25 + this->dir_nn_[0]*L_;
-			this->boundary_[2] = this->dir_nn_[3]*0.25 + this->dir_nn_[1]*L_*2.0;
-			this->boundary_[3] = this->dir_nn_[3]*0.25 + this->dir_nn_[2]*L_;
+			this->boundary_vertex_[0] = this->dir_nn_[3]*0.25 + this->dir_nn_[4]*L_;
+			this->boundary_vertex_[1] = this->dir_nn_[3]*0.25 + this->dir_nn_[0]*L_;
+			this->boundary_vertex_[2] = this->dir_nn_[3]*0.25 + this->dir_nn_[1]*L_*2.0;
+			this->boundary_vertex_[3] = this->dir_nn_[3]*0.25 + this->dir_nn_[2]*L_;
 		}
 
 		this->set_nn_links(Vector<unsigned int>(1,3));

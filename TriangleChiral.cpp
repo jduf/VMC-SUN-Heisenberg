@@ -2,13 +2,16 @@
 
 TriangleChiral::TriangleChiral(System const& s):
 	System(s),
-	Triangle<std::complex<double> >(set_ab(),3,"triangle-chiral")
+	Triangle<std::complex<double> >(set_ab(),3,"triangle-chiral"),
+	phi_(M_PI/3.0)
 {
 	if(status_==2){
 		init_lattice();
 		init_fermionic();
 
-		system_info_.text("Chiral : each color has the same Hamiltonian");
+		system_info_.text("TriangleChiral :");
+		system_info_.text(" Each color has the same Hamiltonian.");
+		system_info_.text(" There is a flux of "+RST::math("\\pi/3") + "per triangular plaquette");
 	}
 }
 
@@ -17,7 +20,6 @@ void TriangleChiral::compute_H(){
 	H_.set(n_,n_,0);
 
 	double t(-1.0);
-	double phi(M_PI/3.0);
 	unsigned int s0(0);
 	unsigned int s1(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
@@ -27,25 +29,25 @@ void TriangleChiral::compute_H(){
 			case 0:
 				{
 					switch(obs_[0](i,3)){
-						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),1*phi); }break;
-						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),2*phi); }break;
-						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),3*phi); }break;
+						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),1*phi_); }break;
+						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),2*phi_); }break;
+						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),3*phi_); }break;
 					}
 				}break;
 			case 1:
 				{
 					switch(obs_[0](i,3)){
 						case 0:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),5*phi); }break;
+						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),5*phi_); }break;
 						case 2:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
 					}
 				}break;
 			case 2:
 				{ 
 					switch(obs_[0](i,3)){
-						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),4*phi); }break;
+						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),4*phi_); }break;
 						case 1:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),6*phi); }break;
+						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),6*phi_); }break;
 					}
 				}break;
 		}
@@ -102,7 +104,7 @@ void TriangleChiral::display_results(){
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(lattice_corners_,"linecolor=green");
+	ps.polygon(cluster_vertex_,"linecolor=green");
 
 	double x_shift(-(ab_(0,0)+ab_(0,1))/2.0);
 	double y_shift(0.0);
@@ -118,7 +120,6 @@ void TriangleChiral::display_results(){
 	ps.polygon(polygon,"linecolor=black");
 
 	std::complex<double> t;
-	double phi(M_PI/3.0);
 	unsigned int s0;
 	unsigned int s1;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
@@ -143,15 +144,15 @@ void TriangleChiral::display_results(){
 			} else {
 				if(t.imag()>0){ arrow = "->"; }
 				else          { arrow = "<-"; }
-				ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(std::arg(t)/phi)+"}");
+				ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(std::arg(t)/phi_)+"}");
 			}
 
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 		if(i%3==2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
-	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
-	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

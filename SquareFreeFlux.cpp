@@ -9,7 +9,8 @@ SquareFreeFlux::SquareFreeFlux(System const& s, Vector<double> const& phi):
 		init_lattice();
 		init_fermionic();
 
-		system_info_.text("FreeComplex : all colors experience the same Hamiltonian");
+		system_info_.text("FreeComplex :");
+		system_info_.text(" Each color has the same Hamiltonian.");
 	}
 }
 
@@ -80,7 +81,7 @@ void SquareFreeFlux::display_results(){
 	std::complex<double> t;
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-2,-20,20,20,filename_);
-	ps.polygon(lattice_corners_,"linecolor=green");
+	ps.polygon(cluster_vertex_,"linecolor=green");
 
 	Matrix<double> polygon(4,2);
 	polygon(0,0) = 0;
@@ -129,6 +130,8 @@ void SquareFreeFlux::display_results(){
 			phi =  std::arg(t);
 		}
 	}
+	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

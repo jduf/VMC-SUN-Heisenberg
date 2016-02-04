@@ -87,7 +87,7 @@ void HoneycombChiral::display_results(){
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(lattice_corners_,"linecolor=green");
+	ps.polygon(cluster_vertex_,"linecolor=green");
 
 	double x_shift(-ab_(0,1)*3.0/2.0);
 	double y_shift((-ab_(1,0)-ab_(1,1))/2);
@@ -140,6 +140,8 @@ void HoneycombChiral::display_results(){
 
 		}
 	}
+	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

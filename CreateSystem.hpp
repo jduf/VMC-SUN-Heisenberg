@@ -84,11 +84,15 @@ class CreateSystem{
 			if(RGL_){ RGL_->set_IOSystem(ios); }
 			if(CGL_){ CGL_->set_IOSystem(ios); }
 		}
+		/*!Calls IOSystem::get_system_info*/
+		RST const& get_system_info() const {
+			if(RGL_){ return RGL_->get_system_info(); }
+			else    { return CGL_->get_system_info(); }
+		}
 		/*!Calls IOSystem::analyse*/
-		std::string analyse(unsigned int const& level) {
+		std::string analyse(unsigned int const& level){
 			if(RGL_){ return RGL_->analyse(level); }
-			if(CGL_){ return CGL_->analyse(level); }
-			return "";
+			else    { return CGL_->analyse(level); }
 		}
 		/*}*/
 
@@ -127,22 +131,19 @@ class CreateSystem{
 		/*!Returns true if ref_(1)==0 : Jastrow wavefunction*/
 		bool is_bosonic() const { return ref_(1)==0; }
 		/*!Returns the filename*/
-		std::string get_filename() const {
+		std::string const& get_filename() const {
 			if(RGL_){ return RGL_->get_filename(); }
-			if(CGL_){ return CGL_->get_filename(); }
-			return "";
+			else    { return CGL_->get_filename(); }
 		}
 		/*!Returns the path*/
-		std::string get_path() const {
+		std::string const& get_path() const {
 			if(RGL_){ return RGL_->get_path(); }
-			if(CGL_){ return CGL_->get_path(); }
-			return "";
+			else    { return CGL_->get_path(); }
 		}
 		/*!Calls System::get_status : see System*/
-		unsigned int get_status() const {
+		unsigned int const& get_status() const {
 			if(RGL_){ return RGL_->get_status(); }
-			if(CGL_){ return CGL_->get_status(); }
-			return 10;
+			else    { return CGL_->get_status(); }
 		}
 		/*!Calls System::get_obs : see System*/
 		std::vector<Observable> const& get_obs() const {

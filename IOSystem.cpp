@@ -10,15 +10,7 @@ IOSystem::IOSystem(std::string const& filename, std::vector<std::string> names):
 	path_ += names.back()+"/";
 }
 
-IOSystem::IOSystem(
-		std::string const& filename, 
-		std::string const& sim,
-		std::string const& info, 
-		std::string const& analyse, 
-		std::string const& path, 
-		std::string const& dir,
-		RSTFile* const rst_file
-		):
+IOSystem::IOSystem(std::string const& filename, std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file):
 	sim_(sim),
 	info_(info),
 	analyse_(analyse),
@@ -52,10 +44,7 @@ std::string IOSystem::analyse(unsigned int const& level){
 		case 7:{ return extract_level_7(); }break;
 		case 8:{ return extract_level_8(); }break;
 		case 9:{ return extract_level_9(); }break;
-		default:
-			   {
-				   std::cerr<<__PRETTY_FUNCTION__<<" : level="<<level<<" undefined"<<std::endl;
-				   return "";
-			   }
 	}
+	std::cerr<<__PRETTY_FUNCTION__<<" : level="<<level<<" undefined"<<std::endl;
+	return "";
 }

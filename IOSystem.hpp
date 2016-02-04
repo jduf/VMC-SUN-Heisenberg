@@ -24,6 +24,8 @@ class IOSystem{
 		/*!Call the corresponding virtual std::string extract_...()*/
 		std::string analyse(unsigned int const& level);
 
+		RST const& get_system_info() const { return system_info_; }
+
 	protected:
 		IOSystem(std::string const& filename, std::vector<std::string> names);
 		IOSystem() = default;
@@ -39,6 +41,8 @@ class IOSystem{
 		IOFiles* jd_write_	  = NULL;//!< binary file in which data are written in sim_/path_
 		IOFiles* data_write_  = NULL;//!< textfile in which data are written saved in analyse_/path_
 		RSTFile* rst_file_	  = NULL;//!< rst file saved in info_/path_/dir_
+		
+		RST system_info_;//!< store information about the system
 
 		virtual std::string extract_level_1(){ return filename_; }
 		virtual std::string extract_level_2(){ return filename_; }

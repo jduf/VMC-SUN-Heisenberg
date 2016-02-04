@@ -8,7 +8,8 @@ TriangleFermi::TriangleFermi(System const& s):
 		init_lattice();
 		init_fermionic();
 
-		system_info_.text("Fermi : all colors experience the same Hamiltonian");
+		system_info_.text("Fermi :");
+		system_info_.text(" Each color has the same Hamiltonian.");
 	}
 }
 
@@ -57,7 +58,7 @@ void TriangleFermi::display_results(){
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(lattice_corners_,"linecolor=green");
+	ps.polygon(cluster_vertex_,"linecolor=green");
 
 	double x_shift(-(ab_(0,0)+ab_(0,1))/2.0);
 	double y_shift(-ab_(1,1)/2.0);
@@ -96,8 +97,8 @@ void TriangleFermi::display_results(){
 		}
 		if(i%3==2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
-	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
-	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

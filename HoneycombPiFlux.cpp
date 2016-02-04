@@ -78,7 +78,7 @@ void HoneycombPiFlux::display_results(){
 	double t;
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(lattice_corners_,"linecolor=green");
+	ps.polygon(cluster_vertex_,"linecolor=green");
 
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=0;
@@ -120,6 +120,8 @@ void HoneycombPiFlux::display_results(){
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 	}
+	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

@@ -8,7 +8,9 @@ SquarePiFlux::SquarePiFlux(System const& s):
 		init_lattice();
 		init_fermionic();
 
-		system_info_.text("Chiral spin liquid : pi-flux per plaquette");
+		system_info_.text("SquarePiFlux :");
+		system_info_.text(" Each color has the same Hamiltonian.");
+		system_info_.text(" There is a flux of "+RST::math("\\pi") + "per square plaquette.");
 	}
 }
 
@@ -72,7 +74,7 @@ void SquarePiFlux::display_results(){
 	std::complex<double> t;
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(lattice_corners_,"linecolor=green");
+	ps.polygon(cluster_vertex_,"linecolor=green");
 
 	Matrix<double> polygon(4,2);
 	polygon(0,0)=0;
@@ -122,8 +124,8 @@ void SquarePiFlux::display_results(){
 			phi =  std::arg(t);
 		}
 	}
-	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
-	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

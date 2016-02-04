@@ -2,7 +2,7 @@
 
 SquareMu::SquareMu(System const& s, double const& mu):
 	System(s),
-	Square<double>(set_ab(),5,"square-mu"),
+	Square<double>(set_ab(ref_(3)),5,"square-mu"),
 	mu_(mu)
 {
 	if(status_==2){
@@ -10,7 +10,9 @@ SquareMu::SquareMu(System const& s, double const& mu):
 		init_fermionic();
 		same_wf_ = false;
 
-		system_info_.text("Mu : each color has a different Hamiltonian");
+		system_info_.text("SquareMu :");
+		system_info_.text(" Each color has a different Hamiltonian.");
+
 		filename_ += "-mu"+std::string(mu_>=0?"+":"")+my::tostring(mu_);
 	}
 }
@@ -55,30 +57,53 @@ void SquareMu::save_param(IOFiles& w) const {
 	GenericSystem<double>::save_param(w);
 }
 
-Matrix<double> SquareMu::set_ab() const {
+Matrix<double> SquareMu::set_ab(unsigned int const& ref3) const {
 	Matrix<double> tmp(2,2);
-	tmp(0,0) = 2.0;
-	tmp(1,0) =-1.0;
-	tmp(0,1) = 1.0;
-	tmp(1,1) = 2.0;
+	if(ref3==2){ 
+		tmp(0,0) = 2.0;
+		tmp(1,0) = 1.0;
+		tmp(0,1) =-1.0;
+		tmp(1,1) = 2.0;
+	} else {
+		tmp(0,0) = 2.0;
+		tmp(1,0) =-1.0;
+		tmp(0,1) = 1.0;
+		tmp(1,1) = 2.0;
+	}
 	return tmp;
 }
 
 unsigned int SquareMu::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-	match(0) = 0.4;
-	match(1) = 0.2;
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-	match(0) = 0.8;
-	match(1) = 0.4;
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-	match(0) = 0.2;
-	match(1) = 0.6;
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
-	match(0) = 0.6;
-	match(1) = 0.8;
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
+	if(ref_(3)==2){ 
+		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
+		match(0) = 0.2;
+		match(1) = 0.4;
+		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+		match(0) = 0.4;
+		match(1) = 0.8;
+		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+		match(0) = 0.6;
+		match(1) = 0.2;
+		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+		match(0) = 0.8;
+		match(1) = 0.6;
+		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
+	} else { 
+		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
+		match(0) = 0.4;
+		match(1) = 0.2;
+		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+		match(0) = 0.8;
+		match(1) = 0.4;
+		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+		match(0) = 0.2;
+		match(1) = 0.6;
+		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+		match(0) = 0.6;
+		match(1) = 0.8;
+		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
+	}
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	return 5;
 }
@@ -95,7 +120,7 @@ void SquareMu::display_results(){
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(lattice_corners_,"linecolor=green");
+	ps.polygon(cluster_vertex_,"linecolor=green");
 
 	double x_shift(-(ab_(0,0)+ab_(0,1))/2.0);
 	double y_shift(-(ab_(1,0)+ab_(1,1))/2.0);
@@ -143,8 +168,8 @@ void SquareMu::display_results(){
 
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
-	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
-	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 
@@ -154,6 +179,7 @@ void SquareMu::check(){
 	dir_  = "./";
 	filename_ ="square-mu";
 	display_results();
-	plot_band_structure();
+
+	//plot_band_structure();
 }
 /*}*/

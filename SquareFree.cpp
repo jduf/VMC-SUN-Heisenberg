@@ -16,9 +16,18 @@ SquareFree::SquareFree(System const& s, Vector<double> const& t, Vector<double> 
 		if(need_compute_additional_links){ init_additional_links(); }
 		same_wf_ = false;
 
-		system_info_.text("SquareFree : all colors experience the same Hamiltonian");
-		system_info_.text("           : there is an additional second neighbour hopping");
-		system_info_.text("           : for every 1/k sites");
+		system_info_.text("SquareFree :");
+		system_info_.text(" Each colors has a different Hamiltonian.");
+		system_info_.text(" There is an additional second neighbour hopping for every 1/k sites.");
+
+		filename_ += "-t";
+		for(unsigned int i(0);i<t_.size();i++){
+			filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
+		}
+		filename_ += "-mu";
+		for(unsigned int i(0);i<mu_.size();i++){
+			filename_ += ((mu_(i)>=0)?"+":"")+my::tostring(mu_(i));
+		}
 	}
 }
 
@@ -134,7 +143,7 @@ void SquareFree::display_results(){
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(lattice_corners_,"linecolor=green");
+	ps.polygon(cluster_vertex_,"linecolor=green");
 
 	double x_shift(-(ab_(0,0)+ab_(0,1))/2.0);
 	double y_shift(-(ab_(1,0)+ab_(1,1))/2.0);
@@ -205,8 +214,8 @@ void SquareFree::display_results(){
 
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
-	ps.line("-",boundary_[0](0),boundary_[0](1),boundary_[1](0),boundary_[1](1),"linecolor=yellow");
-	ps.line("-",boundary_[3](0),boundary_[3](1),boundary_[0](0),boundary_[0](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
+	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

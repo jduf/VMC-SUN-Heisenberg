@@ -47,7 +47,6 @@ class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSyst
 	protected:
 		unsigned int const spuc_;//!< site per unit cell
 		unsigned int const z_;	 //!< coordination number
-		RST system_info_;		 //!< store information about the system
 
 		/*{*//*!Returns the neighbours of site i.
 			   This pure virtual method must be defined here because it is
@@ -71,13 +70,15 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 	spuc_(spuc),
 	z_(z)
 {
-	if(this->status_ == 4 && this->n_%this->spuc_){ std::cerr<<__PRETTY_FUNCTION__<<" : the number of sites ("<<this->n_<<") is not commensurate with the unit cell ("<<this->spuc_<<")"<<std::endl; }
-	else {
-		/*!Need to redefine the value of status to be 3 because in MCSim::save,
-		 * CreateSystem uses a MCSystem in the constructor. As
-		 * MCSystem::status_=0 for successful simulation, the created System
-		 * will also have System::status_=0 which will be problematic.*/
-		this->status_ = 3;
+	if(this->status_ == 4){
+		if(this->n_%this->spuc_){ std::cerr<<__PRETTY_FUNCTION__<<" : the number of sites ("<<this->n_<<") is not commensurate with the unit cell ("<<this->spuc_<<")"<<std::endl; }
+		else {
+			/*!Need to redefine the value of status to be 3 because in MCSim::save,
+			 * CreateSystem uses a MCSystem in the constructor. As
+			 * MCSystem::status_=0 for successful simulation, the created System
+			 * will also have System::status_=0 which will be problematic.*/
+			this->status_ = 3;
+		}
 	}
 }
 

@@ -644,15 +644,21 @@ void VMCMinimization::Minimization::save(IOFiles& out, bool const& all) const {
 
 	out.write("dof",dof_);
 	for(unsigned int i(0);i<dof_;i++){ out<<ps_[i]; }
+	out.write("# samples",samples_.size());
+
+	Vector<double> tmp(dof_,1.0);
+	CreateSystem cs(s_);
+	cs.init(&tmp,NULL);
+	out.add_header()->np();
+	out.add_header()->text(cs.get_system_info().get());
+
+	out.add_header()->np();
+	out.add_header()->comment("end_of_saved_variables");
+	out.add_header()->text(info_.get());
 
 	if(all){
-		out.write("# samples",samples_.size());
-		out.add_header()->nl();
-		out.add_header()->comment("end_of_saved_variables");
-		out.add_header()->text(info_.get());
-
 		samples_.set_target();
 		while(samples_.target_next()){ samples_.get().write(out); }
-	} else { out.write("# samples",0); }
+	}
 }
 /*}*/

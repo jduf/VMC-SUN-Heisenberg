@@ -20,14 +20,14 @@ class Square: public System2DBis<Type>{
 		unsigned int p_;
 		unsigned int q_;
 
-		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& ref3);
+		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& spuc, unsigned int const& ref3);
 		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const;
 };
 
 /*{constructor*/
 template<typename Type>
 Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0,this->ref_(3)),ab,spuc,4,filename)
+	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0,spuc,this->ref_(3)),ab,spuc,4,filename)
 {}
 
 template<typename Type>
@@ -76,9 +76,9 @@ void Square<Type>::init_lattice(){
 		}
 
 		for(unsigned int i(0);i<4;i++){
-			this->boundary_[i].set(2);
-			this->boundary_[i](0) = this->lattice_corners_(i,0);
-			this->boundary_[i](1) = this->lattice_corners_(i,1);
+			this->boundary_vertex_[i].set(2);
+			this->boundary_vertex_[i](0) = this->cluster_vertex_(i,0);
+			this->boundary_vertex_[i](1) = this->cluster_vertex_(i,1);
 		}
 
 		this->set_nn_links(Vector<unsigned int>(1,2));
@@ -108,11 +108,11 @@ void Square<Type>::set_obs(int nobs){
 
 /*{private methods*/
 template<typename Type>
-Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int const& ref3){
+Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int const& spuc, unsigned int const& ref3){
 	if(n){
 		p_ = sqrt(n);
 		bool allowed_cluster(false);
-		if(ref3 && my::are_equal(sqrt(n),p_)){ 
+		if(!ref3 && my::are_equal(sqrt(n),p_)){ 
 			allowed_cluster = true;
 			q_ = 0; 
 		} else {
@@ -145,15 +145,16 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int co
 
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		std::vector<unsigned int> v;
+		unsigned int n;
 		for(unsigned int p(2);p<15;p++){
 			for(unsigned int q(0);q<p+1;q++){
-				v.push_back(p*p+q*q);
+				n = p*p+q*q;
+				if(!(n%spuc)){ v.push_back(n); }
 			}
 		}
 		std::sort(v.begin(),v.end(),std::less<unsigned int>());
-		for(unsigned int i(2);i<v.size();i++){
-			std::cerr<<"n="<<v[i]<<std::endl;
-		}
+		v.erase(std::unique(v.begin(),v.end()),v.end());
+		for(unsigned int i(0);i<v.size();i++){ std::cerr<<"n="<<v[i]<<std::endl; }
 		std::cerr<<"n=p*p+q*q"<<std::endl;
 	}
 	return Matrix<double>();
@@ -162,8 +163,8 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int co
 template<typename Type>
 bool Square<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 	if(this->pos_out_of_lattice(x)){
-		double a(this->lattice_corners_(0,0)*x(0)+this->lattice_corners_(0,1)*x(1));
-		double b(this->lattice_corners_(1,0)*x(0)+this->lattice_corners_(1,1)*x(1));
+		double a(this->cluster_vertex_(0,0)*x(0)+this->cluster_vertex_(0,1)*x(1));
+		double b(this->cluster_vertex_(1,0)*x(0)+this->cluster_vertex_(1,1)*x(1));
 		if(a>0){
 			if(b>0){ x += this->dir_nn_[1]*p_+this->dir_nn_[2]*q_; }
 			else   { x += this->dir_nn_[0]*p_+this->dir_nn_[1]*q_; }

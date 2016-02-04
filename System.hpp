@@ -34,6 +34,8 @@ class System{
 		/*}*/
 
 		/*{Handles class attributes*/
+		/*!Set an other cluster geometry*/
+		void try_other_geometry(Vector<unsigned int> const& ref) const;
 		/*!Set coupling terms*/
 		void set_J(Vector<double> const& J){ J_ = J; }
 		/*!Sets the observables to default (0) values and initilizes binning*/
@@ -84,7 +86,7 @@ class System{
 		/*!Default constructor*/
 		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),M_(0),status_(5){ std::cout<<__PRETTY_FUNCTION__<<" : should never be called"<<std::endl; }
 
-		Vector<unsigned int> const ref_;//!< type of system
+		mutable Vector<unsigned int> ref_;		//!< type of system
 		unsigned int const N_;			//!< number of colors
 		unsigned int const m_;			//!< number of particles per site
 		unsigned int const n_;			//!< number of sites

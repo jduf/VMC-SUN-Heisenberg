@@ -17,19 +17,19 @@ template<typename Type>
 class System2DBis: public GenericSystem<Type>{
 	public:
 		/*!Constructor*/
-		System2DBis(Matrix<double> const& lattice_corners, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename);
+		System2DBis(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename);
 		/*!Destructor*/
 		virtual ~System2DBis();
 
 	protected:
-		Matrix<Type> H_;					//!< matrix used to get the band structure
-		Matrix<std::complex<double> > evec_;//!< eigenvectors of H+Tx+Ty
-		Matrix<double> lattice_corners_;	//!< basis of the whole lattice
-		Vector<double>* boundary_;
-		Vector<double>* dir_nn_;
-		Vector<double>* x_;
-		Matrix<double> ab_;  		//!< basis of the unit cel
-		double const eq_prec_;		//!< precision for equality (important for matchinf position in lattice)
+		Matrix<Type> H_;						//!< matrix used to get the band structure
+		Matrix<std::complex<double> > evec_;	//!< eigenvectors of H+Tx+Ty
+		Matrix<double> const cluster_vertex_;	//!< vertices of the cluster
+		Matrix<double> const ab_; 				//!< basis vectors of the unit cel
+		Vector<double>* boundary_vertex_;		//!< vertices of the boundary
+		Vector<double>* dir_nn_;				//!< vectors towards nearest neighbourgs
+		Vector<double>* x_;						//!< position of the sites
+		double const eq_prec_;					//!< precision for equality (important for matchinf position in lattice)
 
 		/*!Plots the band structure E(px,py)*/
 		void plot_band_structure();
@@ -71,58 +71,57 @@ class System2DBis: public GenericSystem<Type>{
 		unsigned int get_site_in_unit_cell(unsigned int const& i) const;
 };
 
-/*{constructors*/
+/*{constructor*/
 template<typename Type>
-System2DBis<Type>::System2DBis(Matrix<double> const& lattice_corners, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
+System2DBis<Type>::System2DBis(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename),
-	lattice_corners_(lattice_corners),
-	boundary_(NULL),
+	cluster_vertex_(cluster_vertex),
+	ab_(ab),
+	boundary_vertex_(NULL),
 	dir_nn_(NULL),
 	x_(NULL),
-	ab_(ab),
 	eq_prec_(1e-12)
 {
-	if(this->spuc_){
-		inv_ab_.set(2,2);
-		inv_ab_(0,0) = ab_(1,1);
-		inv_ab_(1,0) =-ab_(1,0);
-		inv_ab_(0,1) =-ab_(0,1);
-		inv_ab_(1,1) = ab_(0,0);
-		inv_ab_/=(ab_(0,0)*ab_(1,1)-ab_(1,0)*ab_(0,1));
-		this->status_ = 2;
+	if(this->status_==3){
+		if(this->spuc_){
+			inv_ab_.set(2,2);
+			inv_ab_(0,0) = ab_(1,1);
+			inv_ab_(1,0) =-ab_(1,0);
+			inv_ab_(0,1) =-ab_(0,1);
+			inv_ab_(1,1) = ab_(0,0);
+			inv_ab_/=(ab_(0,0)*ab_(1,1)-ab_(1,0)*ab_(0,1));
 
-		if(!this->obs_.size() || !this->obs_[0].nlinks()){
-			if(lattice_corners_.ptr()){
-				boundary_ = new Vector<double>[4];
-				dir_nn_ = new Vector<double>[this->z_];
-				x_ = new Vector<double>[this->n_];		
-				for(unsigned int i(0);i<this->n_;i++){ x_[i].set(2); }
-				for(unsigned int i(0);i<this->z_;i++){ dir_nn_[i].set(2); }
+			if(!this->obs_.size() || !this->obs_[0].nlinks()){
+				if(cluster_vertex_.ptr()){
+					boundary_vertex_ = new Vector<double>[4];
+					dir_nn_ = new Vector<double>[this->z_];
+					x_ = new Vector<double>[this->n_];		
+					for(unsigned int i(0);i<this->n_;i++){ x_[i].set(2); }
+					for(unsigned int i(0);i<this->z_;i++){ dir_nn_[i].set(2); }
 
-				/*!check if the distance between each corners matches the
-				 * vectors of the unit cell*/
-				double alpha;
-				double beta;
-				double ip;
-				bool fit(true);
-				for(unsigned int i(0);i<lattice_corners_.row()-1;i++){
-					alpha = std::modf(inv_ab_(0,0)*(lattice_corners_(i+1,0)-lattice_corners_(i,0))+inv_ab_(0,1)*(lattice_corners_(i+1,1)-lattice_corners_(i,1)),&ip);
-					beta  = std::modf(inv_ab_(1,0)*(lattice_corners_(i+1,0)-lattice_corners_(i,0))+inv_ab_(1,1)*(lattice_corners_(i+1,1)-lattice_corners_(i,1)),&ip);
-					if( !my::are_equal(alpha,0.0) ||!my::are_equal(beta,0.0) ){ fit = false; }
-				}
+					/*!check if the distance between each vertex matches the
+					 * vectors of the unit cell*/
+					double alpha;
+					double beta;
+					double ip;
+					bool fit(true);
+					for(unsigned int i(0);i<cluster_vertex_.row()-1;i++){
+						alpha = std::modf(inv_ab_(0,0)*(cluster_vertex_(i+1,0)-cluster_vertex_(i,0))+inv_ab_(0,1)*(cluster_vertex_(i+1,1)-cluster_vertex_(i,1)),&ip);
+						beta  = std::modf(inv_ab_(1,0)*(cluster_vertex_(i+1,0)-cluster_vertex_(i,0))+inv_ab_(1,1)*(cluster_vertex_(i+1,1)-cluster_vertex_(i,1)),&ip);
+						if( !my::are_equal(alpha,0.0) ||!my::are_equal(beta,0.0) ){ fit = false; }
+					}
 
-				if(!fit){
-					std::cerr<<__PRETTY_FUNCTION__<<" : it seems that the unit cell doesn't fit into the cluster (not sure)"<<std::endl;
-					this->status_ = 3;
-				}
-			} else { std::cerr<<__PRETTY_FUNCTION__<<" : undefined geometry"<<std::endl; }
-		}
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
+					if(!fit){ std::cerr<<__PRETTY_FUNCTION__<<" : it seems that the unit cell doesn't fit into the cluster (not sure)"<<std::endl; }
+					else { this->status_ = 2; }
+				} else { std::cerr<<__PRETTY_FUNCTION__<<" : undefined geometry"<<std::endl; }
+			} else { this->status_ = 2; }
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
+	}
 }
 
 template<typename Type>
 System2DBis<Type>::~System2DBis(){
-	if(boundary_){ delete[] boundary_; }
+	if(boundary_vertex_){ delete[] boundary_vertex_; }
 	if(x_){ delete[] x_; }
 	if(dir_nn_){ delete[] dir_nn_; }
 }
@@ -256,15 +255,15 @@ unsigned int System2DBis<Type>::get_site_in_unit_cell(unsigned int const& i) con
 
 template<typename Type>
 bool System2DBis<Type>::pos_out_of_lattice(Vector<double> const& x) const {
-	return !my::in_polygon(lattice_corners_.row(),lattice_corners_.ptr(),lattice_corners_.ptr()+lattice_corners_.row(),x(0),x(1));
+	return !my::in_polygon(cluster_vertex_.row(),cluster_vertex_.ptr(),cluster_vertex_.ptr()+cluster_vertex_.row(),x(0),x(1));
 }
 
 template<typename Type>
 bool System2DBis<Type>::handle_boundary(Vector<double> const& x0, Vector<double>& x1) const {
 	bool bc(false);
 	if(pos_out_of_lattice(x1)){
-		if(my::intersect(x0.ptr(),x1.ptr(),boundary_[0].ptr(),boundary_[1].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_[2].ptr(),boundary_[3].ptr()) ){ bc=!bc; }
-		if(my::intersect(x0.ptr(),x1.ptr(),boundary_[1].ptr(),boundary_[2].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_[3].ptr(),boundary_[0].ptr()) ){ bc=!bc; }
+		if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[0].ptr(),boundary_vertex_[1].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[2].ptr(),boundary_vertex_[3].ptr()) ){ bc=!bc; }
+		if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[1].ptr(),boundary_vertex_[2].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[3].ptr(),boundary_vertex_[0].ptr()) ){ bc=!bc; }
 		reset_pos_in_lattice(x1);
 	}
 	return bc;

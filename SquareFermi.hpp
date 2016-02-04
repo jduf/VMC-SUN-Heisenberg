@@ -31,7 +31,8 @@ SquareFermi<Type>::SquareFermi(System const& s):
 		this->init_lattice();
 		this->init_fermionic();
 
-		this->system_info_.text("Fermi : all colors experience the same Hamiltonian");
+		this->system_info_.text("Fermi :");
+		this->system_info_.text(" Each color has the same Hamiltonian.");
 	}
 }
 
@@ -67,7 +68,7 @@ void SquareFermi<Type>::display_results(){
 	Vector<double> xy1(2,0);
 	PSTricks ps(this->info_+this->path_+this->dir_,this->filename_);
 	ps.begin(-20,-20,20,20,this->filename_);
-	ps.polygon(this->lattice_corners_,"linecolor=green");
+	ps.polygon(this->cluster_vertex_,"linecolor=green");
 
 	double x_shift(-this->ab_(0,0)/2.0);
 	double y_shift(-this->ab_(1,1)/2.0);
@@ -106,8 +107,8 @@ void SquareFermi<Type>::display_results(){
 		}
 		if(i%2){ ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
-	ps.line("-",this->boundary_[0](0),this->boundary_[0](1),this->boundary_[1](0),this->boundary_[1](1),"linecolor=yellow");
-	ps.line("-",this->boundary_[3](0),this->boundary_[3](1),this->boundary_[0](0),this->boundary_[0](1),"linecolor=yellow");
+	ps.line("-",this->boundary_vertex_[0](0),this->boundary_vertex_[0](1),this->boundary_vertex_[1](0),this->boundary_vertex_[1](1),"linecolor=yellow");
+	ps.line("-",this->boundary_vertex_[3](0),this->boundary_vertex_[3](1),this->boundary_vertex_[0](0),this->boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

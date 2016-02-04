@@ -8,7 +8,10 @@ LadderFree::LadderFree(System const& s, Vector<double> const& t, Vector<double> 
 {
 	if(status_==2 && t_.ptr()){
 		init_fermionic();
-		system_info_.text("LadderFree : all colors experience the same Hamiltonian");
+
+		system_info_.text("LadderFree :");
+		system_info_.text(" Each color has the same Hamiltonian.");
+
 		filename_ += "-t";
 		for(unsigned int i(0);i<t_.size();i++){
 			filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
