@@ -69,19 +69,7 @@ void SquareFermi<Type>::display_results(){
 	PSTricks ps(this->info_+this->path_+this->dir_,this->filename_);
 	ps.begin(-20,-20,20,20,this->filename_);
 	ps.polygon(this->cluster_vertex_,"linecolor=green");
-
-	double x_shift(-this->ab_(0,0)/2.0);
-	double y_shift(-this->ab_(1,1)/2.0);
-	Matrix<double> polygon(4,2);
-	polygon(0,0)=x_shift;
-	polygon(0,1)=y_shift;
-	polygon(1,0)=x_shift+this->ab_(0,0);
-	polygon(1,1)=y_shift+this->ab_(1,0);
-	polygon(2,0)=x_shift+this->ab_(0,0)+this->ab_(0,1);
-	polygon(2,1)=y_shift+this->ab_(1,0)+this->ab_(1,1);
-	polygon(3,0)=x_shift+this->ab_(0,1);
-	polygon(3,1)=y_shift+this->ab_(1,1);
-	ps.polygon(polygon,"linecolor=black");
+	ps.polygon(this->draw_unit_cell(),"linecolor=black");
 
 	Type t;
 	unsigned int s0;

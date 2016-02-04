@@ -27,7 +27,7 @@ class Square: public System2DBis<Type>{
 /*{constructor*/
 template<typename Type>
 Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0,spuc,this->ref_(3)),ab,spuc,4,filename)
+	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0,spuc,this->ref_(3)),ab,spuc,4,filename+"-ref"+my::tostring(this->ref_(3)))
 {}
 
 template<typename Type>
@@ -58,8 +58,8 @@ void Square<Type>::init_lattice(){
 		this->dir_nn_[3](0) = 0.0;
 		this->dir_nn_[3](1) =-1.0;
 
-		this->x_[0](0) = 0.02;
-		this->x_[0](1) = 0.01;
+		this->x_[0] = this->dir_nn_[0]*0.5*(p_-q_)+this->dir_nn_[1]*0.5*(p_+q_);
+		this->x_[0] = this->x_[0]/sqrt(this->x_[0].norm_squared())*0.01;
 
 		Vector<double> x_loop(this->x_[0]);
 		bool check_if_loop(false);
@@ -75,11 +75,10 @@ void Square<Type>::init_lattice(){
 			this->x_[i] = this->x_[i].chop();
 		}
 
-		for(unsigned int i(0);i<4;i++){
-			this->boundary_vertex_[i].set(2);
-			this->boundary_vertex_[i](0) = this->cluster_vertex_(i,0);
-			this->boundary_vertex_[i](1) = this->cluster_vertex_(i,1);
-		}
+		this->boundary_vertex_[0] = this->dir_nn_[0]*0.5*(p_-q_)+this->dir_nn_[1]*0.5*(p_+q_);
+		this->boundary_vertex_[1] = this->boundary_vertex_[0] + this->dir_nn_[2]*p_ + this->dir_nn_[3]*q_;
+		this->boundary_vertex_[2] = this->boundary_vertex_[1] + this->dir_nn_[3]*p_ + this->dir_nn_[0]*q_;
+		this->boundary_vertex_[3] = this->boundary_vertex_[0] + this->dir_nn_[3]*p_ + this->dir_nn_[0]*q_;
 
 		this->set_nn_links(Vector<unsigned int>(1,2));
 

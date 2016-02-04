@@ -5,10 +5,11 @@
 
 class SquareChiral: public Square<std::complex<double> >{
 	public:
-		SquareChiral(System const& s);
+		SquareChiral(System const& s, double const& phi);
 		~SquareChiral() = default;
 
 		void create();
+		void save_param(IOFiles& w) const;
 		void check();
 
 	protected:

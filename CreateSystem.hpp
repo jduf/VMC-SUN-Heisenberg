@@ -141,9 +141,10 @@ class CreateSystem{
 			else    { return CGL_->get_path(); }
 		}
 		/*!Calls System::get_status : see System*/
-		unsigned int const& get_status() const {
+		unsigned int get_status() const {
 			if(RGL_){ return RGL_->get_status(); }
-			else    { return CGL_->get_status(); }
+			if(CGL_){ return CGL_->get_status(); }
+			return 10;
 		}
 		/*!Calls System::get_obs : see System*/
 		std::vector<Observable> const& get_obs() const {

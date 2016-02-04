@@ -18,7 +18,7 @@ class Honeycomb: public System2DBis<Type>{
 	private:
 		double L_;
 
-		Matrix<double> set_geometry(unsigned int const& n);
+		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& spuc);
 		bool reset_pos_in_lattice(Vector<double>& x) const;
 		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const;
 };
@@ -26,7 +26,7 @@ class Honeycomb: public System2DBis<Type>{
 /*{constructor*/
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0),ab,spuc,3,filename)
+	System2DBis<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc),ab,spuc,3,filename)
 {}
 
 template<typename Type>
@@ -86,15 +86,15 @@ void Honeycomb<Type>::init_lattice(){
 		}
 
 		if(this->ref_(3)){
-			this->boundary_vertex_[0] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[3]+this->dir_nn_[4])*L_;
-			this->boundary_vertex_[1] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[5])*L_;
-			this->boundary_vertex_[2] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[1])*L_*2.0;
-			this->boundary_vertex_[3] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[1]+this->dir_nn_[2])*L_;
+			this->boundary_vertex_[0] = (this->dir_nn_[2]-this->dir_nn_[0])*0.25 + (this->dir_nn_[2]-this->dir_nn_[0])*L_;
+			this->boundary_vertex_[1] = this->boundary_vertex_[0] + this->dir_nn_[0]*L_*3.0;
+			this->boundary_vertex_[2] = this->boundary_vertex_[1] - this->dir_nn_[2]*L_*3.0;
+			this->boundary_vertex_[3] = this->boundary_vertex_[0] - this->dir_nn_[2]*L_*3.0;
 		} else {
-			this->boundary_vertex_[0] = this->dir_nn_[3]*0.25 + this->dir_nn_[4]*L_;
-			this->boundary_vertex_[1] = this->dir_nn_[3]*0.25 + this->dir_nn_[0]*L_;
-			this->boundary_vertex_[2] = this->dir_nn_[3]*0.25 + this->dir_nn_[1]*L_*2.0;
-			this->boundary_vertex_[3] = this->dir_nn_[3]*0.25 + this->dir_nn_[2]*L_;
+			this->boundary_vertex_[0] = this->dir_nn_[0]*-0.25 + this->dir_nn_[2]*L_;
+			this->boundary_vertex_[1] = this->boundary_vertex_[0] + (this->dir_nn_[0]-this->dir_nn_[2])*L_;
+			this->boundary_vertex_[2] = this->boundary_vertex_[1] + (this->dir_nn_[1]-this->dir_nn_[2])*L_;
+			this->boundary_vertex_[3] = this->boundary_vertex_[0] + (this->dir_nn_[1]-this->dir_nn_[2])*L_;
 		}
 
 		Vector<unsigned int> l(2);
@@ -130,7 +130,7 @@ void Honeycomb<Type>::set_obs(int nobs){
 
 /*{private methods*/
 template<typename Type>
-Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n){
+Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n, unsigned int const& spuc){
 	if(n){
 		L_ = sqrt(n/2.0);
 		if(my::are_equal(L_,floor(L_))){
@@ -172,8 +172,19 @@ Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n){
 			tmp(6,1) = tmp(0,1);
 			return tmp;
 		}
+
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
-		for(unsigned int l(2);l<10;l++){ std::cerr<<"n="<<2*l*l<<" or "<<6*l*l<<std::endl; }
+		std::vector<unsigned int> v;
+		unsigned int n;
+		for(unsigned int l(2);l<20;l++){ 
+			n = 6*l*l;
+			if(!(n%spuc)){ v.push_back(n); }
+			n = 2*l*l;
+			if(!(n%spuc)){ v.push_back(n); }
+		}
+		std::sort(v.begin(),v.end(),std::less<unsigned int>());
+		v.erase(std::unique(v.begin(),v.end()),v.end());
+		for(unsigned int i(0);i<v.size();i++){ std::cerr<<"n="<<v[i]<<std::endl; }
 		std::cerr<<"n=2*l*l or 6*l*l"<<std::endl;
 	}
 	return Matrix<double>();

@@ -115,25 +115,13 @@ void SquareMu::display_results(){
 
 	std::string color("black");
 	std::string linestyle("solid");
-	std::string linewidth("1mm");
+	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-
-	double x_shift(-(ab_(0,0)+ab_(0,1))/2.0);
-	double y_shift(-(ab_(1,0)+ab_(1,1))/2.0);
-	Matrix<double> polygon(4,2);
-	polygon(0,0)=x_shift;
-	polygon(0,1)=y_shift;
-	polygon(1,0)=x_shift+ab_(0,0);
-	polygon(1,1)=y_shift+ab_(1,0);
-	polygon(2,0)=x_shift+ab_(0,0)+ab_(0,1);
-	polygon(2,1)=y_shift+ab_(1,0)+ab_(1,1);
-	polygon(3,0)=x_shift+ab_(0,1);
-	polygon(3,1)=y_shift+ab_(1,1);
-	ps.polygon(polygon,"linecolor=black");
+	ps.polygon(draw_unit_cell(),"linecolor=black");
 
 	double t;
 	double mu;

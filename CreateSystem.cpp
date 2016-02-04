@@ -236,7 +236,12 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 2:
 									{ CGL_ = new SquarePiFlux(*s_); }break;
 								case 3:
-									{ CGL_ = new SquareChiral(*s_); }break;
+									{ 
+										double phi;
+										if(param){ phi = (*param)(0); }
+										if(C){ phi = C->get<double>("phi"); }
+										CGL_ = new SquareChiral(*s_,phi);
+									}break;
 								default:{ error(); }break;
 							}
 						}break;
@@ -304,20 +309,18 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 			}break;
 		default:{ error(); }break;
 	}
-	//!Handle bad geometry problem
+	//!Handle geometry problem
 	if(RGL_ && RGL_->get_status()==3){
 		delete RGL_;
 		RGL_ = NULL;
 		ref_(3)++;
-		s_->try_other_geometry(ref_);
-		init(param,C);
+		if(s_->try_other_geometry(ref_)){ init(param,C); }
 	}
 	if(CGL_ && CGL_->get_status()==3){
 		delete CGL_;
 		CGL_ = NULL;
 		ref_(3)++;
-		s_->try_other_geometry(ref_);
-		init(param,C);
+		if(s_->try_other_geometry(ref_)){ init(param,C); }
 	}
 }
 

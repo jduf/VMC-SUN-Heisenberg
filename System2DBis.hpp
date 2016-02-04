@@ -25,11 +25,10 @@ class System2DBis: public GenericSystem<Type>{
 		Matrix<Type> H_;						//!< matrix used to get the band structure
 		Matrix<std::complex<double> > evec_;	//!< eigenvectors of H+Tx+Ty
 		Matrix<double> const cluster_vertex_;	//!< vertices of the cluster
-		Matrix<double> const ab_; 				//!< basis vectors of the unit cel
 		Vector<double>* boundary_vertex_;		//!< vertices of the boundary
 		Vector<double>* dir_nn_;				//!< vectors towards nearest neighbourgs
 		Vector<double>* x_;						//!< position of the sites
-		double const eq_prec_;					//!< precision for equality (important for matchinf position in lattice)
+		double const eq_prec_ = 1e-12;			//!< precision for equality (important for matchinf position in lattice)
 
 		/*!Plots the band structure E(px,py)*/
 		void plot_band_structure();
@@ -44,14 +43,17 @@ class System2DBis: public GenericSystem<Type>{
 		unsigned int find_index(Vector<double> const& x) const;
 		/*!If x1 is outside the cluster, resets x1 inside and returns bc*/
 		bool handle_boundary(Vector<double> const& x0, Vector<double>& x1) const;
+		/*!Returns a matrix containing the vertices of the unit cell*/
+		Matrix<double> draw_unit_cell() const;
 
 	private:
-		Matrix<Type> Tx_;		//!< translation operator along x-axis
-		Matrix<Type> Ty_;		//!< translation operator along y-axis
-		Vector<double> px_;		//!< eigenvalue of Tx
-		Vector<double> py_;		//!< eigenvalue of Ty
-		Vector<double> e_;		//!< eigenvalue of H_
-		Matrix<double> inv_ab_;	//!< inverse of the matrix ab_
+		Matrix<double> const ab_;//!< basis vectors of the unit cell
+		Matrix<double> inv_ab_;	 //!< inverse of the matrix ab_
+		Matrix<Type> Tx_;		 //!< translation operator along x-axis
+		Matrix<Type> Ty_;		 //!< translation operator along y-axis
+		Vector<double> px_;		 //!< eigenvalue of Tx
+		Vector<double> py_;		 //!< eigenvalue of Ty
+		Vector<double> e_;		 //!< eigenvalue of H_
 
 		/*!Computes the translation operators*/
 		void compute_TxTy();
@@ -76,11 +78,10 @@ template<typename Type>
 System2DBis<Type>::System2DBis(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename),
 	cluster_vertex_(cluster_vertex),
-	ab_(ab),
 	boundary_vertex_(NULL),
 	dir_nn_(NULL),
 	x_(NULL),
-	eq_prec_(1e-12)
+	ab_(ab)
 {
 	if(this->status_==3){
 		if(this->spuc_){
@@ -261,27 +262,40 @@ bool System2DBis<Type>::pos_out_of_lattice(Vector<double> const& x) const {
 template<typename Type>
 bool System2DBis<Type>::handle_boundary(Vector<double> const& x0, Vector<double>& x1) const {
 	bool bc(false);
-	if(pos_out_of_lattice(x1)){
-		if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[0].ptr(),boundary_vertex_[1].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[2].ptr(),boundary_vertex_[3].ptr()) ){ bc=!bc; }
-		if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[1].ptr(),boundary_vertex_[2].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[3].ptr(),boundary_vertex_[0].ptr()) ){ bc=!bc; }
-		reset_pos_in_lattice(x1);
-	}
+	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[0].ptr(),boundary_vertex_[1].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[2].ptr(),boundary_vertex_[3].ptr()) ){ bc=!bc; }
+	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[1].ptr(),boundary_vertex_[2].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[3].ptr(),boundary_vertex_[0].ptr()) ){ bc=!bc; }
+	reset_pos_in_lattice(x1);
 	return bc;
+}
+
+template<typename Type>
+Matrix<double> System2DBis<Type>::draw_unit_cell() const {
+	Matrix<double> tmp(4,2);
+	tmp(0,0)=-(ab_(0,0)+ab_(0,1))/2.0;
+	tmp(0,1)=-(ab_(1,0)+ab_(1,1))/2.0;
+	tmp(1,0)= tmp(0,0)+ab_(0,0);
+	tmp(1,1)= tmp(0,1)+ab_(1,0);
+	tmp(2,0)= tmp(0,0)+ab_(0,0)+ab_(0,1);
+	tmp(2,1)= tmp(0,1)+ab_(1,0)+ab_(1,1);
+	tmp(3,0)= tmp(0,0)+ab_(0,1);
+	tmp(3,1)= tmp(0,1)+ab_(1,1);
+	return tmp;
 }
 /*}*/
 
 /*{private methods*/
 template<typename Type>
 void System2DBis<Type>::compute_TxTy(){
-	Tx_.set(this->n_,this->n_,0);
+	bool bc;
 	Vector<double> x;
+	Tx_.set(this->n_,this->n_,0);
 	for(unsigned int i(0);i<this->n_;i++){
 		x = x_[i];
 		x(0)+= ab_(0,0);
 		x(1)+= ab_(1,0);
-		reset_pos_in_lattice(x);
+		bc = handle_boundary(x_[i],x);
 		for(unsigned int j(0);j<this->n_;j++){
-			if(my::are_equal(x,x_[j],eq_prec_,eq_prec_)){ Tx_(i,j) = 1; j=this->n_; }
+			if(my::are_equal(x,x_[j],eq_prec_,eq_prec_)){ Tx_(i,j) = (bc?this->bc_:1); j=this->n_; }
 		}
 	}
 
@@ -290,9 +304,9 @@ void System2DBis<Type>::compute_TxTy(){
 		x = x_[i];
 		x(0)+= ab_(0,1);
 		x(1)+= ab_(1,1);
-		reset_pos_in_lattice(x);
+		bc = handle_boundary(x_[i],x);
 		for(unsigned int j(0);j<this->n_;j++){
-			if(my::are_equal(x,x_[j],eq_prec_,eq_prec_)){ Ty_(i,j) = 1; j=this->n_; }
+			if(my::are_equal(x,x_[j],eq_prec_,eq_prec_)){ Ty_(i,j) = (bc?this->bc_:1); j=this->n_; }
 		}
 	}
 	//std::cout<<H_*Tx_-Tx_*H_<<std::endl;

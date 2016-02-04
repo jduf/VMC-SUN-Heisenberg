@@ -1,9 +1,9 @@
 #include "SquareChiral.hpp"
 
-SquareChiral::SquareChiral(System const& s):
+SquareChiral::SquareChiral(System const& s, double const& phi):
 	System(s),
 	Square<std::complex<double> >(set_ab(ref_(3)),5,"square-chiral"),
-	phi_(2.0*M_PI/5.0)
+	phi_(phi*M_PI/5.0)
 {
 	if(status_==2){
 		init_lattice();
@@ -11,7 +11,9 @@ SquareChiral::SquareChiral(System const& s):
 
 		system_info_.text("SquareChiral :");
 		system_info_.text(" Each color has the same Hamiltonian.");
-		system_info_.text(" There is a flux of "+RST::math("2\\pi/5") + "per square plaquette");
+		system_info_.text(" There is a flux of "+RST::math(my::tostring(phi)+"\\pi/5") + "per square plaquette");
+
+		filename_ += "-phi"+my::tostring(phi);
 	}
 }
 
@@ -50,6 +52,15 @@ void SquareChiral::create(){
 	}
 }
 
+void SquareChiral::save_param(IOFiles& w) const {
+	std::string s("phi=("+my::tostring(5.0*phi_/M_PI)+")");
+	Vector<double> param(1,phi_);
+
+	w.add_header()->title(s,'<');
+	w<<param;
+	GenericSystem<std::complex<double> >::save_param(w);
+}
+
 Matrix<double> SquareChiral::set_ab(unsigned int const& ref3) const {
 	Matrix<double> tmp(2,2);
 	if(ref3==2){ 
@@ -73,11 +84,11 @@ unsigned int SquareChiral::match_pos_in_ab(Vector<double> const& x) const {
 		match(0) = 0.2;
 		match(1) = 0.4;
 		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-		match(0) = 0.4;
-		match(1) = 0.8;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
 		match(0) = 0.6;
 		match(1) = 0.2;
+		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+		match(0) = 0.4;
+		match(1) = 0.8;
 		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
 		match(0) = 0.8;
 		match(1) = 0.6;
@@ -115,19 +126,7 @@ void SquareChiral::display_results(){
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-
-	double x_shift(-(ab_(0,0)+ab_(0,1))/2.0);
-	double y_shift(-(ab_(1,0)+ab_(1,1))/2.0);
-	Matrix<double> polygon(4,2);
-	polygon(0,0)=x_shift;
-	polygon(0,1)=y_shift;
-	polygon(1,0)=x_shift+ab_(0,0);
-	polygon(1,1)=y_shift+ab_(1,0);
-	polygon(2,0)=x_shift+ab_(0,0)+ab_(0,1);
-	polygon(2,1)=y_shift+ab_(1,0)+ab_(1,1);
-	polygon(3,0)=x_shift+ab_(0,1);
-	polygon(3,1)=y_shift+ab_(1,1);
-	ps.polygon(polygon,"linecolor=black");
+	ps.polygon(draw_unit_cell(),"linecolor=black");
 
 	std::complex<double> t;
 	unsigned int s0;
@@ -150,7 +149,7 @@ void SquareChiral::display_results(){
 			if(t.real()>0){ color = "blue"; }
 			else          { color = "red"; }
 
-			if(my::are_equal(t.imag(),0)){
+			if(my::are_equal(t.imag(),0.0)){
 				arrow = "-";
 			} else {
 				if(t.imag()>0){ arrow = "->"; }

@@ -35,7 +35,7 @@ class System{
 
 		/*{Handles class attributes*/
 		/*!Set an other cluster geometry*/
-		void try_other_geometry(Vector<unsigned int> const& ref) const;
+		bool try_other_geometry(Vector<unsigned int> const& ref) const;
 		/*!Set coupling terms*/
 		void set_J(Vector<double> const& J){ J_ = J; }
 		/*!Sets the observables to default (0) values and initilizes binning*/

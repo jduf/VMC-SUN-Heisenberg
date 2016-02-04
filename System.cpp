@@ -12,7 +12,7 @@ System::System(Parseur& P):
 	J_(P.get<std::vector<double> >("J")),
 	status_(5)
 {
-	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : Bad initialization"<<std::endl; }
+	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : N, M, m and n are incompatible"<<std::endl; }
 	else{ 
 		if(bc_ != -1 && bc_ != 0 && bc_ != 1){ std::cerr<<__PRETTY_FUNCTION__<<" : unknown boundary condition"<<std::endl; }
 		else { status_ = 4; }
@@ -36,6 +36,18 @@ System::System(IOFiles& r):
 
 /*handles class attributes*/
 /*{*/
+bool System::try_other_geometry(Vector<unsigned int> const& ref) const {
+	if(ref_(0) == ref(0) && ref_(1) == ref(1) && ref_(2) == ref(2)){
+		if(ref_(0) == 4){
+			ref_(3) = ref(3);
+			std::cerr<<__PRETTY_FUNCTION__<<std::endl;
+			return ref_(3)<3;
+		}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : the wavefunction should not have changed"<<std::endl; }
+	std::cerr<<__PRETTY_FUNCTION__<<" : no solution found"<<std::endl; 
+	return false;
+}
+
 void System::set_obs(std::vector<Observable> const& obs, int const& nobs){
 	if(nobs<0){ obs_ = obs; }
 	else {
@@ -78,13 +90,6 @@ void System::delete_binning(){
 }
 /*}*/
 
-void System::try_other_geometry(Vector<unsigned int> const& ref) const {
-	if(ref_(0) == ref(0) && ref_(1) == ref(1) && ref_(2) == ref(2)){
-		ref_(3) = ref(3);
-		std::cerr<<__PRETTY_FUNCTION__<<std::endl;
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : the wavefunction should not have changed"<<std::endl; }
-}
-
 /*write in IOFiles methods and print*/
 /*{*/
 void System::write(IOFiles& w) const {
@@ -105,7 +110,7 @@ void System::save_input(IOFiles& w) const {
 	rst.title("Input",'+');
 	w.add_header()->add(rst.get());
 
-	w.write("ref (wavefunction)",ref_);
+	w.write("ref (geometry : "+my::tostring(ref_(3))+")",ref_);
 	w.write("SU",N_);
 	w.write("m (#particles per site)",m_);
 	w.write("n (#site)",n_);
@@ -314,7 +319,7 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 				unsigned int n(P.get<unsigned int>("n"));
 				ref(3) = 2;
 				if(my::are_equal(sqrt(n/2.0),floor(sqrt(n/2.0)))){ ref(3) = 0; }
-				if(my::are_equal(sqrt(n)/6.0,floor(sqrt(n)/6)))  { ref(3) = 1; }
+				if(my::are_equal(sqrt(n/6.0),floor(sqrt(n/6.0))))  { ref(3) = 1; }
 			}break;
 	}
 	return ref;

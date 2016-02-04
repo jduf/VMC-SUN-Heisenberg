@@ -107,29 +107,7 @@ void HoneycombFree::lattice(){
 	PSTricks ps(info_+path_+dir_,filename_+"-pstricks");
 	ps.begin(-20,-20,20,20,filename_+"-pstricks");
 	ps.polygon(cluster_vertex_,"linecolor=green");
-
-	Matrix<double> polygon(4,2);
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=ab_(0,0);
-	polygon(1,1)=ab_(1,0);
-	polygon(2,0)=ab_(0,0)+ab_(0,1);
-	polygon(2,1)=ab_(1,0)+ab_(1,1);
-	polygon(3,0)=ab_(0,1);
-	polygon(3,1)=ab_(1,1);
-	ps.polygon(polygon,"linecolor=black");
-
-	double x_shift((cluster_vertex_(0,0)+cluster_vertex_(0,1)-ab_(0,0)-ab_(0,1))/2);
-	double y_shift((-ab_(1,0)-ab_(1,1))/2);
-	polygon(0,0)+=x_shift;
-	polygon(0,1)+=y_shift;
-	polygon(1,0)+=x_shift;
-	polygon(1,1)+=y_shift;
-	polygon(2,0)+=x_shift;
-	polygon(2,1)+=y_shift;
-	polygon(3,0)+=x_shift;
-	polygon(3,1)+=y_shift;
-	ps.polygon(polygon,"linecolor=black");
+	ps.polygon(draw_unit_cell(),"linecolor=black");
 
 	double t;
 	double corr;

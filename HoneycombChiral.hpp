@@ -12,6 +12,8 @@ class HoneycombChiral: public Honeycomb<std::complex<double> >{
 		void check();
 
 	protected:
+		double const phi_;
+
 		void compute_H();
 		void display_results();
 		

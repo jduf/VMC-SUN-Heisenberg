@@ -75,21 +75,7 @@ void SquarePiFlux::display_results(){
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-
-	Matrix<double> polygon(4,2);
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=ab_(0,0);
-	polygon(1,1)=ab_(1,0);
-	polygon(2,0)=ab_(0,0)+ab_(0,1);
-	polygon(2,1)=ab_(1,0)+ab_(1,1);
-	polygon(3,0)=ab_(0,1);
-	polygon(3,1)=ab_(1,1);
-	for(unsigned int i(0);i<4;i++){
-		polygon(i,0) -= ab_(0,0)/2.0; 
-		polygon(i,1) -= ab_(1,1)/2.0; 
-	}
-	ps.polygon(polygon,"linecolor=black");
+	ps.polygon(draw_unit_cell(),"linecolor=black");
 
 	double phi(-M_PI/4.0);
 	unsigned int s0;

@@ -20,6 +20,7 @@ Honeycomb0pp::Honeycomb0pp(System const& s, double td):
 void Honeycomb0pp::compute_H(){
 	H_.set(n_,n_,0);
 
+	double t(-1.0);
 	unsigned int s0(0);
 	unsigned int s1(0);
 	unsigned int ab0(0);
@@ -29,8 +30,8 @@ void Honeycomb0pp::compute_H(){
 		s1 = obs_[0](i,1);
 		ab0 = obs_[0](i,5);
 		ab1 = obs_[0](i,6);
-		if((ab0==0 && ab1==1) || (ab0==2 && ab1==3) || (ab0==4 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*td_; } 
-		else { H_(s0,s1) = (obs_[0](i,4)?bc_:1); }
+		if((ab0==0 && ab1==1) || (ab0==2 && ab1==3) || (ab0==4 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); } 
+		else { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }
 	}
 	H_ += H_.transpose();
 }
@@ -91,19 +92,7 @@ void Honeycomb0pp::lattice(){
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-
-	double x_shift(-ab_(0,1)*3.0/2.0);
-	double y_shift((-ab_(1,0)-ab_(1,1))/2);
-	Matrix<double> polygon(4,2);
-	polygon(0,0)=x_shift;
-	polygon(0,1)=y_shift;
-	polygon(1,0)=x_shift+ab_(0,0);
-	polygon(1,1)=y_shift+ab_(1,0);
-	polygon(2,0)=x_shift+ab_(0,0)+ab_(0,1);
-	polygon(2,1)=y_shift+ab_(1,0)+ab_(1,1);
-	polygon(3,0)=x_shift+ab_(0,1);
-	polygon(3,1)=y_shift+ab_(1,1);
-	ps.polygon(polygon,"linecolor=black");
+	ps.polygon(draw_unit_cell(),"linecolor=black");
 
 	double t;
 	double corr;
