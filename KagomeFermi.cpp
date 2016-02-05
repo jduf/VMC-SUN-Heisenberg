@@ -20,7 +20,7 @@ void KagomeFermi<double>::create(){
 template<>
 void KagomeFermi<std::complex<double> >::create(){
 	compute_H();
-	select_eigenvectors();
+	//select_eigenvectors();
 
 	if(status_==2){
 		for(unsigned int c(0);c<N_;c++){

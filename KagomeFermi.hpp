@@ -31,9 +31,11 @@ KagomeFermi<Type>::KagomeFermi(System const& s):
 	Kagome<Type>(set_ab(),3,"kagome-fermi")
 {
 	if(this->status_==2){
+		this->init_lattice();
 		this->init_fermionic();
 
-		this->system_info_.text("KagomeFermi : All hopping term are identical, no flux, 3 sites per unit cell");
+		this->system_info_.text("KagomeFermi :");
+		this->system_info_.text(" Each color has the same Hamiltonian.");
 	}
 }
 
@@ -41,8 +43,10 @@ KagomeFermi<Type>::KagomeFermi(System const& s):
 template<typename Type>
 void KagomeFermi<Type>::compute_H(){
 	this->H_.set(this->n_,this->n_,0);
+
+	double t(-1.0);
 	for(unsigned int i(0);i<this->obs_[0].nlinks(); i++){
-		this->H_(this->obs_[0](i,0),this->obs_[0](i,1)) = this->obs_[0](i,4);
+		this->H_(this->obs_[0](i,0),this->obs_[0](i,1)) = (this->obs_[0](i,4)?this->bc_*t:t);
 	}
 	this->H_ += this->H_.transpose();
 }
@@ -74,89 +78,42 @@ template<typename Type>
 void KagomeFermi<Type>::lattice(){
 	compute_H();
 
-	Matrix<int> nb;
 	std::string color("black");
 	std::string linestyle("solid");
 	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
-	Type t;
 	PSTricks ps(this->info_+this->path_+this->dir_,this->filename_);
-	ps.begin(-20,-10,20,10,this->filename_);
+	ps.begin(-20,-20,20,20,this->filename_);
+	ps.polygon(this->cluster_vertex_,"linecolor=green");
+	ps.polygon(this->draw_unit_cell(),"linecolor=black");
 
-	Matrix<double> polygon(4,2);
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=this->LxLy_(0,0);
-	polygon(1,1)=this->LxLy_(1,0);
-	polygon(2,0)=this->LxLy_(0,0)+this->LxLy_(0,1);
-	polygon(2,1)=this->LxLy_(1,0)+this->LxLy_(1,1);
-	polygon(3,0)=this->LxLy_(0,1);
-	polygon(3,1)=this->LxLy_(1,1);
-	ps.polygon(polygon,"linecolor=green");
+	Type t;
+	unsigned int s0;
+	unsigned int s1;
+	for(unsigned int i(0);i<this->obs_[0].nlinks();i++){
+		s0 = this->obs_[0](i,0);
+		xy0 = this->x_[s0];
 
-	polygon(0,0)=0;
-	polygon(0,1)=0;
-	polygon(1,0)=this->ab_(0,0);
-	polygon(1,1)=this->ab_(1,0);
-	polygon(2,0)=this->ab_(0,0)+this->ab_(0,1);
-	polygon(2,1)=this->ab_(1,0)+this->ab_(1,1);
-	polygon(3,0)=this->ab_(0,1);
-	polygon(3,1)=this->ab_(1,1);
-	ps.polygon(polygon,"linecolor=black");
+		s1 = this->obs_[0](i,1);
+		xy1 = this->x_[s1];
 
-	for(unsigned int i(0);i<this->n_;i++){
-		xy0 = this->get_pos_in_lattice(i);
-		this->set_pos_LxLy(xy0);
-		xy0 = (this->LxLy_*xy0).chop();
-		ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(i));
-
-		t = this->H_(i,nb(0,0));
+		t = this->H_(s0,s1);
 		if(std::abs(t)>1e-4){
-			xy1 = this->get_pos_in_lattice(nb(0,0));
-			this->set_pos_LxLy(xy1);
-			xy1 = this->LxLy_*xy1;
 			if((xy0-xy1).norm_squared()>1.0001){
-				linestyle = "dashed"; 
-				xy1 = xy0;
-				if(i%3==2){
-					xy1(0) += this->dir_nn_(2,0);
-					xy1(1) += this->dir_nn_(2,1);
-				} else {
-					xy1(0) += this->dir_nn_(0,0);
-					xy1(1) += this->dir_nn_(0,1);
-				}
-				ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(0,0)));
-			} else { linestyle = "solid";  }
-			xy1 = xy1.chop();
+				linestyle = "dashed";
+				xy1 = (xy0+this->dir_nn_[this->obs_[0](i,3)]).chop();
+				ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
+			} else{ linestyle = "solid"; }
 
-			if(my::real(t)>0){ color = "blue";}
+			if(my::real(t)>0){ color = "blue"; }
 			else             { color = "red"; }
-			linewidth = my::tostring(std::abs(t))+"mm";
-			/*(+x)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
-
-		t = this->H_(i,nb(1,0));
-		if(std::abs(t)>1e-4){
-			xy1 = this->get_pos_in_lattice(nb(1,0));
-			this->set_pos_LxLy(xy1);
-			xy1 = this->LxLy_*xy1;
-			if((xy0-xy1).norm_squared()>1.0001){
-				linestyle = "dashed"; 
-				xy1 = xy0;
-				xy1(0) += this->dir_nn_(1,0);
-				xy1(1) += this->dir_nn_(1,1);
-				ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(nb(1,0)));
-			} else { linestyle = "solid";  }
-			xy1 = xy1.chop();
-
-			if(my::real(t)>0){ color = "blue";}
-			else             { color = "red"; }
-			linewidth = my::tostring(std::abs(t))+"mm";
-			/*(+y)-link*/ ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-		}
-
+		if(i%2){ ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
+	ps.line("-",this->boundary_vertex_[0](0),this->boundary_vertex_[0](1),this->boundary_vertex_[1](0),this->boundary_vertex_[1](1),"linecolor=yellow");
+	ps.line("-",this->boundary_vertex_[3](0),this->boundary_vertex_[3](1),this->boundary_vertex_[0](0),this->boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

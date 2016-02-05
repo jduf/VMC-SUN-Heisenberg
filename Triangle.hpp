@@ -113,14 +113,14 @@ Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n){
 	if(n){
 		L_ = sqrt(n/3.0);
 		if(my::are_equal(L_,floor(L_))){
-			double a(sqrt(3.0)/2);
+			double a(sqrt(3.0)/2.0);
 			Matrix<double> tmp(7,2);
 			tmp(0,0) =-0.5*L_;
 			tmp(0,1) =-a*L_;
 			tmp(1,0) =-tmp(0,0);
 			tmp(1,1) = tmp(0,1);
 			tmp(2,0) = L_;
-			tmp(2,1) = 0;
+			tmp(2,1) = 0.0;
 			tmp(3,0) =-tmp(0,0);
 			tmp(3,1) =-tmp(0,1);
 			tmp(4,0) =-tmp(1,0);
@@ -133,7 +133,7 @@ Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n){
 		}
 		L_ = sqrt(n)/3.0;
 		if(my::are_equal(L_,floor(L_))){
-			double a(sqrt(3.0)/2);
+			double a(sqrt(3.0)/2.0);
 			Matrix<double> tmp(7,2);
 			tmp(0,0) = 0.0;
 			tmp(0,1) =-2.0*a*L_;

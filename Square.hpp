@@ -14,13 +14,13 @@ class Square: public System2DBis<Type>{
 	protected:
 		void init_lattice();
 		void set_obs(int nobs);
-		bool reset_pos_in_lattice(Vector<double>& x) const;
 
 	private:
 		unsigned int p_;
 		unsigned int q_;
 
 		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& spuc, unsigned int const& ref3);
+		bool reset_pos_in_lattice(Vector<double>& x) const;
 		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const;
 };
 

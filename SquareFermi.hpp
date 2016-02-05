@@ -40,8 +40,10 @@ SquareFermi<Type>::SquareFermi(System const& s):
 template<typename Type>
 void SquareFermi<Type>::compute_H(){
 	this->H_.set(this->n_,this->n_,0);
+
+	double t(-1.0);
 	for(unsigned int i(0);i<this->obs_[0].nlinks(); i++){
-		this->H_(this->obs_[0](i,0),this->obs_[0](i,1)) = (this->obs_[0](i,4)?this->bc_:1);
+		this->H_(this->obs_[0](i,0),this->obs_[0](i,1)) = (this->obs_[0](i,4)?this->bc_*t:t);
 	}
 	this->H_ += this->H_.transpose();
 }
@@ -64,6 +66,7 @@ void SquareFermi<Type>::display_results(){
 
 	std::string color("black");
 	std::string linestyle("solid");
+	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(this->info_+this->path_+this->dir_,this->filename_);
@@ -74,7 +77,7 @@ void SquareFermi<Type>::display_results(){
 	Type t;
 	unsigned int s0;
 	unsigned int s1;
-	for(unsigned int i(0);i<this->obs_[0].nlinks();i++) {
+	for(unsigned int i(0);i<this->obs_[0].nlinks();i++){
 		s0 = this->obs_[0](i,0);
 		xy0 = this->x_[s0];
 
@@ -89,9 +92,9 @@ void SquareFermi<Type>::display_results(){
 				ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 			} else{ linestyle = "solid"; }
 
-			if(my::real(t)<0){ color = "red"; }
-			else { color = "blue"; }
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor="+color+",linestyle="+linestyle);
+			if(my::real(t)>0){ color = "blue"; }
+			else             { color = "red"; }
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 		if(i%2){ ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}

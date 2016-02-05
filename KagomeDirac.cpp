@@ -21,7 +21,7 @@ void KagomeDirac<double>::create(){
 template<>
 void KagomeDirac<std::complex<double> >::create(){
 	compute_H();
-	select_eigenvectors();
+	//select_eigenvectors();
 	if(status_==2){
 		for(unsigned int c(0);c<N_;c++){
 			EVec_[c].set(n_,M_(c));

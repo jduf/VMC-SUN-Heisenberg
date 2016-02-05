@@ -6,7 +6,7 @@
 template<typename Type>
 class Honeycomb: public System2DBis<Type>{
 	public:
-		/*!Constructor that organises the n=2L^2 sites (L integer)*/
+		/*!Constructor that organises the n=2L^2 or 6L^2 sites (L integer)*/
 		Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Honeycomb()=0;
