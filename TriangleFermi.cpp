@@ -8,7 +8,7 @@ TriangleFermi::TriangleFermi(System const& s):
 		init_lattice();
 		init_fermionic();
 
-		system_info_.text("Fermi :");
+		system_info_.text("TriangleFermi :");
 		system_info_.text(" Each color has the same Hamiltonian.");
 	}
 }
@@ -16,6 +16,7 @@ TriangleFermi::TriangleFermi(System const& s):
 /*{method needed for running*/
 void TriangleFermi::compute_H(){
 	H_.set(n_,n_,0);
+	
 	double t(-1.0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_*t:t);

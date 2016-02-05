@@ -9,7 +9,7 @@ TrianglePlaquette::TrianglePlaquette(System const& s, double const& t):
 		init_lattice();
 		init_fermionic();
 
-		system_info_.text("Plaquette :");
+		system_info_.text("TrianglePlaquette :");
 		system_info_.text(" Each color has the same Hamiltonian.");
 		system_info_.text(" Triangular plaquette with different hopping term than the rest of the lattice");
 

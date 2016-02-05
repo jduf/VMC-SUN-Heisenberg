@@ -27,7 +27,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0: 
+								case 0:
 									{ RGL_ = new ChainFermi<double>(*s_); }break;
 								case 1:
 									{
@@ -58,7 +58,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 2:
 						{
 							switch(ref_(2)){
-								case 0: 
+								case 0:
 									{ CGL_ = new ChainFermi<std::complex<double> >(*s_); }break;
 								default:{ error(); }break;
 							}
@@ -236,7 +236,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 2:
 									{ CGL_ = new SquarePiFlux(*s_); }break;
 								case 3:
-									{ 
+									{
 										double phi;
 										if(param){ phi = (*param)(0); }
 										if(C){ phi = C->get<double>("phi"); }
@@ -278,28 +278,37 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 0:
+									{ RGL_ = new HoneycombFermi(*s_); }break;
+								case 1:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new HoneycombFree(*s_,t);
+									}break;
+								case 2:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new HoneycombPlaquette(*s_,t);
+									}break;
+								case 3:
 									{
 										double t(0);
 										if(param){ t = (*param)(0); }
 										if(C)    { t = C->get<double>("td"); }
 										if(param || C){ RGL_ = new Honeycomb0pp(*s_,t); }
 									}break;
-								case 1:
+								case 4:
 									{ RGL_ = new HoneycombPiFlux(*s_); }break;
-								case 2:
-									{ 
-										Vector<double> t;
-										if(param){ t = *param; }
-										if(C){ t = C->get<std::vector<double> >("t"); }
-										RGL_ = new HoneycombFree(*s_,t); 
-									}break;
 								default:{ error(); }break;
 							}
 						}break;
 					case 2:
 						{
 							switch(ref_(2)){
-								case 0:
+								case 1:
 									{ CGL_ = new HoneycombChiral(*s_); }break;
 								default:{ error(); }break;
 							}

@@ -1,12 +1,12 @@
-#ifndef DEF_HONEYCOMBFREE
-#define DEF_HONEYCOMBFREE
+#ifndef DEF_HONEYCOMBPLAQUETTE
+#define DEF_HONEYCOMBPLAQUETTE
 
 #include "Honeycomb.hpp"
 
-class HoneycombFree: public Honeycomb<double>{
+class HoneycombPlaquette: public Honeycomb<double>{
 	public:
-		HoneycombFree(System const& s, Vector<double> const& t);
-		~HoneycombFree() = default;
+		HoneycombPlaquette(System const& s, Vector<double> const& t);
+		~HoneycombPlaquette() = default;
 
 		void create();
 		void save_param(IOFiles& w) const;

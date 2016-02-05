@@ -1,6 +1,6 @@
 #include "HoneycombFree.hpp"
 
-HoneycombFree::HoneycombFree(System const& s, Vector<double> t):
+HoneycombFree::HoneycombFree(System const& s, Vector<double> const& t):
 	System(s),
 	Honeycomb<double>(set_ab(),6,"honeycomb-free"),
 	t_(t)

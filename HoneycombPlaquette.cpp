@@ -1,46 +1,37 @@
-#include "HoneycombChiral.hpp"
+#include "HoneycombPlaquette.hpp"
 
-HoneycombChiral::HoneycombChiral(System const& s):
+HoneycombPlaquette::HoneycombPlaquette(System const& s, Vector<double> const& t):
 	System(s),
-	Honeycomb<std::complex<double> >(set_ab(),6,"honeyomb-chiral"),
-	phi_(2*M_PI/3)
+	Honeycomb<double>(set_ab(),6,"honeycomb-plaquette"),
+	t_(t)
 {
 	if(status_==2){
 		init_lattice();
 		init_fermionic();
 
-		system_info_.text("SquareChiral :");
-		system_info_.text(" Each color has the same Hamiltonian.");
-		//system_info_.text(" There is a flux of "+RST::math(my::tostring(phi)+"\\pi/3") + "per square plaquette");
-
-		//filename_ += "-phi"+my::tostring(phi);
+		filename_ += "-t";
+		for(unsigned int i(0);i<t_.size();i++){
+			filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
+		}
 	}
 }
 
 /*{method needed for running*/
-void HoneycombChiral::compute_H(){
+void HoneycombPlaquette::compute_H(){
 	H_.set(n_,n_,0);
 
-	double t(-1.0);
 	unsigned int s0(0);
 	unsigned int s1(0);
-	unsigned int ab0(0);
-	unsigned int ab1(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		ab0 = obs_[0](i,5);
-		ab1 = obs_[0](i,6);
-		H_(s0,s1) = (obs_[0](i,4)?bc_*t:t);
-		if(ab1==5){
-			if(ab0==0){ H_(s0,s1) *= std::polar(1.0,phi_); }
-			if(ab0==2){ H_(s0,s1) *= std::polar(1.0,-phi_); }
-		}
+		if( std::abs(obs_[0](i,5)-obs_[0](i,6)) == 3 ){ H_(s0,s1) = (obs_[0](i,4)?bc_*t_(1):t_(1)); }
+		else { H_(s0,s1) = (obs_[0](i,4)?bc_*t_(0):t_(0)); }
 	}
-	H_ += H_.conjugate_transpose();
+	H_ += H_.transpose();
 }
 
-void HoneycombChiral::create(){
+void HoneycombPlaquette::create(){
 	compute_H();
 	diagonalize(true);
 	for(unsigned int c(0);c<N_;c++){
@@ -52,7 +43,20 @@ void HoneycombChiral::create(){
 	}
 }
 
-Matrix<double> HoneycombChiral::set_ab() const {
+void HoneycombPlaquette::save_param(IOFiles& w) const {
+	std::string s("t=(");
+
+	for(unsigned int i(0);i<t_.size()-1;i++){ 
+		s += my::tostring(t_(i))+",";
+	}
+	s += my::tostring(t_.back())+")";
+
+	w.add_header()->title(s,'<');
+	w<<t_;
+	GenericSystem<double>::save_param(w);
+}
+
+Matrix<double> HoneycombPlaquette::set_ab() const {
 	Matrix<double> tmp(2,2);
 	tmp(0,0) = 3.0;
 	tmp(1,0) = 0.0;
@@ -61,7 +65,7 @@ Matrix<double> HoneycombChiral::set_ab() const {
 	return tmp;
 }
 
-unsigned int HoneycombChiral::match_pos_in_ab(Vector<double> const& x) const {
+unsigned int HoneycombPlaquette::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
 	match(0) = 1.0/3.0;
@@ -81,13 +85,12 @@ unsigned int HoneycombChiral::match_pos_in_ab(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void HoneycombChiral::display_results(){
+void HoneycombPlaquette::lattice(){
 	compute_H();
 
 	std::string color("black");
 	std::string linestyle("solid");
 	std::string linewidth("1pt");
-	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
@@ -95,7 +98,7 @@ void HoneycombChiral::display_results(){
 	ps.polygon(cluster_vertex_,"linecolor=green");
 	ps.polygon(draw_unit_cell(),"linecolor=black");
 
-	std::complex<double> t;
+	double t;
 	unsigned int s0;
 	unsigned int s1;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
@@ -113,17 +116,10 @@ void HoneycombChiral::display_results(){
 				if(obs_[0](i,3)){ ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}"); }
 			} else { linestyle = "solid"; }
 
-			if(t.real()>0){ color = "blue"; }
-			else          { color = "red"; }
-
-			if(my::are_equal(t.imag(),0)){
-				arrow = "-";
-			} else {
-				if(t.imag()>0){ arrow = "->"; }
-				else          { arrow = "<-"; }
-			}
-
-			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+			if(t>0){ color = "blue";}
+			else   { color = "red"; }
+			linewidth = my::tostring(std::abs(t))+"mm";
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 		if(!(i%3)){ 
 			ps.put(xy1(0)+0.10,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
@@ -135,11 +131,39 @@ void HoneycombChiral::display_results(){
 	ps.end(true,true,true);
 }
 
-void HoneycombChiral::check(){
+void HoneycombPlaquette::display_results(){
+	lattice();
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
+		std::string title("t=(");
+		std::string run_cmd("./mc -s:wf ladder-free");
+		run_cmd += " -u:N " + my::tostring(N_);
+		run_cmd += " -u:m " + my::tostring(m_);
+		run_cmd += " -u:n " + my::tostring(n_);
+		run_cmd += " -i:bc "+ my::tostring(bc_);
+		run_cmd += " -d:t ";
+		for(unsigned int i(0);i<t_.size()-1;i++){
+			title   += my::tostring(t_(i)) + ","; 
+			run_cmd += my::tostring(t_(i)) + ","; 
+		}
+		title   += my::tostring(t_.back()) + "),";
+		run_cmd += " -d:Jp 1 -u:tmax 10 -d";
+
+		rst_file_->title(title,'-'); 
+		rst_file_->change_text_onclick("run command",run_cmd);
+
+		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
+	}
+}
+
+void HoneycombPlaquette::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="honeyomb-chiral";
+	filename_ ="honeycomb-plaquette";
 	display_results();
 }
 /*}*/

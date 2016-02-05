@@ -31,7 +31,7 @@ SquareFermi<Type>::SquareFermi(System const& s):
 		this->init_lattice();
 		this->init_fermionic();
 
-		this->system_info_.text("Fermi :");
+		this->system_info_.text("SquareFermi :");
 		this->system_info_.text(" Each color has the same Hamiltonian.");
 	}
 }

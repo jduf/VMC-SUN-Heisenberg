@@ -13,7 +13,7 @@ System::System(Parseur& P):
 	status_(5)
 {
 	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : N, M, m and n are incompatible"<<std::endl; }
-	else{ 
+	else{
 		if(bc_ != -1 && bc_ != 0 && bc_ != 1){ std::cerr<<__PRETTY_FUNCTION__<<" : unknown boundary condition"<<std::endl; }
 		else { status_ = 4; }
 	}
@@ -44,7 +44,7 @@ bool System::try_other_geometry(Vector<unsigned int> const& ref) const {
 			return ref_(3)<3;
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : the wavefunction should not have changed"<<std::endl; }
-	std::cerr<<__PRETTY_FUNCTION__<<" : no solution found"<<std::endl; 
+	std::cerr<<__PRETTY_FUNCTION__<<" : no solution found"<<std::endl;
 	return false;
 }
 
@@ -269,25 +269,35 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(2) = 2;
 	}
 
-	if( wf == "honeycomb-0pp" ){
+	if( wf == "honeycomb-fermi" ){
 		ref(0) = 6;
 		ref(1) = 1;
 		ref(2) = 0;
-	}
-	if( wf == "honeycomb-piflux" ){
-		ref(0) = 6;
-		ref(1) = 1;
-		ref(2) = 1;
 	}
 	if( wf == "honeycomb-free" ){
 		ref(0) = 6;
 		ref(1) = 1;
+		ref(2) = 1;
+	}
+	if( wf == "honeycomb-plaquette" ){
+		ref(0) = 6;
+		ref(1) = 1;
 		ref(2) = 2;
+	}
+	if( wf == "honeycomb-0pp" ){
+		ref(0) = 6;
+		ref(1) = 1;
+		ref(2) = 3;
+	}
+	if( wf == "honeycomb-piflux" ){
+		ref(0) = 6;
+		ref(1) = 1;
+		ref(2) = 4;
 	}
 	if( wf == "honeycomb-chiral" ){
 		ref(0) = 6;
 		ref(1) = 2;
-		ref(2) = 0;
+		ref(2) = 1;
 	}
 
 	unsigned int i;

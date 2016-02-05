@@ -28,9 +28,11 @@
 #include "KagomeDirac.hpp"
 #include "KagomeVBC.hpp"
 
+#include "HoneycombFermi.hpp"
+#include "HoneycombFree.hpp"
+#include "HoneycombPlaquette.hpp"
 #include "Honeycomb0pp.hpp"
 #include "HoneycombPiFlux.hpp"
-#include "HoneycombFree.hpp"
 #include "HoneycombChiral.hpp"
 
 /*{*//*!Class that creates any kind of wavefunctions

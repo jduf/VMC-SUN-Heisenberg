@@ -9,7 +9,7 @@ TrianglePhi::TrianglePhi(System const& s, double const& phi):
 		init_lattice();
 		init_fermionic();
 
-		system_info_.text("Square Phiflux :");
+		system_info_.text("SquarePhiflux :");
 		system_info_.text(" Each color has a different Hamiltonian.");
 		system_info_.text(" Each neighbouring triangle has a flux of opposite sign.");
 

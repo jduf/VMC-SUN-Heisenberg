@@ -12,7 +12,7 @@ class HoneycombChiral: public Honeycomb<std::complex<double> >{
 		void check();
 
 	protected:
-		double const phi_;
+		double const phi_; //!< flux per hexagonal plaquette
 
 		void compute_H();
 		void display_results();

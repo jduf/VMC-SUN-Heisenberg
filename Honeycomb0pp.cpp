@@ -1,6 +1,6 @@
 #include "Honeycomb0pp.hpp"
 
-Honeycomb0pp::Honeycomb0pp(System const& s, double td):
+Honeycomb0pp::Honeycomb0pp(System const& s, double const& td):
 	System(s),
 	Honeycomb<double>(set_ab(),6,"honeycomb0pp"),
 	td_(td)
@@ -10,6 +10,7 @@ Honeycomb0pp::Honeycomb0pp(System const& s, double td):
 		init_fermionic();
 
 		filename_ += "-td" + my::tostring(td_);
+
 		system_info_.text("Honeycomb0pp : 6 sites per unit cell, in the center hexagon there is a 0-flux,");
 		system_info_.text("if td<0, the two other hexagons contain a pi-flux, if td>0, their flux is 0");
 		system_info_.text("th is set to 1");
@@ -95,10 +96,8 @@ void Honeycomb0pp::lattice(){
 	ps.polygon(draw_unit_cell(),"linecolor=black");
 
 	double t;
-	double corr;
 	unsigned int s0;
 	unsigned int s1;
-	std::string str;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		xy0 = x_[s0];
@@ -106,62 +105,23 @@ void Honeycomb0pp::lattice(){
 		s1 = obs_[0](i,1);
 		xy1 = x_[s1];
 
-		//if(!(my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy0(0),xy0(1)) || my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy1(0),xy1(1))) ){
 		t = H_(s0,s1);
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
 				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
-				ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-			} else { 
-				linestyle = "solid";  
-				if(s0<s1){
-					ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
-					ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}"); 
-				}
-			}
+				if(obs_[0](i,3)){ ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}"); }
+			} else { linestyle = "solid"; }
 
 			if(t>0){ color = "blue";}
 			else   { color = "red"; }
 			linewidth = my::tostring(std::abs(t))+"mm";
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
-		//} else {
-		if(obs_.size()>1){/*bound energy*/
-			corr = obs_[1][obs_[0](i,2)].get_x();
-			if(std::abs(corr)>1e-4){
-				if(corr>0){ color = "blue"; }
-				else      { color = "red"; }
-				linewidth = my::tostring(std::abs(corr))+"mm";
-
-				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-			}
-
-			//if(i%3!=1){
-			//if(i%3==0){
-			//ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}");
-			//}
-			//str = my::tostring(corr);
-			//ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1),"\\tiny{"+str.substr(0,8)+"}");
-			//str = my::tostring(obs_[1][i].get_dx());
-			////if(obs_[1][i].get_dx()<1e-4){
-			////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
-			////} else {
-			////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,8)+"}");
-			////}
-			//} else {
-			//ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}");
-			//str = my::tostring(corr);
-			//ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0,"\\tiny{"+str.substr(0,8)+"}");
-			//str = my::tostring(obs_[1][i].get_dx());
-			////if(obs_[1][i].get_dx()<1e-4){
-			////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
-			////} else {
-			////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,8)+"}");
-			////}
-			//}
+		if(!(i%3)){ 
+			ps.put(xy1(0)+0.10,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
+			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
 		}
-		//}
 	}
 	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
 	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
@@ -219,35 +179,5 @@ std::string Honeycomb0pp::extract_level_7(){
 	rst_file_ = NULL;
 
 	return my::tostring(td_);
-}
-
-std::string Honeycomb0pp::extract_level_6(){
-	double td(0);
-	unsigned int nof(0);
-	(*read_)>>nof;
-	int nobs;
-	std::vector<Observable> obs;
-	for(unsigned int i(0);i<nof;i++){
-		(*read_)>>td>>nobs;
-		obs.clear();
-		for(int i(0);i<nobs;i++){ obs.push_back(Observable(*read_)); }
-		if(obs[0][0].get_x()<get_energy().get_x()){
-			obs_ = obs ;
-			td_ = td;
-		}
-	}
-
-	jd_write_->add_header()->nl();
-	save_param(*jd_write_);
-	save(*jd_write_);
-
-	Gnuplot gp(analyse_+path_+dir_,filename_);
-	gp+="set xlabel '$\\frac{t_d}{t_h}$' offset 17,1.4";
-	gp+="set y2label '$\\dfrac{E}{n}$'";
-	gp+="plot '"+filename_+".dat' u 1:2:3 w e notitle";
-	gp.save_file();
-	gp.create_image(true,true);
-
-	return filename_;
 }
 /*}*/

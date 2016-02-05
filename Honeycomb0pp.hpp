@@ -5,7 +5,7 @@
 
 class Honeycomb0pp: public Honeycomb<double>{
 	public:
-		Honeycomb0pp(System const& s, double td);
+		Honeycomb0pp(System const& s, double const& td);
 		~Honeycomb0pp() = default;
 
 		void create();
@@ -13,7 +13,7 @@ class Honeycomb0pp: public Honeycomb<double>{
 		void check();
 
 	protected:
-		double td_;
+		double const td_;
 
 		void compute_H();
 
@@ -24,6 +24,5 @@ class Honeycomb0pp: public Honeycomb<double>{
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 
 		std::string extract_level_7();
-		std::string extract_level_6();
 };
 #endif
