@@ -324,6 +324,11 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 					else { std::cerr<<__PRETTY_FUNCTION__<<" : tilted cluster chosen by default (to change -u:cluster 0)"<<std::endl; }
 				}
 			}break;
+		case 5:
+			{
+				unsigned int n(P.get<unsigned int>("n"));
+				if(my::are_equal(sqrt(n/9.0),floor(sqrt(n/9.0)))){ ref(3) = 1; }
+			}break;
 		case 6:
 			{
 				unsigned int n(P.get<unsigned int>("n"));

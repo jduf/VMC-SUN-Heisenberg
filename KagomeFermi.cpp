@@ -32,16 +32,4 @@ void KagomeFermi<std::complex<double> >::create(){
 			}
 		}
 	}
-
-	//compute_H();
-	//BandStructure<std::complex<double> > bs(H_,Lx_,Ly_,spuc_,bc_);
-	//Matrix<std::complex<double> > eval(n_,3);
-	//Vector<double> tmp_eval;
-	//Lapack<std::complex<double> >(H_,true,'H').eigensystem(tmp_eval,false);
-	//for(unsigned int i(0);i<n_;i++){
-		//eval(i,0) = tmp_eval(i);
-	//}
-	//std::cout<<eval<<std::endl;
-	//bs.diagonalize_everything(evec_,eval);
-
 }

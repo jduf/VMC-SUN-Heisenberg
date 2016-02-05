@@ -20,13 +20,13 @@ class Honeycomb: public System2DBis<Type>{
 
 		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& spuc);
 		bool reset_pos_in_lattice(Vector<double>& x) const;
-		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const;
+		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const;
 };
 
 /*{constructor*/
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2DBis<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc),ab,spuc,3,filename)
+	System2DBis<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc),ab,spuc,3,3,filename)
 {}
 
 template<typename Type>
@@ -65,7 +65,6 @@ void Honeycomb<Type>::init_lattice(){
 		}
 
 		Vector<double> x_loop(this->x_[0]);
-		bool check_if_loop(false);
 		for(unsigned int i(1);i<this->n_;i++){
 			if(this->ref_(3)){
 				if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[0]; }
@@ -74,9 +73,8 @@ void Honeycomb<Type>::init_lattice(){
 				if(i%2){ this->x_[i] = this->x_[i-1] + this->dir_nn_[1]; }
 				else   { this->x_[i] = this->x_[i-1] - this->dir_nn_[2]; }
 			}
-			if(reset_pos_in_lattice(this->x_[i])){ check_if_loop = true; }
-			if(check_if_loop && my::are_equal(this->x_[i],x_loop)){
-				check_if_loop = false;
+			reset_pos_in_lattice(this->x_[i]);
+			if(my::are_equal(this->x_[i],x_loop)){
 				if(this->ref_(3)){ this->x_[i](1) += sqrt(3.0); }
 				else { this->x_[i] += this->dir_nn_[0]-this->dir_nn_[1]; }
 				reset_pos_in_lattice(this->x_[i]);
@@ -86,12 +84,12 @@ void Honeycomb<Type>::init_lattice(){
 		}
 
 		if(this->ref_(3)){
-			this->boundary_vertex_[0] = (this->dir_nn_[2]-this->dir_nn_[0])*0.25 + (this->dir_nn_[2]-this->dir_nn_[0])*L_;
+			this->boundary_vertex_[0] = (this->dir_nn_[2]-this->dir_nn_[0])*0.2 + (this->dir_nn_[2]-this->dir_nn_[0])*L_;
 			this->boundary_vertex_[1] = this->boundary_vertex_[0] + this->dir_nn_[0]*L_*3.0;
 			this->boundary_vertex_[2] = this->boundary_vertex_[1] - this->dir_nn_[2]*L_*3.0;
 			this->boundary_vertex_[3] = this->boundary_vertex_[0] - this->dir_nn_[2]*L_*3.0;
 		} else {
-			this->boundary_vertex_[0] = this->dir_nn_[0]*-0.25 + this->dir_nn_[2]*L_;
+			this->boundary_vertex_[0] = this->dir_nn_[0]*-0.2 + this->dir_nn_[2]*L_;
 			this->boundary_vertex_[1] = this->boundary_vertex_[0] + (this->dir_nn_[0]-this->dir_nn_[2])*L_;
 			this->boundary_vertex_[2] = this->boundary_vertex_[1] + (this->dir_nn_[1]-this->dir_nn_[2])*L_;
 			this->boundary_vertex_[3] = this->boundary_vertex_[0] + (this->dir_nn_[1]-this->dir_nn_[2])*L_;
@@ -176,7 +174,7 @@ Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n, unsigned int
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		std::vector<unsigned int> v;
 		unsigned int n;
-		for(unsigned int l(2);l<20;l++){ 
+		for(unsigned int l(2);l<20;l++){
 			n = 6*l*l;
 			if(!(n%spuc)){ v.push_back(n); }
 			n = 2*l*l;
@@ -229,7 +227,8 @@ bool Honeycomb<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 }
 
 template<typename Type>
-Vector<double> Honeycomb<Type>::get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const {
+Vector<double> Honeycomb<Type>::get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const {
+	nn_dir = d;
 	if(i%2){ return -this->dir_nn_[d]; }
 	else { return this->dir_nn_[d]; }
 }

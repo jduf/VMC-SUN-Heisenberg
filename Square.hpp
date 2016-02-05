@@ -21,13 +21,13 @@ class Square: public System2DBis<Type>{
 
 		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& spuc, unsigned int const& ref3);
 		bool reset_pos_in_lattice(Vector<double>& x) const;
-		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const;
+		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const;
 };
 
 /*{constructor*/
 template<typename Type>
 Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0,spuc,this->ref_(3)),ab,spuc,4,filename+"-ref"+my::tostring(this->ref_(3)))
+	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0,spuc,this->ref_(3)),ab,spuc,4,4,filename+"-ref"+my::tostring(this->ref_(3)))
 {}
 
 template<typename Type>
@@ -62,12 +62,10 @@ void Square<Type>::init_lattice(){
 		this->x_[0] = this->x_[0]/sqrt(this->x_[0].norm_squared())*0.01;
 
 		Vector<double> x_loop(this->x_[0]);
-		bool check_if_loop(false);
 		for(unsigned int i(1);i<this->n_;i++){
 			this->x_[i] = this->x_[i-1] + this->dir_nn_[0];
-			if(reset_pos_in_lattice(this->x_[i])){ check_if_loop = true; }
-			if(check_if_loop && my::are_equal(this->x_[i],x_loop)){
-				check_if_loop = false;
+			reset_pos_in_lattice(this->x_[i]);
+			if(my::are_equal(this->x_[i],x_loop)){
 				this->x_[i] += this->dir_nn_[1];
 				reset_pos_in_lattice(this->x_[i]);
 				x_loop = this->x_[i];
@@ -111,9 +109,9 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int co
 	if(n){
 		p_ = sqrt(n);
 		bool allowed_cluster(false);
-		if(!ref3 && my::are_equal(sqrt(n),p_)){ 
+		if(!ref3 && my::are_equal(sqrt(n),p_)){
 			allowed_cluster = true;
-			q_ = 0; 
+			q_ = 0;
 		} else {
 			for(unsigned int p(0);p<=sqrt(n);p++){
 				for(unsigned int q(0);q<p+1;q++){
@@ -177,7 +175,8 @@ bool Square<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 }
 
 template<typename Type>
-Vector<double> Square<Type>::get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const {
+Vector<double> Square<Type>::get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const {
+	nn_dir = d;
 	(void)(i);
 	return this->dir_nn_[d];
 }

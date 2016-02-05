@@ -93,15 +93,17 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 		unsigned int k(0);
 		unsigned int l_tmp;
 		Matrix<int> nb;
-		for(unsigned int i(0);i<this->n_;i++){
-			l_tmp =l(i%l.size());
-			if(l_tmp){
-				nb = get_neighbourg(i);
-				for(unsigned int j(0);j<l_tmp;j++){
-					if(this->bc_ || nb(j,1)==0){ k++; }
+		if(!this->bc_){
+			for(unsigned int i(0);i<this->n_;i++){
+				l_tmp =l(i%l.size());
+				if(l_tmp){
+					nb = get_neighbourg(i);
+					for(unsigned int j(0);j<l_tmp;j++){
+						if(this->bc_ || nb(j,1)==0){ k++; }
+					}
 				}
 			}
-		}
+		} else { k = this->n_*this->z_/2; }
 		Matrix<int> tmp(k,7);
 		k=0;
 		for(unsigned int i(0);i<this->n_;i++){
@@ -109,15 +111,16 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 			if(l_tmp){
 				nb = get_neighbourg(i);
 				for(unsigned int j(0);j<l_tmp;j++){
-					if(this->bc_ || nb(j,1)==0 ){
-						tmp(k,0) = i;
-						tmp(k,1) = nb(j,0);
-						/*!set tmp(k,2) to -1 so that when one wants to measure the
-						 * bond energy, one has to redefine the correct mapping
-						 * between all bonds and the representative ones*/
-						tmp(k,2) =-1;
-						tmp(k,3) = j;
-						tmp(k,4) = nb(j,1);
+					if(this->bc_ || nb(j,2)==0 ){
+						/*!set tmp(k,2) to -1 so that when one wants to measure
+						 * the bond energy, one has to redefine the correct
+						 * mapping between all bonds and the representative
+						 * ones*/
+						tmp(k,0) = i;		//! site i
+						tmp(k,1) = nb(j,0); //! site j
+						tmp(k,2) =-1;		//! equivalent site in the unit cell
+						tmp(k,3) = nb(j,1);	//! direction of vector linking i->j
+						tmp(k,4) = nb(j,2); //! boundary condition test
 						tmp(k,5) = get_site_in_unit_cell(i);
 						tmp(k,6) = get_site_in_unit_cell(nb(j,0));
 						k++;

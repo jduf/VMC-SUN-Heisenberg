@@ -20,13 +20,13 @@ class Triangle: public System2DBis<Type>{
 
 		Matrix<double> set_geometry(unsigned int const& n);
 		bool reset_pos_in_lattice(Vector<double>& x) const;
-		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const;
+		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const;
 };
 
 /*{constructor*/
 template<typename Type>
 Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0),ab,spuc,6,filename)
+	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0),ab,spuc,6,6,filename)
 {}
 
 template<typename Type>
@@ -67,12 +67,10 @@ void Triangle<Type>::init_lattice(){
 		this->x_[0](1)+= 0.01;
 
 		Vector<double> x_loop(this->x_[0]);
-		bool check_if_loop(false);
 		for(unsigned int i(1);i<this->n_;i++){
 			this->x_[i] = this->x_[i-1] + this->dir_nn_[0];
-			if(reset_pos_in_lattice(this->x_[i])){ check_if_loop = true; }
-			if(check_if_loop && my::are_equal(this->x_[i],x_loop)){
-				check_if_loop = false;
+			reset_pos_in_lattice(this->x_[i]);
+			if(my::are_equal(this->x_[i],x_loop)){
 				this->x_[i] += this->dir_nn_[1];
 				reset_pos_in_lattice(this->x_[i]);
 				x_loop = this->x_[i];
@@ -141,7 +139,7 @@ Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n){
 			tmp(1,1) =-a*L_;
 			tmp(2,0) = tmp(1,0);
 			tmp(2,1) =-tmp(1,1);
-			tmp(3,0) = tmp(0,0);
+			tmp(3,0) =-tmp(0,0);
 			tmp(3,1) =-tmp(0,1);
 			tmp(4,0) =-tmp(1,0);
 			tmp(4,1) =-tmp(1,1);
@@ -197,7 +195,8 @@ bool Triangle<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 }
 
 template<typename Type>
-Vector<double> Triangle<Type>::get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const {
+Vector<double> Triangle<Type>::get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const {
+	nn_dir = d;
 	(void)(i);
 	return this->dir_nn_[d];
 }

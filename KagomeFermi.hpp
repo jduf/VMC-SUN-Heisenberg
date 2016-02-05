@@ -56,7 +56,7 @@ Matrix<double> KagomeFermi<Type>::set_ab() const {
 	Matrix<double> tmp(2,2);
 	tmp(0,0) = 2.0;
 	tmp(1,0) = 0.0;
-	tmp(0,1) =-1.0;
+	tmp(0,1) = 1.0;
 	tmp(1,1) = sqrt(3.0);
 	return tmp;
 }

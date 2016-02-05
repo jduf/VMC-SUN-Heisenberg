@@ -17,7 +17,7 @@ template<typename Type>
 class System2DBis: public GenericSystem<Type>{
 	public:
 		/*!Constructor*/
-		System2DBis(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename);
+		System2DBis(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, unsigned int const& ndir, std::string const& filename);
 		/*!Destructor*/
 		virtual ~System2DBis();
 
@@ -68,14 +68,14 @@ class System2DBis: public GenericSystem<Type>{
 		/*!Resets x so it pos_out_of_lattice returns true*/
 		virtual bool reset_pos_in_lattice(Vector<double>& x) const = 0;
 		/*!Get the vector that separates the site i from its neighbourg in the direction d*/
-		virtual Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d) const = 0;
+		virtual Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const = 0;
 		/*!Returns the index of the site i in the unit cell*/
 		unsigned int get_site_in_unit_cell(unsigned int const& i) const;
 };
 
 /*{constructor*/
 template<typename Type>
-System2DBis<Type>::System2DBis(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, std::string const& filename):
+System2DBis<Type>::System2DBis(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, unsigned int const& ndir, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename),
 	cluster_vertex_(cluster_vertex),
 	boundary_vertex_(NULL),
@@ -95,10 +95,10 @@ System2DBis<Type>::System2DBis(Matrix<double> const& cluster_vertex, Matrix<doub
 			if(!this->obs_.size() || !this->obs_[0].nlinks()){
 				if(cluster_vertex_.ptr()){
 					boundary_vertex_ = new Vector<double>[4];
-					dir_nn_ = new Vector<double>[this->z_];
-					x_ = new Vector<double>[this->n_];		
+					dir_nn_ = new Vector<double>[ndir];
+					x_ = new Vector<double>[this->n_];
 					for(unsigned int i(0);i<this->n_;i++){ x_[i].set(2); }
-					for(unsigned int i(0);i<this->z_;i++){ dir_nn_[i].set(2); }
+					for(unsigned int i(0);i<ndir;i++){ dir_nn_[i].set(2); }
 
 					/*!check if the distance between each vertex matches the
 					 * vectors of the unit cell*/
@@ -114,6 +114,7 @@ System2DBis<Type>::System2DBis(Matrix<double> const& cluster_vertex, Matrix<doub
 
 					if(!fit){ std::cerr<<__PRETTY_FUNCTION__<<" : it seems that the unit cell doesn't fit into the cluster (not sure)"<<std::endl; }
 					else { this->status_ = 2; }
+					this->status_ = 2; 
 				} else { std::cerr<<__PRETTY_FUNCTION__<<" : undefined geometry"<<std::endl; }
 			} else { this->status_ = 2; }
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
@@ -202,13 +203,13 @@ template<typename Type>
 Matrix<int> System2DBis<Type>::get_neighbourg(unsigned int const& i) const {
 	/*!nn* are the nearest neighbours */
 	Vector<double>* nn(new Vector<double>[this->z_]);
-	Matrix<int> nb(this->z_,2);
+	Matrix<int> nb(this->z_,3);
 	std::vector<unsigned int> dir(this->z_);
 	for(unsigned int d(0);d<this->z_;d++){
 		dir[d]= d;
 		nn[d] = x_[i];
-		nn[d]+= get_relative_neighbourg_position(i,d);
-		nb(d,1) = handle_boundary(x_[i],nn[d]);
+		nn[d]+= get_relative_neighbourg_position(i,d,nb(d,1));
+		nb(d,2) = handle_boundary(x_[i],nn[d]);
 	}
 
 	unsigned int j(0);
