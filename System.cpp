@@ -110,7 +110,7 @@ void System::save_input(IOFiles& w) const {
 	rst.title("Input",'+');
 	w.add_header()->add(rst.get());
 
-	w.write("ref (geometry : "+my::tostring(ref_(3))+")",ref_);
+	w.write("ref (geometry "+my::tostring(ref_(3))+")",ref_);
 	w.write("SU",N_);
 	w.write("m (#particles per site)",m_);
 	w.write("n (#site)",n_);

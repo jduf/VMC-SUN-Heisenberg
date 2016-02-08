@@ -6,7 +6,7 @@
 template<typename Type>
 class Kagome: public System2D<Type>{
 	public:
-		/*!Constructor that organises the n=3L^2 sites (L integer)*/
+		/*!Constructor that organises the n=9L^2 or 9L^2 sites (L integer)*/
 		Kagome(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
 		/*!Pure virtual destructor (abstract class)*/
 		virtual ~Kagome()=0;
@@ -36,76 +36,79 @@ Kagome<Type>::~Kagome() = default;
 /*{protected methods*/
 template<typename Type>
 void Kagome<Type>::init_lattice(){
-	if(!this->obs_.size() || !this->obs_[0].nlinks()){
-		/*{!the directions are given in the cartesian basis
-		 *
-		 * (-1,sqrt(3))/2  (1,sqrt(3))/2
-		 *               \ /
-		 *        (-1,0)--x--(1,0)
-		 *               / \
-		 * (-1,-sqrt(3))/2 (1,-sqrt(3))/2
-		 *}*/
-		this->dir_nn_[0](0) = 1.0;
-		this->dir_nn_[0](1) = 0.0;
+	if( this->obs_.size() && this->obs_[0].nlinks() ){ this->status_ = 2; }
+	else {
+		if(this->dir_nn_){
+			/*{!the directions are given in the cartesian basis
+			 *
+			 * (-1,sqrt(3))/2  (1,sqrt(3))/2
+			 *               \ /
+			 *        (-1,0)--x--(1,0)
+			 *               / \
+			 * (-1,-sqrt(3))/2 (1,-sqrt(3))/2
+			 *}*/
+			this->dir_nn_[0](0) = 1.0;
+			this->dir_nn_[0](1) = 0.0;
 
-		this->dir_nn_[1](0) = 0.5;
-		this->dir_nn_[1](1) = sqrt(3.0)/2.0;
+			this->dir_nn_[1](0) = 0.5;
+			this->dir_nn_[1](1) = sqrt(3.0)/2.0;
 
-		this->dir_nn_[2](0) =-0.5;
-		this->dir_nn_[2](1) = sqrt(3.0)/2.0;
+			this->dir_nn_[2](0) =-0.5;
+			this->dir_nn_[2](1) = sqrt(3.0)/2.0;
 
-		this->dir_nn_[3](0) =-1.0;
-		this->dir_nn_[3](1) = 0.0;
+			this->dir_nn_[3](0) =-1.0;
+			this->dir_nn_[3](1) = 0.0;
 
-		this->dir_nn_[4](0) =-0.5;
-		this->dir_nn_[4](1) =-sqrt(3.0)/2.0;
+			this->dir_nn_[4](0) =-0.5;
+			this->dir_nn_[4](1) =-sqrt(3.0)/2.0;
 
-		this->dir_nn_[5](0) = 0.5;
-		this->dir_nn_[5](1) =-sqrt(3.0)/2.0;
+			this->dir_nn_[5](0) = 0.5;
+			this->dir_nn_[5](1) =-sqrt(3.0)/2.0;
 
-		this->x_[0].set(2);
-		this->x_[0](0) =-0.5001; 
-		if(this->ref_(3)){ this->x_[0](1) =-0.5001; }
-		else             { this->x_[0](1) =-0.0001; }
+			this->x_[0].set(2);
+			this->x_[0](0) =-0.5001; 
+			if(this->ref_(3)){ this->x_[0](1) =-0.5001; }
+			else             { this->x_[0](1) =-0.0001; }
 
-		Vector<double> x_loop(this->x_[0]);
-		for(unsigned int i(1);i<this->n_;i++){
-			switch(i%3){
-				case 0: { this->x_[i] = this->x_[i-1] + this->dir_nn_[0]; }break;
-				case 1: { this->x_[i] = this->x_[i-1] + this->dir_nn_[1]; }break;
-				case 2: { this->x_[i] = this->x_[i-1] + this->dir_nn_[5]; }break;
-			}
-			reset_pos_in_lattice(this->x_[i]);
-			if(my::are_equal(this->x_[i],x_loop)){
-				this->x_[i] += this->dir_nn_[1]*2.0;
+			Vector<double> x_loop(this->x_[0]);
+			for(unsigned int i(1);i<this->n_;i++){
+				switch(i%3){
+					case 0: { this->x_[i] = this->x_[i-1] + this->dir_nn_[0]; }break;
+					case 1: { this->x_[i] = this->x_[i-1] + this->dir_nn_[1]; }break;
+					case 2: { this->x_[i] = this->x_[i-1] + this->dir_nn_[5]; }break;
+				}
 				reset_pos_in_lattice(this->x_[i]);
-				x_loop = this->x_[i];
+				if(my::are_equal(this->x_[i],x_loop)){
+					this->x_[i] += this->dir_nn_[1]*2.0;
+					reset_pos_in_lattice(this->x_[i]);
+					x_loop = this->x_[i];
+				}
+				this->x_[i] = this->x_[i].chop();
 			}
-			this->x_[i] = this->x_[i].chop();
+
+			if(this->ref_(3)){
+				this->boundary_vertex_[0] = this->dir_nn_[3]*0.2 + this->dir_nn_[4]*L_*2.0;
+				this->boundary_vertex_[1] = this->boundary_vertex_[0] + (this->dir_nn_[0]+this->dir_nn_[1])*L_*2.0;
+				this->boundary_vertex_[2] = this->boundary_vertex_[1] + (this->dir_nn_[2]+this->dir_nn_[1])*L_*2.0;
+				this->boundary_vertex_[3] = this->boundary_vertex_[0] + (this->dir_nn_[2]+this->dir_nn_[1])*L_*2.0;
+			} else {
+				this->boundary_vertex_[0] = (this->dir_nn_[4]+this->dir_nn_[3])*0.2 - (this->dir_nn_[0]+this->dir_nn_[1])*L_/1.5;
+				this->boundary_vertex_[1] = this->boundary_vertex_[0] + this->dir_nn_[0]*L_*2.0;
+				this->boundary_vertex_[2] = this->boundary_vertex_[1] + this->dir_nn_[1]*L_*2.0;
+				this->boundary_vertex_[3] = this->boundary_vertex_[0] + this->dir_nn_[1]*L_*2.0;
+			}
+
+			if(this->unit_cell_allowed()){ this->status_ = 2; }
+
+			this->set_nn_links(Vector<unsigned int>(3,2));
+
+			/*!sets the bond energy if it has not been set yet*/
+			if(this->obs_[0].nlinks() != this->J_.size()){
+				if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
+				else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
+			}
 		}
-
-		if(this->ref_(3)){
-			this->boundary_vertex_[0] = this->dir_nn_[3]*0.2 + this->dir_nn_[4]*L_*2.0;
-			this->boundary_vertex_[1] = this->boundary_vertex_[0] + (this->dir_nn_[0]+this->dir_nn_[1])*L_*2.0;
-			this->boundary_vertex_[2] = this->boundary_vertex_[1] + (this->dir_nn_[2]+this->dir_nn_[1])*L_*2.0;
-			this->boundary_vertex_[3] = this->boundary_vertex_[0] + (this->dir_nn_[2]+this->dir_nn_[1])*L_*2.0;
-		} else {
-			this->boundary_vertex_[0] = (this->dir_nn_[4]+this->dir_nn_[3])*0.2 - (this->dir_nn_[0]+this->dir_nn_[1])*L_/1.5;
-			this->boundary_vertex_[1] = this->boundary_vertex_[0] + this->dir_nn_[0]*L_*2.0;
-			this->boundary_vertex_[2] = this->boundary_vertex_[1] + this->dir_nn_[1]*L_*2.0;
-			this->boundary_vertex_[3] = this->boundary_vertex_[0] + this->dir_nn_[1]*L_*2.0;
-		}
-
-		if(this->unit_cell_allowed()){ this->status_ = 2; }
-
-		this->set_nn_links(Vector<unsigned int>(3,2));
-
-		/*!sets the bond energy if it has not been set yet*/
-		if(this->obs_[0].nlinks() != this->J_.size()){
-			if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
-			else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
-		}
-	} else { this->status_ = 2; }
+	}
 }
 
 template<typename Type>
@@ -166,9 +169,21 @@ Matrix<double> Kagome<Type>::set_geometry(unsigned int const& n, unsigned int co
 			tmp(6,1) = tmp(0,1);
 			return tmp;
 		}
+
+		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
+		std::vector<unsigned int> v;
+		unsigned int m;
+		for(unsigned int i(2);i<20;i++){
+			m = 3*i*i;
+			if(!(m%spuc)){ v.push_back(m); }
+			m = (3*i)*(3*i);
+			if(!(m%spuc)){ v.push_back(m); }
+		}
+		std::sort(v.begin(),v.end(),std::less<unsigned int>());
+		v.erase(std::unique(v.begin(),v.end()),v.end());
+		for(unsigned int i(0);i<v.size();i++){ std::cerr<<"n="<<v[i]<<std::endl; }
+		std::cerr<<"n=9*l*l or 3*l*l"<<std::endl;
 	}
-	(void)(spuc);	
-	std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 	return Matrix<double>();
 }
 

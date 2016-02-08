@@ -197,7 +197,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 0:
-									{ RGL_ = new SquareFermi<double>(*s_); }break;
+									{ RGL_ = new SquareFermi(*s_); }break;
 								case 1:
 									{
 										Vector<double> t(2);
@@ -254,16 +254,14 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 1:
 						{
 							switch(ref_(2)){
-								case 0: { RGL_ = new KagomeFermi<double>(*s_); }break;
-								case 1: { RGL_ = new KagomeDirac<double>(*s_); }break;
+								case 0: { RGL_ = new KagomeFermi(*s_); }break;
+								case 1: { RGL_ = new KagomeDirac(*s_); }break;
 								default:{ error(); }break;
 							}
 						} break;
 					case 2:
 						{
 							switch(ref_(2)){
-								case 0: { CGL_ = new KagomeFermi<std::complex<double> >(*s_); }break;
-								case 1: { CGL_ = new KagomeDirac<std::complex<double> >(*s_); }break;
 								case 2: { CGL_ = new KagomeVBC(*s_); }break;
 								default:{ error(); }break;
 							}

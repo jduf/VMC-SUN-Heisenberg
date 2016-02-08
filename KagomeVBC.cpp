@@ -19,9 +19,9 @@ KagomeVBC::KagomeVBC(System const& s):
 /*{method needed for running*/
 void KagomeVBC::compute_H(){
 	H_.set(n_,n_,0);
+
 	double t(-1.0);
 	double phi(M_PI/6.0);
-
 	unsigned int s0(0);
 	unsigned int s1(0);
 	unsigned int ab0(0);
@@ -31,8 +31,8 @@ void KagomeVBC::compute_H(){
 		s1 = obs_[0](i,1);
 		ab0 = obs_[0](i,5);
 		ab1 = obs_[0](i,6);
-		if((ab0==3 && ab1==5) || (ab0==4 && ab1==6) || (ab0==5 && ab1==2) || (ab0==7 && ab1==8) || (ab0==8 && ab1==0)){ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_:1)*t,-phi); }
-		else { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_:1)*t,phi); }
+		if((ab0==3 && ab1==5) || (ab0==4 && ab1==6) || (ab0==5 && ab1==2) || (ab0==7 && ab1==8) || (ab0==8 && ab1==0)){ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),-phi); }
+		else { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi); }
 	}
 	H_ += H_.conjugate_transpose();
 }

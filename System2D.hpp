@@ -94,14 +94,12 @@ System2D<Type>::System2D(Matrix<double> const& cluster_vertex, Matrix<double> co
 			inv_ab_(1,1) = ab_(0,0);
 			inv_ab_/=(ab_(0,0)*ab_(1,1)-ab_(1,0)*ab_(0,1));
 
-			if(!this->obs_.size() || !this->obs_[0].nlinks()){
-				if(cluster_vertex_.ptr()){
-					boundary_vertex_ = new Vector<double>[4];
-					dir_nn_ = new Vector<double>[ndir];
-					x_ = new Vector<double>[this->n_];
-					for(unsigned int i(0);i<this->n_;i++){ x_[i].set(2); }
-					for(unsigned int i(0);i<ndir;i++){ dir_nn_[i].set(2); }
-				} else { std::cerr<<__PRETTY_FUNCTION__<<" : undefined geometry"<<std::endl; }
+			if( (!this->obs_.size() || !this->obs_[0].nlinks()) && cluster_vertex_.ptr()){
+				boundary_vertex_ = new Vector<double>[4];
+				dir_nn_ = new Vector<double>[ndir];
+				x_ = new Vector<double>[this->n_];
+				for(unsigned int i(0);i<this->n_;i++){ x_[i].set(2); }
+				for(unsigned int i(0);i<ndir;i++){ dir_nn_[i].set(2); }
 			}
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
 	}
