@@ -5,8 +5,8 @@ TrianglePlaquette::TrianglePlaquette(System const& s, double const& t):
 	Triangle<double>(set_ab(),3,"triangle-plaquette"),
 	t_(t)
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		system_info_.text("TrianglePlaquette :");
@@ -142,6 +142,7 @@ void TrianglePlaquette::check(){
 	dir_  = "./";
 	filename_ ="triangle-plaquette";
 	display_results();
-	plot_band_structure();
+
+	//plot_band_structure();
 }
 /*}*/

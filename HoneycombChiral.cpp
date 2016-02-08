@@ -5,8 +5,8 @@ HoneycombChiral::HoneycombChiral(System const& s):
 	Honeycomb<std::complex<double> >(set_ab(),6,"honeyomb-chiral"),
 	phi_(2*M_PI/3)
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		system_info_.text("SquareChiral :");

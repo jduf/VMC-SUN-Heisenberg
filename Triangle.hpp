@@ -1,10 +1,10 @@
 #ifndef DEF_TRIANGLE
 #define DEF_TRIANGLE
 
-#include "System2DBis.hpp"
+#include "System2D.hpp"
 
 template<typename Type>
-class Triangle: public System2DBis<Type>{
+class Triangle: public System2D<Type>{
 	public:
 		/*!Constructor*/
 		Triangle(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
@@ -26,7 +26,7 @@ class Triangle: public System2DBis<Type>{
 /*{constructor*/
 template<typename Type>
 Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0),ab,spuc,6,6,filename)
+	System2D<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0),ab,spuc,6,6,filename)
 {}
 
 template<typename Type>
@@ -37,7 +37,7 @@ Triangle<Type>::~Triangle() = default;
 template<typename Type>
 void Triangle<Type>::init_lattice(){
 	if(!this->obs_.size() || !this->obs_[0].nlinks()){
-		/*{!the directions are given in the cartesian basis
+		/*{!The directions are given in the cartesian basis
 		 *
 		 * (-1,sqrt(3))/2  (1,sqrt(3))/2
 		 *               \ /
@@ -90,13 +90,15 @@ void Triangle<Type>::init_lattice(){
 			this->boundary_vertex_[3] = this->dir_nn_[3]*0.25 + this->dir_nn_[2]*L_;
 		}
 
+		if(this->unit_cell_allowed()){ this->status_ = 2; }
+
 		this->set_nn_links(Vector<unsigned int>(1,3));
 
 		/*!sets the bond energy if it has not been set yet*/
 		if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() == 1){
 			this->J_.set(this->obs_[0].nlinks(),1);
 		}
-	}
+	} else { this->status_ = 2; }
 }
 
 template<typename Type>

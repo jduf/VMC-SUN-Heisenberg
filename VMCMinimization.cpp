@@ -512,12 +512,12 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	dof_= P.get<unsigned int>("dof");
 	ps_ = new Vector<double>[dof_];
 
-	/*!Sets obs_ so its contains all possible observables that can be measured
+	/*!sets obs_ so its contains all possible observables that can be measured
 	 * for this given System*/
 	Vector<double> tmp(dof_,1.0);
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
-	if(cs.get_status()>2){
+	if(cs.get_status()>3){
 		std::cerr<<__PRETTY_FUNCTION__<<" delete s_, status_="<<cs.get_status()<<std::endl; 
 		delete s_;
 		s_ = NULL;
@@ -548,7 +548,7 @@ void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::st
 	in>>dof_;
 	ps_= new Vector<double>[dof_];
 
-	/*!Sets obs_ so its contains all possible observables that can be measured
+	/*!sets obs_ so its contains all possible observables that can be measured
 	 * for this given System*/
 	Vector<double> tmp(dof_,1.0);
 	CreateSystem cs(s_);
@@ -638,7 +638,7 @@ bool VMCMinimization::Minimization::within_limit(Vector<double> const& x) const 
 }
 
 void VMCMinimization::Minimization::save(IOFiles& out, bool const& all) const {
-	/*!Saves a system that has not been measured but it is required for the
+	/*!saves a system that has not been measured but it is required for the
 	 * eventual call of System(IOFiles& r).*/
 	s_->save(out);
 

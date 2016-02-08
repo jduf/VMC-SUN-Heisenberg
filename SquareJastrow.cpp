@@ -4,7 +4,7 @@ SquareJastrow::SquareJastrow(System const& s, Matrix<double> const& nu):
 	System(s),
 	Square<double>(set_ab(),2,"square-jastrow")
 {
-	init_lattice();
+	if(status_==3){ init_lattice(); }
 	init_bosonic(z_,nu);
 	compute_nn();
 	compute_sublattice();

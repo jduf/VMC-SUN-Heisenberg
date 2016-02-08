@@ -1,10 +1,10 @@
 #ifndef DEF_SQUARE
 #define DEF_SQUARE
 
-#include "System2DBis.hpp"
+#include "System2D.hpp"
 
 template<typename Type>
-class Square: public System2DBis<Type>{
+class Square: public System2D<Type>{
 	public:
 		/*!Constructor*/
 		Square(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
@@ -27,7 +27,7 @@ class Square: public System2DBis<Type>{
 /*{constructor*/
 template<typename Type>
 Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2DBis<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0,spuc,this->ref_(3)),ab,spuc,4,4,filename+"-ref"+my::tostring(this->ref_(3)))
+	System2D<Type>(set_geometry((!this->obs_.size() || !this->obs_[0].nlinks())?this->n_:0,spuc,this->ref_(3)),ab,spuc,4,4,filename+"-ref"+my::tostring(this->ref_(3)))
 {}
 
 template<typename Type>
@@ -78,6 +78,8 @@ void Square<Type>::init_lattice(){
 		this->boundary_vertex_[2] = this->boundary_vertex_[1] + this->dir_nn_[3]*p_ + this->dir_nn_[0]*q_;
 		this->boundary_vertex_[3] = this->boundary_vertex_[0] + this->dir_nn_[3]*p_ + this->dir_nn_[0]*q_;
 
+		if(this->unit_cell_allowed()){ this->status_ = 2; }
+
 		this->set_nn_links(Vector<unsigned int>(1,2));
 
 		/*!sets the bond energy if it has not been set yet*/
@@ -85,7 +87,7 @@ void Square<Type>::init_lattice(){
 			if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
 			else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
 		}
-	}
+	} else { this->status_ = 2; }
 }
 
 template<typename Type>

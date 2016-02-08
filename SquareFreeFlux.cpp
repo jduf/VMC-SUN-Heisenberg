@@ -5,8 +5,8 @@ SquareFreeFlux::SquareFreeFlux(System const& s, Vector<double> const& phi):
 	Square<std::complex<double> >(set_ab(),4,"square-freeflux"),
 	phi_(phi)
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		system_info_.text("FreeComplex :");

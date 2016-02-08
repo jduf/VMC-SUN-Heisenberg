@@ -4,8 +4,8 @@ HoneycombFermi::HoneycombFermi(System const& s):
 	System(s),
 	Honeycomb<double>(set_ab(),2,"honeycomb-fermi")
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		system_info_.text("HoneycombFermi :");

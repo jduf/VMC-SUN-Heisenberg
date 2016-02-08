@@ -5,8 +5,8 @@ Honeycomb0pp::Honeycomb0pp(System const& s, double const& td):
 	Honeycomb<double>(set_ab(),6,"honeycomb0pp"),
 	td_(td)
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		filename_ += "-td" + my::tostring(td_);

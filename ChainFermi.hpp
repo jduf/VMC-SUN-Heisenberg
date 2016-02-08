@@ -56,8 +56,8 @@ void ChainFermi<Type>::compute_H(){
 template<typename Type>
 void ChainFermi<Type>::check(){
 	this->compute_H();
-	this->plot_band_structure();
-	this->status_++;
+
+	//this->plot_band_structure();
 }
 
 template<typename Type>

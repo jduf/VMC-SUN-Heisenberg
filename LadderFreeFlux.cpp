@@ -252,9 +252,13 @@ void LadderFreeFlux::get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
 
 /*{method needed for checking*/
 void LadderFreeFlux::check(){
-	compute_H();
-	plot_band_structure();
-	//display_results();
+	info_ = "";
+	path_ = "";
+	dir_  = "./";
+	filename_ ="ladder-freeflux";
+	display_results();
+
+	//plot_band_structure();
 }
 
 void LadderFreeFlux::plot(bool const& create_image){
@@ -518,4 +522,3 @@ std::string LadderFreeFlux::extract_level_6(){
 	return filename_;
 }
 /*}*/
-

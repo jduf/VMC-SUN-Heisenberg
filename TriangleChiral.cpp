@@ -5,8 +5,8 @@ TriangleChiral::TriangleChiral(System const& s):
 	Triangle<std::complex<double> >(set_ab(),3,"triangle-chiral"),
 	phi_(M_PI/3.0)
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		system_info_.text("TriangleChiral :");
@@ -151,6 +151,6 @@ void TriangleChiral::check(){
 	filename_ ="triangle-chiral";
 	display_results();
 
-	plot_band_structure();
+	//plot_band_structure();
 }
 /*}*/

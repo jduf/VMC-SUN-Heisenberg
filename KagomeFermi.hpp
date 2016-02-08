@@ -19,10 +19,6 @@ class KagomeFermi: public Kagome<Type>{
 
 		Matrix<double> set_ab() const;
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
-
-		std::string extract_level_7();
-		std::string extract_level_6();
-		std::string extract_level_4();
 };
 
 template<typename Type>
@@ -30,8 +26,8 @@ KagomeFermi<Type>::KagomeFermi(System const& s):
 	System(s),
 	Kagome<Type>(set_ab(),3,"kagome-fermi")
 {
+	if(this->status_==3){ this->init_lattice(); }
 	if(this->status_==2){
-		this->init_lattice();
 		this->init_fermionic();
 
 		this->system_info_.text("KagomeFermi :");
@@ -129,46 +125,6 @@ void KagomeFermi<Type>::check(){
 template<typename Type>
 void KagomeFermi<Type>::display_results(){
 	lattice();
-}
-/*}*/
-
-/*{method needed for analysing*/
-template<typename Type>
-std::string KagomeFermi<Type>::extract_level_7(){
-	this->rst_file_ = new RSTFile(this->info_+this->path_+this->dir_,this->filename_);
-	unsigned int nruns;
-	unsigned int tmax;
-
-	(*this->read_)>>nruns>>tmax;
-	this->save(*this->jd_write_);
-
-	this->rst_file_->text(this->read_->get_header());
-	this->rst_file_->save(false,true);
-	delete this->rst_file_;
-	this->rst_file_ = NULL;
-
-	return this->filename_;
-}
-
-template<typename Type>
-std::string KagomeFermi<Type>::extract_level_6(){
-	unsigned int nof(0);
-	(*this->read_)>>nof;
-	for(unsigned int i(0);i<nof;i++){
-		(*this->data_write_)<<this->M_(0)<<" "<<this->obs_[0][0]<<" "<<this->ref_(0)<<this->ref_(1)<<this->ref_(2)<<IOFiles::endl;
-	}
-	this->save(*this->jd_write_);
-
-	return this->filename_;
-}
-
-template<typename Type>
-std::string KagomeFermi<Type>::extract_level_4(){
-	(*this->read_)>>this->obs_[0][0];
-	this->jd_write_->write("E",this->obs_[0][0]);
-	(*this->data_write_)<<this->M_(0)<<" "<<this->obs_[0][0]<<" "<<this->ref_(0)<<this->ref_(1)<<this->ref_(2)<<IOFiles::endl;
-
-	return this->filename_;
 }
 /*}*/
 #endif

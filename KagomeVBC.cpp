@@ -4,8 +4,8 @@ KagomeVBC::KagomeVBC(System const& s):
 	System(s),
 	Kagome<std::complex<double> >(set_ab(),9,"kagome-vbc")
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		system_info_.text("KagomeVBC :");
@@ -150,47 +150,6 @@ void KagomeVBC::check(){
 	filename_ ="kagome-vbc";
 	display_results();
 
-	plot_band_structure();
-}
-/*}*/
-
-/*{method needed for analysing*/
-std::string KagomeVBC::extract_level_7(){
-	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
-	unsigned int nruns;
-	unsigned int tmax;
-
-	(*read_)>>nruns>>tmax;
-	obs_.push_back(Observable(*read_));
-	/* the +1 is the averages over all runs */
-	jd_write_->write("E",obs_[0][0]);
-
-	rst_file_->text(read_->get_header());
-	rst_file_->save(false,true);
-	delete rst_file_;
-	rst_file_ = NULL;
-
-	return filename_;
-}
-
-std::string KagomeVBC::extract_level_6(){
-	unsigned int nof(0);
-	(*read_)>>nof;
-	save_input(*jd_write_);
-	for(unsigned int i(0);i<nof;i++){
-		(*read_)>>obs_[0][0];
-		(*data_write_)<<M_(0)<<" "<<obs_[0][0]<<" "<<ref_(0)<<ref_(1)<<ref_(2)<<IOFiles::endl;
-	}
-	jd_write_->write("E",obs_[0][0]);
-
-	return filename_;
-}
-
-std::string KagomeVBC::extract_level_4(){
-	(*read_)>>obs_[0];
-	jd_write_->write("E",obs_[0][0]);
-	(*data_write_)<<M_(0)<<" "<<obs_[0][0]<<" "<<ref_(0)<<ref_(1)<<ref_(2)<<IOFiles::endl;
-
-	return filename_;
+	//plot_band_structure();
 }
 /*}*/

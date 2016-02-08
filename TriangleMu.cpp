@@ -5,8 +5,8 @@ TriangleMu::TriangleMu(System const& s, double const& mu):
 	Triangle<double>(set_ab(),3,"triangle-mu"),
 	mu_(mu)
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 		same_wf_ = false;
 
@@ -86,7 +86,7 @@ void TriangleMu::display_results(){
 
 	std::string color("black");
 	std::string linestyle("solid");
-	std::string linewidth("1mm");
+	std::string linewidth("1pt");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
@@ -137,6 +137,7 @@ void TriangleMu::check(){
 	dir_  = "./";
 	filename_ ="triangle-mu";
 	display_results();
-	plot_band_structure();
+
+	//plot_band_structure();
 }
 /*}*/

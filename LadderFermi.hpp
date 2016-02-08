@@ -51,27 +51,13 @@ void LadderFermi<Type>::compute_H(){
 /*{method needed for checking*/
 template<typename Type>
 void LadderFermi<Type>::check(){
-	this->compute_H();
-
-	Matrix<int> nb;
-	for(unsigned int i(0);i<this->n_;i++){
-		nb = this->get_neighbourg(i);
-		std::cout<<"i="<<i;
-		std::cout<<" nb="<<nb(0,0);
-		std::cout<<","<<nb(1,0);
-		std::cout<<","<<nb(2,0)<<std::endl;;
-	}
-	for(unsigned int i(0);i<this->obs_[0].nlinks();i++){
-		std::cout<<"i="<<i;
-		std::cout<<" l="<<this->obs_[0](i,0);
-		std::cout<<","<<this->obs_[0](i,1);
-		std::cout<<" J="<<this->J_(i)<<std::endl;;
-	}
-	std::cout<<"Hamiltonien"<<std::endl;
-	std::cout<<this->H_<<std::endl;
-
-	this->plot_band_structure();
+	this->info_ = "";
+	this->path_ = "";
+	this->dir_  = "./";
+	this->filename_ ="ladder-fermi";
 	display_results();
+
+	//this->plot_band_structure();
 }
 
 template<typename Type>

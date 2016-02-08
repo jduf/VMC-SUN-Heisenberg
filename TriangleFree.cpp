@@ -6,8 +6,8 @@ TriangleFree::TriangleFree(System const& s, Vector<double> const& t, Vector<doub
 	t_(t),
 	mu_(mu)
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 		same_wf_ = false;
 

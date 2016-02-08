@@ -6,9 +6,10 @@ SquareFree::SquareFree(System const& s, Vector<double> const& t, Vector<double> 
 	t_(t),
 	mu_(mu)
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
+
 		bool need_compute_additional_links(true);
 		for(unsigned int i(0);i<obs_.size();i++){
 			if(obs_[i].get_type() == 4){ need_compute_additional_links = false; i=obs_.size(); }
@@ -214,6 +215,6 @@ void SquareFree::check(){
 	filename_ ="square-free";
 	display_results();
 
-	plot_band_structure();
+	//plot_band_structure();
 }
 /*}*/

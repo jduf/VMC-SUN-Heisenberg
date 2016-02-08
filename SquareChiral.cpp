@@ -5,8 +5,8 @@ SquareChiral::SquareChiral(System const& s, double const& phi):
 	Square<std::complex<double> >(set_ab(ref_(3)),5,"square-chiral"),
 	phi_(phi*M_PI/5.0)
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		system_info_.text("SquareChiral :");
@@ -172,6 +172,6 @@ void SquareChiral::check(){
 	filename_ ="square-chiral";
 	display_results();
 
-	plot_band_structure();
+	//plot_band_structure();
 }
 /*}*/

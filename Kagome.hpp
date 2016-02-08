@@ -1,10 +1,10 @@
 #ifndef DEF_KAGOME
 #define DEF_KAGOME
 
-#include "System2DBis.hpp"
+#include "System2D.hpp"
 
 template<typename Type>
-class Kagome: public System2DBis<Type>{
+class Kagome: public System2D<Type>{
 	public:
 		/*!Constructor that organises the n=3L^2 sites (L integer)*/
 		Kagome(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
@@ -26,7 +26,7 @@ class Kagome: public System2DBis<Type>{
 /*{constructor*/
 template<typename Type>
 Kagome<Type>::Kagome(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2DBis<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc),ab,spuc,4,6,filename)
+	System2D<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc),ab,spuc,4,6,filename)
 {}
 
 template<typename Type>
@@ -96,6 +96,8 @@ void Kagome<Type>::init_lattice(){
 			this->boundary_vertex_[3] = this->boundary_vertex_[0] + this->dir_nn_[1]*L_*2.0;
 		}
 
+		if(this->unit_cell_allowed()){ this->status_ = 2; }
+
 		this->set_nn_links(Vector<unsigned int>(3,2));
 
 		/*!sets the bond energy if it has not been set yet*/
@@ -103,7 +105,7 @@ void Kagome<Type>::init_lattice(){
 			if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
 			else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
 		}
-	}
+	} else { this->status_ = 2; }
 }
 
 template<typename Type>

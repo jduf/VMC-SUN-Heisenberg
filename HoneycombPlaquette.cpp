@@ -5,8 +5,8 @@ HoneycombPlaquette::HoneycombPlaquette(System const& s, Vector<double> const& t)
 	Honeycomb<double>(set_ab(),6,"honeycomb-plaquette"),
 	t_(t)
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		filename_ += "-t";

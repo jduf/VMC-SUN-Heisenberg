@@ -4,8 +4,8 @@ TriangleFermi::TriangleFermi(System const& s):
 	System(s),
 	Triangle<double>(set_ab(),1,"triangle-fermi")
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		system_info_.text("TriangleFermi :");
@@ -97,7 +97,7 @@ void TriangleFermi::check(){
 	dir_  = "./";
 	filename_ ="triangle-fermi";
 	display_results();
-	compute_H();
-	plot_band_structure();
+
+	//plot_band_structure();
 }
 /*}*/

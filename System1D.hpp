@@ -29,10 +29,10 @@ class System1D: public GenericSystem<Type>{
 
 		/*!Plot the band structure E(p)*/
 		void plot_band_structure();
+		/*!Diagonalize the trial Hamiltonian H_*/
+		void diagonalize(bool simple);
 		/*!Create the selection of optimal eigenvectors*/
 		void select_eigenvectors();
-
-		void diagonalize(bool simple);
 
 	private:
 		Matrix<Type> T_;	//!< translation operator along x-axis

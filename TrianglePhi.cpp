@@ -5,8 +5,8 @@ TrianglePhi::TrianglePhi(System const& s, double const& phi):
 	Triangle<std::complex<double> >(set_ab(),1,"triangle-phi"),
 	phi_(phi)
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		system_info_.text("SquarePhiflux :");

@@ -1,10 +1,10 @@
 #ifndef DEF_HONEYCOMB
 #define DEF_HONEYCOMB
 
-#include "System2DBis.hpp"
+#include "System2D.hpp"
 
 template<typename Type>
-class Honeycomb: public System2DBis<Type>{
+class Honeycomb: public System2D<Type>{
 	public:
 		/*!Constructor that organises the n=2L^2 or 6L^2 sites (L integer)*/
 		Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename);
@@ -26,7 +26,7 @@ class Honeycomb: public System2DBis<Type>{
 /*{constructor*/
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2DBis<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc),ab,spuc,3,3,filename)
+	System2D<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc),ab,spuc,3,3,filename)
 {}
 
 template<typename Type>
@@ -95,6 +95,8 @@ void Honeycomb<Type>::init_lattice(){
 			this->boundary_vertex_[3] = this->boundary_vertex_[0] + (this->dir_nn_[1]-this->dir_nn_[2])*L_;
 		}
 
+		if(this->unit_cell_allowed()){ this->status_ = 2; }
+
 		Vector<unsigned int> l(2);
 		l(0) = 3;
 		l(1) = 0;
@@ -105,7 +107,7 @@ void Honeycomb<Type>::init_lattice(){
 			if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
 			else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
 		}
-	}
+	} else { this->status_ = 2; }
 }
 
 template<typename Type>

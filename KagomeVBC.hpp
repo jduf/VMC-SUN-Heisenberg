@@ -17,9 +17,5 @@ class KagomeVBC: public Kagome<std::complex<double> >{
 
 		Matrix<double> set_ab() const;
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
-
-		std::string extract_level_7();
-		std::string extract_level_6();
-		std::string extract_level_4();
 };
 #endif

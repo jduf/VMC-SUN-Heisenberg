@@ -1,5 +1,5 @@
-#ifndef DEF_SYSTEM2DBIS
-#define DEF_SYSTEM2DBIS
+#ifndef DEF_SYSTEM2D
+#define DEF_SYSTEM2D
 
 #include "GenericSystem.hpp"
 #include "List.hpp"
@@ -14,27 +14,29 @@
  */
 /*}*/
 template<typename Type>
-class System2DBis: public GenericSystem<Type>{
+class System2D: public GenericSystem<Type>{
 	public:
 		/*!Constructor*/
-		System2DBis(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, unsigned int const& ndir, std::string const& filename);
+		System2D(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, unsigned int const& ndir, std::string const& filename);
 		/*!Destructor*/
-		virtual ~System2DBis();
+		virtual ~System2D();
 
 	protected:
 		Matrix<Type> H_;						//!< matrix used to get the band structure
 		Matrix<std::complex<double> > evec_;	//!< eigenvectors of H+Tx+Ty
 		Matrix<double> const cluster_vertex_;	//!< vertices of the cluster
-		Vector<double>* boundary_vertex_;		//!< vertices of the boundary
-		Vector<double>* dir_nn_;				//!< vectors towards nearest neighbourgs
+		Vector<double>* boundary_vertex_;		//!< vertices of the boundary (they should be equivalent by a cluster translation)
+		Vector<double>* dir_nn_;				//!< vectors towards nearest neighbours
 		Vector<double>* x_;						//!< position of the sites
-		double const eq_prec_ = 1e-12;			//!< precision for equality (important for matchinf position in lattice)
+		double const eq_prec_ = 1e-12;			//!< precision for equality (important for matching position in lattice)
 
 		/*!Plots the band structure E(px,py)*/
 		void plot_band_structure();
-
+		/*!Diagonalize the trial Hamiltonian H_*/
 		void diagonalize(bool simple);
 
+		/*!Check if the unit cell can correctly fit inside the cluster*/
+		bool unit_cell_allowed() const;
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
@@ -47,7 +49,7 @@ class System2DBis: public GenericSystem<Type>{
 		Matrix<double> draw_unit_cell() const;
 
 	private:
-		Matrix<double> const ab_;//!< basis vectors of the unit cell
+		Matrix<double> const ab_;//!< basis vectors of the unit cell  ((a_1,b_1),(a_2,b_2))
 		Matrix<double> inv_ab_;	 //!< inverse of the matrix ab_
 		Matrix<Type> Tx_;		 //!< translation operator along x-axis
 		Matrix<Type> Ty_;		 //!< translation operator along y-axis
@@ -75,7 +77,7 @@ class System2DBis: public GenericSystem<Type>{
 
 /*{constructor*/
 template<typename Type>
-System2DBis<Type>::System2DBis(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, unsigned int const& ndir, std::string const& filename):
+System2D<Type>::System2D(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, unsigned int const& ndir, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename),
 	cluster_vertex_(cluster_vertex),
 	boundary_vertex_(NULL),
@@ -99,30 +101,14 @@ System2DBis<Type>::System2DBis(Matrix<double> const& cluster_vertex, Matrix<doub
 					x_ = new Vector<double>[this->n_];
 					for(unsigned int i(0);i<this->n_;i++){ x_[i].set(2); }
 					for(unsigned int i(0);i<ndir;i++){ dir_nn_[i].set(2); }
-
-					/*!check if the distance between each vertex matches the
-					 * vectors of the unit cell*/
-					double alpha;
-					double beta;
-					double ip;
-					bool fit(true);
-					for(unsigned int i(0);i<cluster_vertex_.row()-1;i++){
-						alpha = std::modf(inv_ab_(0,0)*(cluster_vertex_(i+1,0)-cluster_vertex_(i,0))+inv_ab_(0,1)*(cluster_vertex_(i+1,1)-cluster_vertex_(i,1)),&ip);
-						beta  = std::modf(inv_ab_(1,0)*(cluster_vertex_(i+1,0)-cluster_vertex_(i,0))+inv_ab_(1,1)*(cluster_vertex_(i+1,1)-cluster_vertex_(i,1)),&ip);
-						if( !my::are_equal(alpha,0.0) ||!my::are_equal(beta,0.0) ){ fit = false; }
-					}
-
-					if(!fit){ std::cerr<<__PRETTY_FUNCTION__<<" : it seems that the unit cell doesn't fit into the cluster (not sure)"<<std::endl; }
-					else { this->status_ = 2; }
-					this->status_ = 2; 
 				} else { std::cerr<<__PRETTY_FUNCTION__<<" : undefined geometry"<<std::endl; }
-			} else { this->status_ = 2; }
+			}
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the unit cell contains 0 site"<<std::endl; }
 	}
 }
 
 template<typename Type>
-System2DBis<Type>::~System2DBis(){
+System2D<Type>::~System2D(){
 	if(boundary_vertex_){ delete[] boundary_vertex_; }
 	if(x_){ delete[] x_; }
 	if(dir_nn_){ delete[] dir_nn_; }
@@ -131,13 +117,7 @@ System2DBis<Type>::~System2DBis(){
 
 /*{protected methods*/
 template<typename Type>
-void System2DBis<Type>::diagonalize(bool simple){
-	if(simple){ if(simple_diagonalization()){ this->status_ = 1; } }
-	else { if(full_diagonalization()){ this->status_ = 1; } }
-}
-
-template<typename Type>
-void System2DBis<Type>::plot_band_structure(){
+void System2D<Type>::plot_band_structure(){
 	if(full_diagonalization()){
 		List<Vector<double> > l;
 		std::shared_ptr<Vector<double> > a;
@@ -200,7 +180,43 @@ void System2DBis<Type>::plot_band_structure(){
 }
 
 template<typename Type>
-Matrix<int> System2DBis<Type>::get_neighbourg(unsigned int const& i) const {
+void System2D<Type>::diagonalize(bool simple){
+	if(simple){ if(simple_diagonalization()){ this->status_ = 1; } }
+	else { if(full_diagonalization()){ this->status_ = 1; } }
+}
+
+template<typename Type>
+bool System2D<Type>::unit_cell_allowed() const {
+	/*{*//*!Solves a system of equation, check if the solution belongs to N^2
+
+		   v_i = ab_*Gamma =>  Gamma = ab_^(-1)*v_i
+
+		   where Gamma=(alpha,beta) and v_i is the vector linking two boundary
+		   vertices. If alpha and beta are integer, then the unit cell matches
+		   the cluster.
+		   *//*}*/
+	double ip;
+	double alpha;
+	double beta;
+	alpha = std::modf(inv_ab_(0,0)*(boundary_vertex_[1](0)-boundary_vertex_[0](0))+inv_ab_(0,1)*(boundary_vertex_[1](1)-boundary_vertex_[0](1)),&ip);
+	beta  = std::modf(inv_ab_(1,0)*(boundary_vertex_[1](0)-boundary_vertex_[0](0))+inv_ab_(1,1)*(boundary_vertex_[1](1)-boundary_vertex_[0](1)),&ip);
+	if( !my::are_equal(alpha,0.0) || !my::are_equal(beta,0.0) ){
+		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure)"<<std::endl; 
+		return false; 
+	}
+
+	alpha = std::modf(inv_ab_(0,0)*(boundary_vertex_[2](0)-boundary_vertex_[1](0))+inv_ab_(0,1)*(boundary_vertex_[2](1)-boundary_vertex_[1](1)),&ip);
+	beta  = std::modf(inv_ab_(1,0)*(boundary_vertex_[2](0)-boundary_vertex_[1](0))+inv_ab_(1,1)*(boundary_vertex_[2](1)-boundary_vertex_[1](1)),&ip);
+	if( !my::are_equal(alpha,0.0) || !my::are_equal(beta,0.0) ){
+		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure)"<<std::endl; 
+		return false; 
+	}
+	return true;
+
+}
+
+template<typename Type>
+Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 	/*!nn* are the nearest neighbours */
 	Vector<double>* nn(new Vector<double>[this->z_]);
 	Matrix<int> nb(this->z_,3);
@@ -235,7 +251,7 @@ Matrix<int> System2DBis<Type>::get_neighbourg(unsigned int const& i) const {
 }
 
 template<typename Type>
-unsigned int System2DBis<Type>::find_index(Vector<double> const& x) const {
+unsigned int System2D<Type>::find_index(Vector<double> const& x) const {
 	for(unsigned int i(0);i<this->n_;i++){
 		if(my::are_equal(x_[i],x,eq_prec_,eq_prec_)){ return i; }
 	}
@@ -243,7 +259,7 @@ unsigned int System2DBis<Type>::find_index(Vector<double> const& x) const {
 }
 
 template<typename Type>
-unsigned int System2DBis<Type>::get_site_in_unit_cell(unsigned int const& i) const {
+unsigned int System2D<Type>::get_site_in_unit_cell(unsigned int const& i) const {
 	double ip;
 	Vector<double> x(inv_ab_*(x_[i]-x_[0]));
 	x(0) = std::modf(x(0),&ip);
@@ -256,12 +272,12 @@ unsigned int System2DBis<Type>::get_site_in_unit_cell(unsigned int const& i) con
 }
 
 template<typename Type>
-bool System2DBis<Type>::pos_out_of_lattice(Vector<double> const& x) const {
+bool System2D<Type>::pos_out_of_lattice(Vector<double> const& x) const {
 	return !my::in_polygon(cluster_vertex_.row(),cluster_vertex_.ptr(),cluster_vertex_.ptr()+cluster_vertex_.row(),x(0),x(1));
 }
 
 template<typename Type>
-bool System2DBis<Type>::handle_boundary(Vector<double> const& x0, Vector<double>& x1) const {
+bool System2D<Type>::handle_boundary(Vector<double> const& x0, Vector<double>& x1) const {
 	bool bc(false);
 	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[0].ptr(),boundary_vertex_[1].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[2].ptr(),boundary_vertex_[3].ptr()) ){ bc=!bc; }
 	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[1].ptr(),boundary_vertex_[2].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[3].ptr(),boundary_vertex_[0].ptr()) ){ bc=!bc; }
@@ -270,7 +286,7 @@ bool System2DBis<Type>::handle_boundary(Vector<double> const& x0, Vector<double>
 }
 
 template<typename Type>
-Matrix<double> System2DBis<Type>::draw_unit_cell() const {
+Matrix<double> System2D<Type>::draw_unit_cell() const {
 	Matrix<double> tmp(4,2);
 	tmp(0,0)=-(ab_(0,0)+ab_(0,1))/2.0;
 	tmp(0,1)=-(ab_(1,0)+ab_(1,1))/2.0;
@@ -286,7 +302,7 @@ Matrix<double> System2DBis<Type>::draw_unit_cell() const {
 
 /*{private methods*/
 template<typename Type>
-void System2DBis<Type>::compute_TxTy(){
+void System2D<Type>::compute_TxTy(){
 	bool bc;
 	Vector<double> x;
 	Tx_.set(this->n_,this->n_,0);
@@ -317,7 +333,7 @@ void System2DBis<Type>::compute_TxTy(){
 }
 
 template<typename Type>
-bool System2DBis<Type>::simple_diagonalization(){
+bool System2D<Type>::simple_diagonalization(){
 	Vector<double> eval;
 	Lapack<Type>(H_,false,(this->ref_(1)==1?'S':'H')).eigensystem(eval,true);
 	for(unsigned int c(0);c<this->N_;c++){
@@ -330,7 +346,7 @@ bool System2DBis<Type>::simple_diagonalization(){
 }
 
 template<typename Type>
-bool System2DBis<Type>::full_diagonalization(){
+bool System2D<Type>::full_diagonalization(){
 	compute_TxTy();
 	Matrix<Type> M(H_);
 	M += Tx_*Type(3.0);
@@ -370,7 +386,7 @@ bool System2DBis<Type>::full_diagonalization(){
 }
 
 template<typename Type>
-std::complex<double> System2DBis<Type>::projection(Matrix<Type> const& O, unsigned int const& idx){
+std::complex<double> System2D<Type>::projection(Matrix<Type> const& O, unsigned int const& idx){
 	std::complex<double> tmp;
 	std::complex<double> out(0.0);
 	for(unsigned int i(0);i<O.row();i++){

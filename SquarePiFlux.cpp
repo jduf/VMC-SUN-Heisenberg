@@ -4,8 +4,8 @@ SquarePiFlux::SquarePiFlux(System const& s):
 	System(s),
 	Square<std::complex<double> >(set_ab(),2,"square-piflux")
 {
+	if(status_==3){ init_lattice(); }
 	if(status_==2){
-		init_lattice();
 		init_fermionic();
 
 		system_info_.text("SquarePiFlux :");
