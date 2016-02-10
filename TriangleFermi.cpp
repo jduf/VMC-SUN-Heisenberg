@@ -2,7 +2,7 @@
 
 TriangleFermi::TriangleFermi(System const& s):
 	System(s),
-	Triangle<double>(set_ab(),1,"triangle-fermi")
+	Triangle<double>(set_ab(),N_/m_,"triangle-fermi")
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){

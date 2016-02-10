@@ -27,8 +27,10 @@ class Square: public System2D<Type>{
 /*{constructor*/
 template<typename Type>
 Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc,this->ref_(3)),ab,spuc,4,4,filename+"-p"+my::tostring(p_)+"-q"+my::tostring(q_))
-{}
+	System2D<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc,this->ref_(3)),ab,spuc,4,4,filename)
+{
+	this->filename_ += +"-p"+my::tostring(p_)+"-q"+my::tostring(q_);
+}
 
 template<typename Type>
 Square<Type>::~Square() = default;
@@ -113,15 +115,15 @@ template<typename Type>
 Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int const& spuc, unsigned int const& ref3){
 	if(n){
 		p_ = sqrt(n);
-		bool allowed_cluster(false);
+		Matrix<double> tmp;
 		if(!ref3 && my::are_equal(sqrt(n),p_)){
-			allowed_cluster = true;
+			tmp.set(5,2);
 			q_ = 0;
 		} else {
 			for(unsigned int p(0);p<=sqrt(n);p++){
 				for(unsigned int q(0);q<p+1;q++){
 					if(p*p+q*q==n){
-						allowed_cluster = true;
+						tmp.set(5,2);
 						p_ = p;
 						q_ = q;
 						p = n;
@@ -130,8 +132,7 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int co
 				}
 			}
 		}
-		if(allowed_cluster){
-			Matrix<double> tmp(5,2);
+		if(tmp.ptr()){
 			tmp(0,0) =-0.5*(p_-q_);
 			tmp(0,1) =-0.5*(p_+q_);
 			tmp(1,0) = 0.5*(p_+q_);

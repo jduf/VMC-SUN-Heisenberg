@@ -35,8 +35,8 @@ void SquareMu::compute_H(unsigned int const& c){
 
 void SquareMu::create(){
 	for(unsigned int c(0);c<N_;c++){
-		compute_H(c);
 		status_ = 2;
+		compute_H(c);
 		diagonalize(true);
 		if(status_==1){
 			for(unsigned int i(0);i<n_;i++){

@@ -26,10 +26,10 @@ int main(int argc, char* argv[]){
 		//bs.save();
 		bs.study();
 	} else {
-		double t(P.get<double>("t"));
 		BiSystem bs(P);
 		if(!P.locked()){
 			if(P.find("chain",i,false)){
+				double t(P.get<double>("t"));
 				for(unsigned int s(0);s<4;s++){
 					Vector<double> param(4,1);
 					param(s) = t;
@@ -38,6 +38,7 @@ int main(int argc, char* argv[]){
 			}
 			if(P.find("ladder",i,false)){
 				Vector<double> param(20,0);
+				double t(P.get<double>("t"));
 				for(unsigned int s(0);s<4;s++){
 					for(unsigned int i(0);i<12;i++){
 						switch(i%3){
@@ -52,6 +53,7 @@ int main(int argc, char* argv[]){
 				}
 			}
 			if(P.find("honeycomb",i,false)){
+				double t(P.get<double>("t"));
 				for(unsigned int s(0);s<3;s++){
 					Vector<double> param(9,1);
 					param(s) = t;
@@ -86,6 +88,14 @@ int main(int argc, char* argv[]){
 				bs.add_new_param(param); 
 				param(12)=-0.9999999;
 				bs.add_new_param(param); 
+			}
+			
+			if(P.find("square",i,false)){
+				for(unsigned int s(0);s<5;s++){
+					Vector<double> mu(5,0);
+					mu(s) = P.get<double>("mu");
+					bs.add_new_param(mu);
+				}
 			}
 			bs.run(nruns,tmax);
 			bs.compute_E();

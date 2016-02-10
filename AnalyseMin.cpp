@@ -65,9 +65,8 @@ std::string AnalyseMin::extract_level_8(){
 	Vector<double> tmp;
 	std::string tmp_filename(filename_);
 	for(unsigned int i(0);i<nof_;i++){
-		/*!Draw the lattice with the witdth related to t_*/
 		if(!i){ std::cout<<std::string(6+path_.size()+dir_.size()+filename_.size(),' ')<<"|-> create lattice"; }
-		else { std::cout<<" "<<nof_-i<<std::flush; }
+		else  { std::cout<<" "<<nof_-i<<std::flush; }
 
 		(*read_)>>tmp;
 		System s(*read_);
@@ -79,7 +78,7 @@ std::string AnalyseMin::extract_level_8(){
 		cs.display_results();
 		rst_file_ = NULL;
 
-		/*only the best set of parameter is kept*/
+		/*only the best (first) set of parameter is kept*/
 		if(!i){ cs.save(*jd_write_); }
 	}
 	std::cout<<std::endl;

@@ -2,7 +2,7 @@
 
 Honeycomb0pp::Honeycomb0pp(System const& s, double const& td):
 	System(s),
-	Honeycomb<double>(set_ab(),6,"honeycomb0pp"),
+	Honeycomb<double>(set_ab(),6,"honeycomb-0pp"),
 	td_(td)
 {
 	if(status_==3){ init_lattice(); }
@@ -144,40 +144,17 @@ void Honeycomb0pp::display_results(){
 		run_cmd += " -d:Jp 1 -u:tmax 10 -d";
 		rst_file_->change_text_onclick("run command",run_cmd);
 
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-		if(obs_[0].nval()){
-			rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
-		} 
-		if(obs_.size()==5){
-			rst_file_->figure(relative_path+filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+filename_+"-as.gp")+RST::scale("200"));
-		}
+		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
 	}
 }
 
 void Honeycomb0pp::check(){
-	//obs_[0].print();
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
 	filename_ ="honeycomb-0pp";
 	display_results();
-	//std::cout<<get_site_in_ab(18)<<std::endl;
-}
-/*}*/
 
-/*{method needed for analysing*/
-std::string Honeycomb0pp::extract_level_7(){
-	(*data_write_)<<td_<<" "<<obs_[0][0]<<IOFiles::endl;
-
-	save_param(*jd_write_);
-	save_output(*jd_write_);
-
-	rst_file_ = new RSTFile(info_+path_+dir_,filename_);
-	rst_file_->text(read_->get_header());
-	rst_file_->save(false,true);
-	delete rst_file_;
-	rst_file_ = NULL;
-
-	return my::tostring(td_);
+	//plot_band_structure();
 }
 /*}*/

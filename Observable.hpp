@@ -46,7 +46,7 @@ class Observable{
 		void print() const;
 		void write(IOFiles& w) const;
 
-		void reset(){ std::cerr<<__PRETTY_FUNCTION__<<std::endl; }
+		void reset();
 		void remove_links(){ links_.set(); }
 
 	protected:

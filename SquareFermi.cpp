@@ -2,7 +2,7 @@
 
 SquareFermi::SquareFermi(System const& s):
 	System(s),
-	Square<double>(set_ab(),1,"square-fermi")
+	Square<double>(set_ab(),N_/m_,"square-fermi")
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){

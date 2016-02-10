@@ -162,7 +162,12 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 1:
-									{ CGL_ = new TriangleChiral(*s_); }break;
+									{
+										double phi;
+										if(param){ phi = (*param)(0); }
+										if(C){ phi = C->get<double>("phi"); }
+										CGL_ = new TriangleChiral(*s_,phi); 
+									}break;
 								case 2:
 									{
 										double phi;
@@ -200,13 +205,9 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 									{ RGL_ = new SquareFermi(*s_); }break;
 								case 1:
 									{
-										Vector<double> t(2);
+										Vector<double> t(5,-1.0);
 										Vector<double> mu(1);
-										if(param){
-											mu(0)= (*param)(0);
-											t(0) = (*param)(1);
-											t(1) = (*param)(2);
-										}
+										if(param){ mu = (*param); }
 										if(C){
 											t = C->get<std::vector<double> >("t");
 											mu = C->get<std::vector<double> >("mu");
@@ -219,6 +220,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(param){ mu = (*param)(0); }
 										if(C){ mu = C->get<double>("mu"); }
 										RGL_ = new SquareMu(*s_,mu);
+									}break;
+								case 3:
+									{
+										Vector<double> t;
+										if(param){ t = (*param); }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new SquareDimerizedBar(*s_,t);
 									}break;
 								default:{ error(); }break;
 							}
@@ -307,7 +315,12 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 1:
-									{ CGL_ = new HoneycombChiral(*s_); }break;
+									{ 
+										double phi;
+										if(param){ phi = (*param)(0); }
+										if(C){ phi = C->get<double>("phi"); }
+										CGL_ = new HoneycombChiral(*s_,phi); 
+									}break;
 								default:{ error(); }break;
 							}
 						}break;
@@ -340,8 +353,10 @@ void CreateSystem::create(bool const& try_solve_degeneracy){
 				RGL_ = NULL;
 				ref_(1)=2;
 				init(NULL,C_);
-				std::cerr<<__PRETTY_FUNCTION__<<" : would work if C_ knows the parameters"<<std::endl;
-				if(CGL_){ CGL_->create(); }
+				if(CGL_){
+					std::cerr<<__PRETTY_FUNCTION__<<" : might work if C_ knows the parameters"<<std::endl; 
+					CGL_->create(); 
+				}
 			} else { std::cerr<<__PRETTY_FUNCTION__<<" : giving up"<<std::endl; }
 		}
 	} else {

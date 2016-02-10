@@ -134,7 +134,7 @@ void System::save_output(IOFiles& w) const {
 
 void System::print(unsigned int nobs) const {
 	if(nobs){
-		std::cout<<"SU("<<N_<<") m="<<m_<<" n="<<n_<<" BC="<<bc_<<" nobs="<<obs_.size()<<std::endl;
+		std::cout<<"SU("<<N_<<") m="<<m_<<" n="<<n_<<" BC="<<bc_<<" nobs="<<obs_.size()<<" ref="<<ref_<<std::endl;
 		if(nobs>obs_.size()){ nobs = obs_.size(); }
 		for(unsigned int i(0);i<nobs;i++){ std::cout<<std::endl<<obs_[i]; }
 	} else { std::cout<<obs_[0][0]<<std::endl; }
@@ -233,6 +233,11 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 2;
 	}
+	if( wf == "square-dimerizedbar" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 3;
+	}
 	if( wf == "square-freeflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
@@ -318,10 +323,9 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		case 4:
 			{
 				unsigned int n(P.get<unsigned int>("n"));
-				ref(3) = 1;
+				ref(3) = (P.find("cluster",i,false)?P.get<unsigned int>(i):1);
 				if(my::are_equal(sqrt(n),floor(sqrt(n)))){
-					if(P.find("cluster",i,false)){ ref(3) = P.get<unsigned int>(i); }
-					else { std::cerr<<__PRETTY_FUNCTION__<<" : tilted cluster chosen by default (to change -u:cluster 0)"<<std::endl; }
+					if(!P.find("cluster",i,false)){ std::cerr<<__PRETTY_FUNCTION__<<" : tilted cluster chosen by default (to change -u:cluster 0)"<<std::endl; }
 				}
 			}break;
 		case 5:

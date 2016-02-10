@@ -2,7 +2,7 @@
 
 KagomeFermi::KagomeFermi(System const& s):
 	System(s),
-	Kagome<double>(set_ab(),3,"kagome-fermi")
+	Kagome<double>(set_ab(),N_/m_,"kagome-fermi")
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){

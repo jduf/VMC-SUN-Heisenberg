@@ -9,6 +9,9 @@ HoneycombFree::HoneycombFree(System const& s, Vector<double> const& t):
 	if(status_==2){
 		init_fermionic();
 
+		system_info_.text("HoneycombFree :");
+		system_info_.text(" Each color has the same Hamiltonian.");
+
 		filename_ += "-t";
 		for(unsigned int i(0);i<t_.size();i++){
 			filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));

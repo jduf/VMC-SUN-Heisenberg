@@ -7,7 +7,6 @@
 class VMCMinimization{
 	public:
 		VMCMinimization(Parseur& P);
-		VMCMinimization(IOFiles& in);
 		/*!Default destructor*/
 		virtual ~VMCMinimization() = default;
 		/*{Forbidden*/
@@ -22,7 +21,7 @@ class VMCMinimization{
 
 		void refine();
 		void refine(double const& E, double const& dE);
-		void refine(unsigned int const& nmin, int const& nobs, double const& dE, unsigned int const& maxiter);
+		void refine(unsigned int nmin, int const& nobs, double const& dE, unsigned int const& maxiter);
 
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;

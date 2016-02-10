@@ -87,6 +87,11 @@ void Observable::swap_to_assign(Observable& obs1, Observable& obs2){
 
 /*handles class attributes*/
 /*{*/
+void Observable::reset(){
+	std::cerr<<__PRETTY_FUNCTION__<<" : never checked, does it do what it needs to do ?"<<std::endl; 
+	for(unsigned int i(0);i<nval_;i++){ val_[i].set(); }
+}
+
 void Observable::set_x(double const& val){
 	for(unsigned int i(0);i<nval_;i++){ val_[i].set_x(val); }
 }

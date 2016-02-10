@@ -1,12 +1,12 @@
-#ifndef DEF_HONEYCOMBFREE
-#define DEF_HONEYCOMBFREE
+#ifndef DEF_SQUAREDIMERIZEDBAR
+#define DEF_SQUAREDIMERIZEDBAR
 
-#include "Honeycomb.hpp"
+#include "Square.hpp"
 
-class HoneycombFree: public Honeycomb<double>{
+class SquareDimerizedBar: public Square<double>{
 	public:
-		HoneycombFree(System const& s, Vector<double> const& t);
-		~HoneycombFree() = default;
+		SquareDimerizedBar(System const& s, Vector<double> const& t);
+		~SquareDimerizedBar() = default;
 
 		void create();
 		void save_param(IOFiles& w) const;
@@ -16,9 +16,7 @@ class HoneycombFree: public Honeycomb<double>{
 		Vector<double> const t_; //!< hopping terms
 
 		void compute_H();
-
 		void display_results();
-		void lattice();
 
 		/*!Sets the unit cell's vectors*/
 		Matrix<double> set_ab() const;

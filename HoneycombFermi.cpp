@@ -2,7 +2,7 @@
 
 HoneycombFermi::HoneycombFermi(System const& s):
 	System(s),
-	Honeycomb<double>(set_ab(),2,"honeycomb-fermi")
+	Honeycomb<double>(set_ab(),N_/m_,"honeycomb-fermi")
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){

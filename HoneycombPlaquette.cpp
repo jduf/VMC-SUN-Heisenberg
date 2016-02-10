@@ -165,5 +165,7 @@ void HoneycombPlaquette::check(){
 	dir_  = "./";
 	filename_ ="honeycomb-plaquette";
 	display_results();
+
+	//plot_band_structure();
 }
 /*}*/

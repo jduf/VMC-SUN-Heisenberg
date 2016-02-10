@@ -9,10 +9,9 @@ TriangleFree::TriangleFree(System const& s, Vector<double> const& t, Vector<doub
 	if(status_==3){ init_lattice(); }
 	if(status_==2){
 		init_fermionic();
-		same_wf_ = false;
 
 		system_info_.text("TriangleFree :");
-		system_info_.text(" Each colors has a different Hamiltonian.");
+		system_info_.text(" Each color has a the same Hamiltonian.");
 
 		filename_ += "-t";
 		for(unsigned int i(0);i<t_.size();i++){

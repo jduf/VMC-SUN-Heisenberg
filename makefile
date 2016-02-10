@@ -3,7 +3,7 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	MACHINE=
 	EXEC = min
 	EXEC+= mc
-	#EXEC+= mcbi
+	EXEC+= mcbi
 	#EXEC+= load
 	EXEC+= check
 	POSTPROCESS= cp $(EXEC) ../sim;
@@ -33,7 +33,7 @@ endif
 
 CHAIN     = ChainFermi.cpp ChainPolymerized.cpp ChainFree.cpp
 LADDER    = LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp
-SQUARE    = SquareFermi.cpp SquareFree.cpp SquareMu.cpp SquareFreeFlux.cpp SquarePiFlux.cpp SquareChiral.cpp SquareJastrow.cpp
+SQUARE    = SquareFermi.cpp SquareFree.cpp SquareMu.cpp SquareDimerizedBar.cpp SquareFreeFlux.cpp SquarePiFlux.cpp SquareChiral.cpp SquareJastrow.cpp
 TRIANGLE  = TriangleFermi.cpp TriangleFree.cpp TrianglePlaquette.cpp TriangleMu.cpp TrianglePhi.cpp TriangleChiral.cpp
 HONEYCOMB = HoneycombFermi.cpp HoneycombFree.cpp HoneycombPlaquette.cpp Honeycomb0pp.cpp HoneycombPiFlux.cpp HoneycombChiral.cpp
 KAGOME    = KagomeFermi.cpp KagomeDirac.cpp KagomeVBC.cpp

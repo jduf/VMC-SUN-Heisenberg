@@ -19,6 +19,7 @@
 #include "SquareFermi.hpp"
 #include "SquareFree.hpp"
 #include "SquareMu.hpp"
+#include "SquareDimerizedBar.hpp"
 #include "SquareFreeFlux.hpp"
 #include "SquarePiFlux.hpp"
 #include "SquareChiral.hpp"

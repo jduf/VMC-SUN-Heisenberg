@@ -86,7 +86,7 @@ System2D<Type>::System2D(Matrix<double> const& cluster_vertex, Matrix<double> co
 	ab_(ab)
 {
 	if(this->status_==3){
-		if(this->spuc_){
+		if(this->spuc_ && ab_.ptr()){
 			inv_ab_.set(2,2);
 			inv_ab_(0,0) = ab_(1,1);
 			inv_ab_(1,0) =-ab_(1,0);

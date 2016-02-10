@@ -26,6 +26,7 @@ int main(int argc, char* argv[]){
 	}
 
 	if(!P.locked()){
+		std::cout<<cs->get_system_info()<<std::endl;
 		if(cs->get_status()==2){
 			cs->create(true);
 			if(cs->get_status()==1){
@@ -75,6 +76,7 @@ int main(int argc, char* argv[]){
 				}
 			} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
 		} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
+		if(cs->get_status()>1){ std::cout<<std::string(35,'-')<<std::endl; }
 	} else { std::cout<<__PRETTY_FUNCTION__<<" : Parseur locked"<<std::endl; }
 
 	delete cs;

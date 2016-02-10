@@ -9,10 +9,13 @@ VMCSystematic::VMCSystematic(VMCMinimization const& m):
 void VMCSystematic::run(int const& nobs, double const& dE, unsigned int const& maxiter){
 	if(m_->tmax_){
 		std::cout<<"#######################"<<std::endl;
-		std::string msg("do a systematic measure over the phase space");
+		std::string msg("VMCSystematic");
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.title(msg,'-');
+		msg = "do a systematic measure over the phase space";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
-		msg = "compute "+my::tostring(nobs)+" observables for each samples";
+		msg = "compute "+my::tostring(nobs)+" observables for "+my::tostring(m_->ps_size_)+" samples (max time "+my::tostring(m_->tmax_*maxiter*m_->ps_size_)+"s)";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
@@ -77,7 +80,7 @@ bool VMCSystematic::go_through_parameter_space(Vector<double>* x, Vector<unsigne
 }
 
 void VMCSystematic::evaluate(Vector<double>* x, Vector<unsigned int> const& idx){
-	std::cout<<++progress_<<"/"<<m_->ps_size_<<std::endl; 
+	std::cout<<++progress_<<"/"<<m_->ps_size_<<" : "; 
 	Vector<double> param(m_->dof_);
 	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
 	evaluate_until_precision(param,nobs_,dE_,maxiter_);
