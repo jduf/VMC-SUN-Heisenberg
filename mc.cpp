@@ -70,13 +70,10 @@ int main(int argc, char* argv[]){
 					rst.text(out.get_header());
 					rst.save(false,true);
 					command(Linux::html_browser("/tmp/"+fname+".html"),true);
-					//if( my::get_yn("move the plot in the correct folder ?") ){
-					//std::cerr<<"should implement this move"<<std::endl;
-					//}
 				}
 			} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
 		} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
-		if(cs->get_status()>1){ std::cout<<std::string(35,'-')<<std::endl; }
+		if(cs->get_status()>1){ sys->print(1); }
 	} else { std::cout<<__PRETTY_FUNCTION__<<" : Parseur locked"<<std::endl; }
 
 	delete cs;

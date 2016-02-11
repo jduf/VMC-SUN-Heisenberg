@@ -1,9 +1,9 @@
 #include "TriangleChiral.hpp"
 
-TriangleChiral::TriangleChiral(System const& s):
+TriangleChiral::TriangleChiral(System const& s, double const& phi):
 	System(s),
 	Triangle<std::complex<double> >(set_ab(),3,"triangle-chiral"),
-	phi_(M_PI/3.0)
+	phi_(phi*M_PI/3.0)
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){
@@ -11,7 +11,9 @@ TriangleChiral::TriangleChiral(System const& s):
 
 		system_info_.text("TriangleChiral :");
 		system_info_.text(" Each color has the same Hamiltonian.");
-		system_info_.text(" There is a flux of "+RST::math("\\pi/3") + "per triangular plaquette");
+		system_info_.text(" There is a flux of "+RST::math(my::tostring(phi)+"\\pi/3") + "per triangular plaquette");
+
+		filename_ += "-phi"+my::tostring(phi);
 	}
 }
 
@@ -151,6 +153,8 @@ void TriangleChiral::check(){
 	filename_ ="triangle-chiral";
 	display_results();
 
+	//compute_H();
+	//H_.print_mathematica();
 	//plot_band_structure();
 }
 /*}*/

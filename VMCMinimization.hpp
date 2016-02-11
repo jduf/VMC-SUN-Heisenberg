@@ -21,7 +21,7 @@ class VMCMinimization{
 
 		void refine();
 		void refine(double const& E, double const& dE);
-		void refine(unsigned int nmin, int const& nobs, double const& dE, unsigned int const& maxiter);
+		void refine(unsigned int const& nmin, int const& nobs, double const& dE, unsigned int const& maxiter);
 
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
@@ -80,6 +80,8 @@ class VMCMinimization{
 
 		IOFiles* out_;
 		std::shared_ptr<Minimization> m_;
+		unsigned int progress_;
+		unsigned int total_eval_;
 
 		std::string const& get_path() const { return path_; }
 		std::string get_filename() const { return time_+"_"+prefix_+basename_; }

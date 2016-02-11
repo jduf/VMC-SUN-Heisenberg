@@ -13,13 +13,13 @@ class SquareChiral: public Square<std::complex<double> >{
 		void check();
 
 	protected:
-		double const phi_;
+		double const phi_; //!< flux per square plaquette
 
 		void compute_H();
 		void display_results();
 
 		/*!Set the unit cell's vectors*/
-		Matrix<double> set_ab(unsigned int const& ref3) const;
+		Matrix<double> set_ab(unsigned int const& ref3, unsigned int const& k) const;
 		/*!Returns the index of the site at position x in the unit cell*/
 		unsigned int match_pos_in_ab(Vector<double> const& x) const;
 };

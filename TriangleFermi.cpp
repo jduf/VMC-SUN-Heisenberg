@@ -96,8 +96,9 @@ void TriangleFermi::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="triangle-fermi";
-	display_results();
+	//display_results();
 
+	obs_[0].get_links().print_mathematica();
 	//plot_band_structure();
 }
 /*}*/

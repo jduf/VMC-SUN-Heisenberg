@@ -1,9 +1,9 @@
 #include "HoneycombChiral.hpp"
 
-HoneycombChiral::HoneycombChiral(System const& s):
+HoneycombChiral::HoneycombChiral(System const& s, double const& phi):
 	System(s),
 	Honeycomb<std::complex<double> >(set_ab(),6,"honeyomb-chiral"),
-	phi_(2*M_PI/3)
+	phi_(phi*M_PI/3.0)
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){
@@ -11,9 +11,9 @@ HoneycombChiral::HoneycombChiral(System const& s):
 
 		system_info_.text("SquareChiral :");
 		system_info_.text(" Each color has the same Hamiltonian.");
-		//system_info_.text(" There is a flux of "+RST::math(my::tostring(phi)+"\\pi/3") + "per square plaquette");
+		system_info_.text(" There is a flux of "+RST::math(my::tostring(phi)+"\\pi/3") + "per hexagonal plaquette");
 
-		//filename_ += "-phi"+my::tostring(phi);
+		filename_ += "-phi"+my::tostring(phi);
 	}
 }
 

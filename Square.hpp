@@ -149,7 +149,7 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int co
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		std::vector<unsigned int> v;
 		unsigned int m;
-		for(unsigned int p(2);p<15;p++){
+		for(unsigned int p(2);p<2*sqrt(n);p++){
 			for(unsigned int q(0);q<p+1;q++){
 				m = p*p+q*q;
 				if(!(m%spuc)){ v.push_back(m); }
