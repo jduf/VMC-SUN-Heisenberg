@@ -29,30 +29,32 @@ void TriangleChiral::compute_H(){
 		s1 = obs_[0](i,1);
 		switch(obs_[0](i,5)){
 			case 0:
-				{
-					switch(obs_[0](i,3)){
-						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),1*phi_); }break;
-						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),2*phi_); }break;
-						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),3*phi_); }break;
-					}
-				}break;
+				{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)+1)*phi_); }break;
 			case 1:
 				{
 					switch(obs_[0](i,3)){
 						case 0:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),5*phi_); }break;
+						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),-5.0*phi_); }break;
 						case 2:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
 					}
 				}break;
 			case 2:
 				{ 
 					switch(obs_[0](i,3)){
-						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),4*phi_); }break;
+						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),-4.0*phi_); }break;
 						case 1:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),6*phi_); }break;
+						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),-6.0*phi_); }break;
 					}
 				}break;
 		}
+
+		//switch(obs_[0](i,3)){
+			//case 0:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
+			////case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi_*(2.0*s0+1)); }break;
+			////case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi_* 2.0*s0); }break;
+			//case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi_*(2.0*obs_[0](i,5)+1)); }break;
+			//case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi_* 2.0*obs_[0](i,5)); }break;
+		//}
 	}
 	H_ += H_.conjugate_transpose();
 }
@@ -108,6 +110,7 @@ void TriangleChiral::display_results(){
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
 	ps.polygon(draw_unit_cell(),"linecolor=black");
+	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	std::complex<double> t;
 	unsigned int s0;
@@ -132,17 +135,16 @@ void TriangleChiral::display_results(){
 			if(my::are_equal(t.imag(),0)){
 				arrow = "-"; 
 			} else {
-				if(t.imag()>0){ arrow = "->"; }
-				else          { arrow = "<-"; }
-				ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(std::arg(t)/phi_)+"}");
+				arrow = "->";
+				//if(t.imag()>0){ arrow = "->"; }
+				//else          { arrow = "<-"; }
+				ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_))+"}");
 			}
 
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 		if(i%3==2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
-	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
-	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 
@@ -151,10 +153,12 @@ void TriangleChiral::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="triangle-chiral";
-	display_results();
+	//display_results();
 
-	//compute_H();
+	compute_H();
 	//H_.print_mathematica();
-	//plot_band_structure();
+	//std::cout<<H_<<std::endl;
+	plot_band_structure();
+	//obs_[0].get_links().print_mathematica();
 }
 /*}*/

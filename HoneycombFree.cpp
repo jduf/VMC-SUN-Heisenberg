@@ -111,6 +111,7 @@ void HoneycombFree::lattice(){
 	ps.begin(-20,-20,20,20,filename_+"-pstricks");
 	ps.polygon(cluster_vertex_,"linecolor=green");
 	ps.polygon(draw_unit_cell(),"linecolor=black");
+	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	double t;
 	double corr;
@@ -181,8 +182,6 @@ void HoneycombFree::lattice(){
 			}
 			//}
 	}
-	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
-	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

@@ -81,34 +81,34 @@ void Triangle<Type>::init_lattice(){
 			}
 
 			if(this->ref_(3)){
-				this->boundary_vertex_[0] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[3]+this->dir_nn_[4])*L_;
-				this->boundary_vertex_[1] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[5])*L_;
-				this->boundary_vertex_[2] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[0]+this->dir_nn_[1])*L_*2.0;
-				this->boundary_vertex_[3] = (this->dir_nn_[3]+this->dir_nn_[4])*0.5 + (this->dir_nn_[1]+this->dir_nn_[2])*L_;
+				this->equivalent_vertex_[0] = (this->dir_nn_[3]+this->dir_nn_[4])*L_ + (this->dir_nn_[3]+this->dir_nn_[4])*0.5;
+				this->equivalent_vertex_[1] = (this->dir_nn_[0]+this->dir_nn_[5])*L_ + (this->dir_nn_[3]+this->dir_nn_[4])*0.5;
+				this->equivalent_vertex_[2] = (this->dir_nn_[1]+this->dir_nn_[2])*L_ + (this->dir_nn_[3]+this->dir_nn_[4])*0.5;
 			} else {
-				this->boundary_vertex_[0] = this->dir_nn_[3]*0.25 + this->dir_nn_[4]*L_;
-				this->boundary_vertex_[1] = this->dir_nn_[3]*0.25 + this->dir_nn_[0]*L_;
-				this->boundary_vertex_[2] = this->dir_nn_[3]*0.25 + this->dir_nn_[1]*L_*2.0;
-				this->boundary_vertex_[3] = this->dir_nn_[3]*0.25 + this->dir_nn_[2]*L_;
+				this->equivalent_vertex_[0] = this->dir_nn_[4]*L_ + this->dir_nn_[3]*0.2;
+				this->equivalent_vertex_[1] = this->dir_nn_[0]*L_ + this->dir_nn_[3]*0.2;
+				this->equivalent_vertex_[2] = this->dir_nn_[2]*L_ + this->dir_nn_[3]*0.2;
 			}
 
-			if(this->unit_cell_allowed()){ this->status_ = 2; }
+			if(this->unit_cell_allowed()){ 
+				this->status_ = 2; 
 
-			this->set_nn_links(Vector<unsigned int>(1,3));
+				this->set_nn_links(Vector<unsigned int>(1,3));
 
-			/*!sets the bond energy if it has not been set yet*/
-			if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() == 1){
-				this->J_.set(this->obs_[0].nlinks(),1);
+				/*!sets the bond energy if it has not been set yet*/
+				if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() == 1){
+					this->J_.set(this->obs_[0].nlinks(),1);
+				}
 			}
 		}
 	}
 }
 
-	template<typename Type>
-		void Triangle<Type>::set_obs(int nobs){
-			(void)(nobs);
-		}
-	/*}*/
+template<typename Type>
+void Triangle<Type>::set_obs(int nobs){
+	(void)(nobs);
+}
+/*}*/
 
 /*{private methods*/
 template<typename Type>

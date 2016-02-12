@@ -41,8 +41,8 @@ void VMCSystematic::plot(){
 		case 1:
 			{
 				Gnuplot gp(get_path(),get_filename());
-				gp+="plot '"+get_filename()+".dat' u 1:2:3 w e notitle";
 				gp.label("y","$\\frac{E}{n}$");
+				gp+="plot '"+get_filename()+".dat' u 1:2:3 w e notitle";
 				gp.save_file();
 				gp.create_image(true,true);
 			}break;

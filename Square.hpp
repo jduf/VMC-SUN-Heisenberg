@@ -63,7 +63,7 @@ void Square<Type>::init_lattice(){
 			this->dir_nn_[3](1) =-1.0;
 
 			this->x_[0] = this->dir_nn_[0]*0.5*(p_-q_)+this->dir_nn_[1]*0.5*(p_+q_);
-			this->x_[0] = this->x_[0]/sqrt(this->x_[0].norm_squared())*0.01;
+			this->x_[0] = this->x_[0]/sqrt(this->x_[0].norm_squared())*0.001;
 
 			Vector<double> x_loop(this->x_[0]);
 			for(unsigned int i(1);i<this->n_;i++){
@@ -77,19 +77,20 @@ void Square<Type>::init_lattice(){
 				this->x_[i] = this->x_[i].chop();
 			}
 
-			this->boundary_vertex_[0] = this->dir_nn_[0]*0.5*(p_-q_)+this->dir_nn_[1]*0.5*(p_+q_);
-			this->boundary_vertex_[1] = this->boundary_vertex_[0] + this->dir_nn_[2]*p_ + this->dir_nn_[3]*q_;
-			this->boundary_vertex_[2] = this->boundary_vertex_[1] + this->dir_nn_[3]*p_ + this->dir_nn_[0]*q_;
-			this->boundary_vertex_[3] = this->boundary_vertex_[0] + this->dir_nn_[3]*p_ + this->dir_nn_[0]*q_;
+			this->equivalent_vertex_[0] = this->dir_nn_[0]*0.5*(p_-q_)+this->dir_nn_[1]*0.5*(p_+q_);
+			this->equivalent_vertex_[1] = this->dir_nn_[1]*0.5*(p_-q_)+this->dir_nn_[2]*0.5*(p_+q_);
+			this->equivalent_vertex_[2] = this->dir_nn_[3]*0.5*(p_-q_)+this->dir_nn_[0]*0.5*(p_+q_);
 
-			if(this->unit_cell_allowed()){ this->status_ = 2; }
+			if(this->unit_cell_allowed()){ 
+				this->status_ = 2; 
 
-			this->set_nn_links(Vector<unsigned int>(1,2));
+				this->set_nn_links(Vector<unsigned int>(1,2));
 
-			/*!sets the bond energy if it has not been set yet*/
-			if(this->obs_[0].nlinks() != this->J_.size()){
-				if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
-				else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
+				/*!sets the bond energy if it has not been set yet*/
+				if(this->obs_[0].nlinks() != this->J_.size()){
+					if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
+					else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
+				}
 			}
 		}
 	}

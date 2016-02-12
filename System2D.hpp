@@ -25,7 +25,8 @@ class System2D: public GenericSystem<Type>{
 		Matrix<Type> H_;						//!< matrix used to get the band structure
 		Matrix<std::complex<double> > evec_;	//!< eigenvectors of H+Tx+Ty
 		Matrix<double> const cluster_vertex_;	//!< vertices of the cluster
-		Vector<double>* boundary_vertex_;		//!< vertices of the boundary (they should be equivalent by a cluster translation)
+		Vector<double>* equivalent_vertex_;		//!< equivalent points by a cluster translation
+		Vector<double>* boundary_vertex_;		//!< vertices of the boundary 
 		Vector<double>* dir_nn_;				//!< vectors towards nearest neighbours
 		Vector<double>* x_;						//!< position of the sites
 		double const eq_prec_ = 1e-12;			//!< precision for equality (important for matching position in lattice)
@@ -36,7 +37,7 @@ class System2D: public GenericSystem<Type>{
 		void diagonalize(bool simple);
 
 		/*!Check if the unit cell can correctly fit inside the cluster*/
-		bool unit_cell_allowed() const;
+		bool unit_cell_allowed();
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
@@ -47,6 +48,8 @@ class System2D: public GenericSystem<Type>{
 		bool handle_boundary(Vector<double> const& x0, Vector<double>& x1) const;
 		/*!Returns a matrix containing the vertices of the unit cell*/
 		Matrix<double> draw_unit_cell() const;
+		/*!Returns a matrix containing the vertices of the boundary*/
+		Matrix<double> draw_boundary(bool const& full_boundary) const;
 
 	private:
 		Matrix<double> const ab_;//!< basis vectors of the unit cell  ((a_1,b_1),(a_2,b_2))
@@ -95,7 +98,8 @@ System2D<Type>::System2D(Matrix<double> const& cluster_vertex, Matrix<double> co
 			inv_ab_/=(ab_(0,0)*ab_(1,1)-ab_(1,0)*ab_(0,1));
 
 			if( (!this->obs_.size() || !this->obs_[0].nlinks()) && cluster_vertex_.ptr()){
-				boundary_vertex_ = new Vector<double>[4];
+				equivalent_vertex_= new Vector<double>[3];
+				boundary_vertex_ = new Vector<double>[8];
 				dir_nn_ = new Vector<double>[ndir];
 				x_ = new Vector<double>[this->n_];
 				for(unsigned int i(0);i<this->n_;i++){ x_[i].set(2); }
@@ -107,6 +111,7 @@ System2D<Type>::System2D(Matrix<double> const& cluster_vertex, Matrix<double> co
 
 template<typename Type>
 System2D<Type>::~System2D(){
+	if(equivalent_vertex_){ delete[] equivalent_vertex_; }
 	if(boundary_vertex_){ delete[] boundary_vertex_; }
 	if(x_){ delete[] x_; }
 	if(dir_nn_){ delete[] dir_nn_; }
@@ -141,9 +146,7 @@ void System2D<Type>::plot_band_structure(){
 
 			if(l.find_in_sorted_list(a,b,cmp)){
 				for(unsigned int j(2);j<2+this->spuc_;j++){
-					if(e_(i)<(*b->get())(j)){
-						std::swap(e_(i),(*b->get())(j));
-					}
+					if(e_(i)<(*b->get())(j)){ std::swap(e_(i),(*b->get())(j)); }
 				}
 			} else {
 				(*a)(2) = e_(i);
@@ -157,7 +160,7 @@ void System2D<Type>::plot_band_structure(){
 		l.set_target();
 		double x(666);
 		while(l.target_next()){
-			if(!my::are_equal(x,l.get()(0))){
+			if(!my::are_equal(x,l.get()(0),eq_prec_,eq_prec_)){
 				x = l.get()(0);
 				bsf<<IOFiles::endl;
 			}
@@ -184,33 +187,44 @@ void System2D<Type>::diagonalize(bool simple){
 }
 
 template<typename Type>
-bool System2D<Type>::unit_cell_allowed() const {
+bool System2D<Type>::unit_cell_allowed(){
 	/*{*//*!Solves a system of equation, check if the solution belongs to N^2
 
 		   v_i = ab_*Gamma =>  Gamma = ab_^(-1)*v_i
 
-		   where Gamma=(alpha,beta) and v_i is the vector linking two boundary
-		   vertices. If alpha and beta are integer, then the unit cell matches
-		   the cluster.
+		   where Gamma=(alpha,beta) and v_i is the vector linking two
+		   equivalent vertices. If alpha and beta are integer, then the unit
+		   cell matches the cluster.
 		   *//*}*/
 	double ip;
 	double alpha;
 	double beta;
-	alpha = std::modf(inv_ab_(0,0)*(boundary_vertex_[1](0)-boundary_vertex_[0](0))+inv_ab_(0,1)*(boundary_vertex_[1](1)-boundary_vertex_[0](1)),&ip);
-	beta  = std::modf(inv_ab_(1,0)*(boundary_vertex_[1](0)-boundary_vertex_[0](0))+inv_ab_(1,1)*(boundary_vertex_[1](1)-boundary_vertex_[0](1)),&ip);
+	alpha = std::modf(inv_ab_(0,0)*(equivalent_vertex_[1](0)-equivalent_vertex_[0](0))+inv_ab_(0,1)*(equivalent_vertex_[1](1)-equivalent_vertex_[0](1)),&ip);
+	beta  = std::modf(inv_ab_(1,0)*(equivalent_vertex_[1](0)-equivalent_vertex_[0](0))+inv_ab_(1,1)*(equivalent_vertex_[1](1)-equivalent_vertex_[0](1)),&ip);
 	if( !my::are_equal(alpha,0.0) || !my::are_equal(beta,0.0) ){
 		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure)"<<std::endl; 
 		return false; 
 	}
 
-	alpha = std::modf(inv_ab_(0,0)*(boundary_vertex_[2](0)-boundary_vertex_[1](0))+inv_ab_(0,1)*(boundary_vertex_[2](1)-boundary_vertex_[1](1)),&ip);
-	beta  = std::modf(inv_ab_(1,0)*(boundary_vertex_[2](0)-boundary_vertex_[1](0))+inv_ab_(1,1)*(boundary_vertex_[2](1)-boundary_vertex_[1](1)),&ip);
+	alpha = std::modf(inv_ab_(0,0)*(equivalent_vertex_[2](0)-equivalent_vertex_[0](0))+inv_ab_(0,1)*(equivalent_vertex_[2](1)-equivalent_vertex_[0](1)),&ip);
+	beta  = std::modf(inv_ab_(1,0)*(equivalent_vertex_[2](0)-equivalent_vertex_[0](0))+inv_ab_(1,1)*(equivalent_vertex_[2](1)-equivalent_vertex_[0](1)),&ip);
 	if( !my::are_equal(alpha,0.0) || !my::are_equal(beta,0.0) ){
 		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure)"<<std::endl; 
 		return false; 
 	}
+
+	boundary_vertex_[0] = equivalent_vertex_[0]*2.0 - equivalent_vertex_[2];
+	boundary_vertex_[1] = equivalent_vertex_[2]*2.0 - equivalent_vertex_[0];
+	boundary_vertex_[2] = equivalent_vertex_[1]     + equivalent_vertex_[0] - equivalent_vertex_[2];
+	boundary_vertex_[4] = equivalent_vertex_[0]*2.0 - equivalent_vertex_[1];
+	boundary_vertex_[5] = equivalent_vertex_[1]*2.0 - equivalent_vertex_[0];
+	boundary_vertex_[6] = equivalent_vertex_[2]     + equivalent_vertex_[0] - equivalent_vertex_[1];
+
+	/*need to compute them like this so it works for square and honeycomb lattice*/
+	boundary_vertex_[3] = boundary_vertex_[2] + (equivalent_vertex_[1]-boundary_vertex_[2])*3.0;
+	boundary_vertex_[7] = boundary_vertex_[6] + (equivalent_vertex_[2]-boundary_vertex_[6])*3.0;
+
 	return true;
-
 }
 
 template<typename Type>
@@ -278,7 +292,7 @@ template<typename Type>
 bool System2D<Type>::handle_boundary(Vector<double> const& x0, Vector<double>& x1) const {
 	bool bc(false);
 	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[0].ptr(),boundary_vertex_[1].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[2].ptr(),boundary_vertex_[3].ptr()) ){ bc=!bc; }
-	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[1].ptr(),boundary_vertex_[2].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[3].ptr(),boundary_vertex_[0].ptr()) ){ bc=!bc; }
+	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[4].ptr(),boundary_vertex_[5].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[6].ptr(),boundary_vertex_[7].ptr()) ){ bc=!bc; }
 	reset_pos_in_lattice(x1);
 	return bc;
 }
@@ -294,6 +308,24 @@ Matrix<double> System2D<Type>::draw_unit_cell() const {
 	tmp(2,1)= tmp(0,1)+ab_(1,0)+ab_(1,1);
 	tmp(3,0)= tmp(0,0)+ab_(0,1);
 	tmp(3,1)= tmp(0,1)+ab_(1,1);
+	return tmp;
+}
+
+template<typename Type>
+Matrix<double> System2D<Type>::draw_boundary(bool const& full_boundary) const {
+	Matrix<double> tmp(full_boundary?5:3,2);
+	tmp(0,0)= equivalent_vertex_[1](0);
+	tmp(0,1)= equivalent_vertex_[1](1);
+	tmp(1,0)= equivalent_vertex_[0](0);
+	tmp(1,1)= equivalent_vertex_[0](1);
+	tmp(2,0)= equivalent_vertex_[2](0);
+	tmp(2,1)= equivalent_vertex_[2](1);
+	if(full_boundary){
+		tmp(3,0)= equivalent_vertex_[2](0)+(equivalent_vertex_[1](0)-equivalent_vertex_[0](0));
+		tmp(3,1)= equivalent_vertex_[2](1)+(equivalent_vertex_[1](1)-equivalent_vertex_[0](1));
+		tmp(4,0)= equivalent_vertex_[1](0);
+		tmp(4,1)= equivalent_vertex_[1](1);
+	}
 	return tmp;
 }
 /*}*/

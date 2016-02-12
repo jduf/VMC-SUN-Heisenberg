@@ -80,6 +80,7 @@ void HoneycombPiFlux::display_results(){
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
 	ps.polygon(draw_unit_cell(),"linecolor=black");
+	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	unsigned int s0;
 	unsigned int s1;
@@ -110,8 +111,6 @@ void HoneycombPiFlux::display_results(){
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 	}
-	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
-	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

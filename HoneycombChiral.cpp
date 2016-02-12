@@ -94,6 +94,7 @@ void HoneycombChiral::display_results(){
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
 	ps.polygon(draw_unit_cell(),"linecolor=black");
+	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	std::complex<double> t;
 	unsigned int s0;
@@ -119,8 +120,10 @@ void HoneycombChiral::display_results(){
 			if(my::are_equal(t.imag(),0)){
 				arrow = "-";
 			} else {
-				if(t.imag()>0){ arrow = "->"; }
-				else          { arrow = "<-"; }
+				arrow = "->";
+				//if(t.imag()>0){ arrow = "->"; }
+				//else          { arrow = "<-"; }
+				ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_))+"}");
 			}
 
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
@@ -130,8 +133,6 @@ void HoneycombChiral::display_results(){
 			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
 		}
 	}
-	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
-	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 
@@ -141,5 +142,7 @@ void HoneycombChiral::check(){
 	dir_  = "./";
 	filename_ ="honeyomb-chiral";
 	display_results();
+
+	plot_band_structure();
 }
 /*}*/

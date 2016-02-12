@@ -128,6 +128,7 @@ void TriangleFree::display_results(){
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
 	ps.polygon(draw_unit_cell(),"linecolor=black");
+	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	double t;
 	double mu;
@@ -162,8 +163,6 @@ void TriangleFree::display_results(){
 		}
 		ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
 	}
-	ps.line("-",boundary_vertex_[0](0),boundary_vertex_[0](1),boundary_vertex_[1](0),boundary_vertex_[1](1),"linecolor=yellow");
-	ps.line("-",boundary_vertex_[3](0),boundary_vertex_[3](1),boundary_vertex_[0](0),boundary_vertex_[0](1),"linecolor=yellow");
 	ps.end(true,true,true);
 }
 

@@ -87,25 +87,25 @@ void Kagome<Type>::init_lattice(){
 			}
 
 			if(this->ref_(3)){
-				this->boundary_vertex_[0] = this->dir_nn_[3]*0.2 + this->dir_nn_[4]*L_*2.0;
-				this->boundary_vertex_[1] = this->boundary_vertex_[0] + (this->dir_nn_[0]+this->dir_nn_[1])*L_*2.0;
-				this->boundary_vertex_[2] = this->boundary_vertex_[1] + (this->dir_nn_[2]+this->dir_nn_[1])*L_*2.0;
-				this->boundary_vertex_[3] = this->boundary_vertex_[0] + (this->dir_nn_[2]+this->dir_nn_[1])*L_*2.0;
+				this->equivalent_vertex_[0] = this->dir_nn_[4]*L_*2.0 + this->dir_nn_[3]*0.2;
+				this->equivalent_vertex_[1] = this->dir_nn_[0]*L_*2.0 + this->dir_nn_[3]*0.2;
+				this->equivalent_vertex_[2] = this->dir_nn_[2]*L_*2.0 + this->dir_nn_[3]*0.2;
 			} else {
-				this->boundary_vertex_[0] = (this->dir_nn_[4]+this->dir_nn_[3])*0.2 - (this->dir_nn_[0]+this->dir_nn_[1])*L_/1.5;
-				this->boundary_vertex_[1] = this->boundary_vertex_[0] + this->dir_nn_[0]*L_*2.0;
-				this->boundary_vertex_[2] = this->boundary_vertex_[1] + this->dir_nn_[1]*L_*2.0;
-				this->boundary_vertex_[3] = this->boundary_vertex_[0] + this->dir_nn_[1]*L_*2.0;
+				this->equivalent_vertex_[0] = (this->dir_nn_[3]+this->dir_nn_[4])*L_/1.5 + (this->dir_nn_[4]+this->dir_nn_[3])*0.2;
+				this->equivalent_vertex_[1] = (this->dir_nn_[5]+this->dir_nn_[0])*L_/1.5 + (this->dir_nn_[4]+this->dir_nn_[3])*0.2;
+				this->equivalent_vertex_[2] = (this->dir_nn_[1]+this->dir_nn_[2])*L_/1.5 + (this->dir_nn_[4]+this->dir_nn_[3])*0.2;
 			}
 
-			if(this->unit_cell_allowed()){ this->status_ = 2; }
+			if(this->unit_cell_allowed()){ 
+				this->status_ = 2; 
 
-			this->set_nn_links(Vector<unsigned int>(3,2));
+				this->set_nn_links(Vector<unsigned int>(3,2));
 
-			/*!sets the bond energy if it has not been set yet*/
-			if(this->obs_[0].nlinks() != this->J_.size()){
-				if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
-				else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
+				/*!sets the bond energy if it has not been set yet*/
+				if(this->obs_[0].nlinks() != this->J_.size()){
+					if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
+					else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
+				}
 			}
 		}
 	}

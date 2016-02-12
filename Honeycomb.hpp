@@ -86,50 +86,50 @@ void Honeycomb<Type>::init_lattice(){
 			}
 
 			if(this->ref_(3)){
-				this->boundary_vertex_[0] = (this->dir_nn_[2]-this->dir_nn_[0])*0.2 + (this->dir_nn_[2]-this->dir_nn_[0])*L_;
-				this->boundary_vertex_[1] = this->boundary_vertex_[0] + this->dir_nn_[0]*L_*3.0;
-				this->boundary_vertex_[2] = this->boundary_vertex_[1] - this->dir_nn_[2]*L_*3.0;
-				this->boundary_vertex_[3] = this->boundary_vertex_[0] - this->dir_nn_[2]*L_*3.0;
+				this->equivalent_vertex_[0] = (this->dir_nn_[2]-this->dir_nn_[0])*L_ + (this->dir_nn_[2]-this->dir_nn_[0])*0.2;
+				this->equivalent_vertex_[1] = (this->dir_nn_[0]-this->dir_nn_[1])*L_ + (this->dir_nn_[2]-this->dir_nn_[0])*0.2;
+				this->equivalent_vertex_[2] = (this->dir_nn_[1]-this->dir_nn_[2])*L_ + (this->dir_nn_[2]-this->dir_nn_[0])*0.2;
 			} else {
-				this->boundary_vertex_[0] = this->dir_nn_[0]*-0.2 + this->dir_nn_[2]*L_;
-				this->boundary_vertex_[1] = this->boundary_vertex_[0] + (this->dir_nn_[0]-this->dir_nn_[2])*L_;
-				this->boundary_vertex_[2] = this->boundary_vertex_[1] + (this->dir_nn_[1]-this->dir_nn_[2])*L_;
-				this->boundary_vertex_[3] = this->boundary_vertex_[0] + (this->dir_nn_[1]-this->dir_nn_[2])*L_;
+				this->equivalent_vertex_[0] = this->dir_nn_[2]*L_ + this->dir_nn_[2]*0.2;
+				this->equivalent_vertex_[1] = this->dir_nn_[0]*L_ + this->dir_nn_[2]*0.2;
+				this->equivalent_vertex_[2] = this->dir_nn_[1]*L_ + this->dir_nn_[2]*0.2;
 			}
 
-			if(this->unit_cell_allowed()){ this->status_ = 2; }
+			if(this->unit_cell_allowed()){ 
+				this->status_ = 2; 
 
-			Vector<unsigned int> l(2);
-			l(0) = 3;
-			l(1) = 0;
-			this->set_nn_links(l);
+				Vector<unsigned int> l(2);
+				l(0) = 3;
+				l(1) = 0;
+				this->set_nn_links(l);
 
-			/*!sets the bond energy if it has not been set yet*/
-			if(this->obs_[0].nlinks() != this->J_.size()){
-				if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
-				else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
+				/*!sets the bond energy if it has not been set yet*/
+				if(this->obs_[0].nlinks() != this->J_.size()){
+					if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
+					else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
+				}
 			}
 		}
 	}
 }
 
-	template<typename Type>
-		void Honeycomb<Type>::set_obs(int nobs){
-			if(nobs<0){ nobs = 1; }
-			if(nobs>0){/*bond energy (valid for Honeycomb0pp)*/
-				unsigned int nlinks;
-				unsigned int nval;
-				nlinks = this->obs_[0].nlinks();
-				nval = this->z_*this->spuc_/2;
-				this->obs_.push_back(Observable("Bond energy",1,nval,nlinks));
-				this->obs_[1].remove_links();
-				for(unsigned int i(0);i<nlinks;i++){
-					this->obs_[0](i,2) = this->obs_[0](i,5)/2*3;
-					this->obs_[0](i,2)+=(this->obs_[0](i,6)-1)/2;
-				}
-			}
+template<typename Type>
+void Honeycomb<Type>::set_obs(int nobs){
+	if(nobs<0){ nobs = 1; }
+	if(nobs>0){/*bond energy (valid for Honeycomb0pp)*/
+		unsigned int nlinks;
+		unsigned int nval;
+		nlinks = this->obs_[0].nlinks();
+		nval = this->z_*this->spuc_/2;
+		this->obs_.push_back(Observable("Bond energy",1,nval,nlinks));
+		this->obs_[1].remove_links();
+		for(unsigned int i(0);i<nlinks;i++){
+			this->obs_[0](i,2) = this->obs_[0](i,5)/2*3;
+			this->obs_[0](i,2)+=(this->obs_[0](i,6)-1)/2;
 		}
-	/*}*/
+	}
+}
+/*}*/
 
 /*{private methods*/
 template<typename Type>
