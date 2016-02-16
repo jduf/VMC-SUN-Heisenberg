@@ -26,8 +26,8 @@ int main(int argc, char* argv[]){
 	}
 
 	if(!P.locked()){
-		std::cout<<cs->get_system_info()<<std::endl;
 		if(cs->get_status()==2){
+			std::cout<<cs->get_system_info()<<std::endl;
 			cs->create(true);
 			if(cs->get_status()==1){
 #pragma omp parallel for
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]){
 
 				Linux command;
 				command.mkpath(cs->get_path().c_str());
-				std::string fname(cs->get_filename() + "-" + Time().date("-") );
+				std::string fname(Time().date("-") + "-" + cs->get_filename());
 				IOFiles out(cs->get_path() + fname +".jdbin",true);
 				cs->save(out);
 

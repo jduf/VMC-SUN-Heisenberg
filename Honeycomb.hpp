@@ -90,9 +90,9 @@ void Honeycomb<Type>::init_lattice(){
 				this->equivalent_vertex_[1] = (this->dir_nn_[0]-this->dir_nn_[1])*L_ + (this->dir_nn_[2]-this->dir_nn_[0])*0.2;
 				this->equivalent_vertex_[2] = (this->dir_nn_[1]-this->dir_nn_[2])*L_ + (this->dir_nn_[2]-this->dir_nn_[0])*0.2;
 			} else {
-				this->equivalent_vertex_[0] = this->dir_nn_[2]*L_ + this->dir_nn_[2]*0.2;
-				this->equivalent_vertex_[1] = this->dir_nn_[0]*L_ + this->dir_nn_[2]*0.2;
-				this->equivalent_vertex_[2] = this->dir_nn_[1]*L_ + this->dir_nn_[2]*0.2;
+				this->equivalent_vertex_[0] = this->dir_nn_[2]*L_ + (this->dir_nn_[1] - this->dir_nn_[2])/2.0;
+				this->equivalent_vertex_[1] = this->dir_nn_[0]*L_ + (this->dir_nn_[1] - this->dir_nn_[2])/2.0;
+				this->equivalent_vertex_[2] = this->dir_nn_[1]*L_ + (this->dir_nn_[1] - this->dir_nn_[2])/2.0;
 			}
 
 			if(this->unit_cell_allowed()){ 

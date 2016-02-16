@@ -2,7 +2,7 @@
 
 HoneycombChiral::HoneycombChiral(System const& s, double const& phi):
 	System(s),
-	Honeycomb<std::complex<double> >(set_ab(),6,"honeyomb-chiral"),
+	Honeycomb<std::complex<double> >(set_ab(),6,"honeycomb-chiral"),
 	phi_(phi*M_PI/3.0)
 {
 	if(status_==3){ init_lattice(); }
@@ -99,6 +99,7 @@ void HoneycombChiral::display_results(){
 	std::complex<double> t;
 	unsigned int s0;
 	unsigned int s1;
+	Matrix<int> nb;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		xy0 = x_[s0];
@@ -121,16 +122,29 @@ void HoneycombChiral::display_results(){
 				arrow = "-";
 			} else {
 				arrow = "->";
-				//if(t.imag()>0){ arrow = "->"; }
-				//else          { arrow = "<-"; }
-				ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_))+"}");
+				if(obs_[0](i,3)){
+					ps.put((xy0(0)+xy1(0))/2.0-0.05,(xy0(1)+xy1(1))/2.0-0.05,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_))+"}"); 
+				} else {
+					ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_))+"}"); 
+				}
 			}
 
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
-		if(!(i%3)){ 
+
+		if(!(i%3)){
 			ps.put(xy1(0)+0.10,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
+
+			unsigned int j(0);
+			double phase(0.0);
+			do {
+				nb = get_neighbourg(s0);
+				s1 = nb((j+1)%3,0);
+				phase += std::arg(-H_(s0,s1));
+				s0 = s1;
+			} while (++j<6);
+			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.9,"\\tiny{"+my::tostring(phase/phi_)+"}"); 
 		}
 	}
 	ps.end(true,true,true);
@@ -140,9 +154,10 @@ void HoneycombChiral::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="honeyomb-chiral";
+	filename_ ="honeycomb-chiral";
 	display_results();
 
-	plot_band_structure();
+	//compute_H();
+	//plot_band_structure();
 }
 /*}*/

@@ -37,7 +37,8 @@ ChainFermi<Type>::ChainFermi(System const& s):
 	if(this->status_==2){
 		this->init_fermionic();
 
-		this->system_info_.item("Spin chain with real and identical hopping term between each sites");
+		this->system_info_.text("ChainFermi :");
+		this->system_info_.text(" Each color has the same Hamiltonian.");
 	}
 }
 

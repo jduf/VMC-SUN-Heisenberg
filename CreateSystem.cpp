@@ -43,14 +43,14 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 											t = C->get<std::vector<double> >("t");
 											mu = C->get<std::vector<double> >("mu");
 										}
-										if(t.ptr()){ RGL_ = new ChainFree(*s_,t,mu); }
+										RGL_ = new ChainFree(*s_,t,mu);
 									}break;
 								case 2:
 									{
 										Vector<double> t;
 										if(param){ t = *param; }
 										if(C)    { t = C->get<std::vector<double> >("t"); }
-										if(t.ptr()){ RGL_ = new ChainPolymerized(*s_,t); }
+										RGL_ = new ChainPolymerized(*s_,t);
 									}break;
 								default:{ error(); }break;
 							}
@@ -196,7 +196,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 									nu(i,1) = tmp(1);
 								}
 							}
-							if(nu.ptr()){ RGL_ = new SquareJastrow(*s_,nu); }
+							RGL_ = new SquareJastrow(*s_,nu);
 						}break;
 					case 1:
 						{
@@ -302,9 +302,16 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 3:
 									{
 										double t(0);
-										if(param){ t = (*param)(0); }
-										if(C)    { t = C->get<double>("td"); }
-										if(param || C){ RGL_ = new Honeycomb0pp(*s_,t); }
+										unsigned int fc(0);
+										if(param){
+											t = (*param)(0);
+											fc= (*param)(1);
+										}
+										if(C) {
+											t = C->get<double>("td"); 
+											fc= (C->find("fc",fc,false)?C->get<unsigned int>(fc):0);
+										}
+										RGL_ = new Honeycomb0pp(*s_,t,fc);
 									}break;
 								case 4:
 									{ RGL_ = new HoneycombPiFlux(*s_); }break;

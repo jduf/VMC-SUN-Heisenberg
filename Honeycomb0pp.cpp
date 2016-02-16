@@ -1,19 +1,22 @@
 #include "Honeycomb0pp.hpp"
 
-Honeycomb0pp::Honeycomb0pp(System const& s, double const& td):
+Honeycomb0pp::Honeycomb0pp(System const& s, double const& td, unsigned int const& fc):
 	System(s),
 	Honeycomb<double>(set_ab(),6,"honeycomb-0pp"),
-	td_(td)
+	td_(td),
+	fc_(fc)
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){
 		init_fermionic();
 
-		filename_ += "-td" + my::tostring(td_);
+		system_info_.text("Honeycomb0pp :");
+		system_info_.text(" th is set to -1");
+		system_info_.text(" 6 sites per unit cell");
+		system_info_.text(" 1/3 of the hexagons with 0-flux");
+		system_info_.text(" If td<0, each 0-flux hexagon is surrounded by pi-flux hexagons, 0-flux otherwise");
 
-		system_info_.text("Honeycomb0pp : 6 sites per unit cell, in the center hexagon there is a 0-flux,");
-		system_info_.text("if td<0, the two other hexagons contain a pi-flux, if td>0, their flux is 0");
-		system_info_.text("th is set to 1");
+		filename_ += "-td" + my::tostring(td_)+"-fc" + my::tostring(fc_);
 	}
 }
 
@@ -21,7 +24,7 @@ Honeycomb0pp::Honeycomb0pp(System const& s, double const& td):
 void Honeycomb0pp::compute_H(){
 	H_.set(n_,n_,0);
 
-	double t(-1.0);
+	double th(-1.0);
 	unsigned int s0(0);
 	unsigned int s1(0);
 	unsigned int ab0(0);
@@ -31,8 +34,25 @@ void Honeycomb0pp::compute_H(){
 		s1 = obs_[0](i,1);
 		ab0 = obs_[0](i,5);
 		ab1 = obs_[0](i,6);
-		if((ab0==0 && ab1==1) || (ab0==2 && ab1==3) || (ab0==4 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); } 
-		else { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }
+		switch(fc_){
+			case 0:
+				{
+					if((ab0==0 && ab1==1) || (ab0==2 && ab1==3) || (ab0==4 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); } 
+					else { H_(s0,s1) = (obs_[0](i,4)?bc_*th:th); }
+				}break;
+			case 1:
+				{
+					if((ab0==4 && ab1==3) || (ab0==2 && ab1==1) || (ab0==0 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); } 
+					else { H_(s0,s1) = (obs_[0](i,4)?bc_*th:th); }
+				}break;
+			case 2:
+				{
+					if((ab0==2 && ab1==5) || (ab0==0 && ab1==3) || (ab0==4 && ab1==1)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); } 
+					else { H_(s0,s1) = (obs_[0](i,4)?bc_*th:th); }
+				}break;
+			default:
+				{ std::cerr<<__PRETTY_FUNCTION__<<" unknown flux configuration 3>fc="<<fc_<<std::endl; }
+		}
 	}
 	H_ += H_.transpose();
 }
@@ -50,7 +70,14 @@ void Honeycomb0pp::create(){
 }
 
 void Honeycomb0pp::save_param(IOFiles& w) const {
-	w.write("td/th (ratio of the hopping parameters)",td_);
+	std::string s("td="+my::tostring(td_)+", th=-1, fc="+my::tostring(fc_));
+	Vector<double> param(2);
+	param(0) = td_;
+	param(1) = fc_;
+
+	w.add_header()->title(s,'<');
+	w<<param;
+	GenericSystem<double>::save_param(w);
 }
 
 Matrix<double> Honeycomb0pp::set_ab() const {
@@ -120,8 +147,19 @@ void Honeycomb0pp::lattice(){
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 		if(!(i%3)){ 
-			ps.put(xy1(0)+0.10,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
+			xy0 -=  dir_nn_[obs_[0](i,3)]*0.2;
+			xy1 -=  dir_nn_[obs_[0](i,3)]*0.2;
+			ps.put(xy0(0),xy0(1),"\\tiny{"+my::tostring(s0)+"}"); 
+			xy0 -=  dir_nn_[obs_[0](i,3)]*0.2;
+			xy1 -=  dir_nn_[obs_[0](i,3)]*0.2;
+			ps.put(xy0(0),xy0(1),"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,5))+"}}"); 
+
+			xy0 +=  dir_nn_[obs_[0](i,3)]*0.6;
+			xy1 +=  dir_nn_[obs_[0](i,3)]*0.6;
+			ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(s1)+"}");
+			xy0 +=  dir_nn_[obs_[0](i,3)]*0.2;
+			xy1 +=  dir_nn_[obs_[0](i,3)]*0.2;
+			ps.put(xy1(0),xy1(1),"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,6))+"}}");
 		}
 	}
 	ps.end(true,true,true);
@@ -140,6 +178,7 @@ void Honeycomb0pp::display_results(){
 		run_cmd += " -u:n " + my::tostring(n_);
 		run_cmd += " -i:bc "+ my::tostring(bc_);
 		run_cmd += " -d:td " + my::tostring(td_); 
+		run_cmd += " -u:fc " + my::tostring(fc_); 
 		run_cmd += " -d:Jp 1 -u:tmax 10 -d";
 		rst_file_->change_text_onclick("run command",run_cmd);
 
@@ -154,6 +193,6 @@ void Honeycomb0pp::check(){
 	filename_ ="honeycomb-0pp";
 	display_results();
 
-	plot_band_structure();
+	//plot_band_structure();
 }
 /*}*/

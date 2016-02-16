@@ -55,9 +55,7 @@ void MCSim::run(unsigned int const& ts, unsigned int const& tmax){
 		MonteCarlo mc(MCS_.get(),tmax);
 		mc.thermalize(ts);
 		mc.run();
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : faulty parameters : "<<param_<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : faulty parameters : "<<param_<<std::endl; }
 }
 /*}*/
 

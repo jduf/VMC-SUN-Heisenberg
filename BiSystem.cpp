@@ -45,6 +45,7 @@ void BiSystem::add_new_param(Vector<double> const& param){
 
 			for(unsigned int i(0);i<j;i++){
 				if(cs.use_complex()){
+					std::cout<<__PRETTY_FUNCTION__<<" : not fully implemented -> need to find a way to correctly compute the sqrt(<i|j><j|i>) for the normalization (be careful to the phase)"<<std::endl; 
 					mcsys_[i][j].reset(new SystemBiFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(mcsys_[i][i].get()),*dynamic_cast<const Fermionic<std::complex<double> >*>(mcsys_[j][j].get())));
 					mcsys_[j][i].reset(new SystemBiFermionic<std::complex<double> >(*dynamic_cast<const Fermionic<std::complex<double> >*>(mcsys_[j][j].get()),*dynamic_cast<const Fermionic<std::complex<double> >*>(mcsys_[i][i].get())));
 				} else {
@@ -63,8 +64,8 @@ void BiSystem::run(unsigned int const& nruns, unsigned int const& tmax){
 			for(unsigned int k=0;k<nruns;k++){
 				std::unique_ptr<MCSystem> tmp(mcsys_[i][j]->clone());
 
-				MonteCarlo sim(tmp.get(),(i==j?tmax:60*tmax));
-				sim.thermalize(1e6);
+				MonteCarlo sim(tmp.get(),(i==j?tmax:120*tmax));
+				sim.thermalize(1e7);
 				sim.run();
 
 #pragma omp critical(System__merge)
@@ -238,44 +239,44 @@ void BiSystem::compute_dE(){
 }
 
 void BiSystem::study(){
-	O_(0,1) = (O_(0,1)+O_(0,3)+O_(1,0)+O_(1,2)+O_(2,1)+O_(2,3)+O_(3,0)+O_(3,2))/8;
-	O_(0,3) = O_(0,1);
-	O_(1,0) = O_(0,1);
-	O_(1,2) = O_(0,1);
-	O_(2,1) = O_(0,1);
-	O_(2,3) = O_(0,1);
-	O_(3,0) = O_(0,1);
-	O_(3,2) = O_(0,1);
-
-	O_(0,2) = (O_(0,2)+O_(1,3)+O_(2,0)+O_(3,1))/4;
-	O_(1,3) = O_(0,2);
-	O_(2,0) = O_(0,2);
-	O_(3,1) = O_(0,2);
-
-	O_(0,0) = (O_(1,1)+O_(2,2)+O_(3,3)+O_(0,0))/4;
-	O_(1,1) = O_(0,0);
-	O_(2,2) = O_(0,0);
-	O_(3,3) = O_(0,0);
-
-	H_(0,1) = (H_(0,1)+H_(0,3)+H_(1,0)+H_(1,2)+H_(2,1)+H_(2,3)+H_(3,0)+H_(3,2))/8;
-	H_(0,3) = H_(0,1);
-	H_(1,0) = H_(0,1);
-	H_(1,2) = H_(0,1);
-	H_(2,1) = H_(0,1);
-	H_(2,3) = H_(0,1);
-	H_(3,0) = H_(0,1);
-	H_(3,2) = H_(0,1);
-
-	H_(0,2) = (H_(0,2)+H_(1,3)+H_(2,0)+H_(3,1))/4;
-	H_(1,3) = H_(0,2);
-	H_(2,0) = H_(0,2);
-	H_(3,1) = H_(0,2);
-
-	H_(0,0) = (H_(1,1)+H_(2,2)+H_(3,3)+H_(0,0))/4;
-	H_(1,1) = H_(0,0);
-	H_(2,2) = H_(0,0);
-	H_(3,3) = H_(0,0);
-
+	//O_(0,1) = (O_(0,1)+O_(0,3)+O_(1,0)+O_(1,2)+O_(2,1)+O_(2,3)+O_(3,0)+O_(3,2))/8;
+	//O_(0,3) = O_(0,1);
+	//O_(1,0) = O_(0,1);
+	//O_(1,2) = O_(0,1);
+	//O_(2,1) = O_(0,1);
+	//O_(2,3) = O_(0,1);
+	//O_(3,0) = O_(0,1);
+	//O_(3,2) = O_(0,1);
+//
+	//O_(0,2) = (O_(0,2)+O_(1,3)+O_(2,0)+O_(3,1))/4;
+	//O_(1,3) = O_(0,2);
+	//O_(2,0) = O_(0,2);
+	//O_(3,1) = O_(0,2);
+//
+	//O_(0,0) = (O_(1,1)+O_(2,2)+O_(3,3)+O_(0,0))/4;
+	//O_(1,1) = O_(0,0);
+	//O_(2,2) = O_(0,0);
+	//O_(3,3) = O_(0,0);
+//
+	//H_(0,1) = (H_(0,1)+H_(0,3)+H_(1,0)+H_(1,2)+H_(2,1)+H_(2,3)+H_(3,0)+H_(3,2))/8;
+	//H_(0,3) = H_(0,1);
+	//H_(1,0) = H_(0,1);
+	//H_(1,2) = H_(0,1);
+	//H_(2,1) = H_(0,1);
+	//H_(2,3) = H_(0,1);
+	//H_(3,0) = H_(0,1);
+	//H_(3,2) = H_(0,1);
+//
+	//H_(0,2) = (H_(0,2)+H_(1,3)+H_(2,0)+H_(3,1))/4;
+	//H_(1,3) = H_(0,2);
+	//H_(2,0) = H_(0,2);
+	//H_(3,1) = H_(0,2);
+//
+	//H_(0,0) = (H_(1,1)+H_(2,2)+H_(3,3)+H_(0,0))/4;
+	//H_(1,1) = H_(0,0);
+	//H_(2,2) = H_(0,0);
+	//H_(3,3) = H_(0,0);
+//
 	Matrix<double> Ovec(O_);
 	Vector<double> Oval;
 	Lapack<double>(Ovec,false,'S').eigensystem(Oval,true);

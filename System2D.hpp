@@ -83,6 +83,7 @@ template<typename Type>
 System2D<Type>::System2D(Matrix<double> const& cluster_vertex, Matrix<double> const& ab, unsigned int const& spuc, unsigned int const& z, unsigned int const& ndir, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename),
 	cluster_vertex_(cluster_vertex),
+	equivalent_vertex_(NULL),
 	boundary_vertex_(NULL),
 	dir_nn_(NULL),
 	x_(NULL),

@@ -3,9 +3,22 @@
 
 #include "Honeycomb.hpp"
 
+/*{*//*!Plaquette wavefunction with possible 0-pi-pi flux configuration
+	   Three different flux configurations (fc) are possible : taking links
+	   0->1, 2->3, 4->5 as reference and closing each hexagon with the same
+	   orientation, one has :
+
+	   | fc   : 0  |  1 | 2
+	   | 0->1 : pi | pi | 0
+	   | 2->3 : pi | 0  | pi
+	   | 4->5 : 0  | pi | pi
+
+	   They are all equivalent but the overlap matrix after projection is not
+	   equal to the identity.
+	   *//*}*/
 class Honeycomb0pp: public Honeycomb<double>{
 	public:
-		Honeycomb0pp(System const& s, double const& td);
+		Honeycomb0pp(System const& s, double const& td, unsigned int const& fc);
 		~Honeycomb0pp() = default;
 
 		void create();
@@ -14,6 +27,7 @@ class Honeycomb0pp: public Honeycomb<double>{
 
 	protected:
 		double const td_;
+		unsigned int const fc_;
 
 		void compute_H();
 

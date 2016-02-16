@@ -449,7 +449,6 @@ void VMCMinimization::evaluate_until_precision(Vector<double> const& param, int 
 	if(sim.get()){
 		sim->complete_analysis(1e-5);
 		sim->print(0);
-		//std::cout<<" : E="<<sim->get_MCS()->get_energy()<<" ("<<iter<<" times, ok="<<( sim->check_conv(1e-5) && sim->get_MCS()->get_energy().get_dx()<dE )<<")"<<std::endl;
 	} else { std::cerr<<__PRETTY_FUNCTION__<<std::cout<<" : failed"<<std::endl; }
 }
 /*}*/

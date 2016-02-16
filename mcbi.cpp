@@ -5,8 +5,6 @@
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	unsigned int i(0);
-	unsigned int tmax(P.get<unsigned int>("tmax"));
-	unsigned int nruns(P.find("nruns",i,false)?P.get<unsigned int>(i):omp_get_max_threads());
 
 	if(P.find("load",i,false)){
 		IOFiles r(P.get<std::string>(i),false);
@@ -26,6 +24,9 @@ int main(int argc, char* argv[]){
 		//bs.save();
 		bs.study();
 	} else {
+		unsigned int tmax(P.get<unsigned int>("tmax"));
+		unsigned int nruns(P.find("nruns",i,false)?P.get<unsigned int>(i):omp_get_max_threads());
+
 		BiSystem bs(P);
 		if(!P.locked()){
 			if(P.find("chain",i,false)){
@@ -53,12 +54,11 @@ int main(int argc, char* argv[]){
 				}
 			}
 			if(P.find("honeycomb",i,false)){
-				double t(P.get<double>("t"));
-				for(unsigned int s(0);s<3;s++){
-					Vector<double> param(9,1);
-					param(s) = t;
-					param((s+1)%3+3) = t;
-					param((s+2)%3+6) = t;
+				double t(P.get<double>("td"));
+				Vector<double> param(2,0);
+				param(0) = t;
+				for(unsigned int fc(0);fc<3;fc++){
+					param(1) = fc;
 					bs.add_new_param(param);
 				}
 			}
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]){
 				//param(3) = 0.99999999;
 				//bs.add_new_param(param);
 				//param(3) =-0.99999999;
-				//bs.add_new_param(param); 
+				//bs.add_new_param(param);
 				Vector<double> param(20,0);
 				param(0) = 1;
 				param(1) = 0.15;
@@ -85,11 +85,11 @@ int main(int argc, char* argv[]){
 				param(10)= 0.15;
 				param(11)=-1;
 				param(12)= 0.9999999;
-				bs.add_new_param(param); 
+				bs.add_new_param(param);
 				param(12)=-0.9999999;
-				bs.add_new_param(param); 
+				bs.add_new_param(param);
 			}
-			
+
 			if(P.find("square",i,false)){
 				for(unsigned int s(0);s<5;s++){
 					Vector<double> mu(5,0);
