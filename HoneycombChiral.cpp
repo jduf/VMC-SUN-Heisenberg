@@ -9,7 +9,7 @@ HoneycombChiral::HoneycombChiral(System const& s, double const& phi):
 	if(status_==2){
 		init_fermionic();
 
-		system_info_.text("SquareChiral :");
+		system_info_.text("HoneycombChiral :");
 		system_info_.text(" Each color has the same Hamiltonian.");
 		system_info_.text(" There is a flux of "+RST::math(my::tostring(phi)+"\\pi/3") + "per hexagonal plaquette");
 
@@ -36,6 +36,14 @@ void HoneycombChiral::compute_H(){
 			if(ab0==0){ H_(s0,s1) *= std::polar(1.0,phi_); }
 			if(ab0==2){ H_(s0,s1) *= std::polar(1.0,-phi_); }
 		}
+
+		//if(ab0<6){
+			//switch(obs_[0](i,3)){
+				//case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(ab0+1)*phi_); }break;
+				//case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),ab0*phi_); }break;
+				//case 2:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); } break;
+			//}
+		//} else { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }
 	}
 	H_ += H_.conjugate_transpose();
 }
@@ -58,6 +66,11 @@ Matrix<double> HoneycombChiral::set_ab() const {
 	tmp(1,0) = 0.0;
 	tmp(0,1) = 1.5;
 	tmp(1,1) = 1.5*sqrt(3.0);
+
+	//tmp(0,0) = 4.5;
+	//tmp(1,0) =-1.5*sqrt(3.0);
+	//tmp(0,1) = 0;
+	//tmp(1,1) = 2.0*sqrt(3.0);
 	return tmp;
 }
 
@@ -77,6 +90,29 @@ unsigned int HoneycombChiral::match_pos_in_ab(Vector<double> const& x) const {
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 5; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	return 6;
+	
+	//if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
+		//if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0; }
+		//if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 2; }
+		//if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 4; }
+	//}
+	//if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){
+		//if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 6; }
+		//if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 8; }
+		//if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 10; }
+	//}
+	//if(my::are_equal(x(1),1.0/6.0,eq_prec_,eq_prec_)){
+		//if(my::are_equal(x(0),2.0/9.0,eq_prec_,eq_prec_)){ return 1; }
+		//if(my::are_equal(x(0),5.0/9.0,eq_prec_,eq_prec_)){ return 3; }
+		//if(my::are_equal(x(0),8.0/9.0,eq_prec_,eq_prec_)){ return 5; }
+	//}
+	//if(my::are_equal(x(1),4.0/6.0,eq_prec_,eq_prec_)){
+		//if(my::are_equal(x(0),2.0/9.0,eq_prec_,eq_prec_)){ return 7; }
+		//if(my::are_equal(x(0),5.0/9.0,eq_prec_,eq_prec_)){ return 9; }
+		//if(my::are_equal(x(0),8.0/9.0,eq_prec_,eq_prec_)){ return 11; }
+	//}
+	//std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
+	//return 12;
 }
 /*}*/
 
@@ -123,9 +159,9 @@ void HoneycombChiral::display_results(){
 			} else {
 				arrow = "->";
 				if(obs_[0](i,3)){
-					ps.put((xy0(0)+xy1(0))/2.0-0.05,(xy0(1)+xy1(1))/2.0-0.05,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_))+"}"); 
+					ps.put((xy0(0)+xy1(0))/2.0-0.05,(xy0(1)+xy1(1))/2.0-0.05,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_,1e-5))+"}"); 
 				} else {
-					ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_))+"}"); 
+					ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_,1e-5))+"}"); 
 				}
 			}
 
@@ -133,18 +169,30 @@ void HoneycombChiral::display_results(){
 		}
 
 		if(!(i%3)){
-			ps.put(xy1(0)+0.10,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
-
 			unsigned int j(0);
-			double phase(0.0);
+			double flux(0.0);
 			do {
 				nb = get_neighbourg(s0);
 				s1 = nb((j+1)%3,0);
-				phase += std::arg(-H_(s0,s1));
+				flux += std::arg(-H_(s0,s1));
 				s0 = s1;
 			} while (++j<6);
-			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.9,"\\tiny{"+my::tostring(phase/phi_)+"}"); 
+			flux = my::chop(flux/phi_,1e-6);
+			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.9,"\\tiny{"+my::tostring(flux)+"}"); 
+
+			xy0 -=  dir_nn_[obs_[0](i,3)]*0.2;
+			xy1 -=  dir_nn_[obs_[0](i,3)]*0.2;
+			ps.put(xy0(0),xy0(1),"\\tiny{"+my::tostring(obs_[0](i,0))+"}"); 
+			xy0 -=  dir_nn_[obs_[0](i,3)]*0.2;
+			xy1 -=  dir_nn_[obs_[0](i,3)]*0.2;
+			ps.put(xy0(0),xy0(1),"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,5))+"}}"); 
+
+			xy0 +=  dir_nn_[obs_[0](i,3)]*0.6;
+			xy1 +=  dir_nn_[obs_[0](i,3)]*0.6;
+			ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(obs_[0](i,1))+"}");
+			xy0 +=  dir_nn_[obs_[0](i,3)]*0.2;
+			xy1 +=  dir_nn_[obs_[0](i,3)]*0.2;
+			ps.put(xy1(0),xy1(1),"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,6))+"}}");
 		}
 	}
 	ps.end(true,true,true);

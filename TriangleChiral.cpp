@@ -27,34 +27,12 @@ void TriangleChiral::compute_H(){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		switch(obs_[0](i,5)){
-			case 0:
-				{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)+1)*phi_); }break;
-			case 1:
-				{
-					switch(obs_[0](i,3)){
-						case 0:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),-5.0*phi_); }break;
-						case 2:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-					}
-				}break;
-			case 2:
-				{ 
-					switch(obs_[0](i,3)){
-						case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),-4.0*phi_); }break;
-						case 1:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),-6.0*phi_); }break;
-					}
-				}break;
-		}
 
-		//switch(obs_[0](i,3)){
-			//case 0:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-			//case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi_*(2.0*s0+1)); }break;
-			//case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi_* 2.0*s0); }break;
-			////case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi_*(2.0*obs_[0](i,5)+1)); }break;
-			////case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi_* 2.0*obs_[0](i,5)); }break;
-		//}
+		switch(obs_[0](i,3)){
+			case 0:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
+			case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi_*(2.0*obs_[0](i,5)+1)); }break;
+			case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi_* 2.0*obs_[0](i,5)); }break;
+		}
 	}
 	H_ += H_.conjugate_transpose();
 }
@@ -75,14 +53,10 @@ void TriangleChiral::create(){
 
 Matrix<double> TriangleChiral::set_ab() const {
 	Matrix<double> tmp(2,2);
-	tmp(0,0) = 1.5;
-	tmp(1,0) =-sqrt(3.0)/2;
-	tmp(0,1) = 1.5;
+	tmp(0,0) = 3;
+	tmp(1,0) = 0;
+	tmp(0,1) = 0.5;
 	tmp(1,1) = sqrt(3.0)/2;
-	//tmp(0,0) = 3;
-	//tmp(1,0) = 0;
-	//tmp(0,1) = 0.5;
-	//tmp(1,1) = sqrt(3.0)/2;
 	return tmp;
 }
 
@@ -90,17 +64,9 @@ unsigned int TriangleChiral::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
 	match(0) = 1.0/3.0;
-	match(1) = 1.0/3.0;
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
 	match(0) = 2.0/3.0;
-	match(1) = 2.0/3.0;
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-	
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-	//////match(0) = 1.0/3.0;
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-	//match(0) = 2.0/3.0;
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	return 3;
 }
@@ -147,8 +113,6 @@ void TriangleChiral::display_results(){
 				arrow = "-"; 
 			} else {
 				arrow = "->";
-				//if(t.imag()>0){ arrow = "->"; }
-				//else          { arrow = "<-"; }
 				ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_))+"}");
 			}
 
@@ -180,9 +144,6 @@ void TriangleChiral::check(){
 	display_results();
 
 	//compute_H();
-	//H_.print_mathematica();
-	//std::cout<<H_<<std::endl;
-	plot_band_structure();
-	//obs_[0].get_links().print_mathematica();
+	//plot_band_structure();
 }
 /*}*/
