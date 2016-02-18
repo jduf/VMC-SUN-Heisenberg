@@ -86,7 +86,7 @@ class System{
 		/*!Default constructor*/
 		System():ref_(0),N_(0),m_(0),n_(0),bc_(0),M_(0),status_(5){ std::cout<<__PRETTY_FUNCTION__<<" : should never be called"<<std::endl; }
 
-		mutable Vector<unsigned int> ref_;		//!< type of system
+		mutable Vector<unsigned int> ref_;//!< type of system
 		unsigned int const N_;			//!< number of colors
 		unsigned int const m_;			//!< number of particles per site
 		unsigned int const n_;			//!< number of sites

@@ -2,22 +2,24 @@
 
 SquareDimerizedBar::SquareDimerizedBar(System const& s, Vector<double> const& t):
 	System(s),
-	Square<double>(set_ab(),N_/m_,"square-dimerizedbar"),
+	Square<double>(set_ab(),2,"square-dimerizedbar"),
 	t_(t)
 {
-	if(status_==3){ init_lattice(); }
-	if(status_==2){
-		init_fermionic();
+	if(t.size()==3){
+		if(status_==3){ init_lattice(); }
+		if(status_==2){
+			init_fermionic();
 
-		system_info_.text("SquareDimerizedBar :");
-		system_info_.text(" Each color has the same Hamiltonian.");
-		system_info_.text(" The dimerization occurs on bar stacked in columns");
+			system_info_.text("SquareDimerizedBar :");
+			system_info_.text(" Each color has the same Hamiltonian.");
+			system_info_.text(" The dimerization occurs on bar stacked in columns.");
 
-		filename_ += "-t";
-		for(unsigned int i(0);i<t_.size();i++){
-			filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
+			filename_ += "-t";
+			for(unsigned int i(0);i<t_.size();i++){
+				filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
+			}
 		}
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : t must contain 3 values"<<std::endl; }
 }
 
 /*{method needed for running*/
@@ -80,12 +82,12 @@ unsigned int SquareDimerizedBar::match_pos_in_ab(Vector<double> const& x) const 
 	match(0) = 0.5;
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return 5;
+	return 2;
 }
 /*}*/
 
 /*{method needed for checking*/
-void SquareDimerizedBar::display_results(){
+void SquareDimerizedBar::lattice(){
 	compute_H();
 
 	std::string color("black");
@@ -96,7 +98,8 @@ void SquareDimerizedBar::display_results(){
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(),"linecolor=black");
+	Matrix<double> uc(draw_unit_cell(0.5,0));
+	ps.polygon(uc,"linecolor=black");
 	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	double t;
@@ -108,8 +111,12 @@ void SquareDimerizedBar::display_results(){
 
 		s1 = obs_[0](i,1);
 		xy1 = x_[s1];
-
-		t = H_(s0,s1);
+		
+		t = H_(s0,s1); 
+		if(obs_.size()>1){
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ t = obs_[1][i%4].get_x(); }
+			else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
+		}
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
@@ -128,6 +135,36 @@ void SquareDimerizedBar::display_results(){
 	ps.end(true,true,true);
 }
 
+void SquareDimerizedBar::display_results(){
+	lattice();
+
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
+		std::string title("t=(");
+		std::string run_cmd("./mc -s:wf square-dimerizedbar");
+		run_cmd += " -u:N " + my::tostring(N_);
+		run_cmd += " -u:m " + my::tostring(m_);
+		run_cmd += " -u:n " + my::tostring(n_);
+		run_cmd += " -i:bc "+ my::tostring(bc_);
+		run_cmd += " -d:t ";
+		for(unsigned int i(0);i<t_.size()-1;i++){
+			title   += my::tostring(t_(i)) + ","; 
+			run_cmd += my::tostring(t_(i)) + ","; 
+		}
+		title   += my::tostring(t_.back()) + ")";
+		run_cmd += my::tostring(t_.back());
+		run_cmd += " -d -u:tmax 10";
+
+		rst_file_->title(title,'-');
+		rst_file_->change_text_onclick("run command",run_cmd);
+
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
+	}
+}
+
 void SquareDimerizedBar::check(){
 	info_ = "";
 	path_ = "";
@@ -135,6 +172,6 @@ void SquareDimerizedBar::check(){
 	filename_ ="square-dimerizedbar";
 	display_results();
 
-	//plot_band_structure();
+	plot_band_structure();
 }
 /*}*/

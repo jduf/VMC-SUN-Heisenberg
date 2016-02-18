@@ -91,11 +91,8 @@ int main(int argc, char* argv[]){
 			}
 
 			if(P.find("square",i,false)){
-				for(unsigned int s(0);s<5;s++){
-					Vector<double> mu(5,0);
-					mu(s) = P.get<double>("mu");
-					bs.add_new_param(mu);
-				}
+				bs.add_new_param(P.get<std::vector<double> >("t1"));
+				bs.add_new_param(P.get<std::vector<double> >("t2"));
 			}
 			bs.run(nruns,tmax);
 			bs.compute_E();

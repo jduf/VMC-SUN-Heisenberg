@@ -19,7 +19,7 @@ class Square: public System2D<Type>{
 		unsigned int p_;
 		unsigned int q_;
 
-		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& spuc, unsigned int const& ref3);
+		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& spuc, unsigned int& ref3);
 		bool reset_pos_in_lattice(Vector<double>& x) const;
 		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const;
 };
@@ -99,8 +99,16 @@ void Square<Type>::init_lattice(){
 template<typename Type>
 void Square<Type>::set_obs(int nobs){
 	if(nobs<0){ nobs = 1; }
-	if(nobs>1){ /*the long range correlation*/
-		/*bond energy missing*/
+	unsigned int nlinks;
+	unsigned int nval;
+	if(nobs>0){/*bond energy*/
+		nlinks = this->obs_[0].nlinks();
+		nval = this->z_*this->spuc_/2;
+		this->obs_.push_back(Observable("Bond energy",1,nval,nlinks));
+		this->obs_[1].remove_links();
+		for(unsigned int i(0);i<nlinks;i++){ this->obs_[0](i,2) = i%nval; }
+	}
+	if(nobs>1){/*the long range correlation*/
 		this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_));
 		for(unsigned int i(0);i<this->n_;i++){
 			this->obs_[2](i,0) = 0;
@@ -113,7 +121,7 @@ void Square<Type>::set_obs(int nobs){
 
 /*{private methods*/
 template<typename Type>
-Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int const& spuc, unsigned int const& ref3){
+Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int const& spuc, unsigned int& ref3){
 	if(n){
 		p_ = sqrt(n);
 		Matrix<double> tmp;
@@ -132,6 +140,7 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int co
 					}
 				}
 			}
+			if(!q_){ ref3 = 0; }
 		}
 		if(tmp.ptr()){
 			tmp(0,0) =-0.5*(p_-q_);

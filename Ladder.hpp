@@ -88,9 +88,7 @@ void Ladder<Type>::set_obs(int nobs){
 		nval = this->z_*this->spuc_/2;
 		this->obs_.push_back(Observable("Bond energy",1,nval,nlinks));
 		this->obs_[1].remove_links();
-		for(unsigned int i(0);i<nlinks;i++){
-			this->obs_[0](i,2) = i%nval;
-		}
+		for(unsigned int i(0);i<nlinks;i++){ this->obs_[0](i,2) = i%nval; }
 	}
 	if(nobs==5){/*(anti)symmetric correlation*/
 		m = this->n_/2;

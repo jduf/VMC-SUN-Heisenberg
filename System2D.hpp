@@ -47,7 +47,7 @@ class System2D: public GenericSystem<Type>{
 		/*!If x1 is outside the cluster, resets x1 inside and returns bc*/
 		bool handle_boundary(Vector<double> const& x0, Vector<double>& x1) const;
 		/*!Returns a matrix containing the vertices of the unit cell*/
-		Matrix<double> draw_unit_cell() const;
+		Matrix<double> draw_unit_cell(double const& xshift=0, double const& yshift=0) const;
 		/*!Returns a matrix containing the vertices of the boundary*/
 		Matrix<double> draw_boundary(bool const& full_boundary) const;
 
@@ -299,16 +299,16 @@ bool System2D<Type>::handle_boundary(Vector<double> const& x0, Vector<double>& x
 }
 
 template<typename Type>
-Matrix<double> System2D<Type>::draw_unit_cell() const {
+Matrix<double> System2D<Type>::draw_unit_cell(double const& xshift, double const& yshift) const {
 	Matrix<double> tmp(4,2);
-	tmp(0,0)=-(ab_(0,0)+ab_(0,1))/2.0;
-	tmp(0,1)=-(ab_(1,0)+ab_(1,1))/2.0;
-	tmp(1,0)= tmp(0,0)+ab_(0,0);
-	tmp(1,1)= tmp(0,1)+ab_(1,0);
-	tmp(2,0)= tmp(0,0)+ab_(0,0)+ab_(0,1);
-	tmp(2,1)= tmp(0,1)+ab_(1,0)+ab_(1,1);
-	tmp(3,0)= tmp(0,0)+ab_(0,1);
-	tmp(3,1)= tmp(0,1)+ab_(1,1);
+	tmp(0,0) = xshift   - (ab_(0,0)+ab_(0,1))/2.0;
+	tmp(0,1) = yshift   - (ab_(1,0)+ab_(1,1))/2.0;
+	tmp(1,0) = tmp(0,0) +  ab_(0,0);
+	tmp(1,1) = tmp(0,1) +  ab_(1,0);
+	tmp(2,0) = tmp(0,0) +  ab_(0,0)+ab_(0,1);
+	tmp(2,1) = tmp(0,1) +  ab_(1,0)+ab_(1,1);
+	tmp(3,0) = tmp(0,0) +  ab_(0,1);
+	tmp(3,1) = tmp(0,1) +  ab_(1,1);
 	return tmp;
 }
 

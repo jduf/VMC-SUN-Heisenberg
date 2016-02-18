@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
 						if(cs->is_bosonic()){ mcsys = new SystemBosonic<double>(*dynamic_cast<const Bosonic<double>*>(cs->get_GenericSystem())); }
 						else                { mcsys = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs->get_GenericSystem())); }
 					}
-					if(!mcsys){ std::cout<<__PRETTY_FUNCTION__<<" MCSystem was not constructed"<<std::endl; }
+					if(!mcsys){ std::cerr<<__PRETTY_FUNCTION__<<" MCSystem was not constructed"<<std::endl; }
 					else {
 						MonteCarlo sim(mcsys,tmax);
 						sim.thermalize(1e6);
@@ -71,10 +71,10 @@ int main(int argc, char* argv[]){
 					rst.save(false,true);
 					command(Linux::html_browser("/tmp/"+fname+".html"),true);
 				}
-			} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
-		} else { std::cout<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
+			} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
 		if(cs->get_status()>1){ sys->print(1); }
-	} else { std::cout<<__PRETTY_FUNCTION__<<" : Parseur locked"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : Parseur locked"<<std::endl; }
 
 	delete cs;
 	delete sys;

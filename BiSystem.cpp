@@ -65,7 +65,7 @@ void BiSystem::run(unsigned int const& nruns, unsigned int const& tmax){
 				std::unique_ptr<MCSystem> tmp(mcsys_[i][j]->clone());
 
 				MonteCarlo sim(tmp.get(),(i==j?tmax:120*tmax));
-				sim.thermalize(1e7);
+				sim.thermalize(1e6);
 				sim.run();
 
 #pragma omp critical(System__merge)
