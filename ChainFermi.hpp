@@ -38,7 +38,7 @@ ChainFermi<Type>::ChainFermi(System const& s):
 		this->init_fermionic();
 
 		this->system_info_.text("ChainFermi :");
-		this->system_info_.text(" Each color has the same Hamiltonian.");
+		this->system_info_.item("Each color has the same Hamiltonian.");
 	}
 }
 

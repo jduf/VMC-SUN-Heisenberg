@@ -9,6 +9,7 @@ class TriangleChiral: public Triangle<std::complex<double> >{
 		~TriangleChiral() = default;
 
 		void create();
+		void save_param(IOFiles& w) const;
 		void check();
 
 	protected:

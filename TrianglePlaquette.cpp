@@ -10,8 +10,8 @@ TrianglePlaquette::TrianglePlaquette(System const& s, double const& t):
 		init_fermionic();
 
 		system_info_.text("TrianglePlaquette :");
-		system_info_.text(" Each color has the same Hamiltonian.");
-		system_info_.text(" Triangular plaquette with different hopping term than the rest of the lattice");
+		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("Triangular plaquette with different hopping term than the rest of the lattice");
 
 		filename_ += "-t"+std::string(t_>=0?"+":"")+my::tostring(t_);
 	}
@@ -61,12 +61,14 @@ void TrianglePlaquette::create(){
 }
 
 void TrianglePlaquette::save_param(IOFiles& w) const {
-	std::string s("t=("+my::tostring(t_)+")");
-	Vector<double> param(1,t_);
+	if(w.is_binary()){
+		std::string s("t=("+my::tostring(t_)+")");
+		Vector<double> param(1,t_);
 
-	w.add_header()->title(s,'<');
-	w<<param;
-	GenericSystem<double>::save_param(w);
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<double>::save_param(w);
+	} else { w<<t_<<" "; }
 }
 
 Matrix<double> TrianglePlaquette::set_ab() const {

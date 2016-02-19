@@ -11,10 +11,11 @@ Honeycomb0pp::Honeycomb0pp(System const& s, double const& td, unsigned int const
 		init_fermionic();
 
 		system_info_.text("Honeycomb0pp :");
-		system_info_.text(" th is set to -1");
-		system_info_.text(" 6 sites per unit cell");
-		system_info_.text(" 1/3 of the hexagons with 0-flux");
-		system_info_.text(" If td<0, each 0-flux hexagon is surrounded by pi-flux hexagons, 0-flux otherwise");
+		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("6 sites per unit cell");
+		system_info_.item("1/3 of the hexagons with 0-flux.");
+		system_info_.item("If td<0, each 0-flux hexagon is surrounded by pi-flux hexagons, 0-flux otherwise.");
+		system_info_.item("th is set to -1");
 
 		filename_ += "-td" + my::tostring(td_)+"-fc" + my::tostring(fc_);
 	}
@@ -70,14 +71,16 @@ void Honeycomb0pp::create(){
 }
 
 void Honeycomb0pp::save_param(IOFiles& w) const {
-	std::string s("td="+my::tostring(td_)+", th=-1, fc="+my::tostring(fc_));
-	Vector<double> param(2);
-	param(0) = td_;
-	param(1) = fc_;
+	if(w.is_binary()){
+		std::string s("td="+my::tostring(td_)+", th=-1, fc="+my::tostring(fc_));
+		Vector<double> param(2);
+		param(0) = td_;
+		param(1) = fc_;
 
-	w.add_header()->title(s,'<');
-	w<<param;
-	GenericSystem<double>::save_param(w);
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<double>::save_param(w);
+	} else { w<<td_<<" "<<fc_<<" "; }
 }
 
 Matrix<double> Honeycomb0pp::set_ab() const {

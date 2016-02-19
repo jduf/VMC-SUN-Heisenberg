@@ -9,9 +9,9 @@ KagomeDirac::KagomeDirac(System const& s):
 		init_fermionic();
 
 		system_info_.text("KagomeDirac :");
-		system_info_.text(" Each color has the same Hamiltonian.");
-		system_info_.text(" 6 sites per unit cell");
-		system_info_.text(" pi-flux per hexagon but no flux per triangle");
+		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("6 sites per unit cell.");
+		system_info_.item("pi-flux per hexagon but no flux per triangle.");
 	}
 }
 

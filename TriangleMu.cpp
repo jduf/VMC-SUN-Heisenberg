@@ -11,7 +11,7 @@ TriangleMu::TriangleMu(System const& s, double const& mu):
 		same_wf_ = false;
 
 		system_info_.text("TriangleMu :");
-		system_info_.text(" Each color has a different Hamiltonian.");
+		system_info_.item("Each color has a different Hamiltonian.");
 
 		filename_ += "-mu"+std::string(mu_>=0?"+":"")+my::tostring(mu_);
 	}
@@ -49,12 +49,14 @@ void TriangleMu::create(){
 }
 
 void TriangleMu::save_param(IOFiles& w) const {
-	std::string s("mu=("+my::tostring(mu_)+")");
-	Vector<double> param(1,mu_);
+	if(w.is_binary()){
+		std::string s("mu=("+my::tostring(mu_)+")");
+		Vector<double> param(1,mu_);
 
-	w.add_header()->title(s,'<');
-	w<<param;
-	GenericSystem<double>::save_param(w);
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<double>::save_param(w);
+	} else { w<<mu_<<" "; }
 }
 
 Matrix<double> TriangleMu::set_ab() const {

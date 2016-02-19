@@ -284,11 +284,6 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 1;
 	}
-	if( wf == "honeycomb-plaquette" ){
-		ref(0) = 6;
-		ref(1) = 1;
-		ref(2) = 2;
-	}
 	if( wf == "honeycomb-0pp" ){
 		ref(0) = 6;
 		ref(1) = 1;

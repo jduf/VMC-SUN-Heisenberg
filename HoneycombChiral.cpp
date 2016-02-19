@@ -3,17 +3,17 @@
 HoneycombChiral::HoneycombChiral(System const& s, double const& phi):
 	System(s),
 	Honeycomb<std::complex<double> >(set_ab(),6,"honeycomb-chiral"),
-	phi_(phi*M_PI/3.0)
+	phi_(phi)
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){
 		init_fermionic();
 
 		system_info_.text("HoneycombChiral :");
-		system_info_.text(" Each color has the same Hamiltonian.");
-		system_info_.text(" There is a flux of "+RST::math(my::tostring(phi)+"\\pi/3") + "per hexagonal plaquette");
+		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("There is a flux of "+RST::math(my::tostring(phi)+"\\pi/3") + "per hexagonal plaquette");
 
-		filename_ += "-phi"+my::tostring(phi);
+		filename_ += "-phi"+my::tostring(phi_);
 	}
 }
 
@@ -26,6 +26,7 @@ void HoneycombChiral::compute_H(){
 	unsigned int s1(0);
 	unsigned int ab0(0);
 	unsigned int ab1(0);
+	double phi(phi_*M_PI/3.0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
@@ -33,14 +34,14 @@ void HoneycombChiral::compute_H(){
 		ab1 = obs_[0](i,6);
 		H_(s0,s1) = (obs_[0](i,4)?bc_*t:t);
 		if(ab1==5){
-			if(ab0==0){ H_(s0,s1) *= std::polar(1.0,phi_); }
-			if(ab0==2){ H_(s0,s1) *= std::polar(1.0,-phi_); }
+			if(ab0==0){ H_(s0,s1) *= std::polar(1.0,phi); }
+			if(ab0==2){ H_(s0,s1) *= std::polar(1.0,-phi); }
 		}
 
 		//if(ab0<6){
 			//switch(obs_[0](i,3)){
-				//case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(ab0+1)*phi_); }break;
-				//case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),ab0*phi_); }break;
+				//case 0:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(ab0+1)*phi); }break;
+				//case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),ab0*phi); }break;
 				//case 2:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); } break;
 			//}
 		//} else { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }
@@ -51,13 +52,26 @@ void HoneycombChiral::compute_H(){
 void HoneycombChiral::create(){
 	compute_H();
 	diagonalize(true);
-	for(unsigned int c(0);c<N_;c++){
-		for(unsigned int i(0);i<n_;i++){
-			for(unsigned int j(0);j<M_(c);j++){
-				EVec_[c](i,j) = H_(i,j);
+	if(status_==1){
+		for(unsigned int c(0);c<N_;c++){
+			for(unsigned int i(0);i<n_;i++){
+				for(unsigned int j(0);j<M_(c);j++){
+					EVec_[c](i,j) = H_(i,j);
+				}
 			}
 		}
 	}
+}
+
+void HoneycombChiral::save_param(IOFiles& w) const {
+	if(w.is_binary()){
+		std::string s("phi=("+my::tostring(phi_)+")");
+		Vector<double> param(1,phi_);
+
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<std::complex<double> >::save_param(w);
+	} else { w<<phi_<<" "; }
 }
 
 Matrix<double> HoneycombChiral::set_ab() const {
@@ -90,26 +104,26 @@ unsigned int HoneycombChiral::match_pos_in_ab(Vector<double> const& x) const {
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 5; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	return 6;
-	
+
 	//if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
-		//if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0; }
-		//if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 2; }
-		//if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 4; }
+	//if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0; }
+	//if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 2; }
+	//if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 4; }
 	//}
 	//if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){
-		//if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 6; }
-		//if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 8; }
-		//if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 10; }
+	//if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 6; }
+	//if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 8; }
+	//if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 10; }
 	//}
 	//if(my::are_equal(x(1),1.0/6.0,eq_prec_,eq_prec_)){
-		//if(my::are_equal(x(0),2.0/9.0,eq_prec_,eq_prec_)){ return 1; }
-		//if(my::are_equal(x(0),5.0/9.0,eq_prec_,eq_prec_)){ return 3; }
-		//if(my::are_equal(x(0),8.0/9.0,eq_prec_,eq_prec_)){ return 5; }
+	//if(my::are_equal(x(0),2.0/9.0,eq_prec_,eq_prec_)){ return 1; }
+	//if(my::are_equal(x(0),5.0/9.0,eq_prec_,eq_prec_)){ return 3; }
+	//if(my::are_equal(x(0),8.0/9.0,eq_prec_,eq_prec_)){ return 5; }
 	//}
 	//if(my::are_equal(x(1),4.0/6.0,eq_prec_,eq_prec_)){
-		//if(my::are_equal(x(0),2.0/9.0,eq_prec_,eq_prec_)){ return 7; }
-		//if(my::are_equal(x(0),5.0/9.0,eq_prec_,eq_prec_)){ return 9; }
-		//if(my::are_equal(x(0),8.0/9.0,eq_prec_,eq_prec_)){ return 11; }
+	//if(my::are_equal(x(0),2.0/9.0,eq_prec_,eq_prec_)){ return 7; }
+	//if(my::are_equal(x(0),5.0/9.0,eq_prec_,eq_prec_)){ return 9; }
+	//if(my::are_equal(x(0),8.0/9.0,eq_prec_,eq_prec_)){ return 11; }
 	//}
 	//std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	//return 12;
@@ -159,9 +173,9 @@ void HoneycombChiral::display_results(){
 			} else {
 				arrow = "->";
 				if(obs_[0](i,3)){
-					ps.put((xy0(0)+xy1(0))/2.0-0.05,(xy0(1)+xy1(1))/2.0-0.05,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_,1e-5))+"}"); 
+					ps.put((xy0(0)+xy1(0))/2.0-0.05,(xy0(1)+xy1(1))/2.0-0.05,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/M_PI,1e-5))+"}"); 
 				} else {
-					ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/phi_,1e-5))+"}"); 
+					ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/M_PI,1e-5))+"}"); 
 				}
 			}
 
@@ -177,7 +191,7 @@ void HoneycombChiral::display_results(){
 				flux += std::arg(-H_(s0,s1));
 				s0 = s1;
 			} while (++j<6);
-			flux = my::chop(flux/phi_,1e-6);
+			flux = my::chop(flux/M_PI,1e-6);
 			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.9,"\\tiny{"+my::tostring(flux)+"}"); 
 
 			xy0 -=  dir_nn_[obs_[0](i,3)]*0.2;

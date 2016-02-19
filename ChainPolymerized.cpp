@@ -9,20 +9,17 @@ ChainPolymerized::ChainPolymerized(System const& s, Vector<double> const& t):
 		init_fermionic();
 		filename_ += "-t";
 		for(unsigned int i(0);i<t_.size();i++){ filename_ += ((t_(i)>0)?"+":"")+my::tostring(t_(i)); }
+		system_info_.text("ChainPolymerized :");
+		system_info_.item("Each color has the same Hamiltonian.");
 		if(spuc_ != 1){
-			system_info_.text("Trial wavefunction with different real hopping ");
-			system_info_.text("terms for a "+RST::math("\\mathrm{SU}(N)")+" chain :"+RST::nl_);
+			system_info_.item("Different real hopping terms : ");
 			if(spuc_ != 4){
 				std::string tmp("");
 				for(unsigned int i(0);i<spuc_-1;i++){ tmp += "=\\bullet"; }
 				system_info_.text(" "+RST::math("t_i : "+tmp+"-"));
-			}
-			else { system_info_.text(" "+RST::math("t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-")); }
+			} else { system_info_.text(" "+RST::math("t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-")); }
 			system_info_.nl();
-		} else {
-			system_info_.text("Trial wavefunction with uniform real hopping ");
-			system_info_.text("terms for a "+RST::math("\\mathrm{SU}(N)")+" chain :");
-		}
+		} else { system_info_.item("Uniform real hopping"); }
 	}
 }
 
@@ -80,15 +77,17 @@ void ChainPolymerized::create(){
 }
 
 void ChainPolymerized::save_param(IOFiles& w) const {
-	std::string s("t=(");
-	for(unsigned int i(0);i<t_.size()-1;i++){
-		s += my::tostring(t_(i))+",";
-	}
-	s += my::tostring(t_.back())+")";
+	if(w.is_binary()){
+		std::string s("t=(");
+		for(unsigned int i(0);i<t_.size()-1;i++){
+			s += my::tostring(t_(i))+",";
+		}
+		s += my::tostring(t_.back())+")";
 
-	w.add_header()->title(s,'<');
-	w<<t_;
-	GenericSystem<double>::save_param(w);
+		w.add_header()->title(s,'<');
+		w<<t_;
+		GenericSystem<double>::save_param(w);
+	} else { w<<t_<<" "; }
 }
 
 unsigned int ChainPolymerized::set_spuc(Vector<double> const& t, unsigned int const& spuc){

@@ -17,6 +17,7 @@ class SquareChiral: public Square<std::complex<double> >{
 
 		void compute_H();
 		void display_results();
+		void lattice();
 
 		/*!Set the unit cell's vectors*/
 		Matrix<double> set_ab(unsigned int const& ref3, unsigned int const& k) const;

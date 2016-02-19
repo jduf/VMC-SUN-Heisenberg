@@ -61,26 +61,28 @@ void LadderFree::create(){
 }
 
 void LadderFree::save_param(IOFiles& w) const {
-	std::string s("t=(");
-	Vector<double> param(t_.size()+mu_.size());
+	if(w.is_binary()){
+		std::string s("t=(");
+		Vector<double> param(t_.size()+mu_.size());
 
-	for(unsigned int i(0);i<t_.size()-1;i++){ 
-		param(i) = t_(i); 
-		s += my::tostring(t_(i))+",";
-	}
-	param(t_.size()-1) = t_.back(); 
-	s += my::tostring(t_.back())+") "+RST::math("\\mu")+"=(";
+		for(unsigned int i(0);i<t_.size()-1;i++){ 
+			param(i) = t_(i); 
+			s += my::tostring(t_(i))+",";
+		}
+		param(t_.size()-1) = t_.back(); 
+		s += my::tostring(t_.back())+") "+RST::math("\\mu")+"=(";
 
-	for(unsigned int i(0);i<mu_.size()-1;i++){
-		param(i+t_.size()) = mu_(i); 
-		s += my::tostring(mu_(i))+",";
-	}
-	param.back() = mu_.back(); 
-	s += my::tostring(mu_.back())+")";
+		for(unsigned int i(0);i<mu_.size()-1;i++){
+			param(i+t_.size()) = mu_(i); 
+			s += my::tostring(mu_(i))+",";
+		}
+		param.back() = mu_.back(); 
+		s += my::tostring(mu_.back())+")";
 
-	w.add_header()->title(s,'<');
-	w<<param;
-	GenericSystem<double>::save_param(w);
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<double>::save_param(w);
+	} else { w<<t_<<" "<<mu_<<" "; }
 }
 
 unsigned int LadderFree::set_spuc(Vector<double> const& t, Vector<double> const& mu, unsigned int const& spuc){

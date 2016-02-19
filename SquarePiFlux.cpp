@@ -9,8 +9,8 @@ SquarePiFlux::SquarePiFlux(System const& s):
 		init_fermionic();
 
 		system_info_.text("SquarePiFlux :");
-		system_info_.text(" Each color has the same Hamiltonian.");
-		system_info_.text(" There is a flux of "+RST::math("\\pi") + "per square plaquette.");
+		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("There is a flux of "+RST::math("\\pi") + "per square plaquette.");
 	}
 }
 

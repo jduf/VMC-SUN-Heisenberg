@@ -9,7 +9,7 @@ HoneycombFermi::HoneycombFermi(System const& s):
 		init_fermionic();
 
 		system_info_.text("HoneycombFermi :");
-		system_info_.text(" Each color has the same Hamiltonian.");
+		system_info_.item("Each color has the same Hamiltonian.");
 	}
 }
 

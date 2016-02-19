@@ -205,9 +205,12 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 									{ RGL_ = new SquareFermi(*s_); }break;
 								case 1:
 									{
-										Vector<double> t(5,-1.0);
-										Vector<double> mu(1);
-										if(param){ mu = (*param); }
+										Vector<double> t;
+										Vector<double> mu;
+										if(param){ 
+											t = (*param); 
+											mu.set(4,0);
+										}
 										if(C){
 											t = C->get<std::vector<double> >("t");
 											mu = C->get<std::vector<double> >("mu");
@@ -291,13 +294,6 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(param){ t = *param; }
 										if(C){ t = C->get<std::vector<double> >("t"); }
 										RGL_ = new HoneycombFree(*s_,t);
-									}break;
-								case 2:
-									{
-										Vector<double> t;
-										if(param){ t = *param; }
-										if(C){ t = C->get<std::vector<double> >("t"); }
-										RGL_ = new HoneycombPlaquette(*s_,t);
 									}break;
 								case 3:
 									{

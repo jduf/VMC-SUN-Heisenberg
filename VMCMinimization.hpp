@@ -32,6 +32,7 @@ class VMCMinimization{
 		void find_and_run_minima(unsigned int const& max_samples, int const& nobs, double const& dE);
 		void find_save_and_plot_minima(unsigned int const& max_samples, IOFiles& w, std::string path="", std::string filename="") const;
 		void explore_around_minima(unsigned int const& max_local_minima, int const& nobs, double const& dE, double const& dx);
+		void check(unsigned int const& max_samples);
 
 		void improve_bad_samples(double const& dE);
 		void clean();

@@ -9,6 +9,7 @@ class HoneycombChiral: public Honeycomb<std::complex<double> >{
 		~HoneycombChiral() = default;
 
 		void create();
+		void save_param(IOFiles& w) const;
 		void check();
 
 	protected:

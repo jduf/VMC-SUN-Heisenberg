@@ -10,7 +10,7 @@ HoneycombFree::HoneycombFree(System const& s, Vector<double> const& t):
 		init_fermionic();
 
 		system_info_.text("HoneycombFree :");
-		system_info_.text(" Each color has the same Hamiltonian.");
+		system_info_.item("Each color has the same Hamiltonian.");
 
 		filename_ += "-t";
 		for(unsigned int i(0);i<t_.size();i++){
@@ -58,16 +58,18 @@ void HoneycombFree::create(){
 }
 
 void HoneycombFree::save_param(IOFiles& w) const {
-	std::string s("t=(");
+	if(w.is_binary()){
+		std::string s("t=(");
 
-	for(unsigned int i(0);i<t_.size()-1;i++){ 
-		s += my::tostring(t_(i))+",";
-	}
-	s += my::tostring(t_.back())+")";
+		for(unsigned int i(0);i<t_.size()-1;i++){ 
+			s += my::tostring(t_(i))+",";
+		}
+		s += my::tostring(t_.back())+")";
 
-	w.add_header()->title(s,'<');
-	w<<t_;
-	GenericSystem<double>::save_param(w);
+		w.add_header()->title(s,'<');
+		w<<t_;
+		GenericSystem<double>::save_param(w);
+	} else { w<<t_<<" "; }
 }
 
 Matrix<double> HoneycombFree::set_ab() const {

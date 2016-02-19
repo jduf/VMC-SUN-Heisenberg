@@ -8,8 +8,10 @@ HoneycombPiFlux::HoneycombPiFlux(System const& s):
 	if(status_==2){
 		init_fermionic();
 
-		system_info_.item("pi-flux configuration");
-		system_info_.item("4 sites per unit cell");
+		system_info_.text("HoneycombPiFlux :");
+		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("pi-flux configuration.");
+		system_info_.item("4 sites per unit cell.");
 	}
 }
 

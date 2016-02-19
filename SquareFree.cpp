@@ -2,7 +2,7 @@
 
 SquareFree::SquareFree(System const& s, Vector<double> const& t, Vector<double> const& mu):
 	System(s),
-	Square<double>(set_ab(ref_(3)),5,"square-free"),
+	Square<double>(set_ab(ref_(3)),4,"square-free"),
 	t_(t),
 	mu_(mu)
 {
@@ -18,8 +18,8 @@ SquareFree::SquareFree(System const& s, Vector<double> const& t, Vector<double> 
 		same_wf_ = false;
 
 		system_info_.text("SquareFree :");
-		system_info_.text(" Each color has a different Hamiltonian.");
-		system_info_.text(" There is an additional second neighbour hopping for every 1/k sites.");
+		system_info_.item("Each color has a different Hamiltonian.");
+		system_info_.item("There is an additional second neighbour hopping for every 1/k sites.");
 
 		filename_ += "-t";
 		for(unsigned int i(0);i<t_.size();i++){
@@ -60,7 +60,7 @@ void SquareFree::compute_H(unsigned int const& c){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
 		ab = obs_[0](i,5);
-		H_(s0,s1) = (obs_[0](i,4)?bc_*t_(ab):t_(ab));
+		H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(2*ab+obs_[0](i,3));
 		if(obs_[0](i,3)){ H_(s0,s0) = mu_((ab+c)%mu_.size())/2; }
 	}
 	H_ += H_.transpose();
@@ -82,82 +82,93 @@ void SquareFree::create(){
 }
 
 void SquareFree::save_param(IOFiles& w) const {
-	std::string s("t=(");
-	Vector<double> param(t_.size()+mu_.size());
+	if(w.is_binary()){
+		std::string s("t=(");
+		Vector<double> param(t_.size()+mu_.size());
 
-	for(unsigned int i(0);i<t_.size()-1;i++){
-		param(i) = t_(i);
-		s += my::tostring(t_(i))+",";
-	}
-	param(t_.size()-1) = t_.back();
-	s += my::tostring(t_.back())+") "+RST::math("\\mu")+"=(";
+		for(unsigned int i(0);i<t_.size()-1;i++){
+			param(i) = t_(i);
+			s += my::tostring(t_(i))+",";
+		}
+		param(t_.size()-1) = t_.back();
+		s += my::tostring(t_.back())+") "+RST::math("\\mu")+"=(";
 
-	for(unsigned int i(0);i<mu_.size()-1;i++){
-		param(i+t_.size()) = mu_(i);
-		s += my::tostring(mu_(i))+",";
-	}
-	param.back() = mu_.back();
-	s += my::tostring(mu_.back())+")";
+		for(unsigned int i(0);i<mu_.size()-1;i++){
+			param(i+t_.size()) = mu_(i);
+			s += my::tostring(mu_(i))+",";
+		}
+		param.back() = mu_.back();
+		s += my::tostring(mu_.back())+")";
 
-	w.add_header()->title(s,'<');
-	w<<param;
-	GenericSystem<double>::save_param(w);
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<double>::save_param(w);
+	} else { w<<t_<<" "<<mu_<<" "; }
 }
 
 Matrix<double> SquareFree::set_ab(unsigned int const& ref3) const {
 	Matrix<double> tmp(2,2);
-	if(ref3==2){ 
-		tmp(0,0) = 2.0;
-		tmp(1,0) = 1.0;
-		tmp(0,1) =-1.0;
-		tmp(1,1) = 2.0;
-	} else {
-		tmp(0,0) = 2.0;
-		tmp(1,0) =-1.0;
-		tmp(0,1) = 1.0;
-		tmp(1,1) = 2.0;
-	}
+	//if(ref3==2){
+	//tmp(0,0) = 2.0;
+	//tmp(1,0) = 1.0;
+	//tmp(0,1) =-1.0;
+	//tmp(1,1) = 2.0;
+	//} else {
+	//tmp(0,0) = 2.0;
+	//tmp(1,0) =-1.0;
+	//tmp(0,1) = 1.0;
+	//tmp(1,1) = 2.0;
+	//}
+	(void)(ref3);
+	tmp(0,0) = 2.0;
+	tmp(1,0) = 0.0;
+	tmp(0,1) = 0.0;
+	tmp(1,1) = 2.0;
 	return tmp;
 }
 
 unsigned int SquareFree::match_pos_in_ab(Vector<double> const& x) const {
 	Vector<double> match(2,0);
-	if(ref_(3)==2){ 
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-		match(0) = 0.2;
-		match(1) = 0.4;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-		match(0) = 0.4;
-		match(1) = 0.8;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-		match(0) = 0.6;
-		match(1) = 0.2;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
-		match(0) = 0.8;
-		match(1) = 0.6;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
-	} else { 
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-		match(0) = 0.4;
-		match(1) = 0.2;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-		match(0) = 0.8;
-		match(1) = 0.4;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-		match(0) = 0.2;
-		match(1) = 0.6;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
-		match(0) = 0.6;
-		match(1) = 0.8;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
-	}
+	//if(ref_(3)==2){ 
+		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
+		//match(0) = 0.2;
+		//match(1) = 0.4;
+		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+		//match(0) = 0.4;
+		//match(1) = 0.8;
+		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+		//match(0) = 0.6;
+		//match(1) = 0.2;
+		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+		//match(0) = 0.8;
+		//match(1) = 0.6;
+		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
+	//} else { 
+		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
+		//match(0) = 0.4;
+		//match(1) = 0.2;
+		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+		//match(0) = 0.8;
+		//match(1) = 0.4;
+		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+		//match(0) = 0.2;
+		//match(1) = 0.6;
+		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+		//match(0) = 0.6;
+		//match(1) = 0.8;
+		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
+	//}
+	unsigned int i(0);
+	if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){ i+=1; }
+	if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ i+=2; }
+	return i;
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	return 5;
 }
 /*}*/
 
 /*{method needed for checking*/
-void SquareFree::display_results(){
+void SquareFree::lattice(){
 	compute_H(0);
 
 	std::string color("black");
@@ -168,37 +179,14 @@ void SquareFree::display_results(){
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(),"linecolor=black");
+	Matrix<double> uc(draw_unit_cell(0.5,0.5));
+	ps.polygon(uc,"linecolor=black");
 	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	double t;
 	double mu;
 	unsigned int s0;
 	unsigned int s1;
-	if(obs_.size()>1){
-		for(unsigned int i(0);i<obs_[1].nlinks();i++){
-			s0 = obs_[1](i,0);
-			xy0 = x_[s0];
-
-			s1 = obs_[1](i,1);
-			xy1 = x_[s1];
-
-			t = H_(s0,s1);
-			if(std::abs(t)>1e-4){
-				if((xy0-xy1).norm_squared()>5.001){
-					linestyle = "dashed";
-					if(i%2){ xy1=xy0-dir_nn_[1]+dir_nn_[0]*2.0; }
-					else   { xy1=xy0+dir_nn_[0]+dir_nn_[1]*2.0; }
-					ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-				} else { linestyle = "solid"; }
-
-				if(t>0){ color = "blue"; }
-				else   { color = "red"; }
-				linewidth=my::tostring(std::abs(t))+"mm";
-				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-			}
-		}
-	}
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		xy0 = x_[s0];
@@ -207,6 +195,10 @@ void SquareFree::display_results(){
 		xy1 = x_[s1];
 
 		t = H_(s0,s1);
+		if(obs_.size()>1){
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ t = obs_[1][i%4].get_x(); }
+			else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
+		}
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
@@ -230,6 +222,41 @@ void SquareFree::display_results(){
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
 	ps.end(true,true,true);
+}
+
+void SquareFree::display_results(){
+	lattice();
+
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
+		std::string title("t=(");
+		std::string run_cmd("./mc -s:wf square-dimerizedbar");
+		run_cmd += " -u:N " + my::tostring(N_);
+		run_cmd += " -u:m " + my::tostring(m_);
+		run_cmd += " -u:n " + my::tostring(n_);
+		run_cmd += " -i:bc "+ my::tostring(bc_);
+		run_cmd += " -d:t ";
+		for(unsigned int i(0);i<t_.size()-1;i++){
+			title   += my::tostring(t_(i)) + ","; 
+			run_cmd += my::tostring(t_(i)) + ","; 
+		}
+		title   += my::tostring(t_.back()) + "), "+RST::math("\\mu")+"=(";
+		run_cmd += my::tostring(t_.back()) + " -d:mu ";
+		for(unsigned int i(0);i<mu_.size()-1;i++){
+			title   += my::tostring(mu_(i)) + ","; 
+			run_cmd += my::tostring(mu_(i)) + ","; 
+		}
+		title   += my::tostring(mu_.back()) + ")";
+		run_cmd += my::tostring(mu_.back()) + " -d -u:tmax 10";
+
+		rst_file_->title(title,'-');
+		rst_file_->change_text_onclick("run command",run_cmd);
+
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
+	}
 }
 
 void SquareFree::check(){

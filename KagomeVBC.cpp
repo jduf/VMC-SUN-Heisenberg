@@ -9,10 +9,10 @@ KagomeVBC::KagomeVBC(System const& s):
 		init_fermionic();
 
 		system_info_.text("KagomeVBC :");
-		system_info_.text(" Each color has the same Hamiltonian.");
-		system_info_.text(" 9 sites per unit cell.");
-		system_info_.text(" pi-flux through 1/3 of the hexagon and -pi/6-flux through all triangles");
-		system_info_.text(" The total flux is null");
+		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("9 sites per unit cell.");
+		system_info_.item("pi-flux through 1/3 of the hexagon and -pi/6-flux through all triangles");
+		system_info_.item("The total flux is null");
 	}
 }
 

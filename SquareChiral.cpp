@@ -3,7 +3,7 @@
 SquareChiral::SquareChiral(System const& s, double const& phi):
 	System(s),
 	Square<std::complex<double> >(set_ab(ref_(3),N_/m_),N_/m_,"square-chiral"),
-	phi_(phi*2.0*m_*M_PI/N_)
+	phi_(phi)
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){
@@ -11,11 +11,11 @@ SquareChiral::SquareChiral(System const& s, double const& phi):
 			init_fermionic();
 
 			system_info_.text("SquareChiral :");
-			system_info_.text(" Each color has the same Hamiltonian.");
-			system_info_.text(" There is a flux of "+RST::math(my::tostring(phi)+"\\pi/"+my::tostring(N_))+ "per square plaquette");
+			system_info_.item("Each color has the same Hamiltonian.");
+			system_info_.item("There is a flux of "+RST::math(my::tostring(phi)+"2\\pi/"+my::tostring(N_/m_))+ " per square plaquette.");
 
-			filename_ += "-phi"+my::tostring(phi);
-		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the flux per square plaquette shouldn't be bigger than pi"<<std::endl; }
+			filename_ += "-phi"+my::tostring(phi_);
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the flux per square plaquette shouldn't be bigger than pi"<<std::endl; status_++; }
 	}
 }
 
@@ -26,6 +26,7 @@ void SquareChiral::compute_H(){
 	double t(-1.0);
 	unsigned int s0(0);
 	unsigned int s1(0);
+	double phi(phi_*2.0*m_*M_PI/N_);
 	switch(spuc_){
 		case 4:
 			{
@@ -34,9 +35,9 @@ void SquareChiral::compute_H(){
 					s1 = obs_[0](i,1);
 					switch(obs_[0](i,5)){
 						case 0: { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 1: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?2.0*phi_:0.0)); }break;
-						case 2: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:phi_)); }break;
-						case 3: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:phi_)); }break;
+						case 1: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?2.0*phi:0.0)); }break;
+						case 2: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:phi)); }break;
+						case 3: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:phi)); }break;
 					}
 				}
 			}break;
@@ -47,9 +48,9 @@ void SquareChiral::compute_H(){
 					s1 = obs_[0](i,1);
 					switch(obs_[0](i,5)){
 						case 0: { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 1: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?-phi_:phi_)); }break;
-						case 2: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?phi_:0.0)); }break;
-						case 3: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:-phi_)); }break;
+						case 1: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?-phi:phi)); }break;
+						case 2: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?phi:0.0)); }break;
+						case 3: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:-phi)); }break;
 						case 4: { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
 					}
 				}
@@ -73,12 +74,14 @@ void SquareChiral::create(){
 }
 
 void SquareChiral::save_param(IOFiles& w) const {
-	std::string s("phi=("+my::tostring(phi_/(M_PI*m_))+")");
-	Vector<double> param(1,phi_);
+	if(w.is_binary()){
+		std::string s("phi=("+my::tostring(phi_)+")");
+		Vector<double> param(1,phi_);
 
-	w.add_header()->title(s,'<');
-	w<<param;
-	GenericSystem<std::complex<double> >::save_param(w);
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<std::complex<double> >::save_param(w);
+	} else { w<<phi_<<" "; }
 }
 
 Matrix<double> SquareChiral::set_ab(unsigned int const& ref3, unsigned int const& k) const {
@@ -178,7 +181,7 @@ unsigned int SquareChiral::match_pos_in_ab(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void SquareChiral::display_results(){
+void SquareChiral::lattice(){
 	compute_H();
 
 	std::string color("black");
@@ -190,7 +193,8 @@ void SquareChiral::display_results(){
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(0.5,0.5),"linecolor=black");
+	Matrix<double> uc(draw_unit_cell(0.5,0.5));
+	ps.polygon(uc,"linecolor=black");
 	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	std::complex<double> t;
@@ -205,6 +209,10 @@ void SquareChiral::display_results(){
 		xy1 = x_[s1];
 
 		t = H_(s0,s1);
+		if(obs_.size()>1){
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ t = obs_[1][i%4].get_x(); }
+			else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
+		}
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
@@ -240,6 +248,30 @@ void SquareChiral::display_results(){
 		}
 	}
 	ps.end(true,true,true);
+}
+
+void SquareChiral::display_results(){
+	lattice();
+
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
+		std::string title("phi="+ my::tostring(phi_));
+		std::string run_cmd("./mc -s:wf square-chiral");
+		run_cmd += " -u:N " + my::tostring(N_);
+		run_cmd += " -u:m " + my::tostring(m_);
+		run_cmd += " -u:n " + my::tostring(n_);
+		run_cmd += " -i:bc "+ my::tostring(bc_);
+		run_cmd += " -d:phi "+ my::tostring(phi_);;
+		run_cmd += " -d -u:tmax 10";
+
+		rst_file_->title(title,'-');
+		rst_file_->change_text_onclick("run command",run_cmd);
+
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
+	}
 }
 
 void SquareChiral::check(){

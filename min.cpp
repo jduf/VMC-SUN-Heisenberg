@@ -36,6 +36,7 @@ int main(int argc, char* argv[]){
 								//m2.save();
 							}
 
+							m.complete_analysis(1e-5);
 							m.refine();
 						} else { std::cerr<<__PRETTY_FUNCTION__<<" : some argument are not corretly set"<<std::endl; }
 					}break;
@@ -91,6 +92,15 @@ int main(int argc, char* argv[]){
 					{
 						VMCSystematic m3(m);
 						m3.plot();
+					}break;
+				case 10:
+					{
+						IOFiles out("out.dat",true);
+						m.find_save_and_plot_minima(10,out,"./","bla");
+					}break;
+				case 11:
+					{
+						m.check(1000);
 					}break;
 				default:
 					{

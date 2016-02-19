@@ -239,37 +239,20 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_pm, IOFi
 			data<<m_->samples_.get().get_param()<<" "<<(best_param-m_->samples_.get().get_param()).norm_squared()<<" "<<m_->samples_.get().get_MCS()->get_energy()<<IOFiles::endl;
 		}
 
-		IOFiles bond_energy(path+filename+"-be.dat",true);//bond energy
-		sorted_samples.pop_end();
-		sorted_samples.set_target();
-		unsigned int i(0);
-		while(sorted_samples.target_next()){
-			Observable be(sorted_samples.get().get_MCS()->get_obs()[0]);
-			if(be.nval()==12){
-				bond_energy<<sorted_samples.get().get_MCS()->get_energy()<<" "<<be[0]<<" "<<be[3]<<" "<<be[6]<<" "<<be[9]<<IOFiles::endl;
-			}
-			if(i++==1000){ E_range = sorted_samples.get().get_MCS()->get_energy().get_x(); }
-		}
-
 		Gnuplot gp(path,filename);
 		gp+="E_range="+my::tostring(E_range);
 		gp.multiplot();
-		gp.tics("x");
 		gp.range("x","[:E_range] writeback");
-		gp.margin("0.1","0.9","0.6","0.3");
+		gp.margin("0.1","0.9","0.5","0.1");
 		gp+="plot '"+filename+".dat'    u "+my::tostring(m_->dof_+2)+":"+my::tostring(m_->dof_+1)+":"+my::tostring(m_->dof_+3)+" w xe notitle,\\";
 		gp+="     '"+filename+"-Er.dat' u 2:1 lc 4 ps 2 pt 7 t 'selected minima'";
-		gp.margin("0.1","0.9","0.9","0.6");
+		gp.margin("0.1","0.9","0.9","0.5");
 		gp.range("x","restore");
+		gp.tics("x");
 		gp.key("left Left");
 		for(unsigned int i(0);i<m_->dof_;i++){
 			gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(m_->dof_+2)+":"+my::tostring(i+1)+":"+my::tostring(m_->dof_+3)+" w xe t '$"+my::tostring(i)+"$'"+(i==m_->dof_-1?"":",\\");
 		}
-		gp.margin("0.1","0.9","0.3","0.1");
-		gp.tics("x","");
-		gp+="plot '"+filename+"-be.dat' u 1:($5/$9):2:(($5*$10/$9+$6)/$9) w xye t '0/3',\\";
-		gp+="     '"+filename+"-be.dat' u 1:($5/$13):2:(($5*$14/$13+$6)/$13) w xye t '0/6',\\";
-		gp+="     '"+filename+"-be.dat' u 1:($5/$17):2:(($5*$18/$17+$6)/$17) w xye t '0/9'";
 		gp.save_file();
 		gp.create_image(true,true);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
@@ -319,6 +302,28 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, int cons
 		progress_ = 0;
 		while(param.target_next()){ evaluate_until_precision(param.get(),nobs,dE,maxiter); }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
+}
+
+void VMCMinimization::check(unsigned int const& max_pm){
+	if(m_->samples_.size()){
+		/*!find the minima and sort by energy*/
+		List<MCSim> sorted_samples;
+		List<MCSim> potential_minima;
+		find_minima(max_pm,0.9,sorted_samples,potential_minima);
+
+		Vector<double> param;
+		unsigned int i(0);
+		sorted_samples.set_target();
+		std::cout<<m_->samples_.size()<<std::endl;
+		while(sorted_samples.target_next() && i++<max_pm){
+			param = sorted_samples.get().get_param();
+			std::cout
+				<<my::sign(param(0)*param(1)*param(3)*param(4))+1<<" "
+				<<my::sign(param(2)*param(3)*param(1)*param(6))+1<<" "
+				<<my::sign(param(0)*param(4)*param(5)*param(7))+1<<" "
+				<<my::sign(param(2)*param(7)*param(5)*param(6))+1<<std::endl;
+		}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
 void VMCMinimization::improve_bad_samples(double const& dE){

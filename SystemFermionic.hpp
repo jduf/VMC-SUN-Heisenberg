@@ -162,7 +162,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& F):
 			Lapack<Type> inv(Ainv_[c],false,'G');
 			inv.inv();
 		}
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no initial state found after "<<TRY_MAX<<" attempts"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no initial configuration found after "<<TRY_MAX<<" attempts"<<std::endl; }
 
 	delete[] A;
 }

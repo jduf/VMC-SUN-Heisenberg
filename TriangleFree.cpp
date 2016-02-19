@@ -11,7 +11,7 @@ TriangleFree::TriangleFree(System const& s, Vector<double> const& t, Vector<doub
 		init_fermionic();
 
 		system_info_.text("TriangleFree :");
-		system_info_.text(" Each color has a the same Hamiltonian.");
+		system_info_.item("Each color has a the same Hamiltonian.");
 
 		filename_ += "-t";
 		for(unsigned int i(0);i<t_.size();i++){
@@ -70,26 +70,28 @@ void TriangleFree::create(){
 }
 
 void TriangleFree::save_param(IOFiles& w) const {
-	std::string s("t=(");
-	Vector<double> param(t_.size()+mu_.size());
+	if(w.is_binary()){
+		std::string s("t=(");
+		Vector<double> param(t_.size()+mu_.size());
 
-	for(unsigned int i(0);i<t_.size()-1;i++){ 
-		param(i) = t_(i); 
-		s += my::tostring(t_(i))+",";
-	}
-	param(t_.size()-1) = t_.back(); 
-	s += my::tostring(t_.back())+") "+RST::math("\\mu")+"=(";
+		for(unsigned int i(0);i<t_.size()-1;i++){ 
+			param(i) = t_(i); 
+			s += my::tostring(t_(i))+",";
+		}
+		param(t_.size()-1) = t_.back(); 
+		s += my::tostring(t_.back())+") "+RST::math("\\mu")+"=(";
 
-	for(unsigned int i(0);i<mu_.size()-1;i++){
-		param(i+t_.size()) = mu_(i); 
-		s += my::tostring(mu_(i))+",";
-	}
-	param.back() = mu_.back(); 
-	s += my::tostring(mu_.back())+")";
+		for(unsigned int i(0);i<mu_.size()-1;i++){
+			param(i+t_.size()) = mu_(i); 
+			s += my::tostring(mu_(i))+",";
+		}
+		param.back() = mu_.back(); 
+		s += my::tostring(mu_.back())+")";
 
-	w.add_header()->title(s,'<');
-	w<<param;
-	GenericSystem<double>::save_param(w);
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<double>::save_param(w);
+	} else { w<<t_<<" "<<mu_<<" "; }
 }
 
 Matrix<double> TriangleFree::set_ab() const {

@@ -9,8 +9,8 @@ SquareFreeFlux::SquareFreeFlux(System const& s, Vector<double> const& phi):
 	if(status_==2){
 		init_fermionic();
 
-		system_info_.text("FreeComplex :");
-		system_info_.text(" Each color has the same Hamiltonian.");
+		system_info_.text("SquareFreeComplex :");
+		system_info_.item("Each color has the same Hamiltonian.");
 	}
 }
 

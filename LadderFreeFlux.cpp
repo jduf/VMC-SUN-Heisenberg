@@ -8,8 +8,11 @@ LadderFreeFlux::LadderFreeFlux(System const& s, Vector<double> const& t, Vector<
 {
 	if(status_==2){
 		init_fermionic();
-		system_info_.item("arbitrary hopping term");
-		system_info_.item("arbitrary flux per plaquette ");
+
+		system_info_.text("LadderFreeFlux :");
+		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("Free hopping term");
+		system_info_.item("Free flux per plaquette ");
 		filename_ += "-t";
 		for(unsigned int i(0);i<t_.size();i++){
 			filename_ += ((t_(i)>0)?"+":"")+my::tostring(t_(i));
@@ -69,23 +72,25 @@ void LadderFreeFlux::create(){
 }
 
 void LadderFreeFlux::save_param(IOFiles& w) const {
-	Vector<double> param(t_.size()+flux_.size());
-	std::string s("t=(");
-	for(unsigned int i(0);i<t_.size()-1;i++){ 
-		s += my::tostring(t_(i))+","; 
-		param(i) = t_(i);
-	}
-	param(t_.size()-1) = t_.back();
-	s += my::tostring(t_.back())+") : " + RST::math("\\phi/\\pi")+"=(";
-	for(unsigned int i(0);i<flux_.size()-1;i++){
-		s += my::tostring(flux_(i))+","; 
-		param(i+t_.size()) = flux_(i);
-	}
-	param.back() = flux_.back();
-	s += my::tostring(flux_.back())+")";
-	w.add_header()->title(s,'<');
-	w<<param;
-	GenericSystem<std::complex<double> >::save_param(w);
+	if(w.is_binary()){
+		Vector<double> param(t_.size()+flux_.size());
+		std::string s("t=(");
+		for(unsigned int i(0);i<t_.size()-1;i++){ 
+			s += my::tostring(t_(i))+","; 
+			param(i) = t_(i);
+		}
+		param(t_.size()-1) = t_.back();
+		s += my::tostring(t_.back())+") : " + RST::math("\\phi/\\pi")+"=(";
+		for(unsigned int i(0);i<flux_.size()-1;i++){
+			s += my::tostring(flux_(i))+","; 
+			param(i+t_.size()) = flux_(i);
+		}
+		param.back() = flux_.back();
+		s += my::tostring(flux_.back())+")";
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<std::complex<double> >::save_param(w);
+	} else { w<<t_<<" "<<flux_<<" "; }
 }
 
 unsigned int LadderFreeFlux::set_spuc(Vector<double> const& t, Vector<double> const& flux){

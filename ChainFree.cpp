@@ -13,7 +13,9 @@ ChainFree::ChainFree(System const& s, Vector<double> const& t, Vector<double> co
 		filename_ += "-mu";
 		for(unsigned int i(0);i<mu_.size();i++){ filename_ += ((mu_(i)>0)?"+":"")+my::tostring(mu_(i)); }
 
-		system_info_.text("Trial wavefunction with different real hopping and chemical potential");
+		system_info_.text("ChainFree :");
+		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("Real hopping and chemical potential.");
 	}
 }
 
@@ -49,24 +51,28 @@ void ChainFree::create(){
 }
 
 void ChainFree::save_param(IOFiles& w) const {
-	///*{Description*/
-	//std::string t_string("");
-	//for(unsigned int i(0);i<t_.size()-1;i++){ t_string += my::tostring(t_(i))+","; }
-	//t_string += my::tostring(t_.back());
-	//w.write("t ("+t_string+")",t_);
-//
-	//std::string mu_string("");
-	//for(unsigned int i(0);i<mu_.size()-1;i++){ mu_string += my::tostring(mu_(i))+","; }
-	//mu_string += my::tostring(mu_.back());
-	//w.write("mu ("+mu_string+")",mu_);
-	///*}*/
-	Vector<double> param(t_.size()+mu_.size());
-	for(unsigned int i(0);i<t_.size();i++){ param(i) = t_(i); }
-	for(unsigned int i(0);i<mu_.size();i++){ param(i+t_.size()) = mu_(i); }
-	
-	w.add_header()->title("param (t,mu)",'<');
-	w<<param;
-	GenericSystem<double>::save_param(w);
+	if(w.is_binary()){
+		std::string s("t=(");
+		Vector<double> param(t_.size()+mu_.size());
+
+		for(unsigned int i(0);i<t_.size()-1;i++){
+			param(i) = t_(i);
+			s += my::tostring(t_(i))+",";
+		}
+		param(t_.size()-1) = t_.back();
+		s += my::tostring(t_.back())+") "+RST::math("\\mu")+"=(";
+
+		for(unsigned int i(0);i<mu_.size()-1;i++){
+			param(i+t_.size()) = mu_(i);
+			s += my::tostring(mu_(i))+",";
+		}
+		param.back() = mu_.back();
+		s += my::tostring(mu_.back())+")";
+
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<double>::save_param(w);
+	} else { w<<t_<<" "<<mu_<<" "; }
 }
 
 unsigned int ChainFree::set_spuc(Vector<double> const& t, Vector<double> const& mu, unsigned int const& spuc){

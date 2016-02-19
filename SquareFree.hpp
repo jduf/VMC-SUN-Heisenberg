@@ -19,6 +19,7 @@ class SquareFree: public Square<double>{
 		void init_additional_links();
 		void compute_H(unsigned int const& c);
 		void display_results();
+		void lattice();
 
 		/*!Sets the unit cell's vectors*/
 		Matrix<double> set_ab(unsigned int const& ref3) const;

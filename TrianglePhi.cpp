@@ -10,8 +10,8 @@ TrianglePhi::TrianglePhi(System const& s, double const& phi):
 		init_fermionic();
 
 		system_info_.text("SquarePhiflux :");
-		system_info_.text(" Each color has a different Hamiltonian.");
-		system_info_.text(" Each neighbouring triangle has a flux of opposite sign.");
+		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("Each neighbouring triangle has a flux of opposite sign.");
 
 		filename_ += "-phi" + my::tostring(phi_);
 	}
@@ -50,12 +50,14 @@ void TrianglePhi::create(){
 }
 
 void TrianglePhi::save_param(IOFiles& w) const {
-	std::string s("phi=("+my::tostring(phi_)+")");
-	Vector<double> param(1,phi_);
+	if(w.is_binary()){
+		std::string s("phi=("+my::tostring(phi_)+")");
+		Vector<double> param(1,phi_);
 
-	w.add_header()->title(s,'<');
-	w<<param;
-	GenericSystem<std::complex<double> >::save_param(w);
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<std::complex<double> >::save_param(w);
+	} else { w<<phi_<<" "; }
 }
 
 Matrix<double> TrianglePhi::set_ab() const {

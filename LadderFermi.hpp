@@ -32,8 +32,9 @@ LadderFermi<Type>::LadderFermi(System const& s):
 	if(this->status_==2){
 		this->init_fermionic();
 
-		this->system_info_.item("Spin ladder with real and identical hopping term between each sites :");
-		this->system_info_.item("   => Fermi ladder <=   ");
+		this->system_info_.text("LadderFermi :");
+		this->system_info_.item("Each color has the same Hamiltonian.");
+		this->system_info_.item("Uniform real hopping term.");
 	}
 }
 

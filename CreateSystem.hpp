@@ -31,7 +31,6 @@
 
 #include "HoneycombFermi.hpp"
 #include "HoneycombFree.hpp"
-#include "HoneycombPlaquette.hpp"
 #include "Honeycomb0pp.hpp"
 #include "HoneycombPiFlux.hpp"
 #include "HoneycombChiral.hpp"
