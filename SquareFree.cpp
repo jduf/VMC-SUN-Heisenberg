@@ -2,7 +2,7 @@
 
 SquareFree::SquareFree(System const& s, Vector<double> const& t, Vector<double> const& mu):
 	System(s),
-	Square<double>(set_ab(ref_(3)),4,"square-free"),
+	Square<double>(set_ab(ref_(3)),8,"square-free"),
 	t_(t),
 	mu_(mu)
 {
@@ -40,12 +40,12 @@ void SquareFree::init_additional_links(){
 		x = x_[i]+dir_nn_[0]+dir_nn_[1]*2.0;
 		tmp(2*i,2) = handle_boundary(x_[i],x);
 		tmp(2*i,0) = i;
-		tmp(2*i,1) = find_index(x);
+		tmp(2*i,1) = site_index(x);
 
 		x = x_[i]-dir_nn_[1]+dir_nn_[0]*2.0;
 		tmp(2*i+1,2) = handle_boundary(x_[i],x);
 		tmp(2*i+1,0) = i;
-		tmp(2*i+1,1) = find_index(x);
+		tmp(2*i+1,1) = site_index(x);
 	}
 	obs_.push_back(Observable("Additional links",4,0,tmp));
 }
@@ -56,11 +56,29 @@ void SquareFree::compute_H(unsigned int const& c){
 	unsigned int s0(0);
 	unsigned int s1(0);
 	unsigned int ab(0);
+	unsigned int l(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
 		ab = obs_[0](i,5);
-		H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(2*ab+obs_[0](i,3));
+		l = (2*ab+obs_[0](i,3));
+		if(c<2){
+			switch(l){
+				case 0:{  H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(4); }break;
+				case 4:{  H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(0); }break;
+				case 8:{  H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(12); }break;
+				case 12:{ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(8); }break;
+				default:{ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(l); }
+			}
+		} else {
+			switch(l){
+				case 0:{  H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(0); }break;
+				case 4:{  H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(4); }break;
+				case 8:{  H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(8); }break;
+				case 12:{ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(12); }break;
+				default:{ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*t_(l); }
+			}
+		}
 		if(obs_[0](i,3)){ H_(s0,s0) = mu_((ab+c)%mu_.size())/2; }
 	}
 	H_ += H_.transpose();
@@ -119,51 +137,63 @@ Matrix<double> SquareFree::set_ab(unsigned int const& ref3) const {
 	//tmp(0,1) = 1.0;
 	//tmp(1,1) = 2.0;
 	//}
+	//(void)(ref3);
+	//tmp(0,0) = 2.0;
+	//tmp(1,0) = 0.0;
+	//tmp(0,1) = 0.0;
+	//tmp(1,1) = 2.0;
+	
 	(void)(ref3);
-	tmp(0,0) = 2.0;
+	tmp(0,0) = 4.0;
 	tmp(1,0) = 0.0;
 	tmp(0,1) = 0.0;
 	tmp(1,1) = 2.0;
+	
 	return tmp;
 }
 
-unsigned int SquareFree::match_pos_in_ab(Vector<double> const& x) const {
+unsigned int SquareFree::unit_cell_index(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	//if(ref_(3)==2){ 
-		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-		//match(0) = 0.2;
-		//match(1) = 0.4;
-		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-		//match(0) = 0.4;
-		//match(1) = 0.8;
-		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-		//match(0) = 0.6;
-		//match(1) = 0.2;
-		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
-		//match(0) = 0.8;
-		//match(1) = 0.6;
-		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
+	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
+	//match(0) = 0.2;
+	//match(1) = 0.4;
+	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+	//match(0) = 0.4;
+	//match(1) = 0.8;
+	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+	//match(0) = 0.6;
+	//match(1) = 0.2;
+	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+	//match(0) = 0.8;
+	//match(1) = 0.6;
+	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
 	//} else { 
-		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-		//match(0) = 0.4;
-		//match(1) = 0.2;
-		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-		//match(0) = 0.8;
-		//match(1) = 0.4;
-		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-		//match(0) = 0.2;
-		//match(1) = 0.6;
-		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
-		//match(0) = 0.6;
-		//match(1) = 0.8;
-		//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
+	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
+	//match(0) = 0.4;
+	//match(1) = 0.2;
+	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+	//match(0) = 0.8;
+	//match(1) = 0.4;
+	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+	//match(0) = 0.2;
+	//match(1) = 0.6;
+	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+	//match(0) = 0.6;
+	//match(1) = 0.8;
+	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
 	//}
-	unsigned int i(0);
-	if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){ i+=1; }
-	if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ i+=2; }
-	return i;
-	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return 5;
+	//
+	
+	//unsigned int i(0);
+	//if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){ i+=1; }
+	//if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ i+=2; }
+	//return i;
+	
+	return 4*x(0)+(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)?4:0);
+
+	//std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
+	//return 4;
 }
 /*}*/
 
@@ -194,10 +224,25 @@ void SquareFree::lattice(){
 		s1 = obs_[0](i,1);
 		xy1 = x_[s1];
 
+		mu = H_(s0,s0);
+		if(std::abs(mu)>1e-4){
+			if(mu<0){ color = "green"; }
+			else    { color = "cyan"; }
+			ps.circle(xy0,std::abs(mu),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+		}
+
 		t = H_(s0,s1);
 		if(obs_.size()>1){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ t = obs_[1][i%4].get_x(); }
-			else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+				t = obs_[1][i%4].get_x(); 
+				if(i%2 && obs_.size()>1){
+					Vector<double> p(N_);
+					for(unsigned int j(0);j<N_;j++){
+						p(j) = obs_[2][j+N_*obs_[0](i,5)].get_x();
+					}
+					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
+				}
+			} else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
 		}
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
@@ -210,13 +255,6 @@ void SquareFree::lattice(){
 			else   { color = "red"; }
 			linewidth=my::tostring(std::abs(t))+"mm";
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-		}
-
-		mu = H_(s0,s0);
-		if(std::abs(mu)>1e-4){
-			if(mu<0){ color = "green"; }
-			else    { color = "cyan"; }
-			ps.circle(xy0,std::abs(mu),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 		}
 
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }

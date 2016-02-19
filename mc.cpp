@@ -53,7 +53,7 @@ int main(int argc, char* argv[]){
 					}
 				}
 				cs->complete_analysis(1e-5);
-				cs->print(2);
+				cs->print(3);
 
 				Linux command;
 				command.mkpath(cs->get_path().c_str());

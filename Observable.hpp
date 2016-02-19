@@ -43,7 +43,7 @@ class Observable{
 		int const& operator()(unsigned int const& i, unsigned int const& j) const { return links_(i,j); }
 		int& operator()(unsigned int const& i, unsigned int const& j){ return links_(i,j); }
 
-		void print() const;
+		void print(bool const& all) const;
 		void write(IOFiles& w) const;
 
 		void reset();

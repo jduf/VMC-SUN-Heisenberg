@@ -75,7 +75,7 @@ Matrix<double> SquareDimerizedBar::set_ab() const {
 	return tmp;
 }
 
-unsigned int SquareDimerizedBar::match_pos_in_ab(Vector<double> const& x) const {
+unsigned int SquareDimerizedBar::unit_cell_index(Vector<double> const& x) const {
 	unsigned int i(0);
 	if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){ i+=1; }
 	if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ i+=2; }

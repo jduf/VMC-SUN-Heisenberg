@@ -17,10 +17,11 @@ class SquareMu: public Square<double>{
 
 		void compute_H(unsigned int const& c);
 		void display_results();
+		void lattice();
 
 		/*!Set the unit cell's vectors*/
 		Matrix<double> set_ab(unsigned int const& ref3) const;
 		/*!Returns the index of the site at position x in the unit cell*/
-		unsigned int match_pos_in_ab(Vector<double> const& x) const;
+		unsigned int unit_cell_index(Vector<double> const& x) const;
 };
 #endif

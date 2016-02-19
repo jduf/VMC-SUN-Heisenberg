@@ -181,6 +181,23 @@ void MCSystem::measure_new_step(){
 				}
 			}
 		}
+		if(obs_[i].get_type() == 4){
+			O = &obs_[i]; 
+			O->set_x(0); 
+			if(m_ == 1){
+				for(unsigned int i(0);i<n_;i++){
+					O->add((*O)(i,s_(i,0)),1.0);
+				}
+			} else {
+				for(unsigned int i(0);i<n_;i++){
+					for(unsigned int p(0);p<m_;p++){
+						O->add((*O)(i,s_(i,p)),1.0);
+					}
+				}
+				std::cerr<<__PRETTY_FUNCTION__<<" need to implement"<<std::endl;
+			}
+			for(unsigned int j(0);j<O->nval();j++){ (*O)[j].divide(N_*m_); }
+		}
 	}
 }
 

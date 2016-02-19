@@ -108,12 +108,23 @@ void Square<Type>::set_obs(int nobs){
 		this->obs_[1].remove_links();
 		for(unsigned int i(0);i<nlinks;i++){ this->obs_[0](i,2) = i%nval; }
 	}
-	if(nobs>1){/*the long range correlation*/
+	if(nobs>1){
+		Matrix<int> links(this->n_,this->N_);
+		nval = this->N_*this->spuc_;
+		nlinks = links.row();
+		this->obs_.push_back(Observable("Color occupation",4,nval,links));
+		for(unsigned int i(0);i<nlinks;i++){
+			for(unsigned int j(0);j<links.col();j++){
+				this->obs_[2](i,j) = this->obs_[0](2*i,5)*this->N_+j; 
+			}
+		}
+	}
+	if(nobs>2){/*the long range correlation*/
 		this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_));
 		for(unsigned int i(0);i<this->n_;i++){
-			this->obs_[2](i,0) = 0;
-			this->obs_[2](i,1) = i;
-			this->obs_[2](i,2) = i;
+			this->obs_[3](i,0) = 0;
+			this->obs_[3](i,1) = i;
+			this->obs_[3](i,2) = i;
 		}
 	}
 }

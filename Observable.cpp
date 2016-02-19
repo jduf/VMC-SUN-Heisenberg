@@ -144,9 +144,9 @@ void Observable::write(IOFiles& w) const {
 	for(unsigned int i(0);i<nval_;i++){ w<<val_[i]; }
 }
 
-void Observable::print() const {
+void Observable::print(bool const& all) const {
 	std::cout<<name_<<std::endl;
-	if(nval_>1){
+	if(all){
 		for(unsigned int i(0);i<links_.row();i++){
 			std::cout<<links_(i,0)<<" "<<links_(i,1)<<" "<<links_(i,2)<<" "<<val_[links_(i,2)]<<std::endl;
 		}

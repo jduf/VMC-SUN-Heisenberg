@@ -5,12 +5,10 @@
 #include "List.hpp"
 
 /*{Description*/
-/*!The rules that the arguments of the constructor must obey are the folloing :
- *
- * This convention allows the use of local basis in the definitions of :
+/*!
  *
  * + virtual Vector<double> get_pos_in_lattice(unsigned int const& i) const = 0;
- * + virtual unsigned int match_pos_in_ab(Vector<double> const& x) const = 0;
+ * + virtual unsigned int unit_cell_index(Vector<double> const& x) const = 0;
  */
 /*}*/
 template<typename Type>
@@ -36,16 +34,20 @@ class System2D: public GenericSystem<Type>{
 		/*!Diagonalize the trial Hamiltonian H_*/
 		void diagonalize(bool simple);
 
-		/*!Check if the unit cell can correctly fit inside the cluster*/
-		bool unit_cell_allowed();
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
 		bool pos_out_of_lattice(Vector<double> const& x) const;
-		/*!Returns the index of the site at position x*/
-		unsigned int find_index(Vector<double> const& x) const;
 		/*!If x1 is outside the cluster, resets x1 inside and returns bc*/
 		bool handle_boundary(Vector<double> const& x0, Vector<double>& x1) const;
+
+		/*!Returns the index of the site at position x*/
+		unsigned int site_index(Vector<double> const& x) const;
+		/*!Returns the index of the position x the unit cell basis (a,b)*/
+		virtual unsigned int unit_cell_index(Vector<double> const& x) const = 0;
+
+		/*!Check if the unit cell can correctly fit inside the cluster*/
+		bool unit_cell_allowed();
 		/*!Returns a matrix containing the vertices of the unit cell*/
 		Matrix<double> draw_unit_cell(double const& xshift=0, double const& yshift=0) const;
 		/*!Returns a matrix containing the vertices of the boundary*/
@@ -68,8 +70,6 @@ class System2D: public GenericSystem<Type>{
 		bool full_diagonalization();
 		/*!Evaluates the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
-		/*!Returns the index of the position x the unit cell basis (a,b)*/
-		virtual unsigned int match_pos_in_ab(Vector<double> const& x) const = 0;
 		/*!Resets x so it pos_out_of_lattice returns true*/
 		virtual bool reset_pos_in_lattice(Vector<double>& x) const = 0;
 		/*!Get the vector that separates the site i from its neighbourg in the direction d*/
@@ -264,7 +264,7 @@ Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 }
 
 template<typename Type>
-unsigned int System2D<Type>::find_index(Vector<double> const& x) const {
+unsigned int System2D<Type>::site_index(Vector<double> const& x) const {
 	for(unsigned int i(0);i<this->n_;i++){
 		if(my::are_equal(x_[i],x,eq_prec_,eq_prec_)){ return i; }
 	}
@@ -281,7 +281,7 @@ unsigned int System2D<Type>::get_site_in_unit_cell(unsigned int const& i) const 
 	if( x(1)<0 ){ x(1)+= 1.0; }
 	if( my::are_equal(x(0),1.0,eq_prec_,eq_prec_) ){ x(0) = 0.0; }
 	if( my::are_equal(x(1),1.0,eq_prec_,eq_prec_) ){ x(1) = 0.0; }
-	return match_pos_in_ab(x);
+	return unit_cell_index(x);
 }
 
 template<typename Type>

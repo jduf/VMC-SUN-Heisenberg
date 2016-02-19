@@ -18,7 +18,7 @@
  * This convention allows the use of local basis in the definitions of :
  *
  * + virtual Vector<double> get_pos_in_lattice(unsigned int const& i) const = 0;
- * + virtual unsigned int match_pos_in_ab(Vector<double> const& x) const = 0;
+ * + virtual unsigned int unit_cell_index(Vector<double> const& x) const = 0;
  */
 /*}*/
 template<typename Type>
@@ -51,7 +51,7 @@ class System2D: public GenericSystem<Type>{
 		/*!Returns the position of the site i in the lattice basis*/
 		virtual Vector<double> get_pos_in_lattice(unsigned int const& i) const = 0;
 		/*!Returns the index of the position x the unit cell basis (a,b)*/
-		virtual unsigned int match_pos_in_ab(Vector<double> const& x) const = 0;
+		virtual unsigned int unit_cell_index(Vector<double> const& x) const = 0;
 		/*!Returns the index of the site i in the unit cell*/
 		unsigned int get_site_in_unit_cell(unsigned int const& i) const;
 		/*!Makes a change of basis to express the position x in the lattice basis (Lx,Ly)*/
@@ -291,7 +291,7 @@ unsigned int System2D<Type>::get_site_in_unit_cell(unsigned int const& i) const 
 	Vector<double> x(get_pos_in_lattice(i));
 	set_pos_ab(x);
 	set_in_LxLy(x);
-	return match_pos_in_ab(x);
+	return unit_cell_index(x);
 }
 
 template<typename Type>

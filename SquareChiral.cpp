@@ -132,7 +132,7 @@ Matrix<double> SquareChiral::set_ab(unsigned int const& ref3, unsigned int const
 	return tmp;
 }
 
-unsigned int SquareChiral::match_pos_in_ab(Vector<double> const& x) const {
+unsigned int SquareChiral::unit_cell_index(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	switch(N_/m_){
 		case 4:
