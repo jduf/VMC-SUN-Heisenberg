@@ -149,11 +149,9 @@ void SquareMu::lattice(){
 		if(obs_.size()>1){
 			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
 				t = obs_[1][i%4].get_x(); 
-				if(i%2 && obs_.size()>1){
+				if(i%2 && obs_.size()>2){
 					Vector<double> p(N_);
-					for(unsigned int j(0);j<N_;j++){
-						p(j) = obs_[2][j+N_*obs_[0](i,5)].get_x();
-					}
+					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[2][j+N_*obs_[0](i,5)].get_x(); }
 					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
 				}
 			} else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
@@ -167,8 +165,12 @@ void SquareMu::lattice(){
 
 			if(t>0){ color = "blue"; }
 			else   { color = "red"; }
+
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
+
+		if(obs_[0](i,3)){ ps.put(xy0(0)+0.1,(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
+		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
 
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}

@@ -232,8 +232,12 @@ void SquareChiral::lattice(){
 
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
+
+		if(obs_[0](i,3)){ ps.put(xy0(0)+0.1,(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
+		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
+
 		if(i%2){
-			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
+			ps.put(xy0(0)+0.1,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
 		} else {
 			unsigned int j(0);
 			double flux(0.0);
@@ -279,9 +283,9 @@ void SquareChiral::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="square-chiral";
-	//display_results();
+	display_results();
 
-	compute_H();
-	plot_band_structure();
+	//compute_H();
+	//plot_band_structure();
 }
 /*}*/

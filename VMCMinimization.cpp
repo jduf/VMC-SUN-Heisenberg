@@ -13,8 +13,13 @@ VMCMinimization::VMCMinimization(Parseur& P):
 	std::cout<<"#######################"<<std::endl;
 	std::cout<<"#creating VMCMinimization"<<std::endl;
 	m_->set(P,path_,basename_);
-	if(m_->s_->get_status() != 4 || P.locked()){
-		std::cerr<<__PRETTY_FUNCTION__<<" : something went wrong, status="<<m_->s_->get_status()<<std::endl;
+	if(m_->s_){
+		if(m_->s_->get_status() != 4 || P.locked()){
+			std::cerr<<__PRETTY_FUNCTION__<<" : something went wrong, status="<<m_->s_->get_status()<<std::endl;
+			m_.reset();
+		}
+	} else { 
+		std::cerr<<__PRETTY_FUNCTION__<<" : no System created"<<std::endl; 
 		m_.reset();
 	}
 }
@@ -27,6 +32,15 @@ VMCMinimization::VMCMinimization(VMCMinimization const& vmcm, std::string const&
 	out_(NULL),
 	m_(vmcm.m_)
 { set_time(); }
+
+VMCMinimization::VMCMinimization(IOFiles& in):
+	time_(""),
+	path_(""),
+	basename_(""),
+	prefix_(""),
+	out_(NULL),
+	m_(std::make_shared<Minimization>())
+{ m_->load(in,path_,basename_); }
 /*}*/
 
 /*{public methods*/
@@ -96,7 +110,7 @@ void VMCMinimization::refine(unsigned int const& nmin, int const& nobs, double c
 		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E="+my::tostring(dE));
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
-		
+
 		sorted_samples.set_target();
 		progress_ = 0;
 		while(sorted_samples.target_next() && progress_<total_eval_){ evaluate_until_precision(sorted_samples.get().get_param(),nobs,dE,maxiter); }
@@ -486,43 +500,42 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 }
 
 void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::string& basename){
-	unsigned int i;
-	if(!P.find("M",i,false)){
-		std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
-		P.set("M",M);
-	}
-	s_  = new System(P);
 	dof_= P.get<unsigned int>("dof");
-	ps_ = new Vector<double>[dof_];
+	if(set_phase_space(P)){
+		unsigned int i;
+		if(!P.find("M",i,false)){
+			std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
+			P.set("M",M);
+		}
+		s_  = new System(P);
 
-	/*!sets obs_ so its contains all possible observables that can be measured
-	 * for this given System*/
-	Vector<double> tmp(dof_,1.0);
-	CreateSystem cs(s_);
-	cs.init(&tmp,NULL);
-	if(cs.get_status()>3){
-		std::cerr<<__PRETTY_FUNCTION__<<" delete s_, status_="<<cs.get_status()<<std::endl; 
-		delete s_;
-		s_ = NULL;
-	} else {
-		cs.set_obs(-1);
-		obs_ = cs.get_GenericSystem()->get_obs();
-		/*!sets what is always required (Energy observable)*/
-		s_->set_obs(obs_,0);
-		s_->set_J(cs.get_GenericSystem()->get_J());
+		/*!sets obs_ so its contains all possible observables that can be measured
+		 * for this given System*/
+		Vector<double> tmp(dof_,1.0);
+		CreateSystem cs(s_);
+		cs.init(&tmp,NULL);
+		if(cs.get_status()>3){
+			std::cerr<<__PRETTY_FUNCTION__<<" delete s_, status_="<<cs.get_status()<<std::endl; 
+			delete s_;
+			s_ = NULL;
+		} else {
+			cs.set_obs(-1);
+			obs_ = cs.get_GenericSystem()->get_obs();
+			/*!sets what is always required (Energy observable)*/
+			s_->set_obs(obs_,0);
+			s_->set_J(cs.get_GenericSystem()->get_J());
+
+			std::string msg("no samples loaded");
+			std::cout<<"#"+msg<<std::endl;
+			info_.title("Minimization",'>');
+			info_.item(msg);
+
+			path = cs.get_path();
+			path+= my::tostring(dof_)+"dof/";
+			basename = "-" + cs.get_filename();
+			Linux().mkpath(path.c_str());
+		}
 	}
-
-	std::string msg("no samples loaded");
-	std::cout<<"#"+msg<<std::endl;
-	info_.title("Minimization",'>');
-	info_.item(msg);
-
-	set_phase_space(P);
-
-	path = cs.get_path();
-	path+= my::tostring(dof_)+"dof/";
-	basename = "-" + cs.get_filename();
-	Linux().mkpath(path.c_str());
 }
 
 void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::string& basename){
@@ -553,7 +566,7 @@ void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::st
 	info_.text(header);
 }
 
-void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
+bool VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 	unsigned int size;
 	if(P.find("PS",size,true)){
 		IOFiles load(P.get<std::string>(size),false);
@@ -564,6 +577,9 @@ void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 		std::vector<std::string> ps(my::string_split(PS,'\n'));
 		if(ps.size() == dof_){
 			unsigned int k;
+
+			if(ps_){ delete[] ps_; }
+			ps_ = new Vector<double>[dof_];
 			for(unsigned int i(0);i<ps.size();i++){
 				ps[i].erase(remove_if(ps[i].begin(),ps[i].end(),isspace),ps[i].end());
 				std::vector<std::string> u(my::string_split(ps[i],'U'));
@@ -597,8 +613,10 @@ void VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 			info_.item(msg);
 			info_.nl();
 			info_.lineblock(PS);
+			return true;
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : provide "<<dof_<<" ranges and remove any blank space and EOL at the EOF"<<std::endl; }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : need to provide a file containing the phase space"<<std::endl; }
+	return false;
 }
 
 //bool VMCMinimization::Minimization::within_limit(Vector<double> const& x){

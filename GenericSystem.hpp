@@ -1,6 +1,7 @@
 #ifndef DEF_GENERICSYSTEM
 #define DEF_GENERICSYSTEM
 
+#include <set>
 #include "PSTricks.hpp"
 #include "Gnuplot.hpp"
 #include "Bosonic.hpp"
@@ -13,8 +14,8 @@
 	   (Fermionic or Bosonic)
 
 	   This class makes the connection between CreateSystem and more
-	   specialized System like ChainPolymerized. This is the reason why it is
-	   an abstract class with many (pure) virtual methods.
+	   specialized System like ChainPolymerized, SquareChiral... This is the
+	   reason why it is an abstract class with many (pure) virtual methods.
 
 	   Any instance of a child of this class will, at least, contain everything
 	   that is required to compute the variational energy of the child related
@@ -41,7 +42,7 @@ class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSyst
 		virtual void display_results() = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
-		/*!Sets E(>=0), bond energy(>=1), long range correlations(>=2)*/
+		/*!Sets bond energy(>=1), long range correlations(>=2)*/
 		virtual void set_obs(int nobs) = 0;
 
 	protected:
@@ -106,30 +107,40 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 		} else { k = this->n_*this->z_/2; }
 		Matrix<int> tmp(k,7);
 		k=0;
+		typedef std::pair<unsigned int,unsigned int> ui_pair ;
+		std::set<ui_pair> unit_cell_links;
 		for(unsigned int i(0);i<this->n_;i++){
 			l_tmp =l(i%l.size());
 			if(l_tmp){
 				nb = get_neighbourg(i);
 				for(unsigned int j(0);j<l_tmp;j++){
 					if(this->bc_ || nb(j,2)==0 ){
-						/*!set tmp(k,2) to -1 so that when one wants to measure
-						 * the bond energy, one has to redefine the correct
-						 * mapping between all bonds and the representative
-						 * ones*/
 						tmp(k,0) = i;		//! site i
 						tmp(k,1) = nb(j,0); //! site j
-						tmp(k,2) =-1;		//! equivalent site in the unit cell
 						tmp(k,3) = nb(j,1);	//! direction of vector linking i->j
 						tmp(k,4) = nb(j,2); //! boundary condition test
 						tmp(k,5) = get_site_in_unit_cell(i);
 						tmp(k,6) = get_site_in_unit_cell(nb(j,0));
+						unit_cell_links.insert(ui_pair(tmp(k,5),tmp(k,6)));
 						k++;
 					}
 				}
 			}
 		}
-		this->obs_.push_back(Observable("Energy per site",0,1,tmp));
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link"; }
+		if(unit_cell_links.size() != z_*spuc_/2){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links in the unit cell"<<std::endl;; }
+		else {
+			/*!This value has nothing to do with the index of the bond l having
+			 * a coupling J_(l). This value is only the index of a given bond
+			 * in the unit cell. It means that J_(tmp(k,2)) would be completely
+			 * absurd and wrong. The l-th link involved in the computation of
+			 * E, has a bond energy of J_(l) and corresponds to the tmp(l,2)-th
+			 * link the unit cell*/
+			for(k=0;k<tmp.row();k++){
+				tmp(k,2) = std::distance(unit_cell_links.begin(),unit_cell_links.find(ui_pair(tmp(k,5),tmp(k,6))));
+			}
+			this->obs_.push_back(Observable("Energy per site",0,1,tmp));
+		}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link"<<std::endl; }
 	if(!this->bc_){ std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl; }
 }
 

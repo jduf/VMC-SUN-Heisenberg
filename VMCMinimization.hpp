@@ -7,6 +7,7 @@
 class VMCMinimization{
 	public:
 		VMCMinimization(Parseur& P);
+		VMCMinimization(IOFiles& in);
 		/*!Default destructor*/
 		virtual ~VMCMinimization() = default;
 		/*{Forbidden*/
@@ -60,7 +61,7 @@ class VMCMinimization{
 
 				void create(Parseur& P, std::string& path, std::string& basename);
 				void load(IOFiles& in, std::string& path, std::string& basename);
-				void set_phase_space(Parseur const& P);
+				bool set_phase_space(Parseur const& P);
 
 				bool within_limit(Vector<double> const& x) const;
 				void save(IOFiles& out, bool const& all) const;

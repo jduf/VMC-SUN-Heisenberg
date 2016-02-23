@@ -28,7 +28,7 @@ int main(int argc, char* argv[]){
 	if(!P.locked()){
 		if(cs->get_status()==2){
 			std::cout<<cs->get_system_info()<<std::endl;
-			cs->create(true);
+			cs->create(false);
 			if(cs->get_status()==1){
 #pragma omp parallel for
 				for(unsigned int j=0;j<nruns;j++){

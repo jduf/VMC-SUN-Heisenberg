@@ -123,9 +123,10 @@ void Honeycomb<Type>::set_obs(int nobs){
 		nval = this->z_*this->spuc_/2;
 		this->obs_.push_back(Observable("Bond energy",1,nval,nlinks));
 		this->obs_[1].remove_links();
+		std::cout<<__PRETTY_FUNCTION__<<std::endl;
 		for(unsigned int i(0);i<nlinks;i++){
-			this->obs_[0](i,2) = this->obs_[0](i,5)/2*3;
-			this->obs_[0](i,2)+=(this->obs_[0](i,6)-1)/2;
+			std::cout<<this->obs_[0](i,0)<<" "<<this->obs_[0](i,1)<<" "<<this->obs_[0](i,2)<<":"<<this->obs_[0](i,5)/2*3 + (this->obs_[0](i,6)-1)/2<<" "<<this->obs_[0](i,5)<<" "<<this->obs_[0](i,6)<<std::endl; 
+			this->obs_[0](i,2) = this->obs_[0](i,5)/2*3 + (this->obs_[0](i,6)-1)/2;
 		}
 	}
 }

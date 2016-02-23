@@ -7,8 +7,8 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	#EXEC+= load
 	EXEC+= check
 	POSTPROCESS= cp $(EXEC) ../sim;
-	#EXEC+= study
-	#POSTPROCESS+= cp study ..
+	EXEC+= study
+	POSTPROCESS+= mv ../sim/study  ../
 
 	CXX = g++ -std=c++11
 	LAPACK = -llapack -lblas

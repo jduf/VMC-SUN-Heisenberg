@@ -90,10 +90,8 @@ void MCSystem::measure_new_step(){
 		double r;
 		O = &obs_[bei_];
 		O->set_x(0.0);
-		//Matrix<int> const* M(&obs_[0].get_links()); /*to check if idx[] are correct*/
 		if(m_==1){
 			for(unsigned int l(0);l<L;l++){
-				//std::cout<<*idx[0]-(*M)(l,0)<<" "<<*idx[1]-(*M)(l,1)<<" "<<*idx[2]-(*M)(l,2)<<std::endl;
 				swap(*idx[0],*idx[1],0,0);
 				r = J_(l)*ratio();
 				E->add(r);
@@ -104,7 +102,6 @@ void MCSystem::measure_new_step(){
 			}
 		} else {
 			for(unsigned int l(0);l<L;l++){
-				//std::cout<<*idx[0]-(*M)(l,0)<<" "<<*idx[1]-(*M)(l,1)<<" "<<*idx[2]-(*M)(l,2)<<std::endl;
 				for(unsigned int p0(0);p0<m_;p0++){
 					for(unsigned int p1(0);p1<m_;p1++){
 						swap(*idx[0],*idx[1],p0,p1);
@@ -158,18 +155,14 @@ void MCSystem::measure_new_step(){
 			idx[2] = idx[1]+L;
 
 			if(m_ == 1){
-				//Matrix<int> const* M(O->.get_links()); /*to check if idx[] are correct*/
 				for(unsigned int l(0);l<L;l++){
-					//std::cout<<*idx[0]-(*M)(l,0)<<" "<<*idx[1]-(*M)(l,1)<<" "<<*idx[2]-(*M)(l,2)<<std::endl;
 					if(s_(*idx[0],0) == s_(*idx[1],0)){ O->add(*idx[2],1.0); }
 					idx[0]++;
 					idx[1]++;
 					idx[2]++;
 				}
 			} else {
-				//Matrix<int> const* M(O->.get_links()); /*to check if idx[] are correct*/
 				for(unsigned int l(0);l<L;l++){
-					//std::cout<<*idx[0]-(*M)(l,0)<<" "<<*idx[1]-(*M)(l,1)<<" "<<*idx[2]-(*M)(l,2)<<std::endl;
 					for(unsigned int p0(0);p0<m_;p0++){
 						for(unsigned int p1(0);p1<m_;p1++){
 							if(s_(*idx[0],p0) == s_(*idx[1],p1)){ O->add(*idx[2],1.0); }
@@ -194,7 +187,7 @@ void MCSystem::measure_new_step(){
 						O->add((*O)(i,s_(i,p)),1.0);
 					}
 				}
-				std::cerr<<__PRETTY_FUNCTION__<<" need to implement"<<std::endl;
+				std::cerr<<__PRETTY_FUNCTION__<<" : need to check"<<std::endl;
 			}
 			for(unsigned int j(0);j<O->nval();j++){ (*O)[j].divide(N_*m_); }
 		}
