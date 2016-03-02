@@ -29,7 +29,7 @@ void MCParticle::print() const {
 	std::cout<<"particle history ("<<history_.size()<<")"<<std::endl;
 	history_.set_target();
 	while( history_.target_next() ){
-		std::cout<<history_.get_ptr()<<" "<<history_.get().get_param()<<" "<<history_.get().get_MCS()->get_energy()<<std::endl;
+		std::cout<<history_.get_ptr()<<" "<<history_.get().get_param()<<" "<<history_.get().get_energy()<<std::endl;
 	}
 }
 
@@ -44,7 +44,7 @@ bool MCParticle::update(std::shared_ptr<MCSim> const& new_elem){
 		return select_new_best();
 	} else {
 		Nupdate_++;
-		double tmp(new_elem->get_MCS()->get_energy().get_x());
+		double tmp(new_elem->get_energy().get_x());
 		if(tmp<fbx_){
 			set_bx_via(new_elem->get_param());
 			fbx_ = tmp;
@@ -59,7 +59,7 @@ bool MCParticle::select_new_best(){
 	Vector<double> param;
 	history_.set_target();
 	while(history_.target_next()){
-		tmp = history_.get().get_MCS()->get_energy().get_x();
+		tmp = history_.get().get_energy().get_x();
 		if(tmp<fbx_){
 			param = history_.get().get_param();
 			fbx_ = tmp;

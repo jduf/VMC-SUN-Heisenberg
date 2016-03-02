@@ -1,8 +1,9 @@
 #include "SquareFreeFlux.hpp"
 
-SquareFreeFlux::SquareFreeFlux(System const& s, Vector<double> const& phi):
+SquareFreeFlux::SquareFreeFlux(System const& s, Vector<double> const& t, Vector<double> const& phi):
 	System(s),
 	Square<std::complex<double> >(set_ab(),4,"square-freeflux"),
+	t_(t),
 	phi_(phi)
 {
 	if(status_==3){ init_lattice(); }
@@ -11,19 +12,23 @@ SquareFreeFlux::SquareFreeFlux(System const& s, Vector<double> const& phi):
 
 		system_info_.text("SquareFreeComplex :");
 		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("Each bond as a free hopping amplitude and phase.");
 	}
 }
 
 /*{method needed for running*/
 void SquareFreeFlux::compute_H(){
 	H_.set(n_,n_,0);
-	unsigned int s0(0);
-	unsigned int s1(0);
+
+	unsigned int b(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		s0 = obs_[0](i,0);
-		s1 = obs_[0](i,1);
-		if(obs_[0](i,3)==1){ H_(s0,s1) = my::chop(std::polar(double(obs_[0](i,4)?bc_:1),phi_(obs_[0](i,5)))); }
-		else { H_(s0,s1) = (obs_[0](i,4)?bc_:1); }
+		switch(obs_[0](i,5)){
+			case 0: { b = obs_[0](i,3)?1:0; }break;
+			case 1: { b = obs_[0](i,3)?3:2; }break; 
+			case 2: { b = obs_[0](i,3)?5:4; }break;
+			case 3: { b = obs_[0](i,3)?7:6; }break;
+		}
+		H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?bc_:1)*t_(b),phi_(b)*M_PI);
 	}
 	H_ += H_.conjugate_transpose();
 }
@@ -40,6 +45,31 @@ void SquareFreeFlux::create(){
 			}
 		}
 	}
+}
+
+void SquareFreeFlux::save_param(IOFiles& w) const {
+	if(w.is_binary()){
+		std::string s("t=(");
+		Vector<double> param(t_.size()+phi_.size());
+
+		for(unsigned int i(0);i<t_.size()-1;i++){
+			param(i) = t_(i);
+			s += my::tostring(t_(i))+",";
+		}
+		param(t_.size()-1) = t_.back();
+		s += my::tostring(t_.back())+") "+RST::math("\\phi")+"=(";
+
+		for(unsigned int i(0);i<phi_.size()-1;i++){
+			param(i+t_.size()) = phi_(i);
+			s   += my::tostring(phi_(i)) + ","; 
+		}
+		param.back() = phi_.back();
+		s += my::tostring(phi_.back())+")";
+
+		w.add_header()->title(s,'<');
+		w<<param;
+		GenericSystem<std::complex<double> >::save_param(w);
+	} else { w<<t_<<" "<<phi_<<" "; }
 }
 
 Matrix<double> SquareFreeFlux::set_ab() const {
@@ -69,7 +99,7 @@ unsigned int SquareFreeFlux::unit_cell_index(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void SquareFreeFlux::display_results(){
+void SquareFreeFlux::lattice(){
 	compute_H();
 
 	std::string color("black");
@@ -80,14 +110,15 @@ void SquareFreeFlux::display_results(){
 	Vector<double> xy1(2,0);
 	std::complex<double> t;
 	PSTricks ps(info_+path_+dir_,filename_);
-	ps.begin(-2,-20,20,20,filename_);
+	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(),"linecolor=black");
+	Matrix<double> uc(draw_unit_cell(0.5,0.5));
+	ps.polygon(uc,"linecolor=black");
 	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	unsigned int s0;
 	unsigned int s1;
-	double phi(0);
+	Matrix<int> nb;
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		xy0 = x_[s0];
@@ -96,31 +127,91 @@ void SquareFreeFlux::display_results(){
 		xy1 = x_[s1];
 
 		t = H_(s0,s1);
+		if(obs_.size()>1){
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+				t = obs_[1][obs_[0](i,2)].get_x();
+				if(i%2 && obs_.size()>2){
+					Vector<double> p(N_);
+					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[2][j+N_*obs_[0](i,5)].get_x(); }
+					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
+				}
+			} else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
+		}
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
 				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
-				ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
+				ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 			} else { linestyle = "solid"; }
 
 			if(t.real()>0){ color = "blue"; }
-			else { color = "red"; }
-
-			arrow = "-";
-			if(std::arg(t)>0){ arrow = "-"+std::string(std::arg(t)/(2*M_PI),'>'); }
-			if(std::arg(t)<0){ arrow = std::string(-std::arg(t)/(2*M_PI),'<')+"-"; }
-
+			else          { color = "red"; }
 			linewidth = my::tostring(std::abs(t))+"mm";
+
+			if(my::are_equal(t.imag(),0.0)){
+				arrow = "-";
+			} else {
+				arrow = "->";
+				ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(my::chop(std::arg(t)/M_PI))+"}");
+			}
+
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
+
+		if(obs_[0](i,3)){ ps.put(xy0(0)+0.1,(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
+		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
+
 		if(i%2){
-			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
-			if(my::real(H_(s0,s0))){ ps.circle(xy0,t.real(),"linecolor=magenta,fillstyle=solid,fillcolor=magenta"); }
-			ps.put(my::chop((2*xy0(0)-1)/2.0),my::chop((xy0(1)+xy1(1))/2.0),"\\tiny{"+my::tostring((std::arg(t)-phi)/(2*M_PI))+"}");
-			phi =  std::arg(t);
+			ps.put(xy0(0)+0.1,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
+		} else {
+			unsigned int j(0);
+			double flux(0.0);
+			do {
+				nb = get_neighbourg(s0);
+				s1 = nb(j,0);
+				flux += std::arg(H_(s0,s1));
+				s0 = s1;
+			} while (++j<4);
+			flux = my::chop(flux/M_PI);
+			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.5,"\\tiny{"+my::tostring(flux)+"}");
 		}
 	}
 	ps.end(true,true,true);
+}
+
+void SquareFreeFlux::display_results(){
+	lattice();
+
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
+		std::string title("t=(");
+		std::string run_cmd("./mc -s:wf square-freeflux");
+		run_cmd += " -u:N " + my::tostring(N_);
+		run_cmd += " -u:m " + my::tostring(m_);
+		run_cmd += " -u:n " + my::tostring(n_);
+		run_cmd += " -i:bc "+ my::tostring(bc_);
+		run_cmd += " -d:t ";
+		for(unsigned int i(0);i<t_.size()-1;i++){
+			title   += my::tostring(t_(i)) + ","; 
+			run_cmd += my::tostring(t_(i)) + ","; 
+		}
+		title   += my::tostring(t_.back()) + ") "+RST::math("\\phi")+"=(";
+		run_cmd += my::tostring(t_.back()) + " -d:phi ";
+		for(unsigned int i(0);i<phi_.size()-1;i++){
+			title   += my::tostring(phi_(i)) + ","; 
+			run_cmd += my::tostring(phi_(i)) + ","; 
+		}
+		title   += my::tostring(phi_.back()) + ")";
+		run_cmd += my::tostring(phi_.back()) + " -d -u:tmax 10";
+
+		rst_file_->title(title,'-');
+		rst_file_->change_text_onclick("run command",run_cmd);
+
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
+	}
 }
 
 void SquareFreeFlux::check(){
@@ -129,5 +220,7 @@ void SquareFreeFlux::check(){
 	dir_  = "./";
 	filename_ ="square-freeflux";
 	display_results();
+
+	//plot_band_structure();
 }
 /*}*/

@@ -268,7 +268,8 @@ unsigned int System2D<Type>::site_index(Vector<double> const& x) const {
 	for(unsigned int i(0);i<this->n_;i++){
 		if(my::are_equal(x_[i],x,eq_prec_,eq_prec_)){ return i; }
 	}
-	return 1;
+	std::cerr<<__PRETTY_FUNCTION__<<" : unkown site at position "<<x<<std::endl;
+	return this->n_;
 }
 
 template<typename Type>

@@ -99,8 +99,8 @@ void VMCInterpolation::plot(){
 		m_->samples_.set_target();
 		double min(0);
 		while(m_->samples_.target_next()){
-			if(m_->samples_.get().get_MCS()->get_energy().get_x()<min){ min = m_->samples_.get().get_MCS()->get_energy().get_x(); }
-			(*out_)<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_MCS()->get_energy()<<IOFiles::endl;
+			if(m_->samples_.get().get_energy().get_x()<min){ min = m_->samples_.get().get_energy().get_x(); }
+			(*out_)<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
 		}
 		delete out_;
 
@@ -143,7 +143,7 @@ void VMCInterpolation::plot(){
 			std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 			(*out_)<<param.norm_squared()<<" "<<interp_(param)<<" ";
 			if(m_->samples_.find_in_sorted_list(sim,MCSim::sort_for_merge)){
-				(*out_)<<m_->samples_.get().get_MCS()->get_energy().get_x()<<" "<<m_->samples_.get().get_MCS()->get_energy().get_dx()<<IOFiles::endl;
+				(*out_)<<m_->samples_.get().get_energy().get_x()<<" "<<m_->samples_.get().get_energy().get_dx()<<IOFiles::endl;
 			} else {
 				(*out_)<<0<<" "<<0<<IOFiles::endl;
 			}
@@ -167,7 +167,7 @@ void VMCInterpolation::search_minima(){
 
 	m_->samples_.set_target();
 	while(m_->samples_.target_next()){
-		interp_.add_data(m_->samples_.get().get_param(),m_->samples_.get().get_MCS()->get_energy().get_x());
+		interp_.add_data(m_->samples_.get().get_param(),m_->samples_.get().get_energy().get_x());
 	}
 
 	double dx(0.0);
@@ -349,8 +349,8 @@ void VMCInterpolation::evaluate(Vector<double>* x, Vector<unsigned int> const& i
 	std::shared_ptr<MCSim> mcsim(VMCMinimization::evaluate(param,0));
 	if(mcsim.get()){
 		mcsim->check_conv(1e-5);
-		E = mcsim->get_MCS()->get_energy().get_x();
-		dE= mcsim->get_MCS()->get_energy().get_dx();
+		E = mcsim->get_energy().get_x();
+		dE= mcsim->get_energy().get_dx();
 		Ee= interp_(param);
 	} else {
 		E = 0.0;

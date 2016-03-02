@@ -13,9 +13,6 @@ class SquareJastrow: public Square<double>{
 		void save_param(IOFiles& w) const;
 
 	protected:
-		void compute_nn();
-		void compute_sublattice();
-		void compute_omega_cc();
 		void display_results();
 
 		/*!Set the unit cell's vectors*/

@@ -239,10 +239,17 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 							switch(ref_(2)){
 								case 1:
 									{
+										Vector<double> t;
 										Vector<double> phi;
-										if(param){ phi = param->range(0,0); }
-										if(C){ phi=C->get<std::vector<double> >("phi"); }
-										CGL_ = new SquareFreeFlux(*s_,phi);
+										if(param){ 
+											t   = param->range(0,param->size()/2); 
+											phi = param->range(param->size()/2,param->size()); 
+										}
+										if(C){
+											t   = C->get<std::vector<double> >("t"); 
+											phi = C->get<std::vector<double> >("phi"); 
+										}
+										CGL_ = new SquareFreeFlux(*s_,t,phi);
 									}break;
 								case 2:
 									{ CGL_ = new SquarePiFlux(*s_); }break;

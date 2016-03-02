@@ -46,8 +46,8 @@ void MCSim::create_S(System const* const s){
 	if(!is_created()){ std::cerr<<__PRETTY_FUNCTION__<<" : status_="<<cs.get_status()<<", faulty parameters="<<param_<<std::endl; }
 }
 
-void MCSim::copy_S(std::unique_ptr<MCSystem> const& S){
-	MCS_ = S->clone();
+void MCSim::copy_S(std::shared_ptr<MCSim> const& mcsim){
+	MCS_ = mcsim->MCS_->clone();
 }
 
 void MCSim::run(unsigned int const& ts, unsigned int const& tmax){
@@ -59,7 +59,7 @@ void MCSim::run(unsigned int const& ts, unsigned int const& tmax){
 }
 /*}*/
 
-/*write in IOFiles methods*/
+/*print and output in IOFiles methods*/
 /*{*/
 void MCSim::write(IOFiles& w) const {
 	w<<param_<<MCS_->get_ref()(1);
@@ -77,7 +77,7 @@ void MCSim::save(IOFiles& w) const {
 /*static methods*/
 /*{*/
 bool MCSim::sort_by_E(MCSim const& a, MCSim const& b){
-	return a.get_MCS()->get_energy().get_x()<b.get_MCS()->get_energy().get_x();
+	return a.get_energy().get_x()<b.get_energy().get_x();
 }
 
 unsigned int MCSim::sort_for_merge(MCSim const& list, MCSim const& new_elem){

@@ -44,11 +44,11 @@ void Square<Type>::init_lattice(){
 		if(this->dir_nn_){
 			/*{!the directions are given in the cartesian basis
 			 *
-			 *       (1,0)
+			 *       (0,1)
 			 *         |
 			 * (-1,0)--x--(1,0)
 			 *         |
-			 *      (-1,0)
+			 *      (0,-1)
 			 *}*/
 			this->dir_nn_[0](0) = 1.0;
 			this->dir_nn_[0](1) = 0.0;
@@ -98,34 +98,35 @@ void Square<Type>::init_lattice(){
 
 template<typename Type>
 void Square<Type>::set_obs(int nobs){
-	if(nobs<0){ nobs = 1; }
-	unsigned int nlinks;
-	unsigned int nval;
-	if(nobs>0){/*bond energy*/
-		nlinks = this->obs_[0].nlinks();
-		nval = this->z_*this->spuc_/2;
-		this->obs_.push_back(Observable("Bond energy",1,nval,nlinks));
+	if(nobs<0){ nobs = 3; }
+	if(nobs>0){
+		this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
 		this->obs_[1].remove_links();
-		//for(unsigned int i(0);i<nlinks;i++){ this->obs_[0](i,2) = i%nval; }
 	}
 	if(nobs>1){
-		Matrix<int> links(this->n_,this->N_);
-		nval = this->N_*this->spuc_;
-		nlinks = links.row();
-		this->obs_.push_back(Observable("Color occupation",4,nval,links));
-		for(unsigned int i(0);i<nlinks;i++){
-			for(unsigned int j(0);j<links.col();j++){
+		this->obs_.push_back(Observable("Color occupation",4,this->N_*this->spuc_,Matrix<int>(this->n_,this->N_),this->n_/this->spuc_));
+		for(unsigned int i(0);i<this->n_;i++){
+			for(unsigned int j(0);j<this->N_;j++){
 				this->obs_[2](i,j) = this->obs_[0](2*i,5)*this->N_+j; 
 			}
 		}
 	}
-	if(nobs>2){/*the long range correlation*/
-		this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_));
+	if(nobs>2){
+		Vector<double> x;
+		Vector<double>* dx(new Vector<double>[this->n_]);
+		for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[0]-this->x_[i]; }
+
+		this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_*this->n_));
 		for(unsigned int i(0);i<this->n_;i++){
-			this->obs_[3](i,0) = 0;
-			this->obs_[3](i,1) = i;
-			this->obs_[3](i,2) = i;
+			for(unsigned int j(0);j<this->n_;j++){
+				x = this->x_[i]+dx[j];
+				reset_pos_in_lattice(x);
+				this->obs_[3](i*this->n_+j,0) = i;
+				this->obs_[3](i*this->n_+j,1) = this->site_index(x);
+				this->obs_[3](i*this->n_+j,2) = j;
+			}
 		}
+		delete[] dx;
 	}
 }
 /*}*/

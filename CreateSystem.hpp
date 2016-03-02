@@ -36,16 +36,15 @@
 #include "HoneycombChiral.hpp"
 
 /*{*//*!Class that creates any kind of wavefunctions
-	   and gives a way to act on it (set observable, merge simulation, compute
-	   errors on measurments, save...) 
+	   and gives a way to act on it (set observables, merge simulations,
+	   compute errors on measurments, save...) 
 
 	   This class handles everything that is required to create a wavefunction
 	   from a child of GenergicSystem. 
 
-	   It can also store (CreateSystem::merge) and handle
-	   (CreateSystem::complete_analysis, CreateSystem::save,
-	   CreateSystem::display_results,..)  the results of the VMC simulation
-	   contained in a child of MCSystem.*//*}*/
+	   It can also store (merge) and handle (complete_analysis, save,
+	   display_results,..) the results of the VMC simulation contained in a
+	   child of MCSystem.*//*}*/
 class CreateSystem{
 	public:
 		/*{*//*!Takes a pointer to an already existing System 
@@ -155,7 +154,7 @@ class CreateSystem{
 		}
 		/*}*/
 
-		/*{write in IOFiles methods and print*/
+		/*{Print and output in IOFiles methods*/
 		/*!Calls GenericSystem::save_param and System::save*/
 		void save(IOFiles& w) const {
 			if(RGL_){

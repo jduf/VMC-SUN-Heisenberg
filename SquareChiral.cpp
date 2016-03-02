@@ -12,7 +12,7 @@ SquareChiral::SquareChiral(System const& s, double const& phi):
 
 			system_info_.text("SquareChiral :");
 			system_info_.item("Each color has the same Hamiltonian.");
-			system_info_.item("There is a flux of "+RST::math(my::tostring(phi)+"2\\pi/"+my::tostring(N_/m_))+ " per square plaquette.");
+			system_info_.item("There is a flux of "+RST::math(my::tostring(phi)+"\\times 2\\pi/"+my::tostring(N_/m_))+ " per square plaquette.");
 
 			filename_ += "-phi"+my::tostring(phi_);
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the flux per square plaquette shouldn't be bigger than pi"<<std::endl; status_++; }
@@ -210,7 +210,7 @@ void SquareChiral::lattice(){
 
 		t = H_(s0,s1);
 		if(obs_.size()>1){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ t = obs_[1][i%4].get_x(); }
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ t = obs_[1][obs_[0](i,2)].get_x(); }
 			else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
 		}
 		if(std::abs(t)>1e-4){
@@ -236,9 +236,8 @@ void SquareChiral::lattice(){
 		if(obs_[0](i,3)){ ps.put(xy0(0)+0.1,(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
 		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
 
-		if(i%2){
-			ps.put(xy0(0)+0.1,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
-		} else {
+		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
+		else {
 			unsigned int j(0);
 			double flux(0.0);
 			do {
@@ -249,6 +248,20 @@ void SquareChiral::lattice(){
 			} while (++j<4);
 			flux = my::chop(flux/M_PI);
 			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.5,"\\tiny{"+my::tostring(flux)+"}");
+		}
+	}
+	if(obs_.size()==4){
+		double corr;
+		double rescale(std::abs(0.25/obs_[3][1].get_x()));
+		ps.cross(x_[0],0.25,"linecolor=black"); 
+		ps.circle(x_[0],0.25,"linecolor=black"); 
+		for(unsigned int i(1);i<n_;i++){
+			corr = obs_[3][i].get_x();
+			if(std::abs(corr)>1e-4){
+				if(corr>0){ color = "blue"; }
+				else      { color = "red"; }
+				ps.circle(x_[i],sqrt(std::abs(corr*rescale)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
 		}
 	}
 	ps.end(true,true,true);
@@ -262,7 +275,7 @@ void SquareChiral::display_results(){
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		std::string title("phi="+ my::tostring(phi_));
+		std::string title(RST::math("\\phi")+"="+ my::tostring(phi_));
 		std::string run_cmd("./mc -s:wf square-chiral");
 		run_cmd += " -u:N " + my::tostring(N_);
 		run_cmd += " -u:m " + my::tostring(m_);
@@ -287,5 +300,13 @@ void SquareChiral::check(){
 
 	//compute_H();
 	//plot_band_structure();
+	
+	//set_obs(-1);
+	//for(unsigned int i(0);i<n_;i++){
+		//for(unsigned int j(0);j<obs_[3].nlinks();j++){
+			//if(obs_[3](j,2)==i){ std::cout<<"("<<obs_[3](j,0)<<","<<obs_[3](j,1)<<") "; }
+		//}
+		//std::cout<<std::endl;
+	//}
 }
 /*}*/

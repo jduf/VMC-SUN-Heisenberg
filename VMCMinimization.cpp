@@ -53,8 +53,8 @@ void VMCMinimization::refine(){
 		E=0;
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
-			if(m_->samples_.get().get_MCS()->get_energy().get_x()<E){
-				E = m_->samples_.get().get_MCS()->get_energy().get_x();
+			if(m_->samples_.get().get_energy().get_x()<E){
+				E = m_->samples_.get().get_energy().get_x();
 			}
 		}
 		E += dE;
@@ -69,7 +69,7 @@ void VMCMinimization::refine(double const& E, double const& dE){
 		List<MCSim> best;
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
-			if(m_->samples_.get().get_MCS()->get_energy().get_x()<E){
+			if(m_->samples_.get().get_energy().get_x()<E){
 				best.add_end(m_->samples_.get_ptr());
 			}
 		}
@@ -145,14 +145,14 @@ double VMCMinimization::find_minima(unsigned int const& max_pm, double const& ra
 		/*!finds the MCSim with the minimal energy*/
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
-			E_range = m_->samples_.get().get_MCS()->get_energy().get_x()<E_range?m_->samples_.get().get_MCS()->get_energy().get_x():E_range;
+			E_range = m_->samples_.get().get_energy().get_x()<E_range?m_->samples_.get().get_energy().get_x():E_range;
 		}
 		E_range *= range;
 
 		/*!sort by energy all MCSim with energy lower than a threshold*/
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
-			if(m_->samples_.get().get_MCS()->get_energy().get_x()<E_range){
+			if(m_->samples_.get().get_energy().get_x()<E_range){
 				sorted_samples.add_sort(m_->samples_.get_ptr(),MCSim::sort_by_E);
 			}
 		}
@@ -243,14 +243,14 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_pm, IOFi
 		Vector<double> best_param(potential_minima.get().get_param());
 		IOFiles data_Er(path+filename+"-Er.dat",true);
 		do{
-			data_Er<<(best_param-potential_minima.get().get_param()).norm_squared()<<" "<<potential_minima.get().get_MCS()->get_energy().get_x()<<IOFiles::endl;
+			data_Er<<(best_param-potential_minima.get().get_param()).norm_squared()<<" "<<potential_minima.get().get_energy().get_x()<<IOFiles::endl;
 			potential_minima.get().save(w);
 		} while(potential_minima.target_next());
 
 		IOFiles data(path+filename+".dat",true);
 		m_->samples_.target_next();
 		while(m_->samples_.target_next()){
-			data<<m_->samples_.get().get_param()<<" "<<(best_param-m_->samples_.get().get_param()).norm_squared()<<" "<<m_->samples_.get().get_MCS()->get_energy()<<IOFiles::endl;
+			data<<m_->samples_.get().get_param()<<" "<<(best_param-m_->samples_.get().get_param()).norm_squared()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
 		}
 
 		Gnuplot gp(path,filename);
@@ -347,14 +347,14 @@ void VMCMinimization::improve_bad_samples(double const& dE){
 		double tmp;
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
-			tmp = m_->samples_.get().get_MCS()->get_energy().get_x();
+			tmp = m_->samples_.get().get_energy().get_x();
 			if(tmp<E){ E=tmp; }
 		}
 
 		std::vector<Vector<double> > to_improve;
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
-			if(m_->samples_.get().get_MCS()->get_energy().get_x() - 10*m_->samples_.get().get_MCS()->get_energy().get_dx() < E && m_->samples_.get().get_MCS()->get_energy().get_dx()>dE){
+			if(m_->samples_.get().get_energy().get_x() - 10*m_->samples_.get().get_energy().get_dx() < E && m_->samples_.get().get_energy().get_dx()>dE){
 				to_improve.push_back(m_->samples_.get().get_param());
 			}
 		}
@@ -391,8 +391,8 @@ void VMCMinimization::save_parameters(unsigned int nbest) const {
 	sorted_samples.set_target();
 	while(sorted_samples.target_next() && i++<nbest){ out<<sorted_samples.get().get_param(); }
 	std::string note(RST::textbf("Maximal Energy :"));
-	note += RST::math("E="+my::tostring(sorted_samples.get().get_MCS()->get_energy().get_x())) + " ";
-	note += RST::math("\\pm\\mathrm{d}E="+my::tostring(sorted_samples.get().get_MCS()->get_energy().get_dx()));
+	note += RST::math("E="+my::tostring(sorted_samples.get().get_energy().get_x())) + " ";
+	note += RST::math("\\pm\\mathrm{d}E="+my::tostring(sorted_samples.get().get_energy().get_dx()));
 	out.add_header()->np();
 	out.add_header()->text(note);
 }
@@ -425,7 +425,7 @@ void VMCMinimization::clean(){
 std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, int const& nobs){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 	List<MCSim>::Node* sample(NULL);
-	if(m_->samples_.find_in_sorted_list(sim,sample,MCSim::sort_for_merge)){ sim->copy_S(sample->get()->get_MCS()); }
+	if(m_->samples_.find_in_sorted_list(sim,sample,MCSim::sort_for_merge)){ sim->copy_S(sample->get()); }
 	else {/*!create a new sample*/
 		sim->create_S(m_->s_);
 		sample = NULL;/*!reset because its value may have been changed*/
@@ -450,7 +450,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, in
 		}
 		if(sample){/*!if the sample exists, merge it with this new measure*/
 #pragma omp critical(System__merge)
-			sample->get()->get_MCS()->merge(sim->get_MCS().get());
+			sample->get()->merge(sim);
 			sim = sample->get();
 		}
 		return sim;
@@ -464,7 +464,7 @@ void VMCMinimization::evaluate_until_precision(Vector<double> const& param, int 
 	do {
 #pragma omp parallel
 		{ sim = evaluate(param,nobs); }
-	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || sim->get_MCS()->get_energy().get_dx()>dE ) );
+	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || sim->get_energy().get_dx()>dE ) );
 	if(sim.get()){
 		sim->complete_analysis(1e-5);
 		sim->print(0);
@@ -486,15 +486,15 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 		Time chrono;
 		std::string filename(P.get<std::string>(i));
 		std::string msg("loading samples from "+filename);
-		std::cout<<"#"+msg<<std::flush;
+		std::cout<<"#"+msg<<std::endl;
 
 		IOFiles in(filename,false);
 		load(in,path,basename);
 
 		info_.title("Minimization",'>');
-		std::string msg_end(" ("+my::tostring(samples_.size())+" samples loaded in "+my::tostring(chrono.elapsed())+"s)");
+		std::string msg_end("("+my::tostring(samples_.size())+" samples loaded in "+my::tostring(chrono.elapsed())+"s)");
 		info_.item(msg+msg_end);
-		std::cout<<msg_end<<std::endl;
+		std::cout<<"#"+msg_end<<std::endl;
 	} else { create(P,path,basename); }
 	if(s_){ s_->print(1); }
 }
@@ -540,6 +540,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 
 void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::string& basename){
 	s_ = new System(in);
+	s_->clear_obs(0);
 	in>>dof_;
 	ps_= new Vector<double>[dof_];
 
@@ -558,7 +559,12 @@ void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::st
 	}
 
 	unsigned int n_samples(in.read<unsigned int>());
-	while(n_samples--){ samples_.add_end(std::make_shared<MCSim>(in)); }
+	unsigned int iter(0);
+	std::string msg("loading progress : ");
+	while(iter++<n_samples){
+		samples_.add_end(std::make_shared<MCSim>(in)); 
+		if(!(iter%1000)){ my::display_progress(iter,n_samples,msg); }
+	}
 	in>>path>>basename;
 
 	std::string header(in.get_header());
@@ -651,14 +657,28 @@ void VMCMinimization::Minimization::save(IOFiles& out, bool const& all) const {
 	cs.init(&tmp,NULL);
 	out.add_header()->np();
 	out.add_header()->text(cs.get_system_info().get());
-
 	out.add_header()->np();
-	out.add_header()->comment("end_of_saved_variables");
-	out.add_header()->text(info_.get());
 
 	if(all){
+		double E(0);
+		List<MCSim>::Node* best(NULL);
 		samples_.set_target();
-		while(samples_.target_next()){ samples_.get().write(out); }
+		while(samples_.target_next()){ 
+			samples_.get().write(out); 
+			if(samples_.get().get_energy().get_x()<E){
+				E = samples_.get().get_energy().get_x();
+				best = samples_.get_target(); 
+			}
+		}
+		std::string p("(");
+		for(unsigned int i(0);i<best->get()->get_param().size()-1;i++){ p += my::tostring(best->get()->get_param()(i))+","; }
+		p += my::tostring(best->get()->get_param().back())+")";
+		out.add_header()->def("Best parameter","p="+p);
+		out.add_header()->def("Best energy","E="+my::tostring(best->get()->get_energy().get_x())+", dE="+my::tostring(best->get()->get_energy().get_dx()));
+		out.add_header()->np();
 	}
+
+	out.add_header()->comment("end_of_saved_variables");
+	out.add_header()->text(info_.get());
 }
 /*}*/

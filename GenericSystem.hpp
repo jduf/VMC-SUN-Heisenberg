@@ -71,15 +71,10 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 	spuc_(spuc),
 	z_(z)
 {
-	if(this->status_ == 4){
+	if(this->status_ <= 4){
+		if(this->status_ < 4){ std::cout<<__PRETTY_FUNCTION__<<" : should never happen, if it never does, might get rid of this extra test "<<this->status_<<std::endl;  }
 		if(this->n_%this->spuc_){ std::cerr<<__PRETTY_FUNCTION__<<" : the number of sites ("<<this->n_<<") is not commensurate with the unit cell ("<<this->spuc_<<")"<<std::endl; }
-		else {
-			/*!Need to redefine the value of status to be 3 because in MCSim::save,
-			 * CreateSystem uses a MCSystem in the constructor. As
-			 * MCSystem::status_=0 for successful simulation, the created System
-			 * will also have System::status_=0 which will be problematic.*/
-			this->status_ = 3;
-		}
+		else { this->status_ = 3; }
 	}
 }
 
@@ -117,6 +112,7 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 					if(this->bc_ || nb(j,2)==0 ){
 						tmp(k,0) = i;		//! site i
 						tmp(k,1) = nb(j,0); //! site j
+						tmp(k,2) = nb(j,1); //! see below (redefined if spuc_ != 1)
 						tmp(k,3) = nb(j,1);	//! direction of vector linking i->j
 						tmp(k,4) = nb(j,2); //! boundary condition test
 						tmp(k,5) = get_site_in_unit_cell(i);
@@ -127,18 +123,21 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 				}
 			}
 		}
-		if(unit_cell_links.size() != z_*spuc_/2){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links in the unit cell"<<std::endl;; }
+		if(spuc_ == 1){ this->obs_.push_back(Observable("Energy per site",0,1,tmp)); }
 		else {
-			/*!This value has nothing to do with the index of the bond l having
-			 * a coupling J_(l). This value is only the index of a given bond
-			 * in the unit cell. It means that J_(tmp(k,2)) would be completely
-			 * absurd and wrong. The l-th link involved in the computation of
-			 * E, has a bond energy of J_(l) and corresponds to the tmp(l,2)-th
-			 * link the unit cell*/
-			for(k=0;k<tmp.row();k++){
-				tmp(k,2) = std::distance(unit_cell_links.begin(),unit_cell_links.find(ui_pair(tmp(k,5),tmp(k,6))));
+			if(unit_cell_links.size() != z_*spuc_/2){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links in the unit cell : "<<unit_cell_links.size() <<std::endl;; }
+			else {
+				/*!This value has nothing to do with the index of the bond l having
+				 * a coupling J_(l). This value is only the index of a given bond
+				 * in the unit cell. It means that J_(tmp(k,2)) would be completely
+				 * absurd and wrong. The l-th link involved in the computation of
+				 * E, has a bond energy of J_(l) and corresponds to the tmp(l,2)-th
+				 * link the unit cell*/
+				for(k=0;k<tmp.row();k++){
+					tmp(k,2) = std::distance(unit_cell_links.begin(),unit_cell_links.find(ui_pair(tmp(k,5),tmp(k,6))));
+				}
+				this->obs_.push_back(Observable("Energy per site",0,1,tmp));
 			}
-			this->obs_.push_back(Observable("Energy per site",0,1,tmp));
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link"<<std::endl; }
 	if(!this->bc_){ std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl; }

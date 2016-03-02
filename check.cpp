@@ -120,25 +120,25 @@ int main(int argc, char* argv[]){
 				cs.create();
 				cs.set_obs(which);
 
-				MCSim mcsim(P.get<std::vector<double> >("t"));
+				std::shared_ptr<MCSim> mcsim(std::make_shared<MCSim>(P.get<std::vector<double> >("t")));
 				System s(P);
-				mcsim.create_S(&s);
-				mcsim.set_obs(cs.get_GenericSystem()->get_obs(),which);
+				mcsim->create_S(&s);
+				mcsim->set_obs(cs.get_GenericSystem()->get_obs(),which);
 
-				mcsim.run(1e6,2);
-				mcsim.complete_analysis(1e-5);
+				mcsim->run(1e6,2);
+				mcsim->complete_analysis(1e-5);
 
-				MCSim mcsim2(P.get<std::vector<double> >("t"));
-				mcsim2.copy_S(mcsim.get_MCS());
-				mcsim2.set_obs(cs.get_GenericSystem()->get_obs(),which);
-				mcsim2.run(1e6,4);
-				mcsim2.complete_analysis(1e-5);
+				std::shared_ptr<MCSim> mcsim2(std::make_shared<MCSim>(P.get<std::vector<double> >("t")));
+				mcsim2->copy_S(mcsim);
+				mcsim2->set_obs(cs.get_GenericSystem()->get_obs(),which);
+				mcsim2->run(1e6,4);
+				mcsim2->complete_analysis(1e-5);
 
-				std::cout<<mcsim.get_MCS()->get_energy()<<std::endl;
-				std::cout<<mcsim2.get_MCS()->get_energy()<<std::endl;
-				mcsim.get_MCS()->merge(mcsim2.get_MCS().get());
-				mcsim.complete_analysis(1e-5);
-				std::cout<<mcsim.get_MCS()->get_energy()<<std::endl;
+				std::cout<<mcsim->get_energy()<<std::endl;
+				std::cout<<mcsim2->get_energy()<<std::endl;
+				mcsim->merge(mcsim2);
+				mcsim->complete_analysis(1e-5);
+				std::cout<<mcsim->get_energy()<<std::endl;
 			} break;
 		case 7:/*check symmetries*/
 			{

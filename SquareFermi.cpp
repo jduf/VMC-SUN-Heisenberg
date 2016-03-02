@@ -49,7 +49,7 @@ Matrix<double> SquareFermi::set_ab() const {
 /*}*/
 
 /*{method needed for checking*/
-void SquareFermi::display_results(){
+void SquareFermi::lattice(){
 	compute_H();
 
 	std::string color("black");
@@ -78,16 +78,54 @@ void SquareFermi::display_results(){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
 				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
-				ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-			} else{ linestyle = "solid"; }
+				ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
+			} else { linestyle = "solid"; }
 
-			if(my::real(t)>0){ color = "blue"; }
-			else             { color = "red"; }
+			if(t>0){ color = "blue"; }
+			else   { color = "red"; }
+
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
-		if(i%2){ ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
+		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
+	}
+	if(obs_.size()==4){
+		double corr;
+		double rescale(std::abs(0.25/obs_[3][1].get_x()));
+		ps.cross(x_[0],0.25,"linecolor=black"); 
+		ps.circle(x_[0],0.25,"linecolor=black"); 
+		for(unsigned int i(1);i<n_;i++){
+			corr = obs_[3][i].get_x();
+			if(std::abs(corr)>1e-4){
+				if(corr>0){ color = "blue"; }
+				else      { color = "red"; }
+				ps.circle(x_[i],sqrt(std::abs(corr*rescale)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
+		}
 	}
 	ps.end(true,true,true);
+}
+
+void SquareFermi::display_results(){
+	lattice();
+
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
+		std::string title("Fermi");
+		std::string run_cmd("./mc -s:wf square-fermi");
+		run_cmd += " -u:N " + my::tostring(N_);
+		run_cmd += " -u:m " + my::tostring(m_);
+		run_cmd += " -u:n " + my::tostring(n_);
+		run_cmd += " -i:bc "+ my::tostring(bc_);
+		run_cmd += " -d -u:tmax 10";
+
+		rst_file_->title(title,'-');
+		rst_file_->change_text_onclick("run command",run_cmd);
+
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
+	}
 }
 
 void SquareFermi::check(){

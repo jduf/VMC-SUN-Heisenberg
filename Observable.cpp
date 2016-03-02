@@ -2,19 +2,19 @@
 
 /*constructors and destructor*/
 /*{*/
-Observable::Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, Matrix<int> const& links, unsigned int const& B, unsigned int const& b, bool const& conv):
+Observable::Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, Matrix<int> const& links, unsigned int const& modulo, unsigned int const& B, unsigned int const& b, bool const& conv):
 	name_(name),
 	type_(type),
-	modulo_(0),
+	modulo_(modulo),
 	nval_(nval),
 	links_(links),
 	val_(NULL)
 { set(B,b,conv); }
 
-Observable::Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, unsigned int const& nlinks, unsigned int const& B, unsigned int const& b, bool const& conv):
+Observable::Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, unsigned int const& nlinks, unsigned int const& modulo, unsigned int const& B, unsigned int const& b, bool const& conv):
 	name_(name),
 	type_(type),
-	modulo_(0),
+	modulo_(modulo),
 	nval_(nval),
 	links_(nlinks,3),
 	val_(NULL)
@@ -55,13 +55,15 @@ Observable::Observable(Observable&& obs):
 }
 
 void Observable::set(unsigned int const& B, unsigned int const& b, bool const& conv){
+	if(!modulo_){
+		if(links_.row()%nval_){
+			nval_ = 0;
+			std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number : nval="<<nval_<<" nlinks="<<links_.row()<<" for '"<<name_<<"'"<<std::endl; 
+		} else { modulo_ = links_.row()/nval_; }
+	}
 	if(nval_){
-		if(links_.row()%nval_){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number"<<std::endl; }
-		else {
-			modulo_ = links_.row()/nval_;
-			val_ = new Data<double>[nval_];
-			for(unsigned int i(0);i<nval_;i++){ val_[i].set(B,b,conv); }
-		}
+		val_ = new Data<double>[nval_];
+		for(unsigned int i(0);i<nval_;i++){ val_[i].set(B,b,conv); }
 	}
 }
 

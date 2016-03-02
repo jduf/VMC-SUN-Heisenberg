@@ -6,41 +6,26 @@ SquareJastrow::SquareJastrow(System const& s, Matrix<double> const& nu):
 {
 	if(status_==3){ init_lattice(); }
 	init_bosonic(z_,nu);
-	compute_nn();
-	compute_sublattice();
-	compute_omega_cc();
 
 	system_info_.text("Staggered magnetic field, Becca's idea to mimic an on site chemical potential");
-	//std::cout<<"check everything "<<status_<<std::endl;
+	system_info_.item("only works on a two sites per unit cell system (therefore only for SU(2))");
+
+	status_--; 
 }
 
 /*{method needed for running*/
-void SquareJastrow::create(){ status_--; }
-
-void SquareJastrow::compute_nn(){
+void SquareJastrow::create(){
+	unsigned int l(z_/2);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		nn_(obs_[0](i,0),obs_[0](i,1)) = obs_[0](i,1);
+		nn_(obs_[0](i,0),obs_[0](i,3)) = obs_[0](i,1);
+		nn_(obs_[0](i,1),obs_[0](i,3)+l) = obs_[0](i,0);
+		if(!(i%l)){ sl_(obs_[0](i,0)) = obs_[0](i,5); }
 	}
-	//unsigned int l(z_);
-	//for(unsigned int j(0);j<z_;j++){
-	//nb = get_neighbourg(nn_(i,j));
-	//for(unsigned int k(j);k<j+2;k++){
-	//nn_(i,l) = nb(k%z_,0);
-	//l++;
-	//}
-	//}
-}
+	std::cout<<"the matrix should contain all neighbour for each site"<<std::endl;
+	std::cout<<nn_<<std::endl;
+	std::cout<<"the vector should contain the sublattice that the site belongs to"<<std::endl;
+	std::cout<<sl_<<std::endl;
 
-void SquareJastrow::compute_sublattice(){
-	for(unsigned int i(0);i<n_;i++){
-		if(obs_[0](i,5)<2){ sl_(i) = obs_[0](i,5); }
-		else{ std::cout<<"void SquareJastrow::compute_sublattice() : unknown sublatttice."; }
-	}
-	//std::cout<<"sublattice:"<<std::endl;
-	//std::cout<<sl_<<std::endl;
-}
-
-void SquareJastrow::compute_omega_cc(){
 	if(N_==2){
 		omega_(1,1) = -1.0;
 		cc_(0,0) = 0;//|up,up>
@@ -71,6 +56,7 @@ void SquareJastrow::save_param(IOFiles& w) const {
 	w.write("cc (to match nu and x)",cc_);
 	w.write("sl (sublattice)",sl_);
 	w.write("omega (omega)",omega_);
+
 	GenericSystem<double>::save_param(w);
 }
 
@@ -84,69 +70,30 @@ Matrix<double> SquareJastrow::set_ab() const {
 }
 
 unsigned int SquareJastrow::unit_cell_index(Vector<double> const& x) const {
-	Vector<double> match(2,0);
-	if(my::are_equal(x,match)){ return 0; }
-	match(0) = 0.5;
-	match(1) = 0;
-	if(my::are_equal(x,match)){ return 1; }
-	return 2;
+	return my::are_equal(x(0),0.5);
 }
 /*}*/
 
 /*{method needed for checking*/
 void SquareJastrow::display_results(){
-	//PSTricks ps("./",filename_+"-lattice");
-	//ps.add("\\begin{pspicture}(15,15)%"+filename_+"-lattice");
-	//Matrix<int> nb;
-	//double x0, y0, x1, y1;
-	//std::string color;
-	//for(unsigned int i(0);i<n_;i++){
-	//nb = get_neighbourg(i);
-	//x0 = i%Lx_;
-	//y0 = i/Ly_;
-	//y1 = nb(0,0)/Ly_;
-	//if((i+1) % Lx_ ){
-	//x1 = nb(0,0)%Lx_;
-	//color = "black";
-	//} else {
-	//x1 = x0 + 1;
-	//color = "blue";
-	//}
-	//ps.line("-", x0, y0, x1, y1 , "linewidth=1pt,linecolor="+color);
-	//
-	//x1 = nb(1,0)%Lx_;
-	//if( i+Lx_<this->n_){
-	//y1 = nb(1,0)/Ly_;
-	//color = "black";
-	//} else {
-	//y1 = y0 + 1;
-	//color = "blue";
-	//}
-	//ps.line("-", x0, y0, x1, y1, "linewidth=1pt,linecolor="+color);
-	//}
-	//
-	//double r(0.2);
-	//Vector<double> pie(N_);
-	//double m(lat.max());
-	//for(unsigned int i(0);i<n_;i++){
-	//for(unsigned int j(0);j<N_;j++){
-	//pie(j) = lat(i,j)/m;
-	//if(pie(j) < 1e-4){ pie(j) = 0; }
-	//}
-	//ps.add("\\rput("+my::tostring(i%Lx_)+","+my::tostring(i/Ly_)+"){%");
-	//ps.pie(pie,r,"chartColor=color,userColor={red,blue}");
-	//ps.add("}");
-	//
-	//switch(sl_(i)){
-	//case 0: { color = "red"; } break;
-	//case 1: { color = "blue"; } break;
-	//case 2: { color = "green"; } break;
-	//}
-	//ps.put(i%Lx_+r*1.2, i/Ly_+r*1.2, "\\tiny{"+my::tostring(i)+"}");
-	//}
-	//
-	//ps.frame(-0.5,-0.5,Lx_-0.5,Ly_-0.5,"linecolor=red");
-	//ps.add("\\end{pspicture}");
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
+		std::string title("Jastrow");
+		std::string run_cmd("./mc -s:wf square-jastow");
+		run_cmd += " -u:N " + my::tostring(N_);
+		run_cmd += " -u:m " + my::tostring(m_);
+		run_cmd += " -u:n " + my::tostring(n_);
+		run_cmd += " -i:bc "+ my::tostring(bc_);
+		run_cmd += " -d -u:tmax 10";
+
+		rst_file_->title(title,'-');
+		rst_file_->change_text_onclick("run command",run_cmd);
+
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
+	}
 }
 
 void SquareJastrow::check(){

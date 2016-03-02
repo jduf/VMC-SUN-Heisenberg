@@ -68,6 +68,8 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 
 		/*!Returns true if the Ainv_ matrices are invertible*/
 		bool are_invertible();
+
+		void init_after_clone_or_reading();
 };
 
 /*constructors and destructor and initialization*/
@@ -176,31 +178,7 @@ SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& SF):
 	Ainv_(new Matrix<Type>[N_]),
 	tmp_(new Matrix<Type>[N_]),
 	tmp_v(new Vector<Type>[N_])
-{
-	/*!Initialized class variables*/
-	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
-
-	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
-	unsigned int c(0);
-	for(unsigned int s(0);s<n_;s++){
-		for(unsigned int p(0);p<m_;p++){
-			c = s_(s,p);
-			for(unsigned int j(0);j<M_(c);j++){
-				Ainv_[c](row_(s,p),j) = this->EVec_[c](s,j);
-			}
-		}
-	}
-	if(are_invertible()){
-		for(unsigned int c(0);c<N_;c++){
-			Lapack<Type>(Ainv_[c],false,'G').inv();
-			tmp_[c].set(M_(c),M_(c));
-			tmp_v[c].set(M_(c));
-		}
-	} else {
-		this->status_++;
-		std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore"<<std::endl;
-	}
-}
+{ init_after_clone_or_reading(); }
 
 template<typename Type>
 SystemFermionic<Type>::SystemFermionic(IOFiles& r):
@@ -211,31 +189,7 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 	Ainv_(new Matrix<Type>[N_]),
 	tmp_(new Matrix<Type>[N_]),
 	tmp_v(new Vector<Type>[N_])
-{
-	/*!Initialized class variables*/
-	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
-
-	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
-	unsigned int c(0);
-	for(unsigned int s(0);s<n_;s++){
-		for(unsigned int p(0);p<m_;p++){
-			c = s_(s,p);
-			for(unsigned int j(0);j<M_(c);j++){
-				Ainv_[c](row_(s,p),j) = this->EVec_[c](s,j);
-			}
-		}
-	}
-	if(are_invertible()){
-		for(unsigned int c(0);c<N_;c++){
-			tmp_[c].set(M_(c),M_(c));
-			tmp_v[c].set(M_(c));
-			Lapack<Type>(Ainv_[c],false,'G').inv();
-		}
-	} else {
-		this->status_++;
-		std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore "<<std::endl;
-	}
-}
+{ init_after_clone_or_reading(); }
 
 template<typename Type>
 SystemFermionic<Type>::~SystemFermionic(){
@@ -300,17 +254,17 @@ void SystemFermionic<Type>::update(){
 	//unsigned int M;
 	//unsigned int r;
 	//for(unsigned int i(0);i<2;i++){
-		//c = new_c_[i];
-		//r = new_r_[i];
-		//M = M_(c);
-		///*!compute u.u^T.Ã.A^(-1) = ((A^(-1))^T.Ã^T.u.u^T)^T*/
-		//BLAS::gemv('T',M,M,Ainv_[c].ptr(),this->EVec_[c].ptr()+new_ev_[i],this->EVec_[c].row(),tmp_v[c].ptr());
-		//tmp_v[c](r) -= 1.0;
-		//for(unsigned int j(0);j<M;j++){
-			///*need to save this temporary value because Ainv_ is overwritten*/
-			//Ainvlk = Ainv_[c](j,r)/w_[i];
-			//for(unsigned int k(0);k<M;k++){ Ainv_[c](j,k) -= Ainvlk*tmp_v[c](k); }
-		//}
+	//c = new_c_[i];
+	//r = new_r_[i];
+	//M = M_(c);
+	///*!compute u.u^T.Ã.A^(-1) = ((A^(-1))^T.Ã^T.u.u^T)^T*/
+	//BLAS::gemv('T',M,M,Ainv_[c].ptr(),this->EVec_[c].ptr()+new_ev_[i],this->EVec_[c].row(),tmp_v[c].ptr());
+	//tmp_v[c](r) -= 1.0;
+	//for(unsigned int j(0);j<M;j++){
+	///*need to save this temporary value because Ainv_ is overwritten*/
+	//Ainvlk = Ainv_[c](j,r)/w_[i];
+	//for(unsigned int k(0);k<M;k++){ Ainv_[c](j,k) -= Ainvlk*tmp_v[c](k); }
+	//}
 	//}
 }
 
@@ -405,6 +359,33 @@ bool SystemFermionic<Type>::are_invertible(){
 		if(!ipiv.ptr()){ return false; }
 	}
 	return true;
+}
+
+template<typename Type>
+void SystemFermionic<Type>::init_after_clone_or_reading(){
+	/*!Initialized class variables*/
+	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
+
+	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
+	unsigned int c(0);
+	for(unsigned int s(0);s<n_;s++){
+		for(unsigned int p(0);p<m_;p++){
+			c = s_(s,p);
+			for(unsigned int j(0);j<M_(c);j++){
+				Ainv_[c](row_(s,p),j) = this->EVec_[c](s,j);
+			}
+		}
+	}
+	if(are_invertible()){
+		for(unsigned int c(0);c<N_;c++){
+			Lapack<Type>(Ainv_[c],false,'G').inv();
+			tmp_[c].set(M_(c),M_(c));
+			tmp_v[c].set(M_(c));
+		}
+	} else {
+		this->status_++;
+		std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore"<<std::endl;
+	}
 }
 /*}*/
 #endif

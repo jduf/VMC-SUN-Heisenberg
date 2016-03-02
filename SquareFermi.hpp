@@ -14,6 +14,7 @@ class SquareFermi: public Square<double>{
 	protected:
 		void compute_H();
 		void display_results();
+		void lattice();
 
 		/*!Set the unit cell's vectors*/
 		Matrix<double> set_ab() const;

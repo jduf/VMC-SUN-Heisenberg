@@ -2,18 +2,17 @@
 
 SquareDimerizedBar::SquareDimerizedBar(System const& s, Vector<double> const& t):
 	System(s),
-	Square<double>(set_ab(),8,"square-dimerizedbar"),
+	Square<double>(set_ab(),4,"square-dimerizedbar"),
 	t_(t)
 {
-	if(t_.size()==14){
+	if(t_.size()==8){
 		if(status_==3){ init_lattice(); }
 		if(status_==2){
 			init_fermionic();
-			same_wf_ = false;
 
 			system_info_.text("SquareDimerizedBar :");
 			system_info_.item("Each color has a different Hamiltonian.");
-			system_info_.item("8 sites in a 4x2 unit cell");
+			system_info_.item("4 sites in a 2x2 unit cell");
 			system_info_.item("The dimerization occurs on bonds stacked in columns with strongest "+RST::math("\\vert t\\vert"));
 			system_info_.item(RST::math("1=t_0\\geq t_i\\geq 0")+" (signs are set in H)");
 
@@ -22,62 +21,33 @@ SquareDimerizedBar::SquareDimerizedBar(System const& s, Vector<double> const& t)
 				filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
 			}
 		}
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : t must contain 14 values (currently contains "<<t_.size()<<")"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : t must contain 8 values (currently contains "<<t_.size()<<")"<<std::endl; }
 }
 
 /*{method needed for running*/
-void SquareDimerizedBar::compute_H(unsigned int const& c){
+void SquareDimerizedBar::compute_H(){
 	H_.set(n_,n_,0);
 
 	unsigned int t(0);
-	//int s(0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		//if(c<2){
-			//switch(obs_[0](i,5)){
-				//case 0: { t = obs_[0](i,3)?1:0; s =-(obs_[0](i,4)?bc_:1); }break;
-				//case 1: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break; 
-				//case 2: { t = obs_[0](i,3)?1:4; s =-(obs_[0](i,4)?bc_:1); }break;
-				//case 3: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break;
-				//case 4: { t = obs_[0](i,3)?5:4; s = (obs_[0](i,4)?bc_:1); }break;
-				//case 5: { t = obs_[0](i,3)?6:2; s = (obs_[0](i,4)?bc_:1); }break;
-				//case 6: { t = obs_[0](i,3)?5:0; s = (obs_[0](i,4)?bc_:1); }break; 
-				//case 7: { t = obs_[0](i,3)?6:2; s = (obs_[0](i,4)?bc_:1); }break; 
-			//}
-		//} else {
-			//switch(obs_[0](i,5)){
-				//case 0: { t = obs_[0](i,3)?1:4; s =-(obs_[0](i,4)?bc_:1); }break;
-				//case 1: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break; 
-				//case 2: { t = obs_[0](i,3)?1:0; s =-(obs_[0](i,4)?bc_:1); }break;
-				//case 3: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break;
-				//case 4: { t = obs_[0](i,3)?5:0; s = (obs_[0](i,4)?bc_:1); }break;
-				//case 5: { t = obs_[0](i,3)?6:2; s = (obs_[0](i,4)?bc_:1); }break;
-				//case 6: { t = obs_[0](i,3)?5:4; s = (obs_[0](i,4)?bc_:1); }break; 
-				//case 7: { t = obs_[0](i,3)?6:2; s = (obs_[0](i,4)?bc_:1); }break; 
-			//}
-		//}
-		//H_(obs_[0](i,0),obs_[0](i,1)) = s*t_(t);
-		if(c<2){
-			switch(obs_[0](i,5)){
-				case 0: { t = obs_[0](i,3)?1:0; }break;
-				case 1: { t = obs_[0](i,3)?3:2; }break; 
-				case 2: { t = obs_[0](i,3)?5:4; }break;
-				case 3: { t = obs_[0](i,3)?7:6; }break;
-				case 4: { t = obs_[0](i,3)?8:4; }break;
-				case 5: { t = obs_[0](i,3)?10:9; }break;
-				case 6: { t = obs_[0](i,3)?11:0; }break; 
-				case 7: { t = obs_[0](i,3)?13:12; }break; 
-			}
-		} else {
-			switch(obs_[0](i,5)){
-				case 0: { t = obs_[0](i,3)?1:4; }break;
-				case 1: { t = obs_[0](i,3)?3:2; }break; 
-				case 2: { t = obs_[0](i,3)?5:0; }break;
-				case 3: { t = obs_[0](i,3)?7:6; }break;
-				case 4: { t = obs_[0](i,3)?8:0; }break;
-				case 5: { t = obs_[0](i,3)?10:9; }break;
-				case 6: { t = obs_[0](i,3)?11:4; }break; 
-				case 7: { t = obs_[0](i,3)?13:12; }break; 
-			}
+
+		switch(obs_[0](i,5)){
+			case 0: { t = obs_[0](i,3)?1:0;   }break;
+			case 1: { t = obs_[0](i,3)?3:2;   }break; 
+			case 2: { t = obs_[0](i,3)?5:4;   }break;
+			case 3: { t = obs_[0](i,3)?7:6;   }break;
+			//case 4: { t = obs_[0](i,3)?9:8;   }break;
+			//case 5: { t = obs_[0](i,3)?11:10; }break;
+			//case 6: { t = obs_[0](i,3)?13:12; }break; 
+			//case 7: { t = obs_[0](i,3)?15:14; }break; 
+			//case 8: { t = obs_[0](i,3)?17:16; }break; 
+			//case 9: { t = obs_[0](i,3)?19:18; }break; 
+			//case 10:{ t = obs_[0](i,3)?21:20; }break; 
+			//case 11:{ t = obs_[0](i,3)?23:22; }break; 
+			//case 12:{ t = obs_[0](i,3)?25:24; }break; 
+			//case 13:{ t = obs_[0](i,3)?27:26; }break; 
+			//case 14:{ t = obs_[0](i,3)?29:28; }break; 
+			//case 15:{ t = obs_[0](i,3)?31:30; }break; 
 		}
 		H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_:1)*t_(t);
 	}
@@ -85,12 +55,9 @@ void SquareDimerizedBar::compute_H(unsigned int const& c){
 }
 
 void SquareDimerizedBar::create(){
+	compute_H(); 
+	diagonalize(true);
 	for(unsigned int c(0);c<N_;c++){
-		if(!(c%2)){
-			status_ = 2;
-			compute_H(c); 
-			diagonalize(true);
-		}
 		if(status_==1){
 			for(unsigned int i(0);i<n_;i++){
 				for(unsigned int j(0);j<M_(c);j++){
@@ -121,7 +88,7 @@ void SquareDimerizedBar::save_param(IOFiles& w) const {
 
 Matrix<double> SquareDimerizedBar::set_ab() const {
 	Matrix<double> tmp(2,2);
-	tmp(0,0) = 4.0;
+	tmp(0,0) = 2.0;
 	tmp(1,0) = 0.0;
 	tmp(0,1) = 0.0;
 	tmp(1,1) = 2.0;
@@ -129,13 +96,13 @@ Matrix<double> SquareDimerizedBar::set_ab() const {
 }
 
 unsigned int SquareDimerizedBar::unit_cell_index(Vector<double> const& x) const {
-	return 4*x(0)+(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)?4:0);
+	return 2*x(0)+(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)?2:0);
 }
 /*}*/
 
 /*{method needed for checking*/
 void SquareDimerizedBar::lattice(){
-	compute_H(0);
+	compute_H();
 
 	std::string color("black");
 	std::string linestyle("solid");
@@ -162,7 +129,7 @@ void SquareDimerizedBar::lattice(){
 		t = H_(s0,s1);
 		if(obs_.size()>1){
 			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
-				t = obs_[1][i%4].get_x(); 
+				t = obs_[1][obs_[0](i,2)].get_x();
 				if(i%2 && obs_.size()>2){
 					Vector<double> p(N_);
 					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[2][j+N_*obs_[0](i,5)].get_x(); }
@@ -179,13 +146,13 @@ void SquareDimerizedBar::lattice(){
 
 			if(t>0){ color = "blue"; }
 			else   { color = "red"; }
-			linewidth=my::tostring(std::abs(t))+"mm";
+			linewidth = my::tostring(std::abs(t))+"mm";
 
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 
-		if(obs_[0](i,3)){ ps.put(xy0(0)+0.1,(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
-		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
+		if(obs_[0](i,3)){ ps.put(xy0(0)+0.1,(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2)%26,obs_[0](i,2)<26))+"}"); }
+		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2)%26,obs_[0](i,2)<26))+"}"); }
 
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}

@@ -5,25 +5,20 @@
 
 class TriangleJastrow: public Triangle<double>{
 	public:
-		TriangleJastrow(unsigned int N, unsigned int n, unsigned int m);
-		~TriangleJastrow();
+		TriangleJastrow(System const& s, Matrix<double> const& nu);
+		~TriangleJastrow() = default;
 
-		void create(double x);
+		void create();
 		void check();
-		void study();
-		void save(Write& w) const;
+		void save_param(IOFiles& w) const;
 
 	protected:
-		Matrix<unsigned int> nn_;
-		Matrix<unsigned int> cc_;
-		Vector<unsigned int> sl_;
-		Matrix<std::complex<double> > omega_;
+		void display_results();
 
-		void compute_nn();
-		void compute_sublattice();
-		void compute_omega_cc();
-		void lattice(Matrix<unsigned int> const& lat);
-
+		/*!Set the unit cell's vectors*/
+		Matrix<double> set_ab() const;
+		/*!Returns the index of the site at position x in the unit cell*/
+		unsigned int unit_cell_index(Vector<double> const& x) const;
 };
 #endif
 

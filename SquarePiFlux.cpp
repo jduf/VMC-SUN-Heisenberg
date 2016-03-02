@@ -95,7 +95,7 @@ void SquarePiFlux::lattice(){
 		t = H_(s0,s1);
 		if(obs_.size()>1){
 			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
-				t = obs_[1][i%4].get_x(); 
+				t = obs_[1][obs_[0](i,2)].get_x(); 
 				if(i%2 && obs_.size()>2){
 					Vector<double> p(N_);
 					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[2][j+N_*obs_[0](i,5)].get_x(); }

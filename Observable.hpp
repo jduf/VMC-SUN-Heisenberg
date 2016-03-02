@@ -6,9 +6,9 @@
 class Observable{
 	public:
 		/*!Constructor*/
-		Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, Matrix<int> const& links, unsigned int const& B=50, unsigned int const& b=5, bool const& conv=false);
+		Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, Matrix<int> const& links, unsigned int const& modulo=0, unsigned int const& B=50, unsigned int const& b=5, bool const& conv=false);
 		/*!Constructor*/
-		Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, unsigned int const& nlinks, unsigned int const& B=50, unsigned int const& b=5, bool const& conv=false);
+		Observable(std::string const& name, unsigned int const& type, unsigned int const& nval, unsigned int const& nlinks, unsigned int const& modulo=0, unsigned int const& B=50, unsigned int const& b=5, bool const& conv=false);
 		/*!Constructor that reads from file*/
 		Observable(IOFiles& r);
 		/*!Copy constructor*/

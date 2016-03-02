@@ -189,7 +189,6 @@ void MCSystem::measure_new_step(){
 				}
 				std::cerr<<__PRETTY_FUNCTION__<<" : need to check"<<std::endl;
 			}
-			for(unsigned int j(0);j<O->nval();j++){ (*O)[j].divide(N_*m_); }
 		}
 	}
 }

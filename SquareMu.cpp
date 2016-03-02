@@ -148,7 +148,7 @@ void SquareMu::lattice(){
 		t = H_(s0,s1);
 		if(obs_.size()>1){
 			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
-				t = obs_[1][i%4].get_x(); 
+				t = obs_[1][obs_[0](i,2)].get_x(); 
 				if(i%2 && obs_.size()>2){
 					Vector<double> p(N_);
 					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[2][j+N_*obs_[0](i,5)].get_x(); }
@@ -173,6 +173,20 @@ void SquareMu::lattice(){
 		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
 
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
+	}
+	if(obs_.size()==4){
+		double corr;
+		double rescale(std::abs(0.25/obs_[3][1].get_x()));
+		ps.cross(x_[0],0.25,"linecolor=black"); 
+		ps.circle(x_[0],0.25,"linecolor=black"); 
+		for(unsigned int i(1);i<n_;i++){
+			corr = obs_[3][i].get_x();
+			if(std::abs(corr)>1e-4){
+				if(corr>0){ color = "blue"; }
+				else      { color = "red"; }
+				ps.circle(x_[i],sqrt(std::abs(corr*rescale)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
+		}
 	}
 	ps.end(true,true,true);
 }

@@ -28,7 +28,7 @@ class Bosonic : public virtual System{
 		/*!Default Constructor*/
 		Bosonic() = default;
 
-		Vector<unsigned int> sl_;
+		Vector<unsigned int> sl_;//!< sl_(i) is the sublattice to which the site i belongs to
 		Matrix<unsigned int> nn_;//!< nn_(i,j):jth neighbour of the ith site
 		Matrix<unsigned int> cc_;//!< connect a combination of two color to one nu_
 		Matrix<double> nu_;      //!< nu_(i,j): i link and j factor

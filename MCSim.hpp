@@ -23,24 +23,20 @@ class MCSim{
 		/*!Sets MCS_ to a new MCSystem created via C*/
 		void create_S(System const* const s);
 		/*!Sets MCS_ to a copy obtained via MCSystem::clone() run on MCS*/
-		void copy_S(std::unique_ptr<MCSystem> const& MCS);
+		void copy_S(std::shared_ptr<MCSim> const& mcsim);
 		/*!Creates MonteCarlo, then run on MCS_*/
 		void run(unsigned int const& ts, unsigned int const& tmax);
 		/*}*/
 
 		/*{System and MCSystem calls*/
 		/*!Calls bool System::check_conv(double const& convergence_criterion)*/
-		bool check_conv(double const& convergence_criterion){
-			return MCS_->check_conv(convergence_criterion);
-		}
+		bool check_conv(double const& convergence_criterion){ return MCS_->check_conv(convergence_criterion); }
 		/*!Calls void System::complete_analysis(double const& convergence_criterion)*/
-		void complete_analysis(double const& convergence_criterion){
-			MCS_->complete_analysis(convergence_criterion);
-		}
+		void complete_analysis(double const& convergence_criterion){ MCS_->complete_analysis(convergence_criterion); }
+		/*!Calls void System::merge(System* const s)*/
+		void merge(std::shared_ptr<MCSim> const& mcsim){ MCS_->merge(mcsim->MCS_.get()); }
 		/*!Calls void System::set_obs(...)*/
-		void set_obs(std::vector<Observable> const& obs, int const& nobs){
-			MCS_->set_obs(obs,nobs);
-		}
+		void set_obs(std::vector<Observable> const& obs, int const& nobs){ MCS_->set_obs(obs,nobs); }
 		/*!Calls void System::clear_obs(...)*/
 		void clear_obs(unsigned int const& from){ MCS_->clear_obs(from); }
 		/*!Calls virtual void MCSystem::free_memory() = 0*/
@@ -48,9 +44,10 @@ class MCSim{
 		void print(unsigned int const& nobs) const { MCS_->print(nobs); }
 		/*}*/
 
-		/*{Write in IOFiles methods*/
+		/*{Output in IOFiles methods*/
+		/*!Write raw data (no output in header) => made to same many MCSim*/
 		void write(IOFiles& w) const;
-		/*!Save the result in a single file (wavefunction parameters, observables)*/
+		/*!Write nice data (with output header) => made to same one MCSim*/
 		void save(IOFiles& w) const;
 		/*}*/
 
@@ -61,10 +58,10 @@ class MCSim{
 		/*}*/
 
 		/*{Simple value return*/
+		/*!Return the Data<double> Energy*/
+		Data<double> const& get_energy() const { return MCS_->get_energy(); }
 		/*!Returns param_*/
 		Vector<double> const& get_param() const { return param_; }
-		/*!Returns MCS_*/
-		std::unique_ptr<MCSystem> const& get_MCS() const { return MCS_; }
 		/*!Returns true if MCS_ can be run by MonteCarlo*/
 		bool is_created() const { return (MCS_.get() && !MCS_->get_status()); }
 		/*}*/
