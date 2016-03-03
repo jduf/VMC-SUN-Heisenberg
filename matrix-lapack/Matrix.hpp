@@ -101,6 +101,8 @@ class Matrix{
 
 		/*!Returns the maximal value of mat_*/
 		Type max() const;
+		/*!Returns the minimal value of mat_*/
+		Type min() const;
 
 		std::string header_def() const { return "Matrix("+RST::math(my::tostring(row_)+"\\times"+my::tostring(col_))+")"; }
 
@@ -466,17 +468,23 @@ inline void Matrix<double>::print_mathematica() const {
 }
 
 template<>
+inline void Matrix<int>::print_mathematica() const {
+	for(unsigned int i(0);i<row_;i++){
+		for(unsigned int j(0);j<col_;j++){
+			std::cout<<mat_[i+j*row_]<<" ";
+		}
+		std::cout<<std::endl;
+	}
+}
+
+template<>
 inline void Matrix<std::complex<double> >::print_mathematica() const {
 	std::complex<double> a;
-	std::cout<<"{";
+	std::cout<<"{{";
 	for(unsigned int i(0);i<row_;i++){
-		std::cout<<"{ ";
 		for(unsigned int j(0);j<col_;j++){
-			a=mat_[i+j*row_];
-			std::cout<<a.real();
-			if(a.imag()>0){ std::cout<<"+"; }
-			else{ std::cout<<"-"; }
-			std::cout<<a.imag()<<" I ";
+			a = my::chop(mat_[i+j*row_]);
+			std::cout<<a.real()<<(a.imag()<0?"":"+")<<a.imag()<<"I ";
 			if(j+1==col_){
 				if(i+1==row_){ std::cout<<"}}"<<std::endl; }
 				else {std::cout<<"},"<<std::endl<<"{"; }
@@ -499,9 +507,14 @@ Type Matrix<Type>::trace() const {
 template<typename Type>
 Type Matrix<Type>::max() const {
 	Type m(mat_[0]);
-	for(unsigned int i(1);i<size_;i++){
-		if(mat_[i]>m){ m=mat_[i]; }
-	}
+	for(unsigned int i(1);i<size_;i++){ if(mat_[i]>m){ m=mat_[i]; } }
+	return m;
+}
+
+template<typename Type>
+Type Matrix<Type>::min() const {
+	Type m(mat_[0]);
+	for(unsigned int i(1);i<size_;i++){ if(mat_[i]<m){ m=mat_[i]; } }
 	return m;
 }
 /*}*/

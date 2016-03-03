@@ -98,7 +98,7 @@ class List{
 		void add(std::shared_ptr<Type> const& t, unsigned int const& idx);
 		/*!Add t to the list at the correct place. If an entry t', such that
 		 * t=t', is already contained in the list, it will add t anyway.*/
-		void add_sort(std::shared_ptr<Type> const& t,  std::function<bool (Type const&, Type const&)> cmp);
+		void add_sort(std::shared_ptr<Type> const& t, std::function<bool (Type const&, Type const&)> cmp);
 		void add_after_target(std::shared_ptr<Type> const& t);
 
 		void pop_start();

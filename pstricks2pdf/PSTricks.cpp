@@ -24,6 +24,12 @@ void PSTricks::line(std::string const& linetype, double const& x0, double const&
 	s_ += "\\psline[" + options + "]{" + linetype + "}(" + my::tostring(x0) + "," + my::tostring(y0) + ")(" + my::tostring(x1) + "," + my::tostring(y1) + ")\n";
 }
 
+void PSTricks::linked_lines(std::string const& linetype, Matrix<double> const& xy, std::string const& options){
+	for(unsigned int i(0);i+1<xy.row();i++){
+		line(linetype,xy(i,0),xy(i,1),xy(i+1,0),xy(i+1,1),options);
+	}
+}
+
 void PSTricks::polygon(Matrix<double> const& xy, std::string const& options){
 	s_ += "\\pspolygon[" + options + "]";
 	for(unsigned int i(0);i<xy.row();i++){
@@ -40,17 +46,24 @@ void PSTricks::put(double const& x, double const& y, std::string const& s, std::
 	s_ += "\\rput" + options + "("+my::tostring(x)+","+my::tostring(y)+"){"+s+"}\n";
 }
 
-void PSTricks::pie(Vector<double> const& x, double const& r, std::string const& options){
+void PSTricks::pie(double const& x, double const& y, Vector<double> const& p, double const& r, std::string const& options){
+	s_ += "\\rput{0}("+my::tostring(x)+","+my::tostring(y)+"){";
 	s_ += "\\psChart["+options+",linestyle=none]{";
-	for(unsigned int i(0); i<x.size(); i++){
-		s_ += my::tostring(x(i));
-		if(i+1<x.size()){ s_ += ","; }
+	for(unsigned int i(0); i<p.size(); i++){
+		s_ += my::tostring(p(i));
+		if(i+1<p.size()){ s_ += ","; }
 	}
-	s_ += "}{}{"+my::tostring(r)+"}\n";
+	s_ += "}{}{"+my::tostring(r)+"}}\n";
 }
 
 void PSTricks::circle(Vector<double> const& x, double const& r, std::string const& options){
 	s_ += "\\pscircle["+options+"]("+my::tostring(x(0))+","+my::tostring(x(1))+"){"+my::tostring(r)+"}\n";
+}
+
+void PSTricks::cross(Vector<double> const& x, double const& r, std::string const& options){
+	double a(sqrt(2.0)*r/2.0);
+	s_ += "\\psline[" + options + "]{-}(" + my::tostring(x(0)-a) + "," + my::tostring(x(1)-a) + ")(" + my::tostring(x(0)+a) + "," + my::tostring(x(1)+a) + ")\n";
+	s_ += "\\psline[" + options + "]{-}(" + my::tostring(x(0)-a) + "," + my::tostring(x(1)+a) + ")(" + my::tostring(x(0)+a) + "," + my::tostring(x(1)-a) + ")\n";
 }
 
 void PSTricks::end(bool const& silent, bool const& pdf, bool const& crop){

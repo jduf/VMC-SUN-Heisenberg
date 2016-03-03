@@ -5,9 +5,9 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 {
 	std::string name;
 	std::string val;
-	unsigned int type;
 	for(unsigned int i(1);i<argc;i++){
 		name = argv[i];
+		type_.push_back(0);
 		if(name[0] == '-'){
 			used_.push_back(false);
 			/*check if the type is specified*/
@@ -16,10 +16,9 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 					val = argv[i+1];
 					if(name[1] == 's'){ set(name.substr(3),val); }
 					else {
-						type = 0;
-						if(val.find(":") != std::string::npos){ type = 1; }
-						if(val.find(",") != std::string::npos){ type = 2; }
-						switch(type){
+						if(val.find(":") != std::string::npos){ type_.back() = 1; }
+						if(val.find(",") != std::string::npos){ type_.back() = 2; }
+						switch(type_.back()){
 							case 0:
 								{
 									switch(name[1]){
@@ -109,6 +108,7 @@ bool Parseur::find(std::string const& pattern, unsigned int& i, bool lock_iffail
 			return true;
 		} else {
 			locked_ = lock_iffail;
+			if(locked_){ std::cerr<<__PRETTY_FUNCTION__<<" : can't find "<<pattern<<std::endl; }
 			return false;
 		}
 	} else { return false; }

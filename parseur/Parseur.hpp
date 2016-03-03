@@ -25,8 +25,11 @@ class Parseur: public Container {
 		bool find(std::string const& pattern, unsigned int& i, bool lock_iffail) const;
 		/*!Returns locked_*/
 		bool locked() const { return locked_; }
+		/*!Returns type of argument (0=scalar,1=2=vector)*/
+		unsigned int get_type(unsigned int const& i) const { return type_[i]; }
 
 	private:
+		std::vector<unsigned int> type_;
 		mutable std::vector<bool> used_;
 		mutable bool locked_;
 

@@ -112,7 +112,7 @@ std::string Linux::pdf2png(std::string const& infile, std::string const& outfile
 
 std::string Linux::gp2latex(std::string const& texfile, std::string const& path, std::string const& gpfile){
 	std::string cmd(MY_BIN_GNUPLOT);
-	cmd = "cd " + path + "; " + cmd;
+	cmd = "( cd " + path + " && " + cmd;
 	std::ifstream file(path+gpfile+".gp",std::ifstream::in);
 	std::string size;
 	if(file.is_open() && std::getline(file,size) && size.find("#latex_size") != std::string::npos){
@@ -120,8 +120,7 @@ std::string Linux::gp2latex(std::string const& texfile, std::string const& path,
 		std::cerr<<__PRETTY_FUNCTION__<<" : set size "<<size<<std::endl;
 	} else { size = "12.15cm,7.54"; }
 	cmd+= " -e \"set terminal epslatex color size "+size+" standalone lw 2 header \'\\\\usepackage{amsmath,amssymb}\'; set output \'" + texfile + ".tex\'\" ";
-	cmd+= gpfile + ".gp";
-	cmd+= "; cd - > /dev/null";
+	cmd+= gpfile + ".gp )";
 	return cmd;
 }
 

@@ -43,14 +43,16 @@ class Vector{
 
 		/*!Assignment (using Copy-And-Swap Idiom)*/
 		Vector<Type>& operator=(Vector<Type> vec);
-		/*!Additions this vector with another (m1 += m2 : m1 = m1+m2)*/
+		/*!Additions this vector with another (vec1 += vec2 : vec1 = vec1+vec2)*/
 		Vector<Type>& operator+=(Vector<Type> const& vec);
 		/*!Calls operator+=(Vector<Type> const& vec)*/
 		Vector<Type> operator+(Vector<Type> const& vec) const;
-		/*!Substracts this vector from another (m1 -= m2 : m1 = m1-m2)*/
+		/*!Substracts this vector from another (vec1 -= vec2 : vec1 = vec1-vec2)*/
 		Vector<Type>& operator-=(Vector<Type> const& vec);
 		/*!Calls operator-=(Vector<Type> const& vec)*/
 		Vector<Type> operator-(Vector<Type> const& vec) const;
+		/*!Unary minus operator (-v)*/
+		Vector<Type> operator-() const;
 		/*!Scalar product (no conjugate complex for complex type)*/
 		Type operator*(Vector<Type> const& vec) const;
 		/*!Multiplies two vectors and get a matrix*/
@@ -274,6 +276,13 @@ Vector<Type> Vector<Type>::operator-(Vector<Type> const& vec) const {
 }
 
 template<typename Type>
+Vector<Type> Vector<Type>::operator-() const {
+	Vector<Type> tmp(size_);
+	for(unsigned int i(0);i<size_;i++){ tmp.vec_[i] = -vec_[i]; }
+	return tmp;
+}
+
+template<typename Type>
 Type Vector<Type>::operator*(Vector<Type> const& vec) const {
 	assert(size_ == vec.size_);
 	return BLAS::dot(size_,vec_,true,1,0,vec.vec_,true,1,0);
@@ -371,10 +380,8 @@ inline Vector<std::complex<double> > Vector<std::complex<double> >::chop(double 
 
 template<typename Type>
 Vector<Type> Vector<Type>::range(unsigned int min, unsigned int max) const {
-	Vector<Type> out(max-min+1);
-	for(unsigned int i(0);i<out.size();i++){
-		out.vec_[i] = vec_[min+i];
-	}
+	Vector<Type> out(max-min);
+	for(unsigned int i(0);i<out.size();i++){ out.vec_[i] = vec_[min+i]; }
 	return out;
 }
 /*}*/
@@ -384,18 +391,14 @@ Vector<Type> Vector<Type>::range(unsigned int min, unsigned int max) const {
 template<typename Type>
 Type Vector<Type>::min() const {
 	Type m(vec_[0]);
-	for(unsigned int i(1);i<size_;i++){
-		if(m>vec_[i]){ m=vec_[i]; }
-	}
+	for(unsigned int i(1);i<size_;i++){ if(m>vec_[i]){ m=vec_[i]; } }
 	return m;
 }
 
 template<typename Type>
 Type Vector<Type>::max() const {
 	Type m(vec_[0]);
-	for(unsigned int i(1);i<size_;i++){
-		if(m<vec_[i]){ m=vec_[i]; }
-	}
+	for(unsigned int i(1);i<size_;i++){ if(m<vec_[i]){ m=vec_[i]; } }
 	return m;
 }
 

@@ -54,33 +54,38 @@ namespace my{
 		} while(1);
 	}
 
-	inline std::vector<std::string> &string_split(const std::string &s, char delim, std::vector<std::string> &elems){
+	inline std::vector<std::string> &string_split(std::string const& s, char const& delim, std::vector<std::string>& elems){
 		std::stringstream ss(s);
 		std::string item;
 		while (std::getline(ss, item, delim)) { elems.push_back(item); }
 		return elems;
 	}
 
-	inline std::vector<std::string> string_split(const std::string &s, char delim){
+	inline std::vector<std::string> string_split(std::string const& s, char const& delim){
 		std::vector<std::string> elems;
 		string_split(s, delim, elems);
 		if(elems.back()==""){ elems.pop_back(); }
 		return elems;
 	}
 
+	/*int to alphabet*/
+	inline char int_to_alphabet(unsigned int const& i, bool const& upper_case){
+		if(i<26){
+			if(upper_case){ return "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i]; }
+			else { return "abcdefghijklmnopqrstuvwxyz"[i]; }
+		} else { return '?'; }
+	}
+
 	/*sign*/
 	/*{*/
-	//template<typename Type> inline constexpr
-	//int sign(Type x, std::false_type is_signed) { return Type(0) < x; }
+	template<typename Type> inline constexpr
+		int sign_unsigned(Type x){ return Type(0)<x; }
 
-	//template<typename Type> inline constexpr
-	//int sign(Type x, std::true_type is_signed) { return (Type(0) < x) - (x < Type(0)); }
+	template<typename Type> inline constexpr
+		int sign_signed(Type x){ return (Type(0)<x)-(x<Type(0)); }
 
-	//template<typename Type> inline constexpr
-	//int sign(Type x) { return sign(x, std::is_signed<Type>()); }
-
-	inline int sign(unsigned int const& x) { return 0 < x; }
-	inline int sign(int const& x) { return (0 < x) - (x < 0); }
+	template<typename Type> inline constexpr
+		int sign(Type x) { return std::is_signed<Type>()?sign_signed(x):sign_unsigned(x); }
 	/*}*/
 
 	/*double real(T)*/
@@ -160,8 +165,8 @@ namespace my{
 		return r;
 	}
 
-	inline void display_progress(double const& step, double const& total){
-		std::cout<<" "<<100.*step/total<<"%       \r"<<std::flush;
+	inline void display_progress(double const& step, double const& total, std::string const& msg=" "){
+		std::cout<<msg<<100.*step/total<<"%       \r"<<std::flush;
 	}
 
 	/*!check wether a point in inside a polygon (see https://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html) */
@@ -174,6 +179,44 @@ namespace my{
 		}
 		return c;
 	}
+
+	/*determine if two segments intersect (see from http://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect)*/
+	/*{*/
+	/*!given three colinear points p, q, r, checks if point q lies between 'pr'*/
+	inline bool on_segment(double const* p, double const* q, double const* r){
+		return (q[0] <= std::max(p[0], r[0]) && q[0] >= std::min(p[0], r[0]) && q[1] <= std::max(p[1], r[1]) && q[1] >= std::min(p[1], r[1]));
+	}
+
+	/*{*//*!Find orientation of ordered triplet (p, q, r).
+		   The function returns following values
+		   0 --> p, q and r are colinear
+		   1 --> Clockwise
+		   2 --> Counterclockwise
+		   See http://www.geeksforgeeks.org/orientation-3-ordered-points/ // for
+		   details of below formula.  *//*}*/
+	inline int orientation(double const* p, double const* q, double const* r){
+		double val((q[1]-p[1])*(r[0]-q[0]) - (q[0]-p[0])*(r[1]-q[1]));
+		if(my::are_equal(val,0)){ return 0; }
+		return(val>0)?1:2;
+	}
+
+	/*!returns true if line segment 'p1q1' and 'p2q2' intersect*/
+	inline bool intersect(double const* p1, double const* q1, double const* p2, double const* q2){
+		int o1(my::orientation(p1,q1,p2));
+		int o2(my::orientation(p1,q1,q2));
+		int o3(my::orientation(p2,q2,p1));
+		int o4(my::orientation(p2,q2,q1));
+		//General case
+		if(o1 != o2 && o3 != o4){ return true; }
+		//p1, q1 and p2 are colinear and p2 lies on segment p1q1
+		if(o1 == 0 && my::on_segment(p1,p2,q1)){ return true; }
+		if(o2 == 0 && my::on_segment(p1,q2,q1)){ return true; }
+		//p2, q2 and p1 are colinear and p1 lies on segment p2q2
+		if(o3 == 0 && my::on_segment(p2,p1,q2)){ return true; }
+		if(o4 == 0 && my::on_segment(p2,q1,q2)){ return true; }
+		return false;
+	}
+	/*}*/
 }
 
 namespace BLAS{
@@ -183,19 +226,19 @@ namespace BLAS{
 			unsigned int const& N,
 			double const* const a,
 			bool const& ar, //true : multiply a row of a
-			unsigned int const& arow,// 1 for Vector 
+			unsigned int const& arow,// 1 for Vector
 			unsigned int aidx, // 0 for Vector
-			double const* const b, 
+			double const* const b,
 			bool const& br, //true : multiply a row of b
-			unsigned int const& brow,// 1 for Vector 
+			unsigned int const& brow,// 1 for Vector
 			unsigned int bidx// 0 for Vector
 			)
 	{
 		if(ar){//multiply a row of a
 			if(br){ return ddot_(N,/**/a+aidx,     arow,/**/b+bidx     ,brow); }
-			else  { return ddot_(N,/**/a+aidx,     arow,/**/b+bidx*brow,1); } 
-		} else {                                         
-			std::cout<<__PRETTY_FUNCTION__<<" : need to be checked"<<std::endl; 
+			else  { return ddot_(N,/**/a+aidx,     arow,/**/b+bidx*brow,1); }
+		} else {
+			std::cout<<__PRETTY_FUNCTION__<<" : need to be checked"<<std::endl;
 			if(br){ return ddot_(N,/**/a+aidx*arow,1,   /**/b+bidx     ,brow); }
 			else  { return ddot_(N,/**/a+aidx*arow,1,   /**/b+bidx*brow,1); }
 		}
@@ -261,19 +304,19 @@ namespace BLAS{
 			unsigned int const& N,
 			std::complex<double> const* const a,
 			bool const& ar, //true : multiply a row of a
-			unsigned int const& arow,// 1 for Vector 
+			unsigned int const& arow,// 1 for Vector
 			unsigned int aidx, // 0 for Vector
-			std::complex<double> const* const b, 
+			std::complex<double> const* const b,
 			bool const& br,  //true : multiply a row of b
-			unsigned int const& brow,// 0 for Vector 
+			unsigned int const& brow,// 0 for Vector
 			unsigned int bidx// 1 for Vector
 			)
 	{
 		if(ar){
 			if(br){ return zdotu_(N,/**/a+aidx,     arow,/**/b+bidx     ,brow); }
-			else  { return zdotu_(N,/**/a+aidx,     arow,/**/b+bidx*brow,1); } 
+			else  { return zdotu_(N,/**/a+aidx,     arow,/**/b+bidx*brow,1); }
 		} else {
-			std::cout<<__PRETTY_FUNCTION__<<" : need to be checked"<<std::endl; 
+			std::cout<<__PRETTY_FUNCTION__<<" : need to be checked"<<std::endl;
 			if(br){ return zdotu_(N,/**/a+aidx*arow,1,   /**/b+bidx     ,brow); }
 			else  { return zdotu_(N,/**/a+aidx*arow,1,   /**/b+bidx*brow,1); }
 		}

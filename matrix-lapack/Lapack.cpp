@@ -386,15 +386,15 @@ void Lapack<std::complex<double> >::geev(Vector<std::complex<double> >& EVal, Ma
 	char jobvr('N');
 	char jobvl('N');
 	if(REVec){
-		REVec->set(N,N);
 		jobvr = 'V';
 		ldvr = N;
+		REVec->set(ldvr,N);
 		vr = REVec->ptr();
 	}
 	if(LEVec){
-		LEVec->set(N,N);
 		jobvl = 'V';
 		ldvl = N;
+		LEVec->set(ldvl,N);
 		vl = LEVec->ptr();
 	}
 	EVal.set(N);
@@ -427,7 +427,10 @@ void Lapack<double>::sygv(Matrix<double>& B, Vector<double>& EVal){
 	dsygv_(1,jobl, 'U', N, mat_->ptr(), N, B.ptr(), N, EVal.ptr(), work, lwork, info);
 
 	delete[] work;
-	if(info){ std::cerr<<__PRETTY_FUNCTION__<<" : info="<<info<<std::endl; }
+	if(info){ 
+		std::cerr<<__PRETTY_FUNCTION__<<" : info="<<info<<std::endl; 
+		EVal.set();
+	}
 }
 
 template<>

@@ -3,7 +3,7 @@
 /*{static element*/
 std::string const RST::nl_ = "\n";
 std::string const RST::np_ = "\n\n";
-std::string const RST::item_ = "+ ";
+std::string const RST::item_ = " + ";
 
 std::string RST::textit(std::string const& t){ return " *" + t + "* "; }
 std::string RST::textbf(std::string const& t){ return " **" + t + "** "; }

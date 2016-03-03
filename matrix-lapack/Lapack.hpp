@@ -415,21 +415,16 @@ void Lapack<Type>::inv(Vector<int>& ipiv){
 					}
 				}break;
 			default:
-				{
-					std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose G or S)"<<std::endl;
-				}
+				{ std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose G or S)"<<std::endl; }
 		}
 		if(!ipiv.ptr()){ std::cerr<<__PRETTY_FUNCTION__<<" : error"<<std::endl; }
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : the matrix is singular"<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : the matrix is singular"<<std::endl; }
 }
 
 template<typename Type>
 void Lapack<Type>::inv(){
-	if (mat_->row() != mat_->col()) {
-		std::cerr<<__PRETTY_FUNCTION__<<" : no inverse for a rectangular matrix"<<std::endl;
-	} else {
+	if (mat_->row() != mat_->col()) { std::cerr<<__PRETTY_FUNCTION__<<" : no inverse for a rectangular matrix"<<std::endl; }
+	else {
 		Vector<int> ipiv;
 		switch(matrix_type_){
 			case 'G':
@@ -454,9 +449,7 @@ void Lapack<Type>::inv(){
 					}
 				}break;
 			default:
-				{
-					std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose G or S)"<<std::endl;
-				}
+				{ std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose G or S)"<<std::endl; }
 		}
 		if(!ipiv.ptr()){ std::cerr<<__PRETTY_FUNCTION__<<" : error"<<std::endl; }
 	}
@@ -464,12 +457,10 @@ void Lapack<Type>::inv(){
 
 template<typename Type>
 void Lapack<Type>::lu(Matrix<Type>& L, Matrix<Type>& U){
-	if (matrix_type_ != 'G'){
-		std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl;
-	} else {
-		if (mat_->row()!=mat_->col()){
-			std::cerr<<__PRETTY_FUNCTION__<<" : need to be implemented for rectangle matrix"<<std::endl;
-		} else {
+	if (matrix_type_ != 'G'){ std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl; }
+	else {
+		if (mat_->row()!=mat_->col()){ std::cerr<<__PRETTY_FUNCTION__<<" : need to be implemented for rectangle matrix"<<std::endl; }
+		else {
 			std::cerr<<__PRETTY_FUNCTION__<<" : could return P instead of having a void method"<<std::endl;
 			unsigned int N(mat_->row());
 			L=Matrix<Type>(N,N);
@@ -490,9 +481,8 @@ void Lapack<Type>::lu(Matrix<Type>& L, Matrix<Type>& U){
 
 template<typename Type>
 void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation){
-	if (matrix_type_ != 'G'){
-		std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl;
-	} else {
+	if (matrix_type_ != 'G'){ std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl; }
+	else {
 		unsigned int k(std::min(mat_->row(),mat_->col()));
 		double *tau(new double[k]);
 		int *jpvt(new int[mat_->col()]); //! \warning contains element in [1,N]
@@ -539,9 +529,8 @@ void Lapack<Type>::qr(Matrix<Type>& Q, Matrix<Type>& R, bool permutation){
 template<typename Type>
 Vector<int> Lapack<Type>::is_singular(double& rcn){
 	Vector<int> ipiv;
-	if (mat_->row() != mat_->col()){
-		std::cerr<<__PRETTY_FUNCTION__<<" : need to be checked for rectangle matrix"<<std::endl;
-	} else {
+	if (mat_->row() != mat_->col()){ std::cerr<<__PRETTY_FUNCTION__<<" : need to be checked for rectangle matrix"<<std::endl; }
+	else {
 		switch(matrix_type_){
 			case 'G':
 				{
@@ -560,9 +549,7 @@ Vector<int> Lapack<Type>::is_singular(double& rcn){
 					if(rcn<1e-5){ ipiv.set(); }//!set the output vector to NULL pointer
 				}break;
 			default:
-				{
-					std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose G or S)"<<std::endl;
-				}
+				{ std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose G or S)"<<std::endl; }
 		}
 	}
 	return ipiv;
@@ -589,52 +576,33 @@ void Lapack<Type>::eigensystem(Vector<double>& EVal, bool compute_EVec){
 		case 'H':
 			{ heev(EVal,jobvr); } break;
 		default:
-			{
-					std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose H or S)"<<std::endl;
-			} break;
+			{ std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (choose H or S)"<<std::endl; } break;
 	}
 }
 
 template<typename Type>
 void Lapack<Type>::eigensystem(Vector<std::complex<double> >& EVal, Matrix<std::complex<double> >* REVec, Matrix<std::complex<double> >* LEVec){
 	if(mat_->row() != mat_->col()){ std::cerr<<__PRETTY_FUNCTION__<<" : matrix is not square"<<std::endl; }
-	switch(matrix_type_){
-		case 'G':
-			{
-				geev(EVal,REVec,LEVec);
-				mat_->set();
-			} break;
-		default:
-			{
-				std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl;
-			} break;
-	}
+	if(matrix_type_ == 'G'){
+		geev(EVal,REVec,LEVec);
+		mat_->set();
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl; }
 }
 
 template<typename Type>
 void Lapack<Type>::generalized_eigensystem(Matrix<Type>& B, Vector<double>& EVal){
 	if(B.row() != mat_->row() || B.col() != mat_->col() || mat_->col() != mat_->row()){ std::cerr<<__PRETTY_FUNCTION__<<" : matrix is not square or matrices dimension don't match"<<std::endl; }
-	switch(matrix_type_){
-		case 'S':
-			{
-				sygv(B,EVal);
-				mat_->set();
-			} break;
-		default:
-			{
-				std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl;
-			} break;
-	}
+	if(matrix_type_ == 'S'){
+		sygv(B,EVal);
+		mat_->set();
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is G)"<<std::endl; }
 }
 
 template<typename Type>
 void Lapack<Type>::solve(Vector<Type>& b){
 	std::cerr<<__PRETTY_FUNCTION__<<" need to make sure that it works"<<std::endl;
-	if (matrix_type_ != 'S'){
-		std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is S)"<<std::endl;
-	} else {
-		posv(b);
-	}
+	if (matrix_type_ != 'S'){ std::cerr<<__PRETTY_FUNCTION__<<" : Matrix type "<<matrix_type_<<" not implemented (only choice is S)"<<std::endl; }
+	else { posv(b); }
 }
 /*}*/
 #endif

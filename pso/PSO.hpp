@@ -120,7 +120,7 @@ void Swarm<Type>::minimize(){
 	} else {
 		unsigned int p(0);
 		unsigned int local_p(0);
-#pragma omp parallel for schedule(dynamic,Nparticles_) private(local_p)
+#pragma omp parallel for schedule(dynamic) private(local_p)
 		for(unsigned int i=0;i<maxiter_*Nparticles_;i++){
 #pragma omp critical(Swarm__minimize__local)
 			{
