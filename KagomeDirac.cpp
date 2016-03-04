@@ -37,9 +37,8 @@ void KagomeDirac::compute_H(){
 void KagomeDirac::create(){
 	compute_H();
 	diagonalize(true);
-	if(status_==2){
+	if(status_==1){
 		for(unsigned int c(0);c<N_;c++){
-			EVec_[c].set(n_,M_(c));
 			for(unsigned int i(0);i<n_;i++){
 				for(unsigned int j(0);j<M_(c);j++){
 					EVec_[c](i,j) = H_(i,j);

@@ -18,8 +18,8 @@ VMCMinimization::VMCMinimization(Parseur& P):
 			std::cerr<<__PRETTY_FUNCTION__<<" : something went wrong, status="<<m_->s_->get_status()<<std::endl;
 			m_.reset();
 		}
-	} else { 
-		std::cerr<<__PRETTY_FUNCTION__<<" : no System created"<<std::endl; 
+	} else {
+		std::cerr<<__PRETTY_FUNCTION__<<" : no System created"<<std::endl;
 		m_.reset();
 	}
 }
@@ -86,7 +86,7 @@ void VMCMinimization::refine(double const& E, double const& dE){
 		if(total_eval_>5 && total_eval_<1000){
 			best.set_target();
 			progress_ = 0;
-			while(best.target_next()){ evaluate_until_precision(best.get().get_param(),0,dE,maxiter); }
+			while(best.target_next()){ evaluate_until_precision(best.get().get_param(),false,dE,maxiter); }
 			save();
 		} else {
 			if(total_eval_<1000){ msg = "not enough samples to be usefull, skip the evaluation"; }
@@ -432,7 +432,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, bo
 	}
 
 	if(sim->is_created()){
-		if(set_obs){ for(auto const& o:m_->obs_){ sim->set_obs(o); } }
+		if(set_obs){ for(unsigned int i(1);i<m_->obs_.size();i++){ sim->set_obs(m_->obs_[i]); } }
 		sim->run(sample?10:1e6,m_->tmax_);
 
 		if(!sample){
@@ -514,7 +514,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 		CreateSystem cs(s_);
 		cs.init(&tmp,NULL);
 		if(cs.get_status()>3){
-			std::cerr<<__PRETTY_FUNCTION__<<" delete s_, status_="<<cs.get_status()<<std::endl; 
+			std::cerr<<__PRETTY_FUNCTION__<<" delete s_, status_="<<cs.get_status()<<std::endl;
 			delete s_;
 			s_ = NULL;
 		} else {
@@ -525,7 +525,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 			obs_ = cs.get_obs();
 			s_->set_obs(obs_[0]);
 			/*!Sets the bond energies*/
-			s_->set_J(cs.get_GenericSystem()->get_J());
+			s_->set_J(cs.get_GenericSystem());
 
 			std::string msg("no samples loaded");
 			std::cout<<"#"+msg<<std::endl;
@@ -568,7 +568,7 @@ void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::st
 	unsigned int iter(0);
 	std::string msg("loading progress : ");
 	while(iter++<n_samples){
-		samples_.add_end(std::make_shared<MCSim>(in)); 
+		samples_.add_end(std::make_shared<MCSim>(in));
 		if(!(iter%1000)){ my::display_progress(iter,n_samples,msg); }
 	}
 	in>>path>>basename;
@@ -669,11 +669,11 @@ void VMCMinimization::Minimization::save(IOFiles& out, bool const& all) const {
 		double E(0);
 		List<MCSim>::Node* best(NULL);
 		samples_.set_target();
-		while(samples_.target_next()){ 
-			samples_.get().write(out); 
+		while(samples_.target_next()){
+			samples_.get().write(out);
 			if(samples_.get().get_energy().get_x()<E){
 				E = samples_.get().get_energy().get_x();
-				best = samples_.get_target(); 
+				best = samples_.get_target();
 			}
 		}
 		std::string p("(");

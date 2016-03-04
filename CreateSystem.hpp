@@ -26,6 +26,7 @@
 #include "SquareJastrow.hpp"
 
 #include "KagomeFermi.hpp"
+#include "KagomePlaquette.hpp"
 #include "KagomeDirac.hpp"
 #include "KagomeVBC.hpp"
 

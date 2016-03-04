@@ -90,7 +90,6 @@ void Observable::swap_to_assign(Observable& obs1, Observable& obs2){
 /*handles class attributes*/
 /*{*/
 void Observable::reset(){
-	std::cerr<<__PRETTY_FUNCTION__<<" : never checked, does it do what it needs to do ?"<<std::endl; 
 	for(unsigned int i(0);i<nval_;i++){ val_[i].set(); }
 }
 
@@ -118,6 +117,15 @@ void Observable::delete_binning(){
 
 void Observable::complete_analysis(double const& convergence_criterion){
 	for(unsigned int i(0);i<nval_;i++){ val_[i].complete_analysis(convergence_criterion); }
+}
+
+void Observable::combine_measurement(){
+	/*!If the measure of a type 1234 is never defined, it will never be
+	 * measured. This is the behaviour needed to compute the energy and the
+	 * bond energy at the same time. The energy shouldn't be computed alone but
+	 * should be computed when the bond energy (with type 1) is computed*/
+	if(!type_){ type_ = 1234; }
+	else { std::cerr<<__PRETTY_FUNCTION__<<" : should only be used with the Observable of the energy so that it is measured at the same time then the bond energy"<<std::endl; }
 }
 /*}*/
 

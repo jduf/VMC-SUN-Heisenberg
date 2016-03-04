@@ -247,6 +247,11 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 1;
 	}
+	if( wf == "kagome-plaquette" ){
+		ref(0) = 5;
+		ref(1) = 1;
+		ref(2) = 2;
+	}
 	if( wf == "kagome-vbc" ){
 		ref(0) = 5;
 		ref(1) = 2;

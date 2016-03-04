@@ -37,7 +37,7 @@ class System{
 		/*!Sets an other cluster geometry*/
 		bool try_other_geometry(Vector<unsigned int> const& ref) const;
 		/*!Sets coupling terms*/
-		void set_J(Vector<double> const& J){ J_ = J; }
+		void set_J(System const* const s){ J_ = s->J_; }
 
 		/*!Sets the observables to default (0) values and initilizes binning*/
 		void set_obs(Observable const& obs){ obs_.push_back(obs); }
@@ -78,8 +78,6 @@ class System{
 		unsigned int nobs() const { return obs_.size(); }
 		/*!Returns all observables*/
 		std::vector<Observable> const& get_obs() const { return obs_; }
-		/*!Returns the reference to the type of wavefunction*/
-		Vector<double> const& get_J() const { return J_; }
 		/*}*/
 
 	protected:

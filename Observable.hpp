@@ -46,6 +46,8 @@ class Observable{
 		void print(bool const& all) const;
 		void write(IOFiles& w) const;
 
+		/*!Provides an easy solution to measure the energy and the bond energy at the same time*/
+		void combine_measurement();
 		void reset();
 		void remove_links(){ links_.set(); }
 

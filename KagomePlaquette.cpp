@@ -1,30 +1,36 @@
-#include "KagomeFermi.hpp"
+#include "KagomePlaquette.hpp"
 
-KagomeFermi::KagomeFermi(System const& s):
+KagomePlaquette::KagomePlaquette(System const& s, double const& t):
 	System(s),
-	Kagome<double>(set_ab(),3,"kagome-fermi")
+	Kagome<double>(set_ab(),3,"kagome-fermi"),
+	t_(t)
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){
 		init_fermionic();
 
-		system_info_.text("KagomeFermi :");
+		system_info_.text("KagomePlaquette :");
 		system_info_.item("Each color has the same Hamiltonian.");
 	}
 }
 
 /*{method needed for running*/
-void KagomeFermi::compute_H(){
+void KagomePlaquette::compute_H(){
 	H_.set(n_,n_,0);
 
 	double t(-1.0);
 	for(unsigned int i(0);i<obs_[0].nlinks(); i++){
+		switch(obs_[0](i,5)){
+			case 0: { t = -1; } break;
+			case 1: { t = (obs_[0](i,3)==0?t:-1); } break;
+			case 2: { t = t_; } break;
+		}
 		H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_*t:t);
 	}
 	H_ += H_.transpose();
 }
 
-void KagomeFermi::create(){
+void KagomePlaquette::create(){
 	compute_H();
 	diagonalize(true);
 	if(status_==1){
@@ -38,7 +44,7 @@ void KagomeFermi::create(){
 	}
 }
 
-Matrix<double> KagomeFermi::set_ab() const {
+Matrix<double> KagomePlaquette::set_ab() const {
 	Matrix<double> tmp(2,2);
 	tmp(0,0) = 2.0;
 	tmp(1,0) = 0.0;
@@ -47,7 +53,7 @@ Matrix<double> KagomeFermi::set_ab() const {
 	return tmp;
 }
 
-unsigned int KagomeFermi::unit_cell_index(Vector<double> const& x) const {
+unsigned int KagomePlaquette::unit_cell_index(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	if(my::are_equal(x,match)){ return 0; }
 	match(0) = 0.5;
@@ -61,7 +67,7 @@ unsigned int KagomeFermi::unit_cell_index(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void KagomeFermi::lattice(){
+void KagomePlaquette::lattice(){
 	compute_H();
 
 	std::string color("black");
@@ -72,7 +78,8 @@ void KagomeFermi::lattice(){
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(0.25,sqrt(3.0)/4.0),"linecolor=black");
+	//ps.polygon(draw_unit_cell(0.25,sqrt(3.0)/4.0),"linecolor=black");
+	ps.polygon(draw_unit_cell(),"linecolor=black");
 	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	double t;
@@ -102,15 +109,17 @@ void KagomeFermi::lattice(){
 	ps.end(true,true,true);
 }
 
-void KagomeFermi::check(){
+void KagomePlaquette::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="kagome-fermi";
+	filename_ ="kagome-plaquette";
 	display_results();
+	
+	obs_[0].print(false);
 }
 
-void KagomeFermi::display_results(){
+void KagomePlaquette::display_results(){
 	lattice();
 }
 /*}*/

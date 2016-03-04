@@ -274,6 +274,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 							switch(ref_(2)){
 								case 0: { RGL_ = new KagomeFermi(*s_); }break;
 								case 1: { RGL_ = new KagomeDirac(*s_); }break;
+								case 2:
+									{
+										double t;
+										if(param){ t = (*param)(0); }
+										if(C){ t = C->get<double>("t"); }
+										RGL_ = new KagomePlaquette(*s_,t);
+									}break;
 								default:{ error(); }break;
 							}
 						} break;

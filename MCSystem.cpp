@@ -25,16 +25,13 @@ MCSystem::MCSystem(System const& S):
 		s_(new_s_[0],new_p_[0]) = new_c_[1];
 		s_(new_s_[1],new_p_[1]) = new_c_[0];
 	}
-
-	set_list_of_measures();
 }
 
 MCSystem::MCSystem(MCSystem const& mcsim):
 	System(mcsim),
 	s_(mcsim.s_),
 	n_rnd_(0,n_-1),
-	m_rnd_(0,m_-1),
-	list_of_measures_(mcsim.list_of_measures_)
+	m_rnd_(0,m_-1)
 {}
 
 MCSystem::MCSystem(IOFiles& r):
@@ -42,7 +39,7 @@ MCSystem::MCSystem(IOFiles& r):
 	s_(r),
 	n_rnd_(0,n_-1),
 	m_rnd_(0,m_-1)
-{ set_list_of_measures(); }
+{}
 /*}*/
 
 /*public method*/
@@ -82,8 +79,8 @@ void MCSystem::measure_new_step(){
 	Observable* O;
 	Data<double>* E(&obs_[0][0]);
 	E->set_x(0.0);
-	for(unsigned int i(0);i<list_of_measures_.size();i++){
-		switch(list_of_measures_[i].first){
+	for(unsigned int i(0);i<obs_.size();i++){
+		switch(obs_[i].get_type()){
 			case 0:// only for energy
 				{
 					if(m_==1){
@@ -112,7 +109,7 @@ void MCSystem::measure_new_step(){
 			case 1:// for energy and bond energy
 				{
 					double r;
-					O = &obs_[list_of_measures_[i].second];
+					O = &obs_[i];
 					O->set_x(0.0);
 					if(m_==1){
 						for(unsigned int l(0);l<L;l++){
@@ -147,7 +144,7 @@ void MCSystem::measure_new_step(){
 				}break;
 			case 2:// for long range correlation 
 				{
-					O = &obs_[list_of_measures_[i].second];
+					O = &obs_[i];
 					O->set_x(-1.0*m_*m_/N_);
 					L = O->nlinks();
 					idx[0] = O->get_links().ptr();
@@ -176,7 +173,7 @@ void MCSystem::measure_new_step(){
 				}break;
 			case 3:// for color occupation
 				{
-					O = &obs_[list_of_measures_[i].second]; 
+					O = &obs_[i]; 
 					O->set_x(0); 
 					if(m_ == 1){
 						for(unsigned int i(0);i<n_;i++){
@@ -212,19 +209,5 @@ bool MCSystem::is_new_state_forbidden(){
 		if(i != new_p_[1] && s_(new_s_[1],i) == new_c_[0]){ return true; }
 	}
 	return false;
-}
-
-void MCSystem::set_list_of_measures(){
-	list_of_measures_.push_back(std::pair<unsigned int,unsigned int>(0,0));
-	for(unsigned int i(0);i<obs_.size();i++){
-		switch(obs_[i].get_type()){
-			case 1://set bond energy
-				{ list_of_measures_[0] = std::pair<unsigned int,unsigned int>(1,i); }break;
-			case 2://set long range correlations
-				{ list_of_measures_.push_back(std::pair<unsigned int,unsigned int>(2,i)); }break;
-			case 3://set color occupation
-				{ list_of_measures_.push_back(std::pair<unsigned int,unsigned int>(3,i)); }break;
-		}
-	}
 }
 /*}*/

@@ -60,12 +60,8 @@ class MCSystem: public virtual System{
 	private:
 		/*!Checks only if the new state has not the same color on one site*/
 		bool is_new_state_forbidden();
-		/*!Create the list of measures (connects an Observable to the correct index)*/
-		void set_list_of_measures();
 
 		Rand<unsigned int> n_rnd_;//!< generator of random numbers
 		Rand<unsigned int> m_rnd_;//!< generator of random numbers
-
-		std::vector<std::pair<unsigned int,unsigned int> > list_of_measures_;
 };
 #endif
