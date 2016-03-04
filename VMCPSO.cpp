@@ -60,7 +60,7 @@ void VMCPSO::init_param_and_symmetry(Vector<double> const& param){
 		else { std::cerr<<__PRETTY_FUNCTION__<<" bug"<<std::endl; }
 
 		Time chrono;
-		msg="initialize particles with given param and symmetry";
+		msg="initializing particles with given param and symmetry";
 		m_->info_.item(msg);
 		std::cout<<"#"<<msg<<std::endl;
 		for(unsigned int p(0);p<Nparticles_;p++){
@@ -108,7 +108,7 @@ void VMCPSO::init(bool const& clear_particle_history){
 		}
 
 		Time chrono;
-		msg="initialize particles";
+		msg="initializing particles";
 		m_->info_.item(msg);
 		std::cout<<"#"<<msg<<std::endl;
 		for(unsigned int p(0);p<Nparticles_;p++){
@@ -121,7 +121,7 @@ void VMCPSO::init(bool const& clear_particle_history){
 
 void VMCPSO::run(){
 	if(m_->tmax_){
-		std::string msg1("explore with "+my::tostring(Nparticles_)+" particles for "+my::tostring(maxiter_)+" steps,");
+		std::string msg1("exploring with "+my::tostring(Nparticles_)+" particles for "+my::tostring(maxiter_)+" steps,");
 		msg1 += " estimated time "+my::tostring(1.1*Nparticles_*maxiter_*m_->effective_time_/omp_get_max_threads())+"s ";
 		std::cout<<"#"<<msg1<<std::endl;
 		Time chrono;

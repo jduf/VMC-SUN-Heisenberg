@@ -13,7 +13,6 @@ class Honeycomb: public System2D<Type>{
 
 	protected:
 		void init_lattice();
-		void set_obs(int nobs);
 
 	private:
 		double L_;
@@ -109,24 +108,6 @@ void Honeycomb<Type>::init_lattice(){
 					else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
 				}
 			}
-		}
-	}
-}
-
-template<typename Type>
-void Honeycomb<Type>::set_obs(int nobs){
-	if(nobs<0){ nobs = 1; }
-	if(nobs>0){/*bond energy (valid for Honeycomb0pp)*/
-		unsigned int nlinks;
-		unsigned int nval;
-		nlinks = this->obs_[0].nlinks();
-		nval = this->z_*this->spuc_/2;
-		this->obs_.push_back(Observable("Bond energy",1,nval,nlinks));
-		this->obs_[1].remove_links();
-		std::cout<<__PRETTY_FUNCTION__<<std::endl;
-		for(unsigned int i(0);i<nlinks;i++){
-			std::cout<<this->obs_[0](i,0)<<" "<<this->obs_[0](i,1)<<" "<<this->obs_[0](i,2)<<":"<<this->obs_[0](i,5)/2*3 + (this->obs_[0](i,6)-1)/2<<" "<<this->obs_[0](i,5)<<" "<<this->obs_[0](i,6)<<std::endl; 
-			this->obs_[0](i,2) = this->obs_[0](i,5)/2*3 + (this->obs_[0](i,6)-1)/2;
 		}
 	}
 }

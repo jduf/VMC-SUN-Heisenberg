@@ -13,7 +13,6 @@ class Triangle: public System2D<Type>{
 
 	protected:
 		void init_lattice();
-		void set_obs(int nobs);
 
 	private:
 		double L_;
@@ -102,11 +101,6 @@ void Triangle<Type>::init_lattice(){
 			}
 		}
 	}
-}
-
-template<typename Type>
-void Triangle<Type>::set_obs(int nobs){
-	(void)(nobs);
 }
 /*}*/
 

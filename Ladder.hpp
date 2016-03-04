@@ -25,7 +25,7 @@ class Ladder: public System1D<Type>{
 		virtual ~Ladder()=0;
 
 	protected:
-		void set_obs(int nobs);
+		void create_obs(unsigned int const& which_obs);
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Given N and m, save the best simulation in a text file for any n*/
@@ -81,39 +81,47 @@ Ladder<Type>::~Ladder() = default;
 
 /*{protected methods*/
 template<typename Type>
-void Ladder<Type>::set_obs(int nobs){
-	if(nobs<0){ nobs = 5; }
-	if(nobs>0){
-		this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
-	}
-	if(nobs==5){/*(anti)symmetric correlation*/
-		unsigned int m(this->n_/2);
-		unsigned int nval(this->n_/2);
-		unsigned int nlinks(m*nval);
-		this->obs_.push_back(Observable("S_10*S1i",2,nval,nlinks));
-		this->obs_.push_back(Observable("S_10*S2i",2,nval,nlinks));
-		this->obs_.push_back(Observable("S_20*S1i",2,nval,nlinks));
-		this->obs_.push_back(Observable("S_10*S2i",2,nval,nlinks));
-		for(unsigned int i(0);i<m;i++){
-			for(unsigned int j(0);j<nval;j++){
-				/*obs_[1]=S_10*S_1i*/
-				this->obs_[2](i*nval+j,0) = 2*i;
-				this->obs_[2](i*nval+j,1) = (2*(i+j))%this->n_;
-				this->obs_[2](i*nval+j,2) = j;
-				/*obs_[2]=S_10*S_2i*/
-				this->obs_[3](i*nval+j,0) = 2*i;
-				this->obs_[3](i*nval+j,1) = (2*(i+j)+1)%this->n_;
-				this->obs_[3](i*nval+j,2) = j;
-				/*obs_[3]=S_20*S_1i*/
-				this->obs_[4](i*nval+j,0) = 2*i+1;
-				this->obs_[4](i*nval+j,1) = (2*(i+j))%this->n_;
-				this->obs_[4](i*nval+j,2) = j;
-				/*obs_[4]=S_20*S_2i*/
-				this->obs_[5](i*nval+j,0) = 2*i+1;
-				this->obs_[5](i*nval+j,1) = (2*(i+j)+1)%this->n_;
-				this->obs_[5](i*nval+j,2) = j;
-			}
-		}
+void Ladder<Type>::create_obs(unsigned int const& which_obs){
+	switch(which_obs){
+		case 0:
+			{ for(unsigned int i(1);i<3;i++){ create_obs(i); } }break;
+		case 1:
+			{
+				unsigned int idx(this->obs_.size());
+				this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
+				this->obs_[idx].remove_links();
+			}break;
+		case 2:
+			{
+				unsigned int m(this->n_/2);
+				unsigned int nval(this->n_/2);
+				unsigned int nlinks(m*nval);
+				unsigned int idx(this->obs_.size());
+				this->obs_.push_back(Observable("S_10*S1i",2,nval,nlinks));
+				this->obs_.push_back(Observable("S_10*S2i",2,nval,nlinks));
+				this->obs_.push_back(Observable("S_20*S1i",2,nval,nlinks));
+				this->obs_.push_back(Observable("S_10*S2i",2,nval,nlinks));
+				for(unsigned int i(0);i<m;i++){
+					for(unsigned int j(0);j<nval;j++){
+						/*obs_[1]=S_10*S_1i*/
+						this->obs_[idx](i*nval+j,0) = 2*i;
+						this->obs_[idx](i*nval+j,1) = (2*(i+j))%this->n_;
+						this->obs_[idx](i*nval+j,2) = j;
+						/*obs_[2]=S_10*S_2i*/
+						this->obs_[idx+1](i*nval+j,0) = 2*i;
+						this->obs_[idx+1](i*nval+j,1) = (2*(i+j)+1)%this->n_;
+						this->obs_[idx+1](i*nval+j,2) = j;
+						/*obs_[3]=S_20*S_1i*/
+						this->obs_[idx+2](i*nval+j,0) = 2*i+1;
+						this->obs_[idx+2](i*nval+j,1) = (2*(i+j))%this->n_;
+						this->obs_[idx+2](i*nval+j,2) = j;
+						/*obs_[4]=S_20*S_2i*/
+						this->obs_[idx+3](i*nval+j,0) = 2*i+1;
+						this->obs_[idx+3](i*nval+j,1) = (2*(i+j)+1)%this->n_;
+						this->obs_[idx+3](i*nval+j,2) = j;
+					}
+				}
+			}break;
 	}
 }
 

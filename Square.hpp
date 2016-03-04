@@ -13,7 +13,6 @@ class Square: public System2D<Type>{
 
 	protected:
 		void init_lattice();
-		void set_obs(int nobs);
 
 	private:
 		unsigned int p_;
@@ -93,40 +92,6 @@ void Square<Type>::init_lattice(){
 				}
 			}
 		}
-	}
-}
-
-template<typename Type>
-void Square<Type>::set_obs(int nobs){
-	if(nobs<0){ nobs = 3; }
-	if(nobs>0){
-		this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
-		this->obs_[1].remove_links();
-	}
-	if(nobs>1){
-		this->obs_.push_back(Observable("Color occupation",4,this->N_*this->spuc_,Matrix<int>(this->n_,this->N_),this->n_/this->spuc_));
-		for(unsigned int i(0);i<this->n_;i++){
-			for(unsigned int j(0);j<this->N_;j++){
-				this->obs_[2](i,j) = this->obs_[0](2*i,5)*this->N_+j; 
-			}
-		}
-	}
-	if(nobs>2){
-		Vector<double> x;
-		Vector<double>* dx(new Vector<double>[this->n_]);
-		for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[0]-this->x_[i]; }
-
-		this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_*this->n_));
-		for(unsigned int i(0);i<this->n_;i++){
-			for(unsigned int j(0);j<this->n_;j++){
-				x = this->x_[i]+dx[j];
-				reset_pos_in_lattice(x);
-				this->obs_[3](i*this->n_+j,0) = i;
-				this->obs_[3](i*this->n_+j,1) = this->site_index(x);
-				this->obs_[3](i*this->n_+j,2) = j;
-			}
-		}
-		delete[] dx;
 	}
 }
 /*}*/

@@ -22,7 +22,10 @@ int main(int argc, char* argv[]){
 		sys = new System(P);
 		cs  = new CreateSystem(sys);
 		cs->init(NULL,&P);
-		cs->set_obs(P.find("nobs",i,false)?P.get<int>(i):-1);
+		if(P.find("obs",i,false)){
+			Vector<unsigned int> obs(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
+			for(unsigned int j(0);j<obs.size();j++){ cs->create_obs(obs(j)); }
+		}
 	}
 
 	if(!P.locked()){

@@ -97,7 +97,7 @@ void VMCMinimization::refine(double const& E, double const& dE){
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
 
-void VMCMinimization::refine(unsigned int const& nmin, int const& nobs, double const& dE, unsigned int const& maxiter){
+void VMCMinimization::refine(unsigned int const& nmin, bool const& set_obs, double const& dE, unsigned int const& maxiter){
 	if(m_->samples_.size() && m_->tmax_){
 		total_eval_ = std::min(nmin,m_->samples_.size());
 		List<MCSim> potential_minima;
@@ -113,7 +113,7 @@ void VMCMinimization::refine(unsigned int const& nmin, int const& nobs, double c
 
 		sorted_samples.set_target();
 		progress_ = 0;
-		while(sorted_samples.target_next() && progress_<total_eval_){ evaluate_until_precision(sorted_samples.get().get_param(),nobs,dE,maxiter); }
+		while(sorted_samples.target_next() && progress_<total_eval_){ evaluate_until_precision(sorted_samples.get().get_param(),set_obs,dE,maxiter); }
 		save();
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
@@ -207,7 +207,7 @@ double VMCMinimization::find_minima(unsigned int const& max_pm, double const& ra
 	return E_range;
 }
 
-void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, int const& nobs, double const& dE){
+void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, bool const& set_obs, double const& dE){
 	if(m_->samples_.size() && m_->tmax_){
 		List<MCSim> potential_minima;
 		List<MCSim> sorted_samples;
@@ -216,13 +216,13 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, int const&
 		unsigned int maxiter(1);
 		total_eval_ = potential_minima.size();
 		std::cout<<"#######################"<<std::endl;
-		std::string msg("compute "+my::tostring(nobs)+" observables for "+my::tostring(total_eval_)+" minima (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
+		std::string msg("compute all ("+my::tostring(m_->obs_.size())+") observables for "+my::tostring(total_eval_)+" minima (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
 		potential_minima.set_target();
 		progress_ = 0;
-		while(potential_minima.target_next()){ evaluate_until_precision(potential_minima.get().get_param(),nobs,dE,maxiter); }
+		while(potential_minima.target_next()){ evaluate_until_precision(potential_minima.get().get_param(),set_obs,dE,maxiter); }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
 
@@ -272,7 +272,7 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_pm, IOFi
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
-void VMCMinimization::explore_around_minima(unsigned int const& max_pm, int const& nobs, double const& dE, double const& dx){
+void VMCMinimization::explore_around_minima(unsigned int const& max_pm, bool const& set_obs, double const& dE, double const& dx){
 	if(m_->samples_.size() && m_->tmax_){
 		/*!find the minima and sort by energy*/
 		List<MCSim> sorted_samples;
@@ -308,13 +308,13 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, int cons
 		std::string msg("measures "+my::tostring(total_eval_)+" samples close to potential minimas (max time "+my::tostring(m_->tmax_*maxiter*total_eval_)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
-		msg = "compute "+my::tostring(nobs)+" observables for each samples";
+		msg = "compute ("+my::tostring(m_->obs_.size())+") observables for each samples";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
 		param.set_target();
 		progress_ = 0;
-		while(param.target_next()){ evaluate_until_precision(param.get(),nobs,dE,maxiter); }
+		while(param.target_next()){ evaluate_until_precision(param.get(),set_obs,dE,maxiter); }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
 
@@ -410,19 +410,19 @@ void VMCMinimization::run_parameters(Parseur& P){
 		progress_ = 0;
 		for(unsigned int i(0);i<total_eval_;i++){
 			in>>param;
-			evaluate_until_precision(param,P.get<int>("nobs"),P.get<double>("dE"),P.get<unsigned int>("maxiter"));
+			evaluate_until_precision(param,P.get<bool>("set_obs"),P.get<double>("dE"),P.get<unsigned int>("maxiter"));
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 
 void VMCMinimization::clean(){
 	m_->samples_.set_target();
-	while(m_->samples_.target_next()){ m_->samples_.get().clear_obs(1); }
+	while(m_->samples_.target_next()){ m_->samples_.get().set_obs(1); }
 }
 /*}*/
 
 /*{protected methods*/
-std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, int const& nobs){
+std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, bool const& set_obs){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 	List<MCSim>::Node* sample(NULL);
 	if(m_->samples_.find_in_sorted_list(sim,sample,MCSim::sort_for_merge)){ sim->copy_S(sample->get()); }
@@ -432,7 +432,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, in
 	}
 
 	if(sim->is_created()){
-		sim->set_obs(m_->obs_,nobs);
+		if(set_obs){ for(auto const& o:m_->obs_){ sim->set_obs(o); } }
 		sim->run(sample?10:1e6,m_->tmax_);
 
 		if(!sample){
@@ -457,13 +457,13 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, in
 	} else { return NULL; }
 }
 
-void VMCMinimization::evaluate_until_precision(Vector<double> const& param, int const& nobs, double const& dE, unsigned int const& maxiter){
+void VMCMinimization::evaluate_until_precision(Vector<double> const& param, bool const& set_obs, double const& dE, unsigned int const& maxiter){
 	std::shared_ptr<MCSim> sim(NULL);
 	unsigned int iter(0);
 	std::cout<<++progress_<<"/"<<total_eval_<<" : param : "<<param<<std::endl;
 	do {
 #pragma omp parallel
-		{ sim = evaluate(param,nobs); }
+		{ sim = evaluate(param,set_obs); }
 	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || sim->get_energy().get_dx()>dE ) );
 	if(sim.get()){
 		sim->complete_analysis(1e-5);
@@ -507,11 +507,10 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 			std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
 			P.set("M",M);
 		}
-		s_  = new System(P);
 
-		/*!sets obs_ so its contains all possible observables that can be measured
-		 * for this given System*/
+		s_  = new System(P);
 		Vector<double> tmp(dof_,1.0);
+
 		CreateSystem cs(s_);
 		cs.init(&tmp,NULL);
 		if(cs.get_status()>3){
@@ -519,10 +518,13 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 			delete s_;
 			s_ = NULL;
 		} else {
-			cs.set_obs(-1);
-			obs_ = cs.get_GenericSystem()->get_obs();
-			/*!sets what is always required (Energy observable)*/
-			s_->set_obs(obs_,0);
+			/*!Create all observable and then, set obs_ so it contains every
+			 * observable available and set s_ so it contains the minimal
+			 * information over the links to compute the energy*/
+			cs.create_obs(0);
+			obs_ = cs.get_obs();
+			s_->set_obs(obs_[0]);
+			/*!Sets the bond energies*/
 			s_->set_J(cs.get_GenericSystem()->get_J());
 
 			std::string msg("no samples loaded");
@@ -540,19 +542,23 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 
 void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::string& basename){
 	s_ = new System(in);
-	s_->clear_obs(0);
 	in>>dof_;
-	ps_= new Vector<double>[dof_];
-
-	/*!sets obs_ so its contains all possible observables that can be measured
-	 * for this given System*/
 	Vector<double> tmp(dof_,1.0);
+
+	/*!Get rid of all observables so if new ones have been implemented, they
+	 * will be available via the use of CreateSystem. Once they are all
+	 * created, set obs_ so it contains every observable available and set s_
+	 * so it contains the minimal information over the links to compute the
+	 * energy*/
+	s_->set_obs(0);
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
-	cs.set_obs(-1);
-	obs_ = cs.get_GenericSystem()->get_obs();
+	cs.create_obs(0);
+	obs_ = cs.get_obs();
+	s_->set_obs(obs_[0]);
 
 	ps_size_ = 1;
+	ps_= new Vector<double>[dof_];
 	for(unsigned int i(0);i<dof_;i++){
 		ps_[i] = in.read<Vector<double> >();
 		ps_size_ *= ps_[i].size();

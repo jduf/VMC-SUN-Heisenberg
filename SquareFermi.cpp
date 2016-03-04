@@ -50,6 +50,14 @@ Matrix<double> SquareFermi::set_ab() const {
 
 /*{method needed for checking*/
 void SquareFermi::lattice(){
+	Vector<unsigned int> o(3,0);
+	for(unsigned int i(1);i<obs_.size();i++){
+		switch(obs_[i].get_type()){
+			case 1:{ o(0)=i; }break;//bond energy
+			case 2:{ o(1)=i; }break;//long range correlation
+			case 3:{ o(2)=i; }break;//color occupation
+		}
+	}
 	compute_H();
 
 	std::string color("black");
@@ -60,12 +68,27 @@ void SquareFermi::lattice(){
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(),"linecolor=black");
+	Matrix<double> uc(draw_unit_cell(0.5,0.5));
+	ps.polygon(uc,"linecolor=black");
 	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	double t;
 	unsigned int s0;
 	unsigned int s1;
+	if(o(1)){
+		double corr;
+		double rescale(std::abs(0.25/obs_[o(1)][1].get_x()));
+		ps.cross(x_[0],0.25,"linecolor=black"); 
+		ps.circle(x_[0],0.25,"linecolor=black"); 
+		for(unsigned int i(1);i<n_;i++){
+			corr = obs_[o(1)][i].get_x();
+			if(std::abs(corr)>1e-4){
+				if(corr>0){ color = "blue"; }
+				else      { color = "red"; }
+				ps.circle(x_[i],sqrt(std::abs(corr*rescale)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
+		}
+	}
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		xy0 = x_[s0];
@@ -74,6 +97,18 @@ void SquareFermi::lattice(){
 		xy1 = x_[s1];
 
 		t = H_(s0,s1);
+		linewidth = "1pt";
+		if(o(0) || o(2)){
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
+				if(i%2 && o(2)){
+					Vector<double> p(N_);
+					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[o(2)][j+N_*obs_[0](i,5)].get_x(); }
+					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
+				}
+				linewidth = my::tostring(std::abs(t))+"mm";
+			} else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
+		}
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
@@ -86,21 +121,11 @@ void SquareFermi::lattice(){
 
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
+
+		if(obs_[0](i,3)){ ps.put(xy0(0)+0.1,(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
+		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
+
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
-	}
-	if(obs_.size()==4){
-		double corr;
-		double rescale(std::abs(0.25/obs_[3][1].get_x()));
-		ps.cross(x_[0],0.25,"linecolor=black"); 
-		ps.circle(x_[0],0.25,"linecolor=black"); 
-		for(unsigned int i(1);i<n_;i++){
-			corr = obs_[3][i].get_x();
-			if(std::abs(corr)>1e-4){
-				if(corr>0){ color = "blue"; }
-				else      { color = "red"; }
-				ps.circle(x_[i],sqrt(std::abs(corr*rescale)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
-			}
-		}
 	}
 	ps.end(true,true,true);
 }

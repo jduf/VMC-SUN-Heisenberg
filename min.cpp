@@ -46,12 +46,12 @@ int main(int argc, char* argv[]){
 							unsigned int j(0);
 							if(P.find("dE",j,false)){
 								if(P.find("E",i,false)){ m.refine(P.get<double>(i),P.get<double>(j)); }
-								if(P.find("nmin",i,false)){ m.refine(P.get<unsigned int>(i),P.get<int>("nobs"),P.get<double>(j),P.get<unsigned int>("maxiter")); }
+								if(P.find("nmin",i,false)){ m.refine(P.get<unsigned int>(i),P.get<bool>("set_obs"),P.get<double>(j),P.get<unsigned int>("maxiter")); }
 							} else { m.refine(); }
 						}break;
 					case 2:
 						{
-							m.find_and_run_minima(10,-1,1e-5);
+							m.find_and_run_minima(10,true,1e-5);
 							m.save();
 						}break;
 					case 3:
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]){
 					case 5:
 						{
 							VMCSystematic m3(m);
-							m3.run(0,1e-6,1);
+							m3.run(false,1e-6,1);
 							m3.save();
 							m3.plot();
 						}break;

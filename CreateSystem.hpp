@@ -98,10 +98,10 @@ class CreateSystem{
 		/*}*/
 
 		/*{GenericSystem calls*/
-		/*!Calls GenericSystem::set_obs pure virtual method*/
-		void set_obs(int const& nobs) const {
-			if(RGL_){ return RGL_->set_obs(nobs); }
-			if(CGL_){ return CGL_->set_obs(nobs); }
+		/*!Calls GenericSystem::create_obs pure virtual method*/
+		void create_obs(unsigned int const& which_obs) const {
+			if(RGL_){ return RGL_->create_obs(which_obs); }
+			if(CGL_){ return CGL_->create_obs(which_obs); }
 		}
 		/*!Calls GenericSystem::get_wf_symmetries pure virtual method*/
 		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const {

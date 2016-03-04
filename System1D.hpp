@@ -24,31 +24,21 @@ class System1D: public GenericSystem<Type>{
 		virtual ~System1D()=0;
 
 	protected:
-		Matrix<Type> H_;		//!< matrix used to get the band structure
-		Matrix<std::complex<double> > evec_;//!< eigenvector of H+T
-
 		/*!Plot the band structure E(p)*/
 		void plot_band_structure();
-		/*!Diagonalize the trial Hamiltonian H_*/
-		void diagonalize(bool simple);
-		/*!Create the selection of optimal eigenvectors*/
-		void select_eigenvectors();
 
 	private:
 		Matrix<Type> T_;	//!< translation operator along x-axis
 		Vector<double> p_;	//!< eigenvalue of T
 		Vector<double> e_;	//!< eigenvalue of H_
 
-		/*!Compute the translation operator*/
-		void compute_T();
-		/*!Diagonalize H_*/
-		bool simple_diagonalization();
-		/*!Diagonalize H_+T_ => compute the band structure E(p)*/
-		bool full_diagonalization();
-		/*!Evaluate the value of an operator O as <bra|O|ket>*/
-		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
 		/*!Returns the index of the site i in the unit cell*/
 		unsigned int get_site_in_unit_cell(unsigned int const& i) const { return i%this->spuc_; }
+
+		/*!Compute the translation operator*/
+		void compute_T();
+		/*!Diagonalize H_+T_ => compute the band structure E(p)*/
+		bool full_diagonalization();
 };
 	
 /*{constructors*/
@@ -67,12 +57,6 @@ System1D<Type>::~System1D() = default;
 /*}*/
 
 /*{protected methods*/
-template<typename Type>
-void System1D<Type>::diagonalize(bool simple){
-	if(simple){ if(simple_diagonalization()){ this->status_--; } }
-	else { if(full_diagonalization()){ this->status_--; } }
-}
-
 template<typename Type>
 void System1D<Type>::plot_band_structure(){
 	if(full_diagonalization()){
@@ -108,29 +92,16 @@ void System1D<Type>::compute_T(){
 }
 
 template<typename Type>
-bool System1D<Type>::simple_diagonalization(){
-	Vector<double> eval;
-	Lapack<Type>(H_,false,(this->ref_(1)==1?'S':'H')).eigensystem(eval,true);
-	for(unsigned int c(0);c<this->N_;c++){
-		if(my::are_equal(eval(this->M_(c)),eval(this->M_(c)-1),1e-12)){
-			std::cerr<<__PRETTY_FUNCTION__<<" : degenerate at the Fermi level"<<std::endl;
-			return false;
-		}
-	}
-	return true;
-}
-
-template<typename Type>
 bool System1D<Type>::full_diagonalization(){
 	compute_T();
-	Matrix<Type> M(H_);
+	Matrix<Type> M(this->H_);
 	M += T_*Type(3.0);
 	Vector<std::complex<double> > eval;
-	Lapack<Type>(M,true,'G').eigensystem(eval,&evec_);
+	Lapack<Type>(M,false,'G').eigensystem(eval,&this->evec_);
 
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(i+1);j<this->n_;j++){
-			if(my::are_equal(eval(i),eval(j),1e-10,1e-10)){
+			if(my::are_equal(eval(i),eval(j),this->eq_prec_,this->eq_prec_)){
 				std::cerr<<__PRETTY_FUNCTION__<<" : eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
 				return false;
 			}
@@ -138,37 +109,23 @@ bool System1D<Type>::full_diagonalization(){
 	}
 	Vector<unsigned int> index;
 	e_.set(this->n_);
-	for(unsigned int i(0);i<this->n_;i++){ e_(i) = projection(H_,i).real(); }
+	for(unsigned int i(0);i<this->n_;i++){ e_(i) = this->projection(this->H_,i).real(); }
 	e_.sort(std::less_equal<double>(),index);
 
-	Matrix<std::complex<double> > evec_tmp(evec_);
+	Matrix<std::complex<double> > evec_tmp(this->evec_);
 	Vector<std::complex<double> > eval_tmp(eval);
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(0);j<this->n_;j++){
-			std::swap(evec_(i,j),evec_tmp(i,index(j)));
+			std::swap(this->evec_(i,j),evec_tmp(i,index(j)));
 		}
 		std::swap(eval(i),eval_tmp(index(i)));
 	}
 
 	p_.set(this->n_);
 	for(unsigned int i(0);i<this->n_;i++){
-		p_(i) = log(projection(T_,i)).imag();
+		p_(i) = log(this->projection(T_,i)).imag();
 	}
 	return true;
-}
-
-template<typename Type>
-std::complex<double> System1D<Type>::projection(Matrix<Type> const& O, unsigned int const& idx){
-	std::complex<double> tmp;
-	std::complex<double> out(0.0);
-	for(unsigned int i(0);i<O.row();i++){
-		tmp = 0.0;
-		for(unsigned int j(0);j<O.col();j++){
-			tmp += O(i,j)*evec_(j,idx);
-		}
-		out += std::conj(evec_(i,idx))*tmp;
-	}
-	return out;
 }
 /*}*/
 #endif

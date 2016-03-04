@@ -48,27 +48,6 @@ bool System::try_other_geometry(Vector<unsigned int> const& ref) const {
 	return false;
 }
 
-void System::set_obs(std::vector<Observable> const& obs, int const& nobs){
-	if(nobs<0){ obs_ = obs; }
-	else {
-		obs_.clear();
-		for(int i(0);i<nobs+1;i++){ obs_.push_back(obs[i]); }
-	}
-	if(nobs==0){
-		for(unsigned int i(0);i<obs.size();i++){
-			if(obs[i].get_type() == 4){ obs_.push_back(obs[i]); }
-		}
-	}
-}
-
-void System::clear_obs(unsigned int const& from){
-	for(unsigned int i(from);i<obs_.size();i++){ obs_.pop_back(); }
-}
-
-void System::reset_obs(){
-	for(unsigned int i(0);i<obs_.size();i++){ obs_[i].reset(); }
-}
-
 bool System::check_conv(double const& convergence_criterion){
 	/*check only the energy*/
 	obs_[0][0].complete_analysis(convergence_criterion);

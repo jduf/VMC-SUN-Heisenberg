@@ -29,18 +29,21 @@ class MCSim{
 		/*}*/
 
 		/*{System and MCSystem calls*/
+		/*!Calls void System::set_obs(Observable const& obs)*/
+		void set_obs(Observable const& obs){ MCS_->set_obs(obs); }
+		/*!Calls void System::set_obs(unsigned int const& i)*/
+		void set_obs(unsigned int const& i){ MCS_->set_obs(i); }
+
 		/*!Calls bool System::check_conv(double const& convergence_criterion)*/
 		bool check_conv(double const& convergence_criterion){ return MCS_->check_conv(convergence_criterion); }
 		/*!Calls void System::complete_analysis(double const& convergence_criterion)*/
 		void complete_analysis(double const& convergence_criterion){ MCS_->complete_analysis(convergence_criterion); }
 		/*!Calls void System::merge(System* const s)*/
 		void merge(std::shared_ptr<MCSim> const& mcsim){ MCS_->merge(mcsim->MCS_.get()); }
-		/*!Calls void System::set_obs(...)*/
-		void set_obs(std::vector<Observable> const& obs, int const& nobs){ MCS_->set_obs(obs,nobs); }
-		/*!Calls void System::clear_obs(...)*/
-		void clear_obs(unsigned int const& from){ MCS_->clear_obs(from); }
+
 		/*!Calls virtual void MCSystem::free_memory() = 0*/
 		void free_memory(){ MCS_->free_memory(); }
+		/*!Calls System::print()*/
 		void print(unsigned int const& nobs) const { MCS_->print(nobs); }
 		/*}*/
 

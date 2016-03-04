@@ -182,6 +182,15 @@ unsigned int SquareChiral::unit_cell_index(Vector<double> const& x) const {
 
 /*{method needed for checking*/
 void SquareChiral::lattice(){
+	Vector<unsigned int> o(3,0);
+	for(unsigned int i(1);i<obs_.size();i++){
+		switch(obs_[i].get_type()){
+			case 1:{ o(0)=i; }break;//bond energy
+			case 2:{ o(1)=i; }break;//long range correlation
+			case 3:{ o(2)=i; }break;//color occupation
+		}
+	}
+	std::cout<<o<<std::endl;
 	compute_H();
 
 	std::string color("black");
@@ -201,6 +210,8 @@ void SquareChiral::lattice(){
 	unsigned int s0;
 	unsigned int s1;
 	Matrix<int> nb;
+
+	/*draws only the lattice, shows links and bc*/
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		xy0 = x_[s0];
@@ -208,59 +219,81 @@ void SquareChiral::lattice(){
 		s1 = obs_[0](i,1);
 		xy1 = x_[s1];
 
-		t = H_(s0,s1);
-		if(obs_.size()>1){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ t = obs_[1][obs_[0](i,2)].get_x(); }
-			else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
-		}
-		if(std::abs(t)>1e-4){
-			if((xy0-xy1).norm_squared()>1.0001){
-				linestyle = "dashed";
-				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
-				ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-			} else { linestyle = "solid"; }
+		if(obs_[0](i,4)){
+			linestyle = "dashed";
+			xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
+			ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
+		} else { linestyle = "solid"; }
 
-			if(t.real()>0){ color = "blue"; }
-			else          { color = "red"; }
-
-			if(my::are_equal(t.imag(),0.0)){
-				arrow = "-";
-			} else {
-				arrow = "->";
-				ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/M_PI))+"}");
-			}
-
-			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-		}
-
-		if(obs_[0](i,3)){ ps.put(xy0(0)+0.1,(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
-		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
+		ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1),"linewidth=1pt,linecolor=black,linestyle="+linestyle);
 
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
-		else {
-			unsigned int j(0);
-			double flux(0.0);
-			do {
-				nb = get_neighbourg(s0);
-				s1 = nb(j,0);
-				flux += std::arg(-H_(s0,s1));
-				s0 = s1;
-			} while (++j<4);
-			flux = my::chop(flux/M_PI);
-			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.5,"\\tiny{"+my::tostring(flux)+"}");
+	}
+
+	if(o(1)){ draw_long_range_correlation(ps,obs_[o(1)]); }
+
+	/*unit cell, shows bond energy and colo occupation*/
+	Vector<double> shift(equivalent_vertex_[0]+equivalent_vertex_[1]);
+	ps.polygon(draw_unit_cell(shift(0)+0.5,shift(1)+0.5),"linecolor=black");
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		s0 = obs_[0](i,0);
+		xy0 = x_[s0];
+
+		s1 = obs_[0](i,1);
+		xy1 = x_[s1];
+
+		if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+			xy0 += shift;
+			xy1 += shift;
+			if(o(0)){
+				t = obs_[o(0)][obs_[0](i,2)].get_x(); 
+				linewidth = my::tostring(std::abs(t))+"mm";
+				if(std::abs(t)>1e-4){
+					if(my::real(t)>0){ color = "blue"; }
+					else             { color = "red"; }
+					ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+				}
+			}
+			if(i%2 && o(2)){
+				Vector<double> p(N_);
+				for(unsigned int j(0);j<N_;j++){ p(j) = obs_[o(2)][j+N_*obs_[0](i,5)].get_x(); }
+				ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
+			}
 		}
 	}
-	if(obs_.size()==4){
-		double corr;
-		double rescale(std::abs(0.25/obs_[3][1].get_x()));
-		ps.cross(x_[0],0.25,"linecolor=black"); 
-		ps.circle(x_[0],0.25,"linecolor=black"); 
-		for(unsigned int i(1);i<n_;i++){
-			corr = obs_[3][i].get_x();
-			if(std::abs(corr)>1e-4){
-				if(corr>0){ color = "blue"; }
-				else      { color = "red"; }
-				ps.circle(x_[i],sqrt(std::abs(corr*rescale)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+
+	shift = equivalent_vertex_[0]+equivalent_vertex_[2];
+	ps.polygon(draw_unit_cell(shift(0)+0.5,shift(1)+0.5),"linecolor=black");
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		s0 = obs_[0](i,0);
+		xy0 = x_[s0];
+
+		s1 = obs_[0](i,1);
+		xy1 = x_[s1];
+
+		if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+			xy0 += shift;
+			xy1 += shift;
+			t = H_(s0,s1);
+			if(std::abs(t)>1e-4){
+				linewidth = my::tostring(std::abs(t))+"mm";
+
+				if(my::real(t)>0){ color = "blue"; }
+				else             { color = "red"; }
+
+				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+			}
+			if(!(i%2)){
+				unsigned int j(0);
+				double flux(0.0);
+				do {
+					nb = get_neighbourg(s0);
+					s1 = nb(j,0);
+					flux += std::arg(H_(s0,s1));
+					s0 = s1;
+				} while (++j<4);
+				flux = my::chop(flux/M_PI);
+				ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.5,"\\tiny{"+my::tostring(flux)+"}");
 			}
 		}
 	}
@@ -275,7 +308,7 @@ void SquareChiral::display_results(){
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		std::string title(RST::math("\\phi")+"="+ my::tostring(phi_));
+		std::string title(RST::math("\\phi")+"="+my::tostring(phi_));
 		std::string run_cmd("./mc -s:wf square-chiral");
 		run_cmd += " -u:N " + my::tostring(N_);
 		run_cmd += " -u:m " + my::tostring(m_);
@@ -300,13 +333,13 @@ void SquareChiral::check(){
 
 	//compute_H();
 	//plot_band_structure();
-	
+
 	//set_obs(-1);
 	//for(unsigned int i(0);i<n_;i++){
-		//for(unsigned int j(0);j<obs_[3].nlinks();j++){
-			//if(obs_[3](j,2)==i){ std::cout<<"("<<obs_[3](j,0)<<","<<obs_[3](j,1)<<") "; }
-		//}
-		//std::cout<<std::endl;
+	//for(unsigned int j(0);j<obs_[3].nlinks();j++){
+	//if(obs_[3](j,2)==i){ std::cout<<"("<<obs_[3](j,0)<<","<<obs_[3](j,1)<<") "; }
+	//}
+	//std::cout<<std::endl;
 	//}
 }
 /*}*/

@@ -22,7 +22,7 @@ class VMCMinimization{
 
 		void refine();
 		void refine(double const& E, double const& dE);
-		void refine(unsigned int const& nmin, int const& nobs, double const& dE, unsigned int const& maxiter);
+		void refine(unsigned int const& nmin, bool const& set_obs, double const& dE, unsigned int const& maxiter);
 
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
@@ -30,9 +30,9 @@ class VMCMinimization{
 		void run_parameters(Parseur& P);
 
 		double find_minima(unsigned int const& max_local_minima, double const& range, List<MCSim>& sorted_list, List<MCSim>& list_min) const;
-		void find_and_run_minima(unsigned int const& max_samples, int const& nobs, double const& dE);
+		void find_and_run_minima(unsigned int const& max_samples, bool const& set_obs, double const& dE);
 		void find_save_and_plot_minima(unsigned int const& max_samples, IOFiles& w, std::string path="", std::string filename="") const;
-		void explore_around_minima(unsigned int const& max_local_minima, int const& nobs, double const& dE, double const& dx);
+		void explore_around_minima(unsigned int const& max_local_minima, bool const& set_obs, double const& dE, double const& dx);
 		void check(unsigned int const& max_samples);
 
 		void improve_bad_samples(double const& dE);
@@ -90,7 +90,7 @@ class VMCMinimization{
 		void set_time() const { time_ = Time().date("-"); }
 
 		/*!Real call to the MonteCarlo evaluation via MCSim*/
-		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, int const& obs);
-		void evaluate_until_precision(Vector<double> const& param, int const& nobs, double const& dE, unsigned int const& maxiter);
+		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, bool const& set_obs);
+		void evaluate_until_precision(Vector<double> const& param, bool const& set_obs, double const& dE, unsigned int const& maxiter);
 };
 #endif

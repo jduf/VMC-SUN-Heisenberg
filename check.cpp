@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
 			{
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init(NULL,&P);
-				cs.set_obs(1);
+				cs.create_obs(0);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
 					cs.create();
@@ -65,8 +65,7 @@ int main(int argc, char* argv[]){
 			{
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init(NULL,&P);
-				unsigned int which(P.find("ncorr",i,false)?P.get<unsigned int>(i):1);
-				cs.set_obs(which);
+				cs.create_obs(0);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
 					cs.create();
@@ -77,7 +76,7 @@ int main(int argc, char* argv[]){
 					} else {
 						S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GenericSystem()));
 					}
-					S->set_obs(cs.get_GenericSystem()->get_obs(),which);
+					S->set_obs(cs.get_obs()[0]);
 					std::cout<<"############# Init Monte Carlo ############"<<std::endl;
 					MonteCarlo sim(S,tmax);
 					sim.thermalize(1e6);
@@ -115,22 +114,21 @@ int main(int argc, char* argv[]){
 			} break;
 		case 6:/*use MCSim to run two sim then, merge them*/
 			{
-				unsigned int which(P.find("ncorr",i,false)?P.get<unsigned int>(i):1);
 				cs.init(NULL,&P);
 				cs.create();
-				cs.set_obs(which);
+				cs.create_obs(0);
 
 				std::shared_ptr<MCSim> mcsim(std::make_shared<MCSim>(P.get<std::vector<double> >("t")));
 				System s(P);
 				mcsim->create_S(&s);
-				mcsim->set_obs(cs.get_GenericSystem()->get_obs(),which);
+				mcsim->set_obs(cs.get_obs()[0]);
 
 				mcsim->run(1e6,2);
 				mcsim->complete_analysis(1e-5);
 
 				std::shared_ptr<MCSim> mcsim2(std::make_shared<MCSim>(P.get<std::vector<double> >("t")));
 				mcsim2->copy_S(mcsim);
-				mcsim2->set_obs(cs.get_GenericSystem()->get_obs(),which);
+				mcsim2->set_obs(cs.get_obs()[0]);
 				mcsim2->run(1e6,4);
 				mcsim2->complete_analysis(1e-5);
 

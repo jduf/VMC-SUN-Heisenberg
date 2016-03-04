@@ -50,7 +50,7 @@ class Chain: public System1D<Type>{
 		Vector<double> compute_J(Vector<double> const& Jp);
 
 	protected:
-		void set_obs(int nobs);
+		void create_obs(unsigned int const& which_obs);
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Given N and m, save the best simulation in a text file for any n*/
@@ -99,31 +99,29 @@ template<typename Type>
 Chain<Type>::~Chain() = default;
 
 template<typename Type>
-void Chain<Type>::set_obs(int nobs){
-	if(nobs<0){ nobs = 2; }
-	unsigned int nlinks;
-	unsigned int nval;
-	unsigned int m;
-	if(nobs>0){/*bond energy*/
-		nlinks = this->obs_[0].nlinks();
-		nval = this->spuc_;
-		this->obs_.push_back(Observable("Bond energy",1,nval,0));
-		for(unsigned int i(0);i<nlinks;i++){
-			this->obs_[0](i,2) = i%nval;
-		}
-	}
-	if(nobs==2){/*long range correlation*/
-		m = this->n_;
-		nval = this->n_;
-		nlinks = m*nval;
-		this->obs_.push_back(Observable("Long range correlations",2,nval,nlinks));
-		for(unsigned int i(0);i<m;i++){
-			for(unsigned int j(0);j<nval;j++){
-				this->obs_[2](i*nval+j,0) = i%this->n_;
-				this->obs_[2](i*nval+j,1) = (i+j)%this->n_;
-				this->obs_[2](i*nval+j,2) = j;
+void Chain<Type>::create_obs(unsigned int const& which_obs){
+	switch(which_obs){
+		case 0:
+			{ for(unsigned int i(1);i<3;i++){ create_obs(i); } }break;
+		case 1:
+			{
+				unsigned int idx(this->obs_.size());
+				this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
+				this->obs_[idx].remove_links();
+			}break;
+		case 2:
+			{
+				unsigned int nlinks(this->n_*this->n_);
+				unsigned int idx(this->obs_.size());
+				this->obs_.push_back(Observable("Long range correlations",2,this->n_,nlinks));
+				for(unsigned int i(0);i<this->n_;i++){
+					for(unsigned int j(0);j<this->n_;j++){
+						this->obs_[idx](i*this->n_+j,0) = i%this->n_;
+						this->obs_[idx](i*this->n_+j,1) = (i+j)%this->n_;
+						this->obs_[idx](i*this->n_+j,2) = j;
+					}
+				}
 			}
-		}
 	}
 }
 

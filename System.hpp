@@ -34,21 +34,23 @@ class System{
 		/*}*/
 
 		/*{Handles class attributes*/
-		/*!Set an other cluster geometry*/
+		/*!Sets an other cluster geometry*/
 		bool try_other_geometry(Vector<unsigned int> const& ref) const;
-		/*!Set coupling terms*/
+		/*!Sets coupling terms*/
 		void set_J(Vector<double> const& J){ J_ = J; }
+
 		/*!Sets the observables to default (0) values and initilizes binning*/
-		void set_obs(std::vector<Observable> const& obs, int const& nobs);
-		/*!Remove all osbservables with index higher than from*/
-		void clear_obs(unsigned int const& from);
+		void set_obs(Observable const& obs){ obs_.push_back(obs); }
+		/*!Removes osbservable from i*/
+		void set_obs(unsigned int const& i){ obs_.erase(obs_.begin()+i,obs_.end()); }
 		/*!Resets the observables*/
-		void reset_obs();
+		void reset_obs(){ for(auto& it:obs_){ it.reset(); } }
+
 		/*!Checks if the energy has converged*/
 		bool check_conv(double const& convergence_criterion);
 		/*!Calls complete_analysis on the observables*/
 		void complete_analysis(double const& convergence_criterion);
-		/*!Merge the binning of all observables of s into (*this)*/
+		/*!Merges the binning of all observables of s into (*this)*/
 		void merge(System* const s);
 		/*!Deletes the binning for all observables*/
 		void delete_binning();
@@ -93,7 +95,7 @@ class System{
 		int const bc_;					//!< boundary condition
 		Vector<unsigned int> const M_;	//!< number of particles of each color
 
-		/*!the following attributes will be set by GenericSystem and can't be
+		/*!The following attributes will be set by GenericSystem and can't be
 		 * defined within System*/
 		Vector<double> J_;			//!< coupling strength
 		unsigned int status_;		//!< status of the simulation

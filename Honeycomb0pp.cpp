@@ -194,8 +194,9 @@ void Honeycomb0pp::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="honeycomb-0pp";
-	display_results();
+	//display_results();
 
-	//plot_band_structure();
+	compute_H();
+	plot_band_structure();
 }
 /*}*/

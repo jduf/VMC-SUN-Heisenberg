@@ -113,11 +113,19 @@ unsigned int SquareMu::unit_cell_index(Vector<double> const& x) const {
 
 /*{method needed for checking*/
 void SquareMu::lattice(){
+	Vector<unsigned int> o(3,0);
+	for(unsigned int i(1);i<obs_.size();i++){
+		switch(obs_[i].get_type()){
+			case 1:{ o(0)=i; }break;//bond energy
+			case 2:{ o(1)=i; }break;//long range correlation
+			case 3:{ o(2)=i; }break;//color occupation
+		}
+	}
 	compute_H(0);
 
 	std::string color("black");
 	std::string linestyle("solid");
-	std::string linewidth("1pt");
+	std::string linewidth;
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
@@ -131,6 +139,20 @@ void SquareMu::lattice(){
 	double mu;
 	unsigned int s0;
 	unsigned int s1;
+	if(o(1)){
+		double corr;
+		double rescale(std::abs(0.25/obs_[o(1)][1].get_x()));
+		ps.cross(x_[0],0.25,"linecolor=black"); 
+		ps.circle(x_[0],0.25,"linecolor=black"); 
+		for(unsigned int i(1);i<n_;i++){
+			corr = obs_[o(1)][i].get_x();
+			if(std::abs(corr)>1e-4){
+				if(corr>0){ color = "blue"; }
+				else      { color = "red"; }
+				ps.circle(x_[i],sqrt(std::abs(corr*rescale)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
+		}
+	}
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		xy0 = x_[s0];
@@ -146,14 +168,16 @@ void SquareMu::lattice(){
 		}
 
 		t = H_(s0,s1);
-		if(obs_.size()>1){
+		linewidth = "1pt";
+		if(o(0) || o(2)){
 			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
-				t = obs_[1][obs_[0](i,2)].get_x(); 
-				if(i%2 && obs_.size()>2){
+				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
+				if(i%2 && o(2)){
 					Vector<double> p(N_);
-					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[2][j+N_*obs_[0](i,5)].get_x(); }
+					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[o(2)][j+N_*obs_[0](i,5)].get_x(); }
 					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
 				}
+				linewidth = my::tostring(std::abs(t))+"mm";
 			} else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
 		}
 		if(std::abs(t)>1e-4){
@@ -174,20 +198,6 @@ void SquareMu::lattice(){
 
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
-	if(obs_.size()==4){
-		double corr;
-		double rescale(std::abs(0.25/obs_[3][1].get_x()));
-		ps.cross(x_[0],0.25,"linecolor=black"); 
-		ps.circle(x_[0],0.25,"linecolor=black"); 
-		for(unsigned int i(1);i<n_;i++){
-			corr = obs_[3][i].get_x();
-			if(std::abs(corr)>1e-4){
-				if(corr>0){ color = "blue"; }
-				else      { color = "red"; }
-				ps.circle(x_[i],sqrt(std::abs(corr*rescale)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
-			}
-		}
-	}
 	ps.end(true,true,true);
 }
 
@@ -199,7 +209,7 @@ void SquareMu::display_results(){
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		std::string title("mu=" + my::tostring(mu_));
+		std::string title(RST::math("\\mu")+"="+my::tostring(mu_));
 		std::string run_cmd("./mc -s:wf square-dimerizedbar");
 		run_cmd += " -u:N " + my::tostring(N_);
 		run_cmd += " -u:m " + my::tostring(m_);
