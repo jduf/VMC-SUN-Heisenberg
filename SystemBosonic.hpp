@@ -51,7 +51,7 @@ SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S):
 	Bosonic<Type>(S)
 {
 	std::cerr<<__PRETTY_FUNCTION__<<" : check everything, works only for m=1"<<std::endl;
-	status_--;
+	status_=0;
 }
 
 template<typename Type>
@@ -68,7 +68,7 @@ SystemBosonic<Type>::SystemBosonic(SystemBosonic<Type> const& S):
 	Bosonic<Type>(S)
 {
 	std::cerr<<__PRETTY_FUNCTION__<<" : check everything, works only for m=1"<<std::endl;
-	status_--;
+	status_=0;
 }
 
 template<typename Type>

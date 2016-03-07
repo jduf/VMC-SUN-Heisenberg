@@ -127,7 +127,6 @@ void System2D<Type>::create_obs(unsigned int const& which_obs){
 				unsigned int idx(this->obs_.size());
 				this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
 				this->obs_[idx].remove_links();
-				this->obs_[0].combine_measurement();
 			}break;
 		case 2:
 			{
@@ -158,6 +157,14 @@ void System2D<Type>::create_obs(unsigned int const& which_obs){
 					}
 				}
 			}break;
+		default:
+			{ 
+				std::cerr<<__PRETTY_FUNCTION__<<" : unknown observable "<<which_obs<<std::endl;
+				std::cerr<<"Available observables are :"<<std::endl; 
+				std::cerr<<" + Bond energy            : 1"<<std::endl;
+				std::cerr<<" + Long range correlation : 2"<<std::endl;
+				std::cerr<<" + Color occupation       : 3"<<std::endl;
+			}
 	}
 }
 

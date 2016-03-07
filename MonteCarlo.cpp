@@ -13,6 +13,7 @@ MonteCarlo::MonteCarlo(MCSystem* S, unsigned int const& tmax):
 /*public methods*/
 /*{*/
 void MonteCarlo::thermalize(unsigned int const& ts){
+	S_->initialize_measure();
 	if(!S_->get_status()){
 		for(unsigned int i(0);i<ts;i++){
 			S_->swap();

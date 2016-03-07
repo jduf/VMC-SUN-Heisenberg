@@ -29,8 +29,8 @@ System::System(IOFiles& r):
 	J_(r),
 	status_(r.read<unsigned int>())
 {
-	int nobs(r.read<int>());
-	for(int i(0);i<nobs;i++){ obs_.push_back(Observable(r)); }
+	unsigned int nobs(r.read<unsigned int>());
+	for(unsigned int i(0);i<nobs;i++){ obs_.push_back(Observable(r)); }
 }
 /*}*/
 
@@ -55,7 +55,7 @@ bool System::check_conv(double const& convergence_criterion){
 }
 
 void System::complete_analysis(double const& convergence_criterion){
-	for(unsigned int i(0);i<obs_.size();i++){ obs_[i].complete_analysis(convergence_criterion); }
+	for(auto& o:obs_){ o.complete_analysis(convergence_criterion); }
 }
 
 void System::merge(System* const s){
@@ -65,16 +65,15 @@ void System::merge(System* const s){
 }
 
 void System::delete_binning(){
-	for(unsigned int i(0);i<obs_.size();i++){ obs_[i].delete_binning(); }
+	for(auto& o:obs_){ o.delete_binning(); }
 }
 /*}*/
 
 /*write in IOFiles methods and print*/
 /*{*/
 void System::write(IOFiles& w) const {
-	int nobs(obs_.size());
-	w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<nobs;
-	for(int i(0);i<nobs;i++){ w<<obs_[i]; }
+	w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<(unsigned int)(obs_.size());
+	for(auto& o:obs_){ w<<o; }
 }
 
 void System::save(IOFiles& w) const {
@@ -104,10 +103,10 @@ void System::save_output(IOFiles& w) const {
 	w.add_header()->add(rst.get());
 
 	w.write("status",status_);
-	int nobs(obs_.size());
+	unsigned int nobs(obs_.size());
 	if(nobs){
 		w.write("#obs (E="+my::tostring(obs_[0][0].get_x())+", dE="+my::tostring(obs_[0][0].get_dx())+")",nobs);
-		for(int i(0);i<nobs;i++){ w<<obs_[i]; }
+		for(auto& o:obs_){ w<<o; }
 	} else { w.write("#obs",nobs); }
 }
 
@@ -115,9 +114,9 @@ void System::print(unsigned int nobs) const {
 	if(nobs){
 		std::cout<<"SU("<<N_<<") m="<<m_<<" n="<<n_<<" BC="<<bc_<<" nobs="<<obs_.size()<<" ref="<<ref_<<std::endl;
 		if(nobs>obs_.size()){ nobs = obs_.size(); }
-		for(unsigned int i(0);i<nobs;i++){ std::cout<<std::endl<<obs_[i]; }
+		for(auto& o:obs_){ std::cout<<std::endl<<o; }
 	} else { std::cout<<obs_[0][0]<<std::endl; }
-	std::cout<<std::string(35,'-')<<std::endl;
+	std::cout<<RST::dash_line_<<std::endl;
 }
 /*}*/
 

@@ -159,7 +159,7 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& F):
 
 	/*!Proceed to the inversion if possible*/
 	if(l<TRY_MAX){
-		status_--;
+		status_=0;
 		for(unsigned int c(0); c<N_; c++){
 			Lapack<Type> inv(Ainv_[c],false,'G');
 			inv.inv();
@@ -281,25 +281,25 @@ void SystemFermionic<Type>::write(IOFiles& w) const {
 template<typename Type>
 void SystemFermionic<Type>::free_memory(){
 	//std::cout<<"free"<<std::endl;
-	Ainv_[0].set();
-	tmp_[0].set();
-	tmp_v[0].set();
-	for(unsigned int c(1);c<N_;c++){
-		if(this->same_wf_){ this->EVec_[c].set(); }
-		Ainv_[c].set();
-		tmp_[c].set();
-		tmp_v[c].set();
-	}
-
-	//delete[] Ainv_;
-	//Ainv_ = NULL;
-	//delete[] tmp_;
-	//tmp_ = NULL;
-	//delete[] tmp_v;
-	//tmp_v = NULL;
-	//if(this->same_wf_){
-	//for(unsigned int c(1);c<N_;c++){ this->EVec_[c].set(); }
+	//Ainv_[0].set();
+	//tmp_[0].set();
+	//tmp_v[0].set();
+	//for(unsigned int c(1);c<N_;c++){
+		//if(this->same_wf_){ this->EVec_[c].set(); }
+		//Ainv_[c].set();
+		//tmp_[c].set();
+		//tmp_v[c].set();
 	//}
+
+	delete[] Ainv_;
+	Ainv_ = NULL;
+	delete[] tmp_;
+	tmp_ = NULL;
+	delete[] tmp_v;
+	tmp_v = NULL;
+	if(this->same_wf_){
+		for(unsigned int c(1);c<N_;c++){ this->EVec_[c].set(); }
+	}
 }
 /*}*/
 
@@ -383,7 +383,7 @@ void SystemFermionic<Type>::init_after_clone_or_reading(){
 			tmp_v[c].set(M_(c));
 		}
 	} else {
-		this->status_++;
+		status_++;
 		std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore"<<std::endl;
 	}
 }

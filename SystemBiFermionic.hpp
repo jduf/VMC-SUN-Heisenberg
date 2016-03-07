@@ -105,7 +105,7 @@ SystemBiFermionic<Type>::SystemBiFermionic(Fermionic<Type> const& F0, Fermionic<
 		det_(1,c) = Lapack<Type>(A_[1][c],true,'G').det();
 	}
 
-	if(status_){ status_--; }
+	if(status_){ status_=0; }
 }
 
 template<typename Type>

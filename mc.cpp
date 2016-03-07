@@ -31,6 +31,9 @@ int main(int argc, char* argv[]){
 	if(!P.locked()){
 		if(cs->get_status()==2){
 			std::cout<<cs->get_system_info()<<std::endl;
+			for(unsigned int i(0);i<cs->get_obs().size();i++){
+				std::cout<<(i?"          ":"Compute : ")<<cs->get_obs()[i].get_name()<<std::endl;;
+			}
 			cs->create(false);
 			if(cs->get_status()==1){
 #pragma omp parallel for

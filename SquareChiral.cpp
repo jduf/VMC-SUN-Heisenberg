@@ -15,7 +15,7 @@ SquareChiral::SquareChiral(System const& s, double const& phi):
 			system_info_.item("There is a flux of "+RST::math(my::tostring(phi)+"\\times 2\\pi/"+my::tostring(N_/m_))+ " per square plaquette.");
 
 			filename_ += "-phi"+my::tostring(phi_);
-		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the flux per square plaquette shouldn't be bigger than pi"<<std::endl; status_++; }
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the flux per square plaquette shouldn't be bigger than pi"<<std::endl; status_=3; }
 	}
 }
 

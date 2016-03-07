@@ -17,7 +17,7 @@
 	   + status_ = 4 : System is constructed
 	   + status_ = 3 : GenericSystem has a well defined unit cell size
 	   + status_ = 2 : System*D has a good geometry
-	   + status_ = 1 : Non degenerate eigenvalues (in System*D)
+	   + status_ = 1 : No degenerate eigenvalues (in System*D) or multiple identical observable set
 	   + status_ = 0 : Found an initial state (in SystemFermionic)
 	   *//*}*/
 class System{
@@ -39,12 +39,12 @@ class System{
 		/*!Sets coupling terms*/
 		void set_J(System const* const s){ J_ = s->J_; }
 
-		/*!Sets the observables to default (0) values and initilizes binning*/
+		/*!Sets an observable*/
 		void set_obs(Observable const& obs){ obs_.push_back(obs); }
-		/*!Removes osbservable from i*/
-		void set_obs(unsigned int const& i){ obs_.erase(obs_.begin()+i,obs_.end()); }
-		/*!Resets the observables*/
-		void reset_obs(){ for(auto& it:obs_){ it.reset(); } }
+		/*!Removes osbservables from 'from'*/
+		void set_obs(unsigned int const& from){ obs_.erase(obs_.begin()+from,obs_.end()); }
+		/*!Reinitilizes the binnings (clear any previous measure)*/
+		void reset_obs(){ for(auto& o:obs_){ o.reset(); } }
 
 		/*!Checks if the energy has converged*/
 		bool check_conv(double const& convergence_criterion);

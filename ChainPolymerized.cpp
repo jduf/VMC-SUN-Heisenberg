@@ -94,7 +94,6 @@ unsigned int ChainPolymerized::set_spuc(Vector<double> const& t, unsigned int co
 	if(t.size() == spuc){ return spuc; }
 	else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : invalid t size : "<<t.size()<<std::endl;
-		status_++;
 		return 1;
 	}
 }

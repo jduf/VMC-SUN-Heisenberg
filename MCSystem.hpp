@@ -26,6 +26,8 @@ class MCSystem: public virtual System{
 		MCSystem& operator=(MCSystem const&) = delete;
 		/*}*/
 
+		/*!If the bond energy observable exists, it is computed with the energy*/
+		void initialize_measure();
 		/*!Exchanges two particles of different colors on random sites*/
 		virtual void swap();
 		/*!Exchanges the p0's particle of site s0 with the p1's of site s1*/

@@ -10,7 +10,7 @@ VMCMinimization::VMCMinimization(Parseur& P):
 	out_(NULL),
 	m_(std::make_shared<Minimization>())
 {
-	std::cout<<"#######################"<<std::endl;
+	std::cout<<RST::hashtag_line_<<std::endl;
 	std::cout<<"#creating VMCMinimization"<<std::endl;
 	m_->set(P,path_,basename_);
 	if(m_->s_){
@@ -45,7 +45,7 @@ VMCMinimization::VMCMinimization(IOFiles& in):
 
 /*{public methods*/
 void VMCMinimization::refine(){
-	std::cout<<"#######################"<<std::endl;
+	std::cout<<RST::hashtag_line_<<std::endl;
 	m_->tmax_ = 1;
 	double E;
 	double dE(0.005);
@@ -119,7 +119,7 @@ void VMCMinimization::refine(unsigned int const& nmin, bool const& set_obs, doub
 }
 
 void VMCMinimization::complete_analysis(double const& convergence_criterion){
-	std::cout<<"#######################"<<std::endl;
+	std::cout<<RST::hashtag_line_<<std::endl;
 	std::string msg("complete_analysis called with convergence_criterion="+my::tostring(convergence_criterion));
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.item(msg);
@@ -215,7 +215,7 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, bool const
 
 		unsigned int maxiter(1);
 		total_eval_ = potential_minima.size();
-		std::cout<<"#######################"<<std::endl;
+		std::cout<<RST::hashtag_line_<<std::endl;
 		std::string msg("compute all ("+my::tostring(m_->obs_.size())+") observables for "+my::tostring(total_eval_)+" minima (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
@@ -304,7 +304,7 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, bool con
 
 		unsigned int maxiter(10);
 		total_eval_ = param.size();
-		std::cout<<"#######################"<<std::endl;
+		std::cout<<RST::hashtag_line_<<std::endl;
 		std::string msg("measures "+my::tostring(total_eval_)+" samples close to potential minimas (max time "+my::tostring(m_->tmax_*maxiter*total_eval_)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
@@ -359,7 +359,7 @@ void VMCMinimization::improve_bad_samples(double const& dE){
 			}
 		}
 
-		std::cout<<"#######################"<<std::endl;
+		std::cout<<RST::hashtag_line_<<std::endl;
 		std::string msg("improve "+my::tostring(to_improve.size())+" samples (max time "+my::tostring(m_->tmax_*to_improve.size())+"s) with "+RST::math("\\mathrm{d}E>"+my::tostring(dE)));
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
