@@ -44,6 +44,8 @@ class RST{
 		static std::string const nl_;	//!< string for a new line
 		static std::string const np_;	//!< string for a new paragraph
 		static std::string const item_;	//!< string for a new item
+		static std::string const hashtag_line_;
+		static std::string const dash_line_;
 
 	protected:
 		std::string rst_ = "";//!< text of the .rst file

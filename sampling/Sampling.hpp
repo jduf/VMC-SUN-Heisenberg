@@ -384,9 +384,7 @@ Data<Type>::Data(Data<Type>&& d):
 	N_(d.N_),
 	conv_(d.conv_),
 	binning_(d.binning_)
-{ d.binning_ = NULL;
-	//std::cerr<<"move Data"<<std::endl;
-}
+{ d.binning_ = NULL; }
 
 template<typename Type>
 Data<Type>::Data(IOFiles& r):
@@ -421,6 +419,7 @@ void Data<Type>::set(){
 	x_ = 0.0;
 	dx_ = 0.0;
 	N_ = 0.0;
+	conv_ = false;
 }
 
 template<typename Type>

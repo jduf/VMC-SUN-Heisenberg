@@ -11,15 +11,13 @@ class Container{
 		Container() = default;
 		/*!Copy constructor*/
 		Container(Container const& c){
-			for(unsigned int i(0);i<c.data_.size();i++){
-				data_.push_back((c.data_[i])->clone());
-			}
+			for(auto const& d:c.data_){ data_.push_back(d->clone()); }
 		}
 		/*!Destructor*/
 		~Container(){
-			for(unsigned int i(0);i<data_.size();i++){
-				delete data_[i];
-				data_[i] = NULL;
+			for(auto& d:data_){
+				delete d;
+				d = NULL;
 			}
 		}
 		/*{Forbidden*/
