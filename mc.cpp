@@ -32,7 +32,8 @@ int main(int argc, char* argv[]){
 		if(cs->get_status()==2){
 			std::cout<<cs->get_system_info()<<std::endl;
 			for(unsigned int i(0);i<cs->get_obs().size();i++){
-				std::cout<<(i?"          ":"Compute : ")<<cs->get_obs()[i].get_name()<<std::endl;;
+				std::cout<<(i?"          ":"Compute : ")<<cs->get_obs()[i].get_name()<<std::endl;
+				if(i+1==cs->get_obs().size()){ std::cout<<std::endl<<RST::dash_line_<<std::endl; }
 			}
 			cs->create(false);
 			if(cs->get_status()==1){

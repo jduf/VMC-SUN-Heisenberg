@@ -66,16 +66,15 @@ void MonteCarlo::next_step(){
 }
 
 bool MonteCarlo::keepon(){
-	if(!iter_){
+	if(!iter_--){
 		iter_ = 1e5;
-		if(time_.limit_reached(tmax_)){ return false; }
 		if(std::abs(S_->get_energy().get_x())>1e2){
 			std::cerr<<__PRETTY_FUNCTION__<<" : simulation diverges (E="<<S_->get_energy().get_x()<<") => is restarted"<<std::endl;
 			S_->reset_obs();
 		}
 		if(omp_get_thread_num()==0){ my::display_progress(time_.elapsed(),tmax_); }
+		if(time_.limit_reached(tmax_)){ return false; }
 	}
-	iter_--;
 	return true;
 }
 /*}*/

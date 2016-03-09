@@ -206,8 +206,8 @@ bool Triangle<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 
 template<typename Type>
 Vector<double> Triangle<Type>::get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const {
-	nn_dir = d;
 	(void)(i);
+	nn_dir = d;
 	return this->dir_nn_[d];
 }
 /*}*/

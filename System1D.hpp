@@ -3,18 +3,10 @@
 
 #include "GenericSystem.hpp"
 
-/*{Description*/
-/*!This class allow the diagonalization of the trial hamiltonian and the
- * visualization of the band structure.
- *
- * The band structure is computed as follows :
- *
- * + diagonalize H+3T
- * + use the eigenvectors to compute e,kx
- * + a linear combination of the degenerate eigenvectors |E_F,+>,|E_F,->
- * such that the new ones are |0>=|E_F,+>+|E_F,-> and |k>=|E_F,+>-|E_F,->
- */
-/*}*/
+/*{*//*!Abstract class that provides many methods to create 1D clusters
+
+	   This class allows the visualization of the band structure by doing a
+	   full diagonalization of H+T.*//*}*/
 template<typename Type>
 class System1D: public GenericSystem<Type>{
 	public:
@@ -40,8 +32,8 @@ class System1D: public GenericSystem<Type>{
 		/*!Diagonalize H_+T_ => compute the band structure E(p)*/
 		bool full_diagonalization();
 };
-	
-/*{constructors*/
+
+/*{constructor*/
 template<typename Type>
 System1D<Type>::System1D(unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename)

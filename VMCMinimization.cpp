@@ -626,7 +626,7 @@ bool VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 			info_.nl();
 			info_.lineblock(PS);
 			return true;
-		} else { std::cerr<<__PRETTY_FUNCTION__<<" : provide "<<dof_<<" ranges and remove any blank space and EOL at the EOF"<<std::endl; }
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : expects "<<dof_<<" ranges but reads "<<ps.size()<<" (remove any blank space and EOL at the EOF)"<<std::endl; }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : need to provide a file containing the phase space"<<std::endl; }
 	return false;
 }

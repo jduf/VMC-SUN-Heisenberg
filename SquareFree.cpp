@@ -153,57 +153,37 @@ Matrix<double> SquareFree::set_ab(unsigned int const& ref3) const {
 }
 
 unsigned int SquareFree::unit_cell_index(Vector<double> const& x) const {
-	Vector<double> match(2,0);
-	//if(ref_(3)==2){ 
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-	//match(0) = 0.2;
-	//match(1) = 0.4;
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-	//match(0) = 0.4;
-	//match(1) = 0.8;
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-	//match(0) = 0.6;
-	//match(1) = 0.2;
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
-	//match(0) = 0.8;
-	//match(1) = 0.6;
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
-	//} else { 
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-	//match(0) = 0.4;
-	//match(1) = 0.2;
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-	//match(0) = 0.8;
-	//match(1) = 0.4;
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-	//match(0) = 0.2;
-	//match(1) = 0.6;
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
-	//match(0) = 0.6;
-	//match(1) = 0.8;
-	//if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
-	//}
-	//
-	
-	//unsigned int i(0);
-	//if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){ i+=1; }
-	//if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ i+=2; }
-	//return i;
-	
-	return 4*x(0)+(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)?4:0);
-
-	//std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	//return 4;
+	if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
+		if(my::are_equal(x(0),0.0 ,eq_prec_,eq_prec_)){ return 0; }
+		if(my::are_equal(x(0),0.25,eq_prec_,eq_prec_)){ return 1; }
+		if(my::are_equal(x(0),0.5 ,eq_prec_,eq_prec_)){ return 2; }
+		if(my::are_equal(x(0),0.75,eq_prec_,eq_prec_)){ return 3; }
+	} else {
+		if(my::are_equal(x(0),0.0 ,eq_prec_,eq_prec_)){ return 4; }
+		if(my::are_equal(x(0),0.25,eq_prec_,eq_prec_)){ return 5; }
+		if(my::are_equal(x(0),0.5 ,eq_prec_,eq_prec_)){ return 6; }
+		if(my::are_equal(x(0),0.75,eq_prec_,eq_prec_)){ return 7; }
+	}
+	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
+	return spuc_;
 }
 /*}*/
 
 /*{method needed for checking*/
 void SquareFree::lattice(){
+	Vector<unsigned int> o(3,0);
+	for(unsigned int i(1);i<obs_.size();i++){
+		switch(obs_[i].get_type()){
+			case 1:{ o(0)=i; }break;//bond energy
+			case 2:{ o(1)=i; }break;//long range correlation
+			case 3:{ o(2)=i; }break;//color occupation
+		}
+	}
 	compute_H(0);
 
 	std::string color("black");
 	std::string linestyle("solid");
-	std::string linewidth("1mm");
+	std::string linewidth;
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
@@ -232,17 +212,17 @@ void SquareFree::lattice(){
 		}
 
 		t = H_(s0,s1);
-		if(obs_.size()>1){
+		linewidth = my::tostring(std::abs(t))+"mm";
+		if(o(0) || o(2)){
 			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
-				t = obs_[1][obs_[0](i,2)].get_x(); 
-				if(i%2 && obs_.size()>1){
+				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
+				if(i%2 && o(2)){
 					Vector<double> p(N_);
-					for(unsigned int j(0);j<N_;j++){
-						p(j) = obs_[2][j+N_*obs_[0](i,5)].get_x();
-					}
+					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[o(2)][j+N_*obs_[0](i,5)].get_x(); }
 					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
 				}
 			} else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
+			linewidth = my::tostring(std::abs(t))+"mm";
 		}
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){

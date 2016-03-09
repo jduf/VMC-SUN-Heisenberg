@@ -77,7 +77,7 @@ Matrix<double> SquareMu::set_ab(unsigned int const& ref3) const {
 
 unsigned int SquareMu::unit_cell_index(Vector<double> const& x) const {
 	Vector<double> match(2,0);
-	if(ref_(3)==2){ 
+	if(ref_(3)==2){
 		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
 		match(0) = 0.2;
 		match(1) = 0.4;
@@ -91,7 +91,7 @@ unsigned int SquareMu::unit_cell_index(Vector<double> const& x) const {
 		match(0) = 0.8;
 		match(1) = 0.6;
 		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
-	} else { 
+	} else {
 		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
 		match(0) = 0.4;
 		match(1) = 0.2;

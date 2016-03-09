@@ -15,7 +15,7 @@ class SquareDimerizedBar: public Square<double>{
 	protected:
 		Vector<double> const t_; //!< hopping terms
 
-		void compute_H();
+		void compute_H(unsigned int const& c);
 		void display_results();
 		void lattice();
 

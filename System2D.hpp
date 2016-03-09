@@ -4,13 +4,23 @@
 #include "GenericSystem.hpp"
 #include "List.hpp"
 
-/*{Description*/
-/*!
- *
- * + virtual Vector<double> get_pos_in_lattice(unsigned int const& i) const = 0;
- * + virtual unsigned int unit_cell_index(Vector<double> const& x) const = 0;
- */
-/*}*/
+/*{*//*!Abstract class that provides many methods to create 2D clusters
+
+	   If the parent System doesn't have an obs_[0], this class will declare
+	   and set all attributes that are required to create a 2D cluster (sites'
+	   position, cluster's boundaries, translation vectors...). Otherwise,
+	   none of these attributes are declared and the construction is very
+	   efficient because everything that is required to compute the
+	   wavefunction is already contained in obs_[0].
+
+	   Once this class has been created, it can be used to create few
+	   observables (bond energies, long range correlation...) 
+
+	   It can also be used to study/display the porperties of the wavefunction.
+	   For instance it can compute the band structure by doing a full
+	   diagonalization of H+Tx+Ty. It also provides methods that draw into a
+	   PSTricks file.
+	   *//*}*/
 template<typename Type>
 class System2D: public GenericSystem<Type>{
 	public:
@@ -71,7 +81,7 @@ class System2D: public GenericSystem<Type>{
 
 		/*!Computes the translation operators*/
 		void compute_TxTy();
-		/*!Diagonalizes H_+Tx_+Ty_ => compute the band structure E(p)*/
+		/*!Diagonalizes H_+Tx_+Ty_ => compute the band structure E(px,py)*/
 		bool full_diagonalization();
 };
 
@@ -132,28 +142,26 @@ void System2D<Type>::create_obs(unsigned int const& which_obs){
 			{
 				Vector<double> x;
 				Vector<double>* dx(new Vector<double>[this->n_]);
-				for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[0]-this->x_[i]; }
+				for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[i]-this->x_[0]; }
 
-				unsigned int idx(this->obs_.size());
 				this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_*this->n_));
 				for(unsigned int i(0);i<this->n_;i++){
 					for(unsigned int j(0);j<this->n_;j++){
 						x = this->x_[i]+dx[j];
 						reset_pos_in_lattice(x);
-						this->obs_[idx](i*this->n_+j,0) = i;
-						this->obs_[idx](i*this->n_+j,1) = this->site_index(x);
-						this->obs_[idx](i*this->n_+j,2) = j;
+						this->obs_.back()(i*this->n_+j,0) = i;
+						this->obs_.back()(i*this->n_+j,1) = this->site_index(x);
+						this->obs_.back()(i*this->n_+j,2) = j;
 					}
 				}
 				delete[] dx;
 			}break;
 		case 3:
 			{
-				unsigned int idx(this->obs_.size());
 				this->obs_.push_back(Observable("Color occupation",3,this->N_*this->spuc_,Matrix<int>(this->n_,this->N_),this->n_/this->spuc_));
 				for(unsigned int i(0);i<this->n_;i++){
 					for(unsigned int j(0);j<this->N_;j++){
-						this->obs_[idx](i,j) = this->obs_[0](2*i,5)*this->N_+j; 
+						this->obs_.back()(i,j) = this->obs_[0](2*i,5)*this->N_+j; 
 					}
 				}
 			}break;
@@ -181,17 +189,17 @@ bool System2D<Type>::unit_cell_allowed(){
 	double ip;
 	double alpha;
 	double beta;
-	alpha = std::modf(inv_ab_(0,0)*(equivalent_vertex_[1](0)-equivalent_vertex_[0](0))+inv_ab_(0,1)*(equivalent_vertex_[1](1)-equivalent_vertex_[0](1)),&ip);
-	beta  = std::modf(inv_ab_(1,0)*(equivalent_vertex_[1](0)-equivalent_vertex_[0](0))+inv_ab_(1,1)*(equivalent_vertex_[1](1)-equivalent_vertex_[0](1)),&ip);
-	if( !my::are_equal(alpha,0.0) || !my::are_equal(beta,0.0) ){
-		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure)"<<std::endl; 
+	alpha = std::abs(std::modf(inv_ab_(0,0)*(equivalent_vertex_[1](0)-equivalent_vertex_[0](0))+inv_ab_(0,1)*(equivalent_vertex_[1](1)-equivalent_vertex_[0](1)),&ip));
+	beta  = std::abs(std::modf(inv_ab_(1,0)*(equivalent_vertex_[1](0)-equivalent_vertex_[0](0))+inv_ab_(1,1)*(equivalent_vertex_[1](1)-equivalent_vertex_[0](1)),&ip));
+	if( (!my::are_equal(alpha,0.0) && !my::are_equal(alpha,1.0)) || (!my::are_equal(beta,0.0) && !my::are_equal(beta,1.0)) ){
+		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure) alpha="<<alpha<<" beta="<<beta<<std::endl; 
 		return false; 
 	}
 
-	alpha = std::modf(inv_ab_(0,0)*(equivalent_vertex_[2](0)-equivalent_vertex_[0](0))+inv_ab_(0,1)*(equivalent_vertex_[2](1)-equivalent_vertex_[0](1)),&ip);
-	beta  = std::modf(inv_ab_(1,0)*(equivalent_vertex_[2](0)-equivalent_vertex_[0](0))+inv_ab_(1,1)*(equivalent_vertex_[2](1)-equivalent_vertex_[0](1)),&ip);
-	if( !my::are_equal(alpha,0.0) || !my::are_equal(beta,0.0) ){
-		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure)"<<std::endl; 
+	alpha = std::abs(std::modf(inv_ab_(0,0)*(equivalent_vertex_[2](0)-equivalent_vertex_[0](0))+inv_ab_(0,1)*(equivalent_vertex_[2](1)-equivalent_vertex_[0](1)),&ip));
+	beta  = std::abs(std::modf(inv_ab_(1,0)*(equivalent_vertex_[2](0)-equivalent_vertex_[0](0))+inv_ab_(1,1)*(equivalent_vertex_[2](1)-equivalent_vertex_[0](1)),&ip));
+	if( (!my::are_equal(alpha,0.0) && !my::are_equal(alpha,1.0)) || (!my::are_equal(beta,0.0) && !my::are_equal(beta,1.0)) ){
+		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure) alpha="<<alpha<<" beta="<<beta<<std::endl; 
 		return false; 
 	}
 
@@ -328,7 +336,7 @@ void System2D<Type>::plot_band_structure(){
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : band structure not plotted"<<std::endl; }
 }
 
-/*{To draw the lattice*/
+/*{to draw the lattice*/
 template<typename Type>
 Matrix<double> System2D<Type>::draw_unit_cell(double const& xshift, double const& yshift) const {
 	Matrix<double> tmp(4,2);
@@ -370,11 +378,11 @@ void System2D<Type>::draw_long_range_correlation(PSTricks& ps, Observable const&
 	ps.circle(x_[0],0.25,"linecolor=black"); 
 	for(unsigned int i(1);i<this->n_;i++){
 		corr = O[i].get_x();
-		if(std::abs(corr)>1e-4){
-			if(corr>0){ color = "blue"; }
-			else      { color = "red"; }
-			ps.circle(x_[i],sqrt(std::abs(corr*rescale)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
-		}
+		if(corr>0){ color = "blue"; }
+		else      { color = "red"; }
+		corr = sqrt(std::abs(corr*rescale));
+		if(corr>1e-4 && std::abs(O[i].get_x())>O[i].get_dx()){ ps.circle(x_[i],corr,"fillstyle=solid,fillcolor="+color+",linecolor="+color); }
+		else{ ps.cross(x_[i],0.1,"linecolor=black"); }
 	}
 }
 /*}*/
