@@ -105,7 +105,7 @@ System2D<Type>::System2D(Matrix<double> const& cluster_vertex, Matrix<double> co
 			inv_ab_(1,1) = ab_(0,0);
 			inv_ab_/=(ab_(0,0)*ab_(1,1)-ab_(1,0)*ab_(0,1));
 
-			if( (!this->obs_.size() || !this->obs_[0].nlinks()) && cluster_vertex_.ptr()){
+			if( this->ref_(4) && cluster_vertex_.ptr() ){
 				equivalent_vertex_= new Vector<double>[3];
 				boundary_vertex_ = new Vector<double>[8];
 				dir_nn_ = new Vector<double>[ndir];

@@ -42,7 +42,7 @@ class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSyst
 		virtual void display_results() = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
-		/*!Sets bond energy(>=1), long range correlations(>=2)*/
+		/*!Creates observable (bond energy, long range correlations,...)*/
 		virtual void create_obs(unsigned int const& which_obs) = 0;
 
 	protected:
@@ -56,10 +56,12 @@ class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSyst
 			   This pure virtual method must be defined here because it is
 			   needed by GenericSystem<Type>::set_nn_links() *//*}*/
 		virtual Matrix<int> get_neighbourg(unsigned int const& i) const = 0;
-		/*{*//*! Computes the array of links between neighbouring sites.
-			   The argument l gives the number of links that need to be
-			   computed for the site i%l.size() *//*}*/
-		void set_nn_links(Vector<unsigned int> const& l);
+		/*{*//*!Creates the energy observable.
+			   Computes the array of links between neighbouring sites. The
+			   argument l gives the number of links that need to be computed
+			   for the site i%l.size(). Once this array is computed, it is set
+			   to the energy observable *//*}*/
+		void create_energy_obs(Vector<unsigned int> const& l);
 		/*!Returns the index of the site i in the unit cell*/
 		virtual unsigned int get_site_in_unit_cell(unsigned int const& i) const = 0;
 
@@ -73,7 +75,7 @@ class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSyst
 
 		/*!Diagonalizes H_*/
 		bool simple_diagonalization();
-		/*!Diagonalizes H_+Translation operators => compute the band structure E(p)*/
+		/*!Diagonalizes H_+Translation operators (compute the band structure)*/
 		virtual bool full_diagonalization() = 0;
 };
 
@@ -84,19 +86,19 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 	z_(z)
 {
 	if(this->status_ <= 4){
-		if(this->status_ < 4){ std::cout<<__PRETTY_FUNCTION__<<" : should never happen, if it never does, might get rid of this extra test "<<this->status_<<std::endl;  }
-		if(this->n_%this->spuc_){ std::cerr<<__PRETTY_FUNCTION__<<" : the number of sites ("<<this->n_<<") is not commensurate with the unit cell ("<<this->spuc_<<")"<<std::endl; }
+		if(this->n_%this->spuc_){ std::cerr<<__PRETTY_FUNCTION__<<" : n="<<this->n_<<" is not commensurate with the unit cell size="<<this->spuc_<<std::endl; }
 		else { this->status_ = 3; }
 	}
 }
 
 template<typename Type>
 void GenericSystem<Type>::save_param(IOFiles& w) const {
+	w<<Vector<double>();
 	w.add_header()->add(system_info_.get());
 }
 
 template<typename Type>
-void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
+void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 	if(2*l.sum()==l.size()*z_){
 		unsigned int k(0);
 		unsigned int l_tmp;
@@ -146,6 +148,7 @@ void GenericSystem<Type>::set_nn_links(Vector<unsigned int> const& l){
 				tmp(k,2) = std::distance(unit_cell_links.begin(),unit_cell_links.find(ui_tuple(tmp(k,3),tmp(k,5),tmp(k,6))));
 			}
 			this->obs_.push_back(Observable("Energy per site",0,1,tmp));
+			this->ref_(4) = 0;
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link"<<std::endl; }
 	if(!this->bc_){ std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl; }

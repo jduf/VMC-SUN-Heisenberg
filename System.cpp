@@ -122,7 +122,8 @@ void System::print(unsigned int nobs) const {
 
 Vector<unsigned int> System::complete_system_info(Parseur& P){
 	std::string const& wf(P.get<std::string>("wf"));
-	Vector<unsigned int> ref(4,0);
+	Vector<unsigned int> ref(5,0);
+	ref(4) = 2;//!to force the creation of the cluster
 	if( wf == "chain-fermi" ){
 		ref(0) = 1;
 		ref(1) = 1;

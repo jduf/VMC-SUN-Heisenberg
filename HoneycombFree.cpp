@@ -68,7 +68,7 @@ void HoneycombFree::save_param(IOFiles& w) const {
 
 		w.add_header()->title(s,'<');
 		w<<t_;
-		GenericSystem<double>::save_param(w);
+		w.add_header()->add(system_info_.get());
 	} else { w<<t_<<" "; }
 }
 

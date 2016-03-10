@@ -74,9 +74,8 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,2,filename)
 {
 	if(this->status_==2){
-		if(!this->obs_.size()){
-			this->set_nn_links(Vector<unsigned int>(1,1));
-		}
+		if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,1)); }
+		else { this->ref_(4) = 0; }
 
 		if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() != 0){
 			Vector<double> tmp(this->J_);

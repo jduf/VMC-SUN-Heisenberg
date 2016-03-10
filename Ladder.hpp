@@ -44,12 +44,12 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 	 * this_->J_ should be computed*/
 	if(this->status_==2){
 		/*!create the links if necessary*/
-		if(!this->obs_.size()){
+		if(this->ref_(4)==2){
 			Vector<unsigned int> tmp(2);
 			tmp(0) = 2;
 			tmp(1) = 1;
-			this->set_nn_links(tmp);
-		}
+			this->create_energy_obs(tmp);
+		} else { this->ref_(4) = 0; }
 
 		/*!sets the bond energy if it has not been set yet*/
 		if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() == 2){

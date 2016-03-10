@@ -25,15 +25,13 @@ int main(int argc, char* argv[]){
 				std::cout<<"############# Check #######################"<<std::endl;
 				if(cs.get_status()==2){ cs.check(); }
 			} break;
-		case 2:/*call CreateSystem::init create and check*/
+		case 2:/*call CreateSystem::init and create*/
 			{
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init(NULL,&P);
 				if(cs.get_status()==2){
 					std::cout<<"############# Create GenericSystem ########"<<std::endl;
 					cs.create();
-					std::cout<<"############# Check #######################"<<std::endl;
-					cs.check();
 				}
 			} break;
 		case 3:/*call CreateSystem::init create, MonteCarlo::run*/
@@ -170,7 +168,7 @@ int main(int argc, char* argv[]){
 				std::cerr<<__PRETTY_FUNCTION__<<" : unknown option 'what', options are :"<<std::endl;
 				std::cerr<<"    - init                        : 0"<<std::endl;
 				std::cerr<<"    - init + check                : 1"<<std::endl;
-				std::cerr<<"    - init + create + check       : 2"<<std::endl;
+				std::cerr<<"    - init + create               : 2"<<std::endl;
 				std::cerr<<"    - init + create + run         : 3"<<std::endl;
 				std::cerr<<"    - init + create + run + write : 4"<<std::endl;
 				std::cerr<<"    - load + run + rewrite        : 5"<<std::endl;

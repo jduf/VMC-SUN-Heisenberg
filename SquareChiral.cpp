@@ -75,12 +75,12 @@ void SquareChiral::create(){
 
 void SquareChiral::save_param(IOFiles& w) const {
 	if(w.is_binary()){
-		std::string s("phi=("+my::tostring(phi_)+")");
+		std::string s("phi="+my::tostring(phi_));
 		Vector<double> param(1,phi_);
 
 		w.add_header()->title(s,'<');
 		w<<param;
-		GenericSystem<std::complex<double> >::save_param(w);
+		w.add_header()->add(system_info_.get());
 	} else { w<<phi_<<" "; }
 }
 
@@ -304,6 +304,7 @@ void SquareChiral::lattice(){
 			}
 		}
 	}
+	if(o(1)){ draw_long_range_correlation(ps,obs_[o(1)]); }
 	ps.end(true,true,true);
 }
 

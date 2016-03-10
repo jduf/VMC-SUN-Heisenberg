@@ -80,6 +80,8 @@ class System{
 		std::vector<Observable> const& get_obs() const { return obs_; }
 		/*}*/
 
+		void create_cluster(bool const& create){ ref_(4) = create; }
+
 	protected:
 		/*!Default copy constructor*/
 		System(System const&) = default;

@@ -65,12 +65,12 @@ void HoneycombChiral::create(){
 
 void HoneycombChiral::save_param(IOFiles& w) const {
 	if(w.is_binary()){
-		std::string s("phi=("+my::tostring(phi_)+")");
+		std::string s("phi="+my::tostring(phi_));
 		Vector<double> param(1,phi_);
 
 		w.add_header()->title(s,'<');
 		w<<param;
-		GenericSystem<std::complex<double> >::save_param(w);
+		w.add_header()->add(system_info_.get());
 	} else { w<<phi_<<" "; }
 }
 
@@ -132,6 +132,14 @@ unsigned int HoneycombChiral::unit_cell_index(Vector<double> const& x) const {
 
 /*{method needed for checking*/
 void HoneycombChiral::display_results(){
+Vector<unsigned int> o(3,0);
+	for(unsigned int i(1);i<obs_.size();i++){
+		switch(obs_[i].get_type()){
+			case 1:{ o(0)=i; }break;//bond energy
+			case 2:{ o(1)=i; }break;//long range correlation
+			case 3:{ o(2)=i; }break;//color occupation
+		}
+	}
 	compute_H();
 
 	std::string color("black");
@@ -143,7 +151,8 @@ void HoneycombChiral::display_results(){
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(),"linecolor=black");
+	Matrix<double> uc(draw_unit_cell());
+	ps.polygon(uc,"linecolor=black");
 	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	std::complex<double> t;
@@ -209,7 +218,32 @@ void HoneycombChiral::display_results(){
 			ps.put(xy1(0),xy1(1),"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,6))+"}}");
 		}
 	}
+	if(o(1)){ draw_long_range_correlation(ps,obs_[o(1)]); }
 	ps.end(true,true,true);
+}
+
+void HoneycombChiral::display_results(){
+	lattice();
+
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+
+		std::string title(RST::math("\\phi")+"="+my::tostring(phi_));
+		std::string run_cmd("./mc -s:wf honeycomb-chiral");
+		run_cmd += " -u:N " + my::tostring(N_);
+		run_cmd += " -u:m " + my::tostring(m_);
+		run_cmd += " -u:n " + my::tostring(n_);
+		run_cmd += " -i:bc "+ my::tostring(bc_);
+		run_cmd += " -d:phi "+ my::tostring(phi_);;
+		run_cmd += " -d -u:tmax 10";
+
+		rst_file_->title(title,'-');
+		rst_file_->change_text_onclick("run command",run_cmd);
+
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
+	}
 }
 
 void HoneycombChiral::check(){

@@ -4,7 +4,6 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	EXEC = min
 	EXEC+= mc
 	EXEC+= mcbi
-	#EXEC+= load
 	EXEC+= check
 	POSTPROCESS= cp $(EXEC) ../sim;
 	EXEC+= study
@@ -16,9 +15,10 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	OPTION = -fopenmp
 else
 	EXEC = $(MACHINE)min
+	EXEC = $(MACHINE)mc
 	POSTPROCESS= cp $(EXEC) ../sim;
 	EXEC+= $(MACHINE)study
-	POSTPROCESS+= cp $(MACHINE)study ..
+	POSTPROCESS+= mv ../sim/$(MACHINE)study ../
 
 	CXX = icpc -std=c++11
 	LAPACK =# -Wl,--no-as-needed -L${MKL_ROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
@@ -50,7 +50,6 @@ $(MACHINE)mcbi_SRCS  = mcbi.cpp  $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 $(MACHINE)min_SRCS   = min.cpp   $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN)
 $(MACHINE)check_SRCS = check.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 $(MACHINE)study_SRCS = study.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN) $(ANALYSE)
-$(MACHINE)load_SRCS  = load.cpp  $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 
 #-----------------------------------------------------------------
 

@@ -14,7 +14,7 @@ void VMCSystematic::run(bool const& set_obs, double const& dE, unsigned int cons
 		msg = "do a systematic measure over the phase space";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
-		msg = "compute ("+my::tostring(m_->obs_.size())+") observables for each samples"+my::tostring(m_->ps_size_)+" samples (max time "+my::tostring(m_->tmax_*maxiter*m_->ps_size_)+"s)";
+		msg = "compute "+my::tostring(set_obs?m_->obs_.size():0)+" observables for each "+my::tostring(m_->ps_size_)+" samples (max time "+my::tostring(m_->tmax_*maxiter*m_->ps_size_)+"s)";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 

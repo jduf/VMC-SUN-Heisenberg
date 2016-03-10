@@ -35,7 +35,7 @@ Kagome<Type>::~Kagome() = default;
 /*{protected methods*/
 template<typename Type>
 void Kagome<Type>::init_lattice(){
-	if( this->obs_.size() && this->obs_[0].nlinks() ){ this->status_ = 2; }
+	if(!this->ref_(4)){ this->status_ = 2; }
 	else {
 		if(this->dir_nn_){
 			/*{!the directions are given in the cartesian basis
@@ -95,10 +95,11 @@ void Kagome<Type>::init_lattice(){
 				this->equivalent_vertex_[2] = (this->dir_nn_[1]+this->dir_nn_[2])*L_/1.5 + (this->dir_nn_[4]+this->dir_nn_[3])*0.2;
 			}
 
-			if(this->unit_cell_allowed()){ 
+			if(this->unit_cell_allowed()){
 				this->status_ = 2; 
 
-				this->set_nn_links(Vector<unsigned int>(3,2));
+				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(3,2)); }
+				else { this->ref_(4) = 0; }
 
 				/*!sets the bond energy if it has not been set yet*/
 				if(this->obs_[0].nlinks() != this->J_.size()){
@@ -106,7 +107,7 @@ void Kagome<Type>::init_lattice(){
 					else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
 				}
 			}
-		}
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" required memory has not been allocated"<<std::endl; }
 	}
 }
 /*}*/

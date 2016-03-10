@@ -216,7 +216,7 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, bool const
 		unsigned int maxiter(1);
 		total_eval_ = potential_minima.size();
 		std::cout<<RST::hashtag_line_<<std::endl;
-		std::string msg("compute all ("+my::tostring(m_->obs_.size())+") observables for "+my::tostring(total_eval_)+" minima (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
+		std::string msg("compute "+my::tostring(set_obs?m_->obs_.size():0)+" observables for "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
@@ -308,7 +308,7 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, bool con
 		std::string msg("measures "+my::tostring(total_eval_)+" samples close to potential minimas (max time "+my::tostring(m_->tmax_*maxiter*total_eval_)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
-		msg = "compute ("+my::tostring(m_->obs_.size())+") observables for each samples";
+		msg = "compute "+my::tostring(set_obs?m_->obs_.size():0)+" observables for each samples";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
@@ -524,6 +524,7 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 			cs.create_obs(0);
 			obs_ = cs.get_obs();
 			s_->set_obs(obs_[0]);
+			s_->create_cluster(false);
 			/*!Sets the bond energies*/
 			s_->set_J(cs.get_GenericSystem());
 

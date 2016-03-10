@@ -25,7 +25,7 @@ class Triangle: public System2D<Type>{
 /*{constructor*/
 template<typename Type>
 Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc),ab,spuc,6,6,filename)
+	System2D<Type>(set_geometry((this->ref_(4)?this->n_:0),spuc),ab,spuc,6,6,filename)
 {}
 
 template<typename Type>
@@ -35,7 +35,7 @@ Triangle<Type>::~Triangle() = default;
 /*{protected methods*/
 template<typename Type>
 void Triangle<Type>::init_lattice(){
-	if( this->obs_.size() && this->obs_[0].nlinks() ){ this->status_ = 2; }
+	if(!this->ref_(4)){ this->status_ = 2; }
 	else {
 		if(this->dir_nn_){
 			/*{!The directions are given in the cartesian basis
@@ -89,17 +89,18 @@ void Triangle<Type>::init_lattice(){
 				this->equivalent_vertex_[2] = this->dir_nn_[2]*L_ + this->dir_nn_[3]*0.2;
 			}
 
-			if(this->unit_cell_allowed()){ 
+			if(this->unit_cell_allowed()){
 				this->status_ = 2; 
 
-				this->set_nn_links(Vector<unsigned int>(1,3));
+				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,3)); }
+				else { this->ref_(4) = 0; }
 
 				/*!sets the bond energy if it has not been set yet*/
 				if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() == 1){
 					this->J_.set(this->obs_[0].nlinks(),1);
 				}
 			}
-		}
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" required memory has not been allocated"<<std::endl; }
 	}
 }
 /*}*/

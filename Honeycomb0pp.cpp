@@ -79,7 +79,7 @@ void Honeycomb0pp::save_param(IOFiles& w) const {
 
 		w.add_header()->title(s,'<');
 		w<<param;
-		GenericSystem<double>::save_param(w);
+		w.add_header()->add(system_info_.get());
 	} else { w<<td_<<" "<<fc_<<" "; }
 }
 

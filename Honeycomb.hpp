@@ -35,7 +35,7 @@ Honeycomb<Type>::~Honeycomb() = default;
 /*{protected methods*/
 template<typename Type>
 void Honeycomb<Type>::init_lattice(){
-	if( this->obs_.size() && this->obs_[0].nlinks() ){ this->status_ = 2; }
+	if(!this->ref_(4)){ this->status_ = 2; }
 	else {
 		if(this->dir_nn_){
 			/*{!the directions are given in the cartesian basis for the
@@ -94,13 +94,15 @@ void Honeycomb<Type>::init_lattice(){
 				this->equivalent_vertex_[2] = this->dir_nn_[1]*L_ + (this->dir_nn_[1] - this->dir_nn_[2])/2.0;
 			}
 
-			if(this->unit_cell_allowed()){ 
+			if(this->unit_cell_allowed()){
 				this->status_ = 2; 
 
-				Vector<unsigned int> l(2);
-				l(0) = 3;
-				l(1) = 0;
-				this->set_nn_links(l);
+				if(this->ref_(4)==2){
+					Vector<unsigned int> l(2);
+					l(0) = 3;
+					l(1) = 0;
+					this->create_energy_obs(l);
+				} else { this->ref_(4) = 0; }
 
 				/*!sets the bond energy if it has not been set yet*/
 				if(this->obs_[0].nlinks() != this->J_.size()){
@@ -108,7 +110,7 @@ void Honeycomb<Type>::init_lattice(){
 					else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
 				}
 			}
-		}
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" required memory has not been allocated"<<std::endl; }
 	}
 }
 /*}*/
