@@ -14,7 +14,7 @@
 	   wavefunction is already contained in obs_[0].
 
 	   Once this class has been created, it can be used to create few
-	   observables (bond energies, long range correlation...) 
+	   observables (bond energies, long range correlation...)
 
 	   It can also be used to study/display the porperties of the wavefunction.
 	   For instance it can compute the band structure by doing a full
@@ -32,12 +32,18 @@ class System2D: public GenericSystem<Type>{
 	protected:
 		Matrix<double> const cluster_vertex_;	//!< vertices of the cluster
 		Vector<double>* equivalent_vertex_;		//!< equivalent points by a cluster translation
-		Vector<double>* boundary_vertex_;		//!< vertices of the boundary 
+		Vector<double>* boundary_vertex_;		//!< vertices of the boundary
 		Vector<double>* dir_nn_;				//!< vectors towards nearest neighbours
 		Vector<double>* x_;						//!< position of the sites
 
 		/*!Set which observable will be measured*/
 		void create_obs(unsigned int const& which_obs);
+		/*!Create the bond energy observables*/
+		virtual void bond_energy();
+		/*!Create the long range correlation observables*/
+		virtual void compute_long_range_correlation();
+		/*!Create the color occupation observables*/
+		virtual void color_occupation();
 
 		/*!Check if the unit cell can correctly fit inside the cluster*/
 		bool unit_cell_allowed();
@@ -127,54 +133,61 @@ System2D<Type>::~System2D(){
 /*}*/
 
 /*{protected methods*/
+/*{observables*/
 template<typename Type>
 void System2D<Type>::create_obs(unsigned int const& which_obs){
 	switch(which_obs){
-		case 0:
-			{ for(unsigned int i(1);i<4;i++){ create_obs(i); } }break;
-		case 1:
-			{
-				unsigned int idx(this->obs_.size());
-				this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
-				this->obs_[idx].remove_links();
-			}break;
-		case 2:
-			{
-				Vector<double> x;
-				Vector<double>* dx(new Vector<double>[this->n_]);
-				for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[i]-this->x_[0]; }
-
-				this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_*this->n_));
-				for(unsigned int i(0);i<this->n_;i++){
-					for(unsigned int j(0);j<this->n_;j++){
-						x = this->x_[i]+dx[j];
-						reset_pos_in_lattice(x);
-						this->obs_.back()(i*this->n_+j,0) = i;
-						this->obs_.back()(i*this->n_+j,1) = this->site_index(x);
-						this->obs_.back()(i*this->n_+j,2) = j;
-					}
-				}
-				delete[] dx;
-			}break;
-		case 3:
-			{
-				this->obs_.push_back(Observable("Color occupation",3,this->N_*this->spuc_,Matrix<int>(this->n_,this->N_),this->n_/this->spuc_));
-				for(unsigned int i(0);i<this->n_;i++){
-					for(unsigned int j(0);j<this->N_;j++){
-						this->obs_.back()(i,j) = this->obs_[0](2*i,5)*this->N_+j; 
-					}
-				}
-			}break;
+		case 0: { for(unsigned int i(1);i<4;i++){ create_obs(i); } }break;
+		case 1: { bond_energy(); }break;
+		case 2: { compute_long_range_correlation(); }break;
+		case 3: { color_occupation(); }break;
 		default:
-			{ 
+			{
 				std::cerr<<__PRETTY_FUNCTION__<<" : unknown observable "<<which_obs<<std::endl;
-				std::cerr<<"Available observables are :"<<std::endl; 
+				std::cerr<<"Available observables are :"<<std::endl;
 				std::cerr<<" + Bond energy            : 1"<<std::endl;
 				std::cerr<<" + Long range correlation : 2"<<std::endl;
 				std::cerr<<" + Color occupation       : 3"<<std::endl;
 			}
 	}
 }
+
+template<typename Type>
+void System2D<Type>::bond_energy(){
+	unsigned int idx(this->obs_.size());
+	this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
+	this->obs_[idx].remove_links();
+}
+
+template<typename Type>
+void System2D<Type>::compute_long_range_correlation(){
+	Vector<double> x;
+	Vector<double>* dx(new Vector<double>[this->n_]);
+	for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[i]-this->x_[0]; }
+
+	this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_*this->n_));
+	for(unsigned int i(0);i<this->n_;i++){
+		for(unsigned int j(0);j<this->n_;j++){
+			x = this->x_[i]+dx[j];
+			reset_pos_in_lattice(x);
+			this->obs_.back()(i*this->n_+j,0) = i;
+			this->obs_.back()(i*this->n_+j,1) = this->site_index(x);
+			this->obs_.back()(i*this->n_+j,2) = j;
+		}
+	}
+	delete[] dx;
+}
+
+template<typename Type>
+void System2D<Type>::color_occupation(){
+	this->obs_.push_back(Observable("Color occupation",3,this->N_*this->spuc_,Matrix<int>(this->n_,this->N_),this->n_/this->spuc_));
+	for(unsigned int i(0);i<this->n_;i++){
+		for(unsigned int j(0);j<this->N_;j++){
+			this->obs_.back()(i,j) = this->obs_[0](2*i,5)*this->N_+j;
+		}
+	}
+}
+/*}*/
 
 template<typename Type>
 bool System2D<Type>::unit_cell_allowed(){
@@ -192,15 +205,15 @@ bool System2D<Type>::unit_cell_allowed(){
 	alpha = std::abs(std::modf(inv_ab_(0,0)*(equivalent_vertex_[1](0)-equivalent_vertex_[0](0))+inv_ab_(0,1)*(equivalent_vertex_[1](1)-equivalent_vertex_[0](1)),&ip));
 	beta  = std::abs(std::modf(inv_ab_(1,0)*(equivalent_vertex_[1](0)-equivalent_vertex_[0](0))+inv_ab_(1,1)*(equivalent_vertex_[1](1)-equivalent_vertex_[0](1)),&ip));
 	if( (!my::are_equal(alpha,0.0) && !my::are_equal(alpha,1.0)) || (!my::are_equal(beta,0.0) && !my::are_equal(beta,1.0)) ){
-		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure) alpha="<<alpha<<" beta="<<beta<<std::endl; 
-		return false; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure) alpha="<<alpha<<" beta="<<beta<<std::endl;
+		return false;
 	}
 
 	alpha = std::abs(std::modf(inv_ab_(0,0)*(equivalent_vertex_[2](0)-equivalent_vertex_[0](0))+inv_ab_(0,1)*(equivalent_vertex_[2](1)-equivalent_vertex_[0](1)),&ip));
 	beta  = std::abs(std::modf(inv_ab_(1,0)*(equivalent_vertex_[2](0)-equivalent_vertex_[0](0))+inv_ab_(1,1)*(equivalent_vertex_[2](1)-equivalent_vertex_[0](1)),&ip));
 	if( (!my::are_equal(alpha,0.0) && !my::are_equal(alpha,1.0)) || (!my::are_equal(beta,0.0) && !my::are_equal(beta,1.0)) ){
-		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure) alpha="<<alpha<<" beta="<<beta<<std::endl; 
-		return false; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : unit cell doesn't fit into the cluster (not sure) alpha="<<alpha<<" beta="<<beta<<std::endl;
+		return false;
 	}
 
 	boundary_vertex_[0] = equivalent_vertex_[0]*2.0 - equivalent_vertex_[2];
@@ -374,8 +387,8 @@ void System2D<Type>::draw_long_range_correlation(PSTricks& ps, Observable const&
 	std::string color;
 	double corr;
 	double rescale(std::abs(0.25/O[1].get_x()));
-	ps.cross(x_[0],0.25,"linecolor=black"); 
-	ps.circle(x_[0],0.25,"linecolor=black"); 
+	ps.cross(x_[0],0.25,"linecolor=black");
+	ps.circle(x_[0],0.25,"linecolor=black");
 	for(unsigned int i(1);i<this->n_;i++){
 		corr = O[i].get_x();
 		if(corr>0){ color = "blue"; }

@@ -13,6 +13,7 @@ class Honeycomb: public System2D<Type>{
 
 	protected:
 		void init_lattice();
+		void compute_long_range_correlation();
 
 	private:
 		double L_;
@@ -95,7 +96,7 @@ void Honeycomb<Type>::init_lattice(){
 			}
 
 			if(this->unit_cell_allowed()){
-				this->status_ = 2; 
+				this->status_ = 2;
 
 				if(this->ref_(4)==2){
 					Vector<unsigned int> l(2);
@@ -113,6 +114,25 @@ void Honeycomb<Type>::init_lattice(){
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" required memory has not been allocated"<<std::endl; }
 	}
 }
+
+template<typename Type>
+void Honeycomb<Type>::compute_long_range_correlation(){
+	Vector<double> x;
+	Vector<double>* dx(new Vector<double>[this->n_]);
+	for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[i]-this->x_[0]; }
+
+	this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_*this->n_/2));
+	for(unsigned int i(0);i<this->n_/2;i++){
+		for(unsigned int j(0);j<this->n_;j++){
+			x = this->x_[2*i]+dx[j];
+			reset_pos_in_lattice(x);
+			this->obs_.back()(i*this->n_+j,0) = 2*i;
+			this->obs_.back()(i*this->n_+j,1) = this->site_index(x);
+			this->obs_.back()(i*this->n_+j,2) = j;
+		}
+	}
+	delete[] dx;
+}
 /*}*/
 
 /*{private methods*/
@@ -121,20 +141,20 @@ Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n, unsigned int
 	if(n){
 		L_ = sqrt(n/2.0);
 		if(my::are_equal(L_,floor(L_))){
-			double a(sqrt(3.0)/2);
+			double a(sqrt(3.0)/2.0);
 			Matrix<double> tmp(7,2);
 			tmp(0,0) =-0.5*L_;
 			tmp(0,1) =-a*L_;
 			tmp(1,0) =-tmp(0,0);
 			tmp(1,1) = tmp(0,1);
 			tmp(2,0) = L_;
-			tmp(2,1) = 0;
+			tmp(2,1) = 0.0;
 			tmp(3,0) =-tmp(0,0);
 			tmp(3,1) =-tmp(0,1);
 			tmp(4,0) =-tmp(1,0);
 			tmp(4,1) =-tmp(1,1);
 			tmp(5,0) =-tmp(2,0);
-			tmp(5,1) = tmp(2,1);
+			tmp(5,1) =-tmp(2,1);
 			tmp(6,0) = tmp(0,0);
 			tmp(6,1) = tmp(0,1);
 			return tmp;
@@ -143,13 +163,13 @@ Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n, unsigned int
 		if(my::are_equal(L_,floor(L_))){
 			double a(sqrt(3.0)/2.0);
 			Matrix<double> tmp(7,2);
-			tmp(0,0) = 0;
+			tmp(0,0) = 0.0;
 			tmp(0,1) =-2.0*a*L_;
 			tmp(1,0) = 1.5*L_;
 			tmp(1,1) =-a*L_;
 			tmp(2,0) = tmp(1,0);
 			tmp(2,1) =-tmp(1,1);
-			tmp(3,0) = tmp(0,0);
+			tmp(3,0) =-tmp(0,0);
 			tmp(3,1) =-tmp(0,1);
 			tmp(4,0) =-tmp(1,0);
 			tmp(4,1) =-tmp(1,1);
@@ -161,17 +181,15 @@ Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n, unsigned int
 		}
 
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
-		std::vector<unsigned int> v;
+		std::set<unsigned int> v;
 		unsigned int m;
 		for(unsigned int i(2);i<20;i++){
 			m = 6*i*i;
-			if(!(m%spuc)){ v.push_back(m); }
+			if(!(m%spuc)){ v.insert(m); }
 			m = 2*i*i;
-			if(!(m%spuc)){ v.push_back(m); }
+			if(!(m%spuc)){ v.insert(m); }
 		}
-		std::sort(v.begin(),v.end(),std::less<unsigned int>());
-		v.erase(std::unique(v.begin(),v.end()),v.end());
-		for(unsigned int i(0);i<v.size();i++){ std::cerr<<"n="<<v[i]<<std::endl; }
+		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }
 		std::cerr<<"n=2*l*l or 6*l*l"<<std::endl;
 	}
 	return Matrix<double>();
@@ -198,16 +216,16 @@ bool Honeycomb<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 		} else {
 			double t(tan(M_PI/3.0)*x(0)/x(1));
 			if(x(1)>0){
-				if(std::abs(t)<1){ x-=(this->dir_nn_[1]-this->dir_nn_[2])*L_; }
+				if(std::abs(t)<1){ x-= (this->dir_nn_[1]-this->dir_nn_[2])*L_; }
 				else {
-					if(t>0){       x-=(this->dir_nn_[0]-this->dir_nn_[2])*L_; }
-					else   {       x-=(this->dir_nn_[1]-this->dir_nn_[0])*L_; }
+					if(t>0){       x-= (this->dir_nn_[0]-this->dir_nn_[2])*L_; }
+					else   {       x-= (this->dir_nn_[1]-this->dir_nn_[0])*L_; }
 				}
 			} else {
-				if(std::abs(t)<1){ x+=(this->dir_nn_[1]-this->dir_nn_[2])*L_; }
+				if(std::abs(t)<1){ x+= (this->dir_nn_[1]-this->dir_nn_[2])*L_; }
 				else {
-					if(t>0){       x+=(this->dir_nn_[0]-this->dir_nn_[2])*L_; }
-					else   {       x+=(this->dir_nn_[1]-this->dir_nn_[0])*L_; }
+					if(t>0){       x+= (this->dir_nn_[0]-this->dir_nn_[2])*L_; }
+					else   {       x+= (this->dir_nn_[1]-this->dir_nn_[0])*L_; }
 				}
 			}
 		}

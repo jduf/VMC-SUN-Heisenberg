@@ -81,8 +81,8 @@ SystemBiFermionic<Type>::SystemBiFermionic(Fermionic<Type> const& F0, Fermionic<
 	/*!Initialized class variables*/
 	obs_.push_back(Observable("Overlap",10,2,0));
 	for(unsigned int c(0);c<N_;c++){
-		A_[0][c].set(M_(c),M_(c)); 
-		A_[1][c].set(M_(c),M_(c)); 
+		A_[0][c].set(M_(c),M_(c));
+		A_[1][c].set(M_(c),M_(c));
 	}
 
 	/*!Initialized A_ and row_ with the correct eigenvectors according to s_*/
@@ -123,9 +123,9 @@ SystemBiFermionic<Type>::SystemBiFermionic(SystemBiFermionic<Type> const& SBF):
 	for(unsigned int i(0);i<obs_.size();i++){
 		if(obs_[i].get_type() == 10){ oi_ = i; i = obs_.size(); }
 	}
-	for(unsigned int c(0);c<N_;c++){ 
-		A_[0][c].set(M_(c),M_(c)); 
-		A_[1][c].set(M_(c),M_(c)); 
+	for(unsigned int c(0);c<N_;c++){
+		A_[0][c].set(M_(c),M_(c));
+		A_[1][c].set(M_(c),M_(c));
 	}
 
 	/*!Initialized A_ and row_ with the correct eigenvectors according to s_*/
@@ -156,8 +156,8 @@ SystemBiFermionic<Type>::SystemBiFermionic(IOFiles& r):
 		if(obs_[i].get_type() == 10){ oi_ = i; i = obs_.size(); }
 	}
 	for(unsigned int c(0);c<N_;c++){
-		A_[0][c].set(M_(c),M_(c)); 
-		A_[1][c].set(M_(c),M_(c)); 
+		A_[0][c].set(M_(c),M_(c));
+		A_[1][c].set(M_(c),M_(c));
 	}
 
 	/*!Initialized A_ and row_ with the correct eigenvectors according to s_*/

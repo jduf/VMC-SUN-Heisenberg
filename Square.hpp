@@ -81,7 +81,7 @@ void Square<Type>::init_lattice(){
 			this->equivalent_vertex_[2] = this->dir_nn_[3]*0.5*(p_-q_)+this->dir_nn_[0]*0.5*(p_+q_);
 
 			if(this->unit_cell_allowed()){
-				this->status_ = 2; 
+				this->status_ = 2;
 
 				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,2)); }
 				else { this->ref_(4) = 0; }
@@ -135,17 +135,15 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int co
 		}
 
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
-		std::vector<unsigned int> v;
+		std::set<unsigned int> v;
 		unsigned int m;
 		for(unsigned int p(2);p<2*sqrt(n);p++){
 			for(unsigned int q(0);q<p+1;q++){
 				m = p*p+q*q;
-				if(!(m%spuc)){ v.push_back(m); }
+				if(!(m%spuc)){ v.insert(m); }
 			}
 		}
-		std::sort(v.begin(),v.end(),std::less<unsigned int>());
-		v.erase(std::unique(v.begin(),v.end()),v.end());
-		for(unsigned int i(0);i<v.size();i++){ std::cerr<<"n="<<v[i]<<std::endl; }
+		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }
 		std::cerr<<"n=p*p+q*q"<<std::endl;
 	}
 	return Matrix<double>();

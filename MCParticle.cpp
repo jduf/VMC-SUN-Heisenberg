@@ -35,7 +35,7 @@ void MCParticle::print() const {
 
 bool MCParticle::update(std::shared_ptr<MCSim> const& new_elem){
 	if(!history_.find_in_sorted_list(new_elem,MCSim::sort_for_merge)){
-		history_.add_after_target(new_elem); 
+		history_.add_after_target(new_elem);
 	}
 
 	/*\warning may not need to run select_new_best at each step*/

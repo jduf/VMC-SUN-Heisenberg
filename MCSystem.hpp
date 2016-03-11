@@ -5,7 +5,7 @@
 #include "Rand.hpp"
 #include <memory>
 
-/*{*//*!Abstract class that is used by MonteCarlo to sample the System 
+/*{*//*!Abstract class that is used by MonteCarlo to sample the System
 	   using the Variational Monte-Carlo algorithm.
 
 	   This class makes the connection between MonteCarlo and more specialized

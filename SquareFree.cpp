@@ -214,7 +214,7 @@ void SquareFree::lattice(){
 		t = H_(s0,s1);
 		linewidth = my::tostring(std::abs(t))+"mm";
 		if(o(0) || o(2)){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
 				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
 				if(i%2 && o(2)){
 					Vector<double> p(N_);
@@ -258,14 +258,14 @@ void SquareFree::display_results(){
 		run_cmd += " -i:bc "+ my::tostring(bc_);
 		run_cmd += " -d:t ";
 		for(unsigned int i(0);i<t_.size()-1;i++){
-			title   += my::tostring(t_(i)) + ","; 
-			run_cmd += my::tostring(t_(i)) + ","; 
+			title   += my::tostring(t_(i)) + ",";
+			run_cmd += my::tostring(t_(i)) + ",";
 		}
 		title   += my::tostring(t_.back()) + "), "+RST::math("\\mu")+"=(";
 		run_cmd += my::tostring(t_.back()) + " -d:mu ";
 		for(unsigned int i(0);i<mu_.size()-1;i++){
-			title   += my::tostring(mu_(i)) + ","; 
-			run_cmd += my::tostring(mu_(i)) + ","; 
+			title   += my::tostring(mu_(i)) + ",";
+			run_cmd += my::tostring(mu_(i)) + ",";
 		}
 		title   += my::tostring(mu_.back()) + ")";
 		run_cmd += my::tostring(mu_.back()) + " -d -u:tmax 10";

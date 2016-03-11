@@ -30,12 +30,12 @@ void TrianglePlaquette::compute_H(){
 		switch(obs_[0](i,5)){
 			case 0:
 				{
-					if(obs_[0](i,3)==2){ H_(s0,s1) = (obs_[0](i,4)?bc_*t_:t_); } 
+					if(obs_[0](i,3)==2){ H_(s0,s1) = (obs_[0](i,4)?bc_*t_:t_); }
 					else { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }
 				}break;
 			case 1:
 				{
-					if(obs_[0](i,3)!=2){ H_(s0,s1) = (obs_[0](i,4)?bc_*t_:t_); } 
+					if(obs_[0](i,3)!=2){ H_(s0,s1) = (obs_[0](i,4)?bc_*t_:t_); }
 					else { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }
 				}break;
 			case 2:
@@ -130,7 +130,7 @@ void TrianglePlaquette::lattice(){
 
 		t = H_(s0,s1);
 		if(o(0) || o(2)){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
 				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
 				if(i%2 && o(2)){
 					Vector<double> p(N_);

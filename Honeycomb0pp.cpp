@@ -38,17 +38,17 @@ void Honeycomb0pp::compute_H(){
 		switch(fc_){
 			case 0:
 				{
-					if((ab0==0 && ab1==1) || (ab0==2 && ab1==3) || (ab0==4 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); } 
+					if((ab0==0 && ab1==1) || (ab0==2 && ab1==3) || (ab0==4 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); }
 					else { H_(s0,s1) = (obs_[0](i,4)?bc_*th:th); }
 				}break;
 			case 1:
 				{
-					if((ab0==4 && ab1==3) || (ab0==2 && ab1==1) || (ab0==0 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); } 
+					if((ab0==4 && ab1==3) || (ab0==2 && ab1==1) || (ab0==0 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); }
 					else { H_(s0,s1) = (obs_[0](i,4)?bc_*th:th); }
 				}break;
 			case 2:
 				{
-					if((ab0==2 && ab1==5) || (ab0==0 && ab1==3) || (ab0==4 && ab1==1)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); } 
+					if((ab0==2 && ab1==5) || (ab0==0 && ab1==3) || (ab0==4 && ab1==1)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); }
 					else { H_(s0,s1) = (obs_[0](i,4)?bc_*th:th); }
 				}break;
 			default:
@@ -149,13 +149,13 @@ void Honeycomb0pp::lattice(){
 			linewidth = my::tostring(std::abs(t))+"mm";
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
-		if(!(i%3)){ 
+		if(!(i%3)){
 			xy0 -=  dir_nn_[obs_[0](i,3)]*0.2;
 			xy1 -=  dir_nn_[obs_[0](i,3)]*0.2;
-			ps.put(xy0(0),xy0(1),"\\tiny{"+my::tostring(s0)+"}"); 
+			ps.put(xy0(0),xy0(1),"\\tiny{"+my::tostring(s0)+"}");
 			xy0 -=  dir_nn_[obs_[0](i,3)]*0.2;
 			xy1 -=  dir_nn_[obs_[0](i,3)]*0.2;
-			ps.put(xy0(0),xy0(1),"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,5))+"}}"); 
+			ps.put(xy0(0),xy0(1),"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,5))+"}}");
 
 			xy0 +=  dir_nn_[obs_[0](i,3)]*0.6;
 			xy1 +=  dir_nn_[obs_[0](i,3)]*0.6;
@@ -180,8 +180,8 @@ void Honeycomb0pp::display_results(){
 		run_cmd += " -u:m " + my::tostring(m_);
 		run_cmd += " -u:n " + my::tostring(n_);
 		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d:td " + my::tostring(td_); 
-		run_cmd += " -u:fc " + my::tostring(fc_); 
+		run_cmd += " -d:td " + my::tostring(td_);
+		run_cmd += " -u:fc " + my::tostring(fc_);
 		run_cmd += " -d:Jp 1 -u:tmax 10 -d";
 		rst_file_->change_text_onclick("run command",run_cmd);
 

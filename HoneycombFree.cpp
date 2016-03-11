@@ -61,7 +61,7 @@ void HoneycombFree::save_param(IOFiles& w) const {
 	if(w.is_binary()){
 		std::string s("t=(");
 
-		for(unsigned int i(0);i<t_.size()-1;i++){ 
+		for(unsigned int i(0);i<t_.size()-1;i++){
 			s += my::tostring(t_(i))+",";
 		}
 		s += my::tostring(t_.back())+")";
@@ -134,11 +134,11 @@ void HoneycombFree::lattice(){
 					linestyle = "dashed";
 					xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
 					ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-				} else { 
-					linestyle = "solid";  
+				} else {
+					linestyle = "solid";
 					if(s0<s1){
-						ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
-						ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}"); 
+						ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
+						ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 					}
 				}
 
@@ -202,13 +202,13 @@ void HoneycombFree::display_results(){
 		run_cmd += " -i:bc "+ my::tostring(bc_);
 		run_cmd += " -d:t ";
 		for(unsigned int i(0);i<t_.size()-1;i++){
-			title   += my::tostring(t_(i)) + ","; 
-			run_cmd += my::tostring(t_(i)) + ","; 
+			title   += my::tostring(t_(i)) + ",";
+			run_cmd += my::tostring(t_(i)) + ",";
 		}
 		title   += my::tostring(t_.back()) + "),";
 		run_cmd += " -d:Jp 1 -u:tmax 10 -d";
 
-		rst_file_->title(title,'-'); 
+		rst_file_->title(title,'-');
 		rst_file_->change_text_onclick("run command",run_cmd);
 
 		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));

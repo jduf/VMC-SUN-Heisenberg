@@ -38,17 +38,17 @@
 
 /*{*//*!Class that creates any kind of wavefunctions
 	   and gives a way to act on it (set observables, merge simulations,
-	   compute errors on measurments, save...) 
+	   compute errors on measurments, save...)
 
 	   This class handles everything that is required to create a wavefunction
-	   from a child of GenergicSystem. 
+	   from a child of GenergicSystem.
 
 	   It can also store (merge) and handle (complete_analysis, save,
 	   display_results,..) the results of the VMC simulation contained in a
 	   child of MCSystem.*//*}*/
 class CreateSystem{
 	public:
-		/*{*//*!Takes a pointer to an already existing System 
+		/*{*//*!Takes a pointer to an already existing System
 			   (better than to create a System within this class because in
 			   VMCMinimization, many GenericSystem will be created therefore if
 			   one can avoid the re-creation of a System, it saves ressources)
@@ -159,12 +159,12 @@ class CreateSystem{
 		/*!Calls GenericSystem::save_param and System::save*/
 		void save(IOFiles& w) const {
 			if(RGL_){
-				RGL_->save_param(w); 
-				RGL_->save(w); 
+				RGL_->save_param(w);
+				RGL_->save(w);
 			}
-			if(CGL_){ 
-				CGL_->save_param(w); 
-				CGL_->save(w); 
+			if(CGL_){
+				CGL_->save_param(w);
+				CGL_->save(w);
 			}
 		}
 		/*!Calls System::print*/

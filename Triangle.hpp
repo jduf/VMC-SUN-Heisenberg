@@ -90,14 +90,15 @@ void Triangle<Type>::init_lattice(){
 			}
 
 			if(this->unit_cell_allowed()){
-				this->status_ = 2; 
+				this->status_ = 2;
 
 				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,3)); }
 				else { this->ref_(4) = 0; }
 
 				/*!sets the bond energy if it has not been set yet*/
-				if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() == 1){
-					this->J_.set(this->obs_[0].nlinks(),1);
+				if(this->obs_[0].nlinks() != this->J_.size()){
+					if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
+					else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
 				}
 			}
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" required memory has not been allocated"<<std::endl; }
@@ -151,17 +152,15 @@ Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n, unsigned int 
 		}
 
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
-		std::vector<unsigned int> v;
+		std::set<unsigned int> v;
 		unsigned int m;
 		for(unsigned int i(2);i<20;i++){
 			m = 3*i*i;
-			if(!(m%spuc)){ v.push_back(m); }
+			if(!(m%spuc)){ v.insert(m); }
 			m = (3*i)*(3*i);
-			if(!(m%spuc)){ v.push_back(m); }
+			if(!(m%spuc)){ v.insert(m); }
 		}
-		std::sort(v.begin(),v.end(),std::less<unsigned int>());
-		v.erase(std::unique(v.begin(),v.end()),v.end());
-		for(unsigned int i(0);i<v.size();i++){ std::cerr<<"n="<<v[i]<<std::endl; }
+		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }
 		std::cerr<<"n=3*l*l or (3*l)^2"<<std::endl;
 	}
 	return Matrix<double>();
@@ -173,31 +172,31 @@ bool Triangle<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 		if(this->ref_(3)){
 			double t(tan(M_PI/6.0)*x(0)/x(1));
 			if(x(0)>0){
-				if(std::abs(t)>1){ x+=this->dir_nn_[3]*L_*3.0; }
+				if(std::abs(t)>1){ x+= this->dir_nn_[3]*L_*3.0; }
 				else {
-					if(t>0){       x+=this->dir_nn_[4]*L_*3.0; }
-					else   {       x+=this->dir_nn_[2]*L_*3.0; }
+					if(t>0){       x+= this->dir_nn_[4]*L_*3.0; }
+					else   {       x+= this->dir_nn_[2]*L_*3.0; }
 				}
 			} else {
-				if(std::abs(t)>1){ x+=this->dir_nn_[0]*L_*3.0; }
+				if(std::abs(t)>1){ x+= this->dir_nn_[0]*L_*3.0; }
 				else {
-					if(t>0){       x+=this->dir_nn_[1]*L_*3.0; }
-					else   {       x+=this->dir_nn_[5]*L_*3.0; }
+					if(t>0){       x+= this->dir_nn_[1]*L_*3.0; }
+					else   {       x+= this->dir_nn_[5]*L_*3.0; }
 				}
 			}
 		} else {
 			double t(tan(M_PI/3.0)*x(0)/x(1));
 			if(x(1)>0){
-				if(std::abs(t)<1){ x+=(this->dir_nn_[4]+this->dir_nn_[5])*L_; }
+				if(std::abs(t)<1){ x+= (this->dir_nn_[4]+this->dir_nn_[5])*L_; }
 				else {
-					if(t>0){       x+=(this->dir_nn_[4]+this->dir_nn_[3])*L_; }
-					else   {       x+=(this->dir_nn_[5]+this->dir_nn_[0])*L_; }
+					if(t>0){       x+= (this->dir_nn_[4]+this->dir_nn_[3])*L_; }
+					else   {       x+= (this->dir_nn_[5]+this->dir_nn_[0])*L_; }
 				}
 			} else {
-				if(std::abs(t)<1){ x+=(this->dir_nn_[1]+this->dir_nn_[2])*L_; }
+				if(std::abs(t)<1){ x+= (this->dir_nn_[1]+this->dir_nn_[2])*L_; }
 				else {
-					if(t>0){       x+=(this->dir_nn_[1]+this->dir_nn_[0])*L_; }
-					else   {       x+=(this->dir_nn_[2]+this->dir_nn_[3])*L_; }
+					if(t>0){       x+= (this->dir_nn_[1]+this->dir_nn_[0])*L_; }
+					else   {       x+= (this->dir_nn_[2]+this->dir_nn_[3])*L_; }
 				}
 			}
 		}

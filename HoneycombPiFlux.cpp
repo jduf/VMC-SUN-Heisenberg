@@ -96,14 +96,14 @@ void HoneycombPiFlux::display_results(){
 		t = H_(s0,s1);
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
-				linestyle = "dashed"; 
+				linestyle = "dashed";
 				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
 				ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(s1));
-			} else { 
-				linestyle = "solid";  
+			} else {
+				linestyle = "solid";
 				if(s0<s1){
-					ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(s0)); 
-					ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(s1)); 
+					ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(s0));
+					ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(s1));
 				}
 			}
 

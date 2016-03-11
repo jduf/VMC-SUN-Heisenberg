@@ -77,7 +77,7 @@ unsigned int TriangleChiral::unit_cell_index(Vector<double> const& x) const {
 	if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 1; }
 	if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 2; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return 3;
+	return spuc_;
 }
 /*}*/
 
@@ -119,7 +119,7 @@ void TriangleChiral::lattice(){
 
 		t = H_(s0,s1);
 		if(o(0) || o(2)){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
 				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
 				if(i%2 && o(2)){
 					Vector<double> p(N_);
@@ -139,18 +139,17 @@ void TriangleChiral::lattice(){
 			if(t.real()>0){ color = "blue"; }
 			else          { color = "red"; }
 
-			if(my::are_equal(t.imag(),0)){
-				arrow = "-";
-			} else {
-				arrow = "->";
-				//ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/M_PI))+"}");
-			}
+			if(my::are_equal(t.imag(),0)){ arrow = "-"; }
+			else { arrow = "->"; }
 
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
-		if(i%3==2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); } 
+		if(i%3==2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 		if(i%3<2){
+			double sign;
 			unsigned int j(0);
+			unsigned long long a;
+			unsigned long long b;
 			double flux(0.0);
 			do {
 				nb = get_neighbourg(s0);
@@ -159,10 +158,6 @@ void TriangleChiral::lattice(){
 				s0 = s1;
 			} while (++j<3);
 			flux = my::chop(flux/M_PI);
-
-			unsigned long long a;
-			unsigned long long b;
-			double sign;
 			if(my::to_fraction(flux,a,b,sign)){
 				if(i%3){ ps.put(xy0(0),xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}"); }
 				else   { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}"); }

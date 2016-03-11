@@ -19,7 +19,7 @@ LadderFreeFlux::LadderFreeFlux(System const& s, Vector<double> const& t, Vector<
 		}
 		filename_ += "-phi";
 		for(unsigned int i(0);i<flux_.size()-1;i++){
-			filename_ += ((flux_(i)>0)?"+":"")+my::tostring(flux_(i)); 
+			filename_ += ((flux_(i)>0)?"+":"")+my::tostring(flux_(i));
 		}
 	}
 }
@@ -75,14 +75,14 @@ void LadderFreeFlux::save_param(IOFiles& w) const {
 	if(w.is_binary()){
 		Vector<double> param(t_.size()+flux_.size());
 		std::string s("t=(");
-		for(unsigned int i(0);i<t_.size()-1;i++){ 
-			s += my::tostring(t_(i))+","; 
+		for(unsigned int i(0);i<t_.size()-1;i++){
+			s += my::tostring(t_(i))+",";
 			param(i) = t_(i);
 		}
 		param(t_.size()-1) = t_.back();
 		s += my::tostring(t_.back())+") : " + RST::math("\\phi/\\pi")+"=(";
 		for(unsigned int i(0);i<flux_.size()-1;i++){
-			s += my::tostring(flux_(i))+","; 
+			s += my::tostring(flux_(i))+",";
 			param(i+t_.size()) = flux_(i);
 		}
 		param.back() = flux_.back();
@@ -446,12 +446,12 @@ void LadderFreeFlux::lattice(){
 
 				ps.line("-",xy0(0)+x_shift,xy0(1),xy1(0)+x_shift,xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
-			if(i%3==0){ 
-				ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}"); 
+			if(i%3==0){
+				ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}");
 				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1),"\\tiny{"+my::tostring(corr).substr(0,5)+"}");
 			}
-			if(i%3==1){ 
-				ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}"); 
+			if(i%3==1){
+				ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}");
 				ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(corr).substr(0,5)+"}");
 			}
 			if(i%3==2){

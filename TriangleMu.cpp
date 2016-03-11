@@ -120,7 +120,7 @@ void TriangleMu::lattice(){
 		t = H_(s0,s1);
 		linewidth = my::tostring(std::abs(t))+"mm";
 		if(o(0) || o(2)){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
 				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
 				if(i%2 && o(2)){
 					Vector<double> p(N_);

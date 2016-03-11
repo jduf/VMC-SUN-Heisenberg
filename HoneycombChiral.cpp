@@ -14,6 +14,7 @@ HoneycombChiral::HoneycombChiral(System const& s, double const& phi):
 		system_info_.item("There is a flux of "+RST::math(my::tostring(phi)+"\\pi/3") + "per hexagonal plaquette");
 
 		filename_ += "-phi"+my::tostring(phi_);
+	 	if(!my::are_equal(phi_,2.0)){ std::cerr<<__PRETTY_FUNCTION__<<" : only well defineed for phi=2 -> phi=2pi/3"<<std::endl; }
 	}
 }
 
@@ -103,7 +104,7 @@ unsigned int HoneycombChiral::unit_cell_index(Vector<double> const& x) const {
 	match(1) = 1.0/3.0;
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 5; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return 6;
+	return spuc_;
 
 	//if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
 	//if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0; }
@@ -131,8 +132,8 @@ unsigned int HoneycombChiral::unit_cell_index(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void HoneycombChiral::display_results(){
-Vector<unsigned int> o(3,0);
+void HoneycombChiral::lattice(){
+	Vector<unsigned int> o(3,0);
 	for(unsigned int i(1);i<obs_.size();i++){
 		switch(obs_[i].get_type()){
 			case 1:{ o(0)=i; }break;//bond energy
@@ -167,6 +168,17 @@ Vector<unsigned int> o(3,0);
 		xy1 = x_[s1];
 
 		t = H_(s0,s1);
+		if(o(0) || o(2)){
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
+				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
+				if(i%2 && o(2)){
+					Vector<double> p(N_);
+					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[o(2)][j+N_*obs_[0](i,5)].get_x(); }
+					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
+				}
+			} else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
+			linewidth = my::tostring(std::abs(t))+"mm";
+		}
 		if(std::abs(t)>1e-4){
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
@@ -177,22 +189,17 @@ Vector<unsigned int> o(3,0);
 			if(t.real()>0){ color = "blue"; }
 			else          { color = "red"; }
 
-			if(my::are_equal(t.imag(),0)){
-				arrow = "-";
-			} else {
-				arrow = "->";
-				if(obs_[0](i,3)){
-					ps.put((xy0(0)+xy1(0))/2.0-0.05,(xy0(1)+xy1(1))/2.0-0.05,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/M_PI,1e-5))+"}"); 
-				} else {
-					ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/M_PI,1e-5))+"}"); 
-				}
-			}
+			if(my::are_equal(t.imag(),0)){ arrow = "-"; }
+			else { arrow = "->"; }
 
-			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
 
 		if(!(i%3)){
+			double sign;
 			unsigned int j(0);
+			unsigned long long a;
+			unsigned long long b;
 			double flux(0.0);
 			do {
 				nb = get_neighbourg(s0);
@@ -200,15 +207,19 @@ Vector<unsigned int> o(3,0);
 				flux += std::arg(-H_(s0,s1));
 				s0 = s1;
 			} while (++j<6);
-			flux = my::chop(flux/M_PI,1e-6);
-			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.9,"\\tiny{"+my::tostring(flux)+"}"); 
+			flux = my::chop(flux/M_PI);
+			if(my::to_fraction(flux,a,b,sign)){
+				ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.9,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
+			} else {
+				ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.9,"\\tiny{"+my::tostring(flux)+"}");
+			}
 
 			xy0 -=  dir_nn_[obs_[0](i,3)]*0.2;
 			xy1 -=  dir_nn_[obs_[0](i,3)]*0.2;
-			ps.put(xy0(0),xy0(1),"\\tiny{"+my::tostring(obs_[0](i,0))+"}"); 
+			ps.put(xy0(0),xy0(1),"\\tiny{"+my::tostring(obs_[0](i,0))+"}");
 			xy0 -=  dir_nn_[obs_[0](i,3)]*0.2;
 			xy1 -=  dir_nn_[obs_[0](i,3)]*0.2;
-			ps.put(xy0(0),xy0(1),"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,5))+"}}"); 
+			ps.put(xy0(0),xy0(1),"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,5))+"}}");
 
 			xy0 +=  dir_nn_[obs_[0](i,3)]*0.6;
 			xy1 +=  dir_nn_[obs_[0](i,3)]*0.6;

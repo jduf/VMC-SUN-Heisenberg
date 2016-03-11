@@ -166,7 +166,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										double phi;
 										if(param){ phi = (*param)(0); }
 										if(C){ phi = C->get<double>("phi"); }
-										CGL_ = new TriangleChiral(*s_,phi); 
+										CGL_ = new TriangleChiral(*s_,phi);
 									}break;
 								case 2:
 									{
@@ -207,8 +207,8 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 									{
 										Vector<double> t;
 										Vector<double> mu;
-										if(param){ 
-											t = (*param); 
+										if(param){
+											t = (*param);
 											mu.set(4,0);
 										}
 										if(C){
@@ -241,13 +241,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 									{
 										Vector<double> t;
 										Vector<double> phi;
-										if(param){ 
-											t   = param->range(0,param->size()/2); 
-											phi = param->range(param->size()/2,param->size()); 
+										if(param){
+											t   = param->range(0,param->size()/2);
+											phi = param->range(param->size()/2,param->size());
 										}
 										if(C){
-											t   = C->get<std::vector<double> >("t"); 
-											phi = C->get<std::vector<double> >("phi"); 
+											t   = C->get<std::vector<double> >("t");
+											phi = C->get<std::vector<double> >("phi");
 										}
 										CGL_ = new SquareFreeFlux(*s_,t,phi);
 									}break;
@@ -318,7 +318,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 											fc= (*param)(1);
 										}
 										if(C) {
-											t = C->get<double>("td"); 
+											t = C->get<double>("td");
 											fc= (C->find("fc",fc,false)?C->get<unsigned int>(fc):0);
 										}
 										RGL_ = new Honeycomb0pp(*s_,t,fc);
@@ -332,11 +332,11 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 1:
-									{ 
+									{
 										double phi;
 										if(param){ phi = (*param)(0); }
 										if(C){ phi = C->get<double>("phi"); }
-										CGL_ = new HoneycombChiral(*s_,phi); 
+										CGL_ = new HoneycombChiral(*s_,phi);
 									}break;
 								default:{ error(); }break;
 							}
@@ -371,8 +371,8 @@ void CreateSystem::create(bool const& try_solve_degeneracy){
 				ref_(1)=2;
 				init(NULL,C_);
 				if(CGL_){
-					std::cerr<<__PRETTY_FUNCTION__<<" : might work if C_ knows the parameters"<<std::endl; 
-					CGL_->create(); 
+					std::cerr<<__PRETTY_FUNCTION__<<" : might work if C_ knows the parameters"<<std::endl;
+					CGL_->create();
 				}
 			} else { std::cerr<<__PRETTY_FUNCTION__<<" : giving up"<<std::endl; }
 		}

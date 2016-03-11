@@ -33,7 +33,7 @@ void VMCSystematic::plot(){
 	m_->samples_.set_target();
 	Vector<double> param;
 	while(m_->samples_.target_next()){
-		param = m_->samples_.get().get_param(); 
+		param = m_->samples_.get().get_param();
 		data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
 	}
 

@@ -2,7 +2,7 @@
 
 HoneycombFermi::HoneycombFermi(System const& s):
 	System(s),
-	Honeycomb<double>(set_ab(),1,"honeycomb-fermi")
+	Honeycomb<double>(set_ab(),2,"honeycomb-fermi")
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){
@@ -93,9 +93,9 @@ void HoneycombFermi::lattice(){
 			else   { color = "red"; }
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
-		if(!(i%3)){ 
+		if(!(i%3)){
 			ps.put(xy1(0)+0.10,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
+			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
 		}
 	}
 	ps.end(true,true,true);
@@ -103,20 +103,21 @@ void HoneycombFermi::lattice(){
 
 void HoneycombFermi::display_results(){
 	lattice();
+
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		std::string run_cmd("./mc -s:wf ladder-free");
+		std::string title("Fermi");
+		std::string run_cmd("./mc -s:wf ladder-fermi");
 		run_cmd += " -u:N " + my::tostring(N_);
 		run_cmd += " -u:m " + my::tostring(m_);
 		run_cmd += " -u:n " + my::tostring(n_);
 		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d:t ";
-		run_cmd += " -d:Jp 1 -u:tmax 10 -d";
+		run_cmd += "-u:tmax 10 -d";
 
-		rst_file_->title("t=-1",'-'); 
+		rst_file_->title(title,'-');
 		rst_file_->change_text_onclick("run command",run_cmd);
 
 		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));

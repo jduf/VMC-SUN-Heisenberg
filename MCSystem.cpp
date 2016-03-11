@@ -48,16 +48,16 @@ void MCSystem::initialize_measure(){
 	obs_[0].combine_measurement(false);
 	bool obs_exists[2] = {false,false};
 	for(auto& o:obs_){
-		if(o.get_type() == 0){  
+		if(o.get_type() == 0){
 			if(obs_exists[0]){
-				std::cerr<<__PRETTY_FUNCTION__<<" : measure the energy more than once"<<std::endl; 
+				std::cerr<<__PRETTY_FUNCTION__<<" : measure the energy more than once"<<std::endl;
 				status_ = 1;
 			} else{ obs_exists[0] = true; }
 		}
-		if(o.get_type() == 1){ 
-			obs_[0].combine_measurement(true); 
+		if(o.get_type() == 1){
+			obs_[0].combine_measurement(true);
 			if(obs_exists[1]){
-				std::cerr<<__PRETTY_FUNCTION__<<" : measure the bond energy more than once"<<std::endl; 
+				std::cerr<<__PRETTY_FUNCTION__<<" : measure the bond energy more than once"<<std::endl;
 				status_ = 1;
 			} else{ obs_exists[1] = true; }
 		}
@@ -158,7 +158,7 @@ void MCSystem::measure_new_step(){
 						}
 					}
 				}break;
-			case 2:// for long range correlation 
+			case 2:// for long range correlation
 				{
 					o.set_x(-1.0*m_*m_/N_);
 					L = o.nlinks();
@@ -188,7 +188,7 @@ void MCSystem::measure_new_step(){
 				}break;
 			case 3:// for color occupation
 				{
-					o.set_x(0); 
+					o.set_x(0);
 					if(m_ == 1){
 						for(unsigned int i(0);i<n_;i++){ o.add(o(i,s_(i,0)),1.0); }
 					} else {

@@ -58,7 +58,7 @@ void Observable::set(unsigned int const& B, unsigned int const& b, bool const& c
 	if(!modulo_){
 		if(links_.row()%nval_){
 			nval_ = 0;
-			std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number : nval="<<nval_<<" nlinks="<<links_.row()<<" for '"<<name_<<"'"<<std::endl; 
+			std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number : nval="<<nval_<<" nlinks="<<links_.row()<<" for '"<<name_<<"'"<<std::endl;
 		} else { modulo_ = links_.row()/nval_; }
 	}
 	if(nval_){

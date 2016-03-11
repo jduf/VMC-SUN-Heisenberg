@@ -71,10 +71,10 @@ unsigned int KagomeVBC::unit_cell_index(Vector<double> const& x) const {
 	double a(1.0/3.0);
 	double b(1.0/6.0);
 	match(0) = a;
-	match(1) = b; 
+	match(1) = b;
 	if(my::are_equal(x,match)){ return 3; }
 	match(0) += a;
-	match(1) += b; 
+	match(1) += b;
 	if(my::are_equal(x,match)){ return 4; }
 	match(0) -= 0.5;
 	if(my::are_equal(x,match)){ return 5; }

@@ -65,7 +65,7 @@ void Kagome<Type>::init_lattice(){
 			this->dir_nn_[5](1) =-sqrt(3.0)/2.0;
 
 			this->x_[0].set(2);
-			this->x_[0](0) =-0.5001; 
+			this->x_[0](0) =-0.5001;
 			if(this->ref_(3)){ this->x_[0](1) =-0.5001; }
 			else             { this->x_[0](1) =-0.0001; }
 
@@ -96,7 +96,7 @@ void Kagome<Type>::init_lattice(){
 			}
 
 			if(this->unit_cell_allowed()){
-				this->status_ = 2; 
+				this->status_ = 2;
 
 				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(3,2)); }
 				else { this->ref_(4) = 0; }
@@ -158,17 +158,15 @@ Matrix<double> Kagome<Type>::set_geometry(unsigned int const& n, unsigned int co
 		}
 
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
-		std::vector<unsigned int> v;
+		std::set<unsigned int> v;
 		unsigned int m;
 		for(unsigned int i(2);i<20;i++){
 			m = 3*i*i;
-			if(!(m%spuc)){ v.push_back(m); }
+			if(!(m%spuc)){ v.insert(m); }
 			m = (3*i)*(3*i);
-			if(!(m%spuc)){ v.push_back(m); }
+			if(!(m%spuc)){ v.insert(m); }
 		}
-		std::sort(v.begin(),v.end(),std::less<unsigned int>());
-		v.erase(std::unique(v.begin(),v.end()),v.end());
-		for(unsigned int i(0);i<v.size();i++){ std::cerr<<"n="<<v[i]<<std::endl; }
+		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }
 		std::cerr<<"n=9*l*l or 3*l*l"<<std::endl;
 	}
 	return Matrix<double>();

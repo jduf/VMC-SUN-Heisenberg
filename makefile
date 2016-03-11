@@ -9,7 +9,7 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	EXEC+= study
 	POSTPROCESS+= mv ../sim/study  ../
 
-	CXX = g++ -std=c++11
+	CXX = g++ -std=c++14
 	LAPACK = -llapack -lblas
 	ERRORS = -Wall -Wextra -pedantic
 	OPTION = -fopenmp

@@ -85,8 +85,8 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 
 		if(this->J_.size()==this->obs_[0].nlinks()){
 			std::string tmp("J");
-			for(unsigned int i(0);i<this->spuc_;i++){ 
-				tmp += ((this->J_(i)>0)?"+":"")+my::tostring(this->J_(i)); 
+			for(unsigned int i(0);i<this->spuc_;i++){
+				tmp += ((this->J_(i)>0)?"+":"")+my::tostring(this->J_(i));
 			}
 			this->filename_.replace(this->filename_.find("Juniform"),8,tmp);
 			this->path_.replace(this->path_.find("Juniform"),8,tmp);
@@ -128,14 +128,14 @@ template<typename Type>
 Matrix<int> Chain<Type>::get_neighbourg(unsigned int const& i) const {
 	Matrix<int> nb(this->z_,2);
 	if(i!=this->n_-1){
-		nb(0,0) = i+1; 
+		nb(0,0) = i+1;
 		nb(0,1) = 0;
 	} else {
 		nb(0,0) = 0;
 		nb(0,1) = 1;
 	}
 	if(i!=0){
-		nb(1,0) = i-1; 
+		nb(1,0) = i-1;
 		nb(1,1) = 0;
 	} else {
 		nb(1,0) = this->n_-1;

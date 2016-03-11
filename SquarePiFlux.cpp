@@ -94,8 +94,8 @@ void SquarePiFlux::lattice(){
 
 		t = H_(s0,s1);
 		if(obs_.size()>1){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
-				t = obs_[1][obs_[0](i,2)].get_x(); 
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
+				t = obs_[1][obs_[0](i,2)].get_x();
 				if(i%2 && obs_.size()>2){
 					Vector<double> p(N_);
 					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[2][j+N_*obs_[0](i,5)].get_x(); }
@@ -124,7 +124,7 @@ void SquarePiFlux::lattice(){
 		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
 
 		if(i%2){
-			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
+			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
 		} else {
 			unsigned int j(0);
 			double flux(0.0);

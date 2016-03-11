@@ -24,7 +24,7 @@ void SquareFreeFlux::compute_H(){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		switch(obs_[0](i,5)){
 			case 0: { b = obs_[0](i,3)?1:0; }break;
-			case 1: { b = obs_[0](i,3)?3:2; }break; 
+			case 1: { b = obs_[0](i,3)?3:2; }break;
 			case 2: { b = obs_[0](i,3)?5:4; }break;
 			case 3: { b = obs_[0](i,3)?7:6; }break;
 		}
@@ -61,7 +61,7 @@ void SquareFreeFlux::save_param(IOFiles& w) const {
 
 		for(unsigned int i(0);i<phi_.size()-1;i++){
 			param(i+t_.size()) = phi_(i);
-			s   += my::tostring(phi_(i)) + ","; 
+			s   += my::tostring(phi_(i)) + ",";
 		}
 		param.back() = phi_.back();
 		s += my::tostring(phi_.back())+")";
@@ -137,7 +137,7 @@ void SquareFreeFlux::lattice(){
 		t = H_(s0,s1);
 		linewidth = my::tostring(std::abs(t))+"mm";
 		if(o(0) || o(2)){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
 				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
 				if(i%2 && o(2)){
 					Vector<double> p(N_);
@@ -171,7 +171,7 @@ void SquareFreeFlux::lattice(){
 		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
 
 		if(i%2){
-			ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
+			ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
 		} else {
 			unsigned int j(0);
 			double flux(0.0);
@@ -204,14 +204,14 @@ void SquareFreeFlux::display_results(){
 		run_cmd += " -i:bc "+ my::tostring(bc_);
 		run_cmd += " -d:t ";
 		for(unsigned int i(0);i<t_.size()-1;i++){
-			title   += my::tostring(t_(i)) + ","; 
-			run_cmd += my::tostring(t_(i)) + ","; 
+			title   += my::tostring(t_(i)) + ",";
+			run_cmd += my::tostring(t_(i)) + ",";
 		}
 		title   += my::tostring(t_.back()) + ") "+RST::math("\\phi")+"=(";
 		run_cmd += my::tostring(t_.back()) + " -d:phi ";
 		for(unsigned int i(0);i<phi_.size()-1;i++){
-			title   += my::tostring(phi_(i)) + ","; 
-			run_cmd += my::tostring(phi_(i)) + ","; 
+			title   += my::tostring(phi_(i)) + ",";
+			run_cmd += my::tostring(phi_(i)) + ",";
 		}
 		title   += my::tostring(phi_.back()) + ")";
 		run_cmd += my::tostring(phi_.back()) + " -d -u:tmax 10";

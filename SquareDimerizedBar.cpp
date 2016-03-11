@@ -35,7 +35,7 @@ void SquareDimerizedBar::compute_H(unsigned int const& c){
 		if(c<2){
 			switch(obs_[0](i,5)){
 				case 0: { t = obs_[0](i,3)?1:0; s =-(obs_[0](i,4)?bc_:1); }break;
-				case 1: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break; 
+				case 1: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break;
 				case 2: { t = obs_[0](i,3)?3:4; s =-(obs_[0](i,4)?bc_:1); }break;
 				case 3: { t = obs_[0](i,3)?1:2; s = (obs_[0](i,4)?bc_:1); }break;
 				case 4: { t = obs_[0](i,3)?5:4; s = (obs_[0](i,4)?bc_:1); }break;
@@ -46,7 +46,7 @@ void SquareDimerizedBar::compute_H(unsigned int const& c){
 		} else {
 			switch(obs_[0](i,5)){
 				case 0: { t = obs_[0](i,3)?1:4; s =-(obs_[0](i,4)?bc_:1); }break;
-				case 1: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break; 
+				case 1: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break;
 				case 2: { t = obs_[0](i,3)?3:0; s =-(obs_[0](i,4)?bc_:1); }break;
 				case 3: { t = obs_[0](i,3)?1:2; s = (obs_[0](i,4)?bc_:1); }break;
 				case 4: { t = obs_[0](i,3)?5:0; s = (obs_[0](i,4)?bc_:1); }break;
@@ -64,7 +64,7 @@ void SquareDimerizedBar::create(){
 	for(unsigned int c(0);c<N_;c++){
 		if(!(c%2)){
 			status_=2;
-			compute_H(c); 
+			compute_H(c);
 			diagonalize(true);
 		}
 		if(status_==1){
@@ -158,7 +158,7 @@ void SquareDimerizedBar::lattice(){
 		t = H_(s0,s1);
 		linewidth = my::tostring(std::abs(t))+"mm";
 		if(o(0) || o(2)){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
 				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
 				if(i%2 && o(2)){
 					Vector<double> p(N_);
@@ -202,8 +202,8 @@ void SquareDimerizedBar::display_results(){
 		run_cmd += " -i:bc "+ my::tostring(bc_);
 		run_cmd += " -d:t ";
 		for(unsigned int i(0);i<t_.size()-1;i++){
-			title   += my::tostring(t_(i)) + ","; 
-			run_cmd += my::tostring(t_(i)) + ","; 
+			title   += my::tostring(t_(i)) + ",";
+			run_cmd += my::tostring(t_(i)) + ",";
 		}
 		title   += my::tostring(t_.back()) + ")";
 		run_cmd += my::tostring(t_.back()) + " -d -u:tmax 10";

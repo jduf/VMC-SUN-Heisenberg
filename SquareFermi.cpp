@@ -78,8 +78,8 @@ void SquareFermi::lattice(){
 	if(o(1)){
 		double corr;
 		double rescale(std::abs(0.25/obs_[o(1)][1].get_x()));
-		ps.cross(x_[0],0.25,"linecolor=black"); 
-		ps.circle(x_[0],0.25,"linecolor=black"); 
+		ps.cross(x_[0],0.25,"linecolor=black");
+		ps.circle(x_[0],0.25,"linecolor=black");
 		for(unsigned int i(1);i<n_;i++){
 			corr = obs_[o(1)][i].get_x();
 			if(std::abs(corr)>1e-4){
@@ -99,7 +99,7 @@ void SquareFermi::lattice(){
 		t = H_(s0,s1);
 		linewidth = "1pt";
 		if(o(0) || o(2)){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){ 
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
 				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
 				if(i%2 && o(2)){
 					Vector<double> p(N_);

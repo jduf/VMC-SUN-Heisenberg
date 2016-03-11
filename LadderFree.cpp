@@ -37,7 +37,7 @@ void LadderFree::compute_H(){
 		if(obs_[0](i,4)){ H_(s0,s1) = mu_(0)*t_(k); }
 		else { H_(s0,s1) = t_(k); }
 		if(!obs_[0](i,3)){
-			H_(s0,s0) = mu_(l)/2.0; 
+			H_(s0,s0) = mu_(l)/2.0;
 			l = (l+1)%spuc_;
 		}
 		k = (k+1)%spuc_;
@@ -65,18 +65,18 @@ void LadderFree::save_param(IOFiles& w) const {
 		std::string s("t=(");
 		Vector<double> param(t_.size()+mu_.size());
 
-		for(unsigned int i(0);i<t_.size()-1;i++){ 
-			param(i) = t_(i); 
+		for(unsigned int i(0);i<t_.size()-1;i++){
+			param(i) = t_(i);
 			s += my::tostring(t_(i))+",";
 		}
-		param(t_.size()-1) = t_.back(); 
+		param(t_.size()-1) = t_.back();
 		s += my::tostring(t_.back())+") "+RST::math("\\mu")+"=(";
 
 		for(unsigned int i(0);i<mu_.size()-1;i++){
-			param(i+t_.size()) = mu_(i); 
+			param(i+t_.size()) = mu_(i);
 			s += my::tostring(mu_(i))+",";
 		}
-		param.back() = mu_.back(); 
+		param.back() = mu_.back();
 		s += my::tostring(mu_.back())+")";
 
 		w.add_header()->title(s,'<');
@@ -87,9 +87,9 @@ void LadderFree::save_param(IOFiles& w) const {
 
 unsigned int LadderFree::set_spuc(Vector<double> const& t, Vector<double> const& mu, unsigned int const& spuc){
 	if((t.size()*2/3)%spuc == 0 && mu.size()%spuc==0 && mu.size()<9){ return mu.size(); }
-	else { 
+	else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : invalid or incoherent t and mu sizes : t:="<<t.size()<<", mu:="<<mu.size()<<std::endl;
-		return 1; 
+		return 1;
 	}
 }
 
@@ -1539,14 +1539,14 @@ void LadderFree::display_results(){
 		run_cmd += " -d:theta " + my::tostring(acos(J_(0)));
 		run_cmd += " -d:t ";
 		for(unsigned int i(0);i<t_.size()-1;i++){
-			title   += my::tostring(t_(i)) + ","; 
-			run_cmd += my::tostring(t_(i)) + ","; 
+			title   += my::tostring(t_(i)) + ",";
+			run_cmd += my::tostring(t_(i)) + ",";
 		}
 		title   += my::tostring(t_.back()) + "), "+RST::math("\\mu")+"=(";
 		run_cmd += my::tostring(t_.back()) + " -d:mu ";
 		for(unsigned int i(0);i<mu_.size()-1;i++){
-			title   += my::tostring(mu_(i)) + ","; 
-			run_cmd += my::tostring(mu_(i)) + ","; 
+			title   += my::tostring(mu_(i)) + ",";
+			run_cmd += my::tostring(mu_(i)) + ",";
 		}
 		title   += my::tostring(mu_.back()) + ")";
 		run_cmd += my::tostring(mu_.back()) + " -d -u:tmax 10";
@@ -1560,7 +1560,7 @@ void LadderFree::display_results(){
 		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
 		if(obs_.size()>1){
 			rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
-		} 
+		}
 		if(obs_.size()==5){
 			rst_file_->figure(relative_path+filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+filename_+"-as.gp")+RST::scale("200"));
 		}

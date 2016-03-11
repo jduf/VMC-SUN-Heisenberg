@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
 		sys = new System(P);
 		cs  = new CreateSystem(sys);
 		cs->init(NULL,&P);
-		if(P.find("obs",i,false)){
+		if(cs->get_status()==2 && P.find("obs",i,false)){
 			Vector<unsigned int> obs(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
 			for(unsigned int j(0);j<obs.size();j++){ cs->create_obs(obs(j)); }
 		}
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]){
 			for(unsigned int i(0);i<cs->get_obs().size();i++){
 				std::cout<<(i?"          ":"Compute : ")<<cs->get_obs()[i].get_name()<<std::endl;
 			}
-			std::cout<<std::endl; 
+			std::cout<<std::endl;
 			cs->create(false);
 			if(cs->get_status()==1){
 #pragma omp parallel for
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]){
 				cs->save(*iof);
 			} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
-		if(cs->get_status()!=1){ 
+		if(cs->get_status()!=1){
 			if(cs){ delete cs; cs = NULL; }
 			std::cout<<RST::dash_line_<<std::endl;
 		}
