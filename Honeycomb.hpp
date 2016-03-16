@@ -117,17 +117,14 @@ void Honeycomb<Type>::init_lattice(){
 
 template<typename Type>
 void Honeycomb<Type>::compute_long_range_correlation(){
-	Vector<double> x;
 	Vector<double>* dx(new Vector<double>[this->n_]);
 	for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[i]-this->x_[0]; }
 
 	this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_*this->n_/2));
 	for(unsigned int i(0);i<this->n_/2;i++){
 		for(unsigned int j(0);j<this->n_;j++){
-			x = this->x_[2*i]+dx[j];
-			reset_pos_in_lattice(x);
 			this->obs_.back()(i*this->n_+j,0) = 2*i;
-			this->obs_.back()(i*this->n_+j,1) = this->site_index(x);
+			this->obs_.back()(i*this->n_+j,1) = this->site_index(this->x_[2*i]+dx[j]);
 			this->obs_.back()(i*this->n_+j,2) = j;
 		}
 	}

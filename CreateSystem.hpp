@@ -26,9 +26,14 @@
 #include "SquareJastrow.hpp"
 
 #include "KagomeFermi.hpp"
-#include "KagomePlaquette.hpp"
-#include "KagomeDirac.hpp"
+#include "KagomeFree.hpp"
+#include "KagomePlaquette3A.hpp"
+#include "KagomePlaquette3B.hpp"
+#include "KagomePlaquette6A.hpp"
+#include "KagomePlaquette6B.hpp"
+#include "KagomeChiral.hpp"
 #include "KagomeVBC.hpp"
+#include "KagomePiHalfTriangle.hpp"
 
 #include "HoneycombFermi.hpp"
 #include "HoneycombFree.hpp"

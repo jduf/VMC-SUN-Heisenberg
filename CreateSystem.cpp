@@ -273,13 +273,40 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 0: { RGL_ = new KagomeFermi(*s_); }break;
-								case 1: { RGL_ = new KagomeDirac(*s_); }break;
+								case 1:
+									{
+										Vector<double> t;
+										if(param){ t = (*param); }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new KagomeFree(*s_,t);
+									}break;
 								case 2:
 									{
-										double t;
-										if(param){ t = (*param)(0); }
-										if(C){ t = C->get<double>("t"); }
-										RGL_ = new KagomePlaquette(*s_,t);
+										double td;
+										if(param){ td = (*param)(0); }
+										if(C){ td = C->get<double>("td"); }
+										RGL_ = new KagomePlaquette3A(*s_,td);
+									}break;
+								case 3:
+									{
+										double td;
+										if(param){ td = (*param)(0); }
+										if(C){ td = C->get<double>("td"); }
+										RGL_ = new KagomePlaquette3B(*s_,td);
+									}break;
+								case 4: 
+									{
+										double td;
+										if(param){ td = (*param)(0); }
+										if(C){ td = C->get<double>("td"); }
+										RGL_ = new KagomePlaquette6A(*s_,td);
+									}break;
+								case 5: 
+									{
+										double td;
+										if(param){ td = (*param)(0); }
+										if(C){ td = C->get<double>("td"); }
+										RGL_ = new KagomePlaquette6B(*s_,td);
 									}break;
 								default:{ error(); }break;
 							}
@@ -287,7 +314,26 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 2:
 						{
 							switch(ref_(2)){
+								case 1:
+									{
+										double phi;
+										if(param){ phi = (*param)(0); }
+										if(C){ phi = C->get<double>("phi"); }
+										CGL_ = new KagomeChiral(*s_,phi); 
+									}break;
 								case 2: { CGL_ = new KagomeVBC(*s_); }break;
+								case 3:
+										{
+											Vector<double> t;
+											Vector<double> phi;
+											if(param){
+											}
+											if(C){
+												t = C->get<std::vector<double> >("t");
+												phi = C->get<std::vector<double> >("phi");
+											}
+											CGL_ = new KagomePiHalfTriangle(*s_,t,phi);
+										}break;
 								default:{ error(); }break;
 							}
 						}break;

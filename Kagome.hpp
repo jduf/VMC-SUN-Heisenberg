@@ -13,6 +13,7 @@ class Kagome: public System2D<Type>{
 
 	protected:
 		void init_lattice();
+		void compute_long_range_correlation();
 
 	private:
 		double L_;
@@ -109,6 +110,22 @@ void Kagome<Type>::init_lattice(){
 			}
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" required memory has not been allocated"<<std::endl; }
 	}
+}
+
+template<typename Type>
+void Kagome<Type>::compute_long_range_correlation(){
+	Vector<double>* dx(new Vector<double>[this->n_]);
+	for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[i]-this->x_[0]; }
+
+	this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_*this->n_/3));
+	for(unsigned int i(0);i<this->n_/3;i++){
+		for(unsigned int j(0);j<this->n_;j++){
+			this->obs_.back()(i*this->n_+j,0) = 3*i;
+			this->obs_.back()(i*this->n_+j,1) = this->site_index(this->x_[3*i]+dx[j]);
+			this->obs_.back()(i*this->n_+j,2) = j;
+		}
+	}
+	delete[] dx;
 }
 /*}*/
 

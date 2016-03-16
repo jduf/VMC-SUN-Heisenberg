@@ -1,18 +1,19 @@
-#ifndef DEF_KAGOMEPLAQUETTE
-#define DEF_KAGOMEPLAQUETTE
+#ifndef DEF_KAGOMEPLAQUETTE6A
+#define DEF_KAGOMEPLAQUETTE6A
 
 #include "Kagome.hpp"
 
-class KagomePlaquette: public Kagome<double>{
+class KagomePlaquette6A: public Kagome<double>{
 	public:
-		KagomePlaquette(System const& s, double const& t);
-		~KagomePlaquette() = default;
+		KagomePlaquette6A(System const& s, double const& t);
+		~KagomePlaquette6A() = default;
 
 		void create();
+		void save_param(IOFiles& w) const;
 		void check();
 
 	protected:
-		double const t_;
+		double const td_; //!< hopping amplitude
 
 		void compute_H();
 		void display_results();

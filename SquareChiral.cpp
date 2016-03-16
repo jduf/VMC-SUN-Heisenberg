@@ -5,18 +5,18 @@ SquareChiral::SquareChiral(System const& s, double const& phi):
 	Square<std::complex<double> >(set_ab(ref_(3),N_/m_),N_/m_,"square-chiral"),
 	phi_(phi)
 {
-	if(status_==3){ init_lattice(); }
-	if(status_==2){
-		if(2*phi<=N_/m_){
+	if(2*phi<=N_/m_){
+		if(status_==3){ init_lattice(); }
+		if(status_==2){
 			init_fermionic();
 
 			system_info_.text("SquareChiral :");
 			system_info_.item("Each color has the same Hamiltonian.");
-			system_info_.item("There is a flux of "+RST::math(my::tostring(phi)+"\\times 2\\pi/"+my::tostring(N_/m_))+ " per square plaquette.");
+			system_info_.item("Flux of "+RST::math(my::tostring(phi)+"\\times 2\\pi/"+my::tostring(N_/m_))+ " per plaquette.");
 
 			filename_ += "-phi"+my::tostring(phi_);
-		} else { std::cerr<<__PRETTY_FUNCTION__<<" : the flux per square plaquette shouldn't be bigger than pi"<<std::endl; status_=3; }
-	}
+		}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : the flux per plaquette shouldn't be bigger than pi"<<std::endl; }
 }
 
 /*{method needed for running*/
@@ -195,7 +195,6 @@ void SquareChiral::lattice(){
 	std::string color("black");
 	std::string linestyle("solid");
 	std::string linewidth("1pt");
-	std::string arrow("-");
 	Vector<double> xy0(2,0);
 	Vector<double> xy1(2,0);
 	PSTricks ps(info_+path_+dir_,filename_);
@@ -215,13 +214,13 @@ void SquareChiral::lattice(){
 		s1 = obs_[0](i,1);
 		xy1 = x_[s1];
 
-		if(obs_[0](i,4)){
+		if((xy0-xy1).norm_squared()>1.0001){
 			linestyle = "dashed";
 			xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
 			ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
 		} else { linestyle = "solid"; }
 
-		ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1),"linewidth=1pt,linecolor=black,linestyle="+linestyle);
+		ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth=1pt,linecolor=black,linestyle="+linestyle);
 
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
@@ -233,11 +232,8 @@ void SquareChiral::lattice(){
 	Vector<double> shift(equivalent_vertex_[0]+equivalent_vertex_[1]);
 	ps.polygon(draw_unit_cell(shift(0)+0.5,shift(1)+0.5),"linecolor=black");
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		s0 = obs_[0](i,0);
-		xy0 = x_[s0];
-
-		s1 = obs_[0](i,1);
-		xy1 = x_[s1];
+		xy0 = x_[obs_[0](i,0)];
+		xy1 = x_[obs_[0](i,1)];
 
 		if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
 			xy0 += shift;
@@ -248,7 +244,7 @@ void SquareChiral::lattice(){
 				if(std::abs(be)>1e-4){
 					if(be>0){ color = "blue"; }
 					else    { color = "red"; }
-					ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+					ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
 				}
 			}
 			if(i%2 && o(2)){
@@ -261,7 +257,11 @@ void SquareChiral::lattice(){
 
 	/*unit cell, shows hopping amplitude, chemical potential and fluxes*/
 	std::complex<double> t;
-	Matrix<int> nb;
+	double flux;
+	double sign;
+	unsigned long long a;
+	unsigned long long b;
+	std::string arrow("-");
 	shift = equivalent_vertex_[0]+equivalent_vertex_[2];
 	ps.polygon(draw_unit_cell(shift(0)+0.5,shift(1)+0.5),"linecolor=black");
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
@@ -281,30 +281,35 @@ void SquareChiral::lattice(){
 				if(my::real(t)>0){ color = "blue"; }
 				else             { color = "red"; }
 
+				if(my::are_equal(my::imag(t),0)){ arrow = "-"; }
+				else { 
+					if(my::imag(t)>0){ arrow = "->"; }
+					else { arrow = "<-"; }
+				}
 				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
 			}
+
 			if(!(i%2)){
-				double sign;
 				unsigned int j(0);
-				unsigned long long a;
-				unsigned long long b;
-				double flux(0.0);
+				xy0 = x_[s0];
+				flux = 0;
 				do {
-					nb = get_neighbourg(s0);
-					s1 = nb(j,0);
-					flux += std::arg(H_(s0,s1));
+					xy0 += dir_nn_[j];
+					s1 = site_index(xy0);
+					flux += std::arg(-H_(s0,s1));
 					s0 = s1;
 				} while (++j<4);
 				flux = my::chop(flux/M_PI);
-				if(my::to_fraction(flux,a,b,sign)){
-					ps.put(xy0(0),xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
-				} else {
-					ps.put(xy0(0),xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+my::tostring(flux)+"}");
+				if(!my::are_equal(flux,0.0,eq_prec_,eq_prec_)){
+					if(my::to_fraction(flux,a,b,sign) && b!=1){
+						ps.put(xy0(0),xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
+					} else {
+						ps.put(xy0(0),xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+my::tostring(flux)+"}");
+					}
 				}
 			}
 		}
 	}
-	if(o(1)){ draw_long_range_correlation(ps,obs_[o(1)]); }
 	ps.end(true,true,true);
 }
 

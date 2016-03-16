@@ -1,30 +1,42 @@
-#include "KagomeFermi.hpp"
+#include "KagomePlaquette3B.hpp"
 
-KagomeFermi::KagomeFermi(System const& s):
+KagomePlaquette3B::KagomePlaquette3B(System const& s, double const& td):
 	System(s),
-	Kagome<double>(set_ab(),3,"kagome-fermi")
+	Kagome<double>(set_ab(),3,"kagome-plaquette3B"),
+	td_(td)
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){
 		init_fermionic();
 
-		system_info_.text("KagomeFermi :");
+		filename_ += ((td_>=0)?"-td+":"-td") + my::tostring(td_);
+
+		system_info_.text("KagomePlaquette3B :");
 		system_info_.item("Each color has the same Hamiltonian.");
+		system_info_.item("3 sites per unit cell.");
+		if(td_<0.0){ system_info_.item(RST::math("(0;\\pi,\\pi)")+"-flux"); }
+		if(td_>0.0){ system_info_.item(RST::math("(\\pi;0,\\pi)")+"-flux"); }
 	}
 }
 
 /*{method needed for running*/
-void KagomeFermi::compute_H(){
+void KagomePlaquette3B::compute_H(){
 	H_.set(n_,n_,0);
 
-	double t(-1.0);
+	double th(-1.0);
+	double t(0.0);
 	for(unsigned int i(0);i<obs_[0].nlinks(); i++){
+		switch(obs_[0](i,5)){
+			case 0: { t = (obs_[0](i,3)==0?th:-th); } break;
+			case 1: { t = td_; } break;
+			case 2: { t = (obs_[0](i,3)==0?td_:-th); } break;
+		}
 		H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_*t:t);
 	}
 	H_ += H_.transpose();
 }
 
-void KagomeFermi::create(){
+void KagomePlaquette3B::create(){
 	compute_H();
 	diagonalize(true);
 	if(status_==1){
@@ -38,7 +50,18 @@ void KagomeFermi::create(){
 	}
 }
 
-Matrix<double> KagomeFermi::set_ab() const {
+void KagomePlaquette3B::save_param(IOFiles& w) const {
+	if(w.is_binary()){
+		std::string s("td="+my::tostring(td_));
+		Vector<double> param(1,td_);
+
+		w.add_header()->title(s,'<');
+		w<<param;
+		w.add_header()->add(system_info_.get());
+	} else { w<<td_<<" "; }
+}
+
+Matrix<double> KagomePlaquette3B::set_ab() const {
 	Matrix<double> tmp(2,2);
 	tmp(0,0) = 2.0;
 	tmp(1,0) = 0.0;
@@ -47,13 +70,13 @@ Matrix<double> KagomeFermi::set_ab() const {
 	return tmp;
 }
 
-unsigned int KagomeFermi::unit_cell_index(Vector<double> const& x) const {
+unsigned int KagomePlaquette3B::unit_cell_index(Vector<double> const& x) const {
 	if(my::are_equal(x(0),0.0,eq_prec_,eq_prec_)){
 		if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ return 0; }
-		if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ return 2; }
+		if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ return 1; }
 	}
 	if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){
-		if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ return 1; }
+		if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ return 2; }
 	}
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	return spuc_;
@@ -61,7 +84,7 @@ unsigned int KagomeFermi::unit_cell_index(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void KagomeFermi::lattice(){
+void KagomePlaquette3B::lattice(){
 	Vector<unsigned int> o(3,0);
 	for(unsigned int i(1);i<obs_.size();i++){
 		switch(obs_[i].get_type()){
@@ -80,8 +103,8 @@ void KagomeFermi::lattice(){
 	PSTricks ps(info_+path_+dir_,filename_);
 	ps.begin(-20,-20,20,20,filename_);
 	ps.polygon(cluster_vertex_,"linecolor=green");
-	Matrix<double> uc(draw_unit_cell(-1.0,-sqrt(3.0)/4.0));
-	//ps.polygon(uc,"linecolor=black");
+	Matrix<double> uc(draw_unit_cell());
+	ps.polygon(uc,"linecolor=black");
 	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
 	if(o(1)){ draw_long_range_correlation(ps,obs_[o(1)]); }
@@ -96,7 +119,6 @@ void KagomeFermi::lattice(){
 		xy1 = x_[s1];
 
 		t = H_(s0,s1);
-		linewidth = my::tostring(t)+"mm";
 		if(o(0) || o(2)){
 			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
 				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
@@ -117,16 +139,18 @@ void KagomeFermi::lattice(){
 
 			if(t>0){ color = "blue"; }
 			else   { color = "red"; }
-			color = "black";
-			linewidth="1pt";
+			linewidth = my::tostring(t)+"mm";
 			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}
-		if(i%2){ ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
+		if(i%2){
+			ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); 
+			ps.put(xy0(0)-0.20,xy0(1)-0.15,"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,5))+"}}"); 
+		}
 	}
 	ps.end(true,true,true);
 }
 
-void KagomeFermi::display_results(){
+void KagomePlaquette3B::display_results(){
 	lattice();
 
 	if(rst_file_){
@@ -134,12 +158,13 @@ void KagomeFermi::display_results(){
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		std::string title("Fermi");
-		std::string run_cmd("./mc -s:wf kagome-fermi");
+		std::string title("t="+my::tostring(td_));
+		std::string run_cmd("./mc -s:wf kagome-plaquette3B");
 		run_cmd += " -u:N " + my::tostring(N_);
 		run_cmd += " -u:m " + my::tostring(m_);
 		run_cmd += " -u:n " + my::tostring(n_);
 		run_cmd += " -i:bc "+ my::tostring(bc_);
+		run_cmd += " -d:td "+ my::tostring(td_);
 		run_cmd += " -d -u:tmax 10";
 
 		rst_file_->title(title,'-');
@@ -149,11 +174,13 @@ void KagomeFermi::display_results(){
 	}
 }
 
-void KagomeFermi::check(){
+void KagomePlaquette3B::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="kagome-fermi";
+	filename_ ="kagome-plaquette3B";
 	display_results();
+
+	//plot_band_structure();
 }
 /*}*/

@@ -145,9 +145,63 @@ void SquareDimerizedBar::lattice(){
 	ps.polygon(uc,"linecolor=black");
 	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
 
-	double t;
+	/*draws only the lattice, shows links and bc*/
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		xy0 = x_[obs_[0](i,0)];
+		xy1 = x_[obs_[0](i,1)];
+
+		if((xy0-xy1).norm_squared()>1.0001){
+			linestyle = "dashed";
+			xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
+			ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(obs_[0](i,0))+"}");
+		} else { linestyle = "solid"; }
+
+		ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth=1pt,linecolor=black,linestyle="+linestyle);
+
+		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(obs_[0](i,0))+"}"); }
+	}
+	/*draws long range correlations over the lattice*/
+	if(o(1)){ draw_long_range_correlation(ps,obs_[o(1)]); }
+
+	/*unit cell, shows bond energy and color occupation*/
+	double be;
+	Vector<double> shift(equivalent_vertex_[0]+equivalent_vertex_[1]);
+	ps.polygon(draw_unit_cell(shift(0)+0.5,shift(1)+0.5),"linecolor=black");
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+		xy0 = x_[obs_[0](i,0)];
+		xy1 = x_[obs_[0](i,1)];
+
+		if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
+			xy0 += shift;
+			xy1 += shift;
+			if(o(0)){
+				be = obs_[o(0)][obs_[0](i,2)].get_x();
+				linewidth = my::tostring(std::abs(be))+"mm";
+				if(std::abs(be)>1e-4){
+					if(be>0){ color = "blue"; }
+					else    { color = "red"; }
+					ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+				}
+			}
+			if(i%2 && o(2)){
+				Vector<double> p(N_);
+				for(unsigned int j(0);j<N_;j++){ p(j) = obs_[o(2)][j+N_*obs_[0](i,5)].get_x(); }
+				ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
+			}
+		}
+	}
+
+	/*unit cell, shows hopping amplitude, chemical potential and fluxes*/
 	unsigned int s0;
 	unsigned int s1;
+	double t;
+	double flux;
+	double sign;
+	unsigned long long a;
+	unsigned long long b;
+	std::string arrow("-");
+	shift = equivalent_vertex_[0]+equivalent_vertex_[2];
+	ps.polygon(draw_unit_cell(shift(0)+0.5,shift(1)+0.5),"linecolor=black");
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		xy0 = x_[s0];
@@ -155,33 +209,41 @@ void SquareDimerizedBar::lattice(){
 		s1 = obs_[0](i,1);
 		xy1 = x_[s1];
 
-		t = H_(s0,s1);
-		linewidth = my::tostring(std::abs(t))+"mm";
-		if(o(0) || o(2)){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
-				if(o(0)){ t = obs_[o(0)][obs_[0](i,2)].get_x(); }
-				if(i%2 && o(2)){
-					Vector<double> p(N_);
-					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[o(2)][j+N_*obs_[0](i,5)].get_x(); }
-					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
+		if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
+			xy0 += shift;
+			xy1 += shift;
+			t = H_(s0,s1);
+			if(std::abs(t)>1e-4){
+				linewidth = my::tostring(std::abs(t))+"mm";
+
+				if(my::real(t)>0){ color = "blue"; }
+				else             { color = "red"; }
+
+				if(my::are_equal(my::imag(t),0)){ arrow = "-"; }
+				else { 
+					if(my::imag(t)>0){ arrow = "->"; }
+					else { arrow = "<-"; }
 				}
-			} else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
-			linewidth = my::tostring(std::abs(t))+"mm";
+				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+			}
+
+			if(!(i%2)){
+				unsigned int j(0);
+				xy0 = x_[s0];
+				do {
+					xy0 += dir_nn_[j];
+					s1 = site_index(xy0);
+					flux += std::arg(H_(s0,s1));
+					s0 = s1;
+				} while (++j<4);
+				flux = my::chop(flux/M_PI);
+				if(my::to_fraction(flux,a,b,sign)){
+					ps.put(xy0(0),xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
+				} else {
+					ps.put(xy0(0),xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+my::tostring(flux)+"}");
+				}
+			}
 		}
-		if(std::abs(t)>1e-4){
-			if((xy0-xy1).norm_squared()>1.0001){
-				linestyle = "dashed";
-				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
-				ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-			} else { linestyle = "solid"; }
-
-			if(t>0){ color = "blue"; }
-			else   { color = "red"; }
-
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-		}
-
-		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
 	ps.end(true,true,true);
 }

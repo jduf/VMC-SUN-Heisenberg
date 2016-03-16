@@ -63,7 +63,7 @@ class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSyst
 			   to the energy observable *//*}*/
 		void create_energy_obs(Vector<unsigned int> const& l);
 		/*!Returns the index of the site i in the unit cell*/
-		virtual unsigned int get_site_in_unit_cell(unsigned int const& i) const = 0;
+		virtual unsigned int site_index_to_unit_cell_index(unsigned int const& i) const = 0;
 
 		/*!Diagonalize the trial Hamiltonian H_*/
 		void diagonalize(bool simple);
@@ -128,8 +128,8 @@ void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 						tmp(k,1) = nb(j,0); //! site j
 						tmp(k,3) = nb(j,1);	//! direction of vector linking i->j
 						tmp(k,4) = nb(j,2); //! boundary condition test
-						tmp(k,5) = get_site_in_unit_cell(i);
-						tmp(k,6) = get_site_in_unit_cell(nb(j,0));
+						tmp(k,5) = site_index_to_unit_cell_index(i);
+						tmp(k,6) = site_index_to_unit_cell_index(nb(j,0));
 						unit_cell_links.insert(ui_tuple(tmp(k,3),tmp(k,5),tmp(k,6)));
 						k++;
 					}

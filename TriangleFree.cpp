@@ -119,6 +119,14 @@ unsigned int TriangleFree::unit_cell_index(Vector<double> const& x) const {
 
 /*{method needed for checking*/
 void TriangleFree::display_results(){
+	Vector<unsigned int> o(3,0);
+	for(unsigned int i(1);i<obs_.size();i++){
+		switch(obs_[i].get_type()){
+			case 1:{ o(0)=i; }break;//bond energy
+			case 2:{ o(1)=i; }break;//long range correlation
+			case 3:{ o(2)=i; }break;//color occupation
+		}
+	}
 	compute_H();
 
 	std::string color("black");
@@ -165,6 +173,7 @@ void TriangleFree::display_results(){
 		}
 		ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
 	}
+	if(o(1)){ draw_long_range_correlation(ps,obs_[o(1)]); }
 	ps.end(true,true,true);
 }
 

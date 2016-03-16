@@ -22,17 +22,12 @@ void TriangleChiral::compute_H(){
 	H_.set(n_,n_,0);
 
 	double t(-1.0);
-	unsigned int s0(0);
-	unsigned int s1(0);
 	double phi(phi_*M_PI/3.0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		s0 = obs_[0](i,0);
-		s1 = obs_[0](i,1);
-
 		switch(obs_[0](i,3)){
-			case 0:{ H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-			case 1:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi*(2.0*obs_[0](i,5)+1)); }break;
-			case 2:{ H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),phi* 2.0*obs_[0](i,5)); }break;
+			case 0:{ H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_*t:t); }break;
+			case 1:{ H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?bc_*t:t),phi*(2.0*obs_[0](i,5)+1)); }break;
+			case 2:{ H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?bc_*t:t),phi* 2.0*obs_[0](i,5)); }break;
 		}
 	}
 	H_ += H_.conjugate_transpose();
@@ -140,7 +135,7 @@ void TriangleChiral::lattice(){
 			else          { color = "red"; }
 
 			if(my::are_equal(t.imag(),0)){ arrow = "-"; }
-			else { arrow = "->"; }
+			else                         { arrow = "->"; }
 
 			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 		}

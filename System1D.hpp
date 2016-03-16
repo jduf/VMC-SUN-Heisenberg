@@ -25,7 +25,7 @@ class System1D: public GenericSystem<Type>{
 		Vector<double> e_;	//!< eigenvalue of H_
 
 		/*!Returns the index of the site i in the unit cell*/
-		unsigned int get_site_in_unit_cell(unsigned int const& i) const { return i%this->spuc_; }
+		unsigned int site_index_to_unit_cell_index(unsigned int const& i) const { return i%this->spuc_; }
 
 		/*!Compute the translation operator*/
 		void compute_T();
@@ -99,7 +99,10 @@ bool System1D<Type>::full_diagonalization(){
 	}
 	Vector<unsigned int> index;
 	e_.set(this->n_);
-	for(unsigned int i(0);i<this->n_;i++){ e_(i) = this->projection(this->H_,i).real(); }
+	for(unsigned int i(0);i<this->n_;i++){ 
+		my::display_progress(i,this->n_," compute E : ");
+		e_(i) = this->projection(this->H_,i).real(); 
+	}
 	e_.sort(std::less_equal<double>(),index);
 
 	Matrix<std::complex<double> > evec_tmp(this->evec_);
@@ -113,6 +116,7 @@ bool System1D<Type>::full_diagonalization(){
 
 	p_.set(this->n_);
 	for(unsigned int i(0);i<this->n_;i++){
+		my::display_progress(i,this->n_," compute px : ");
 		p_(i) = log(this->projection(T_,i)).imag();
 	}
 	return true;

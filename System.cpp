@@ -242,20 +242,45 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 0;
 	}
-	if( wf == "kagome-dirac" ){
+	if( wf == "kagome-free" ){
 		ref(0) = 5;
 		ref(1) = 1;
 		ref(2) = 1;
 	}
-	if( wf == "kagome-plaquette" ){
+	if( wf == "kagome-plaquette3A" ){
 		ref(0) = 5;
 		ref(1) = 1;
 		ref(2) = 2;
+	}
+	if( wf == "kagome-plaquette3B" ){
+		ref(0) = 5;
+		ref(1) = 1;
+		ref(2) = 3;
+	}
+	if( wf == "kagome-plaquette6A" ){
+		ref(0) = 5;
+		ref(1) = 1;
+		ref(2) = 4;
+	}
+	if( wf == "kagome-plaquette6B" ){
+		ref(0) = 5;
+		ref(1) = 1;
+		ref(2) = 5;
+	}
+	if( wf == "kagome-chiral" ){
+		ref(0) = 5;
+		ref(1) = 2;
+		ref(2) = 1;
 	}
 	if( wf == "kagome-vbc" ){
 		ref(0) = 5;
 		ref(1) = 2;
 		ref(2) = 2;
+	}
+	if( wf == "kagome-pihalftriangle" ){
+		ref(0) = 5;
+		ref(1) = 2;
+		ref(2) = 3;
 	}
 
 	if( wf == "honeycomb-fermi" ){

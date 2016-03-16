@@ -52,12 +52,12 @@ class System2D: public GenericSystem<Type>{
 
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
-		/*!Returns the index of the site at position x*/
-		unsigned int site_index(Vector<double> const& x) const;
-		/*!Reset x so that it belongs to the lattice (Lx,Ly)*/
+		/*!Returns the index of the site at position x (if outside the cluster, it is first reset inside)*/
+		unsigned int site_index(Vector<double> x) const;
+		/*!Returns true if x is outside the cluster*/
 		bool pos_out_of_lattice(Vector<double> const& x) const;
-		/*!If x1 is outside the cluster, resets x1 inside and returns bc*/
-		bool handle_boundary(Vector<double> const& x0, Vector<double>& x1) const;
+		/*!Returns true if the segment (x0,x1) cross a boundary (not the cluster border)*/
+		bool cross_boundary(Vector<double> const& x0, Vector<double> const& x1) const;
 
 		/*!Plots the band structure E(px,py)*/
 		void plot_band_structure();
@@ -79,8 +79,8 @@ class System2D: public GenericSystem<Type>{
 		Vector<double> e_;		 //!< eigenvalue of H_
 
 		/*!Returns the index of the site i in the unit cell*/
-		unsigned int get_site_in_unit_cell(unsigned int const& i) const;
-		/*!Resets x so it pos_out_of_lattice returns true*/
+		unsigned int site_index_to_unit_cell_index(unsigned int const& i) const;
+		/*!Resets x so pos_out_of_lattice(x) returns true*/
 		virtual bool reset_pos_in_lattice(Vector<double>& x) const = 0;
 		/*!Get the vector that separates the site i from its neighbourg in the direction d*/
 		virtual Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const = 0;
@@ -141,14 +141,13 @@ void System2D<Type>::create_obs(unsigned int const& which_obs){
 		case 1: { bond_energy(); }break;
 		case 2: { compute_long_range_correlation(); }break;
 		case 3: { color_occupation(); }break;
-		default:
-			{
-				std::cerr<<__PRETTY_FUNCTION__<<" : unknown observable "<<which_obs<<std::endl;
-				std::cerr<<"Available observables are :"<<std::endl;
-				std::cerr<<" + Bond energy            : 1"<<std::endl;
-				std::cerr<<" + Long range correlation : 2"<<std::endl;
-				std::cerr<<" + Color occupation       : 3"<<std::endl;
-			}
+		default:{
+					std::cerr<<__PRETTY_FUNCTION__<<" : unknown observable "<<which_obs<<std::endl;
+					std::cerr<<"Available observables are :"<<std::endl;
+					std::cerr<<" + Bond energy            : 1"<<std::endl;
+					std::cerr<<" + Long range correlation : 2"<<std::endl;
+					std::cerr<<" + Color occupation       : 3"<<std::endl;
+				}
 	}
 }
 
@@ -161,17 +160,14 @@ void System2D<Type>::bond_energy(){
 
 template<typename Type>
 void System2D<Type>::compute_long_range_correlation(){
-	Vector<double> x;
 	Vector<double>* dx(new Vector<double>[this->n_]);
 	for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[i]-this->x_[0]; }
 
 	this->obs_.push_back(Observable("Long range correlations",2,this->n_,this->n_*this->n_));
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(0);j<this->n_;j++){
-			x = this->x_[i]+dx[j];
-			reset_pos_in_lattice(x);
 			this->obs_.back()(i*this->n_+j,0) = i;
-			this->obs_.back()(i*this->n_+j,1) = this->site_index(x);
+			this->obs_.back()(i*this->n_+j,1) = this->site_index(this->x_[i]+dx[j]);
 			this->obs_.back()(i*this->n_+j,2) = j;
 		}
 	}
@@ -240,7 +236,8 @@ Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 		dir[d]= d;
 		nn[d] = x_[i];
 		nn[d]+= get_relative_neighbourg_position(i,d,nb(d,1));
-		nb(d,2) = handle_boundary(x_[i],nn[d]);
+		nb(d,2) = cross_boundary(x_[i],nn[d]);
+		reset_pos_in_lattice(nn[d]);
 	}
 
 	unsigned int j(0);
@@ -266,7 +263,8 @@ Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 }
 
 template<typename Type>
-unsigned int System2D<Type>::site_index(Vector<double> const& x) const {
+unsigned int System2D<Type>::site_index(Vector<double> x) const {
+	reset_pos_in_lattice(x);
 	for(unsigned int i(0);i<this->n_;i++){
 		if(my::are_equal(x_[i],x,this->eq_prec_,this->eq_prec_)){ return i; }
 	}
@@ -280,12 +278,11 @@ bool System2D<Type>::pos_out_of_lattice(Vector<double> const& x) const {
 }
 
 template<typename Type>
-bool System2D<Type>::handle_boundary(Vector<double> const& x0, Vector<double>& x1) const {
-	bool bc(false);
-	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[0].ptr(),boundary_vertex_[1].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[2].ptr(),boundary_vertex_[3].ptr()) ){ bc=!bc; }
-	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[4].ptr(),boundary_vertex_[5].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[6].ptr(),boundary_vertex_[7].ptr()) ){ bc=!bc; }
-	reset_pos_in_lattice(x1);
-	return bc;
+bool System2D<Type>::cross_boundary(Vector<double> const& x0, Vector<double> const& x1) const {
+	bool does(false);
+	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[0].ptr(),boundary_vertex_[1].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[2].ptr(),boundary_vertex_[3].ptr()) ){ does=!does; }
+	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[4].ptr(),boundary_vertex_[5].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[6].ptr(),boundary_vertex_[7].ptr()) ){ does=!does; }
+	return does;
 }
 
 template<typename Type>
@@ -353,8 +350,8 @@ void System2D<Type>::plot_band_structure(){
 template<typename Type>
 Matrix<double> System2D<Type>::draw_unit_cell(double const& xshift, double const& yshift) const {
 	Matrix<double> tmp(4,2);
-	tmp(0,0) = xshift   - (ab_(0,0)+ab_(0,1))/2.0;
-	tmp(0,1) = yshift   - (ab_(1,0)+ab_(1,1))/2.0;
+	tmp(0,0) = xshift;//  - (ab_(0,0)+ab_(0,1))/2.0;
+	tmp(0,1) = yshift;//  - (ab_(1,0)+ab_(1,1))/2.0;
 	tmp(1,0) = tmp(0,0) +  ab_(0,0);
 	tmp(1,1) = tmp(0,1) +  ab_(1,0);
 	tmp(2,0) = tmp(0,0) +  ab_(0,0)+ab_(0,1);
@@ -403,7 +400,7 @@ void System2D<Type>::draw_long_range_correlation(PSTricks& ps, Observable const&
 
 /*{private methods*/
 template<typename Type>
-unsigned int System2D<Type>::get_site_in_unit_cell(unsigned int const& i) const {
+unsigned int System2D<Type>::site_index_to_unit_cell_index(unsigned int const& i) const {
 	double ip;
 	Vector<double> x(inv_ab_*(x_[i]-x_[0]));
 	x(0) = std::modf(x(0),&ip);
@@ -417,28 +414,19 @@ unsigned int System2D<Type>::get_site_in_unit_cell(unsigned int const& i) const 
 
 template<typename Type>
 void System2D<Type>::compute_TxTy(){
-	bool bc;
 	Vector<double> x;
 	Tx_.set(this->n_,this->n_,0);
+	Ty_.set(this->n_,this->n_,0);
 	for(unsigned int i(0);i<this->n_;i++){
 		x = x_[i];
 		x(0)+= ab_(0,0);
 		x(1)+= ab_(1,0);
-		bc = handle_boundary(x_[i],x);
-		for(unsigned int j(0);j<this->n_;j++){
-			if(my::are_equal(x,x_[j],this->eq_prec_,this->eq_prec_)){ Tx_(i,j) = (bc?this->bc_:1); j=this->n_; }
-		}
-	}
+		Tx_(i,site_index(x)) = (cross_boundary(x_[i],x)?this->bc_:1);
 
-	Ty_.set(this->n_,this->n_,0);
-	for(unsigned int i(0);i<this->n_;i++){
 		x = x_[i];
 		x(0)+= ab_(0,1);
 		x(1)+= ab_(1,1);
-		bc = handle_boundary(x_[i],x);
-		for(unsigned int j(0);j<this->n_;j++){
-			if(my::are_equal(x,x_[j],this->eq_prec_,this->eq_prec_)){ Ty_(i,j) = (bc?this->bc_:1); j=this->n_; }
-		}
+		Ty_(i,site_index(x)) = (cross_boundary(x_[i],x)?this->bc_:1);
 	}
 	//std::cout<<this->H_*Tx_-Tx_*this->H_<<std::endl;
 	//std::cout<<this->H_*Ty_-Ty_*this->H_<<std::endl;
@@ -465,7 +453,10 @@ bool System2D<Type>::full_diagonalization(){
 	}
 	Vector<unsigned int> index;
 	e_.set(this->n_);
-	for(unsigned int i(0);i<this->n_;i++){ e_(i) = this->projection(this->H_,i).real(); }
+	for(unsigned int i(0);i<this->n_;i++){
+		my::display_progress(i,this->n_," compute E : ");
+		e_(i) = this->projection(this->H_,i).real();
+	}
 	e_.sort(std::less_equal<double>(),index);
 
 	Matrix<std::complex<double> > evec_tmp(this->evec_);
@@ -480,6 +471,7 @@ bool System2D<Type>::full_diagonalization(){
 	px_.set(this->n_);
 	py_.set(this->n_);
 	for(unsigned int i(0);i<this->n_;i++){
+		my::display_progress(i,this->n_," compute (px,py) : ");
 		px_(i) = log(this->projection(Tx_,i)).imag();
 		py_(i) = log(this->projection(Ty_,i)).imag();
 	}

@@ -38,12 +38,12 @@ void SquareFree::init_additional_links(){
 	Matrix<int> tmp(n_*2,3);
 	for(unsigned int i(0);i<n_;i++){
 		x = x_[i]+dir_nn_[0]+dir_nn_[1]*2.0;
-		tmp(2*i,2) = handle_boundary(x_[i],x);
+		tmp(2*i,2) = cross_boundary(x_[i],x);
 		tmp(2*i,0) = i;
 		tmp(2*i,1) = site_index(x);
 
 		x = x_[i]-dir_nn_[1]+dir_nn_[0]*2.0;
-		tmp(2*i+1,2) = handle_boundary(x_[i],x);
+		tmp(2*i+1,2) = cross_boundary(x_[i],x);
 		tmp(2*i+1,0) = i;
 		tmp(2*i+1,1) = site_index(x);
 	}
@@ -239,6 +239,7 @@ void SquareFree::lattice(){
 
 		if(i%2){ ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}"); }
 	}
+	if(o(1)){ draw_long_range_correlation(ps,obs_[o(1)]); }
 	ps.end(true,true,true);
 }
 

@@ -1,17 +1,20 @@
-#ifndef DEF_KAGOMEDIRAC
-#define DEF_KAGOMEDIRAC
+#ifndef DEF_KAGOMEPLAQUETTE3A
+#define DEF_KAGOMEPLAQUETTE3A
 
 #include "Kagome.hpp"
 
-class KagomeDirac: public Kagome<double>{
+class KagomePlaquette3A: public Kagome<double>{
 	public:
-		KagomeDirac(System const& s);
-		~KagomeDirac() = default;
+		KagomePlaquette3A(System const& s, double const& td);
+		~KagomePlaquette3A() = default;
 
 		void create();
+		void save_param(IOFiles& w) const;
 		void check();
 
 	protected:
+		double const td_;
+
 		void compute_H();
 		void display_results();
 		void lattice();
