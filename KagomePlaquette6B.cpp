@@ -190,6 +190,9 @@ void KagomePlaquette6B::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="kagome-plaquette6B";
-	display_results();
+	//display_results();
+	
+	compute_H();
+	plot_band_structure();
 }
 /*}*/

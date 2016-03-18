@@ -282,6 +282,11 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 2;
 		ref(2) = 3;
 	}
+	if( wf == "kagome-chiralB" ){
+		ref(0) = 5;
+		ref(1) = 2;
+		ref(2) = 4;
+	}
 
 	if( wf == "honeycomb-fermi" ){
 		ref(0) = 6;

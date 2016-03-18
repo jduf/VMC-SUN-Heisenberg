@@ -32,6 +32,7 @@
 #include "KagomePlaquette6A.hpp"
 #include "KagomePlaquette6B.hpp"
 #include "KagomeChiral.hpp"
+#include "KagomeChiralB.hpp"
 #include "KagomeVBC.hpp"
 #include "KagomePiHalfTriangle.hpp"
 

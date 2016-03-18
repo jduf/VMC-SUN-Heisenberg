@@ -25,7 +25,7 @@ void KagomePlaquette3B::compute_H(){
 
 	double th(-1.0);
 	double t(0.0);
-	for(unsigned int i(0);i<obs_[0].nlinks(); i++){
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		switch(obs_[0](i,5)){
 			case 0: { t = (obs_[0](i,3)==0?th:-th); } break;
 			case 1: { t = td_; } break;
@@ -179,8 +179,9 @@ void KagomePlaquette3B::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="kagome-plaquette3B";
-	display_results();
+	//display_results();
 
-	//plot_band_structure();
+	compute_H();
+	plot_band_structure();
 }
 /*}*/

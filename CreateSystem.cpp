@@ -323,6 +323,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 									}break;
 								case 2: { CGL_ = new KagomeVBC(*s_); }break;
 								case 3:
+								case 4:
+									{
+										double phi;
+										if(param){ phi = (*param)(0); }
+										if(C){ phi = C->get<double>("phi"); }
+										CGL_ = new KagomeChiralB(*s_,phi); 
+									}break;
 										{
 											Vector<double> t;
 											Vector<double> phi;
