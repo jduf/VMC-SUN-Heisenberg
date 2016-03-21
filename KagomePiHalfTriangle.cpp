@@ -1,39 +1,44 @@
-#include "SquareFreeFlux.hpp"
+#include "KagomePiHalfTriangle.hpp"
 
-SquareFreeFlux::SquareFreeFlux(System const& s, Vector<double> const& t, Vector<double> const& phi):
+KagomePiHalfTriangle::KagomePiHalfTriangle(System const& s, Vector<double> const& t, Vector<double> const& phi):
 	System(s),
-	Square<std::complex<double> >(set_ab(),4,"square-freeflux"),
+	Kagome<std::complex<double> >(set_ab(),6,"kagome-pihalftriangle"),
 	t_(t),
 	phi_(phi)
 {
-	if(status_==3){ init_lattice(); }
-	if(status_==2){
-		init_fermionic();
+	if(t_.size()==6){
+		if(status_==3){ init_lattice(); }
+		if(status_==2){
+			init_fermionic();
 
-		system_info_.text("SquareFreeComplex :");
-		system_info_.item("Each color has the same Hamiltonian.");
-		system_info_.item("Each bond as a free hopping amplitude and phase.");
-	}
+			system_info_.text("KagomePiHalfTriangle :");
+			system_info_.item("Each color has the same Hamiltonian.");
+		}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : t must contain 6 values (currently contains "<<t_.size()<<")"<<std::endl; }
 }
 
 /*{method needed for running*/
-void SquareFreeFlux::compute_H(){
+void KagomePiHalfTriangle::compute_H(){
 	H_.set(n_,n_,0);
 
-	unsigned int b(0);
-	for(unsigned int i(0);i<obs_[0].nlinks();i++){
+	unsigned int t(0);
+	unsigned int p(0);
+	int s(0);
+	for(unsigned int i(0);i<obs_[0].nlinks(); i++){
 		switch(obs_[0](i,5)){
-			case 0: { b = obs_[0](i,3)?1:0; }break;
-			case 1: { b = obs_[0](i,3)?3:2; }break;
-			case 2: { b = obs_[0](i,3)?5:4; }break;
-			case 3: { b = obs_[0](i,3)?7:6; }break;
+			case 0: { t = (obs_[0](i,3)==1?1:0); s = (obs_[0](i,4)?bc_:1); p = (obs_[0](i,3)==1?1:0); } break;
+			case 1: { t = (obs_[0](i,3)==2?3:2); s = (obs_[0](i,4)?bc_:1); p = (obs_[0](i,3)==1?2:0); } break;
+			case 2: { t = (obs_[0](i,3)==1?5:4); s = (obs_[0](i,4)?bc_:1); p = 0; } break;
+			case 3: { t = (obs_[0](i,3)==1?1:0); s = (obs_[0](i,4)?bc_:1); p = (obs_[0](i,3)==1?2:0); } break;
+			case 4: { t = (obs_[0](i,3)==2?3:2); s = (obs_[0](i,4)?bc_:1); p = (obs_[0](i,3)==1?2:0); } break;
+			case 5: { t = (obs_[0](i,3)==1?5:4); s = (obs_[0](i,4)?bc_:1); p = (obs_[0](i,3)==2?3:0); } break;
 		}
-		H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?bc_:1)*t_(b),phi_(b)*M_PI);
+		H_(obs_[0](i,0),obs_[0](i,1)) = std::polar(s*t_(t),phi_(p)*M_PI);
 	}
 	H_ += H_.conjugate_transpose();
 }
 
-void SquareFreeFlux::create(){
+void KagomePiHalfTriangle::create(){
 	compute_H();
 	diagonalize(true);
 	if(status_==1){
@@ -47,7 +52,7 @@ void SquareFreeFlux::create(){
 	}
 }
 
-void SquareFreeFlux::save_param(IOFiles& w) const {
+void KagomePiHalfTriangle::save_param(IOFiles& w) const {
 	if(w.is_binary()){
 		std::string s("t=(");
 		Vector<double> param(t_.size()+phi_.size());
@@ -69,37 +74,35 @@ void SquareFreeFlux::save_param(IOFiles& w) const {
 		w.add_header()->title(s,'<');
 		w<<param;
 		w.add_header()->add(system_info_.get());
-	} else { w<<t_<<" "<<phi_<<" "; }
+	} else { w<<t_<<" "; }
 }
 
-Matrix<double> SquareFreeFlux::set_ab() const {
+Matrix<double> KagomePiHalfTriangle::set_ab() const {
 	Matrix<double> tmp(2,2);
-	tmp(0,0) = 2;
-	tmp(1,0) = 0;
-	tmp(0,1) = 0;
-	tmp(1,1) = 2;
+	tmp(0,0) = 4.0;
+	tmp(1,0) = 0.0;
+	tmp(0,1) = 1.0;
+	tmp(1,1) = sqrt(3.0);
 	return tmp;
 }
 
-unsigned int SquareFreeFlux::unit_cell_index(Vector<double> const& x) const {
-	Vector<double> match(2,0);
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-	match(0) = 0.5;
-	match(1) = 0;
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-	match(0) = 0;
-	match(1) = 0.5;
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-	match(0) = 0.5;
-	match(1) = 0.5;
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+unsigned int KagomePiHalfTriangle::unit_cell_index(Vector<double> const& x) const {
+	if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
+		if(my::are_equal(x(0),0.00,eq_prec_,eq_prec_)){ return 0; }
+		if(my::are_equal(x(0),0.25,eq_prec_,eq_prec_)){ return 2; }
+		if(my::are_equal(x(0),0.50,eq_prec_,eq_prec_)){ return 3; }
+		if(my::are_equal(x(0),0.75,eq_prec_,eq_prec_)){ return 5; }
+	} else {
+		if(my::are_equal(x(0),0.0,eq_prec_,eq_prec_)){ return 1; }
+		if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){ return 4; }
+	}
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return 4;
+	return spuc_;
 }
 /*}*/
 
 /*{method needed for checking*/
-void SquareFreeFlux::display_results(){
+void KagomePiHalfTriangle::display_results(){
 	compute_H();
 	draw_lattice();
 
@@ -109,7 +112,7 @@ void SquareFreeFlux::display_results(){
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
 		std::string title("t=(");
-		std::string run_cmd("./mc -s:wf square-freeflux");
+		std::string run_cmd("./mc -s:wf kagome-pihalftriangle");
 		run_cmd += " -u:N " + my::tostring(N_);
 		run_cmd += " -u:m " + my::tostring(m_);
 		run_cmd += " -u:n " + my::tostring(n_);
@@ -135,13 +138,11 @@ void SquareFreeFlux::display_results(){
 	}
 }
 
-void SquareFreeFlux::check(){
+void KagomePiHalfTriangle::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="square-freeflux";
+	filename_ ="kagome-pihalftriangle";
 	display_results();
-
-	//plot_band_structure();
 }
 /*}*/

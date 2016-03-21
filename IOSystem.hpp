@@ -20,6 +20,8 @@ class IOSystem{
 		std::string const& get_filename() const { return filename_; }
 		/*!Returns the path (only usefull for mc via CreateSystem)*/
 		std::string const& get_path() const { return path_; }
+		/*Returns the total path from info*/
+		std::string get_info_path() const { return info_+path_+dir_; }
 
 		/*!Call the corresponding virtual std::string extract_...()*/
 		std::string analyse(unsigned int const& level);

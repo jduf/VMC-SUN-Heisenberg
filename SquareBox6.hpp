@@ -1,19 +1,19 @@
-#ifndef DEF_KAGOMEPLAQUETTE3B
-#define DEF_KAGOMEPLAQUETTE3B
+#ifndef DEF_SQUAREBOX6
+#define DEF_SQUAREBOX6
 
-#include "Kagome.hpp"
+#include "Square.hpp"
 
-class KagomePlaquette3B: public Kagome<double>{
+class SquareBox6: public Square<std::complex<double> >{
 	public:
-		KagomePlaquette3B(System const& s, double const& td);
-		~KagomePlaquette3B() = default;
+		SquareBox6(System const& s, Vector<double> const& t);
+		~SquareBox6() = default;
 
 		void create();
 		void save_param(IOFiles& w) const;
 		void check();
 
 	protected:
-		double const td_;
+		Vector<double> const t_; //!< hopping terms
 
 		void compute_H();
 		void display_results();

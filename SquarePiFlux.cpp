@@ -65,84 +65,9 @@ unsigned int SquarePiFlux::unit_cell_index(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void SquarePiFlux::lattice(){
-	compute_H();
-
-	std::string color("black");
-	std::string linestyle("solid");
-	std::string linewidth("1pt");
-	std::string arrow("-");
-	Vector<double> xy0(2,0);
-	Vector<double> xy1(2,0);
-	PSTricks ps(info_+path_+dir_,filename_);
-	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(cluster_vertex_,"linecolor=green");
-	Matrix<double> uc(draw_unit_cell(0,0.5));
-	ps.polygon(uc,"linecolor=black");
-	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
-
-	std::complex<double> t;
-	unsigned int s0;
-	unsigned int s1;
-	Matrix<int> nb;
-	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		s0 = obs_[0](i,0);
-		xy0 = x_[s0];
-
-		s1 = obs_[0](i,1);
-		xy1 = x_[s1];
-
-		t = H_(s0,s1);
-		if(obs_.size()>1){
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
-				t = obs_[1][obs_[0](i,2)].get_x();
-				if(i%2 && obs_.size()>2){
-					Vector<double> p(N_);
-					for(unsigned int j(0);j<N_;j++){ p(j) = obs_[2][j+N_*obs_[0](i,5)].get_x(); }
-					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
-				}
-			} else if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy1(0),xy1(1))){ t = 0; }
-		}
-		if(std::abs(t)>1e-4){
-			if((xy0-xy1).norm_squared()>1.0001){
-				linestyle = "dashed";
-				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
-				ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-			} else { linestyle = "solid"; }
-
-			if(t.real()>0){ color = "blue"; }
-			else          { color = "red"; }
-
-			if(my::are_equal(t.imag(),0.0)){ arrow = "-"; }
-			else { arrow = "->"; }
-			//ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(my::chop(std::arg(-t)/M_PI))+"}");
-
-			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-		}
-
-		if(obs_[0](i,3)){ ps.put(xy0(0)+0.1,(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
-		else            { ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.1,"\\tiny{"+std::string(1,my::int_to_alphabet(obs_[0](i,2),true))+"}"); }
-
-		if(i%2){
-			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
-		} else {
-			unsigned int j(0);
-			double flux(0.0);
-			do {
-				nb = get_neighbourg(s0);
-				s1 = nb(j,0);
-				flux += std::arg(-H_(s0,s1));
-				s0 = s1;
-			} while (++j<4);
-			flux = my::chop(flux/M_PI);
-			ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.5,"\\tiny{"+my::tostring(flux)+"}");
-		}
-	}
-	ps.end(true,true,true);
-}
-
 void SquarePiFlux::display_results(){
-	lattice();
+	compute_H();
+	draw_lattice();
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

@@ -23,6 +23,7 @@
 #include "SquareFreeFlux.hpp"
 #include "SquarePiFlux.hpp"
 #include "SquareChiral.hpp"
+#include "SquareBox6.hpp"
 #include "SquareJastrow.hpp"
 
 #include "KagomeFermi.hpp"

@@ -260,6 +260,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C){ phi = C->get<double>("phi"); }
 										CGL_ = new SquareChiral(*s_,phi);
 									}break;
+								case 4:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										CGL_ = new SquareBox6(*s_,t);
+									}break;
 								default:{ error(); }break;
 							}
 						}break;

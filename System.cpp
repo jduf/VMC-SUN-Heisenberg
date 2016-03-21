@@ -232,6 +232,11 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 2;
 		ref(2) = 3;
 	}
+	if( wf == "square-box6" ){
+		ref(0) = 4;
+		ref(1) = 2;
+		ref(2) = 4;
+	}
 	if( wf == "square-jastrow" ){
 		ref(0) = 4;
 		ref(1) = 0;

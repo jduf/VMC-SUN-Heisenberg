@@ -17,7 +17,6 @@ class SquareDimerizedBar: public Square<double>{
 
 		void compute_H(unsigned int const& c);
 		void display_results();
-		void lattice();
 
 		/*!Sets the unit cell's vectors*/
 		Matrix<double> set_ab() const;
