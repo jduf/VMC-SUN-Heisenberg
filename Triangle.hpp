@@ -151,7 +151,6 @@ Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n, unsigned int 
 			return tmp;
 		}
 
-		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		std::set<unsigned int> v;
 		unsigned int m;
 		for(unsigned int i(2);i<20;i++){
@@ -160,6 +159,7 @@ Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n, unsigned int 
 			m = (3*i)*(3*i);
 			if(!(m%spuc)){ v.insert(m); }
 		}
+		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }
 		std::cerr<<"n=3*l*l or (3*l)^2"<<std::endl;
 	}

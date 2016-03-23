@@ -27,7 +27,7 @@ class Kagome: public System2D<Type>{
 /*{constructor*/
 template<typename Type>
 Kagome<Type>::Kagome(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc),ab,spuc,4,6,filename)
+	System2D<Type>(set_geometry((this->ref_(4)?this->n_:0),spuc),ab,spuc,4,6,filename)
 {}
 
 template<typename Type>
@@ -187,7 +187,8 @@ void Kagome<Type>::draw_lattice(){
 			xy0 = this->x_[links(i,0)];
 			xy1 = this->x_[links(i,1)];
 
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+			{
 				xy0 += shift;
 				xy1 += shift;
 				if(o(0)){
@@ -210,6 +211,7 @@ void Kagome<Type>::draw_lattice(){
 
 	/*unit cell, shows hopping amplitude, chemical potential and fluxes*/
 	Type t;
+	double mu;
 	double flux;
 	double sign;
 	unsigned long long a;
@@ -230,7 +232,7 @@ void Kagome<Type>::draw_lattice(){
 			xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
 		} else { linestyle = "solid"; }
 
-		//if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+		if(!my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
 		{
 			xy0 += shift;
 			xy1 += shift;
@@ -248,72 +250,79 @@ void Kagome<Type>::draw_lattice(){
 				}
 				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
-		}
 
-		switch(links(i,5)%3){
-			case 0:
-				{
-					if(links(i,3)==0){
-						flux = 0.0;
-						unsigned int j(0);
-						do {
-							xy0 += this->dir_nn_[2*j];
-							s1 = this->site_index(xy0);
-							flux += std::arg(-this->H_(s0,s1));
-							s0 = s1;
-						} while (++j<3);
-						flux /= M_PI;
-						if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-							if(my::to_fraction(flux,a,b,sign) && b!=1){
-								ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
-							} else {
-								ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+my::tostring(my::chop(flux))+"}");
+			mu = my::real(this->H_(s0,s0));
+			if(std::abs(mu)>1e-4){
+				if(mu>0){ color = "cyan"; }
+				else    { color = "magenta"; }
+				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
+
+			switch(links(i,5)%3){
+				case 0:
+					{
+						if(links(i,3)==0){
+							flux = 0.0;
+							unsigned int j(0);
+							do {
+								xy0 += this->dir_nn_[2*j];
+								s1 = this->site_index(xy0);
+								flux += std::arg(-this->H_(s0,s1));
+								s0 = s1;
+							} while (++j<3);
+							flux /= M_PI;
+							if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
+								if(my::to_fraction(flux,a,b,sign) && b!=1){
+									ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
+								} else {
+									ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+my::tostring(my::chop(flux))+"}");
+								}
 							}
 						}
-					}
-				}break;
-			case 1:
-				{
-					if(links(i,3)==1){
-						flux = 0.0;
-						unsigned int j(0);
-						do {
-							xy0 += this->dir_nn_[2*j+1];
-							s1 = this->site_index(xy0);
-							flux += std::arg(-this->H_(s0,s1));
-							s0 = s1;
-						} while (++j<3);
-						flux /= M_PI;
-						if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-							if(my::to_fraction(flux,a,b,sign) && b!=1){
-								ps.put(xy0(0),(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
-							} else {
-								ps.put(xy0(0),(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(my::chop(flux))+"}");
+					}break;
+				case 1:
+					{
+						if(links(i,3)==1){
+							flux = 0.0;
+							unsigned int j(0);
+							do {
+								xy0 += this->dir_nn_[2*j+1];
+								s1 = this->site_index(xy0);
+								flux += std::arg(-this->H_(s0,s1));
+								s0 = s1;
+							} while (++j<3);
+							flux /= M_PI;
+							if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
+								if(my::to_fraction(flux,a,b,sign) && b!=1){
+									ps.put(xy0(0),(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
+								} else {
+									ps.put(xy0(0),(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(my::chop(flux))+"}");
+								}
 							}
 						}
-					}
-				}break;
-			case 2:
-				{
-					if(links(i,3)==0){
-						flux = 0.0;
-						unsigned int j(0);
-						do {
-							xy0 += this->dir_nn_[j];
-							s1 = this->site_index(xy0);
-							flux += std::arg(-this->H_(s0,s1));
-							s0 = s1;
-						} while (++j<6);
-						flux /= M_PI;
-						if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-							if(my::to_fraction(flux,a,b,sign) && b!=1){
-								ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+1.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
-							} else {
-								ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+1.0,"\\tiny{"+my::tostring(my::chop(flux))+"}");
+					}break;
+				case 2:
+					{
+						if(links(i,3)==0){
+							flux = 0.0;
+							unsigned int j(0);
+							do {
+								xy0 += this->dir_nn_[j];
+								s1 = this->site_index(xy0);
+								flux += std::arg(-this->H_(s0,s1));
+								s0 = s1;
+							} while (++j<6);
+							flux /= M_PI;
+							if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
+								if(my::to_fraction(flux,a,b,sign) && b!=1){
+									ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+1.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
+								} else {
+									ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+1.0,"\\tiny{"+my::tostring(my::chop(flux))+"}");
+								}
 							}
 						}
-					}
-				}break;
+					}break;
+			}
 		}
 	}
 	ps.end(true,true,true);
@@ -381,7 +390,6 @@ Matrix<double> Kagome<Type>::set_geometry(unsigned int const& n, unsigned int co
 			return tmp;
 		}
 
-		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		std::set<unsigned int> v;
 		unsigned int m;
 		for(unsigned int i(2);i<20;i++){
@@ -390,6 +398,7 @@ Matrix<double> Kagome<Type>::set_geometry(unsigned int const& n, unsigned int co
 			m = (3*i)*(3*i);
 			if(!(m%spuc)){ v.insert(m); }
 		}
+		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }
 		std::cerr<<"n=9*l*l or 3*l*l"<<std::endl;
 	}

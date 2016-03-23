@@ -99,7 +99,10 @@ void GenericSystem<Type>::save_param(IOFiles& w) const {
 
 template<typename Type>
 void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
-	if(2*l.sum()==l.size()*z_){
+	bool conflict(false);
+	for(auto const& o:this->obs_){ if(o.get_type() == 0){ conflict = true; } }
+	if(conflict){ std::cerr<<__PRETTY_FUNCTION__<<" : energy observable already defined"<<std::endl; }
+	else if(2*l.sum()==l.size()*z_){
 		unsigned int k(0);
 		unsigned int l_tmp;
 		Matrix<int> nb;
@@ -136,7 +139,7 @@ void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 				}
 			}
 		}
-		if(unit_cell_links.size() != z_*spuc_/2){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links in the unit cell : "<<unit_cell_links.size() <<std::endl;; }
+		if(unit_cell_links.size() != z_*spuc_/2){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links in the unit cell : "<<unit_cell_links.size()<<std::endl; }
 		else {
 			/*!This value has nothing to do with the index of the bond l having
 			 * a coupling J_(l). This value is only the index of a given bond

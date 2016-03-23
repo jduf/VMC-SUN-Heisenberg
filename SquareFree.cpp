@@ -2,7 +2,7 @@
 
 SquareFree::SquareFree(System const& s, Vector<double> const& t, Vector<double> const& mu):
 	System(s),
-	Square<double>(set_ab(ref_(3)),8,"square-free"),
+	Square<double>(set_ab(ref_(3)),6,"square-free"),
 	t_(t),
 	mu_(mu)
 {
@@ -15,11 +15,12 @@ SquareFree::SquareFree(System const& s, Vector<double> const& t, Vector<double> 
 			//if(obs_[i].get_type() == 4){ need_compute_additional_links = false; i=obs_.size(); }
 		//}
 		//if(need_compute_additional_links){ init_additional_links(); }
+
 		same_wf_ = false;
 
 		system_info_.text("SquareFree :");
 		system_info_.item("Each color has a different Hamiltonian.");
-		system_info_.item("There is an additional second neighbour hopping for every 1/k sites.");
+		//system_info_.item("There is an additional second neighbour hopping for every 1/k sites.");
 
 		filename_ += "-t";
 		for(unsigned int i(0);i<t_.size();i++){

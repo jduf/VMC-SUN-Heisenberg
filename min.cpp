@@ -25,16 +25,17 @@ int main(int argc, char* argv[]){
 								for(unsigned int l(0);l<loop;l++){
 									m1.init(true);
 									m1.run();
+									m1.refine(30,false,1e-5,5); 
 									m1.save();
 
 									//m.refine(10,0,1e-5,5);
 									//m.explore_around_minima(10,0,1e-5,0.05);
 									//m.complete_analysis(1e-5);
 									//m.save();
-
 									//m2.init();
 									//m2.run(true);
 									//m2.save();
+									//
 								}
 
 								m.complete_analysis(1e-5);

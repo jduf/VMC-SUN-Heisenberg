@@ -1,19 +1,19 @@
-#ifndef DEF_KAGOMEPLAQUETTE6A
-#define DEF_KAGOMEPLAQUETTE6A
+#ifndef DEF_SQUARET4X2
+#define DEF_SQUARET4X2
 
-#include "Kagome.hpp"
+#include "Square.hpp"
 
-class KagomePlaquette6A: public Kagome<double>{
+class SquareT4x2: public Square<double>{
 	public:
-		KagomePlaquette6A(System const& s, double const& td);
-		~KagomePlaquette6A() = default;
+		SquareT4x2(System const& s, Vector<double> const& t);
+		~SquareT4x2() = default;
 
 		void create();
 		void save_param(IOFiles& w) const;
 		void check();
 
 	protected:
-		double const td_; //!< hopping amplitude
+		Vector<double> const t_; //!< hopping terms
 
 		void compute_H();
 		void display_results();

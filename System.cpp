@@ -217,6 +217,36 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 3;
 	}
+	if( wf == "square-T2x2" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 4;
+	}
+	if( wf == "square-T3x2" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 5;
+	}
+	if( wf == "square-T3x3" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 6;
+	}
+	if( wf == "square-T4x2" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 7;
+	}
+	if( wf == "square-T4x3" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 8;
+	}
+	if( wf == "square-T4x4" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 9;
+	}
 	if( wf == "square-freeflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
@@ -232,14 +262,14 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 2;
 		ref(2) = 3;
 	}
+	if( wf == "square-jastrow" ){
+		ref(0) = 4;
+		ref(1) = 0;
+	}
 	if( wf == "square-box6" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 4;
-	}
-	if( wf == "square-jastrow" ){
-		ref(0) = 4;
-		ref(1) = 0;
 	}
 
 	if( wf == "kagome-fermi" ){

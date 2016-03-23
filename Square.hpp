@@ -27,10 +27,8 @@ class Square: public System2D<Type>{
 /*{constructor*/
 template<typename Type>
 Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc,this->ref_(3)),ab,spuc,4,4,filename)
-{
-	this->filename_ += +"-p"+my::tostring(p_)+"-q"+my::tostring(q_);
-}
+	System2D<Type>(set_geometry((this->ref_(4)?this->n_:0),spuc,this->ref_(3)),ab,spuc,4,4,filename)
+{ this->filename_ += +"-p"+my::tostring(p_)+"-q"+my::tostring(q_); }
 
 template<typename Type>
 Square<Type>::~Square() = default;
@@ -157,7 +155,12 @@ void Square<Type>::draw_lattice(){
 			xy0 = this->x_[links(i,0)];
 			xy1 = this->x_[links(i,1)];
 
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
+			if((xy0-xy1).norm_squared()>1.0001){
+				linestyle = "dashed";
+				xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
+			} else { linestyle = "solid"; }
+			//if(!my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+			{
 				xy0 += shift;
 				xy1 += shift;
 				if(o(0)){
@@ -186,8 +189,7 @@ void Square<Type>::draw_lattice(){
 	unsigned long long a;
 	unsigned long long b;
 	std::string arrow("-");
-	//shift = equivalent_vertex_[0]+equivalent_vertex_[2];
-	//ps.polygon(draw_unit_cell(shift(0)+0.5,shift(1)+0.5),"linecolor=black");
+	shift = this->equivalent_vertex_[0]+this->equivalent_vertex_[2];
 	for(unsigned int i(0);i<links.row();i++){
 		s0 = links(i,0);
 		xy0 = this->x_[s0];
@@ -199,7 +201,7 @@ void Square<Type>::draw_lattice(){
 			xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
 		} else { linestyle = "solid"; }
 
-		//if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+		if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
 		{
 			xy0 += shift;
 			xy1 += shift;
@@ -224,23 +226,23 @@ void Square<Type>::draw_lattice(){
 				else    { color = "magenta"; }
 				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
-		}
 
-		if(!(i%2)){
-			unsigned int j(0);
-			flux = 0;
-			do {
-				xy0 += this->dir_nn_[j];
-				s1   = this->site_index(xy0);
-				flux+= std::arg(-this->H_(s0,s1));
-				s0 = s1;
-			} while (++j<4);
-			flux /= M_PI;
-			if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-				if(my::to_fraction(flux,a,b,sign) && b!=1){
-					ps.put(xy0(0)+0.5,xy0(1)+0.5,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
-				} else {
-					ps.put(xy0(0)+0.5,xy0(1)+0.5,"\\tiny{"+my::tostring(my::chop(flux))+"}");
+			if(!(i%2)){
+				unsigned int j(0);
+				flux = 0;
+				do {
+					xy0 += this->dir_nn_[j];
+					s1   = this->site_index(xy0);
+					flux+= std::arg(-this->H_(s0,s1));
+					s0 = s1;
+				} while (++j<4);
+				flux /= M_PI;
+				if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
+					if(my::to_fraction(flux,a,b,sign) && b!=1){
+						ps.put(xy0(0)+0.5,xy0(1)+0.5,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
+					} else {
+						ps.put(xy0(0)+0.5,xy0(1)+0.5,"\\tiny{"+my::tostring(my::chop(flux))+"}");
+					}
 				}
 			}
 		}
@@ -286,7 +288,6 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int co
 			return tmp;
 		}
 
-		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		std::set<unsigned int> v;
 		unsigned int m;
 		for(unsigned int p(2);p<2*sqrt(n);p++){
@@ -295,6 +296,7 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int co
 				if(!(m%spuc)){ v.insert(m); }
 			}
 		}
+		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }
 		std::cerr<<"n=p*p+q*q"<<std::endl;
 	}

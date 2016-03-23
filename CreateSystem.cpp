@@ -231,6 +231,48 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C){ t = C->get<std::vector<double> >("t"); }
 										RGL_ = new SquareDimerizedBar(*s_,t);
 									}break;
+								case 4:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new SquareT2x2(*s_,t);
+									}break;
+								case 5:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new SquareT3x2(*s_,t);
+									}break;
+								case 6:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new SquareT3x3(*s_,t);
+									}break;
+								case 7:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new SquareT4x2(*s_,t);
+									}break;
+								case 8:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new SquareT4x3(*s_,t);
+									}break;
+								case 9:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new SquareT4x4(*s_,t);
+									}break;
 								default:{ error(); }break;
 							}
 						}break;

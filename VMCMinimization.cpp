@@ -551,12 +551,11 @@ void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::st
 	 * created, set obs_ so it contains every observable available and set s_
 	 * so it contains the minimal information over the links to compute the
 	 * energy*/
-	s_->set_obs(0);
+	s_->create_cluster(true);
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
 	cs.create_obs(0);
 	obs_ = cs.get_obs();
-	s_->set_obs(obs_[0]);
 
 	ps_size_ = 1;
 	ps_= new Vector<double>[dof_];

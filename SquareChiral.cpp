@@ -5,14 +5,14 @@ SquareChiral::SquareChiral(System const& s, double const& phi):
 	Square<std::complex<double> >(set_ab(ref_(3),N_/m_),N_/m_,"square-chiral"),
 	phi_(phi)
 {
-	if(2*phi<=N_/m_){
+	if(phi<=N_/m_){
 		if(status_==3){ init_lattice(); }
 		if(status_==2){
 			init_fermionic();
 
 			system_info_.text("SquareChiral :");
 			system_info_.item("Each color has the same Hamiltonian.");
-			system_info_.item("Flux of "+RST::math(my::tostring(phi)+"\\times 2\\pi/"+my::tostring(N_/m_))+ " per plaquette.");
+			system_info_.item("Flux of "+RST::math(my::tostring(phi)+"\\times\\pi/"+my::tostring(N_/m_))+ " per plaquette.");
 
 			filename_ += "-phi"+my::tostring(phi_);
 		}
@@ -24,37 +24,37 @@ void SquareChiral::compute_H(){
 	H_.set(n_,n_,0);
 
 	double t(-1.0);
-	unsigned int s0(0);
-	unsigned int s1(0);
-	double phi(phi_*2.0*m_*M_PI/N_);
+	double phi(phi_*m_*M_PI/N_);
 	switch(spuc_){
 		case 4:
 			{
 				for(unsigned int i(0);i<obs_[0].nlinks();i++){
-					s0 = obs_[0](i,0);
-					s1 = obs_[0](i,1);
 					switch(obs_[0](i,5)){
-						case 0: { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 1: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?2.0*phi:0.0)); }break;
-						case 2: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:phi)); }break;
-						case 3: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:phi)); }break;
+						case 0: { H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_*t:t); }break;
+						case 1: { H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?2.0*phi:0.0)); }break;
+						case 2: { H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:phi)); }break;
+						case 3: { H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:phi)); }break;
 					}
 				}
 			}break;
 		case 5:
 			{
 				for(unsigned int i(0);i<obs_[0].nlinks();i++){
-					s0 = obs_[0](i,0);
-					s1 = obs_[0](i,1);
 					switch(obs_[0](i,5)){
-						case 0: { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
-						case 1: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?-phi:phi)); }break;
-						case 2: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?phi:0.0)); }break;
-						case 3: { H_(s0,s1) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:-phi)); }break;
-						case 4: { H_(s0,s1) = (obs_[0](i,4)?bc_*t:t); }break;
+						case 0: { H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_*t:t); }break;
+						case 1: { H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?-phi:phi)); }break;
+						case 2: { H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?phi:0.0)); }break;
+						case 3: { H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?0.0:-phi)); }break;
+						case 4: { H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_*t:t); }break;
 					}
 				}
 			}break;
+		default:/*works for k=3,6,7*/
+			{
+				for(unsigned int i(0);i<obs_[0].nlinks();i++){
+					H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?bc_*t:t),(obs_[0](i,3)?phi*obs_[0](i,5):0.0));
+				}
+			}
 	}
 	H_ += H_.conjugate_transpose();
 }
@@ -126,6 +126,22 @@ Matrix<double> SquareChiral::set_ab(unsigned int const& ref3, unsigned int const
 					tmp(1,1) = 2.0;
 				}
 			}break;
+		case 6:
+			{
+				tmp.set(2,2);
+				tmp(0,0) = 6.0;
+				tmp(1,0) = 0.0;
+				tmp(0,1) = 0.0;
+				tmp(1,1) = 1.0;
+			}break;
+		case 7:
+			{
+				tmp.set(2,2);
+				tmp(0,0) = 7.0;
+				tmp(1,0) = 0.0;
+				tmp(0,1) = 0.0;
+				tmp(1,1) = 1.0;
+			}break;
 		default:
 			{ std::cerr<<__PRETTY_FUNCTION__<<" : unknown unit cell"<<std::endl; }
 	}
@@ -135,12 +151,32 @@ Matrix<double> SquareChiral::set_ab(unsigned int const& ref3, unsigned int const
 unsigned int SquareChiral::unit_cell_index(Vector<double> const& x) const {
 	Vector<double> match(2,0);
 	switch(N_/m_){
+		case 2:
+			{
+				Vector<double> match(2,0.0);
+				if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
+				match(0) = 0.5;
+				match(1) = 0.5;
+				if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+			}
+		case 3:
+			{
+				if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ 
+					if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0;}
+					if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 1;}
+					if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 2;}
+				}
+			}
 		case 4:
 			{
-				unsigned int i(0);
-				if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){ i+=1; }
-				if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ i+=2; }
-				return i;
+				if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ 
+					if(my::are_equal(x(0),0.0,eq_prec_,eq_prec_)){ return 0;}
+					if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){ return 1;}
+				}
+				if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ 
+					if(my::are_equal(x(0),0.0,eq_prec_,eq_prec_)){ return 2;}
+					if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){ return 3;}
+				}
 			}
 		case 5:
 			{
@@ -174,9 +210,32 @@ unsigned int SquareChiral::unit_cell_index(Vector<double> const& x) const {
 					if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
 				}
 			}
+		case 6:
+			{
+				if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ 
+					if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0;}
+					if(my::are_equal(x(0),1.0/6.0,eq_prec_,eq_prec_)){ return 1;}
+					if(my::are_equal(x(0),2.0/6.0,eq_prec_,eq_prec_)){ return 2;}
+					if(my::are_equal(x(0),3.0/6.0,eq_prec_,eq_prec_)){ return 3;}
+					if(my::are_equal(x(0),4.0/6.0,eq_prec_,eq_prec_)){ return 4;}
+					if(my::are_equal(x(0),5.0/6.0,eq_prec_,eq_prec_)){ return 5;}
+				}
+			}
+		case 7:
+			{
+				if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ 
+					if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0;}
+					if(my::are_equal(x(0),1.0/7.0,eq_prec_,eq_prec_)){ return 1;}
+					if(my::are_equal(x(0),2.0/7.0,eq_prec_,eq_prec_)){ return 2;}
+					if(my::are_equal(x(0),3.0/7.0,eq_prec_,eq_prec_)){ return 3;}
+					if(my::are_equal(x(0),4.0/7.0,eq_prec_,eq_prec_)){ return 4;}
+					if(my::are_equal(x(0),5.0/7.0,eq_prec_,eq_prec_)){ return 5;}
+					if(my::are_equal(x(0),6.0/7.0,eq_prec_,eq_prec_)){ return 6;}
+				}
+			}
 	}
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return 5;
+	return spuc_;
 }
 /*}*/
 

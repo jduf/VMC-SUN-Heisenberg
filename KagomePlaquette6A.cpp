@@ -11,7 +11,7 @@ KagomePlaquette6A::KagomePlaquette6A(System const& s, double const& td):
 
 		filename_ += ((td_>=0)?"-td+":"-td") + my::tostring(td_);
 
-		system_info_.text("KagomePlaquette6 :");
+		system_info_.text("KagomePlaquette6A :");
 		system_info_.item("Each color has the same Hamiltonian.");
 		system_info_.item("6 sites per unit cell.");
 		if(td_<0.0){ system_info_.item(RST::math("(0;\\pi,0)")+"-flux"); }

@@ -26,7 +26,7 @@ class Honeycomb: public System2D<Type>{
 /*{constructor*/
 template<typename Type>
 Honeycomb<Type>::Honeycomb(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry(( (!this->obs_.size() || !this->obs_[0].nlinks()) ?this->n_:0),spuc),ab,spuc,3,3,filename)
+	System2D<Type>(set_geometry((this->ref_(4)?this->n_:0),spuc),ab,spuc,3,3,filename)
 {}
 
 template<typename Type>
@@ -177,7 +177,6 @@ Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n, unsigned int
 			return tmp;
 		}
 
-		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		std::set<unsigned int> v;
 		unsigned int m;
 		for(unsigned int i(2);i<20;i++){
@@ -186,6 +185,7 @@ Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n, unsigned int
 			m = 2*i*i;
 			if(!(m%spuc)){ v.insert(m); }
 		}
+		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }
 		std::cerr<<"n=2*l*l or 6*l*l"<<std::endl;
 	}
