@@ -96,14 +96,15 @@ void Honeycomb<Type>::init_lattice(){
 			}
 
 			if(this->unit_cell_allowed()){
-				this->status_ = 2;
-
 				if(this->ref_(4)==2){
 					Vector<unsigned int> l(2);
 					l(0) = 3;
 					l(1) = 0;
 					this->create_energy_obs(l);
-				} else { this->ref_(4) = 0; }
+				} else {
+					this->ref_(4) = 0; 
+					this->status_ = 2;
+				}
 
 				/*!sets the bond energy if it has not been set yet*/
 				if(this->obs_[0].nlinks() != this->J_.size()){

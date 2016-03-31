@@ -80,10 +80,11 @@ void Square<Type>::init_lattice(){
 			this->equivalent_vertex_[2] = this->dir_nn_[3]*0.5*(p_-q_)+this->dir_nn_[0]*0.5*(p_+q_);
 
 			if(this->unit_cell_allowed()){
-				this->status_ = 2;
-
 				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,2)); }
-				else { this->ref_(4) = 0; }
+				else {
+					this->ref_(4) = 0; 
+					this->status_ = 2;
+				}
 
 				/*!sets the bond energy if it has not been set yet*/
 				if(this->obs_[0].nlinks() != this->J_.size()){
@@ -184,10 +185,6 @@ void Square<Type>::draw_lattice(){
 	/*unit cell, shows hopping amplitude, chemical potential and fluxes*/
 	Type t;
 	double mu;
-	double flux;
-	double sign;
-	unsigned long long a;
-	unsigned long long b;
 	std::string arrow("-");
 	shift = this->equivalent_vertex_[0]+this->equivalent_vertex_[2];
 	for(unsigned int i(0);i<links.row();i++){
@@ -201,7 +198,7 @@ void Square<Type>::draw_lattice(){
 			xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
 		} else { linestyle = "solid"; }
 
-		if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+		if(!my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
 		{
 			xy0 += shift;
 			xy1 += shift;
@@ -227,24 +224,7 @@ void Square<Type>::draw_lattice(){
 				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
 
-			if(!(i%2)){
-				unsigned int j(0);
-				flux = 0;
-				do {
-					xy0 += this->dir_nn_[j];
-					s1   = this->site_index(xy0);
-					flux+= std::arg(-this->H_(s0,s1));
-					s0 = s1;
-				} while (++j<4);
-				flux /= M_PI;
-				if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-					if(my::to_fraction(flux,a,b,sign) && b!=1){
-						ps.put(xy0(0)+0.5,xy0(1)+0.5,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
-					} else {
-						ps.put(xy0(0)+0.5,xy0(1)+0.5,"\\tiny{"+my::tostring(my::chop(flux))+"}");
-					}
-				}
-			}
+			if(!(i%2)){ this->draw_flux_per_plaquette(ps,s0,xy0,xy0(0)+0.5,xy0(1)+0.5,1,0,4); }
 		}
 	}
 	ps.end(true,true,true);

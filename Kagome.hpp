@@ -98,10 +98,11 @@ void Kagome<Type>::init_lattice(){
 			}
 
 			if(this->unit_cell_allowed()){
-				this->status_ = 2;
-
 				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(3,2)); }
-				else { this->ref_(4) = 0; }
+				else {
+					this->ref_(4) = 0; 
+					this->status_ = 2;
+				}
 
 				/*!sets the bond energy if it has not been set yet*/
 				if(this->obs_[0].nlinks() != this->J_.size()){
@@ -187,7 +188,12 @@ void Kagome<Type>::draw_lattice(){
 			xy0 = this->x_[links(i,0)];
 			xy1 = this->x_[links(i,1)];
 
-			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+			if((xy0-xy1).norm_squared()>1.0001){
+				linestyle = "dashed";
+				xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
+			} else { linestyle = "solid"; }
+
+			//if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
 			{
 				xy0 += shift;
 				xy1 += shift;
@@ -212,13 +218,8 @@ void Kagome<Type>::draw_lattice(){
 	/*unit cell, shows hopping amplitude, chemical potential and fluxes*/
 	Type t;
 	double mu;
-	double flux;
-	double sign;
-	unsigned long long a;
-	unsigned long long b;
 	std::string arrow("-");
 	//shift = equivalent_vertex_[0]+equivalent_vertex_[2];
-	//ps.polygon(draw_unit_cell(shift(0)+0.5,shift(1)+0.5),"linecolor=black");
 	for(unsigned int i(0);i<links.row();i++){
 		s0 = links(i,0);
 		xy0 = this->x_[s0];
@@ -260,68 +261,11 @@ void Kagome<Type>::draw_lattice(){
 
 			switch(links(i,5)%3){
 				case 0:
-					{
-						if(links(i,3)==0){
-							flux = 0.0;
-							unsigned int j(0);
-							do {
-								xy0 += this->dir_nn_[2*j];
-								s1 = this->site_index(xy0);
-								flux += std::arg(-this->H_(s0,s1));
-								s0 = s1;
-							} while (++j<3);
-							flux /= M_PI;
-							if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-								if(my::to_fraction(flux,a,b,sign) && b!=1){
-									ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
-								} else {
-									ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+sqrt(3.0)/4.0,"\\tiny{"+my::tostring(my::chop(flux))+"}");
-								}
-							}
-						}
-					}break;
+					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,xy0,(xy0(0)+xy1(0))/2.0,xy0(1)+sqrt(3.0)/4.0,2,0,3); } }break;
 				case 1:
-					{
-						if(links(i,3)==1){
-							flux = 0.0;
-							unsigned int j(0);
-							do {
-								xy0 += this->dir_nn_[2*j+1];
-								s1 = this->site_index(xy0);
-								flux += std::arg(-this->H_(s0,s1));
-								s0 = s1;
-							} while (++j<3);
-							flux /= M_PI;
-							if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-								if(my::to_fraction(flux,a,b,sign) && b!=1){
-									ps.put(xy0(0),(xy0(1)+xy1(1))/2.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
-								} else {
-									ps.put(xy0(0),(xy0(1)+xy1(1))/2.0,"\\tiny{"+my::tostring(my::chop(flux))+"}");
-								}
-							}
-						}
-					}break;
+					{ if(links(i,3)==1){ this->draw_flux_per_plaquette(ps,s0,xy0,xy0(0),(xy0(1)+xy1(1))/2.0,2,1,3); } }break;
 				case 2:
-					{
-						if(links(i,3)==0){
-							flux = 0.0;
-							unsigned int j(0);
-							do {
-								xy0 += this->dir_nn_[j];
-								s1 = this->site_index(xy0);
-								flux += std::arg(-this->H_(s0,s1));
-								s0 = s1;
-							} while (++j<6);
-							flux /= M_PI;
-							if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-								if(my::to_fraction(flux,a,b,sign) && b!=1){
-									ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+1.0,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
-								} else {
-									ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+1.0,"\\tiny{"+my::tostring(my::chop(flux))+"}");
-								}
-							}
-						}
-					}break;
+					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,xy0,(xy0(0)+xy1(0))/2.0,xy0(1)+1.0,1,0,6); } }break;
 			}
 		}
 	}

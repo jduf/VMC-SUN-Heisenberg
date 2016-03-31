@@ -48,6 +48,7 @@ void MCSim::create_S(System const* const s){
 
 void MCSim::copy_S(std::shared_ptr<MCSim> const& mcsim){
 	MCS_ = mcsim->MCS_->clone();
+	MCS_->init_after_clone_or_reading();
 	/*!Need to reset the observable otherwise it will not be an independant
 	 * simulation from mcsim*/
 	MCS_->reset_obs();

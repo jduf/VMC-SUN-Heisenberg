@@ -24,6 +24,10 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 		SystemFermionic& operator=(SystemFermionic<Type>) = delete;
 		/*}*/
 
+		/*Initializes Ainv_, tmp_, tmp_v, EVec_ if this instance was
+		 * constructed via clone() or SystemFermionic(IOFiles& r).*/
+		void init_after_clone_or_reading();
+
 		/*!Set row_ and new_ev_*/
 		void swap();
 		/*!Set row_ and new_ev_*/
@@ -68,8 +72,6 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 
 		/*!Returns true if the Ainv_ matrices are invertible*/
 		bool are_invertible();
-
-		void init_after_clone_or_reading();
 };
 
 /*constructors and destructor and initialization*/
@@ -178,7 +180,7 @@ SystemFermionic<Type>::SystemFermionic(SystemFermionic<Type> const& SF):
 	Ainv_(new Matrix<Type>[N_]),
 	tmp_(new Matrix<Type>[N_]),
 	tmp_v(new Vector<Type>[N_])
-{ init_after_clone_or_reading(); }
+{ if(!status_){ status_++; } }
 
 template<typename Type>
 SystemFermionic<Type>::SystemFermionic(IOFiles& r):
@@ -189,7 +191,7 @@ SystemFermionic<Type>::SystemFermionic(IOFiles& r):
 	Ainv_(new Matrix<Type>[N_]),
 	tmp_(new Matrix<Type>[N_]),
 	tmp_v(new Vector<Type>[N_])
-{ init_after_clone_or_reading(); }
+{ if(!status_){ status_++; } }
 
 template<typename Type>
 SystemFermionic<Type>::~SystemFermionic(){
@@ -201,6 +203,33 @@ SystemFermionic<Type>::~SystemFermionic(){
 template<typename Type>
 std::unique_ptr<MCSystem> SystemFermionic<Type>::clone() const {
 	return std::unique_ptr<SystemFermionic<Type> >(new SystemFermionic<Type>(*this));
+}
+
+template<typename Type>
+void SystemFermionic<Type>::init_after_clone_or_reading(){
+	/*!Initialized class variables*/
+	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
+
+	/*!If EVec_ are different for each color, then they have already been defined in Fermionic*/
+	if(this->same_wf_){ for(unsigned int c(1);c<N_;c++){ this->EVec_[c] = this->EVec_[0]; } }
+	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
+	unsigned int c(0);
+	for(unsigned int s(0);s<n_;s++){
+		for(unsigned int p(0);p<m_;p++){
+			c = s_(s,p);
+			for(unsigned int j(0);j<M_(c);j++){
+				Ainv_[c](row_(s,p),j) = this->EVec_[c](s,j);
+			}
+		}
+	}
+	if(are_invertible()){
+		for(unsigned int c(0);c<N_;c++){
+			Lapack<Type>(Ainv_[c],false,'G').inv();
+			tmp_[c].set(M_(c),M_(c));
+			tmp_v[c].set(M_(c));
+		}
+		status_ = 0;
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore"<<std::endl; }
 }
 /*}*/
 
@@ -280,23 +309,9 @@ void SystemFermionic<Type>::write(IOFiles& w) const {
 
 template<typename Type>
 void SystemFermionic<Type>::free_memory(){
-	//std::cout<<"free"<<std::endl;
-	//Ainv_[0].set();
-	//tmp_[0].set();
-	//tmp_v[0].set();
-	//for(unsigned int c(1);c<N_;c++){
-		//if(this->same_wf_){ this->EVec_[c].set(); }
-		//Ainv_[c].set();
-		//tmp_[c].set();
-		//tmp_v[c].set();
-	//}
-
-	delete[] Ainv_;
-	Ainv_ = NULL;
-	delete[] tmp_;
-	tmp_ = NULL;
-	delete[] tmp_v;
-	tmp_v = NULL;
+	delete[] Ainv_; Ainv_ = NULL;
+	delete[] tmp_;  tmp_  = NULL;
+	delete[] tmp_v; tmp_v = NULL;
 	if(this->same_wf_){
 		for(unsigned int c(1);c<N_;c++){ this->EVec_[c].set(); }
 	}
@@ -359,33 +374,6 @@ bool SystemFermionic<Type>::are_invertible(){
 		if(!ipiv.ptr()){ return false; }
 	}
 	return true;
-}
-
-template<typename Type>
-void SystemFermionic<Type>::init_after_clone_or_reading(){
-	/*!Initialized class variables*/
-	for(unsigned int c(0);c<N_;c++){ Ainv_[c].set(M_(c),M_(c)); }
-
-	/*!Initialized Ainv_ and row_ with the correct eigenvectors according to s_*/
-	unsigned int c(0);
-	for(unsigned int s(0);s<n_;s++){
-		for(unsigned int p(0);p<m_;p++){
-			c = s_(s,p);
-			for(unsigned int j(0);j<M_(c);j++){
-				Ainv_[c](row_(s,p),j) = this->EVec_[c](s,j);
-			}
-		}
-	}
-	if(are_invertible()){
-		for(unsigned int c(0);c<N_;c++){
-			Lapack<Type>(Ainv_[c],false,'G').inv();
-			tmp_[c].set(M_(c),M_(c));
-			tmp_v[c].set(M_(c));
-		}
-	} else {
-		status_++;
-		std::cerr<<__PRETTY_FUNCTION__<<" the A matrices are not invertible anymore"<<std::endl;
-	}
 }
 /*}*/
 #endif

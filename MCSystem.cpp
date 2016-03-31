@@ -11,8 +11,8 @@ MCSystem::MCSystem(System const& S):
 	/*!Put the correct M_(c) particles of color c*/
 	unsigned int c_tmp(0);
 	Vector<unsigned int> M_tmp(M_);
-	for(unsigned int p(0); p<m_; p++){
-		for(unsigned int s(0); s<n_; s++){
+	for(unsigned int p(0);p<m_;p++){
+		for(unsigned int s(0);s<n_;s++){
 			s_(s,p) = c_tmp;
 			M_tmp(c_tmp)--;
 			if(!M_tmp(c_tmp)){ c_tmp++; }

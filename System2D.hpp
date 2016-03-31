@@ -68,6 +68,8 @@ class System2D: public GenericSystem<Type>{
 		Matrix<double> draw_boundary(bool const& full_boundary) const;
 		/*!Draws the long range correlations contained int O in the PSTricks file*/
 		void draw_long_range_correlation(PSTricks& ps, Observable const& O) const;
+		/*!Computes and writes the flux per plaquette in the PSTricks file*/
+		void draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, Vector<double> x, double const& xd, double const& yd, unsigned int const& jj, unsigned int const& jp, unsigned int const& jn) const;
 
 	private:
 		Matrix<double> const ab_;//!< basis vectors of the unit cell  ((a_1,b_1),(a_2,b_2))
@@ -393,6 +395,30 @@ void System2D<Type>::draw_long_range_correlation(PSTricks& ps, Observable const&
 		corr = sqrt(std::abs(corr*rescale));
 		if(corr>1e-4 && std::abs(O[i].get_x())>O[i].get_dx()){ ps.circle(x_[i],corr,"fillstyle=solid,fillcolor="+color+",linecolor="+color); }
 		else{ ps.cross(x_[i],0.1,"linecolor=black"); }
+	}
+}
+
+template<typename Type>
+void System2D<Type>::draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, Vector<double> x, double const& xd, double const& yd, unsigned int const& jj, unsigned int const& jp, unsigned int const& jn) const {
+	unsigned int s1;
+	unsigned int j(0);
+	double flux(0.0);
+	double sign;
+	unsigned long long a;
+	unsigned long long b;
+	do {
+		x += dir_nn_[jj*j+jp];
+		s1 = this->site_index(x);
+		flux+= std::arg(-this->H_(s0,s1));
+		s0 = s1;
+	} while (++j<jn);
+	flux /= M_PI;
+	if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
+		if(my::to_fraction(flux,a,b,sign) && b!=1){
+			ps.put(xd,yd,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
+		} else {
+			ps.put(xd,yd,"\\tiny{"+my::tostring(my::chop(flux))+"}");
+		}
 	}
 }
 /*}*/

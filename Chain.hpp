@@ -73,9 +73,12 @@ template<typename Type>
 Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,2,filename)
 {
-	if(this->status_==2){
+	if(this->status_==3){
 		if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,1)); }
-		else { this->ref_(4) = 0; }
+		else {
+			this->ref_(4) = 0; 
+			this->status_ = 2;
+		}
 
 		if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() != 0){
 			Vector<double> tmp(this->J_);
@@ -126,20 +129,24 @@ void Chain<Type>::create_obs(unsigned int const& which_obs){
 
 template<typename Type>
 Matrix<int> Chain<Type>::get_neighbourg(unsigned int const& i) const {
-	Matrix<int> nb(this->z_,2);
+	Matrix<int> nb(this->z_,3);
 	if(i!=this->n_-1){
 		nb(0,0) = i+1;
 		nb(0,1) = 0;
+		nb(0,2) = 0;
 	} else {
 		nb(0,0) = 0;
-		nb(0,1) = 1;
+		nb(0,1) = 0;
+		nb(0,2) = 1;
 	}
 	if(i!=0){
 		nb(1,0) = i-1;
-		nb(1,1) = 0;
+		nb(1,1) = 1;
+		nb(1,2) = 0;
 	} else {
 		nb(1,0) = this->n_-1;
 		nb(1,1) = 1;
+		nb(1,2) = 1;
 	}
 	return nb;
 }

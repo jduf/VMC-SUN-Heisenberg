@@ -26,6 +26,9 @@ class MCSystem: public virtual System{
 		MCSystem& operator=(MCSystem const&) = delete;
 		/*}*/
 
+		/*!Initialization that allows the construction of instances using a
+		 * minimal amount of memory and time.*/
+		virtual void init_after_clone_or_reading(){}
 		/*!If the bond energy observable exists, it is computed with the energy*/
 		void initialize_measure();
 		/*!Exchanges two particles of different colors on random sites*/

@@ -119,14 +119,14 @@ void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 		} else { k = this->n_*this->z_/2; }
 		Matrix<int> tmp(k,7);
 		k=0;
-		typedef std::tuple<unsigned int,unsigned int,unsigned int> ui_tuple ;
+		typedef std::tuple<unsigned int,unsigned int,unsigned int> ui_tuple;
 		std::set<ui_tuple> unit_cell_links;
 		for(unsigned int i(0);i<this->n_;i++){
 			l_tmp =l(i%l.size());
 			if(l_tmp){
 				nb = get_neighbourg(i);
 				for(unsigned int j(0);j<l_tmp;j++){
-					if(this->bc_ || nb(j,2)==0 ){
+					if(this->bc_ || nb(j,2)==0){
 						tmp(k,0) = i;		//! site i
 						tmp(k,1) = nb(j,0); //! site j
 						tmp(k,3) = nb(j,1);	//! direction of vector linking i->j
@@ -139,7 +139,12 @@ void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 				}
 			}
 		}
-		if(unit_cell_links.size() != z_*spuc_/2){ std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links in the unit cell : "<<unit_cell_links.size()<<std::endl; }
+		if(unit_cell_links.size() != z_*spuc_/2){ 
+			std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links ("<<unit_cell_links.size()<<" in the unit cell, they are :"<<std::endl; 
+			for(auto const& uic:unit_cell_links){
+				std::cout<<std::get<0>(uic)<<" "<<std::get<1>(uic)<<" "<<std::get<2>(uic)<<std::endl;
+			}
+		}
 		else {
 			/*!This value has nothing to do with the index of the bond l having
 			 * a coupling J_(l). This value is only the index of a given bond
@@ -152,6 +157,7 @@ void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 			}
 			this->obs_.push_back(Observable("Energy per site",0,1,tmp));
 			this->ref_(4) = 0;
+			this->status_ = 2;
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link"<<std::endl; }
 	if(!this->bc_){ std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl; }

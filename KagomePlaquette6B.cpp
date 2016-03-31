@@ -14,8 +14,8 @@ KagomePlaquette6B::KagomePlaquette6B(System const& s, double const& td):
 		system_info_.text("KagomePlaquette6B :");
 		system_info_.item("Each color has the same Hamiltonian.");
 		system_info_.item("6 sites per unit cell.");
-		if(td_<0.0){ system_info_.item(RST::math("(\\pi;\\pi,\\pi)")+"-flux"); }
-		if(td_>0.0){ system_info_.item(RST::math("(0;0,\\pi)")+"-flux"); }
+		if(td_<0.0){ system_info_.item(RST::math("(\\pi;0,0)")+"-flux"); }
+		if(td_>0.0){ system_info_.item(RST::math("(0;\\pi,0)")+"-flux"); }
 	}
 }
 
@@ -125,9 +125,9 @@ void KagomePlaquette6B::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="kagome-plaquette6B";
-	//display_results();
+	display_results();
 	
-	compute_H();
-	plot_band_structure();
+	//compute_H();
+	//plot_band_structure();
 }
 /*}*/

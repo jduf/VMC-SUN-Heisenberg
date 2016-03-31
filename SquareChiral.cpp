@@ -5,14 +5,14 @@ SquareChiral::SquareChiral(System const& s, double const& phi):
 	Square<std::complex<double> >(set_ab(ref_(3),N_/m_),N_/m_,"square-chiral"),
 	phi_(phi)
 {
-	if(phi<=N_/m_){
+	if(2.0*phi_<=N_/m_){
 		if(status_==3){ init_lattice(); }
 		if(status_==2){
 			init_fermionic();
 
 			system_info_.text("SquareChiral :");
 			system_info_.item("Each color has the same Hamiltonian.");
-			system_info_.item("Flux of "+RST::math(my::tostring(phi)+"\\times\\pi/"+my::tostring(N_/m_))+ " per plaquette.");
+			system_info_.item("Flux of "+RST::math(my::tostring(2.0*phi_)+"\\times\\pi/"+my::tostring(N_/m_))+ " per plaquette.");
 
 			filename_ += "-phi"+my::tostring(phi_);
 		}
@@ -24,7 +24,7 @@ void SquareChiral::compute_H(){
 	H_.set(n_,n_,0);
 
 	double t(-1.0);
-	double phi(phi_*m_*M_PI/N_);
+	double phi(2.0*phi_*m_*M_PI/N_);
 	switch(spuc_){
 		case 4:
 			{

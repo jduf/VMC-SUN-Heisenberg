@@ -65,8 +65,7 @@ Fermionic<Type>::Fermionic(IOFiles& r):
 {
 	if(N_){
 		r>>EVec_[0];
-		if(same_wf_){ for(unsigned int c(1);c<N_;c++){ EVec_[c] = EVec_[0]; } }
-		else { for(unsigned int c(1);c<N_;c++){ r>>EVec_[c]; } }
+		if(!same_wf_){ for(unsigned int c(1);c<N_;c++){ r>>EVec_[c]; } }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : N_ == 0"<<std::endl; }
 }
 

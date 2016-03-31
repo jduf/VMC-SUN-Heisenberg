@@ -90,10 +90,11 @@ void Triangle<Type>::init_lattice(){
 			}
 
 			if(this->unit_cell_allowed()){
-				this->status_ = 2;
-
 				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,3)); }
-				else { this->ref_(4) = 0; }
+				else {
+					this->ref_(4) = 0;
+					this->status_ = 2;
+				}
 
 				/*!sets the bond energy if it has not been set yet*/
 				if(this->obs_[0].nlinks() != this->J_.size()){

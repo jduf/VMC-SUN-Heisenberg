@@ -46,8 +46,9 @@ ChainFermi<Type>::ChainFermi(System const& s):
 template<typename Type>
 void ChainFermi<Type>::compute_H(){
 	this->H_.set(this->n_,this->n_,0);
+	double t(-1.0);
 	for(unsigned int i(0);i<this->obs_[0].nlinks(); i++){
-		this->H_(this->obs_[0](i,0),this->obs_[0](i,1)) = (this->obs_[0](i,4)?this->bc_:1);
+		this->H_(this->obs_[0](i,0),this->obs_[0](i,1)) = (this->obs_[0](i,4)?this->bc_*t:t);
 	}
 	this->H_ += this->H_.transpose();
 }
