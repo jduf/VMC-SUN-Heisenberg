@@ -38,9 +38,9 @@ template<typename Type>
 System1D<Type>::System1D(unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	GenericSystem<Type>(spuc,z,filename)
 {
-	if(this->N_%this->m_){ 
-		std::cerr<<"System1D : maybe problematric, m doesn't divide N, so check everywhere in the code where N/m appears"<<std::endl; 
-		this->status_ = 4; 
+	if(this->N_%this->m_){
+		std::cerr<<"System1D : maybe problematric, m doesn't divide N, so check everywhere in the code where N/m appears"<<std::endl;
+		this->status_ = 4;
 	}
 }
 
@@ -101,9 +101,9 @@ bool System1D<Type>::full_diagonalization(){
 	}
 	Vector<unsigned int> index;
 	e_.set(this->n_);
-	for(unsigned int i(0);i<this->n_;i++){ 
+	for(unsigned int i(0);i<this->n_;i++){
 		my::display_progress(i,this->n_," compute E : ");
-		e_(i) = this->projection(this->H_,i).real(); 
+		e_(i) = this->projection(this->H_,i).real();
 	}
 	e_.sort(std::less_equal<double>(),index);
 

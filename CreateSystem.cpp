@@ -343,14 +343,14 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C){ td = C->get<double>("td"); }
 										RGL_ = new KagomePlaquette3B(*s_,td);
 									}break;
-								case 4: 
+								case 4:
 									{
 										double td;
 										if(param){ td = (*param)(0); }
 										if(C){ td = C->get<double>("td"); }
 										RGL_ = new KagomePlaquette6A(*s_,td);
 									}break;
-								case 5: 
+								case 5:
 									{
 										double td;
 										if(param){ td = (*param)(0); }
@@ -368,7 +368,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										double phi;
 										if(param){ phi = (*param)(0); }
 										if(C){ phi = C->get<double>("phi"); }
-										CGL_ = new KagomeChiral(*s_,phi); 
+										CGL_ = new KagomeChiral(*s_,phi);
 									}break;
 								case 2: { CGL_ = new KagomeVBC(*s_); }break;
 								case 3:
@@ -377,7 +377,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										double phi;
 										if(param){ phi = (*param)(0); }
 										if(C){ phi = C->get<double>("phi"); }
-										CGL_ = new KagomeChiralB(*s_,phi); 
+										CGL_ = new KagomeChiralB(*s_,phi);
 									}break;
 										{
 											Vector<double> t;

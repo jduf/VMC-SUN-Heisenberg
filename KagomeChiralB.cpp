@@ -112,9 +112,9 @@ void KagomeChiralB::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="kagome-chiralB";
-	//display_results();
+	display_results();
 
-	compute_H();
-	plot_band_structure();
+	//compute_H();
+	//plot_band_structure();
 }
 /*}*/

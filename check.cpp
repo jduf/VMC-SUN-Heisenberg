@@ -23,9 +23,9 @@ int main(int argc, char* argv[]){
 				std::cout<<"############# Init GenericSystem ##########"<<std::endl;
 				cs.init(NULL,&P);
 				std::cout<<"############# Check #######################"<<std::endl;
-				if(cs.get_status()==2){ 
+				if(cs.get_status()==2){
 					std::cout<<cs.get_system_info()<<std::endl;
-					cs.check(); 
+					cs.check();
 				}
 			} break;
 		case 2:/*call CreateSystem::init and create*/

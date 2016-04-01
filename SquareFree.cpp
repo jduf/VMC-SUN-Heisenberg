@@ -181,7 +181,7 @@ void SquareFree::display_results(){
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
 		std::string title("t=(");
-		std::string run_cmd("./mc -s:wf square-dimerizedbar");
+		std::string run_cmd("./mc -s:wf square-free");
 		run_cmd += " -u:N " + my::tostring(N_);
 		run_cmd += " -u:m " + my::tostring(m_);
 		run_cmd += " -u:n " + my::tostring(n_);
@@ -214,6 +214,7 @@ void SquareFree::check(){
 	filename_ ="square-free";
 	display_results();
 
+	//compute_H();
 	//plot_band_structure();
 }
 /*}*/

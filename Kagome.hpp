@@ -100,7 +100,7 @@ void Kagome<Type>::init_lattice(){
 			if(this->unit_cell_allowed()){
 				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(3,2)); }
 				else {
-					this->ref_(4) = 0; 
+					this->ref_(4) = 0;
 					this->status_ = 2;
 				}
 
@@ -160,17 +160,17 @@ void Kagome<Type>::draw_lattice(){
 				case 0:
 					{
 						ps.put(xy0(0)-0.2,xy0(1)+0.2,"\\tiny{"+my::tostring(s0)+"}");
-						ps.put(xy0(0)+0.2,xy0(1)-0.2,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}"); 
+						ps.put(xy0(0)+0.2,xy0(1)-0.2,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}");
 					}break;
-				case 1: 
+				case 1:
 					{
-						ps.put(xy0(0)-0.2,xy0(1),"\\tiny{"+my::tostring(s0)+"}"); 
-						ps.put(xy0(0)+0.2,xy0(1),"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}"); 
+						ps.put(xy0(0)-0.2,xy0(1),"\\tiny{"+my::tostring(s0)+"}");
+						ps.put(xy0(0)+0.2,xy0(1),"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}");
 					}break;
-				case 2: 
+				case 2:
 					{
-						ps.put(xy0(0)-0.2,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}"); 
-						ps.put(xy0(0)+0.2,xy0(1)+0.2,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}"); 
+						ps.put(xy0(0)-0.2,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}");
+						ps.put(xy0(0)+0.2,xy0(1)+0.2,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}");
 					}break;
 			}
 		}
@@ -245,7 +245,7 @@ void Kagome<Type>::draw_lattice(){
 				else             { color = "red"; }
 
 				if(my::are_equal(my::imag(t),0)){ arrow = "-"; }
-				else { 
+				else {
 					if(my::imag(-t)>0){ arrow = "->"; }
 					else              { arrow = "<-"; }
 				}
@@ -336,11 +336,11 @@ Matrix<double> Kagome<Type>::set_geometry(unsigned int const& n, unsigned int co
 
 		std::set<unsigned int> v;
 		unsigned int m;
-		for(unsigned int i(2);i<20;i++){
+		for(unsigned int i(2);i<n;i++){
 			m = 3*i*i;
-			if(!(m%spuc)){ v.insert(m); }
+			if(!(m%spuc) && m<2000){ v.insert(m); }
 			m = (3*i)*(3*i);
-			if(!(m%spuc)){ v.insert(m); }
+			if(!(m%spuc) && m<2000){ v.insert(m); }
 		}
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }

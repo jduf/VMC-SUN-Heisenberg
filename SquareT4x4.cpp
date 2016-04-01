@@ -98,7 +98,7 @@ unsigned int SquareT4x4::unit_cell_index(Vector<double> const& x) const {
 		if(my::are_equal(x(0),0.25,eq_prec_,eq_prec_)){ return 1; }
 		if(my::are_equal(x(0),0.50,eq_prec_,eq_prec_)){ return 2; }
 		if(my::are_equal(x(0),0.75,eq_prec_,eq_prec_)){ return 3; }
-	} 
+	}
 	if(my::are_equal(x(1),0.25,eq_prec_,eq_prec_)){
 		if(my::are_equal(x(0),0.00,eq_prec_,eq_prec_)){ return 4; }
 		if(my::are_equal(x(0),0.25,eq_prec_,eq_prec_)){ return 5; }

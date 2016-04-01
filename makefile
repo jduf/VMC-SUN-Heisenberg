@@ -1,13 +1,13 @@
 MACHINE=$(shell uname -n)_
 ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	MACHINE=
-	EXEC = min
+	EXEC = check
 	EXEC+= mc
-	EXEC+= mcbi
-	EXEC+= check
-	POSTPROCESS= cp $(EXEC) ../sim;
-	EXEC+= study
-	POSTPROCESS+= mv ../sim/study  ../
+	EXEC+= min
+	#EXEC+= mcbi
+	POSTPROCESS = cp $(EXEC) ../sim;
+	#EXEC+= study
+	#POSTPROCESS+= mv ../sim/study  ../
 
 	CXX = g++ -std=c++14
 	LAPACK = -llapack -lblas
@@ -39,16 +39,16 @@ HONEYCOMB = HoneycombFermi.cpp HoneycombFree.cpp Honeycomb0pp.cpp HoneycombPiFlu
 KAGOME    = KagomeFermi.cpp KagomeFree.cpp KagomePlaquette3A.cpp KagomePlaquette3B.cpp KagomePlaquette6A.cpp  KagomePlaquette6B.cpp KagomeChiral.cpp KagomeChiralB.cpp KagomeVBC.cpp KagomePiHalfTriangle.cpp
 
 WF         = $(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)
-MONTECARLO = MonteCarlo.cpp MCSystem.cpp Observable.cpp System.cpp IOSystem.cpp CreateSystem.cpp MCSim.cpp BiSystem.cpp
+MONTECARLO = MonteCarlo.cpp MCSystem.cpp MCSim.cpp BiSystem.cpp
 VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp VMCSystematic.cpp
 ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseHoneycomb.cpp AnalyseMagnetization.cpp AnalyseMin.cpp VMCMinimization.cpp Interpolation.cpp Directory.cpp
 IOFILES    = Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
-OTHER      = Lapack.cpp Parseur.cpp Fit.cpp
+OTHER      = System.cpp IOSystem.cpp Observable.cpp CreateSystem.cpp Lapack.cpp Parseur.cpp Fit.cpp
 
+$(MACHINE)check_SRCS = check.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 $(MACHINE)mc_SRCS    = mc.cpp    $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 $(MACHINE)mcbi_SRCS  = mcbi.cpp  $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 $(MACHINE)min_SRCS   = min.cpp   $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN)
-$(MACHINE)check_SRCS = check.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 $(MACHINE)study_SRCS = study.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN) $(ANALYSE)
 
 #-----------------------------------------------------------------
@@ -56,6 +56,7 @@ $(MACHINE)study_SRCS = study.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMI
 CXXFLAGS = $(ERRORS) $(OPTION)
 LDFLAGS  = $(ERRORS) $(OPTION) $(LAPACK) libcminpack.a
 
+EXEC+=
 $(EXEC)_SRCS=$(EXEC_SRCS)
 
 BUILD=build

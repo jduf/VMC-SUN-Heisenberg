@@ -76,7 +76,7 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 	if(this->status_==3){
 		if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,1)); }
 		else {
-			this->ref_(4) = 0; 
+			this->ref_(4) = 0;
 			this->status_ = 2;
 		}
 

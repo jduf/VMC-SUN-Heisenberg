@@ -25,7 +25,7 @@ int main(int argc, char* argv[]){
 								for(unsigned int l(0);l<loop;l++){
 									m1.init(true);
 									m1.run();
-									m1.refine(30,false,1e-5,5); 
+									m1.refine(30,false,1e-5,5);
 									m1.save();
 
 									//m.refine(10,0,1e-5,5);

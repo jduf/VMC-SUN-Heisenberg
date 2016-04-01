@@ -13,6 +13,7 @@ class Triangle: public System2D<Type>{
 
 	protected:
 		void init_lattice();
+		void draw_lattice();
 
 	private:
 		double L_;
@@ -105,6 +106,143 @@ void Triangle<Type>::init_lattice(){
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" required memory has not been allocated"<<std::endl; }
 	}
 }
+
+template<typename Type>
+void Triangle<Type>::draw_lattice(){
+	Matrix<int> links(this->obs_[0].get_links());
+	Vector<unsigned int> o(3,0);
+	for(unsigned int i(1);i<this->obs_.size();i++){
+		switch(this->obs_[i].get_type()){
+			case 1:{ o(0)=i; }break;//bond energy
+			case 2:{ o(1)=i; }break;//long range correlation
+			case 3:{ o(2)=i; }break;//color occupation
+		}
+	}
+
+	std::string color("black");
+	std::string linestyle("solid");
+	std::string linewidth("1pt");
+	Vector<double> xy0(2,0);
+	Vector<double> xy1(2,0);
+	PSTricks ps(this->get_info_path(),this->filename_);
+	ps.begin(-20,-20,20,20,this->filename_);
+	ps.polygon(this->cluster_vertex_,"linecolor=green");
+	Matrix<double> uc(this->draw_unit_cell());
+	ps.polygon(uc,"linecolor=black");
+	ps.linked_lines("-",this->draw_boundary(false),"linecolor=yellow");
+
+	unsigned int s0;
+	unsigned int s1;
+	/*draws only the lattice, shows links and bc*/
+	for(unsigned int i(0);i<links.row();i++){
+		s0 = links(i,0);
+		xy0 = this->x_[s0];
+		s1 = links(i,1);
+		xy1 = this->x_[s1];
+
+		if((xy0-xy1).norm_squared()>1.0001){
+			linestyle = "dashed";
+			xy1 = (xy0+this->dir_nn_[links(i,3)]*1.2).chop();
+			ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(s1)+"}");
+			xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
+		} else { linestyle = "solid"; }
+
+		ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth=1pt,linecolor=black,linestyle="+linestyle);
+
+		if(i%2){
+			ps.put(xy0(0)-0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
+			ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}");
+		}
+	}
+	/*draws long range correlations over the lattice*/
+	if(o(1)){ this->draw_long_range_correlation(ps,this->obs_[o(1)]); }
+
+	Vector<double> shift(2,0.0);
+	if(o(0) || o(2)){
+		/*unit cell, shows bond energy and color occupation*/
+		double be;
+		//Vector<double> shift(equivalent_vertex_[0]+equivalent_vertex_[1]);
+		//ps.polygon(draw_unit_cell(shift(0)+0.5,shift(1)+0.5),"linecolor=black");
+		for(unsigned int i(0);i<links.row();i++){
+			xy0 = this->x_[links(i,0)];
+			xy1 = this->x_[links(i,1)];
+
+			if((xy0-xy1).norm_squared()>1.0001){
+				linestyle = "dashed";
+				xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
+			} else { linestyle = "solid"; }
+			//if(!my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+			{
+				xy0 += shift;
+				xy1 += shift;
+				if(o(0)){
+					be = this->obs_[o(0)][links(i,2)].get_x();
+					linewidth = my::tostring(std::abs(be))+"mm";
+					if(std::abs(be)>1e-4){
+						if(be>0){ color = "blue"; }
+						else    { color = "red"; }
+						ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+					}
+				}
+				if(i%2 && o(2)){
+					Vector<double> p(this->N_);
+					for(unsigned int j(0);j<this->N_;j++){ p(j) = this->obs_[o(2)][j+this->N_*links(i,5)].get_x(); }
+					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
+				}
+			}
+		}
+	}
+
+	/*unit cell, shows hopping amplitude, chemical potential and fluxes*/
+	Type t;
+	double mu;
+	std::string arrow("-");
+	shift = this->equivalent_vertex_[0]-this->equivalent_vertex_[2];
+	for(unsigned int i(0);i<links.row();i++){
+		s0 = links(i,0);
+		xy0 = this->x_[s0];
+		s1 = links(i,1);
+		xy1 = this->x_[s1];
+
+		if((xy0-xy1).norm_squared()>1.0001){
+			linestyle = "dashed";
+			xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
+		} else { linestyle = "solid"; }
+
+		if(!my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+		{
+			xy0 += shift;
+			xy1 += shift;
+			t = this->H_(s0,s1);
+			if(std::abs(t)>1e-4){
+				linewidth = my::tostring(std::abs(t))+"mm";
+
+				if(my::real(t)>0){ color = "blue"; }
+				else             { color = "red"; }
+
+				if(my::are_equal(my::imag(t),0)){ arrow = "-"; }
+				else {
+					if(my::imag(-t)>0){ arrow = "->"; }
+					else              { arrow = "<-"; }
+				}
+				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+			}
+
+			mu = my::real(this->H_(s0,s0));
+			if(std::abs(mu)>1e-4){
+				if(mu>0){ color = "cyan"; }
+				else    { color = "magenta"; }
+				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
+
+			if(!(i%2)){
+				std::cerr<<__PRETTY_FUNCTION__<<" : drawing flux undefined"<<std::endl;
+				//this->draw_flux_per_plaquette(ps,s0,xy0,xy0(0)+0.5,xy0(1)+0.5,3,0,3);
+			}
+		}
+	}
+	ps.end(true,true,true);
+}
 /*}*/
 
 /*{private methods*/
@@ -154,11 +292,11 @@ Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n, unsigned int 
 
 		std::set<unsigned int> v;
 		unsigned int m;
-		for(unsigned int i(2);i<20;i++){
+		for(unsigned int i(2);i<n;i++){
 			m = 3*i*i;
-			if(!(m%spuc)){ v.insert(m); }
+			if(!(m%spuc) && m<2000){ v.insert(m); }
 			m = (3*i)*(3*i);
-			if(!(m%spuc)){ v.insert(m); }
+			if(!(m%spuc) && m<2000){ v.insert(m); }
 		}
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }

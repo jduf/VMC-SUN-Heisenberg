@@ -7,7 +7,6 @@
 #include "Bosonic.hpp"
 #include "Fermionic.hpp"
 #include "IOSystem.hpp"
-#include "Rand.hpp"
 #include "Fit.hpp"
 
 /*{*//*!Abstract class used by CreateSystem to produce any wavefunction
@@ -21,7 +20,7 @@
 	   that is required to compute the variational energy of the child related
 	   trial wavefunction.*//*}*/
 template<typename Type>
-class GenericSystem: public Bosonic<Type>, public Fermionic<Type>, public IOSystem{
+class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSystem{
 	public:
 		/*{*//*!Constructor requiring only local parameters.
 			   All other parameters of System have already been set by the most
@@ -139,8 +138,8 @@ void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 				}
 			}
 		}
-		if(unit_cell_links.size() != z_*spuc_/2){ 
-			std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links ("<<unit_cell_links.size()<<" in the unit cell, they are :"<<std::endl; 
+		if(unit_cell_links.size() != z_*spuc_/2){
+			std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links ("<<unit_cell_links.size()<<" in the unit cell, they are :"<<std::endl;
 			for(auto const& uic:unit_cell_links){
 				std::cout<<std::get<0>(uic)<<" "<<std::get<1>(uic)<<" "<<std::get<2>(uic)<<std::endl;
 			}

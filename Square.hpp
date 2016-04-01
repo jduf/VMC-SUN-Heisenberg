@@ -82,7 +82,7 @@ void Square<Type>::init_lattice(){
 			if(this->unit_cell_allowed()){
 				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,2)); }
 				else {
-					this->ref_(4) = 0; 
+					this->ref_(4) = 0;
 					this->status_ = 2;
 				}
 
@@ -138,7 +138,7 @@ void Square<Type>::draw_lattice(){
 
 		ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth=1pt,linecolor=black,linestyle="+linestyle);
 
-		if(i%2){ 
+		if(i%2){
 			ps.put(xy0(0)-0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
 			ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}");
 		}
@@ -210,7 +210,7 @@ void Square<Type>::draw_lattice(){
 				else             { color = "red"; }
 
 				if(my::are_equal(my::imag(t),0)){ arrow = "-"; }
-				else { 
+				else {
 					if(my::imag(-t)>0){ arrow = "->"; }
 					else              { arrow = "<-"; }
 				}
@@ -270,10 +270,10 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int co
 
 		std::set<unsigned int> v;
 		unsigned int m;
-		for(unsigned int p(2);p<2*sqrt(n);p++){
+		for(unsigned int p(2);p<n;p++){
 			for(unsigned int q(0);q<p+1;q++){
 				m = p*p+q*q;
-				if(!(m%spuc)){ v.insert(m); }
+				if(!(m%spuc) && m<2000){ v.insert(m); }
 			}
 		}
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;

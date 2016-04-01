@@ -21,7 +21,7 @@ void KagomeFree::compute_H(){
 	H_.set(n_,n_,0);
 
 	unsigned int t(0);
-	for(unsigned int i(0);i<obs_[0].nlinks(); i++){
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		switch(obs_[0](i,5)){
 			case 0: { t = (obs_[0](i,3)==1?1:0); } break;
 			case 1: { t = (obs_[0](i,3)==2?3:2); } break;

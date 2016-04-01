@@ -119,62 +119,39 @@ unsigned int TriangleFree::unit_cell_index(Vector<double> const& x) const {
 
 /*{method needed for checking*/
 void TriangleFree::display_results(){
-	Vector<unsigned int> o(3,0);
-	for(unsigned int i(1);i<obs_.size();i++){
-		switch(obs_[i].get_type()){
-			case 1:{ o(0)=i; }break;//bond energy
-			case 2:{ o(1)=i; }break;//long range correlation
-			case 3:{ o(2)=i; }break;//color occupation
-		}
-	}
 	compute_H();
+	draw_lattice();
 
-	std::string color("black");
-	std::string linestyle("solid");
-	std::string linewidth("1pt");
-	Vector<double> xy0(2,0);
-	Vector<double> xy1(2,0);
-	PSTricks ps(info_+path_+dir_,filename_);
-	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(),"linecolor=black");
-	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-	double t;
-	double mu;
-	unsigned int s0;
-	unsigned int s1;
-	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		s0 = obs_[0](i,0);
-		xy0 = x_[s0];
-
-		s1 = obs_[0](i,1);
-		xy1 = x_[s1];
-
-		t = H_(s0,s1);
-		if(std::abs(t)>1e-4){
-			if((xy0-xy1).norm_squared()>1.0001){
-				linestyle = "dashed";
-				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
-				ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-			} else { linestyle = "solid"; }
-
-			if(t>0){ color = "blue"; }
-			else   { color = "red"; }
-			linewidth = my::tostring(std::abs(t))+"mm";
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+		std::string title("t=(");
+		std::string run_cmd("./mc -s:wf triangle-free");
+		run_cmd += " -u:N " + my::tostring(N_);
+		run_cmd += " -u:m " + my::tostring(m_);
+		run_cmd += " -u:n " + my::tostring(n_);
+		run_cmd += " -i:bc "+ my::tostring(bc_);
+		run_cmd += " -d:t ";
+		for(unsigned int i(0);i<t_.size()-1;i++){
+			title   += my::tostring(t_(i)) + ",";
+			run_cmd += my::tostring(t_(i)) + ",";
 		}
-
-		mu = H_(s0,s0);
-		if(std::abs(mu)>1e-4){
-			if(mu<0){ color = "green"; }
-			else    { color = "cyan"; }
-			ps.circle(xy0,std::abs(mu),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+		title   += my::tostring(t_.back()) + "), "+RST::math("\\mu")+"=(";
+		run_cmd += my::tostring(t_.back()) + " -d:mu ";
+		for(unsigned int i(0);i<mu_.size()-1;i++){
+			title   += my::tostring(mu_(i)) + ",";
+			run_cmd += my::tostring(mu_(i)) + ",";
 		}
-		ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
+		title   += my::tostring(mu_.back()) + ")";
+		run_cmd += my::tostring(mu_.back()) + " -d -u:tmax 10";
+
+		rst_file_->title(title,'-');
+		rst_file_->change_text_onclick("run command",run_cmd);
+
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 	}
-	if(o(1)){ draw_long_range_correlation(ps,obs_[o(1)]); }
-	ps.end(true,true,true);
 }
 
 void TriangleFree::check(){
@@ -183,5 +160,8 @@ void TriangleFree::check(){
 	dir_  = "./";
 	filename_ ="triangle-free";
 	display_results();
+
+	//compute_H();
+	//plot_band_structure();
 }
 /*}*/

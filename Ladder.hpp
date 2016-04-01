@@ -49,8 +49,8 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 			tmp(0) = 2;
 			tmp(1) = 1;
 			this->create_energy_obs(tmp);
-		} else { 
-			this->ref_(4) = 0; 
+		} else {
+			this->ref_(4) = 0;
 			this->status_ = 2;
 		}
 		

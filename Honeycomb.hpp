@@ -102,7 +102,7 @@ void Honeycomb<Type>::init_lattice(){
 					l(1) = 0;
 					this->create_energy_obs(l);
 				} else {
-					this->ref_(4) = 0; 
+					this->ref_(4) = 0;
 					this->status_ = 2;
 				}
 
@@ -180,11 +180,11 @@ Matrix<double> Honeycomb<Type>::set_geometry(unsigned int const& n, unsigned int
 
 		std::set<unsigned int> v;
 		unsigned int m;
-		for(unsigned int i(2);i<20;i++){
+		for(unsigned int i(2);i<n;i++){
 			m = 6*i*i;
-			if(!(m%spuc)){ v.insert(m); }
+			if(!(m%spuc) && m<2000){ v.insert(m); }
 			m = 2*i*i;
-			if(!(m%spuc)){ v.insert(m); }
+			if(!(m%spuc) && m<2000){ v.insert(m); }
 		}
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }
