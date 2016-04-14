@@ -33,14 +33,14 @@ VMCMinimization::VMCMinimization(VMCMinimization const& vmcm, std::string const&
 	m_(vmcm.m_)
 { set_time(); }
 
-VMCMinimization::VMCMinimization(IOFiles& in):
+VMCMinimization::VMCMinimization(IOFiles& in, bool const& loadall, std::string const& prefix):
 	time_(""),
 	path_(""),
 	basename_(""),
-	prefix_(""),
+	prefix_(prefix),
 	out_(NULL),
 	m_(std::make_shared<Minimization>())
-{ m_->load(in,path_,basename_); }
+{ load(in,loadall); }
 /*}*/
 
 /*{public methods*/
@@ -48,8 +48,8 @@ void VMCMinimization::refine(){
 	std::cout<<RST::hashtag_line_<<std::endl;
 	m_->tmax_ = 1;
 	double E;
-	double dE(0.005);
-	while(dE>5e-5){
+	double dEoE(0.005);
+	while(dEoE>5e-5){
 		E=0;
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
@@ -57,14 +57,14 @@ void VMCMinimization::refine(){
 				E = m_->samples_.get().get_energy().get_x();
 			}
 		}
-		E += dE;
-		refine(E,dE);
-		dE /= 2;
-		if(dE<1e-3){ m_->tmax_ *= 2; }
+		E += dEoE;
+		refine(E,dEoE);
+		dEoE /= 2;
+		if(dEoE<1e-3){ m_->tmax_ *= 2; }
 	}
 }
 
-void VMCMinimization::refine(double const& E, double const& dE){
+void VMCMinimization::refine(double const& E, double const& dEoE){
 	if(m_->samples_.size() && m_->tmax_){
 		List<MCSim> best;
 		m_->samples_.set_target();
@@ -79,14 +79,14 @@ void VMCMinimization::refine(double const& E, double const& dE){
 		std::string msg("refines "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
-		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E="+my::tostring(dE));
+		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE));
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
 		if(total_eval_>5 && total_eval_<1000){
 			best.set_target();
 			progress_ = 0;
-			while(best.target_next()){ evaluate_until_precision(best.get().get_param(),false,dE,maxiter); }
+			while(best.target_next()){ evaluate_until_precision(best.get().get_param(),false,dEoE,maxiter); }
 			save();
 		} else {
 			if(total_eval_<1000){ msg = "not enough samples to be usefull, skip the evaluation"; }
@@ -97,7 +97,7 @@ void VMCMinimization::refine(double const& E, double const& dE){
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
 
-void VMCMinimization::refine(unsigned int const& nmin, bool const& set_obs, double const& dE, unsigned int const& maxiter){
+void VMCMinimization::refine(unsigned int const& nmin, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter){
 	if(m_->samples_.size() && m_->tmax_){
 		total_eval_ = std::min(nmin,m_->samples_.size());
 		List<MCSim> potential_minima;
@@ -107,13 +107,13 @@ void VMCMinimization::refine(unsigned int const& nmin, bool const& set_obs, doub
 		std::string msg("refines "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
-		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E="+my::tostring(dE));
+		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE));
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
 		sorted_samples.set_target();
 		progress_ = 0;
-		while(sorted_samples.target_next() && progress_<total_eval_){ evaluate_until_precision(sorted_samples.get().get_param(),set_obs,dE,maxiter); }
+		while(sorted_samples.target_next() && progress_<total_eval_){ evaluate_until_precision(sorted_samples.get().get_param(),which_obs,dEoE,maxiter); }
 		save();
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
@@ -133,8 +133,7 @@ void VMCMinimization::complete_analysis(double const& convergence_criterion){
 void VMCMinimization::save() const {
 	set_time();
 	IOFiles out(path_+get_filename()+".jdbin",true);
-	m_->save(out,true);
-	out<<path_<<basename_;
+	save(out);
 }
 
 double VMCMinimization::find_minima(unsigned int const& max_pm, double const& range, List<MCSim>& sorted_samples, List<MCSim>& potential_minima) const {
@@ -207,7 +206,7 @@ double VMCMinimization::find_minima(unsigned int const& max_pm, double const& ra
 	return E_range;
 }
 
-void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, bool const& set_obs, double const& dE){
+void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, Vector<unsigned int> const& which_obs, double const& dEoE){
 	if(m_->samples_.size() && m_->tmax_){
 		List<MCSim> potential_minima;
 		List<MCSim> sorted_samples;
@@ -216,13 +215,13 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, bool const
 		unsigned int maxiter(1);
 		total_eval_ = potential_minima.size();
 		std::cout<<RST::hashtag_line_<<std::endl;
-		std::string msg("compute "+my::tostring(set_obs?m_->obs_.size():0)+" observables for "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
+		std::string msg("compute observables "+my::tostring(which_obs)+" for "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
 		potential_minima.set_target();
 		progress_ = 0;
-		while(potential_minima.target_next()){ evaluate_until_precision(potential_minima.get().get_param(),set_obs,dE,maxiter); }
+		while(potential_minima.target_next()){ evaluate_until_precision(potential_minima.get().get_param(),which_obs,dEoE,maxiter); }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
 
@@ -272,7 +271,7 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_pm, IOFi
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
-void VMCMinimization::explore_around_minima(unsigned int const& max_pm, bool const& set_obs, double const& dE, double const& dx){
+void VMCMinimization::explore_around_minima(unsigned int const& max_pm, Vector<unsigned int> const& which_obs, double const& dEoE, double const& dx){
 	if(m_->samples_.size() && m_->tmax_){
 		/*!find the minima and sort by energy*/
 		List<MCSim> sorted_samples;
@@ -308,13 +307,13 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, bool con
 		std::string msg("measures "+my::tostring(total_eval_)+" samples close to potential minimas (max time "+my::tostring(m_->tmax_*maxiter*total_eval_)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
-		msg = "compute "+my::tostring(set_obs?m_->obs_.size():0)+" observables for each samples";
+		msg = "compute observables "+my::tostring(which_obs)+" for each samples";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
 		param.set_target();
 		progress_ = 0;
-		while(param.target_next()){ evaluate_until_precision(param.get(),set_obs,dE,maxiter); }
+		while(param.target_next()){ evaluate_until_precision(param.get(),which_obs,dEoE,maxiter); }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
 
@@ -340,7 +339,7 @@ void VMCMinimization::check(unsigned int const& max_pm){
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
-void VMCMinimization::improve_bad_samples(double const& dE){
+void VMCMinimization::improve_bad_samples(double const& dEoE){
 	if(m_->samples_.size() && m_->tmax_){
 		complete_analysis(1e-5);
 		double E(666);
@@ -354,13 +353,13 @@ void VMCMinimization::improve_bad_samples(double const& dE){
 		std::vector<Vector<double> > to_improve;
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
-			if(m_->samples_.get().get_energy().get_x() - 10*m_->samples_.get().get_energy().get_dx() < E && m_->samples_.get().get_energy().get_dx()>dE){
+			if(m_->samples_.get().get_energy().get_x() - 10*m_->samples_.get().get_energy().get_dx() < E && m_->samples_.get().get_energy().get_dx()>dEoE){
 				to_improve.push_back(m_->samples_.get().get_param());
 			}
 		}
 
 		std::cout<<RST::hashtag_line_<<std::endl;
-		std::string msg("improve "+my::tostring(to_improve.size())+" samples (max time "+my::tostring(m_->tmax_*to_improve.size())+"s) with "+RST::math("\\mathrm{d}E>"+my::tostring(dE)));
+		std::string msg("improve "+my::tostring(to_improve.size())+" samples (max time "+my::tostring(m_->tmax_*to_improve.size())+"s) with "+RST::math("\\mathrm{d}E/E>"+my::tostring(dEoE)));
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
@@ -403,36 +402,31 @@ void VMCMinimization::run_parameters(Parseur& P){
 		Minimization tmp;
 		std::string tmp_path;
 		std::string tmp_basename;
-		tmp.load(in,tmp_path,tmp_basename);
+		tmp.load(in,tmp_path,tmp_basename,true);
 		Vector<double> param;
 
 		total_eval_ = in.read<unsigned int>();
 		progress_ = 0;
 		for(unsigned int i(0);i<total_eval_;i++){
 			in>>param;
-			evaluate_until_precision(param,P.get<bool>("set_obs"),P.get<double>("dE"),P.get<unsigned int>("maxiter"));
+			evaluate_until_precision(param,P.get<std::vector<unsigned int> >("which_obs"),P.get<double>("dEoE"),P.get<unsigned int>("maxiter"));
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
-}
-
-void VMCMinimization::clean(){
-	m_->samples_.set_target();
-	while(m_->samples_.target_next()){ m_->samples_.get().set_obs(1); }
 }
 /*}*/
 
 /*{protected methods*/
-std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, bool const& set_obs){
+std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, Vector<unsigned int> const& which_obs){
 	std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 	List<MCSim>::Node* sample(NULL);
-	if(m_->samples_.find_in_sorted_list(sim,sample,MCSim::sort_for_merge)){ sim->copy_S(sample->get()); }
+	if(m_->samples_.find_in_sorted_list(sim,sample,MCSim::sort_for_merge)){ sim->copy_clear_S(sample->get()); }
 	else {/*!create a new sample*/
 		sim->create_S(m_->s_);
-		sample = NULL;/*!reset because its value may have been changed*/
+		sample = NULL;/*!reset because it has changed in find_in_sorted_list*/
 	}
 
 	if(sim->is_created()){
-		if(set_obs){ for(unsigned int i(1);i<m_->obs_.size();i++){ sim->set_obs(m_->obs_[i]); } }
+		for(unsigned int i(0);i<which_obs.size();i++){ sim->set_obs(m_->obs_[which_obs(i)]); }
 		sim->run(sample?10:1e6,m_->tmax_);
 
 		if(!sample){
@@ -457,18 +451,23 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, bo
 	} else { return NULL; }
 }
 
-void VMCMinimization::evaluate_until_precision(Vector<double> const& param, bool const& set_obs, double const& dE, unsigned int const& maxiter){
+void VMCMinimization::evaluate_until_precision(Vector<double> const& param, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter){
 	std::shared_ptr<MCSim> sim(NULL);
 	unsigned int iter(0);
 	std::cout<<++progress_<<"/"<<total_eval_<<" : param : "<<param<<std::endl;
 	do {
 #pragma omp parallel
-		{ sim = evaluate(param,set_obs); }
-	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || sim->get_energy().get_dx()>dE ) );
+		{ sim = evaluate(param,which_obs); }
+	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || sim->get_energy().get_dx()>dEoE*sim->get_energy().get_x() ) );
 	if(sim.get()){
 		sim->complete_analysis(1e-5);
 		sim->print(0);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<std::cout<<" : failed"<<std::endl; }
+}
+
+void VMCMinimization::save(IOFiles& out) const {
+	m_->save(out,true);
+	out<<path_<<basename_;
 }
 /*}*/
 /*}*/
@@ -490,7 +489,7 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 
 		IOFiles in(filename,false);
 		if(in.is_open()){
-			load(in,path,basename);
+			load(in,path,basename,true);
 
 			info_.title("Minimization",'>');
 			std::string msg_end("("+my::tostring(samples_.size())+" samples loaded in "+my::tostring(chrono.elapsed())+"s)");
@@ -543,7 +542,11 @@ void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::s
 	}
 }
 
-void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::string& basename){
+void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::string& basename, bool const& loadall){
+	std::string header(in.get_header());
+	header.erase(0,header.find(".. end_of_saved_variables\n",0)+27);
+	info_.text(header);
+
 	s_ = new System(in);
 	in>>dof_;
 	Vector<double> tmp(dof_,1.0);
@@ -566,18 +569,16 @@ void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::st
 		ps_size_ *= ps_[i].size();
 	}
 
-	unsigned int n_samples(in.read<unsigned int>());
-	unsigned int iter(0);
-	std::string msg("loading progress : ");
-	while(iter++<n_samples){
-		samples_.add_end(std::make_shared<MCSim>(in));
-		if(!(iter%1000)){ my::display_progress(iter,n_samples,msg); }
+	if(loadall){
+		unsigned int n_samples(in.read<unsigned int>());
+		unsigned int iter(0);
+		std::string msg("loading progress : ");
+		while(iter++<n_samples){
+			samples_.add_end(std::make_shared<MCSim>(in));
+			if(!(iter%1000)){ my::display_progress(iter,n_samples,msg); }
+		}
+		in>>path>>basename;
 	}
-	in>>path>>basename;
-
-	std::string header(in.get_header());
-	header.erase(0,header.find(".. end_of_saved_variables\n",0)+27);
-	info_.text(header);
 }
 
 bool VMCMinimization::Minimization::set_phase_space(Parseur const& P){
@@ -682,7 +683,7 @@ void VMCMinimization::Minimization::save(IOFiles& out, bool const& all) const {
 		for(unsigned int i(0);i<best->get()->get_param().size()-1;i++){ p += my::tostring(best->get()->get_param()(i))+","; }
 		p += my::tostring(best->get()->get_param().back())+")";
 		out.add_header()->def("Best parameter","p="+p);
-		out.add_header()->def("Best energy","E="+my::tostring(best->get()->get_energy().get_x())+", dE="+my::tostring(best->get()->get_energy().get_dx()));
+		out.add_header()->def("Best energy","E="+my::tostring(best->get()->get_energy().get_x())+", dEoE="+my::tostring(best->get()->get_energy().get_dx()));
 		out.add_header()->np();
 	}
 

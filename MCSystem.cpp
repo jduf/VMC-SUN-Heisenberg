@@ -52,14 +52,14 @@ void MCSystem::initialize_measure(){
 			if(obs_exists[0]){
 				std::cerr<<__PRETTY_FUNCTION__<<" : measure the energy more than once"<<std::endl;
 				status_ = 1;
-			} else{ obs_exists[0] = true; }
+			} else { obs_exists[0] = true; }
 		}
 		if(o.get_type() == 1){
 			obs_[0].combine_measurement(true);
 			if(obs_exists[1]){
 				std::cerr<<__PRETTY_FUNCTION__<<" : measure the bond energy more than once"<<std::endl;
 				status_ = 1;
-			} else{ obs_exists[1] = true; }
+			} else { obs_exists[1] = true; }
 		}
 	}
 }

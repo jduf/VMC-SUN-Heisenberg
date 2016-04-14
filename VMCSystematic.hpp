@@ -15,14 +15,14 @@ class VMCSystematic : public VMCMinimization{
 		VMCSystematic& operator=(VMCSystematic) = delete;
 		/*}*/
 
-		void run(bool const& set_obs, double const& dE, unsigned int const& maxiter);
+		void run(bool const& set_obs, double const& dEoE, unsigned int const& maxiter);
 		void plot();
 		void test();
 
 	private:
 		unsigned int maxiter_;
 		bool set_obs_;
-		double dE_;
+		double dEoE_;
 
 		bool go_through_parameter_space(Vector<double>* x, Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, void (VMCSystematic::*f)(Vector<double>*, Vector<unsigned int> const&));
 		void evaluate(Vector<double>* x, Vector<unsigned int> const& idx);

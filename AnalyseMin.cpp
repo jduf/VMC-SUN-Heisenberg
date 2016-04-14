@@ -50,7 +50,7 @@ std::string AnalyseMin::extract_level_9(){
 	rst.text(in.get_header());
 	rst.save(false,true);
 
-	VMCMinimization min(in);
+	VMCMinimization min(in,true,"ANA");
 	min.find_save_and_plot_minima(10,*jd_write_,analyse_+path_+dir_,filename_);
 	complete_jobs_<<"./min -u:what 6 -s:load "<<in.get_filename().substr(4)<<IOFiles::endl;
 

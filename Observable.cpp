@@ -106,9 +106,9 @@ void Observable::add_sample(){
 }
 
 void Observable::merge(Observable& obs){
-	if(nval_ == obs.nval_){
+	if(type_ == (obs.type_)%1234 && nval_ == obs.nval_){
 		for(unsigned int i(0);i<nval_;i++){ val_[i].merge(obs.val_[i]); }
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : inconsistent size"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : inconsistent size "<<nval_<<"!="<<obs.nval_<<" for "<<name_<<" and "<<obs.name_<<std::endl; }
 }
 
 void Observable::delete_binning(){
@@ -159,8 +159,11 @@ void Observable::write(IOFiles& w) const {
 void Observable::print(bool const& all) const {
 	std::cout<<name_<<std::endl;
 	if(all){
-		for(unsigned int i(0);i<links_.row();i++){
-			std::cout<<links_(i,0)<<" "<<links_(i,1)<<" "<<links_(i,2)<<" "<<val_[links_(i,2)]<<std::endl;
+		if(type_ == 0){ std::cout<<val_[0]<<std::endl; }
+		else {
+			for(unsigned int i(0);i<links_.row();i++){
+				std::cout<<links_(i,0)<<" "<<links_(i,1)<<" "<<links_(i,2)<<" "<<val_[links_(i,2)]<<std::endl;
+			}
 		}
 	} else { std::cout<<links_<<std::endl; }
 }

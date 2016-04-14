@@ -6,8 +6,8 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	EXEC+= min
 	#EXEC+= mcbi
 	POSTPROCESS = cp $(EXEC) ../sim;
-	#EXEC+= study
-	#POSTPROCESS+= mv ../sim/study  ../
+	EXEC+= study
+	POSTPROCESS+= mv ../sim/study  ../
 
 	CXX = g++ -std=c++14
 	LAPACK = -llapack -lblas
@@ -40,8 +40,8 @@ KAGOME    = KagomeFermi.cpp KagomeFree.cpp KagomePlaquette3A.cpp KagomePlaquette
 
 WF         = $(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)
 MONTECARLO = MonteCarlo.cpp MCSystem.cpp MCSim.cpp BiSystem.cpp
-VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp VMCSystematic.cpp
-ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseHoneycomb.cpp AnalyseMagnetization.cpp AnalyseMin.cpp VMCMinimization.cpp Interpolation.cpp Directory.cpp
+VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp VMCExtract.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp VMCSystematic.cpp
+ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseChain.cpp AnalyseHoneycomb.cpp AnalyseMagnetization.cpp AnalyseMin.cpp VMCMinimization.cpp VMCExtract.cpp Interpolation.cpp Directory.cpp
 IOFILES    = Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
 OTHER      = System.cpp IOSystem.cpp Observable.cpp CreateSystem.cpp Lapack.cpp Parseur.cpp Fit.cpp
 

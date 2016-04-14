@@ -7,7 +7,7 @@
 class VMCMinimization{
 	public:
 		VMCMinimization(Parseur& P);
-		VMCMinimization(IOFiles& in);
+		VMCMinimization(IOFiles& in, bool const& loadall, std::string const& prefix);
 		/*!Default destructor*/
 		virtual ~VMCMinimization() = default;
 		/*{Forbidden*/
@@ -17,12 +17,13 @@ class VMCMinimization{
 		VMCMinimization& operator=(VMCMinimization const&) = delete;
 		/*}*/
 
+		void load(IOFiles& in, bool const& loadall){ m_->load(in,path_,basename_,loadall); }
 		void set_phase_space(Parseur const& P){ m_->set_phase_space(P); }
 		void set_tmax(unsigned int const& tmax){ m_->tmax_ = tmax; }
 
 		void refine();
-		void refine(double const& E, double const& dE);
-		void refine(unsigned int const& nmin, bool const& set_obs, double const& dE, unsigned int const& maxiter);
+		void refine(double const& E, double const& dEoE);
+		void refine(unsigned int const& nmin, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter);
 
 		void complete_analysis(double const& convergence_criterion);
 		void save() const;
@@ -30,13 +31,12 @@ class VMCMinimization{
 		void run_parameters(Parseur& P);
 
 		double find_minima(unsigned int const& max_local_minima, double const& range, List<MCSim>& sorted_list, List<MCSim>& list_min) const;
-		void find_and_run_minima(unsigned int const& max_samples, bool const& set_obs, double const& dE);
+		void find_and_run_minima(unsigned int const& max_samples, Vector<unsigned int> const& which_obs, double const& dEoE);
 		void find_save_and_plot_minima(unsigned int const& max_samples, IOFiles& w, std::string path="", std::string filename="") const;
-		void explore_around_minima(unsigned int const& max_local_minima, bool const& set_obs, double const& dE, double const& dx);
+		void explore_around_minima(unsigned int const& max_local_minima, Vector<unsigned int> const& which_obs, double const& dEoE, double const& dx);
 		void check(unsigned int const& max_samples);
 
-		void improve_bad_samples(double const& dE);
-		void clean();
+		void improve_bad_samples(double const& dEoE);
 
 		bool ready() const { return m_.get(); }
 		RST& get_header(){ return m_->info_; }
@@ -60,7 +60,7 @@ class VMCMinimization{
 				void set(Parseur& P, std::string& path, std::string& basename);
 
 				void create(Parseur& P, std::string& path, std::string& basename);
-				void load(IOFiles& in, std::string& path, std::string& basename);
+				void load(IOFiles& in, std::string& path, std::string& filename, bool const& loadall);
 				bool set_phase_space(Parseur const& P);
 
 				bool within_limit(Vector<double> const& x) const;
@@ -79,6 +79,7 @@ class VMCMinimization{
 
 	protected:
 		VMCMinimization(VMCMinimization const& m, std::string const& prefix);
+		void load_filenames(IOFiles& in){ in>>path_>>basename_; }
 
 		IOFiles* out_;
 		std::shared_ptr<Minimization> m_;
@@ -90,7 +91,8 @@ class VMCMinimization{
 		void set_time() const { time_ = Time().date("-"); }
 
 		/*!Real call to the MonteCarlo evaluation via MCSim*/
-		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, bool const& set_obs);
-		void evaluate_until_precision(Vector<double> const& param, bool const& set_obs, double const& dE, unsigned int const& maxiter);
+		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, Vector<unsigned int> const& which_obs);
+		void evaluate_until_precision(Vector<double> const& param, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter);
+		void save(IOFiles& out) const;
 };
 #endif

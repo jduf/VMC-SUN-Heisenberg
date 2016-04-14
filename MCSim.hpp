@@ -23,7 +23,7 @@ class MCSim{
 		/*!Sets MCS_ to a new MCSystem created via C*/
 		void create_S(System const* const s);
 		/*!Sets MCS_ to a copy obtained via MCSystem::clone() run on MCS*/
-		void copy_S(std::shared_ptr<MCSim> const& mcsim);
+		void copy_clear_S(std::shared_ptr<MCSim> const& mcsim);
 		/*!Creates MonteCarlo, then run on MCS_*/
 		void run(unsigned int const& ts, unsigned int const& tmax);
 		/*}*/
@@ -31,8 +31,6 @@ class MCSim{
 		/*{System and MCSystem calls*/
 		/*!Calls void System::set_obs(Observable const& obs)*/
 		void set_obs(Observable const& obs){ MCS_->set_obs(obs); }
-		/*!Calls void System::set_obs(unsigned int const& i)*/
-		void set_obs(unsigned int const& i){ MCS_->set_obs(i); }
 
 		/*!Calls bool System::check_conv(double const& convergence_criterion)*/
 		bool check_conv(double const& convergence_criterion){ return MCS_->check_conv(convergence_criterion); }

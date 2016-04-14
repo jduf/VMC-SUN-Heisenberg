@@ -42,7 +42,7 @@ class System{
 		/*!Sets an observable*/
 		void set_obs(Observable const& obs){ obs_.push_back(obs); }
 		/*!Removes osbservables from 'from'*/
-		void set_obs(unsigned int const& from){ obs_.erase(obs_.begin()+from,obs_.end()); }
+		void clear_obs(unsigned int const& from){ obs_.erase(obs_.begin()+from,obs_.end()); }
 		/*!Reinitilizes the binnings (clear any previous measure)*/
 		void reset_obs(){ for(auto& o:obs_){ o.reset(); } }
 
@@ -57,7 +57,7 @@ class System{
 		/*}*/
 
 		/*{Saves/prints ref_, N_, m_, n_, bc_, M_, J_, status_ and obs_*/
-		/*!Call child method to save the whole VMC without descritption*/
+		/*!Call child method to save all children without description*/
 		virtual void write(IOFiles& w) const;
 		/*!Saves only this class with description*/
 		void save(IOFiles& w) const;

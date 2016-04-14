@@ -46,11 +46,12 @@ void MCSim::create_S(System const* const s){
 	if(!is_created()){ std::cerr<<__PRETTY_FUNCTION__<<" : status_="<<cs.get_status()<<", faulty parameters="<<param_<<std::endl; }
 }
 
-void MCSim::copy_S(std::shared_ptr<MCSim> const& mcsim){
+void MCSim::copy_clear_S(std::shared_ptr<MCSim> const& mcsim){
 	MCS_ = mcsim->MCS_->clone();
 	MCS_->init_after_clone_or_reading();
 	/*!Need to reset the observable otherwise it will not be an independant
 	 * simulation from mcsim*/
+	MCS_->clear_obs(1);
 	MCS_->reset_obs();
 }
 

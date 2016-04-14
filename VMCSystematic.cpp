@@ -5,7 +5,7 @@ VMCSystematic::VMCSystematic(VMCMinimization const& m):
 {}
 
 /*{public methods*/
-void VMCSystematic::run(bool const& set_obs, double const& dE, unsigned int const& maxiter){
+void VMCSystematic::run(bool const& set_obs, double const& dEoE, unsigned int const& maxiter){
 	if(m_->tmax_){
 		std::cout<<"#######################"<<std::endl;
 		std::string msg("VMCSystematic");
@@ -19,7 +19,7 @@ void VMCSystematic::run(bool const& set_obs, double const& dE, unsigned int cons
 		m_->info_.item(msg);
 
 		set_obs_ = set_obs;
-		dE_ = dE;
+		dEoE_ = dEoE;
 		maxiter_ = maxiter;
 		Vector<unsigned int> idx(m_->dof_,0);
 		total_eval_ = m_->ps_size_;
@@ -98,5 +98,5 @@ bool VMCSystematic::go_through_parameter_space(Vector<double>* x, Vector<unsigne
 void VMCSystematic::evaluate(Vector<double>* x, Vector<unsigned int> const& idx){
 	Vector<double> param(m_->dof_);
 	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
-	evaluate_until_precision(param,set_obs_,dE_,maxiter_);
+	evaluate_until_precision(param,set_obs_,dEoE_,maxiter_);
 }

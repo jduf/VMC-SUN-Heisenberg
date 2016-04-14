@@ -128,7 +128,7 @@ int main(int argc, char* argv[]){
 				mcsim->complete_analysis(1e-5);
 
 				std::shared_ptr<MCSim> mcsim2(std::make_shared<MCSim>(P.get<std::vector<double> >("t")));
-				mcsim2->copy_S(mcsim);
+				mcsim2->copy_clear_S(mcsim);
 				mcsim2->set_obs(cs.get_obs()[0]);
 				mcsim2->run(1e6,4);
 				mcsim2->complete_analysis(1e-5);
