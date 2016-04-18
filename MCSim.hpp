@@ -46,9 +46,9 @@ class MCSim{
 		/*}*/
 
 		/*{Output in IOFiles methods*/
-		/*!Write raw data (no output in header) => made to same many MCSim*/
+		/*!Write raw data (no output in header) => made to save many MCSim*/
 		void write(IOFiles& w) const;
-		/*!Write nice data (with output header) => made to same one MCSim*/
+		/*!Write nice data (with output header) => made to save one MCSim*/
 		void save(IOFiles& w) const;
 		/*}*/
 

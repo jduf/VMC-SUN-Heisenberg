@@ -18,7 +18,11 @@ IOSystem::IOSystem(std::string const& filename, std::string const& sim, std::str
 	dir_(dir),
 	filename_(filename),
 	rst_file_(rst_file)
-{}
+{
+	if(sim_.back()!='/'){ sim_ += "/"; }
+	if(info_.back()!='/'){ info_ += "/"; }
+	if(analyse_.back()!='/'){ analyse_ += "/"; }
+}
 
 void IOSystem::set_IOSystem(IOSystem const* const t){
 	sim_       = t->sim_;

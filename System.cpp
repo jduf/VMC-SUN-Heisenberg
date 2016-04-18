@@ -80,7 +80,7 @@ void System::save(IOFiles& w) const {
 	if(w.is_binary()){
 		save_input(w);
 		save_output(w);
-	} else { w<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<M_<<" "<<obs_[0][0]<<IOFiles::endl; }
+	} else { w<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<obs_[0][0]<<IOFiles::endl; }
 }
 
 void System::save_input(IOFiles& w) const {

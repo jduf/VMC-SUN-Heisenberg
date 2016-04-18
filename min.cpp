@@ -61,6 +61,7 @@ int main(int argc, char* argv[]){
 							{
 								m.improve_bad_samples(P.get<double>("dEoE"));
 								m.save();
+								m.refine();
 							}break;
 						case 4:
 							{
@@ -136,7 +137,8 @@ int main(int argc, char* argv[]){
 								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
 							}
 							VMCExtract m4(in);
-							m4.plot();
+							List<MCSim> kept_sample;
+							m4.plot("./","test-m4",kept_sample);
 						}break;
 				}
 			}

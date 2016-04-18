@@ -72,10 +72,12 @@ void MCSim::write(IOFiles& w) const {
 }
 
 void MCSim::save(IOFiles& w) const {
-	CreateSystem cs(MCS_.get());
-	cs.init(&param_,NULL);
-	if(cs.get_status()==0){ cs.save(w); }
-	else { std::cerr<<__PRETTY_FUNCTION__<<" : status="<<cs.get_status()<<std::endl; }
+	if(w.is_binary()){
+		CreateSystem cs(MCS_.get());
+		cs.init(&param_,NULL);
+		if(cs.get_status()==2){ cs.save(w); }
+		else { std::cerr<<__PRETTY_FUNCTION__<<" : status="<<cs.get_status()<<std::endl; }
+	} else { MCS_->save(w); }
 }
 /*}*/
 

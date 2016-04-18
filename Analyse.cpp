@@ -1,6 +1,7 @@
 #include "Analyse.hpp"
 
-Analyse::Analyse(std::string const& path, unsigned int const& max_level, bool const& run_cmd):
+Analyse::Analyse(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd):
+	IOSystem("",sim,"info-"+sim,"analyse-"+sim,"","",NULL),
 	rel_level_(""),
 	max_level_(max_level),
 	level_(0),
@@ -108,7 +109,7 @@ void Analyse::search_jdbin(){
 		command.mkpath((analyse_+path_+dir_).c_str());
 		open_files();
 
-		if(level_==9){
+		if(level_==9 && child_in_AnalyseMin_){
 			std::cout<<"lev "<<level_<<" : "<<path_+dir_<<std::endl;
 			std::cout<<std::string(6+path_.size()+dir_.size(),' ')<<"|->"<<d.get_name(d.size()-1)<<std::endl;
 

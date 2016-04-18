@@ -5,7 +5,7 @@
 
 class AnalyseChain : public Analyse{
 	public:
-		AnalyseChain(std::string const& path, unsigned int const& max_level, bool const& run_cmd);
+		AnalyseChain(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd);
 		~AnalyseChain();
 
 	protected:

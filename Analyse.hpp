@@ -7,7 +7,7 @@
 
 class Analyse: public IOSystem{
 	public:
-		Analyse(std::string const& path, unsigned int const& max_level, bool const& run_cmd);
+		Analyse(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd);
 		/*Default destructor*/
 		virtual ~Analyse();
 		/*{Forbidden*/
@@ -26,6 +26,7 @@ class Analyse: public IOSystem{
 		unsigned int const max_level_;
 		unsigned int level_;
 		unsigned int nof_;
+		bool child_in_AnalyseMin_ = false;
 
 		void do_analyse();
 		virtual void open_files()  = 0;

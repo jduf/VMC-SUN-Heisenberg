@@ -1,7 +1,7 @@
 #include "AnalyseChain.hpp"
 
-AnalyseChain::AnalyseChain(std::string const& path, unsigned int const& max_level, bool const& run_cmd):
-	Analyse(path,max_level,run_cmd),
+AnalyseChain::AnalyseChain(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd):
+	Analyse(sim,path,max_level,run_cmd),
 	outfile_(NULL)
 {
 	std::cout<<"Will proceed to the analyse SU(N) chains. It will consist "

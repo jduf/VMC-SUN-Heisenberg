@@ -158,9 +158,7 @@ void VMCExtract::print() const {
 	}
 }
 
-void VMCExtract::plot() const {
-	std::string path("./");
-	std::string filename("test");
+void VMCExtract::plot(std::string const& path, std::string const& filename, List<MCSim>& keep) const {
 	if(m_->samples_.size()){
 		double E;
 		double Erange;
@@ -182,10 +180,7 @@ void VMCExtract::plot() const {
 			param = m_->samples_.get().get_param();
 
 			data_n<<i<<" "<<norm<<IOFiles::endl;
-			if(norm>0.1){
-				n.push_back(i); 
-				std::cout<<i<<" | "<<param<<std::endl;
-			}
+			if(norm>0.1){ n.push_back(i); }
 			i++;
 		} while(m_->samples_.target_next());
 
@@ -193,12 +188,11 @@ void VMCExtract::plot() const {
 		unsigned int idx(0);
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
-			i++; 
 			if(E>m_->samples_.get().get_energy().get_x()){
 				E=m_->samples_.get().get_energy().get_x();
 				idx = i;
 			}
-			if(i==n[j]){
+			if(++i==n[j]){
 				n[j] = idx;
 				j++;
 				E=0.0;
@@ -221,10 +215,11 @@ void VMCExtract::plot() const {
 		do{
 			if(remain_samples && MCSim::sort_by_param_for_merge(m_->samples_.get().get_param(),dis_sim_.get().get_param())){
 				norm += (param-m_->samples_.get().get_param()).norm_squared();
-				if(++i!=n[j]){
+				if(i++!=n[j]){
 					data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 1"<<IOFiles::endl;
 				} else {
 					data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 2"<<IOFiles::endl;
+					keep.add_end(m_->samples_.get_ptr());
 					j++;
 				}
 

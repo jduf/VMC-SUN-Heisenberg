@@ -6,7 +6,7 @@
 
 class AnalyseMin : public Analyse{
 	public:
-		AnalyseMin(std::string const& path, unsigned int const& max_level, bool const& run_cmd);
+		AnalyseMin(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd);
 		~AnalyseMin() = default;
 
 	protected:

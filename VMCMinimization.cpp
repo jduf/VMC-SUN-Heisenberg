@@ -46,10 +46,10 @@ VMCMinimization::VMCMinimization(IOFiles& in, bool const& loadall, std::string c
 /*{public methods*/
 void VMCMinimization::refine(){
 	std::cout<<RST::hashtag_line_<<std::endl;
-	m_->tmax_ = 1;
+	m_->tmax_ = 5;
 	double E;
-	double dEoE(0.005);
-	while(dEoE>5e-5){
+	double dEoE(0.0001);
+	while(dEoE>0.00001){
 		E=0;
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
@@ -57,10 +57,12 @@ void VMCMinimization::refine(){
 				E = m_->samples_.get().get_energy().get_x();
 			}
 		}
-		E += dEoE;
+		std::cout<<E<<std::endl;
+		E -= 10*dEoE*E;
+		std::cout<<E<<std::endl;
 		refine(E,dEoE);
-		dEoE /= 2;
-		if(dEoE<1e-3){ m_->tmax_ *= 2; }
+		dEoE /= 1.5;
+		m_->tmax_ *= 2;
 	}
 }
 
@@ -75,7 +77,7 @@ void VMCMinimization::refine(double const& E, double const& dEoE){
 		}
 		total_eval_ = best.size();
 
-		unsigned int maxiter(10);
+		unsigned int maxiter(m_->tmax_/5);
 		std::string msg("refines "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
@@ -83,7 +85,7 @@ void VMCMinimization::refine(double const& E, double const& dEoE){
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
-		if(total_eval_>5 && total_eval_<1000){
+		if(total_eval_>100 && total_eval_<10000){
 			best.set_target();
 			progress_ = 0;
 			while(best.target_next()){ evaluate_until_precision(best.get().get_param(),false,dEoE,maxiter); }
@@ -353,9 +355,12 @@ void VMCMinimization::improve_bad_samples(double const& dEoE){
 		std::vector<Vector<double> > to_improve;
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
-			if(m_->samples_.get().get_energy().get_x() - 10*m_->samples_.get().get_energy().get_dx() < E && m_->samples_.get().get_energy().get_dx()>dEoE){
-				to_improve.push_back(m_->samples_.get().get_param());
-			}
+			if(
+					m_->samples_.get().get_energy().get_x() - 10*m_->samples_.get().get_energy().get_dx() < E
+					&&
+					std::abs(m_->samples_.get().get_energy().get_dx()/m_->samples_.get().get_energy().get_x())>dEoE
+			  )
+			{ to_improve.push_back(m_->samples_.get().get_param()); }
 		}
 
 		std::cout<<RST::hashtag_line_<<std::endl;

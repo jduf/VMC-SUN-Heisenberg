@@ -7,22 +7,24 @@
 #include "AnalyseHoneycomb.hpp"
 
 #include "AnalyseMin.hpp"
+#include "AnalyseExtract.hpp"
 
 int main(int argc, char* argv[]){
 	Linux command;
-	command("[ -d sim ] && [ -d src ]",false);
 	if(!command.status()){
 		Parseur P(argc,argv);
 		unsigned int i(0);
 		std::string path(P.find("path",i,false)?P.get<std::string>(i):"");
+		std::string sim(P.find("sim",i,false)?P.get<std::string>(i):"sim/");
 		unsigned int max_level(P.find("ml",i,false)?P.get<unsigned int>(i):10);
 		bool run_cmd(P.find("run",i,false)?P.get<bool>(i):false);
 		switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
-			case 0: { AnalyseEnergy ana(path,max_level,run_cmd); }break;
-			case 1: { AnalyseChain ana(path,max_level,run_cmd); }break;
-			case 2: { AnalyseHoneycomb ana(path,max_level,run_cmd); }break;
-			case 3: { AnalyseMagnetization ana(path,max_level,run_cmd); }break;
-			case 4: { AnalyseMin ana(path,max_level,run_cmd); }break;
+			case 0: { AnalyseEnergy ana(sim,path,max_level,run_cmd); }break;
+			case 1: { AnalyseChain ana(sim,path,max_level,run_cmd); }break;
+			case 2: { AnalyseHoneycomb ana(sim,path,max_level,run_cmd); }break;
+			case 3: { AnalyseMagnetization ana(sim,path,max_level,run_cmd); }break;
+			case 4: { AnalyseMin ana(sim,path,max_level,run_cmd); }break;
+			case 5: { AnalyseExtract ana(sim,path,max_level,run_cmd); }break;
 			default:{
 						std::cerr<<__PRETTY_FUNCTION__<<" : unknown option 'what', options are :"<<std::endl;
 						std::cerr<<"    - Energy        : 0"<<std::endl;
