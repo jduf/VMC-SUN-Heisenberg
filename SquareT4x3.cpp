@@ -115,7 +115,7 @@ unsigned int SquareT4x3::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void SquareT4x3::display_results(){
 	compute_H();
-	draw_lattice();
+	draw_lattice(true);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

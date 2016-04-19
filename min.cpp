@@ -139,6 +139,16 @@ int main(int argc, char* argv[]){
 							VMCExtract m4(in);
 							List<MCSim> kept_sample;
 							m4.plot("./","test-m4",kept_sample);
+							kept_sample.set_target();
+
+							std::string fname("bla");
+							RSTFile rst("/tmp/",fname);
+							while(kept_sample.target_next()){
+								kept_sample.get().display_results("","","","","/tmp/",&rst);
+							}
+							//rst.text(iof.get_header());
+							rst.save(false,true);
+							Linux()(Linux::html_browser("/tmp/"+fname+".html"),true);
 						}break;
 				}
 			}

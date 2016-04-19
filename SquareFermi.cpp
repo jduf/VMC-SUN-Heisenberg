@@ -51,7 +51,7 @@ Matrix<double> SquareFermi::set_ab() const {
 /*{method needed for checking*/
 void SquareFermi::display_results(){
 	compute_H();
-	draw_lattice();
+	draw_lattice(true);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

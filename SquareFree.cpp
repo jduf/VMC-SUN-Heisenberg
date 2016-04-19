@@ -173,7 +173,7 @@ unsigned int SquareFree::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void SquareFree::display_results(){
 	compute_H(0);
-	draw_lattice();
+	draw_lattice(true);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

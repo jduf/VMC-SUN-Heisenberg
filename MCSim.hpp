@@ -26,19 +26,19 @@ class MCSim{
 		void copy_clear_S(std::shared_ptr<MCSim> const& mcsim);
 		/*!Creates MonteCarlo, then run on MCS_*/
 		void run(unsigned int const& ts, unsigned int const& tmax);
+		/*!Creates a CreateSystem and call its display_results method*/
+		void display_results(std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file);
 		/*}*/
 
 		/*{System and MCSystem calls*/
 		/*!Calls void System::set_obs(Observable const& obs)*/
 		void set_obs(Observable const& obs){ MCS_->set_obs(obs); }
-
 		/*!Calls bool System::check_conv(double const& convergence_criterion)*/
 		bool check_conv(double const& convergence_criterion){ return MCS_->check_conv(convergence_criterion); }
 		/*!Calls void System::complete_analysis(double const& convergence_criterion)*/
 		void complete_analysis(double const& convergence_criterion){ MCS_->complete_analysis(convergence_criterion); }
 		/*!Calls void System::merge(System* const s)*/
 		void merge(std::shared_ptr<MCSim> const& mcsim){ MCS_->merge(mcsim->MCS_.get()); }
-
 		/*!Calls virtual void MCSystem::free_memory() = 0*/
 		void free_memory(){ MCS_->free_memory(); }
 		/*!Calls System::print()*/
@@ -52,12 +52,6 @@ class MCSim{
 		void save(IOFiles& w) const;
 		/*}*/
 
-		/*{Static methods*/
-		static bool sort_by_E(MCSim const& a, MCSim const& b);
-		static unsigned int sort_for_merge(MCSim const& list, MCSim const& new_elem);
-		static unsigned int sort_by_param_for_merge(Vector<double> const& a, Vector<double> const& b);
-		/*}*/
-
 		/*{Simple value return*/
 		/*!Return the Data<double> Energy*/
 		Data<double> const& get_energy() const { return MCS_->get_energy(); }
@@ -65,6 +59,12 @@ class MCSim{
 		Vector<double> const& get_param() const { return param_; }
 		/*!Returns true if MCS_ can be run by MonteCarlo*/
 		bool is_created() const { return (MCS_.get() && !MCS_->get_status()); }
+		/*}*/
+
+		/*{Static methods*/
+		static bool sort_by_E(MCSim const& a, MCSim const& b);
+		static unsigned int sort_for_merge(MCSim const& list, MCSim const& new_elem);
+		static unsigned int sort_by_param_for_merge(Vector<double> const& a, Vector<double> const& b);
 		/*}*/
 
 	private:

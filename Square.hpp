@@ -13,7 +13,7 @@ class Square: public System2D<Type>{
 
 	protected:
 		void init_lattice();
-		void draw_lattice();
+		void draw_lattice(bool const& only_unit_cell);
 
 	private:
 		unsigned int p_;
@@ -97,7 +97,7 @@ void Square<Type>::init_lattice(){
 }
 
 template<typename Type>
-void Square<Type>::draw_lattice(){
+void Square<Type>::draw_lattice(bool const& only_unit_cell){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(3,0);
 	for(unsigned int i(1);i<this->obs_.size();i++){
@@ -115,36 +115,40 @@ void Square<Type>::draw_lattice(){
 	Vector<double> xy1(2,0);
 	PSTricks ps(this->get_info_path(),this->filename_);
 	ps.begin(-20,-20,20,20,this->filename_);
-	ps.polygon(this->cluster_vertex_,"linecolor=green");
+	if(!only_unit_cell){ 
+		ps.polygon(this->cluster_vertex_,"linecolor=green"); 
+		ps.linked_lines("-",this->draw_boundary(false),"linecolor=yellow");
+	}
 	Matrix<double> uc(this->draw_unit_cell(-0.5,-0.5));
 	ps.polygon(uc,"linecolor=black");
-	ps.linked_lines("-",this->draw_boundary(false),"linecolor=yellow");
 
 	unsigned int s0;
 	unsigned int s1;
 	/*draws only the lattice, shows links and bc*/
-	for(unsigned int i(0);i<links.row();i++){
-		s0 = links(i,0);
-		xy0 = this->x_[s0];
-		s1 = links(i,1);
-		xy1 = this->x_[s1];
+	if(!only_unit_cell){
+		for(unsigned int i(0);i<links.row();i++){
+			s0 = links(i,0);
+			xy0 = this->x_[s0];
+			s1 = links(i,1);
+			xy1 = this->x_[s1];
 
-		if((xy0-xy1).norm_squared()>1.0001){
-			linestyle = "dashed";
-			xy1 = (xy0+this->dir_nn_[links(i,3)]*1.2).chop();
-			ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(s1)+"}");
-			xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
-		} else { linestyle = "solid"; }
+			if((xy0-xy1).norm_squared()>1.0001){
+				linestyle = "dashed";
+				xy1 = (xy0+this->dir_nn_[links(i,3)]*1.2).chop();
+				ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(s1)+"}");
+				xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
+			} else { linestyle = "solid"; }
 
-		ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth=1pt,linecolor=black,linestyle="+linestyle);
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth=1pt,linecolor=black,linestyle="+linestyle);
 
-		if(i%2){
-			ps.put(xy0(0)-0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
-			ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}");
+			if(i%2){
+				ps.put(xy0(0)-0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
+				ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}");
+			}
 		}
+		/*draws long range correlations over the lattice*/
+		if(o(1)){ this->draw_long_range_correlation(ps,this->obs_[o(1)]); }
 	}
-	/*draws long range correlations over the lattice*/
-	if(o(1)){ this->draw_long_range_correlation(ps,this->obs_[o(1)]); }
 
 	Vector<double> shift(2,0.0);
 	if(o(0) || o(2)){
@@ -160,7 +164,7 @@ void Square<Type>::draw_lattice(){
 				linestyle = "dashed";
 				xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
 			} else { linestyle = "solid"; }
-			//if(!my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+			if(only_unit_cell && my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
 			{
 				xy0 += shift;
 				xy1 += shift;
@@ -170,7 +174,7 @@ void Square<Type>::draw_lattice(){
 					if(std::abs(be)>1e-4){
 						if(be>0){ color = "blue"; }
 						else    { color = "red"; }
-						ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+						ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 					}
 				}
 				if(i%2 && o(2)){
@@ -186,7 +190,12 @@ void Square<Type>::draw_lattice(){
 	Type t;
 	double mu;
 	std::string arrow("-");
-	shift = this->equivalent_vertex_[0]+this->equivalent_vertex_[2];
+	if(only_unit_cell){
+		shift(0) = 2.0*uc(2,0);
+		shift(1) = 0;
+	} else {
+		shift = this->equivalent_vertex_[0]+this->equivalent_vertex_[2];
+	}
 	for(unsigned int i(0);i<links.row();i++){
 		s0 = links(i,0);
 		xy0 = this->x_[s0];
@@ -198,7 +207,7 @@ void Square<Type>::draw_lattice(){
 			xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
 		} else { linestyle = "solid"; }
 
-		if(!my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+		if(only_unit_cell && my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
 		{
 			xy0 += shift;
 			xy1 += shift;
@@ -214,7 +223,7 @@ void Square<Type>::draw_lattice(){
 					if(my::imag(-t)>0){ arrow = "->"; }
 					else              { arrow = "<-"; }
 				}
-				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
 
 			mu = my::real(this->H_(s0,s0));
@@ -224,7 +233,7 @@ void Square<Type>::draw_lattice(){
 				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
 
-			if(!(i%2)){ this->draw_flux_per_plaquette(ps,s0,xy0,xy0(0)+0.5,xy0(1)+0.5,1,0,4); }
+			if(!(i%2)){ this->draw_flux_per_plaquette(ps,s0,xy0-shift,xy0(0)+0.5,xy0(1)+0.5,1,0,4); }
 		}
 	}
 	ps.end(true,true,true);

@@ -158,7 +158,7 @@ void VMCExtract::print() const {
 	}
 }
 
-void VMCExtract::plot(std::string const& path, std::string const& filename, List<MCSim>& keep) const {
+void VMCExtract::plot(std::string const& path, std::string const& filename, List<MCSim>& kept) const {
 	if(m_->samples_.size()){
 		double E;
 		double Erange;
@@ -214,12 +214,18 @@ void VMCExtract::plot(std::string const& path, std::string const& filename, List
 		norm=0.0;
 		do{
 			if(remain_samples && MCSim::sort_by_param_for_merge(m_->samples_.get().get_param(),dis_sim_.get().get_param())){
+				if(my::are_equal(param,m_->samples_.get().get_param())){
+					std::cerr<<"very strange"<<std::endl; 
+				}
+				if(my::are_equal(norm,(param-m_->samples_.get().get_param()).norm_squared())){
+					std::cerr<<"strange"<<std::endl; 
+				}
 				norm += (param-m_->samples_.get().get_param()).norm_squared();
 				if(i++!=n[j]){
 					data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 1"<<IOFiles::endl;
 				} else {
 					data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 2"<<IOFiles::endl;
-					keep.add_end(m_->samples_.get_ptr());
+					kept.add_sort(m_->samples_.get_ptr(),MCSim::sort_by_E);
 					j++;
 				}
 
@@ -232,7 +238,6 @@ void VMCExtract::plot(std::string const& path, std::string const& filename, List
 				param = dis_sim_.get().get_param();
 				keepon = dis_sim_.target_next() ;
 			}
-			if(my::are_equal(norm,floor(norm),1e-15,1e-15)){ std::cerr<<"strange"<<std::endl; }
 		} while(keepon);
 
 		Gnuplot gp(path,filename);

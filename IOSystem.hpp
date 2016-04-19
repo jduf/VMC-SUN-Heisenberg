@@ -22,11 +22,11 @@ class IOSystem{
 		std::string const& get_path() const { return path_; }
 		/*Returns the total path from info*/
 		std::string get_info_path() const { return info_+path_+dir_; }
+		/*Returns information about the System stored in system_info_*/
+		RST const& get_system_info() const { return system_info_; }
 
 		/*!Call the corresponding virtual std::string extract_...()*/
 		std::string analyse(unsigned int const& level);
-
-		RST const& get_system_info() const { return system_info_; }
 
 	protected:
 		IOSystem(std::string const& filename, std::vector<std::string> names);
