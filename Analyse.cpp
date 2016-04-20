@@ -1,6 +1,6 @@
 #include "Analyse.hpp"
 
-Analyse::Analyse(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd):
+Analyse::Analyse(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
 	IOSystem("",sim,"info-"+sim,"analyse-"+sim,"","",NULL),
 	rel_level_(""),
 	max_level_(max_level),
@@ -13,7 +13,7 @@ Analyse::Analyse(std::string const& sim, std::string const& path, unsigned int c
 	if(path.find(".jdbin")!=std::string::npos){ study_=3; }
 }
 
-Analyse::~Analyse(){ Linux::close(run_cmd_); }
+Analyse::~Analyse(){ Linux::close(run_cmd_>1); }
 
 void Analyse::do_analyse(){
 	switch(study_){
@@ -71,7 +71,7 @@ void Analyse::do_analyse(){
 }
 
 void Analyse::recursive_search(){
-	if(level_ == 1){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
+	if(level_ == 1 && run_cmd_){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
 
 	Directory d;
 	d.list_dir(sim_+path_+dir_);

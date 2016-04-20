@@ -1,6 +1,6 @@
 #include "AnalyseChain.hpp"
 
-AnalyseChain::AnalyseChain(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd):
+AnalyseChain::AnalyseChain(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
 	Analyse(sim,path,max_level,run_cmd),
 	outfile_(NULL)
 {
@@ -67,9 +67,11 @@ void AnalyseChain::close_files(){
 	}
 }
 
-/*{Description*/
-/*!extracts the results and plots the correlations, long range correlations and structure factor*/
-/*}*/
+/*{*//*!Extract a single simulation
+
+	   Extracts the results and plots the correlations, long range correlations
+	   and structure factor
+	   *//*}*/
 std::string AnalyseChain::extract_level_8(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
@@ -193,8 +195,8 @@ std::string AnalyseChain::extract_level_6(){
 				 *
 				 * As we know that SU(9) m=3 is gapless, it will save the
 				 * correct critical exponent
-				unsigned int eta_idx(( (N==9&&m==3) || ref(2)==0)?0:1);
-				*/
+				 unsigned int eta_idx(( (N==9&&m==3) || ref(2)==0)?0:1);
+				 */
 				std::cerr<<__PRETTY_FUNCTION__<<" : don't know what to do"<<std::endl;
 			}break;
 		default:{ std::cerr<<__PRETTY_FUNCTION__<<" : too many wavefunctions"<<std::endl; }
@@ -250,7 +252,7 @@ std::string AnalyseChain::extract_level_4(){
 std::string AnalyseChain::extract_level_3(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
-	
+
 	Vector<double> t;
 	for(unsigned int i(0);i<nof_;i++){
 		(*read_)>>t;

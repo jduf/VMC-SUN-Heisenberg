@@ -17,7 +17,7 @@ int main(int argc, char* argv[]){
 		std::string path(P.find("path",i,false)?P.get<std::string>(i):"");
 		std::string sim(P.find("sim",i,false)?P.get<std::string>(i):"sim/");
 		unsigned int max_level(P.find("ml",i,false)?P.get<unsigned int>(i):10);
-		bool run_cmd(P.find("run",i,false)?P.get<bool>(i):false);
+		unsigned int run_cmd(P.find("run",i,false)?P.get<unsigned int>(i):false);
 		switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
 			case 0: { AnalyseEnergy ana(sim,path,max_level,run_cmd); }break;
 			case 1: { AnalyseChain ana(sim,path,max_level,run_cmd); }break;

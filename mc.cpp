@@ -30,17 +30,19 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	if(P.find("tmax",i,false)){
-		unsigned int tmax(P.get<unsigned int>(i));
-		unsigned int nruns(P.find("nruns",i,false)?P.get<unsigned int>(i):omp_get_max_threads());
-		if(cs->get_status()==2){
-			std::cout<<cs->get_system_info()<<std::endl;
-			for(unsigned int i(0);i<cs->get_obs().size();i++){
-				std::cout<<(i?"          ":"Compute : ")<<cs->get_obs()[i].get_name()<<std::endl;
-			}
-			std::cout<<std::endl;
-			cs->create(false);
-			if(cs->get_status()==1){
+	if(cs->get_status()==2){
+		std::cout<<cs->get_system_info()<<std::endl;
+		for(unsigned int j(0);j<cs->get_obs().size();j++){
+			std::cout<<(j?"          ":"Compute : ")<<cs->get_obs()[j].get_name()<<std::endl;
+		}
+		std::cout<<std::endl;
+		cs->create(false);
+		if(cs->get_status()==1){
+			double dEoE(P.find("dEoE",i,false)?P.get<double>(i):0.0001);
+			unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
+			unsigned int nruns(P.find("nruns",i,false)?P.get<unsigned int>(i):omp_get_max_threads());
+			unsigned int maxiter(P.find("maxiter",i,false)?P.get<unsigned int>(i):1);
+			while(maxiter){
 #pragma omp parallel for
 				for(unsigned int j=0;j<nruns;j++){
 					MCSystem* mcsys(NULL);
@@ -63,20 +65,22 @@ int main(int argc, char* argv[]){
 						delete mcsys;
 					}
 				}
-				cs->complete_analysis(1e-5);
-				cs->print(5);
+				maxiter--;
+				if(cs->get_obs()[0][0].get_dx()<dEoE){ maxiter=0; }
+			}
+			cs->complete_analysis(1e-5);
+			cs->print(5);
 
-				fname = Time().date("-") + "-" + cs->get_filename();
-				command.mkpath(cs->get_path().c_str());
-				if(iof){ delete iof; }
-				iof = new IOFiles(cs->get_path() + fname +".jdbin",true);
-				cs->save(*iof);
-			} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
-		} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
-		if(cs->get_status()!=1){
-			if(cs){ delete cs; cs = NULL; }
-			std::cout<<RST::dash_line_<<std::endl;
-		}
+			fname = Time().date("-") + "-" + cs->get_filename();
+			command.mkpath(cs->get_path().c_str());
+			if(iof){ delete iof; }
+			iof = new IOFiles(cs->get_path() + fname +".jdbin",true);
+			cs->save(*iof);
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
+	if(cs->get_status()!=1){
+		if(cs){ delete cs; cs = NULL; }
+		std::cout<<RST::dash_line_<<std::endl;
 	}
 
 	if(P.find("d",i,false) && cs){

@@ -1,6 +1,6 @@
 #include "AnalyseMin.hpp"
 
-AnalyseMin::AnalyseMin(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd):
+AnalyseMin::AnalyseMin(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
 	Analyse(sim,path,max_level,run_cmd),
 	complete_jobs_(sim_+"to_run.bash",true)
 {

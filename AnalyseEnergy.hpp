@@ -5,9 +5,9 @@
 
 class AnalyseEnergy : public Analyse{
 	public:
-		AnalyseEnergy(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd);
+		AnalyseEnergy(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd);
 		/*!Default destructor*/
-		~AnalyseEnergy() = default;
+		~AnalyseEnergy();
 		/*{Forbidden*/
 		AnalyseEnergy() = delete;
 		AnalyseEnergy(AnalyseEnergy const&) = delete;
@@ -19,6 +19,8 @@ class AnalyseEnergy : public Analyse{
 		void open_files();
 		void close_files();
 
+		std::string extract_level_8();
+		std::string extract_level_7();
 		std::string extract_level_6();
 		std::string extract_level_5();
 		std::string extract_level_4();

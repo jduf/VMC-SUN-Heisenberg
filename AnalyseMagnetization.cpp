@@ -1,6 +1,6 @@
 #include "AnalyseMagnetization.hpp"
 
-AnalyseMagnetization::AnalyseMagnetization(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd):
+AnalyseMagnetization::AnalyseMagnetization(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
 	Analyse(sim,path,max_level,run_cmd)
 {}
 

@@ -5,7 +5,7 @@
 
 class AnalyseMagnetization : public Analyse{
 	public:
-		AnalyseMagnetization(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd);
+		AnalyseMagnetization(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd);
 		/*!Default destructor*/
 		~AnalyseMagnetization() = default;
 		/*{Forbidden*/

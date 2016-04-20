@@ -6,7 +6,7 @@
 
 class AnalyseExtract : public Analyse{
 	public:
-		AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, bool const& run_cmd);
+		AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd);
 		~AnalyseExtract() = default;
 
 	protected:
