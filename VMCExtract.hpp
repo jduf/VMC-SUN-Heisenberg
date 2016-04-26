@@ -5,7 +5,7 @@
 
 class VMCExtract : public VMCMinimization{
 	public:
-		VMCExtract(IOFiles& in);
+		VMCExtract(IOFiles& in, bool const& sort);
 		/*!Default destructor*/
 		virtual ~VMCExtract() = default;
 		/*{Forbidden*/
@@ -15,10 +15,10 @@ class VMCExtract : public VMCMinimization{
 		VMCExtract& operator=(VMCExtract) = delete;
 		/*}*/
 
-		void refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& ttotal);
+		void refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& t, unsigned int maxiter = 0);
 		void save(std::string const& filename) const;
 		void print() const;
-		void plot(std::string const& path, std::string const& filename, List<MCSim>& keep) const;
+		void select_minima_and_plot(std::string const& path, std::string const& filename, List<MCSim>& keep) const;
 
 	private:
 		class DiscardedSim{

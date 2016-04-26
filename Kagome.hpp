@@ -198,7 +198,7 @@ void Kagome<Type>::draw_lattice(){
 				xy0 += shift;
 				xy1 += shift;
 				if(o(0)){
-					be = this->obs_[o(0)][links(i,2)].get_x();
+					be = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_);
 					linewidth = my::tostring(std::abs(be))+"mm";
 					if(std::abs(be)>1e-4){
 						if(be>0){ color = "blue"; }

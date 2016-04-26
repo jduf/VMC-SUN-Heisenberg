@@ -65,11 +65,15 @@ int main(int argc, char* argv[]){
 						delete mcsys;
 					}
 				}
+				cs->complete_analysis(1e-5);
+
 				maxiter--;
-				if(cs->get_obs()[0][0].get_dx()<dEoE){ maxiter=0; }
+				if(std::abs(cs->get_obs()[0][0].get_dx()/cs->get_obs()[0][0].get_x())<dEoE){ maxiter=0; }
+				else {
+					std::cerr<<__PRETTY_FUNCTION__<<" : rerun due to bad precision : "<<cs->get_obs()[0][0].get_x()/cs->get_obs()[0][0].get_dx()<<" > dEoE = "<<dEoE<<std::endl;
+				}
 			}
-			cs->complete_analysis(1e-5);
-			cs->print(5);
+			cs->print(1);
 
 			fname = Time().date("-") + "-" + cs->get_filename();
 			command.mkpath(cs->get_path().c_str());

@@ -121,12 +121,7 @@ int main(int argc, char* argv[]){
 					case 12:
 						{
 							IOFiles in(P.get<std::string>("load"),false);
-							Vector<unsigned int> obs;
-							if(P.find("obs",i,false)){
-								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
-							}
-							VMCExtract m4(in);
-							m4.refine(obs,P.get<double>("dEoE"),P.get<unsigned int>("ttotal"));
+							VMCExtract m4(in,true);
 							m4.save("best/");
 						}break;
 					case 13:
@@ -136,9 +131,31 @@ int main(int argc, char* argv[]){
 							if(P.find("obs",i,false)){
 								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
 							}
-							VMCExtract m4(in);
+							VMCExtract m4(in,false);
+							m4.refine(obs,P.get<double>("dEoE"),P.get<unsigned int>("ttotal"));
+							m4.save("best/");
+						}break;
+					case 14:
+						{
+							IOFiles in(P.get<std::string>("load"),false);
+							Vector<unsigned int> obs;
+							if(P.find("obs",i,false)){
+								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
+							}
+							VMCExtract m4(in,true);
+							m4.refine(obs,P.get<double>("dEoE"),P.get<unsigned int>("tmax"),P.get<unsigned int>("maxiter"));
+							m4.save("best-with-bond-energy/");
+						}break;
+					case 15:
+						{
+							IOFiles in(P.get<std::string>("load"),false);
+							Vector<unsigned int> obs;
+							if(P.find("obs",i,false)){
+								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
+							}
+							VMCExtract m4(in,true);
 							List<MCSim> kept_sample;
-							m4.plot("./","test-m4",kept_sample);
+							m4.select_minima_and_plot("./","test-m4",kept_sample);
 							kept_sample.set_target();
 
 							std::string fname("bla");

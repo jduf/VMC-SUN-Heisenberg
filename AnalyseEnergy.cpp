@@ -17,7 +17,7 @@ AnalyseEnergy::~AnalyseEnergy(){
 }
 
 void AnalyseEnergy::open_files(){
-	if(level_>3){
+	if(level_){
 		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
 	}
 	switch(level_){
@@ -42,7 +42,10 @@ void AnalyseEnergy::open_files(){
 }
 
 void AnalyseEnergy::close_files(){
-	if(level_==3){ list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","energy evolution with the system size",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }
+	switch(level_){
+		case 3:
+			{ list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","energy evolution with the system size",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }break;
+	}
 	if(jd_write_){
 		list_rst_.last().text(jd_write_->get_header());
 		delete jd_write_;
@@ -56,7 +59,7 @@ void AnalyseEnergy::close_files(){
 
 std::string AnalyseEnergy::extract_level_8(){ return extract_default(); }
 
-std::string AnalyseEnergy::extract_level_7(){ 
+std::string AnalyseEnergy::extract_level_7(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 
 	unsigned int idx(0);

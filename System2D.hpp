@@ -414,11 +414,8 @@ void System2D<Type>::draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, Vect
 	} while (++j<jn);
 	flux /= M_PI;
 	if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-		if(my::to_fraction(flux,a,b,sign) && b!=1){
-			ps.put(xd,yd,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}");
-		} else {
-			ps.put(xd,yd,"\\tiny{"+my::tostring(my::chop(flux))+"}");
-		}
+		if(my::to_fraction(flux,a,b,sign) && b!=1){ ps.put(xd,yd,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}"); }
+		else if((unsigned int)(my::chop(flux))%2){  ps.put(xd,yd,"\\tiny{1}"); }
 	}
 }
 /*}*/

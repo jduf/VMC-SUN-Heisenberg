@@ -132,7 +132,7 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 	if( wf == "chain-free" ){
 		ref(0) = 1;
 		ref(1) = 1;
-		ref(2) = 2;
+		ref(2) = 1;
 	}
 	if( wf == "chain-polymerized" ){
 		ref(0) = 1;

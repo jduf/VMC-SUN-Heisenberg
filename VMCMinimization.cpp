@@ -463,7 +463,7 @@ void VMCMinimization::evaluate_until_precision(Vector<double> const& param, Vect
 	do {
 #pragma omp parallel
 		{ sim = evaluate(param,which_obs); }
-	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || sim->get_energy().get_dx()>dEoE*sim->get_energy().get_x() ) );
+	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || std::abs(sim->get_energy().get_dx()/sim->get_energy().get_x()) > dEoE ) );
 	if(sim.get()){
 		sim->complete_analysis(1e-5);
 		sim->print(0);

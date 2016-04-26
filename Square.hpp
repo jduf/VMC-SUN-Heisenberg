@@ -115,8 +115,8 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell){
 	Vector<double> xy1(2,0);
 	PSTricks ps(this->get_info_path(),this->filename_);
 	ps.begin(-20,-20,20,20,this->filename_);
-	if(!only_unit_cell){ 
-		ps.polygon(this->cluster_vertex_,"linecolor=green"); 
+	if(!only_unit_cell){
+		ps.polygon(this->cluster_vertex_,"linecolor=green");
 		ps.linked_lines("-",this->draw_boundary(false),"linecolor=yellow");
 	}
 	Matrix<double> uc(this->draw_unit_cell(-0.5,-0.5));
@@ -169,7 +169,7 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell){
 				xy0 += shift;
 				xy1 += shift;
 				if(o(0)){
-					be = this->obs_[o(0)][links(i,2)].get_x();
+					be = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_);
 					linewidth = my::tostring(std::abs(be))+"mm";
 					if(std::abs(be)>1e-4){
 						if(be>0){ color = "blue"; }
