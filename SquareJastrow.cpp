@@ -10,7 +10,7 @@ SquareJastrow::SquareJastrow(System const& s, Matrix<double> const& nu):
 	system_info_.text("Staggered magnetic field, Becca's idea to mimic an on site chemical potential");
 	system_info_.item("only works on a two sites per unit cell system (therefore only for SU(2))");
 
-	status_=1;
+	status_=2;
 }
 
 /*{method needed for running*/
@@ -49,6 +49,7 @@ void SquareJastrow::create(){
 	//cc_(2,1) = 4;
 	//cc_(2,2) = 4;
 	//}
+	status_ = 1;
 }
 
 void SquareJastrow::save_param(IOFiles& w) const {

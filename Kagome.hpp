@@ -14,6 +14,7 @@ class Kagome: public System2D<Type>{
 	protected:
 		void init_lattice();
 		void draw_lattice();
+		/*!Create the long range correlation observables*/
 		void compute_long_range_correlation();
 
 	private:

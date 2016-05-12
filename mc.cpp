@@ -38,7 +38,7 @@ int main(int argc, char* argv[]){
 		std::cout<<std::endl;
 		cs->create(false);
 		if(cs->get_status()==1){
-			double dEoE(P.find("dEoE",i,false)?P.get<double>(i):0.0001);
+			double dEoE(P.find("dEoE",i,false)?P.get<double>(i):0.001);
 			unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
 			unsigned int nruns(P.find("nruns",i,false)?P.get<unsigned int>(i):omp_get_max_threads());
 			unsigned int maxiter(P.find("maxiter",i,false)?P.get<unsigned int>(i):1);
@@ -69,9 +69,7 @@ int main(int argc, char* argv[]){
 
 				maxiter--;
 				if(std::abs(cs->get_obs()[0][0].get_dx()/cs->get_obs()[0][0].get_x())<dEoE){ maxiter=0; }
-				else {
-					std::cerr<<__PRETTY_FUNCTION__<<" : rerun due to bad precision : "<<cs->get_obs()[0][0].get_x()/cs->get_obs()[0][0].get_dx()<<" > dEoE = "<<dEoE<<std::endl;
-				}
+				else { std::cerr<<__PRETTY_FUNCTION__<<" : should rerun, bad precision : "<<cs->get_obs()[0][0].get_dx()/cs->get_obs()[0][0].get_x()<<" > dEoE = "<<dEoE<<std::endl; }
 			}
 			cs->print(1);
 
@@ -81,13 +79,13 @@ int main(int argc, char* argv[]){
 			iof = new IOFiles(cs->get_path() + fname +".jdbin",true);
 			cs->save(*iof);
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed "<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed (status="<<cs->get_status()<<")"<<std::endl; }
 	if(cs->get_status()!=1){
 		if(cs){ delete cs; cs = NULL; }
 		std::cout<<RST::dash_line_<<std::endl;
 	}
 
-	if(P.find("d",i,false) && cs){
+	if(P.find("d",i,false) && cs && iof){
 		RSTFile rst("/tmp/",fname);
 		IOSystem ios(fname,"","","","","/tmp/",&rst);
 		cs->set_IOSystem(&ios);

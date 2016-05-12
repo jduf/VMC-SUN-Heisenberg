@@ -31,7 +31,7 @@ else
 	#OPTION = -fopenmp
 endif
 
-CHAIN     = ChainFermi.cpp ChainPolymerized.cpp ChainFree.cpp
+CHAIN     = ChainFermi.cpp ChainPolymerized.cpp ChainFree.cpp ChainSAS.cpp
 LADDER    = LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp
 SQUARE    = SquareFermi.cpp SquareFree.cpp SquareMu.cpp SquareDimerizedBar.cpp SquareT2x2.cpp SquareT3x2.cpp SquareT3x3.cpp SquareT4x2.cpp SquareT4x3.cpp SquareT4x4.cpp SquareBox6.cpp SquareFreeFlux.cpp SquarePiFlux.cpp SquareChiral.cpp SquareJastrow.cpp
 TRIANGLE  = TriangleFermi.cpp TriangleFree.cpp TrianglePlaquette.cpp TriangleMu.cpp TrianglePhi.cpp TriangleChiral.cpp

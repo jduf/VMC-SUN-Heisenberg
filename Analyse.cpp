@@ -2,9 +2,7 @@
 
 Analyse::Analyse(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
 	IOSystem("",sim,"info-"+sim,"analyse-"+sim,"","",NULL),
-	rel_level_(""),
 	max_level_(max_level),
-	level_(0),
 	run_cmd_(run_cmd)
 {
 	if(path == ""){ study_=0; }
@@ -45,7 +43,7 @@ void Analyse::do_analyse(){
 				rst.save(false,true);
 				std::cout<<std::endl<<rst.get()<<std::endl;
 			}break;
-		case 2: /*treat the directory given as argument*/
+		case 2: /*only study a given directory and its subdirectories*/
 			{
 				std::cout<<"analysing only directories below "<<path_<<std::endl;
 				if(path_[path_.size()-1] != '/'){ path_ += '/'; }
@@ -61,9 +59,8 @@ void Analyse::do_analyse(){
 
 				list_rst_.add_end(std::make_shared<RSTFile>(info_+path_,dir_.substr(0,dir_.size()-1)));
 
-				if(level_ != 1){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
+				if(level_ != 1 && run_cmd_){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
 				recursive_search();
-				if(level_ != 1){ Linux::close(true); }
 			}break;
 		case 3:
 			{ std::cerr<<__PRETTY_FUNCTION__<<" : can't analyse a *.jdbin file"<<std::endl; }break;
@@ -138,4 +135,86 @@ void Analyse::search_jdbin(){
 		all_link_files_.set();
 		list_rst_.last().save(false,true);
 	}
+}
+
+std::string Analyse::extract_default(){
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
+	Vector<double> tmp(*read_);
+	System s(*read_);
+	CreateSystem cs(&s);
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
+
+	jd_write_->add_header()->nl();
+	cs.save(*jd_write_);
+
+	delete read_;
+	read_ = NULL;
+
+	return filename_;
+}
+
+std::string Analyse::extract_best_of_previous_level(){
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
+	unsigned int idx(0);
+	double E(666);
+	Vector<double> param;
+
+	(*read_)>>nof_;
+	for(unsigned int i(0);i<nof_;i++){
+		(*read_)>>param;
+		System s(*read_);
+		if(s.get_energy().get_x()<E){
+			E = s.get_energy().get_x();
+			idx = i;
+		}
+	}
+
+	delete read_;
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+
+	(*read_)>>nof_;
+	for(unsigned int i(0);i<idx;i++){
+		(*read_)>>param;
+		System s(*read_);
+	}
+
+	(*read_)>>param;
+	System s(*read_);
+	CreateSystem cs(&s);
+	cs.init(&param,NULL);
+	cs.set_IOSystem(this);
+	cs.save(*jd_write_);
+
+	delete read_;
+	read_ = NULL;
+
+	return filename_;
+}
+
+std::string Analyse::fit_thermodynamical_limit(){
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	(*read_)>>nof_;
+
+	Vector<unsigned int> ref(5,0);
+	for(unsigned int i(0);i<nof_;i++){
+		Vector<double> tmp(*read_);
+		System s(*read_);
+		if(!my::are_equal(ref(0),s.get_ref()(0))){
+			ref = s.get_ref();
+			std::cout<<"n"<<s.get_n()<<" -> "<<ref<<std::endl;
+		}
+		if(i+1==nof_){
+			delete read_;
+			read_ = NULL;
+
+			CreateSystem cs(&s);
+			cs.init(&tmp,NULL);
+			cs.set_IOSystem(this);
+			return cs.analyse(level_);
+		}
+	}
+	return filename_;
 }

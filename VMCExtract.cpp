@@ -166,90 +166,117 @@ void VMCExtract::print() const {
 	}
 }
 
-void VMCExtract::select_minima_and_plot(std::string const& path, std::string const& filename, List<MCSim>& kept) const {
+List<MCSim>::Node* VMCExtract::select_minima_and_plot(std::string const& path, std::string const& filename, List<MCSim>& kept) const {
+	List<MCSim>::Node* target(NULL);
 	if(m_->samples_.size()){
-		double E;
-		double Erange;
+		double E(666);
+		double Erange(-666);
 		double norm(0.0);
+		double v_norm(0.0);
+		double m_norm(0.0);
+		double tmp(0.0);
 		unsigned int i(0);
-		unsigned int j(0);
 		Vector<double> param;
 		std::vector<unsigned int> n;
 
 		m_->samples_.set_target();
 		m_->samples_.target_next();
 		param = m_->samples_.get().get_param();
+		IOFiles data_n(path+filename+"-n.dat",true);
+		do {
+			norm = sqrt((param-m_->samples_.get().get_param()).norm_squared())/param.size();
+			param = m_->samples_.get().get_param();
+			data_n<<i<<" "<<norm<<IOFiles::endl;
+
+			i++;
+			tmp = norm-m_norm;
+			m_norm += tmp/i;
+			v_norm += tmp*(norm-m_norm);
+
+			if(E>m_->samples_.get().get_energy().get_x()){
+				E = m_->samples_.get().get_energy().get_x();
+				target = m_->samples_.get_target();
+			}
+		} while(m_->samples_.target_next());
+		v_norm = sqrt(v_norm/(i-1));
+
+		m_->samples_.set_target();
+		m_->samples_.target_next();
+		param = m_->samples_.get().get_param();
 		E = m_->samples_.get().get_energy().get_x();
 		Erange = E;
-		IOFiles data_n(path+filename+"-n.dat",true);
+		i=0;
 		do {
 			Erange = std::max(Erange,m_->samples_.get().get_energy().get_x()+3*m_->samples_.get().get_energy().get_dx());
 			norm = sqrt((param-m_->samples_.get().get_param()).norm_squared())/param.size();
 			param = m_->samples_.get().get_param();
 
-			data_n<<i<<" "<<norm<<IOFiles::endl;
-			if(norm>0.1){ n.push_back(i); }
+			if(norm>m_norm+2*v_norm){ n.push_back(i); }
 			i++;
 		} while(m_->samples_.target_next());
 
-		i=0;
-		unsigned int idx(0);
-		m_->samples_.set_target();
-		while(m_->samples_.target_next()){
-			if(E>m_->samples_.get().get_energy().get_x()){
-				E=m_->samples_.get().get_energy().get_x();
-				idx = i;
-			}
-			if(++i==n[j]){
-				n[j] = idx;
-				j++;
-				E=0.0;
-			}
-		}
-
-		dis_sim_.set_target();
-		dis_sim_.target_next();
-		m_->samples_.set_target();
-		m_->samples_.target_next();
-		param = dis_sim_.get().get_param();
-		IOFiles data_Er(path+filename+"-Er.dat",true);
-		data_Er.precision(15);
-		bool remain_samples(true);
-		bool keepon;
-
-		j=0;
-		i=0;
-		norm=0.0;
-		do{
-			if(remain_samples && MCSim::sort_by_param_for_merge(m_->samples_.get().get_param(),dis_sim_.get().get_param())){
-				norm += (param-m_->samples_.get().get_param()).norm_squared();
-				if(i++!=n[j]){
-					data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 1"<<IOFiles::endl;
-				} else {
-					data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 2"<<IOFiles::endl;
-					kept.add_sort(m_->samples_.get_ptr(),MCSim::sort_by_E);
-					j++;
+		if(n.size()){
+			i=0;
+			unsigned int idx(0);
+			unsigned int j(0);
+			m_->samples_.set_target();
+			while(m_->samples_.target_next()){
+				if(E>m_->samples_.get().get_energy().get_x()){
+					E = m_->samples_.get().get_energy().get_x();
+					idx = i;
 				}
-
-				param = m_->samples_.get().get_param();
-				remain_samples = m_->samples_.target_next();
-			} else {
-				norm += (param-dis_sim_.get().get_param()).norm_squared();
-				data_Er<<norm<<" "<<dis_sim_.get().get_energy()<<" 0"<<IOFiles::endl;
-
-				param = dis_sim_.get().get_param();
-				keepon = dis_sim_.target_next() ;
+				if(++i==n[j]){
+					n[j] = idx;
+					j++;
+					E=0.0;
+				}
 			}
-		} while(keepon);
 
-		Gnuplot gp(path,filename);
-		gp.range("y","",Erange);
-		gp+="plot '"+filename+"-Er.dat' u ($6==0?$1:1/0):2:3 w e notitle,\\";
-		gp+="     '"+filename+"-Er.dat' u ($6==1?$1:1/0):2:3 w e notitle,\\";
-		gp+="     '"+filename+"-Er.dat' u ($6==2?$1:1/0):2:3 w e notitle";
-		gp.save_file();
-		gp.create_image(true,true);
+			dis_sim_.set_target();
+			dis_sim_.target_next();
+			m_->samples_.set_target();
+			m_->samples_.target_next();
+			param = dis_sim_.get().get_param();
+			IOFiles data_Er(path+filename+"-Er.dat",true);
+			data_Er.precision(15);
+			bool remain_samples(true);
+			bool keepon;
+
+			j=0;
+			i=0;
+			norm=0.0;
+			do{
+				if(remain_samples && MCSim::sort_by_param_for_merge(m_->samples_.get().get_param(),dis_sim_.get().get_param())){
+					norm += (param-m_->samples_.get().get_param()).norm_squared();
+					if(i++!=n[j]){
+						data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 1"<<IOFiles::endl;
+					} else {
+						data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 2"<<IOFiles::endl;
+						kept.add_sort(m_->samples_.get_ptr(),MCSim::sort_by_E);
+						j++;
+					}
+
+					param = m_->samples_.get().get_param();
+					remain_samples = m_->samples_.target_next();
+				} else {
+					norm += (param-dis_sim_.get().get_param()).norm_squared();
+					data_Er<<norm<<" "<<dis_sim_.get().get_energy()<<" 0"<<IOFiles::endl;
+
+					param = dis_sim_.get().get_param();
+					keepon = dis_sim_.target_next() ;
+				}
+			} while(keepon);
+
+			Gnuplot gp(path,filename);
+			gp.range("y","",Erange);
+			gp+="plot '"+filename+"-Er.dat' u ($6==0?$1:1/0):2:3 w e notitle,\\";
+			gp+="     '"+filename+"-Er.dat' u ($6==1?$1:1/0):2:3 w e notitle,\\";
+			gp+="     '"+filename+"-Er.dat' u ($6==2?$1:1/0):2:3 w e notitle";
+			gp.save_file();
+			gp.create_image(true,true);
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : can't find characteristic spacing"<<std::endl; }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
+	return target;
 }
 
 unsigned int VMCExtract::DiscardedSim::sort(DiscardedSim const& list, DiscardedSim const& new_elem){

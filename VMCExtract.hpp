@@ -18,7 +18,7 @@ class VMCExtract : public VMCMinimization{
 		void refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& t, unsigned int maxiter = 0);
 		void save(std::string const& filename) const;
 		void print() const;
-		void select_minima_and_plot(std::string const& path, std::string const& filename, List<MCSim>& keep) const;
+		List<MCSim>::Node* select_minima_and_plot(std::string const& path, std::string const& filename, List<MCSim>& keep) const;
 
 	private:
 		class DiscardedSim{

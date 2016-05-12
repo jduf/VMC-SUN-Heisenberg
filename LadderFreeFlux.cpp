@@ -404,8 +404,8 @@ void LadderFreeFlux::lattice(){
 	Vector<double> xy1(2,0);
 	double x_shift(spuc_/2+2);
 
-	PSTricks ps(info_+path_+dir_,filename_+"-pstricks");
-	ps.begin(-1,-5,n_/1.5,2,filename_+"-pstricks");
+	PSTricks ps(info_+path_+dir_,filename_);
+	ps.begin(-1,-5,n_/1.5,2,filename_);
 	std::complex<double> t;
 	double corr;
 	unsigned int s0;
@@ -508,7 +508,7 @@ void LadderFreeFlux::display_results(){
 			rst_file_->title("|theta"+my::tostring(acos(this->J_(0)))+"|_",'-');
 			rst_file_->replace("theta"+my::tostring(acos(this->J_(0))),title);
 		} else { rst_file_->title(title,'-'); }
-		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+filename_+"-as.gp")+RST::scale("200"));
 	}

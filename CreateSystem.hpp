@@ -4,6 +4,7 @@
 #include "ChainFermi.hpp"
 #include "ChainFree.hpp"
 #include "ChainPolymerized.hpp"
+#include "ChainSAS.hpp"
 
 #include "LadderFermi.hpp"
 #include "LadderFree.hpp"

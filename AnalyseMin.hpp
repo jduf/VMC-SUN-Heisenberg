@@ -20,5 +20,8 @@ class AnalyseMin : public Analyse{
 		std::string extract_level_7();
 		std::string extract_level_6();
 		std::string extract_level_5();
+		std::string extract_level_4();
+		std::string extract_level_3();
+		std::string extract_level_2();
 };
 #endif

@@ -178,12 +178,13 @@ void System2D<Type>::compute_long_range_correlation(){
 
 template<typename Type>
 void System2D<Type>::color_occupation(){
-	this->obs_.push_back(Observable("Color occupation",3,this->N_*this->spuc_,Matrix<int>(this->n_,this->N_),this->n_/this->spuc_));
+	Matrix<int> tmp(this->n_,this->N_);
 	for(unsigned int i(0);i<this->n_;i++){
 		for(unsigned int j(0);j<this->N_;j++){
-			this->obs_.back()(i,j) = this->obs_[0](2*i,5)*this->N_+j;
+			tmp(i,j) = this->site_index_to_unit_cell_index(i)*this->N_+j;
 		}
 	}
+	this->obs_.push_back(Observable("Color occupation",3,this->N_*this->spuc_,tmp,this->n_/this->spuc_));
 }
 /*}*/
 

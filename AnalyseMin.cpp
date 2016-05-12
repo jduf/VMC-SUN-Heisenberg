@@ -12,16 +12,25 @@ AnalyseMin::AnalyseMin(std::string const& sim, std::string const& path, unsigned
 void AnalyseMin::open_files(){
 	if(level_>1){
 		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
-
-		if(level_==8){
-			jd_write_->write("number of different number of dof",nof_);
-			jd_write_->add_header()->np();
-		}
-
-		if(level_==6){
-			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
-			data_write_->precision(10);
-		}
+	}
+	switch(level_){
+		case 8:
+			{
+				jd_write_->write("number of different wavefunction",nof_);
+				jd_write_->add_header()->np();
+			}break;
+		case 7:
+			{
+				jd_write_->write("number of different wavefunction",nof_);
+				jd_write_->add_header()->np();
+			}break;
+		case 5:
+			{ jd_write_->write("number of different boundary condition",nof_); }break;
+		case 3:
+			{
+				data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
+				data_write_->precision(10);
+			}break;
 	}
 }
 
@@ -29,8 +38,8 @@ void AnalyseMin::close_files(){
 	switch(level_){
 		case 9:
 			{ list_rst_.last().figure(rel_level_+analyse_+path_+dir_+filename_+".png","Parameter sets",RST::target(rel_level_+analyse_+path_+dir_+filename_+".gp")+RST::width("1000")); } break;
-		case 6:
-			{ list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","Energy",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); } break;
+		case 3:
+			{ list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","energy evolution with the system size",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }break;
 	}
 	if(jd_write_){
 		list_rst_.last().text(jd_write_->get_header());
@@ -43,7 +52,6 @@ void AnalyseMin::close_files(){
 	}
 }
 
-/*extract VMCMinimization and plot*/
 std::string AnalyseMin::extract_level_9(){
 	IOFiles in(sim_+path_+dir_+filename_+".jdbin",false);
 
@@ -58,7 +66,6 @@ std::string AnalyseMin::extract_level_9(){
 	return filename_;
 }
 
-/*show best solutions*/
 std::string AnalyseMin::extract_level_8(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
@@ -71,6 +78,7 @@ std::string AnalyseMin::extract_level_8(){
 
 		(*read_)>>tmp;
 		System s(*read_);
+		s.create_cluster(true);
 		CreateSystem cs(&s);
 		cs.init(&tmp,NULL);
 		rst_file_ = &list_rst_.last();
@@ -92,42 +100,28 @@ std::string AnalyseMin::extract_level_8(){
 	return filename_;
 }
 
-/*compare wavefunction (different ref_)*/
-std::string AnalyseMin::extract_level_7(){
+std::string AnalyseMin::extract_level_7(){ return extract_best_of_previous_level(); }
+
+std::string AnalyseMin::extract_level_6(){ return extract_best_of_previous_level(); }
+
+std::string AnalyseMin::extract_level_5(){ return extract_default(); }
+
+std::string AnalyseMin::extract_level_4(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
 	(*read_)>>nof_;
+	/*!must save now nof_ because it doesn't refer to the number of file in
+	 * the next directory but in the next-next directory*/
+	jd_write_->write("number of different boundary condition",nof_);
 
-	double E_tmp(0);
-	unsigned int idx(0);
-	Vector<double> tmp;
 	for(unsigned int i(0);i<nof_;i++){
-		(*read_)>>tmp;
+		Vector<double> tmp(*read_);
 		System s(*read_);
 		CreateSystem cs(&s);
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
 
-		if(E_tmp>s.get_energy().get_x()){
-			E_tmp = s.get_energy().get_x();
-			idx=i;
-		}
-	}
-
-	delete read_;
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
-
-	Data<double> E;
-	(*read_)>>nof_;
-	for(unsigned int i(0);i<nof_;i++){
-		(*read_)>>tmp;
-		System s(*read_);
-		CreateSystem cs(&s);
-		cs.init(&tmp,NULL);
-		cs.set_IOSystem(this);
-		if(i==idx){
-			cs.save(*jd_write_);
-			i=nof_;
-		}
+		jd_write_->add_header()->nl();
+		cs.save(*jd_write_);
 	}
 
 	delete read_;
@@ -136,34 +130,20 @@ std::string AnalyseMin::extract_level_7(){
 	return filename_;
 }
 
-/*plot energy for different J*/
-std::string AnalyseMin::extract_level_6(){
+std::string AnalyseMin::extract_level_3(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	(*read_)>>nof_;
 
-	Vector<double> tmp(*read_);
-	System s(*read_);
-	CreateSystem cs(&s);
-	cs.init(&tmp,NULL);
-	rst_file_ = &list_rst_.last();
-	cs.set_IOSystem(this);
-	std::string link_name(cs.analyse(level_));
-	rst_file_ = NULL;
+	for(unsigned int i(0);i<nof_;i++){
+		Vector<double> tmp(*read_);
+		System s(*read_);
+		s.save(*data_write_);
+	}
 
 	delete read_;
 	read_ = NULL;
 
-	return link_name;
-}
-
-std::string AnalyseMin::extract_level_5(){
-	Gnuplot gp(analyse_+path_+dir_,filename_);
-	gp.range("x","0","pi/2");
-	gp.label("x","$\\theta$");
-	gp.label("y2","$\\dfrac{E}{n}$","rotate by 0");
-	gp.key("left Left");
-	gp+="plot '"+filename_+".dat' u 5:6";
-	gp.save_file();
-	gp.create_image(true,true);
-
 	return filename_;
 }
+
+std::string AnalyseMin::extract_level_2(){ return fit_thermodynamical_limit(); }

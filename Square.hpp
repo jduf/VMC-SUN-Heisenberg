@@ -13,13 +13,13 @@ class Square: public System2D<Type>{
 
 	protected:
 		void init_lattice();
-		void draw_lattice(bool const& only_unit_cell);
+		void draw_lattice(bool const& only_unit_cell, bool const& silent);
 
 	private:
 		unsigned int p_;
 		unsigned int q_;
 
-		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& spuc, unsigned int& ref3);
+		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& k, unsigned int const& spuc, unsigned int& ref3);
 		bool reset_pos_in_lattice(Vector<double>& x) const;
 		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const;
 };
@@ -27,7 +27,7 @@ class Square: public System2D<Type>{
 /*{constructor*/
 template<typename Type>
 Square<Type>::Square(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry((this->ref_(4)?this->n_:0),spuc,this->ref_(3)),ab,spuc,4,4,filename)
+	System2D<Type>(set_geometry((this->ref_(4)?this->n_:0),this->N_/this->m_,spuc,this->ref_(3)),ab,spuc,4,4,filename)
 { this->filename_ += +"-p"+my::tostring(p_)+"-q"+my::tostring(q_); }
 
 template<typename Type>
@@ -97,7 +97,7 @@ void Square<Type>::init_lattice(){
 }
 
 template<typename Type>
-void Square<Type>::draw_lattice(bool const& only_unit_cell){
+void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(3,0);
 	for(unsigned int i(1);i<this->obs_.size();i++){
@@ -236,13 +236,13 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell){
 			if(!(i%2)){ this->draw_flux_per_plaquette(ps,s0,xy0-shift,xy0(0)+0.5,xy0(1)+0.5,1,0,4); }
 		}
 	}
-	ps.end(true,true,true);
+	ps.end(silent,true,true);
 }
 /*}*/
 
 /*{private methods*/
 template<typename Type>
-Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int const& spuc, unsigned int& ref3){
+Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int const& k, unsigned int const& spuc, unsigned int& ref3){
 	if(n){
 		p_ = sqrt(n);
 		Matrix<double> tmp;
@@ -282,7 +282,7 @@ Matrix<double> Square<Type>::set_geometry(unsigned int const& n, unsigned int co
 		for(unsigned int p(2);p<n;p++){
 			for(unsigned int q(0);q<p+1;q++){
 				m = p*p+q*q;
-				if(!(m%spuc) && m<2000){ v.insert(m); }
+				if(!(m%spuc) && !(m%k) && m<2000){ v.insert(m); }
 			}
 		}
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;

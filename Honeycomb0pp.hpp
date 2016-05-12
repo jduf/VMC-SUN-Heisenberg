@@ -25,7 +25,7 @@ class Honeycomb0pp: public Honeycomb<double>{
 		void save_param(IOFiles& w) const;
 		void check();
 
-	protected:
+	private:
 		double const td_;
 		unsigned int const fc_;
 
@@ -38,5 +38,7 @@ class Honeycomb0pp: public Honeycomb<double>{
 		Matrix<double> set_ab() const;
 		/*!Returns the index of the site at position x in the unit cell*/
 		unsigned int unit_cell_index(Vector<double> const& x) const;
+
+		std::string extract_level_2();
 };
 #endif

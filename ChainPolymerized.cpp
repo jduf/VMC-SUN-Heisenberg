@@ -138,7 +138,7 @@ void ChainPolymerized::display_results(){
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(relative_path+filename_+"-pstricks.pdf")+RST::scale("200"));
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(relative_path+filename_+".pdf")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-sf.png","structure factor",RST::target(relative_path+filename_+"-sf.gp")+RST::scale("200"));
 	}

@@ -235,12 +235,12 @@ void Triangle<Type>::draw_lattice(){
 				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
 
-			if(!(i%2)){
-				std::cerr<<__PRETTY_FUNCTION__<<" : drawing flux undefined"<<std::endl;
+			//if(!(i%2)){
 				//this->draw_flux_per_plaquette(ps,s0,xy0,xy0(0)+0.5,xy0(1)+0.5,3,0,3);
-			}
+			//}
 		}
 	}
+	std::cerr<<__PRETTY_FUNCTION__<<" : drawing flux undefined"<<std::endl;
 	ps.end(true,true,true);
 }
 /*}*/

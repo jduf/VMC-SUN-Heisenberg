@@ -185,7 +185,7 @@ void Honeycomb0pp::display_results(){
 		run_cmd += " -d:Jp 1 -u:tmax 10 -d";
 		rst_file_->change_text_onclick("run command",run_cmd);
 
-		rst_file_->figure(dir_+filename_+"-pstricks.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+"-pstricks.pdf")+RST::scale("200"));
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 	}
 }
 
@@ -198,5 +198,25 @@ void Honeycomb0pp::check(){
 
 	compute_H();
 	plot_band_structure();
+}
+/*}*/
+
+/*{method needed for analysing*/
+std::string Honeycomb0pp::extract_level_2(){
+	Gnuplot gp(analyse_+path_+dir_,filename_);
+	gp+="f(x) = a*x*x+b";
+	gp+="set fit quiet";
+	gp+="fit [0:0.025] f(x) '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) yerror via a,b";
+	gp+="set print \"../"+sim_.substr(0,sim_.size()-1)+".dat\" append";
+	gp+="print \"`head -1 '"+filename_+".dat' | awk '{print $1 \" \" $2}'`\",\" \",b";
+	gp.range("x","0","");
+	gp.label("x","$\\frac{1}{n}$");
+	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
+	gp+="plot '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) w e notitle,\\";
+	gp+="     [0:0.025] f(x) t sprintf('%f',b)";
+	gp.save_file();
+	gp.create_image(true,true);
+
+	return filename_;
 }
 /*}*/

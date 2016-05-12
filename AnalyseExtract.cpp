@@ -1,7 +1,8 @@
 #include "AnalyseExtract.hpp"
 
-AnalyseExtract::AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
-	Analyse(sim,path,max_level,run_cmd)
+AnalyseExtract::AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd, bool const& display_results):
+	Analyse(sim,path,max_level,run_cmd),
+	display_results_(display_results)
 {
 	do_analyse();
 }
@@ -17,10 +18,15 @@ AnalyseExtract::~AnalyseExtract(){
 }
 
 void AnalyseExtract::open_files(){
-	if(level_){
+	if(level_>1){
 		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
 	}
 	switch(level_){
+		case 9:
+			{
+				jd_write_->write("number of different wavefunction",nof_);
+				jd_write_->add_header()->np();
+			}break;
 		case 3:
 			{
 				data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
@@ -56,8 +62,9 @@ std::string AnalyseExtract::extract_level_9(){
 	rst.save(false,true);
 
 	VMCExtract min(*read_,true);
-	min.select_minima_and_plot(analyse_+path_+dir_,filename_,kept_samples_);
+	List<MCSim>::Node* target(min.select_minima_and_plot(analyse_+path_+dir_,filename_,kept_samples_));
 	list_rst_.last().figure(rel_level_+analyse_+path_+dir_+filename_+".png",filename_,RST::target(rel_level_+analyse_+path_+dir_+filename_+".gp")+RST::width("1000"));
+	if(target){ target->get()->save(*jd_write_); }
 
 	delete read_;
 	read_ = NULL;
@@ -65,19 +72,27 @@ std::string AnalyseExtract::extract_level_9(){
 	return filename_;
 }
 
-std::string AnalyseExtract::extract_level_7(){
-	kept_samples_.set_target();
-	while(kept_samples_.target_next()){
-		kept_samples_.get().display_results(sim_,info_,analyse_,path_,dir_,&list_rst_.last());
+std::string AnalyseExtract::extract_level_8(){ return extract_best_of_previous_level(); }
+
+std::string AnalyseExtract::extract_level_7(){ return extract_default(); }
+
+std::string AnalyseExtract::extract_level_6(){
+	if(display_results_){
+		kept_samples_.set_target();
+		unsigned int i(100);
+		while(kept_samples_.target_next() && i--){
+			kept_samples_.get().display_results(sim_,info_,analyse_,path_,dir_,&list_rst_.last());
+		}
 	}
 
 	return filename_;
 }
 
 std::string AnalyseExtract::extract_level_4(){
-	kept_samples_.set_target();
 	double E(0.0);
 	List<MCSim>::Node* target(NULL);
+
+	kept_samples_.set_target();
 	while(kept_samples_.target_next()){
 		if(E>kept_samples_.get().get_energy().get_x()){
 			E = kept_samples_.get().get_energy().get_x();
@@ -102,20 +117,4 @@ std::string AnalyseExtract::extract_level_3(){
 	return filename_;
 }
 
-std::string AnalyseExtract::extract_level_2(){
-	Gnuplot gp(analyse_+path_+dir_,filename_);
-	gp+="f(x) = a*x+b";
-	gp+="set fit quiet";
-	gp+="fit f(x) '"+filename_+".dat' u ($3!=72?1.0/$3:1/0):($5/($1*$1)):($6/($1*$1)) yerror via a,b";
-	gp+="set print \"../"+sim_.substr(0,sim_.size()-1)+".dat\" append";
-	gp+="print \"`head -1 '"+filename_+".dat' | awk '{print $1 \" \" $2}'`\",\" \",b";
-	gp.range("x","0","");
-	gp.label("x","$\\frac{1}{n}$");
-	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
-	gp+="plot '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) w e notitle,\\";
-	gp+="     f(x) t sprintf('%f',b)";
-	gp.save_file();
-	gp.create_image(true,true);
-
-	return filename_;
-}
+std::string AnalyseExtract::extract_level_2(){ return fit_thermodynamical_limit(); }

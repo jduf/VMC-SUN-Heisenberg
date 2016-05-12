@@ -139,6 +139,15 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 2;
 	}
+	if( wf == "chain-sas" ){
+		ref(0) = 1;
+		ref(1) = 1;
+		ref(2) = 3;
+		std::vector<double> J(2);
+		J[0] = P.get<double>("J0");
+		J[1] = P.get<double>("J1");
+		P.set("J",J);
+	}
 
 	if( wf == "ladder-fermi" ){
 		ref(0) = 2;

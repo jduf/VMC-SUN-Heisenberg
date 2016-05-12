@@ -233,43 +233,68 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_pm, IOFi
 		if(path==""){ path = path_; }
 		if(filename==""){ filename =  get_filename(); }
 
-		List<MCSim> potential_minima;
-		List<MCSim> sorted_samples;
-		double E_range(find_minima(max_pm,0.999,sorted_samples,potential_minima));
+		if(m_->dof_ == 1){
+			w.write("number of samples",(unsigned int)(1));
 
-		w.write("number of samples",potential_minima.size());
+			IOFiles data(path+filename+".dat",true);
+			List<MCSim>::Node* target(NULL);
+			double E(0.0);
 
-		potential_minima.set_target();
-		potential_minima.target_next();
-		Vector<double> best_param(potential_minima.get().get_param());
-		IOFiles data_Er(path+filename+"-Er.dat",true);
-		do{
-			data_Er<<(best_param-potential_minima.get().get_param()).norm_squared()<<" "<<potential_minima.get().get_energy().get_x()<<IOFiles::endl;
-			potential_minima.get().save(w);
-		} while(potential_minima.target_next());
+			m_->samples_.target_next();
+			while(m_->samples_.target_next()){
+				data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
 
-		IOFiles data(path+filename+".dat",true);
-		m_->samples_.target_next();
-		while(m_->samples_.target_next()){
-			data<<m_->samples_.get().get_param()<<" "<<(best_param-m_->samples_.get().get_param()).norm_squared()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
+				if(E>m_->samples_.get().get_energy().get_x()){
+					E = m_->samples_.get().get_energy().get_x();
+					target = m_->samples_.get_target();
+				}
+			}
+			if(target){ target->get()->save(w); }
+
+			Gnuplot gp(path,filename);
+			gp+="plot '"+filename+".dat' u 1:2:3 w xe notitle";
+			gp.save_file();
+			gp.create_image(true,true);
+
+		} else {
+			List<MCSim> potential_minima;
+			List<MCSim> sorted_samples;
+			double E_range(find_minima(max_pm,0.999,sorted_samples,potential_minima));
+
+			w.write("number of samples",potential_minima.size());
+
+			potential_minima.set_target();
+			potential_minima.target_next();
+			Vector<double> best_param(potential_minima.get().get_param());
+			IOFiles data_Er(path+filename+"-Er.dat",true);
+			do{
+				data_Er<<(best_param-potential_minima.get().get_param()).norm_squared()<<" "<<potential_minima.get().get_energy().get_x()<<IOFiles::endl;
+				potential_minima.get().save(w);
+			} while(potential_minima.target_next());
+
+			IOFiles data(path+filename+".dat",true);
+			m_->samples_.target_next();
+			while(m_->samples_.target_next()){
+				data<<m_->samples_.get().get_param()<<" "<<(best_param-m_->samples_.get().get_param()).norm_squared()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
+			}
+
+			Gnuplot gp(path,filename);
+			gp+="E_range="+my::tostring(E_range);
+			gp.multiplot();
+			gp.range("x","[:E_range] writeback");
+			gp.margin("0.1","0.9","0.5","0.1");
+			gp+="plot '"+filename+".dat'    u "+my::tostring(m_->dof_+2)+":"+my::tostring(m_->dof_+1)+":"+my::tostring(m_->dof_+3)+" w xe notitle,\\";
+			gp+="     '"+filename+"-Er.dat' u 2:1 lc 4 ps 2 pt 7 t 'selected minima'";
+			gp.margin("0.1","0.9","0.9","0.5");
+			gp.range("x","restore");
+			gp.tics("x");
+			gp.key("left Left");
+			for(unsigned int i(0);i<m_->dof_;i++){
+				gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(m_->dof_+2)+":"+my::tostring(i+1)+":"+my::tostring(m_->dof_+3)+" w xe t '$"+my::tostring(i)+"$'"+(i==m_->dof_-1?"":",\\");
+			}
+			gp.save_file();
+			gp.create_image(true,true);
 		}
-
-		Gnuplot gp(path,filename);
-		gp+="E_range="+my::tostring(E_range);
-		gp.multiplot();
-		gp.range("x","[:E_range] writeback");
-		gp.margin("0.1","0.9","0.5","0.1");
-		gp+="plot '"+filename+".dat'    u "+my::tostring(m_->dof_+2)+":"+my::tostring(m_->dof_+1)+":"+my::tostring(m_->dof_+3)+" w xe notitle,\\";
-		gp+="     '"+filename+"-Er.dat' u 2:1 lc 4 ps 2 pt 7 t 'selected minima'";
-		gp.margin("0.1","0.9","0.9","0.5");
-		gp.range("x","restore");
-		gp.tics("x");
-		gp.key("left Left");
-		for(unsigned int i(0);i<m_->dof_;i++){
-			gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(m_->dof_+2)+":"+my::tostring(i+1)+":"+my::tostring(m_->dof_+3)+" w xe t '$"+my::tostring(i)+"$'"+(i==m_->dof_-1?"":",\\");
-		}
-		gp.save_file();
-		gp.create_image(true,true);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 

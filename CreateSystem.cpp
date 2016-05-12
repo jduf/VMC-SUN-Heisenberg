@@ -52,6 +52,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C)    { t = C->get<std::vector<double> >("t"); }
 										RGL_ = new ChainPolymerized(*s_,t);
 									}break;
+								case 3:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C)    { t = C->get<std::vector<double> >("t"); }
+										RGL_ = new ChainSAS(*s_,t);
+									}break;
 								default:{ error(); }break;
 							}
 						}break;
@@ -417,7 +424,8 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										unsigned int fc(0);
 										if(param){
 											t = (*param)(0);
-											fc= (*param)(1);
+											if(param->size()==2){ fc = (*param)(1); } 
+											else { fc = 0; }
 										}
 										if(C) {
 											t = C->get<double>("td");

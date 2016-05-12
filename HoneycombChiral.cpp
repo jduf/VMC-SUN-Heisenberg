@@ -268,3 +268,23 @@ void HoneycombChiral::check(){
 	//plot_band_structure();
 }
 /*}*/
+
+/*{method needed for analysing*/
+std::string HoneycombChiral::extract_level_2(){
+	Gnuplot gp(analyse_+path_+dir_,filename_);
+	gp+="f(x) = a*x*x+b";
+	gp+="set fit quiet";
+	gp+="fit [0:0.015] f(x) '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) yerror via a,b";
+	gp+="set print \"../"+sim_.substr(0,sim_.size()-1)+".dat\" append";
+	gp+="print \"`head -1 '"+filename_+".dat' | awk '{print $1 \" \" $2}'`\",\" \",b";
+	gp.range("x","0","");
+	gp.label("x","$\\frac{1}{n}$");
+	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
+	gp+="plot '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) w e notitle,\\";
+	gp+="     [0:0.015] f(x) t sprintf('%f',b)";
+	gp.save_file();
+	gp.create_image(true,true);
+
+	return filename_;
+}
+/*}*/

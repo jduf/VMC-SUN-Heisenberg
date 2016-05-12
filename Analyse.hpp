@@ -22,19 +22,23 @@ class Analyse: public IOSystem{
 		List<std::string> all_link_files_;
 		List<RSTFile> list_rst_;
 
-		std::string rel_level_;
 		unsigned int const max_level_;
-		unsigned int level_;
-		unsigned int nof_;
+		unsigned int nof_ 		  = 0;
+		unsigned int level_ 	  = 0;
+		std::string rel_level_ 	  = "";
 		bool child_in_AnalyseMin_ = false;
 
 		void do_analyse();
 		virtual void open_files()  = 0;
 		virtual void close_files() = 0;
 
+		std::string extract_default();
+		std::string extract_best_of_previous_level();
+		std::string fit_thermodynamical_limit();
+
 	private:
 		unsigned int study_;
-		unsigned int run_cmd_;
+		unsigned int const run_cmd_;
 		
 		void recursive_search();
 		void search_jdbin();

@@ -26,8 +26,5 @@ class AnalyseEnergy : public Analyse{
 		std::string extract_level_4();
 		std::string extract_level_3();
 		std::string extract_level_2();
-
-	private:
-		std::string extract_default();
 };
 #endif

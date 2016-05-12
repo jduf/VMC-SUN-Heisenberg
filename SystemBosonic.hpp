@@ -50,7 +50,7 @@ SystemBosonic<Type>::SystemBosonic(Bosonic<Type> const& S):
 	MCSystem(S),
 	Bosonic<Type>(S)
 {
-	std::cerr<<__PRETTY_FUNCTION__<<" : check everything, works only for m=1"<<std::endl;
+	std::cerr<<__PRETTY_FUNCTION__<<" : check everything, may only work for m=1"<<std::endl;
 	status_=0;
 }
 
@@ -66,10 +66,7 @@ SystemBosonic<Type>::SystemBosonic(SystemBosonic<Type> const& S):
 	System(S),
 	MCSystem(S),
 	Bosonic<Type>(S)
-{
-	std::cerr<<__PRETTY_FUNCTION__<<" : check everything, works only for m=1"<<std::endl;
-	status_=0;
-}
+{}
 
 template<typename Type>
 std::unique_ptr<MCSystem> SystemBosonic<Type>::clone() const {
@@ -113,8 +110,8 @@ double SystemBosonic<Type>::ratio(){
 		double jastrow(0.0);
 		unsigned int c0,c1;
 		for(unsigned int i(0);i<this->nn_.col();i++){
-			c0=s_(this->nn_(new_s_[0],i),0);
-			c1=s_(this->nn_(new_s_[1],i),0);
+			c0 = s_(this->nn_(new_s_[0],i),0);
+			c1 = s_(this->nn_(new_s_[1],i),0);
 			if(this->nn_(new_s_[0],i) != new_s_[1]){
 				jastrow += this->nu_(i, this->cc_(new_c_[0], c0));
 				jastrow -= this->nu_(i, this->cc_(new_c_[1], c0));
