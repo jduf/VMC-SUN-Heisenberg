@@ -26,7 +26,7 @@ void HoneycombPiFlux::compute_H(){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		if(obs_[0](i,5)==2 && obs_[0](i,6)==1 && obs_[0](i,3)==2){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*td; }
+		if(obs_[0](i,5)==2 && obs_[0](i,6)==1 && obs_[0](i,3)==4){ H_(s0,s1) = (obs_[0](i,4)?bc_:1)*td; }
 		else { H_(s0,s1) = (obs_[0](i,4)?bc_:1)*th; }
 	}
 	H_ += H_.transpose();
@@ -71,49 +71,26 @@ unsigned int HoneycombPiFlux::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void HoneycombPiFlux::display_results(){
 	compute_H();
+	draw_lattice(true,true,ref_(3)?dir_nn_[3]*1.5+(dir_nn_[4]+dir_nn_[5])*0.75:dir_nn_[3]*1.5+(dir_nn_[4]+dir_nn_[5])*0.25);
 
-	std::string color("black");
-	std::string linestyle("solid");
-	std::string linewidth("1pt");
-	Vector<double> xy0(2,0);
-	Vector<double> xy1(2,0);
-	double t;
-	PSTricks ps(info_+path_+dir_,filename_);
-	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(),"linecolor=black");
-	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
+	if(rst_file_){
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-	unsigned int s0;
-	unsigned int s1;
-	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		s0 = obs_[0](i,0);
-		xy0 = x_[s0];
+		std::string title("Pi-flux");
+		std::string run_cmd("./mc -s:wf honeycomb-piflux");
+		run_cmd += " -u:N " + my::tostring(N_);
+		run_cmd += " -u:m " + my::tostring(m_);
+		run_cmd += " -u:n " + my::tostring(n_);
+		run_cmd += " -i:bc "+ my::tostring(bc_);
+		run_cmd += " -d -u:tmax 10";
 
-		s1 = obs_[0](i,1);
-		xy1 = x_[s1];
+		rst_file_->title(title,'-');
+		rst_file_->change_text_onclick("run command",run_cmd);
 
-		t = H_(s0,s1);
-		if(std::abs(t)>1e-4){
-			if((xy0-xy1).norm_squared()>1.0001){
-				linestyle = "dashed";
-				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
-				ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(s1));
-			} else {
-				linestyle = "solid";
-				if(s0<s1){
-					ps.put(xy0(0)-0.20,xy0(1)+0.15,my::tostring(s0));
-					ps.put(xy1(0)-0.20,xy1(1)+0.15,my::tostring(s1));
-				}
-			}
-
-			if(t>0){ color = "blue";}
-			else   { color = "red"; }
-			linewidth = my::tostring(std::abs(t))+"mm";
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-		}
+		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 	}
-	ps.end(true,true,true);
 }
 
 void HoneycombPiFlux::check(){

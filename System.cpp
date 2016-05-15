@@ -347,10 +347,15 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 3;
 	}
-	if( wf == "honeycomb-piflux" ){
+	if( wf == "honeycomb-p00" ){
 		ref(0) = 6;
 		ref(1) = 1;
 		ref(2) = 4;
+	}
+	if( wf == "honeycomb-piflux" ){
+		ref(0) = 6;
+		ref(1) = 1;
+		ref(2) = 5;
 	}
 	if( wf == "honeycomb-chiral" ){
 		ref(0) = 6;

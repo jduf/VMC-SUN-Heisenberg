@@ -2,7 +2,7 @@
 
 AnalyseMin::AnalyseMin(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
 	Analyse(sim,path,max_level,run_cmd),
-	complete_jobs_(sim_+"to_run.bash",true)
+	complete_jobs_(sim_+"to_run.bash",true,false)
 {
 	child_in_AnalyseMin_ = true;
 	complete_jobs_<<"#!/bin/bash"<<IOFiles::endl;
@@ -11,7 +11,7 @@ AnalyseMin::AnalyseMin(std::string const& sim, std::string const& path, unsigned
 
 void AnalyseMin::open_files(){
 	if(level_>1){
-		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
+		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true,false);
 	}
 	switch(level_){
 		case 8:
@@ -28,7 +28,9 @@ void AnalyseMin::open_files(){
 			{ jd_write_->write("number of different boundary condition",nof_); }break;
 		case 3:
 			{
-				data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
+				jd_write_->write("number of different size",nof_);
+
+				data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true,false);
 				data_write_->precision(10);
 			}break;
 	}
@@ -53,7 +55,7 @@ void AnalyseMin::close_files(){
 }
 
 std::string AnalyseMin::extract_level_9(){
-	IOFiles in(sim_+path_+dir_+filename_+".jdbin",false);
+	IOFiles in(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	RSTFile rst(info_+path_+dir_,filename_);
 	rst.text(in.get_header());
@@ -67,7 +69,7 @@ std::string AnalyseMin::extract_level_9(){
 }
 
 std::string AnalyseMin::extract_level_8(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 
 	Vector<double> tmp;
@@ -107,7 +109,7 @@ std::string AnalyseMin::extract_level_6(){ return extract_best_of_previous_level
 std::string AnalyseMin::extract_level_5(){ return extract_default(); }
 
 std::string AnalyseMin::extract_level_4(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 	/*!must save now nof_ because it doesn't refer to the number of file in
 	 * the next directory but in the next-next directory*/
@@ -131,13 +133,20 @@ std::string AnalyseMin::extract_level_4(){
 }
 
 std::string AnalyseMin::extract_level_3(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 
 	for(unsigned int i(0);i<nof_;i++){
 		Vector<double> tmp(*read_);
 		System s(*read_);
 		s.save(*data_write_);
+
+		CreateSystem cs(&s);
+		cs.init(&tmp,NULL);
+		cs.set_IOSystem(this);
+
+		jd_write_->add_header()->nl();
+		cs.save(*jd_write_);
 	}
 
 	delete read_;
@@ -146,4 +155,4 @@ std::string AnalyseMin::extract_level_3(){
 	return filename_;
 }
 
-std::string AnalyseMin::extract_level_2(){ return fit_thermodynamical_limit(); }
+std::string AnalyseMin::extract_level_2(){ return fit_therm_limit(); }

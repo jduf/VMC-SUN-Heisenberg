@@ -47,6 +47,7 @@
 #include "HoneycombFermi.hpp"
 #include "HoneycombFree.hpp"
 #include "Honeycomb0pp.hpp"
+#include "Honeycombp00.hpp"
 #include "HoneycombPiFlux.hpp"
 #include "HoneycombChiral.hpp"
 

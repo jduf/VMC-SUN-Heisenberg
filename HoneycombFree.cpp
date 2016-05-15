@@ -101,94 +101,10 @@ unsigned int HoneycombFree::unit_cell_index(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void HoneycombFree::lattice(){
-	compute_H();
-
-	std::string color("black");
-	std::string linestyle("solid");
-	std::string linewidth("1pt");
-	Vector<double> xy0(2,0);
-	Vector<double> xy1(2,0);
-	PSTricks ps(info_+path_+dir_,filename_);
-	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(),"linecolor=black");
-	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
-
-	double t;
-	double corr;
-	unsigned int s0;
-	unsigned int s1;
-	std::string str;
-	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		s0 = obs_[0](i,0);
-		xy0 = x_[s0];
-
-		s1 = obs_[0](i,1);
-		xy1 = x_[s1];
-
-		//if((my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy0(0),xy0(1)) || my::in_polygon(polygon.row(),polygon.ptr(),polygon.ptr()+polygon.row(),xy1(0),xy1(1))) ){
-			t = H_(s0,s1);
-			if(std::abs(t)>1e-4){
-				if((xy0-xy1).norm_squared()>1.0001){
-					linestyle = "dashed";
-					xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
-					ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-				} else {
-					linestyle = "solid";
-					if(s0<s1){
-						ps.put(xy0(0)-0.20,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
-						ps.put(xy1(0)-0.20,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-					}
-				}
-
-				if(t>0){ color = "blue";}
-				else   { color = "red"; }
-				linewidth = my::tostring(std::abs(t))+"mm";
-				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-			}
-			//} else {
-			if(obs_.size()>1){/*bound energy*/
-				corr = obs_[1][obs_[0](i,2)].get_x();
-				if(std::abs(corr)>1e-4){
-					if(corr>0){ color = "blue"; }
-					else      { color = "red"; }
-					linewidth = my::tostring(std::abs(corr))+"mm";
-
-					ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-				}
-
-				//if(i%3!=1){
-				//if(i%3==0){
-				//ps.put(xy0(0)+x_shift,xy0(1)-0.2,"\\tiny{"+my::tostring(s0)+"}");
-				//}
-				//str = my::tostring(corr);
-				//ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1),"\\tiny{"+str.substr(0,8)+"}");
-				//str = my::tostring(obs_[1][i].get_dx());
-				////if(obs_[1][i].get_dx()<1e-4){
-				////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
-				////} else {
-				////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,xy0(1)-0.2,"\\tiny{"+str.substr(0,8)+"}");
-				////}
-				//} else {
-				//ps.put(xy1(0)+x_shift,xy1(1)+0.2,"\\tiny{"+my::tostring(s1)+"}");
-				//str = my::tostring(corr);
-				//ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0,"\\tiny{"+str.substr(0,8)+"}");
-				//str = my::tostring(obs_[1][i].get_dx());
-				////if(obs_[1][i].get_dx()<1e-4){
-				////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,4)+"e-"+str.substr(str.size()-2,2)+"}");
-				////} else {
-				////ps.put((xy0(0)+xy1(0))/2.0+2*x_shift,(xy0(1)+xy1(1))/2.0-0.2,"\\tiny{"+str.substr(0,8)+"}");
-				////}
-				//}
-			}
-			//}
-	}
-	ps.end(true,true,true);
-}
-
 void HoneycombFree::display_results(){
-	lattice();
+	compute_H();
+	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25);
+
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);

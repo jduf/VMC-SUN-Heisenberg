@@ -178,7 +178,7 @@ void BiSystem::compute_dE(){
 		y /= n_rnd;
 
 		if(i==1){
-			IOFiles data("data.dat",true);
+			IOFiles data("data.dat",true,false);
 			for(unsigned int j(0);j<n_bin;j++){
 				data<<x(j)<<" "<<y(j)<<IOFiles::endl;
 			}
@@ -320,7 +320,7 @@ void BiSystem::save() const {
 	CreateSystem cs(&s_);
 	cs.init(&param_[0],NULL);
 
-	IOFiles w("bi/"+cs.get_filename()+".jdbin",true);
+	IOFiles w("bi/"+cs.get_filename()+".jdbin",true,false);
 	s_.write(w);
 	unsigned int size(param_.size());
 	w<<size;

@@ -13,7 +13,7 @@ int main(int argc, char* argv[]){
 	CreateSystem* cs(NULL);
 	std::string fname;
 	if(P.find("sim",i,false)){
-		iof = new IOFiles(P.get<std::string>(i),false);
+		iof = new IOFiles(P.get<std::string>(i),false,false);
 		Vector<double> tmp(*iof);
 		sys = new System (*iof);
 		sys->create_cluster(true);
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]){
 			fname = Time().date("-") + "-" + cs->get_filename();
 			command.mkpath(cs->get_path().c_str());
 			if(iof){ delete iof; }
-			iof = new IOFiles(cs->get_path() + fname +".jdbin",true);
+			iof = new IOFiles(cs->get_path() + fname +".jdbin",true,false);
 			cs->save(*iof);
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed (status="<<cs->get_status()<<")"<<std::endl; }

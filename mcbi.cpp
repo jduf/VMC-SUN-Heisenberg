@@ -7,7 +7,7 @@ int main(int argc, char* argv[]){
 	unsigned int i(0);
 
 	if(P.find("load",i,false)){
-		IOFiles r(P.get<std::string>(i),false);
+		IOFiles r(P.get<std::string>(i),false,false);
 		BiSystem bs(r);
 
 		//bs.compute_dE();

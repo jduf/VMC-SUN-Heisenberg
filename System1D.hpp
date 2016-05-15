@@ -52,7 +52,7 @@ System1D<Type>::~System1D() = default;
 template<typename Type>
 void System1D<Type>::plot_band_structure(){
 	if(full_diagonalization()){
-		IOFiles spectrum("spectrum.dat",true);
+		IOFiles spectrum("spectrum.dat",true,false);
 		for(unsigned int i(0);i<this->n_;i++){
 			spectrum<<p_(i)<<" "<<e_(i)<<" "<<(i<this->M_(0))<<IOFiles::endl;
 		}

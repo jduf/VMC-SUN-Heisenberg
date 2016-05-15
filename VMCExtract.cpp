@@ -148,7 +148,7 @@ void VMCExtract::save(std::string const& path) const {
 	if(m_->samples_.size()){
 		set_time();
 		Linux().mkpath((path+get_path()).c_str());
-		IOFiles out(path+get_path()+get_filename()+".jdbin",true);
+		IOFiles out(path+get_path()+get_filename()+".jdbin",true,false);
 		out.add_header()->text(RST::textbf("Contains the "+my::tostring(m_->samples_.size())+" best samples and a list "+my::tostring(dis_sim_.size())+ " of discarded samples"));
 		VMCMinimization::save(out);
 		out<<dis_sim_.size();
@@ -182,7 +182,7 @@ List<MCSim>::Node* VMCExtract::select_minima_and_plot(std::string const& path, s
 		m_->samples_.set_target();
 		m_->samples_.target_next();
 		param = m_->samples_.get().get_param();
-		IOFiles data_n(path+filename+"-n.dat",true);
+		IOFiles data_n(path+filename+"-n.dat",true,false);
 		do {
 			norm = sqrt((param-m_->samples_.get().get_param()).norm_squared())/param.size();
 			param = m_->samples_.get().get_param();
@@ -237,7 +237,7 @@ List<MCSim>::Node* VMCExtract::select_minima_and_plot(std::string const& path, s
 			m_->samples_.set_target();
 			m_->samples_.target_next();
 			param = dis_sim_.get().get_param();
-			IOFiles data_Er(path+filename+"-Er.dat",true);
+			IOFiles data_Er(path+filename+"-Er.dat",true,false);
 			data_Er.precision(15);
 			bool remain_samples(true);
 			bool keepon;

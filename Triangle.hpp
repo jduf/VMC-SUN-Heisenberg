@@ -131,6 +131,7 @@ void Triangle<Type>::draw_lattice(){
 	ps.polygon(uc,"linecolor=black");
 	ps.linked_lines("-",this->draw_boundary(false),"linecolor=yellow");
 
+	Vector<double> shift(2,0.0);
 	unsigned int s0;
 	unsigned int s1;
 	/*draws only the lattice, shows links and bc*/
@@ -155,9 +156,8 @@ void Triangle<Type>::draw_lattice(){
 		}
 	}
 	/*draws long range correlations over the lattice*/
-	if(o(1)){ this->draw_long_range_correlation(ps,this->obs_[o(1)]); }
+	if(o(1)){ this->draw_long_range_correlation(ps,shift,this->obs_[o(1)]); }
 
-	Vector<double> shift(2,0.0);
 	if(o(0) || o(2)){
 		/*unit cell, shows bond energy and color occupation*/
 		double be;

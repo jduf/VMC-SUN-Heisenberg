@@ -34,7 +34,7 @@ class Analyse: public IOSystem{
 
 		std::string extract_default();
 		std::string extract_best_of_previous_level();
-		std::string fit_thermodynamical_limit();
+		std::string fit_therm_limit();
 
 	private:
 		unsigned int study_;

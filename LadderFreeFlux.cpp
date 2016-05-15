@@ -288,8 +288,8 @@ void LadderFreeFlux::plot(bool const& create_image){
 		Ck_intra /= dk*normalize_intra;
 		Ck_inter /= dk*normalize_inter;
 
-		IOFiles file_c(analyse_+path_+dir_+filename_+"-lr-c.dat",true);
-		IOFiles file_sf(analyse_+path_+dir_+filename_+"-lr-sf.dat",true);
+		IOFiles file_c(analyse_+path_+dir_+filename_+"-lr-c.dat",true,false);
+		IOFiles file_sf(analyse_+path_+dir_+filename_+"-lr-sf.dat",true,false);
 		for(unsigned int l(0);l<llr;l++){
 			file_c<<l<<" "<<obs_[1][l]<<" "<<obs_[2][l]<<IOFiles::endl;
 			file_sf<<dk*l<<" "<<Ck_intra(l).real()<<" "<<Ck_intra(l).imag()<<" "<<Ck_inter(l).real()<<" "<<Ck_inter(l).imag()<<IOFiles::endl;
@@ -351,8 +351,8 @@ void LadderFreeFlux::plot(bool const& create_image){
 		Ckm /= dk*normalize_m;
 		Ckp /= dk*normalize_p;
 
-		IOFiles file_c(analyse_+path_+dir_+filename_+"-as-c.dat",true);
-		IOFiles file_sf(analyse_+path_+dir_+filename_+"-as-sf.dat",true);
+		IOFiles file_c(analyse_+path_+dir_+filename_+"-as-c.dat",true,false);
+		IOFiles file_sf(analyse_+path_+dir_+filename_+"-as-sf.dat",true,false);
 		for(unsigned int l(0);l<llr;l++){
 			file_c<<l<<" "<<obs_[1][l]<<" "<<obs_[2][l]<<" "<<obs_[3][l]<<" "<<obs_[4][l]<<IOFiles::endl;
 			file_sf<<dk*l<<" "<<Ckm(l).real()<<" "<<Ckm(l).imag()<<" "<<Ckp(l).real()<<" "<<Ckp(l).imag()<<IOFiles::endl;

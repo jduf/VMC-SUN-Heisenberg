@@ -12,7 +12,7 @@ class SquareMu: public Square<double>{
 		void save_param(IOFiles& w) const;
 		void check();
 
-	protected:
+	private:
 		double const mu_;//!< chemical potential
 
 		void compute_H(unsigned int const& c);

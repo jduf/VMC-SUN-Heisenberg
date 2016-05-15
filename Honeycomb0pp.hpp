@@ -3,7 +3,8 @@
 
 #include "Honeycomb.hpp"
 
-/*{*//*!Plaquette wavefunction with possible 0-pi-pi flux configuration
+/*{*//*!Plaquette wavefunction with 0pipi-flux configuration if td<0 (each
+	   0-flux hexagon is surrounded by pi-flux hexagons), 000-flux otherwise.
 	   Three different flux configurations (fc) are possible : taking links
 	   0->1, 2->3, 4->5 as reference and closing each hexagon with the same
 	   orientation, one has :
@@ -30,15 +31,11 @@ class Honeycomb0pp: public Honeycomb<double>{
 		unsigned int const fc_;
 
 		void compute_H();
-
 		void display_results();
-		void lattice();
 
 		/*!Sets the unit cell's vectors*/
 		Matrix<double> set_ab() const;
 		/*!Returns the index of the site at position x in the unit cell*/
 		unsigned int unit_cell_index(Vector<double> const& x) const;
-
-		std::string extract_level_2();
 };
 #endif

@@ -14,7 +14,7 @@ AnalyseChain::AnalyseChain(std::string const& sim, std::string const& path, unsi
 		"comparison of the energies and the polymerization strength in "
 		"function of the system size."<<std::endl;
 
-	if(path==""){ outfile_ = new IOFiles("sun-chains.dat",true); }
+	if(path==""){ outfile_ = new IOFiles("sun-chains.dat",true,false); }
 	do_analyse();
 }
 
@@ -24,7 +24,7 @@ AnalyseChain::~AnalyseChain(){
 
 void AnalyseChain::open_files(){
 	if(level_>1){
-		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
+		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true,false);
 		if(level_==7){
 			jd_write_->write("number of different wavefunction",nof_);
 			jd_write_->add_header()->np();
@@ -34,7 +34,7 @@ void AnalyseChain::open_files(){
 			jd_write_->add_header()->np();
 		}
 		if(level_==3 || level_==8){
-			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
+			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true,false);
 			data_write_->precision(10);
 		}
 		if(level_==3){ (*data_write_)<<"%N m bc n E(x,dx,#,conv) d-strength exponents"<<IOFiles::endl; }
@@ -73,7 +73,7 @@ void AnalyseChain::close_files(){
 	   and structure factor
 	   *//*}*/
 std::string AnalyseChain::extract_level_8(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	Vector<double> tmp(*read_);
 	System s(*read_);
@@ -96,7 +96,7 @@ std::string AnalyseChain::extract_level_8(){
 
 /*calls cs.analyse(level) to plot E(ti)*/
 std::string AnalyseChain::extract_level_7(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	unsigned int idx(0);
 	std::string link_name(filename_);
@@ -120,7 +120,7 @@ std::string AnalyseChain::extract_level_7(){
 	}
 
 	delete read_;
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	(*read_)>>nof_;
 	for(unsigned int i(0);i<idx+1;i++){
@@ -146,7 +146,7 @@ std::string AnalyseChain::extract_level_7(){
 /*different wavefunction*/
 std::string AnalyseChain::extract_level_6(){
 	std::string link_name;
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	Vector<unsigned int> ref;
 	Vector<unsigned int> M;
 	(*read_)>>nof_;
@@ -206,7 +206,7 @@ std::string AnalyseChain::extract_level_6(){
 
 /*different J_*/
 std::string AnalyseChain::extract_level_5(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 	Vector<double> t(*read_);
 	System s(*read_);
@@ -223,7 +223,7 @@ std::string AnalyseChain::extract_level_5(){
 
 /*different boundary condition*/
 std::string AnalyseChain::extract_level_4(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	/*!must save now nof_ because it doesn't refer to the number of file in the
 	 * next directory but in the next-next directory*/
 	jd_write_->write("number of different boundary condition",nof_);
@@ -250,7 +250,7 @@ std::string AnalyseChain::extract_level_4(){
 
 /*different magnetization*/
 std::string AnalyseChain::extract_level_3(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 
 	Vector<double> t;
@@ -274,7 +274,7 @@ std::string AnalyseChain::extract_level_3(){
 
 /*different system size*/
 std::string AnalyseChain::extract_level_2(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	Vector<unsigned int> ref(*read_);
 	unsigned int N(read_->read<unsigned int>());

@@ -4,10 +4,10 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	EXEC = check
 	EXEC+= mc
 	EXEC+= min
-	#EXEC+= mcbi
+	EXEC+= mcbi
 	POSTPROCESS = cp $(EXEC) ../sim;
 	EXEC+= study
-	POSTPROCESS+= mv ../sim/study  ../
+	POSTPROCESS+= cp ../sim/study  ../
 
 	CXX = g++ -std=c++14
 	LAPACK = -llapack -lblas
@@ -18,7 +18,7 @@ else
 	EXEC+= $(MACHINE)mc
 	POSTPROCESS= cp $(EXEC) ../sim/;
 	EXEC+= $(MACHINE)study
-	POSTPROCESS+= mv ../sim/$(MACHINE)study ../
+	POSTPROCESS+= cp ../sim/$(MACHINE)study ../
 
 	CXX = icpc -std=c++11
 	LAPACK =# -Wl,--no-as-needed -L${MKL_ROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
@@ -35,7 +35,7 @@ CHAIN     = ChainFermi.cpp ChainPolymerized.cpp ChainFree.cpp ChainSAS.cpp
 LADDER    = LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp
 SQUARE    = SquareFermi.cpp SquareFree.cpp SquareMu.cpp SquareDimerizedBar.cpp SquareT2x2.cpp SquareT3x2.cpp SquareT3x3.cpp SquareT4x2.cpp SquareT4x3.cpp SquareT4x4.cpp SquareBox6.cpp SquareFreeFlux.cpp SquarePiFlux.cpp SquareChiral.cpp SquareJastrow.cpp
 TRIANGLE  = TriangleFermi.cpp TriangleFree.cpp TrianglePlaquette.cpp TriangleMu.cpp TrianglePhi.cpp TriangleChiral.cpp
-HONEYCOMB = HoneycombFermi.cpp HoneycombFree.cpp Honeycomb0pp.cpp HoneycombPiFlux.cpp HoneycombChiral.cpp
+HONEYCOMB = HoneycombFermi.cpp HoneycombFree.cpp Honeycombp00.cpp Honeycomb0pp.cpp HoneycombPiFlux.cpp HoneycombChiral.cpp
 KAGOME    = KagomeFermi.cpp KagomeFree.cpp KagomePlaquette3A.cpp KagomePlaquette3B.cpp KagomePlaquette6A.cpp  KagomePlaquette6B.cpp KagomeChiral.cpp KagomeChiralB.cpp KagomeVBC.cpp KagomePiHalfTriangle.cpp
 
 WF         = $(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)

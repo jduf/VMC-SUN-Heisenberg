@@ -12,7 +12,7 @@ class KagomeChiralB: public Kagome<std::complex<double> >{
 		void save_param(IOFiles& w) const;
 		void check();
 
-	protected:
+	private:
 		double const phi_; //!< flux per triangular plaquette
 
 		void compute_H();

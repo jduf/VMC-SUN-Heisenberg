@@ -12,7 +12,7 @@ class TrianglePlaquette: public Triangle<double>{
 		void save_param(IOFiles& w) const;
 		void check();
 
-	protected:
+	private:
 		double const t_; //!< hopping term
 
 		void compute_H();

@@ -259,7 +259,7 @@ void Chain<Type>::long_range_correlation_and_structure_factor(){
 	if(this->obs_.size()>1){
 		/*!long range correlations*/
 		/*{*/
-		IOFiles lr_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-lr-c.dat",true);
+		IOFiles lr_corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-lr-c.dat",true,false);
 		lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
 		Vector<double> lr_corr(this->obs_[1].nval());
@@ -309,7 +309,7 @@ void Chain<Type>::long_range_correlation_and_structure_factor(){
 		}
 		Ck /= dk*normalize;
 
-		IOFiles data_sf(this->analyse_+this->path_+this->dir_+this->filename_+"-sf.dat",true);
+		IOFiles data_sf(this->analyse_+this->path_+this->dir_+this->filename_+"-sf.dat",true,false);
 		for(unsigned int k(0);k<llr;k++){
 			data_sf<<dk*k<<" "<<Ck(k).real()<<" "<<Ck(k).imag()<<IOFiles::endl;
 		}

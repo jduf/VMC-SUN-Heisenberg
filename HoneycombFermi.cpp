@@ -57,52 +57,9 @@ unsigned int HoneycombFermi::unit_cell_index(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void HoneycombFermi::lattice(){
-	compute_H();
-
-	std::string color("black");
-	std::string linestyle("solid");
-	std::string linewidth("1pt");
-	Vector<double> xy0;
-	Vector<double> xy1;
-	PSTricks ps(info_+path_+dir_,filename_);
-	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(),"linecolor=black");
-	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
-
-	double t;
-	unsigned int s0;
-	unsigned int s1;
-	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		s0 = obs_[0](i,0);
-		xy0 = x_[s0];
-
-		s1 = obs_[0](i,1);
-		xy1 = x_[s1];
-
-		t = H_(s0,s1);
-		if(std::abs(t)>1e-4){
-			if((xy0-xy1).norm_squared()>1.0001){
-				linestyle = "dashed";
-				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
-				if(obs_[0](i,3)){ ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}"); }
-			} else { linestyle = "solid"; }
-
-			if(t>0){ color = "blue";}
-			else   { color = "red"; }
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-		}
-		if(!(i%3)){
-			ps.put(xy1(0)+0.10,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
-			ps.put(xy0(0)+0.10,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
-		}
-	}
-	ps.end(true,true,true);
-}
-
 void HoneycombFermi::display_results(){
-	lattice();
+	compute_H();
+	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

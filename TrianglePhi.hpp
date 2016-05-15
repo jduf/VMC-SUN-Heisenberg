@@ -12,7 +12,7 @@ class TrianglePhi: public Triangle<std::complex<double> >{
 		void save_param(IOFiles& w) const;
 		void check();
 
-	protected:
+	private:
 		double const phi_;
 
 		void compute_H();

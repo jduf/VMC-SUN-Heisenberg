@@ -41,6 +41,11 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void display_results() = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
+		/*!Extrapolate the energy in the thermodynamical limit*/
+		virtual std::string extract_level_2();
+		/*!Get the parameter for the fit of the thermodynamical limit*/
+		virtual void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
+
 		/*!Creates observable (bond energy, long range correlations,...)*/
 		virtual void create_obs(unsigned int const& which_obs) = 0;
 
@@ -139,7 +144,7 @@ void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 			}
 		}
 		if(unit_cell_links.size() != z_*spuc_/2){
-			std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links ("<<unit_cell_links.size()<<" in the unit cell, they are :"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links in the unit cell ("<<unit_cell_links.size()<<" insead of "<<z_*spuc_/2<<"),  they are :"<<std::endl;
 			for(auto const& uic:unit_cell_links){
 				std::cout<<std::get<0>(uic)<<" "<<std::get<1>(uic)<<" "<<std::get<2>(uic)<<std::endl;
 			}
@@ -210,5 +215,35 @@ std::complex<double> GenericSystem<Type>::projection(Matrix<Type> const& O, unsi
 		out += std::conj(evec_(i,idx))*tmp;
 	}
 	return out;
+}
+
+template<typename Type>
+std::string GenericSystem<Type>::extract_level_2(){
+	std::string f("");
+	std::string p("");
+	std::string r("");
+	param_fit_therm_limit(f,p,r);
+	Gnuplot gp(this->analyse_+this->path_+this->dir_,this->filename_);
+	gp+=f;
+	gp+="set fit quiet";
+	gp+="fit " + r + " f(x) '"+this->filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) yerror via "+p;
+	gp+="set print \'../"+this->sim_.substr(0,this->sim_.size()-1)+".dat\' append";
+	gp+="print " + my::tostring(this->N_) + "," + my::tostring(this->m_) + "," + p[0];
+	gp.range("x","0","");
+	gp.label("x","$\\frac{ 1}{n}$");
+	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
+	gp+="plot '"+this->filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) w e notitle,\\";
+	gp+="     " + r + " f(x) t sprintf('%f',b)";
+	gp.save_file();
+	gp.create_image(true,true);
+
+	return this->filename_;
+}
+
+template<typename Type>
+void GenericSystem<Type>::param_fit_therm_limit(std::string& f, std::string& param, std::string& range){
+	f = "f(x) = a+b*x";
+	param = "a,b";
+	range = "";
 }
 #endif

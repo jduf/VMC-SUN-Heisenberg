@@ -107,69 +107,15 @@ unsigned int Honeycomb0pp::unit_cell_index(Vector<double> const& x) const {
 	match(1) = 1.0/3.0;
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 5; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return 6;
+	return spuc_;
 }
 /*}*/
 
 /*{method needed for checking*/
-void Honeycomb0pp::lattice(){
-	compute_H();
-
-	std::string color("black");
-	std::string linestyle("solid");
-	std::string linewidth("1pt");
-	Vector<double> xy0(2,0);
-	Vector<double> xy1(2,0);
-	PSTricks ps(info_+path_+dir_,filename_);
-	ps.begin(-20,-20,20,20,filename_);
-	ps.polygon(cluster_vertex_,"linecolor=green");
-	ps.polygon(draw_unit_cell(),"linecolor=black");
-	ps.linked_lines("-",draw_boundary(false),"linecolor=yellow");
-
-	double t;
-	unsigned int s0;
-	unsigned int s1;
-	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		s0 = obs_[0](i,0);
-		xy0 = x_[s0];
-
-		s1 = obs_[0](i,1);
-		xy1 = x_[s1];
-
-		t = H_(s0,s1);
-		if(std::abs(t)>1e-4){
-			if((xy0-xy1).norm_squared()>1.0001){
-				linestyle = "dashed";
-				xy1 = (xy0+dir_nn_[obs_[0](i,3)]).chop();
-				if(obs_[0](i,3)){ ps.put(xy1(0)+0.2,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}"); }
-			} else { linestyle = "solid"; }
-
-			if(t>0){ color = "blue";}
-			else   { color = "red"; }
-			linewidth = my::tostring(std::abs(t))+"mm";
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-		}
-		if(!(i%3)){
-			xy0 -=  dir_nn_[obs_[0](i,3)]*0.2;
-			xy1 -=  dir_nn_[obs_[0](i,3)]*0.2;
-			ps.put(xy0(0),xy0(1),"\\tiny{"+my::tostring(s0)+"}");
-			xy0 -=  dir_nn_[obs_[0](i,3)]*0.2;
-			xy1 -=  dir_nn_[obs_[0](i,3)]*0.2;
-			ps.put(xy0(0),xy0(1),"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,5))+"}}");
-
-			xy0 +=  dir_nn_[obs_[0](i,3)]*0.6;
-			xy1 +=  dir_nn_[obs_[0](i,3)]*0.6;
-			ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(s1)+"}");
-			xy0 +=  dir_nn_[obs_[0](i,3)]*0.2;
-			xy1 +=  dir_nn_[obs_[0](i,3)]*0.2;
-			ps.put(xy1(0),xy1(1),"\\textcolor{green}{\\tiny{"+my::tostring(obs_[0](i,6))+"}}");
-		}
-	}
-	ps.end(true,true,true);
-}
-
 void Honeycomb0pp::display_results(){
-	lattice();
+	compute_H();
+	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25);
+
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
@@ -194,29 +140,9 @@ void Honeycomb0pp::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="honeycomb-0pp";
-	//display_results();
+	display_results();
 
-	compute_H();
-	plot_band_structure();
-}
-/*}*/
-
-/*{method needed for analysing*/
-std::string Honeycomb0pp::extract_level_2(){
-	Gnuplot gp(analyse_+path_+dir_,filename_);
-	gp+="f(x) = a*x*x+b";
-	gp+="set fit quiet";
-	gp+="fit [0:0.025] f(x) '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) yerror via a,b";
-	gp+="set print \"../"+sim_.substr(0,sim_.size()-1)+".dat\" append";
-	gp+="print \"`head -1 '"+filename_+".dat' | awk '{print $1 \" \" $2}'`\",\" \",b";
-	gp.range("x","0","");
-	gp.label("x","$\\frac{1}{n}$");
-	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
-	gp+="plot '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) w e notitle,\\";
-	gp+="     [0:0.025] f(x) t sprintf('%f',b)";
-	gp.save_file();
-	gp.create_image(true,true);
-
-	return filename_;
+	//compute_H();
+	//plot_band_structure();
 }
 /*}*/

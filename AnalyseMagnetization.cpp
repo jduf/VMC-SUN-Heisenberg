@@ -6,14 +6,14 @@ AnalyseMagnetization::AnalyseMagnetization(std::string const& sim, std::string c
 
 void AnalyseMagnetization::open_files(){
 	if(level_>1){
-		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
+		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true,false);
 	}
 	if(level_ == 4){
 		jd_write_->write("number of jdfiles",nof_);
 		jd_write_->add_header()->nl();
 	}
 	if(level_ == 6 || level_==4 || level_== 3){
-		data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
+		data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true,false);
 	}
 }
 
@@ -34,7 +34,7 @@ void AnalyseMagnetization::close_files(){
 }
 
 std::string AnalyseMagnetization::extract_level_6(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	Vector<double> tmp(*read_);
 	System s(*read_);
@@ -54,7 +54,7 @@ std::string AnalyseMagnetization::extract_level_6(){
 
 std::string AnalyseMagnetization::extract_level_5(){
 	/*compare wavefunctions*/
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 	unsigned int idx(0);
 	double E(666);
@@ -73,7 +73,7 @@ std::string AnalyseMagnetization::extract_level_5(){
 	delete read_;
 	read_ = NULL;
 
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 	jd_write_->write("number of jdfiles",nof_);
 	jd_write_->add_header()->nl();
@@ -94,7 +94,7 @@ std::string AnalyseMagnetization::extract_level_5(){
 }
 
 std::string AnalyseMagnetization::extract_level_4(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 
 	Vector<double> tmp(*read_);
@@ -114,7 +114,7 @@ std::string AnalyseMagnetization::extract_level_4(){
 }
 
 std::string AnalyseMagnetization::extract_level_3(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 
 	Gnuplot gp(analyse_+path_+dir_,filename_);

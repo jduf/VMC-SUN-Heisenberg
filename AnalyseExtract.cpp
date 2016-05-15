@@ -19,7 +19,7 @@ AnalyseExtract::~AnalyseExtract(){
 
 void AnalyseExtract::open_files(){
 	if(level_>1){
-		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
+		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true,false);
 	}
 	switch(level_){
 		case 9:
@@ -29,7 +29,7 @@ void AnalyseExtract::open_files(){
 			}break;
 		case 3:
 			{
-				data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
+				data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true,false);
 				data_write_->precision(10);
 			}break;
 	}
@@ -55,7 +55,7 @@ void AnalyseExtract::close_files(){
 
 /*extract VMCMinimization and plot*/
 std::string AnalyseExtract::extract_level_9(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	RSTFile rst(info_+path_+dir_,filename_);
 	rst.text(read_->get_header());
@@ -105,7 +105,7 @@ std::string AnalyseExtract::extract_level_4(){
 }
 
 std::string AnalyseExtract::extract_level_3(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	Vector<double> tmp(*read_);
 	System s(*read_);
@@ -117,4 +117,4 @@ std::string AnalyseExtract::extract_level_3(){
 	return filename_;
 }
 
-std::string AnalyseExtract::extract_level_2(){ return fit_thermodynamical_limit(); }
+std::string AnalyseExtract::extract_level_2(){ return fit_therm_limit(); }

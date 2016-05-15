@@ -1,24 +1,27 @@
-#ifndef DEF_HONEYCOMBCHIRAL
-#define DEF_HONEYCOMBCHIRAL
+#ifndef DEF_HONEYCOMBP00
+#define DEF_HONEYCOMBP00
 
 #include "Honeycomb.hpp"
 
-class HoneycombChiral: public Honeycomb<std::complex<double> >{
+/*{*//*!Plaquette wavefunction with pi00-flux configuration if td<0 (each
+	   pi-flux hexagon is surrounded by 0-flux hexagons), pipipi-flux
+	   otherwise.
+	   *//*}*/
+class Honeycombp00: public Honeycomb<double>{
 	public:
-		HoneycombChiral(System const& s, double const& phi);
-		~HoneycombChiral() = default;
+		Honeycombp00(System const& s, double const& td);
+		~Honeycombp00() = default;
 
 		void create();
 		void save_param(IOFiles& w) const;
 		void check();
 
 	private:
-		double const phi_; //!< flux per hexagonal plaquette
+		double const td_;
 
 		void compute_H();
 		void display_results();
-		void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
-		
+
 		/*!Sets the unit cell's vectors*/
 		Matrix<double> set_ab() const;
 		/*!Returns the index of the site at position x in the unit cell*/

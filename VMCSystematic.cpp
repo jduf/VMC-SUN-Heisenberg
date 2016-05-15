@@ -29,7 +29,7 @@ void VMCSystematic::run(bool const& set_obs, double const& dEoE, unsigned int co
 }
 
 void VMCSystematic::plot(){
-	IOFiles data(get_path()+get_filename()+".dat",true);
+	IOFiles data(get_path()+get_filename()+".dat",true,false);
 	m_->samples_.set_target();
 	Vector<double> param;
 	while(m_->samples_.target_next()){

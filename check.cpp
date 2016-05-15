@@ -86,7 +86,7 @@ int main(int argc, char* argv[]){
 					S->complete_analysis(1e-5);
 					std::cout<<S->get_energy()<<std::endl;
 					std::cout<<"############# Save MCSystem ###############"<<std::endl;
-					IOFiles out("check.jdbin",true);
+					IOFiles out("check.jdbin",true,false);
 					S->write(out);
 					delete S;
 				}
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]){
 			{
 				MCSystem* S(NULL);
 				std::cout<<"############# Load MCSystem ###############"<<std::endl;
-				IOFiles in("check.jdbin",false);
+				IOFiles in("check.jdbin",false,false);
 				if(cs.use_complex()){
 					S = new SystemFermionic<std::complex<double> >(in);
 				} else {
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]){
 				S->complete_analysis(1e-5);
 				std::cout<<S->get_energy()<<std::endl;
 				std::cout<<"############# Save MCSystem ###############"<<std::endl;
-				IOFiles out("check-1.jdbin",true);
+				IOFiles out("check-1.jdbin",true,false);
 				S->write(out);
 				delete S;
 			} break;

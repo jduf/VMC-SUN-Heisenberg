@@ -19,7 +19,7 @@ void Analyse::do_analyse(){
 			{
 				std::cout<<"analysing the whole "<<sim_<<" directory"<<std::endl;
 				list_rst_.add_end(std::make_shared<RSTFile>("./","README"));
-				IOFiles r("README",false);
+				IOFiles r("README",false,false);
 				std::string h;
 				r>>h;
 				list_rst_.first().text(h);
@@ -30,7 +30,7 @@ void Analyse::do_analyse(){
 			{
 				std::cout<<"analysing only README file"<<std::endl;
 				RSTFile rst("./","README");
-				IOFiles r("README",false);
+				IOFiles r("README",false,false);
 				std::string h;
 				r>>h;
 				rst.text(h);
@@ -138,7 +138,7 @@ void Analyse::search_jdbin(){
 }
 
 std::string Analyse::extract_default(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	Vector<double> tmp(*read_);
 	System s(*read_);
@@ -156,7 +156,7 @@ std::string Analyse::extract_default(){
 }
 
 std::string Analyse::extract_best_of_previous_level(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	unsigned int idx(0);
 	double E(666);
@@ -173,7 +173,7 @@ std::string Analyse::extract_best_of_previous_level(){
 	}
 
 	delete read_;
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	(*read_)>>nof_;
 	for(unsigned int i(0);i<idx;i++){
@@ -194,8 +194,8 @@ std::string Analyse::extract_best_of_previous_level(){
 	return filename_;
 }
 
-std::string Analyse::fit_thermodynamical_limit(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+std::string Analyse::fit_therm_limit(){
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 
 	Vector<unsigned int> ref(5,0);
@@ -207,8 +207,7 @@ std::string Analyse::fit_thermodynamical_limit(){
 			std::cout<<"n"<<s.get_n()<<" -> "<<ref<<std::endl;
 		}
 		if(i+1==nof_){
-			delete read_;
-			read_ = NULL;
+			if(level_ != 2){ std::cerr<<__PRETTY_FUNCTION__<<" : fit thermodynamical limit is usually done at level 2"<<std::endl; }
 
 			CreateSystem cs(&s);
 			cs.init(&tmp,NULL);
@@ -216,5 +215,9 @@ std::string Analyse::fit_thermodynamical_limit(){
 			return cs.analyse(level_);
 		}
 	}
+
+	delete read_;
+	read_ = NULL;
+
 	return filename_;
 }

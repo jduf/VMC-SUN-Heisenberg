@@ -106,7 +106,7 @@ void ChainPolymerized::check(){
 }
 
 void ChainPolymerized::energy_bound(){
-	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true);
+	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true,false);
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
 	Vector<double> poly_e(N_/m_,0);

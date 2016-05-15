@@ -424,7 +424,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										unsigned int fc(0);
 										if(param){
 											t = (*param)(0);
-											if(param->size()==2){ fc = (*param)(1); } 
+											if(param->size()==2){ fc = (*param)(1); }
 											else { fc = 0; }
 										}
 										if(C) {
@@ -434,6 +434,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										RGL_ = new Honeycomb0pp(*s_,t,fc);
 									}break;
 								case 4:
+									{
+										double t(0);
+										if(param){ t = (*param)(0); }
+										if(C) { t = C->get<double>("td"); }
+										RGL_ = new Honeycombp00(*s_,t);
+									}break;
+								case 5:
 									{ RGL_ = new HoneycombPiFlux(*s_); }break;
 								default:{ error(); }break;
 							}

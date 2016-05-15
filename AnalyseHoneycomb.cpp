@@ -5,9 +5,9 @@ AnalyseHoneycomb::AnalyseHoneycomb(std::string const& sim, std::string const& pa
 { do_analyse(); }
 
 void AnalyseHoneycomb::open_files(){
-	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true); }
+	if(level_>1){ jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true,false); }
 	if(level_ == 7){
-		data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
+		data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true,false);
 		data_write_->precision(10);
 	}
 }
@@ -26,7 +26,7 @@ void AnalyseHoneycomb::close_files(){
 }
 
 std::string AnalyseHoneycomb::extract_level_6(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	Vector<double> tmp(*read_);
 	System s(*read_);

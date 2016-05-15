@@ -134,7 +134,7 @@ void VMCMinimization::complete_analysis(double const& convergence_criterion){
 
 void VMCMinimization::save() const {
 	set_time();
-	IOFiles out(path_+get_filename()+".jdbin",true);
+	IOFiles out(path_+get_filename()+".jdbin",true,false);
 	save(out);
 }
 
@@ -236,7 +236,7 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_pm, IOFi
 		if(m_->dof_ == 1){
 			w.write("number of samples",(unsigned int)(1));
 
-			IOFiles data(path+filename+".dat",true);
+			IOFiles data(path+filename+".dat",true,false);
 			List<MCSim>::Node* target(NULL);
 			double E(0.0);
 
@@ -266,13 +266,13 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_pm, IOFi
 			potential_minima.set_target();
 			potential_minima.target_next();
 			Vector<double> best_param(potential_minima.get().get_param());
-			IOFiles data_Er(path+filename+"-Er.dat",true);
+			IOFiles data_Er(path+filename+"-Er.dat",true,false);
 			do{
 				data_Er<<(best_param-potential_minima.get().get_param()).norm_squared()<<" "<<potential_minima.get().get_energy().get_x()<<IOFiles::endl;
 				potential_minima.get().save(w);
 			} while(potential_minima.target_next());
 
-			IOFiles data(path+filename+".dat",true);
+			IOFiles data(path+filename+".dat",true,false);
 			m_->samples_.target_next();
 			while(m_->samples_.target_next()){
 				data<<m_->samples_.get().get_param()<<" "<<(best_param-m_->samples_.get().get_param()).norm_squared()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
@@ -410,7 +410,7 @@ void VMCMinimization::save_parameters(unsigned int nbest) const {
 	nbest = (sorted_samples.size()>nbest+1?nbest:sorted_samples.size()-1);
 
 	set_time();
-	IOFiles out(path_+get_filename()+"-parameters.jdbin",true);
+	IOFiles out(path_+get_filename()+"-parameters.jdbin",true,false);
 	m_->save(out,false);
 	out<<path_<<basename_;
 
@@ -428,7 +428,7 @@ void VMCMinimization::save_parameters(unsigned int nbest) const {
 
 void VMCMinimization::run_parameters(Parseur& P){
 	if(m_->tmax_){
-		IOFiles in(P.get<std::string>("param"),false);
+		IOFiles in(P.get<std::string>("param"),false,false);
 		Minimization tmp;
 		std::string tmp_path;
 		std::string tmp_basename;
@@ -517,7 +517,7 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 		std::string msg("loading samples from "+filename);
 		std::cout<<"#"+msg<<std::endl;
 
-		IOFiles in(filename,false);
+		IOFiles in(filename,false,false);
 		if(in.is_open()){
 			load(in,path,basename,true);
 
@@ -614,7 +614,7 @@ void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::st
 bool VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 	unsigned int size;
 	if(P.find("PS",size,true)){
-		IOFiles load(P.get<std::string>(size),false);
+		IOFiles load(P.get<std::string>(size),false,false);
 		std::string PS;
 		load>>PS;
 

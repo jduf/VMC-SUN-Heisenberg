@@ -12,7 +12,7 @@ class KagomePlaquette3B: public Kagome<double>{
 		void save_param(IOFiles& w) const;
 		void check();
 
-	protected:
+	private:
 		double const td_;
 
 		void compute_H();

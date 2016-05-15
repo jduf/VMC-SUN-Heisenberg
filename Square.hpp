@@ -13,6 +13,7 @@ class Square: public System2D<Type>{
 
 	protected:
 		void init_lattice();
+		/*Draw the lattice inside a PSTricks file*/
 		void draw_lattice(bool const& only_unit_cell, bool const& silent);
 
 	private:
@@ -122,6 +123,7 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent){
 	Matrix<double> uc(this->draw_unit_cell(-0.5,-0.5));
 	ps.polygon(uc,"linecolor=black");
 
+	Vector<double> shift(2,0.0);
 	unsigned int s0;
 	unsigned int s1;
 	/*draws only the lattice, shows links and bc*/
@@ -147,10 +149,9 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent){
 			}
 		}
 		/*draws long range correlations over the lattice*/
-		if(o(1)){ this->draw_long_range_correlation(ps,this->obs_[o(1)]); }
+		if(o(1)){ this->draw_long_range_correlation(ps,shift,this->obs_[o(1)]); }
 	}
 
-	Vector<double> shift(2,0.0);
 	if(o(0) || o(2)){
 		/*unit cell, shows bond energy and color occupation*/
 		double be;
@@ -233,7 +234,7 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent){
 				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
 
-			if(!(i%2)){ this->draw_flux_per_plaquette(ps,s0,xy0-shift,xy0(0)+0.5,xy0(1)+0.5,1,0,4); }
+			if(!(i%2)){ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+0.5,1,0,4); }
 		}
 	}
 	ps.end(silent,true,true);

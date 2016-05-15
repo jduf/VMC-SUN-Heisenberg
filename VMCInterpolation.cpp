@@ -95,7 +95,7 @@ void VMCInterpolation::run(bool const& explore_around_minima){
 
 void VMCInterpolation::plot(){
 	if(m_->dof_<4){
-		out_ = new IOFiles(get_path()+get_filename()+".dat",true);
+		out_ = new IOFiles(get_path()+get_filename()+".dat",true,false);
 		m_->samples_.set_target();
 		double min(0);
 		while(m_->samples_.target_next()){
@@ -104,7 +104,7 @@ void VMCInterpolation::plot(){
 		}
 		delete out_;
 
-		out_ = new IOFiles(get_path()+get_filename()+"-spline.dat",true);
+		out_ = new IOFiles(get_path()+get_filename()+"-spline.dat",true,false);
 		Vector<unsigned int> idx(m_->dof_,0);
 		while(go_through_parameter_space(m_->ps_,idx,0,0,&VMCInterpolation::save_interp_data));
 		delete out_;
@@ -134,7 +134,7 @@ void VMCInterpolation::plot(){
 		}
 		plot.save_file();
 	} else {
-		out_ = new IOFiles(get_path()+get_filename()+".dat",true);
+		out_ = new IOFiles(get_path()+get_filename()+".dat",true,false);
 		Vector<double> param(m_->dof_);
 		for(unsigned int k(0);k<m_->ps_[0].size();k++){
 			for(unsigned int j(0);j<m_->dof_;j++){

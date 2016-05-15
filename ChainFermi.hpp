@@ -64,7 +64,7 @@ void ChainFermi<Type>::check(){
 
 template<typename Type>
 void ChainFermi<Type>::energy_bound(){
-	IOFiles corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-corr.dat",true);
+	IOFiles corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-corr.dat",true,false);
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
 	for(unsigned int i(0);i<this->obs_[0].nval();i++){

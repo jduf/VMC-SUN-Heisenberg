@@ -12,7 +12,7 @@ class KagomePiHalfTriangle: public Kagome<std::complex<double> >{
 		void save_param(IOFiles& w) const;
 		void check();
 
-	protected:
+	private:
 		Vector<double> const t_; //!< hopping terms
 		Vector<double> const phi_;//!< phases
 

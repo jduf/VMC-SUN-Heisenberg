@@ -95,7 +95,7 @@ int main(int argc, char* argv[]){
 							}break;
 						case 10:
 							{
-								IOFiles out("out.dat",true);
+								IOFiles out("out.dat",true,false);
 								m.find_save_and_plot_minima(10,out,"./","bla");
 							}break;
 						case 11:
@@ -120,13 +120,13 @@ int main(int argc, char* argv[]){
 				switch(what(w)){
 					case 12:
 						{
-							IOFiles in(P.get<std::string>("load"),false);
+							IOFiles in(P.get<std::string>("load"),false,false);
 							VMCExtract m4(in,true);
 							m4.save("best/");
 						}break;
 					case 13:
 						{
-							IOFiles in(P.get<std::string>("load"),false);
+							IOFiles in(P.get<std::string>("load"),false,false);
 							Vector<unsigned int> obs;
 							if(P.find("obs",i,false)){
 								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]){
 						}break;
 					case 14:
 						{
-							IOFiles in(P.get<std::string>("load"),false);
+							IOFiles in(P.get<std::string>("load"),false,false);
 							Vector<unsigned int> obs;
 							if(P.find("obs",i,false)){
 								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
@@ -148,7 +148,7 @@ int main(int argc, char* argv[]){
 						}break;
 					case 15:
 						{
-							IOFiles in(P.get<std::string>("load"),false);
+							IOFiles in(P.get<std::string>("load"),false,false);
 							Vector<unsigned int> obs;
 							if(P.find("obs",i,false)){
 								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));

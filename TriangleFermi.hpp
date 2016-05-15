@@ -11,7 +11,7 @@ class TriangleFermi: public Triangle<double>{
 		void create();
 		void check();
 
-	protected:
+	private:
 		void compute_H();
 		void display_results();
 

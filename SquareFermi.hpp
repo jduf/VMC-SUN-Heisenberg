@@ -11,9 +11,10 @@ class SquareFermi: public Square<double>{
 		void create();
 		void check();
 
-	protected:
+	private:
 		void compute_H();
 		void display_results();
+		void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
 
 		/*!Set the unit cell's vectors*/
 		Matrix<double> set_ab() const;

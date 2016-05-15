@@ -12,7 +12,7 @@ class SquareJastrow: public Square<double>{
 		void check();
 		void save_param(IOFiles& w) const;
 
-	protected:
+	private:
 		void display_results();
 
 		/*!Set the unit cell's vectors*/

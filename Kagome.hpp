@@ -139,6 +139,7 @@ void Kagome<Type>::draw_lattice(){
 	ps.polygon(uc,"linecolor=black");
 	ps.linked_lines("-",this->draw_boundary(false),"linecolor=yellow");
 
+	Vector<double> shift(2,0.0);
 	unsigned int s0;
 	unsigned int s1;
 	/*draws only the lattice, shows links and bc*/
@@ -177,9 +178,8 @@ void Kagome<Type>::draw_lattice(){
 		}
 	}
 	/*draws long range correlations over the lattice*/
-	if(o(1)){ this->draw_long_range_correlation(ps,this->obs_[o(1)]); }
+	if(o(1)){ this->draw_long_range_correlation(ps,shift,this->obs_[o(1)]); }
 
-	Vector<double> shift(2,0.0);
 	if(o(0) || o(2)){
 		/*unit cell, shows bond energy and color occupation*/
 		double be;
@@ -262,11 +262,11 @@ void Kagome<Type>::draw_lattice(){
 
 			switch(links(i,5)%3){
 				case 0:
-					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,xy0,(xy0(0)+xy1(0))/2.0,xy0(1)+sqrt(3.0)/4.0,2,0,3); } }break;
+					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,(xy0(0)+xy1(0))/2.0,xy0(1)+sqrt(3.0)/4.0,2,0,3); } }break;
 				case 1:
-					{ if(links(i,3)==1){ this->draw_flux_per_plaquette(ps,s0,xy0,xy0(0),(xy0(1)+xy1(1))/2.0,2,1,3); } }break;
+					{ if(links(i,3)==1){ this->draw_flux_per_plaquette(ps,s0,xy0(0),(xy0(1)+xy1(1))/2.0,2,1,3); } }break;
 				case 2:
-					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,xy0,(xy0(0)+xy1(0))/2.0,xy0(1)+1.0,1,0,6); } }break;
+					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,(xy0(0)+xy1(0))/2.0,xy0(1)+1.0,1,0,6); } }break;
 			}
 		}
 	}

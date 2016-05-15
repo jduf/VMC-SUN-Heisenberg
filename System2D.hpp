@@ -67,9 +67,9 @@ class System2D: public GenericSystem<Type>{
 		/*!Returns a matrix containing the vertices of the boundary*/
 		Matrix<double> draw_boundary(bool const& full_boundary) const;
 		/*!Draws the long range correlations contained int O in the PSTricks file*/
-		void draw_long_range_correlation(PSTricks& ps, Observable const& O) const;
+		void draw_long_range_correlation(PSTricks& ps, Vector<double> const& shift, Observable const& O) const;
 		/*!Computes and writes the flux per plaquette in the PSTricks file*/
-		void draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, Vector<double> x, double const& xd, double const& yd, unsigned int const& jj, unsigned int const& jp, unsigned int const& jn) const;
+		void draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, double const& xd, double const& yd, unsigned int const& jj, unsigned int const& jp, unsigned int const& jn) const;
 
 	private:
 		Matrix<double> const ab_;//!< basis vectors of the unit cell  ((a_1,b_1),(a_2,b_2))
@@ -252,14 +252,16 @@ Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 			}
 		}
 	} while(dir.size() && ++j<this->n_+1);
-	//if(j>=this->n_+1){
-	//std::cerr<<"-----"<<std::endl;
-	//std::cerr<<i<<std::endl;
-	//for(unsigned int d(0);d<this->z_;d++){
-	//std::cerr<< nn[d]<<std::endl;
-	//}
-	//std::cerr<<nb<<std::endl;
-	//}
+	/*{*//*to debug if assert fails
+	if(j>=this->n_+1){
+		std::cerr<<"-----"<<std::endl;
+		std::cerr<<i<<std::endl;
+		for(unsigned int d(0);d<this->z_;d++){
+			std::cerr<< nn[d]<<std::endl;
+		}
+		std::cerr<<nb<<std::endl;
+	}*/
+	/*}*/
 	assert(j<this->n_+1);
 	delete[] nn;
 	return nb;
@@ -304,7 +306,7 @@ void System2D<Type>::plot_band_structure(){
 
 		double min_e(e_.min());
 		double max_e(e_.max());
-		IOFiles bs(this->filename_+"-band-structure.dat",true);
+		IOFiles bs(this->filename_+"-band-structure.dat",true,false);
 		for(unsigned int i(0);i<this->n_;i++){
 			a = std::make_shared<Vector<double> >(2+this->spuc_,666);
 			b = NULL;
@@ -325,7 +327,7 @@ void System2D<Type>::plot_band_structure(){
 			l.set_target();
 		}
 
-		IOFiles bsf(this->filename_+"-band-structure-formated.dat",true);
+		IOFiles bsf(this->filename_+"-band-structure-formated.dat",true,false);
 		l.set_target();
 		double x(666);
 		while(l.target_next()){
@@ -383,30 +385,31 @@ Matrix<double> System2D<Type>::draw_boundary(bool const& full_boundary) const {
 }
 
 template<typename Type>
-void System2D<Type>::draw_long_range_correlation(PSTricks& ps, Observable const& O) const {
+void System2D<Type>::draw_long_range_correlation(PSTricks& ps, Vector<double> const& shift, Observable const& O) const {
 	std::string color;
 	double corr;
 	double rescale(std::abs(0.25/O[1].get_x()));
-	ps.cross(x_[0],0.25,"linecolor=black");
-	ps.circle(x_[0],0.25,"linecolor=black");
+	ps.cross(x_[0]+shift,0.25,"linecolor=black");
+	ps.circle(x_[0]+shift,0.25,"linecolor=black");
 	for(unsigned int i(1);i<this->n_;i++){
 		corr = O[i].get_x();
 		if(corr>0){ color = "blue"; }
 		else      { color = "red"; }
 		corr = sqrt(std::abs(corr*rescale));
-		if(corr>1e-4 && std::abs(O[i].get_x())>O[i].get_dx()){ ps.circle(x_[i],corr,"fillstyle=solid,fillcolor="+color+",linecolor="+color); }
-		else{ ps.cross(x_[i],0.1,"linecolor=black"); }
+		if(corr>1e-4 && std::abs(O[i].get_x())>O[i].get_dx()){ ps.circle(x_[i]+shift,corr,"fillstyle=solid,fillcolor="+color+",linecolor="+color); }
+		else{ ps.cross(x_[i]+shift,0.1,"linecolor=black"); }
 	}
 }
 
 template<typename Type>
-void System2D<Type>::draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, Vector<double> x, double const& xd, double const& yd, unsigned int const& jj, unsigned int const& jp, unsigned int const& jn) const {
+void System2D<Type>::draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, double const& xd, double const& yd, unsigned int const& jj, unsigned int const& jp, unsigned int const& jn) const {
 	unsigned int s1;
 	unsigned int j(0);
 	double flux(0.0);
 	double sign;
 	unsigned long long a;
 	unsigned long long b;
+	Vector<double> x(x_[s0]);
 	do {
 		x += dir_nn_[jj*j+jp];
 		s1 = this->site_index(x);
@@ -414,9 +417,11 @@ void System2D<Type>::draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, Vect
 		s0 = s1;
 	} while (++j<jn);
 	flux /= M_PI;
+	if(flux>2.0){ flux -= 2.0; }
+	if(flux<-2.0){ flux += 2.0; }
 	if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-		if(my::to_fraction(flux,a,b,sign) && b!=1){ ps.put(xd,yd,"\\tiny{"+std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"}{"+my::tostring(b)+"}$}"); }
-		else if((unsigned int)(my::chop(flux))%2){  ps.put(xd,yd,"\\tiny{1}"); }
+		if(my::to_fraction(flux,a,b,sign) && b!=1){ ps.put(xd,yd,std::string(sign<0?"-":"")+"$\\frac{"+my::tostring(a)+"\\pi}{"+my::tostring(b)+"}$"); }
+		else if((unsigned int)(my::chop(flux))%2){  ps.put(xd,yd,"$\\pi$"); }
 	}
 }
 /*}*/

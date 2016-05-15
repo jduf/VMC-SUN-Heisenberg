@@ -18,7 +18,7 @@ AnalyseEnergy::~AnalyseEnergy(){
 
 void AnalyseEnergy::open_files(){
 	if(level_>1){
-		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true);
+		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true,false);
 	}
 	switch(level_){
 		case 8:
@@ -34,10 +34,10 @@ void AnalyseEnergy::open_files(){
 		case 5:
 			{ jd_write_->write("number of different boundary condition",nof_); }break;
 		case 3:
-			{ 
-				jd_write_->write("number of different size",nof_); 
+			{
+				jd_write_->write("number of different size",nof_);
 
-				data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true);
+				data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true,false);
 				data_write_->precision(10);
 			}break;
 	}
@@ -63,12 +63,12 @@ std::string AnalyseEnergy::extract_level_8(){ return extract_default(); }
 
 std::string AnalyseEnergy::extract_level_7(){ return extract_best_of_previous_level(); }
 
-std::string AnalyseEnergy::extract_level_6(){ return extract_best_of_previous_level(); } 
+std::string AnalyseEnergy::extract_level_6(){ return extract_best_of_previous_level(); }
 
 std::string AnalyseEnergy::extract_level_5(){ return extract_default(); }
 
 std::string AnalyseEnergy::extract_level_4(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 	/*!must save now nof_ because it doesn't refer to the number of file in
 	 * the next directory but in the next-next directory*/
@@ -92,7 +92,7 @@ std::string AnalyseEnergy::extract_level_4(){
 }
 
 std::string AnalyseEnergy::extract_level_3(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 
 	for(unsigned int i(0);i<nof_;i++){
@@ -114,4 +114,4 @@ std::string AnalyseEnergy::extract_level_3(){
 	return filename_;
 }
 
-std::string AnalyseEnergy::extract_level_2(){ return fit_thermodynamical_limit(); }
+std::string AnalyseEnergy::extract_level_2(){ return fit_therm_limit(); }

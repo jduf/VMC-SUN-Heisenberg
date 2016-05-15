@@ -12,7 +12,7 @@ class KagomePlaquette6A: public Kagome<double>{
 		void save_param(IOFiles& w) const;
 		void check();
 
-	protected:
+	private:
 		double const td_; //!< hopping amplitude
 
 		void compute_H();

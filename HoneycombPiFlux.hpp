@@ -11,7 +11,7 @@ class HoneycombPiFlux: public Honeycomb<double>{
 		void create();
 		void check();
 
-	protected:
+	private:
 		void compute_H();
 		void display_results();
 
