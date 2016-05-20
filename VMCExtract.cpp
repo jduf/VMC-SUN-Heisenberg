@@ -166,7 +166,7 @@ void VMCExtract::print() const {
 	}
 }
 
-List<MCSim>::Node* VMCExtract::select_minima_and_plot(std::string const& path, std::string const& filename, List<MCSim>& kept) const {
+List<MCSim>::Node* VMCExtract::analyse(std::string const& path, std::string const& filename, List<MCSim>& kept_samples) const {
 	List<MCSim>::Node* target(NULL);
 	if(m_->samples_.size()){
 		double E(666);
@@ -252,7 +252,7 @@ List<MCSim>::Node* VMCExtract::select_minima_and_plot(std::string const& path, s
 						data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 1"<<IOFiles::endl;
 					} else {
 						data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 2"<<IOFiles::endl;
-						kept.add_sort(m_->samples_.get_ptr(),MCSim::sort_by_E);
+						kept_samples.add_sort(m_->samples_.get_ptr(),MCSim::sort_by_E);
 						j++;
 					}
 

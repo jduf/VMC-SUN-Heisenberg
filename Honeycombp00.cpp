@@ -100,7 +100,7 @@ void Honeycombp00::save_param(IOFiles& w) const {
 		w.add_header()->title(s,'<');
 		w<<param;
 		w.add_header()->add(system_info_.get());
-	} else { w<<td_; }
+	} else { w<<td_<<" "; }
 }
 
 Matrix<double> Honeycombp00::set_ab() const {

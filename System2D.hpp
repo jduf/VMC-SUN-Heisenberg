@@ -2,7 +2,6 @@
 #define DEF_SYSTEM2D
 
 #include "GenericSystem.hpp"
-#include "List.hpp"
 
 /*{*//*!Abstract class that provides many methods to create 2D clusters
 

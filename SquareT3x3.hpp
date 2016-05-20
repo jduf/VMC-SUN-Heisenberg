@@ -17,6 +17,7 @@ class SquareT3x3: public Square<double>{
 
 		void compute_H();
 		void display_results();
+		void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
 
 		/*!Sets the unit cell's vectors*/
 		Matrix<double> set_ab() const;

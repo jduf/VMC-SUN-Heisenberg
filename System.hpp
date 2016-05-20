@@ -19,6 +19,13 @@
 	   + status_ = 2 : System*D has a good geometry
 	   + status_ = 1 : No degenerate eigenvalues (in System*D) or multiple identical observable set
 	   + status_ = 0 : Found an initial state (in SystemFermionic)
+
+	   The ref_ variable references the wavefunction, cluster shape...:
+	   + ref_(0) : lattice
+	   + ref_(1) : requires complex numbers
+	   + ref_(2) : kind of wavefunction
+	   + ref_(3) : geometry of the cluster
+	   + ref_(4) : needs to recreate the cluster
 	   *//*}*/
 class System{
 	public:

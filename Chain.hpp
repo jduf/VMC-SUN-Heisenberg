@@ -22,7 +22,7 @@
  *     -----------------|---------------
  *
  * For the polymerized case, with N/m=spuc and spuc integer, unit cell contains
- * spuc sites and the brioullin zone is accordingly reduced. spuc!=1 when
+ * spuc sites and the Brioullin zone is accordingly reduced. spuc!=1 when
  * di/tri/...-merization is created by ChainPolymerized with different hopping
  * term every spuc sites (delta!=0). It those cases, the selection of
  * eigenvector is unequivocal and there is no need to worry further. But when

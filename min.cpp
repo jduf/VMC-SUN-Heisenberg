@@ -154,14 +154,14 @@ int main(int argc, char* argv[]){
 								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
 							}
 							VMCExtract m4(in,true);
-							List<MCSim> kept_sample;
-							m4.select_minima_and_plot("./","test-m4",kept_sample);
-							kept_sample.set_target();
+							List<MCSim> kept_samples;
+							m4.analyse("./","test-m4",kept_samples);
+							kept_samples.set_target();
 
 							std::string fname("bla");
 							RSTFile rst("/tmp/",fname);
-							while(kept_sample.target_next()){
-								kept_sample.get().display_results("","","","","/tmp/",&rst);
+							while(kept_samples.target_next()){
+								kept_samples.get().display_results("","","","","/tmp/",&rst);
 							}
 							//rst.text(iof.get_header());
 							rst.save(false,true);

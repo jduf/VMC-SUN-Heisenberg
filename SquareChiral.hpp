@@ -17,6 +17,7 @@ class SquareChiral: public Square<std::complex<double> >{
 
 		void compute_H();
 		void display_results();
+		void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
 
 		/*!Set the unit cell's vectors*/
 		Matrix<double> set_ab(unsigned int const& ref3, unsigned int const& k) const;

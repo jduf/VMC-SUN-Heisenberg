@@ -148,4 +148,10 @@ void SquareT3x3::check(){
 	//compute_H();
 	//plot_band_structure();
 }
+
+void SquareT3x3::param_fit_therm_limit(std::string& f, std::string& param, std::string& range){
+	f="f(x) = a+b*x*x";
+	param = "a,b";
+	range = "[0:0.015]";
+}
 /*}*/

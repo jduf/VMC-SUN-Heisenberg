@@ -9,7 +9,7 @@ AnalyseExtract::AnalyseExtract(std::string const& sim, std::string const& path, 
 
 AnalyseExtract::~AnalyseExtract(){
 	Gnuplot gp(analyse_+path_+dir_,sim_.substr(0,sim_.size()-1));
-	gp.label("x","$\\frac{1}{N}$");
+	gp.label("x","$\\frac{ 1}{N}$");
 	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
 	gp+="plot '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==6?1.0/$1:1/0):3 t '$k=6$',\\";
 	gp+="     '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==3?1.0/$1:1/0):3 t '$k=3$'";
@@ -29,6 +29,8 @@ void AnalyseExtract::open_files(){
 			}break;
 		case 3:
 			{
+				jd_write_->write("number of different size",nof_);
+
 				data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true,false);
 				data_write_->precision(10);
 			}break;
@@ -62,7 +64,7 @@ std::string AnalyseExtract::extract_level_9(){
 	rst.save(false,true);
 
 	VMCExtract min(*read_,true);
-	List<MCSim>::Node* target(min.select_minima_and_plot(analyse_+path_+dir_,filename_,kept_samples_));
+	List<MCSim>::Node* target(min.analyse(analyse_+path_+dir_,filename_,kept_samples_));
 	list_rst_.last().figure(rel_level_+analyse_+path_+dir_+filename_+".png",filename_,RST::target(rel_level_+analyse_+path_+dir_+filename_+".gp")+RST::width("1000"));
 	if(target){ target->get()->save(*jd_write_); }
 
@@ -110,6 +112,14 @@ std::string AnalyseExtract::extract_level_3(){
 	Vector<double> tmp(*read_);
 	System s(*read_);
 	s.save(*data_write_);
+
+	CreateSystem cs(&s);
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
+
+	jd_write_->add_header()->nl();
+	cs.save(*jd_write_);
+
 
 	delete read_;
 	read_ = NULL;

@@ -2,6 +2,7 @@
 #define DEF_IOSYSTEM
 
 #include "RSTFile.hpp"
+#include "List.hpp"
 
 class IOSystem{
 	public:
@@ -14,7 +15,7 @@ class IOSystem{
 		/*}*/
 
 		/*!Set this to the value contained in t*/
-		void set_IOSystem(IOSystem const* const t);
+		void set_IOSystem(IOSystem const* const ios);
 
 		/*!Returns the filename (only usefull for mc via CreateSystem)*/
 		std::string const& get_filename() const { return filename_; }
@@ -44,7 +45,7 @@ class IOSystem{
 		IOFiles* data_write_  = NULL;//!< textfile in which data are written saved in analyse_/path_
 		RSTFile* rst_file_	  = NULL;//!< rst file saved in info_/path_/dir_
 		
-		RST system_info_;//!< store information about the system
+		RST system_info_;//!< information about the wavefunction
 
 		virtual std::string extract_level_1(){ return filename_; }
 		virtual std::string extract_level_2(){ return filename_; }

@@ -6,6 +6,7 @@
 class VMCSystematic : public VMCMinimization{
 	public:
 		VMCSystematic(VMCMinimization const& m);
+		VMCSystematic(IOFiles& in);
 		/*!Default destructor*/
 		virtual ~VMCSystematic() = default;
 		/*{Forbidden*/
@@ -17,7 +18,7 @@ class VMCSystematic : public VMCMinimization{
 
 		void run(bool const& set_obs, double const& dEoE, unsigned int const& maxiter);
 		void plot();
-		void test();
+		void analyse(std::string const& path, std::string const& filename, List<MCSim>& keep) const;
 
 	private:
 		unsigned int maxiter_;

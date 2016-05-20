@@ -24,17 +24,17 @@ IOSystem::IOSystem(std::string const& filename, std::string const& sim, std::str
 	if(analyse_.back()!='/'){ analyse_ += "/"; }
 }
 
-void IOSystem::set_IOSystem(IOSystem const* const t){
-	sim_       = t->sim_;
-	info_      = t->info_;
-	analyse_   = t->analyse_;
-	path_      = t->path_;
-	dir_       = t->dir_;
-	filename_  = t->filename_;
-	read_      = t->read_;
-	jd_write_  = t->jd_write_;
-	data_write_= t->data_write_;
-	rst_file_  = t->rst_file_;
+void IOSystem::set_IOSystem(IOSystem const* const ios){
+	sim_       = ios->sim_;
+	info_      = ios->info_;
+	analyse_   = ios->analyse_;
+	path_      = ios->path_;
+	dir_       = ios->dir_;
+	filename_  = ios->filename_;
+	read_      = ios->read_;
+	jd_write_  = ios->jd_write_;
+	data_write_= ios->data_write_;
+	rst_file_  = ios->rst_file_;
 }
 
 std::string IOSystem::analyse(unsigned int const& level){

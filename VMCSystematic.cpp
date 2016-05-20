@@ -4,6 +4,10 @@ VMCSystematic::VMCSystematic(VMCMinimization const& m):
 	VMCMinimization(m,"SYS")
 {}
 
+VMCSystematic::VMCSystematic(IOFiles& in):
+	VMCMinimization(in,true,"SYS")
+{}
+
 /*{public methods*/
 void VMCSystematic::run(bool const& set_obs, double const& dEoE, unsigned int const& maxiter){
 	if(m_->tmax_){
@@ -63,8 +67,50 @@ void VMCSystematic::plot(){
 			}break;
 	}
 }
+
+void VMCSystematic::analyse(std::string const& path, std::string const& filename, List<MCSim>& keep) const {
+	if(m_->samples_.size()){
+		Vector<unsigned int> ref(m_->s_->get_ref());
+		if(ref(0) == 6 && ref(1) == 1 && (ref(2) == 3 || ref(2) == 4)){
+
+			IOFiles data(path+filename+".dat",true,false);
+
+			List<MCSim>::Node* min_neg(NULL);
+			List<MCSim>::Node* min_pos(NULL);
+			m_->samples_.target_next();
+			while(m_->samples_.target_next()){
+				data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
+
+				if(
+						m_->samples_.prev() &&
+						m_->samples_.next() &&
+						m_->samples_.prev()->get()->get_energy().get_x() > m_->samples_.get().get_energy().get_x() &&
+						m_->samples_.next()->get()->get_energy().get_x() > m_->samples_.get().get_energy().get_x()
+				  )
+				{
+					if(m_->samples_.get().get_param()(0)<0){
+						if(!min_neg || min_neg->get()->get_energy().get_x()>m_->samples_.get().get_energy().get_x())
+						{ min_neg = m_->samples_.get_target(); }
+					}
+					if(m_->samples_.get().get_param()(0)>0){
+						if(!min_pos || min_pos->get()->get_energy().get_x()>m_->samples_.get().get_energy().get_x())
+						{ min_pos = m_->samples_.get_target(); }
+					}
+				}
+			}
+			if(min_neg){ keep.add_end(min_neg->get()); }
+			if(min_pos){ keep.add_end(min_pos->get()); }
+
+			Gnuplot gp(path,filename);
+			gp+="plot '"+filename+".dat' u 1:2:3 w e notitle";
+			gp.save_file();
+			gp.create_image(true,true);
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : undefined analyse for "<<ref<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
+}
 /*}*/
 
+/*{private methods*/
 bool VMCSystematic::go_through_parameter_space(Vector<double>* x, Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, void (VMCSystematic::*f)(Vector<double>*, Vector<unsigned int> const&)){
 	(this->*f)(x,idx);
 
@@ -100,3 +146,4 @@ void VMCSystematic::evaluate(Vector<double>* x, Vector<unsigned int> const& idx)
 	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
 	evaluate_until_precision(param,set_obs_,dEoE_,maxiter_);
 }
+/*}*/

@@ -35,19 +35,14 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		GenericSystem& operator=(GenericSystem<Type> const&) = delete;
 		/*}*/
 
+		/*!Substitute method for wavefunctions without parameters to save*/
 		virtual void save_param(IOFiles& w) const;
+		/*!Creates observable (bond energy, long range correlations,...)*/
+		virtual void create_obs(unsigned int const& which_obs) = 0;
 		virtual void create() = 0;
 		virtual void check() = 0;
 		virtual void display_results() = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
-
-		/*!Extrapolate the energy in the thermodynamical limit*/
-		virtual std::string extract_level_2();
-		/*!Get the parameter for the fit of the thermodynamical limit*/
-		virtual void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
-
-		/*!Creates observable (bond energy, long range correlations,...)*/
-		virtual void create_obs(unsigned int const& which_obs) = 0;
 
 	protected:
 		Matrix<Type> H_;					//!< matrix used to get the band structure
@@ -56,16 +51,16 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		unsigned int const z_;	 			//!< coordination number
 		double const eq_prec_ = 1e-12;		//!< precision for equality (important for matching position in lattice)
 
-		/*{*//*!Returns the neighbours of site i.
-			   This pure virtual method must be defined here because it is
-			   needed by GenericSystem<Type>::set_nn_links() *//*}*/
-		virtual Matrix<int> get_neighbourg(unsigned int const& i) const = 0;
 		/*{*//*!Creates the energy observable.
 			   Computes the array of links between neighbouring sites. The
 			   argument l gives the number of links that need to be computed
 			   for the site i%l.size(). Once this array is computed, it is set
 			   to the energy observable *//*}*/
 		void create_energy_obs(Vector<unsigned int> const& l);
+		/*{*//*!Returns the neighbours of site i.
+			   This pure virtual method must be defined here because it is
+			   needed by GenericSystem<Type>::set_nn_links() *//*}*/
+		virtual Matrix<int> get_neighbourg(unsigned int const& i) const = 0;
 		/*!Returns the index of the site i in the unit cell*/
 		virtual unsigned int site_index_to_unit_cell_index(unsigned int const& i) const = 0;
 
@@ -74,7 +69,13 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*!Evaluates the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
 
+		/*!Extrapolates the energy in the thermodynamical limit*/
+		virtual std::string extract_level_2();
+		/*!Gets the parameter for the fit of the thermodynamical limit*/
+		virtual void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
+
 	private:
+		/*!Method only used in the unique constructor*/
 		std::vector<std::string> generate_names() const;
 
 		/*!Diagonalizes H_*/
@@ -95,12 +96,15 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 	}
 }
 
+/*{public methods*/
 template<typename Type>
 void GenericSystem<Type>::save_param(IOFiles& w) const {
 	w<<Vector<double>();
 	w.add_header()->add(system_info_.get());
 }
+/*}*/
 
+/*{protected methods*/
 template<typename Type>
 void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 	bool conflict(false);
@@ -168,41 +172,9 @@ void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 }
 
 template<typename Type>
-std::vector<std::string> GenericSystem<Type>::generate_names() const {
-	std::vector<std::string> parameter_names;
-	parameter_names.push_back("N" + my::tostring(this->N_));
-	parameter_names.push_back("m" + my::tostring(this->m_));
-	parameter_names.push_back("n" + my::tostring(this->n_));
-	std::string tmp("M");
-	for(unsigned int i(0);i<this->M_.size();i++){ tmp  += "_" + my::tostring(this->M_(i)); }
-	parameter_names.push_back(tmp);
-	switch(this->bc_){
-		case -1:{ parameter_names.push_back("A"); }break;
-		case 0: { parameter_names.push_back("O"); }break;
-		case 1: { parameter_names.push_back("P"); }break;
-	}
-	parameter_names.push_back("Juniform");
-	parameter_names.push_back(my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2)));
-	return parameter_names;
-}
-
-template<typename Type>
 void GenericSystem<Type>::diagonalize(bool simple){
 	if(simple){ if(simple_diagonalization()){ this->status_ = 1; } }
 	else { if(full_diagonalization()){ this->status_ = 1; } }
-}
-
-template<typename Type>
-bool GenericSystem<Type>::simple_diagonalization(){
-	Vector<double> eval;
-	Lapack<Type>(H_,false,(this->ref_(1)==1?'S':'H')).eigensystem(eval,true);
-	for(unsigned int c(0);c<this->N_;c++){
-		if(my::are_equal(eval(this->M_(c)),eval(this->M_(c)-1),1e-12)){
-			std::cerr<<__PRETTY_FUNCTION__<<" : degenerate at the Fermi level"<<std::endl;
-			return false;
-		}
-	}
-	return true;
 }
 
 template<typename Type>
@@ -233,7 +205,7 @@ std::string GenericSystem<Type>::extract_level_2(){
 	gp.label("x","$\\frac{ 1}{n}$");
 	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
 	gp+="plot '"+this->filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) w e notitle,\\";
-	gp+="     " + r + " f(x) t sprintf('%f',b)";
+	gp+="     " + r + " f(x) t sprintf('%f'," + p[0] + ")";
 	gp.save_file();
 	gp.create_image(true,true);
 
@@ -246,4 +218,39 @@ void GenericSystem<Type>::param_fit_therm_limit(std::string& f, std::string& par
 	param = "a,b";
 	range = "";
 }
+/*}*/
+
+/*{private methods*/
+template<typename Type>
+std::vector<std::string> GenericSystem<Type>::generate_names() const {
+	std::vector<std::string> parameter_names;
+	parameter_names.push_back("N" + my::tostring(this->N_));
+	parameter_names.push_back("m" + my::tostring(this->m_));
+	parameter_names.push_back("n" + my::tostring(this->n_));
+	std::string tmp("M");
+	for(unsigned int i(0);i<this->M_.size();i++){ tmp  += "_" + my::tostring(this->M_(i)); }
+	parameter_names.push_back(tmp);
+	switch(this->bc_){
+		case -1:{ parameter_names.push_back("A"); }break;
+		case 0: { parameter_names.push_back("O"); }break;
+		case 1: { parameter_names.push_back("P"); }break;
+	}
+	parameter_names.push_back("Juniform");
+	parameter_names.push_back(my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2)));
+	return parameter_names;
+}
+
+template<typename Type>
+bool GenericSystem<Type>::simple_diagonalization(){
+	Vector<double> eval;
+	Lapack<Type>(H_,false,(this->ref_(1)==1?'S':'H')).eigensystem(eval,true);
+	for(unsigned int c(0);c<this->N_;c++){
+		if(my::are_equal(eval(this->M_(c)),eval(this->M_(c)-1),1e-12)){
+			std::cerr<<__PRETTY_FUNCTION__<<" : degenerate at the Fermi level"<<std::endl;
+			return false;
+		}
+	}
+	return true;
+}
+/*}*/
 #endif

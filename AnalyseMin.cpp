@@ -1,11 +1,9 @@
 #include "AnalyseMin.hpp"
 
 AnalyseMin::AnalyseMin(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
-	Analyse(sim,path,max_level,run_cmd),
-	complete_jobs_(sim_+"to_run.bash",true,false)
+	Analyse(sim,path,max_level,run_cmd)
 {
 	child_in_AnalyseMin_ = true;
-	complete_jobs_<<"#!/bin/bash"<<IOFiles::endl;
 	do_analyse();
 }
 
@@ -55,15 +53,17 @@ void AnalyseMin::close_files(){
 }
 
 std::string AnalyseMin::extract_level_9(){
-	IOFiles in(sim_+path_+dir_+filename_+".jdbin",false,false);
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 
 	RSTFile rst(info_+path_+dir_,filename_);
-	rst.text(in.get_header());
+	rst.text(read_->get_header());
 	rst.save(false,true);
 
-	VMCMinimization min(in,true,"ANA");
+	VMCMinimization min(*read_,true,"ANA");
 	min.find_save_and_plot_minima(10,*jd_write_,analyse_+path_+dir_,filename_);
-	complete_jobs_<<"./min -u:what 6 -s:load "<<in.get_filename().substr(4)<<IOFiles::endl;
+
+	delete read_;
+	read_ = NULL;
 
 	return filename_;
 }
@@ -93,7 +93,7 @@ std::string AnalyseMin::extract_level_8(){
 		if(!i){ cs.save(*jd_write_); }
 	}
 	std::cout<<std::endl;
-	
+
 	filename_ = tmp_filename;
 
 	delete read_;

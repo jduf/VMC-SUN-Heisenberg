@@ -80,7 +80,7 @@ void Honeycomb0pp::save_param(IOFiles& w) const {
 		w.add_header()->title(s,'<');
 		w<<param;
 		w.add_header()->add(system_info_.get());
-	} else { w<<td_<<" "<<fc_<<" "; }
+	} else { w<<td_<<" "; }
 }
 
 Matrix<double> Honeycomb0pp::set_ab() const {
@@ -114,7 +114,7 @@ unsigned int Honeycomb0pp::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void Honeycomb0pp::display_results(){
 	compute_H();
-	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25);
+	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.25+dir_nn_[4]*0.25);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

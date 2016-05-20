@@ -19,6 +19,7 @@ class Honeycomb: public System2D<Type>{
 		void compute_long_range_correlation();
 
 		virtual void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
+		virtual std::string extract_level_2();
 
 	private:
 		double L_;
@@ -263,6 +264,43 @@ void Honeycomb<Type>::param_fit_therm_limit(std::string& f, std::string& param, 
 	f="f(x) = a+b*x*x";
 	param = "a,b";
 	range = "[0:0.025]";
+}
+
+template<typename Type>
+std::string Honeycomb<Type>::extract_level_2(){
+	Gnuplot gp(this->analyse_+this->path_+this->dir_,this->filename_);
+	gp+="f(x) = a+b*x*x";
+	gp+="g(x,a,b) = a+b*x*x";
+	gp+="set fit quiet";
+	gp+="fit [0:0.025] f(x) '"+this->filename_+".dat' u ($1<0 && $12==4 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) yerror via a,b";
+	gp+="a0=a";
+	gp+="b0=b";
+	gp+="fit [0:0.025] f(x) '"+this->filename_+".dat' u ($1>0 && $12==4 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) yerror via a,b";
+	gp+="a1=a";
+	gp+="b1=b";
+	gp+="fit [0:0.025] f(x) '"+this->filename_+".dat' u ($1<0 && $12==3 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) yerror via a,b";
+	gp+="a2=a";
+	gp+="b2=b";
+	gp+="fit [0:0.025] f(x) '"+this->filename_+".dat' u ($1>0 && $12==3 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) yerror via a,b";
+	gp+="a3=a";
+	gp+="b3=b";
+	gp+="set print \'../"+this->sim_.substr(0,this->sim_.size()-1)+".dat\' append";
+	gp+="print " + my::tostring(this->N_) + "," + my::tostring(this->m_) + ",a0,a1,a2,a3";
+	gp.range("x","0","");
+	gp.label("x","$\\frac{ 1}{n}$");
+	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
+	gp+="plot '"+this->filename_+".dat' u ($1<0 && $12==4 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 1 t '$(\\pi,\\pi,\\pi)$',\\";
+	gp+="     '"+this->filename_+".dat' u ($1>0 && $12==4 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 2 t '$(\\pi,0,0)$',\\";
+	gp+="     '"+this->filename_+".dat' u ($1<0 && $12==3 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 3 t '$(0,0,0)$',\\";
+	gp+="     '"+this->filename_+".dat' u ($1>0 && $12==3 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 4 t '$(0,\\pi,\\pi)$',\\";
+	gp+="     [0:0.025] g(x,a0,b0) lc 1 t sprintf('%f',a0),\\";
+	gp+="     [0:0.025] g(x,a1,b1) lc 2 t sprintf('%f',a1),\\";
+	gp+="     [0:0.025] g(x,a2,b2) lc 3 t sprintf('%f',a2),\\";
+	gp+="     [0:0.025] g(x,a3,b3) lc 4 t sprintf('%f',a3)";
+	gp.save_file();
+	gp.create_image(true,true);
+
+	return this->filename_;
 }
 /*}*/
 

@@ -72,8 +72,10 @@ void System::delete_binning(){
 /*write in IOFiles methods and print*/
 /*{*/
 void System::write(IOFiles& w) const {
-	w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<(unsigned int)(obs_.size());
-	for(auto& o:obs_){ w<<o; }
+	if(w.is_binary()){
+		w<<ref_<<N_<<m_<<n_<<bc_<<M_<<J_<<status_<<(unsigned int)(obs_.size());
+		for(auto& o:obs_){ w<<o; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : not adapted to binary file :"<<w.get_filename()<<std::endl; }
 }
 
 void System::save(IOFiles& w) const {

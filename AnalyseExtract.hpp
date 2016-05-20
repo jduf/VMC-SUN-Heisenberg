@@ -8,6 +8,12 @@ class AnalyseExtract : public Analyse{
 	public:
 		AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd, bool const& display_results);
 		~AnalyseExtract();
+		/*{Forbidden*/
+		AnalyseExtract() = delete;
+		AnalyseExtract(AnalyseExtract const&) = delete;
+		AnalyseExtract(AnalyseExtract&&) = delete;
+		AnalyseExtract& operator=(AnalyseExtract) = delete;
+		/*}*/
 
 	protected:
 		bool display_results_;
