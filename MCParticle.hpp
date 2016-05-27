@@ -13,7 +13,7 @@ class MCParticle: public Particle{
 		/*{Forbid copy*/
 		MCParticle(MCParticle const&) = delete;
 		MCParticle(MCParticle&&) = delete;
-		MCParticle& operator=(MCParticle) = delete;
+		MCParticle& operator=(MCParticle const&) = delete;
 		/*}*/
 
 		void set_ps(Vector<double> const* const ps){ ps_ = ps; }

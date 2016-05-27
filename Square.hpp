@@ -190,6 +190,11 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent){
 	/*unit cell, shows hopping amplitude, chemical potential and fluxes*/
 	Type t;
 	double mu;
+	Vector<unsigned int> loop(4);
+	loop(0) = 0;
+	loop(1) = 1;
+	loop(2) = 2;
+	loop(3) = 3;
 	std::string arrow("-");
 	if(only_unit_cell){
 		shift(0) = 2.0*uc(2,0);
@@ -234,7 +239,7 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent){
 				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
 
-			if(!(i%2)){ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+0.5,1,0,4); }
+			if(!(i%2)){ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+0.5,loop); }
 		}
 	}
 	ps.end(silent,true,true);

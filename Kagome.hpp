@@ -219,6 +219,15 @@ void Kagome<Type>::draw_lattice(){
 	/*unit cell, shows hopping amplitude, chemical potential and fluxes*/
 	Type t;
 	double mu;
+	Vector<unsigned int> loop_a(6);
+	Vector<unsigned int> loop_b(3);
+	Vector<unsigned int> loop_c(3);
+	loop_a(0) = 0; loop_b(0) = 1; loop_c(0) = 0;
+	loop_a(1) = 1; loop_b(1) = 3; loop_c(1) = 2;
+	loop_a(2) = 2; loop_b(2) = 5; loop_c(2) = 4;
+	loop_a(3) = 3;
+	loop_a(4) = 4;
+	loop_a(5) = 5;
 	std::string arrow("-");
 	//shift = equivalent_vertex_[0]+equivalent_vertex_[2];
 	for(unsigned int i(0);i<links.row();i++){
@@ -234,8 +243,8 @@ void Kagome<Type>::draw_lattice(){
 			xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
 		} else { linestyle = "solid"; }
 
-		if(!my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
-		{
+		//if(!my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+		//{
 			xy0 += shift;
 			xy1 += shift;
 			t = this->H_(s0,s1);
@@ -262,12 +271,12 @@ void Kagome<Type>::draw_lattice(){
 
 			switch(links(i,5)%3){
 				case 0:
-					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,(xy0(0)+xy1(0))/2.0,xy0(1)+sqrt(3.0)/4.0,2,0,3); } }break;
+					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/4.0,loop_c); } }break;
 				case 1:
-					{ if(links(i,3)==1){ this->draw_flux_per_plaquette(ps,s0,xy0(0),(xy0(1)+xy1(1))/2.0,2,1,3); } }break;
+					{ if(links(i,3)==1){ this->draw_flux_per_plaquette(ps,s0,xy0(0),xy0(1)+sqrt(3.0)/3.0,loop_b); } }break;
 				case 2:
-					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,(xy0(0)+xy1(0))/2.0,xy0(1)+1.0,1,0,6); } }break;
-			}
+					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/2.0,loop_a); } }break;
+			//}
 		}
 	}
 	ps.end(true,true,true);

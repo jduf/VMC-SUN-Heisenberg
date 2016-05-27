@@ -18,7 +18,7 @@ class Triangle: public System2D<Type>{
 	private:
 		double L_;
 
-		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& spuc);
+		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& k, unsigned int const& spuc);
 		bool reset_pos_in_lattice(Vector<double>& x) const;
 		Vector<double> get_relative_neighbourg_position(unsigned int const& i, unsigned int const& d, int& nn_dir) const;
 };
@@ -26,7 +26,7 @@ class Triangle: public System2D<Type>{
 /*{constructor*/
 template<typename Type>
 Triangle<Type>::Triangle(Matrix<double> const& ab, unsigned int const& spuc, std::string const& filename):
-	System2D<Type>(set_geometry((this->ref_(4)?this->n_:0),spuc),ab,spuc,6,6,filename)
+	System2D<Type>(set_geometry((this->ref_(4)?this->n_:0),this->N_/this->m_,spuc),ab,spuc,6,6,filename)
 {}
 
 template<typename Type>
@@ -128,7 +128,7 @@ void Triangle<Type>::draw_lattice(){
 	ps.begin(-20,-20,20,20,this->filename_);
 	ps.polygon(this->cluster_vertex_,"linecolor=green");
 	Matrix<double> uc(this->draw_unit_cell());
-	ps.polygon(uc,"linecolor=black");
+	ps.polygon(uc,"linecolor=yellow");
 	ps.linked_lines("-",this->draw_boundary(false),"linecolor=yellow");
 
 	Vector<double> shift(2,0.0);
@@ -196,6 +196,11 @@ void Triangle<Type>::draw_lattice(){
 	/*unit cell, shows hopping amplitude, chemical potential and fluxes*/
 	Type t;
 	double mu;
+	Vector<unsigned int> loop_a(3);
+	Vector<unsigned int> loop_b(3);
+	loop_a(0) = 0; loop_b(0) = 1;
+	loop_a(1) = 2; loop_b(1) = 3;
+	loop_a(2) = 4; loop_b(2) = 5;
 	std::string arrow("-");
 	shift = this->equivalent_vertex_[0]-this->equivalent_vertex_[2];
 	for(unsigned int i(0);i<links.row();i++){
@@ -209,7 +214,7 @@ void Triangle<Type>::draw_lattice(){
 			xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
 		} else { linestyle = "solid"; }
 
-		if(!my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
+		//if(!my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1)))
 		{
 			xy0 += shift;
 			xy1 += shift;
@@ -235,19 +240,19 @@ void Triangle<Type>::draw_lattice(){
 				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
 
-			//if(!(i%2)){
-				//this->draw_flux_per_plaquette(ps,s0,xy0,xy0(0)+0.5,xy0(1)+0.5,3,0,3);
-			//}
+			switch(i%2){
+				case 0:{ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/5.0,loop_a); }break;
+				case 1:{ this->draw_flux_per_plaquette(ps,s0,xy0(0),    xy0(1)+sqrt(3.0)/4.0,loop_b); }break;
+			}
 		}
 	}
-	std::cerr<<__PRETTY_FUNCTION__<<" : drawing flux undefined"<<std::endl;
 	ps.end(true,true,true);
 }
 /*}*/
 
 /*{private methods*/
 template<typename Type>
-Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n, unsigned int const& spuc){
+Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n, unsigned int const& k, unsigned int const& spuc){
 	if(n){
 		L_ = sqrt(n/3.0);
 		if(my::are_equal(L_,floor(L_))){
@@ -294,9 +299,9 @@ Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n, unsigned int 
 		unsigned int m;
 		for(unsigned int i(2);i<n;i++){
 			m = 3*i*i;
-			if(!(m%spuc) && m<2000){ v.insert(m); }
+			if(!(m%spuc) && !(m%k) && m<2000){ v.insert(m); }
 			m = (3*i)*(3*i);
-			if(!(m%spuc) && m<2000){ v.insert(m); }
+			if(!(m%spuc) && !(m%k) && m<2000){ v.insert(m); }
 		}
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }

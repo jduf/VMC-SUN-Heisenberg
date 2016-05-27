@@ -44,6 +44,8 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void display_results() = 0;
 		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
+		virtual std::string get_mc_run_command() const { return "undefined"; }
+
 	protected:
 		Matrix<Type> H_;					//!< matrix used to get the band structure
 		Matrix<std::complex<double> > evec_;//!< eigenvectors of H+Tx+Ty

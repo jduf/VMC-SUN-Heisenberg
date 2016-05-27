@@ -117,21 +117,13 @@ void SquareT4x2::display_results(){
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
 		std::string title("t=(");
-		std::string run_cmd("./mc -s:wf square-T4x2");
-		run_cmd += " -u:N " + my::tostring(N_);
-		run_cmd += " -u:m " + my::tostring(m_);
-		run_cmd += " -u:n " + my::tostring(n_);
-		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d:t ";
 		for(unsigned int i(0);i<t_.size()-1;i++){
 			title   += my::tostring(t_(i)) + ",";
-			run_cmd += my::tostring(t_(i)) + ",";
 		}
 		title   += my::tostring(t_.back()) + ")";
-		run_cmd += my::tostring(t_.back()) + " -d -u:tmax 10";
 
 		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",run_cmd);
+		rst_file_->change_text_onclick("run command",get_mc_run_command());
 
 		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 	}
@@ -144,6 +136,7 @@ void SquareT4x2::check(){
 	filename_ ="square-T4x2";
 	display_results();
 
+	//compute_H();
 	//plot_band_structure();
 }
 
@@ -151,5 +144,20 @@ void SquareT4x2::param_fit_therm_limit(std::string& f, std::string& param, std::
 	f="f(x) = a+b*x*x";
 	param = "a,b";
 	range = "[0:0.015]";
+}
+
+std::string SquareT4x2::get_mc_run_command() const {
+	std::string run_cmd("./mc -s:wf square-T4x2");
+	run_cmd += " -u:N " + my::tostring(N_);
+	run_cmd += " -u:m " + my::tostring(m_);
+	run_cmd += " -u:n " + my::tostring(n_);
+	run_cmd += " -i:bc "+ my::tostring(bc_);
+	run_cmd += " -d:t ";
+	for(unsigned int i(0);i<t_.size()-1;i++){
+		run_cmd += my::tostring(t_(i)) + ",";
+	}
+	run_cmd += my::tostring(t_.back()) + " -d -u:tmax 10";
+
+	return run_cmd;
 }
 /*}*/

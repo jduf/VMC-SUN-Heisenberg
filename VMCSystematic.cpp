@@ -28,7 +28,7 @@ void VMCSystematic::run(bool const& set_obs, double const& dEoE, unsigned int co
 		Vector<unsigned int> idx(m_->dof_,0);
 		total_eval_ = m_->ps_size_;
 		progress_ = 0;
-		while( go_through_parameter_space(m_->ps_,idx,0,0,&VMCSystematic::evaluate));
+		while(go_through_parameter_space(m_->ps_,idx,0,0,&VMCSystematic::evaluate));
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 

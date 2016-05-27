@@ -59,6 +59,12 @@ class MCSim{
 		Vector<double> const& get_param() const { return param_; }
 		/*!Returns true if MCS_ can be run by MonteCarlo*/
 		bool is_created() const { return (MCS_.get() && !MCS_->get_status()); }
+		/*!Returns true if MCS_ can be run by MonteCarlo*/
+		std::string get_mc_run_command() const {
+			CreateSystem cs(MCS_.get());
+			cs.init(&param_,NULL);
+			return cs.get_mc_run_command();
+		}
 		/*}*/
 
 		/*{Static methods*/

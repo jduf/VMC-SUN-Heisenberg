@@ -175,6 +175,13 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 	ps.polygon(this->draw_unit_cell(uc_shift(0),uc_shift(1)),"linecolor=yellow");
 	//ps.linked_lines("-",this->draw_boundary(true),"linecolor=cyan");
 
+	Vector<unsigned int> loop(6);
+	loop(0) = 0;
+	loop(1) = 1;
+	loop(2) = 2;
+	loop(3) = 3;
+	loop(4) = 4;
+	loop(5) = 5;
 	for(unsigned int i(0);i<links.row();i++){
 		s0 = links(i,0);
 		xy0 = this->x_[s0];
@@ -208,7 +215,7 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 			ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 		}
 
-		if(!(i%3)){ this->draw_flux_per_plaquette(ps,s0,(xy0(0)+xy1(0))/2.0,xy0(1)+0.9,1,0,6); }
+		if(!(i%3)){ this->draw_flux_per_plaquette(ps,s0,(xy0(0)+xy1(0))/2.0,xy0(1)+0.9,loop); }
 	}
 
 	if(only_unit_cell){
