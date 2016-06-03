@@ -150,14 +150,9 @@ void Honeycombp00::display_results(){
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		std::string run_cmd("./mc -s:wf ladder-free");
-		run_cmd += " -u:N " + my::tostring(N_);
-		run_cmd += " -u:m " + my::tostring(m_);
-		run_cmd += " -u:n " + my::tostring(n_);
-		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d:td " + my::tostring(td_);
-		run_cmd += " -d:Jp 1 -u:tmax 10 -d";
-		rst_file_->change_text_onclick("run command",run_cmd);
+		std::string title(RST::math("\\pi 00")+" with "+RST::math("t_d")+"="+my::tostring(td_));
+		rst_file_->title(title,'-');
+		rst_file_->change_text_onclick("run command",get_mc_run_command());
 
 		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 	}
@@ -168,9 +163,21 @@ void Honeycombp00::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="honeycomb-p00";
-	display_results();
+	//display_results();
 
-	//compute_H();
-	//plot_band_structure();
+	compute_H();
+	plot_band_structure();
+}
+
+std::string Honeycombp00::get_mc_run_command() const {
+	std::string run_cmd("./mc -s:wf honeycomb-p00");
+	run_cmd += " -u:N " + my::tostring(N_);
+	run_cmd += " -u:m " + my::tostring(m_);
+	run_cmd += " -u:n " + my::tostring(n_);
+	run_cmd += " -i:bc "+ my::tostring(bc_);
+	run_cmd += " -d:td " + my::tostring(td_);
+	run_cmd += " -d:Jp 1 -u:tmax 10 -d";
+
+	return run_cmd;
 }
 /*}*/

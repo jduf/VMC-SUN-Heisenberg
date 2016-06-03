@@ -1,12 +1,12 @@
-#ifndef DEF_SQUARET2X2
-#define DEF_SQUARET2X2
+#ifndef DEF_TRIANGLET3X2
+#define DEF_TRIANGLET3X2
 
-#include "Square.hpp"
+#include "Triangle.hpp"
 
-class SquareT2x2: public Square<double>{
+class TriangleT3x2: public Triangle<double>{
 	public:
-		SquareT2x2(System const& s, Vector<double> const& t);
-		~SquareT2x2() = default;
+		TriangleT3x2(System const& s, Vector<double> const& t);
+		~TriangleT3x2() = default;
 
 		void create();
 		void save_param(IOFiles& w) const;
@@ -22,7 +22,5 @@ class SquareT2x2: public Square<double>{
 		Matrix<double> set_ab() const;
 		/*!Returns the index of the site at position x in the unit cell*/
 		unsigned int unit_cell_index(Vector<double> const& x) const;
-
-		std::string get_mc_run_command() const;
 };
 #endif

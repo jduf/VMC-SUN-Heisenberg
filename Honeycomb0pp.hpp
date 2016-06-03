@@ -37,5 +37,7 @@ class Honeycomb0pp: public Honeycomb<double>{
 		Matrix<double> set_ab() const;
 		/*!Returns the index of the site at position x in the unit cell*/
 		unsigned int unit_cell_index(Vector<double> const& x) const;
+
+		std::string get_mc_run_command() const;
 };
 #endif

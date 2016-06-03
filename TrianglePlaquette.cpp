@@ -97,7 +97,7 @@ unsigned int TrianglePlaquette::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void TrianglePlaquette::display_results(){
 	compute_H();
-	draw_lattice();
+	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
@@ -127,6 +127,7 @@ void TrianglePlaquette::check(){
 	filename_ ="triangle-plaquette";
 	display_results();
 
+	//compute_H();
 	//plot_band_structure();
 }
 /*}*/

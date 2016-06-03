@@ -146,20 +146,8 @@ void Honeycomb<Type>::compute_long_range_correlation(){
 
 template<typename Type>
 void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, Vector<double> const& uc_shift){
-	Type t;
-	double mu;
-	double be;
-	unsigned int s0;
-	unsigned int s1;
-	Vector<double> shift(this->ref_(3)?this->equivalent_vertex_[1] - this->equivalent_vertex_[0]:this->equivalent_vertex_[1] - this->equivalent_vertex_[0]);
-	Vector<double> xy0(2,0);
-	Vector<double> xy1(2,0);
-	std::string arrow("-");
-	std::string color("black");
-	std::string linestyle("solid");
-	std::string linewidth("1pt");
-	Vector<unsigned int> o(3,0);
 	Matrix<int> links(this->obs_[0].get_links());
+	Vector<unsigned int> o(3,0);
 	for(unsigned int i(1);i<this->obs_.size();i++){
 		switch(this->obs_[i].get_type()){
 			case 1:{ o(0)=i; }break;//bond energy
@@ -168,13 +156,18 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 		}
 	}
 
-
-	PSTricks ps(this->get_info_path(),this->filename_);
-	ps.begin(-20,-20,20,20,this->filename_);
-	ps.polygon(this->cluster_vertex_,"linecolor=green");
-	ps.polygon(this->draw_unit_cell(uc_shift(0),uc_shift(1)),"linecolor=yellow");
-	//ps.linked_lines("-",this->draw_boundary(true),"linecolor=cyan");
-
+	std::string arrow("-");
+	std::string color("black");
+	std::string linestyle("solid");
+	std::string linewidth("1pt");
+	unsigned int s0;
+	unsigned int s1;
+	Vector<double> xy0(2,0);
+	Vector<double> xy1(2,0);
+	Type t;
+	double mu;
+	double bond_energy;
+	Vector<double> shift(2,0.0);
 	Vector<unsigned int> loop(6);
 	loop(0) = 0;
 	loop(1) = 1;
@@ -182,87 +175,151 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 	loop(3) = 3;
 	loop(4) = 4;
 	loop(5) = 5;
-	for(unsigned int i(0);i<links.row();i++){
-		s0 = links(i,0);
-		xy0 = this->x_[s0];
-		s1 = links(i,1);
-		xy1 = this->x_[s1];
-
-		if((xy0-xy1).norm_squared()>1.0001){
-			linestyle = "dashed";
-			xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
-		} else { linestyle = "solid"; }
-
-		t = this->H_(s0,s1);
-		if(std::abs(t)>1e-4){
-			linewidth = my::tostring(std::abs(t))+"mm";
-
-			if(my::real(t)>0){ color = "blue"; }
-			else             { color = "red"; }
-
-			if(my::are_equal(my::imag(t),0)){ arrow = "-"; }
-			else {
-				if(my::imag(-t)>0){ arrow = "->"; }
-				else              { arrow = "<-"; }
-			}
-			ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
-		}
-
-		mu = my::real(this->H_(s0,s0));
-		if(std::abs(mu)>1e-4){
-			if(mu>0){ color = "cyan"; }
-			else    { color = "magenta"; }
-			ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
-		}
-
-		if(!(i%3)){ this->draw_flux_per_plaquette(ps,s0,(xy0(0)+xy1(0))/2.0,xy0(1)+0.9,loop); }
-	}
-
+	PSTricks ps(this->get_info_path(),this->filename_);
+	ps.begin(-20,-20,20,20,this->filename_);
 	if(only_unit_cell){
+		Matrix<double> uc(this->draw_unit_cell());
+		ps.polygon(uc,"linecolor=yellow");
+
+		shift(0) = uc(1,0)-uc(0,0)+1.5;
 		for(unsigned int i(0);i<links.row();i++){
 			s0 = links(i,0);
-			xy0 = this->x_[s0]+shift;
 			s1 = links(i,1);
-			xy1 = this->x_[s1]+shift;
+			xy0 = this->x_[s0];
+			xy1 = this->x_[s1];
 
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
-				xy1 = (xy0+this->dir_nn_[links(i,3)]*1.2).chop();
-				ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(s1)+"}");
 				xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
 			} else { linestyle = "solid"; }
 
-			if(o(0)){
-				be = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_);
-				linewidth = my::tostring(std::abs(be))+"mm";
-				if(std::abs(be)>1e-4){
-					if(be>0){ color = "blue"; }
-					else    { color = "red"; }
-					ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
+				/*Shows hopping amplitude, chemical potential and fluxes*/
+				t = this->H_(s0,s1);
+				if(std::abs(t)>1e-4){
+					linewidth = my::tostring(std::abs(t))+"mm";
+					if(my::real(t)>0){ color = "blue"; }
+					else             { color = "red"; }
+					if(my::are_equal(my::imag(t),0)){ arrow = "-"; }
+					else {
+						if(my::imag(-t)>0){ arrow = "->"; }
+						else              { arrow = "<-"; }
+					}
+					ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
 				}
-			} else {
-				ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth=1pt,linecolor=black,linestyle="+linestyle);
-			}
-			if(!(i%3)){
-				xy0 -=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
-				xy1 -=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
-				ps.put(xy0(0),xy0(1),"\\tiny{"+my::tostring(this->obs_[0](i,0))+"}");
-				xy0 -=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
-				xy1 -=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
-				ps.put(xy0(0),xy0(1),"\\textcolor{green}{\\tiny{"+my::tostring(this->obs_[0](i,5))+"}}");
+				mu = my::real(this->H_(s0,s0));
+				if(std::abs(mu)>1e-4){
+					if(mu>0){ color = "cyan"; }
+					else    { color = "magenta"; }
+					ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+				}
+				if(!(i%3)){ this->draw_flux_per_plaquette(ps,s0,(xy0(0)+xy1(0))/2.0,xy0(1)+0.9,loop); }
 
-				xy0 +=  this->dir_nn_[this->obs_[0](i,3)]*0.6;
-				xy1 +=  this->dir_nn_[this->obs_[0](i,3)]*0.6;
-				ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(this->obs_[0](i,1))+"}");
-				xy0 +=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
-				xy1 +=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
-				ps.put(xy1(0),xy1(1),"\\textcolor{green}{\\tiny{"+my::tostring(this->obs_[0](i,6))+"}}");
+				/*Shows bond energy and color occupation*/
+				xy0 += shift;
+				xy1 += shift;
+				if(o(0)){
+					bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_);
+					linewidth = my::tostring(std::abs(bond_energy))+"mm";
+					if(std::abs(bond_energy)>1e-4){
+						if(bond_energy>0){ color = "blue"; }
+						else             { color = "red"; }
+						ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+					}
+				}
+				if(i%2 && o(2)){
+					Vector<double> p(this->N_);
+					for(unsigned int j(0);j<this->N_;j++){ p(j) = this->obs_[o(2)][j+this->N_*links(i,5)].get_x(); }
+					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
+				}
 			}
 		}
 		/*draws long range correlations over the lattice*/
 		if(o(1)){ this->draw_long_range_correlation(ps,shift,this->obs_[o(1)]); }
-	}
+	} else {
+		ps.polygon(this->cluster_vertex_,"linecolor=green");
+		Matrix<double> uc(this->draw_unit_cell(uc_shift(0),uc_shift(1)));
+		ps.polygon(uc,"linecolor=yellow");
+		ps.linked_lines("-",this->draw_boundary(false),"linecolor=yellow");
+		Vector<double> xy0tmp;
+		Vector<double> xy1tmp;
+		for(unsigned int i(0);i<links.row();i++){
+			s0 = links(i,0);
+			s1 = links(i,1);
+			xy0 = this->x_[s0];
+			xy1 = this->x_[s1];
 
+			if((xy0-xy1).norm_squared()>1.0001){
+				linestyle = "dashed";
+				xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
+			} else { linestyle = "solid"; }
+
+			/*Draws only the lattice, shows links and bc and indices*/
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth=1pt,linecolor=black,linestyle="+linestyle);
+			if(!(i%3)){
+				xy0tmp = xy0;
+				xy1tmp = xy1;
+				xy0tmp -=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
+				xy1tmp -=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
+				ps.put(xy0tmp(0),xy0tmp(1),"\\tiny{"+my::tostring(this->obs_[0](i,0))+"}");
+				xy0tmp -=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
+				xy1tmp -=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
+				ps.put(xy0tmp(0),xy0tmp(1),"\\textcolor{green}{\\tiny{"+my::tostring(this->obs_[0](i,5))+"}}");
+
+				xy0tmp +=  this->dir_nn_[this->obs_[0](i,3)]*0.6;
+				xy1tmp +=  this->dir_nn_[this->obs_[0](i,3)]*0.6;
+				ps.put(xy1tmp(0),xy1tmp(1),"\\tiny{"+my::tostring(this->obs_[0](i,1))+"}");
+				xy0tmp +=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
+				xy1tmp +=  this->dir_nn_[this->obs_[0](i,3)]*0.2;
+				ps.put(xy1tmp(0),xy1tmp(1),"\\textcolor{green}{\\tiny{"+my::tostring(this->obs_[0](i,6))+"}}");
+			}
+
+			/*Bond energy and color occupation*/
+			shift = this->equivalent_vertex_[1]-this->equivalent_vertex_[2];
+			xy0 += shift;
+			xy1 += shift;
+			if(o(0)){
+				bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_);
+				linewidth = my::tostring(std::abs(bond_energy))+"mm";
+				if(std::abs(bond_energy)>1e-4){
+					if(bond_energy>0){ color = "blue"; }
+					else             { color = "red"; }
+					ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+				}
+			}
+			if(i%2 && o(2)){
+				Vector<double> p(this->N_);
+				for(unsigned int j(0);j<this->N_;j++){ p(j) = this->obs_[o(2)][j+this->N_*links(i,5)].get_x(); }
+				ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
+			}
+
+			/*Shows hopping amplitude, chemical potential and fluxes*/
+			shift = this->equivalent_vertex_[0]-this->equivalent_vertex_[1];
+			xy0 += shift;
+			xy1 += shift;
+			t = this->H_(s0,s1);
+			if(std::abs(t)>1e-4){
+				linewidth = my::tostring(std::abs(t))+"mm";
+				if(my::real(t)>0){ color = "blue"; }
+				else             { color = "red"; }
+				if(my::are_equal(my::imag(t),0)){ arrow = "-"; }
+				else {
+					if(my::imag(-t)>0){ arrow = "->"; }
+					else              { arrow = "<-"; }
+				}
+				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+			}
+			mu = my::real(this->H_(s0,s0));
+			if(std::abs(mu)>1e-4){
+				if(mu>0){ color = "cyan"; }
+				else    { color = "magenta"; }
+				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+			}
+			if(!(i%3)){ this->draw_flux_per_plaquette(ps,s0,(xy0(0)+xy1(0))/2.0,xy0(1)+0.9,loop); }
+		}
+		/*draws long range correlations over the lattice*/
+		if(o(1)){ this->draw_long_range_correlation(ps,shift,this->obs_[o(1)]); }
+	}
 	ps.end(silent,true,true);
 }
 
@@ -296,14 +353,14 @@ std::string Honeycomb<Type>::extract_level_2(){
 	gp.range("x","0","");
 	gp.label("x","$\\frac{ 1}{n}$");
 	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
-	gp+="plot '"+this->filename_+".dat' u ($1<0 && $12==4 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 1 t '$(\\pi,\\pi,\\pi)$',\\";
-	gp+="     '"+this->filename_+".dat' u ($1>0 && $12==4 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 2 t '$(\\pi,0,0)$',\\";
-	gp+="     '"+this->filename_+".dat' u ($1<0 && $12==3 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 3 t '$(0,0,0)$',\\";
-	gp+="     '"+this->filename_+".dat' u ($1>0 && $12==3 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 4 t '$(0,\\pi,\\pi)$',\\";
-	gp+="     [0:0.025] g(x,a0,b0) lc 1 t sprintf('%f',a0),\\";
-	gp+="     [0:0.025] g(x,a1,b1) lc 2 t sprintf('%f',a1),\\";
+	gp+="plot '"+this->filename_+".dat' u ($1<0 && $12==4 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 7 t '$\\pi\\pi\\pi$',\\";
+	gp+="     '"+this->filename_+".dat' u ($1>0 && $12==4 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 4 t '$\\pi 00$',\\";
+	gp+="     '"+this->filename_+".dat' u ($1<0 && $12==3 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 3 t '$000$',\\";
+	gp+="     '"+this->filename_+".dat' u ($1>0 && $12==3 ?1.0/$4:1/0):($6/($2*$2)):($7/($2*$2)) w e lc 2 t '$0\\pi\\pi$',\\";
+	gp+="     [0:0.025] g(x,a0,b0) lc 7 t sprintf('%f',a0),\\";
+	gp+="     [0:0.025] g(x,a1,b1) lc 4 t sprintf('%f',a1),\\";
 	gp+="     [0:0.025] g(x,a2,b2) lc 3 t sprintf('%f',a2),\\";
-	gp+="     [0:0.025] g(x,a3,b3) lc 4 t sprintf('%f',a3)";
+	gp+="     [0:0.025] g(x,a3,b3) lc 2 t sprintf('%f',a3)";
 	gp.save_file();
 	gp.create_image(true,true);
 

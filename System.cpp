@@ -197,6 +197,11 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 3;
 	}
+	if( wf == "triangle-T3x2" ){
+		ref(0) = 3;
+		ref(1) = 1;
+		ref(2) = 4;
+	}
 	if( wf == "triangle-chiral" ){
 		ref(0) = 3;
 		ref(1) = 2;

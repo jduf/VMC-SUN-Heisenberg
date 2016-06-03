@@ -162,6 +162,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C){ mu = C->get<double>("mu"); }
 										RGL_ = new TriangleMu(*s_,mu);
 									}break;
+								case 4:
+									{
+										Vector<double> t;
+										if(param){ t = (*param); }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new TriangleT3x2(*s_,t);
+									}break;
 								default:{ error(); }break;
 							}
 						}break;

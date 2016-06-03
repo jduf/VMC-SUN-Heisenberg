@@ -126,24 +126,16 @@ unsigned int HoneycombChiral::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void HoneycombChiral::display_results(){
 	compute_H();
-	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25);
+	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		std::string title(RST::math("\\phi")+"="+my::tostring(phi_));
-		std::string run_cmd("./mc -s:wf honeycomb-chiral");
-		run_cmd += " -u:N " + my::tostring(N_);
-		run_cmd += " -u:m " + my::tostring(m_);
-		run_cmd += " -u:n " + my::tostring(n_);
-		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d:phi "+ my::tostring(phi_);;
-		run_cmd += " -d -u:tmax 10";
-
+		std::string title("Chiral with "+RST::math("\\phi")+"="+my::tostring(phi_));
 		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",run_cmd);
+		rst_file_->change_text_onclick("run command",get_mc_run_command());
 
 		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 	}
@@ -165,4 +157,34 @@ void HoneycombChiral::param_fit_therm_limit(std::string& f, std::string& param, 
 	param = "a,b";
 	range = "[0:0.015]";
 }
+
+std::string HoneycombChiral::get_mc_run_command() const {
+	std::string run_cmd("./mc -s:wf honeycomb-chiral");
+	run_cmd += " -u:N " + my::tostring(N_);
+	run_cmd += " -u:m " + my::tostring(m_);
+	run_cmd += " -u:n " + my::tostring(n_);
+	run_cmd += " -i:bc "+ my::tostring(bc_);
+	run_cmd += " -d:phi "+ my::tostring(phi_);;
+	run_cmd += " -d -u:tmax 10";
+
+	return run_cmd;
+}
 /*}*/
+
+std::string HoneycombChiral::extract_level_2(){
+	Gnuplot gp(analyse_+path_+dir_,filename_);
+	gp+="f(x) = a+b*x*x";
+	gp+="set fit quiet";
+	gp+="fit [0:0.015] f(x) '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) yerror via a,b";
+	gp+="set print \'../"+sim_.substr(0,sim_.size()-1)+".dat\' append";
+	gp+="print " + my::tostring(N_) + "," + my::tostring(m_) + ",a";
+	gp.range("x","0","");
+	gp.label("x","$\\frac{ 1}{n}$");
+	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
+	gp+="plot '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) w e lc 1 t 'chiral',\\";
+	gp+="     [0:0.015] f(x) lc 1 t sprintf('%f',a)";
+	gp.save_file();
+	gp.create_image(true,true);
+
+	return filename_;
+}

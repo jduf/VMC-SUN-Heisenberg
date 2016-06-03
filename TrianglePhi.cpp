@@ -73,7 +73,7 @@ Matrix<double> TrianglePhi::set_ab() const {
 /*{method needed for checking*/
 void TrianglePhi::display_results(){
 	compute_H();
-	draw_lattice();
+	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

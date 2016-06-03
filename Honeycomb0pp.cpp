@@ -114,22 +114,16 @@ unsigned int Honeycomb0pp::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void Honeycomb0pp::display_results(){
 	compute_H();
-	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.25+dir_nn_[4]*0.25);
+	draw_lattice(true,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.25+dir_nn_[4]*0.25);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		std::string run_cmd("./mc -s:wf ladder-free");
-		run_cmd += " -u:N " + my::tostring(N_);
-		run_cmd += " -u:m " + my::tostring(m_);
-		run_cmd += " -u:n " + my::tostring(n_);
-		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d:td " + my::tostring(td_);
-		run_cmd += " -u:fc " + my::tostring(fc_);
-		run_cmd += " -d:Jp 1 -u:tmax 10 -d";
-		rst_file_->change_text_onclick("run command",run_cmd);
+		std::string title(RST::math("0\\pi\\pi")+" with "+RST::math("t_d")+"="+my::tostring(td_));
+		rst_file_->title(title,'-');
+		rst_file_->change_text_onclick("run command",get_mc_run_command());
 
 		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 	}
@@ -140,9 +134,38 @@ void Honeycomb0pp::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="honeycomb-0pp";
-	display_results();
+	//display_results();
 
 	//compute_H();
 	//plot_band_structure();
+	
+	Data<double> b1;
+	b1.merge(obs_[1][0]);
+	b1.merge(obs_[1][4]);
+	b1.merge(obs_[1][8]);
+	b1.complete_analysis(1e-5);
+	Data<double> b2;
+	b2.merge(obs_[1][1]);
+	b2.merge(obs_[1][2]);
+	b2.merge(obs_[1][3]);
+	b2.merge(obs_[1][5]);
+	b2.merge(obs_[1][6]);
+	b2.merge(obs_[1][7]);
+	b2.complete_analysis(1e-5);
+	print(1);
+	std::cerr<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<td_<<" "<<b1<<" "<<b2<<std::endl;
+}
+
+std::string Honeycomb0pp::get_mc_run_command() const {
+	std::string run_cmd("./mc -s:wf honeycomb-0pp");
+	run_cmd += " -u:N " + my::tostring(N_);
+	run_cmd += " -u:m " + my::tostring(m_);
+	run_cmd += " -u:n " + my::tostring(n_);
+	run_cmd += " -i:bc "+ my::tostring(bc_);
+	run_cmd += " -d:td " + my::tostring(td_);
+	run_cmd += " -u:fc " + my::tostring(fc_);
+	run_cmd += " -d:Jp 1 -u:tmax 10 -d";
+
+	return run_cmd;
 }
 /*}*/

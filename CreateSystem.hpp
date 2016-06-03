@@ -14,6 +14,7 @@
 #include "TriangleFree.hpp"
 #include "TrianglePlaquette.hpp"
 #include "TriangleMu.hpp"
+#include "TriangleT3x2.hpp"
 #include "TrianglePhi.hpp"
 #include "TriangleChiral.hpp"
 

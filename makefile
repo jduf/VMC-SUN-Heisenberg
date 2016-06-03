@@ -4,7 +4,7 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	EXEC = check
 	EXEC+= mc
 	EXEC+= min
-	EXEC+= mcbi
+	#EXEC+= mcbi
 	POSTPROCESS = cp $(EXEC) ../sim;
 	EXEC+= study
 	POSTPROCESS+= cp ../sim/study  ../
@@ -34,7 +34,7 @@ endif
 CHAIN     = ChainFermi.cpp ChainPolymerized.cpp ChainFree.cpp ChainSAS.cpp
 LADDER    = LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp
 SQUARE    = SquareFermi.cpp SquareFree.cpp SquareMu.cpp SquareDimerizedBar.cpp SquareT2x2.cpp SquareT3x2.cpp SquareT3x3.cpp SquareT4x2.cpp SquareT4x3.cpp SquareT4x4.cpp SquareBox6.cpp SquareFreeFlux.cpp SquarePiFlux.cpp SquareChiral.cpp SquareJastrow.cpp
-TRIANGLE  = TriangleFermi.cpp TriangleFree.cpp TrianglePlaquette.cpp TriangleMu.cpp TrianglePhi.cpp TriangleChiral.cpp
+TRIANGLE  = TriangleFermi.cpp TriangleFree.cpp TrianglePlaquette.cpp TriangleMu.cpp TriangleT3x2.cpp TrianglePhi.cpp TriangleChiral.cpp
 HONEYCOMB = HoneycombFermi.cpp HoneycombFree.cpp Honeycombp00.cpp Honeycomb0pp.cpp HoneycombPiFlux.cpp HoneycombChiral.cpp
 KAGOME    = KagomeFermi.cpp KagomeFree.cpp KagomePlaquette3A.cpp KagomePlaquette3B.cpp KagomePlaquette6A.cpp  KagomePlaquette6B.cpp KagomeChiral.cpp KagomeChiralB.cpp KagomeVBC.cpp KagomePiHalfTriangle.cpp
 

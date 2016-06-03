@@ -137,5 +137,8 @@ void HoneycombFree::check(){
 	dir_  = "./";
 	filename_ ="honeycomb-free";
 	display_results();
+
+	//compute_H();
+	//plot_band_structure();
 }
 /*}*/

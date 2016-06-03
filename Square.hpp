@@ -229,7 +229,7 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent){
 					if(my::imag(-t)>0){ arrow = "->"; }
 					else              { arrow = "<-"; }
 				}
-				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
+				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
 			}
 
 			mu = my::real(this->H_(s0,s0));

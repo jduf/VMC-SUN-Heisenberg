@@ -114,7 +114,6 @@ void SquareT3x2::display_results(){
 			title   += my::tostring(t_(i)) + ",";
 		}
 		title   += my::tostring(t_.back()) + ")";
-
 		rst_file_->title(title,'-');
 		rst_file_->change_text_onclick("run command",get_mc_run_command());
 

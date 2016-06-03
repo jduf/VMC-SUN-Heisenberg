@@ -12,7 +12,7 @@ SquareChiral::SquareChiral(System const& s, double const& phi):
 
 			system_info_.text("SquareChiral :");
 			system_info_.item("Each color has the same Hamiltonian.");
-			system_info_.item("Flux of "+RST::math(my::tostring(2.0*phi_)+"\\times\\pi/"+my::tostring(N_/m_))+ " per plaquette.");
+			system_info_.item("Flux of "+RST::math(my::tostring(2.0*phi_)+"\\pi/"+my::tostring(N_/m_))+ " per square plaquette.");
 
 			filename_ += "-phi"+my::tostring(phi_);
 		}
@@ -250,16 +250,8 @@ void SquareChiral::display_results(){
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
 		std::string title(RST::math("\\phi")+"="+my::tostring(phi_));
-		std::string run_cmd("./mc -s:wf square-chiral");
-		run_cmd += " -u:N " + my::tostring(N_);
-		run_cmd += " -u:m " + my::tostring(m_);
-		run_cmd += " -u:n " + my::tostring(n_);
-		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d:phi "+ my::tostring(phi_);;
-		run_cmd += " -d -u:tmax 10";
-
 		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",run_cmd);
+		rst_file_->change_text_onclick("run command",get_mc_run_command());
 
 		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 	}
@@ -280,5 +272,17 @@ void SquareChiral::param_fit_therm_limit(std::string& f, std::string& param, std
 	f="f(x) = a+b*x*x";
 	param = "a,b";
 	range = "[0:0.015]";
+}
+
+std::string SquareChiral::get_mc_run_command() const {
+	std::string run_cmd("./mc -s:wf square-chiral");
+	run_cmd += " -u:N " + my::tostring(N_);
+	run_cmd += " -u:m " + my::tostring(m_);
+	run_cmd += " -u:n " + my::tostring(n_);
+	run_cmd += " -i:bc "+ my::tostring(bc_);
+	run_cmd += " -d:phi "+ my::tostring(phi_);;
+	run_cmd += " -d -u:tmax 10";
+
+	return run_cmd;
 }
 /*}*/
