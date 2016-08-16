@@ -74,34 +74,31 @@ void SquareFreeFlux::save_param(IOFiles& w) const {
 
 Matrix<double> SquareFreeFlux::set_ab() const {
 	Matrix<double> tmp(2,2);
-	tmp(0,0) = 2;
-	tmp(1,0) = 0;
-	tmp(0,1) = 0;
-	tmp(1,1) = 2;
+	tmp(0,0) = 2.0;
+	tmp(1,0) = 0.0;
+	tmp(0,1) = 0.0;
+	tmp(1,1) = 2.0;
 	return tmp;
 }
 
 unsigned int SquareFreeFlux::unit_cell_index(Vector<double> const& x) const {
-	Vector<double> match(2,0);
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-	match(0) = 0.5;
-	match(1) = 0;
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-	match(0) = 0;
-	match(1) = 0.5;
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-	match(0) = 0.5;
-	match(1) = 0.5;
-	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+	if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ 
+		if(my::are_equal(x(0),0.0,eq_prec_,eq_prec_)){ return 0; }
+		if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){ return 1; }
+	}
+	if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ 
+		if(my::are_equal(x(0),0.0,eq_prec_,eq_prec_)){ return 2; }
+		if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_)){ return 3; }
+	}
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return 4;
+	return spuc_;
 }
 /*}*/
 
 /*{method needed for checking*/
 void SquareFreeFlux::display_results(){
 	compute_H();
-	draw_lattice(true,true);
+	draw_lattice(true,true,(dir_nn_[2]+dir_nn_[3])*0.5);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

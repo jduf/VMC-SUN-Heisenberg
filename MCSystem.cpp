@@ -197,7 +197,6 @@ void MCSystem::measure_new_step(){
 								o.add(o(i,s_(i,p)),1.0);
 							}
 						}
-						std::cerr<<__PRETTY_FUNCTION__<<" : need to check"<<std::endl;
 					}
 				}break;
 		}

@@ -202,6 +202,11 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 4;
 	}
+	if( wf == "triangle-alternatingplaquette" ){
+		ref(0) = 3;
+		ref(1) = 1;
+		ref(2) = 5;
+	}
 	if( wf == "triangle-chiral" ){
 		ref(0) = 3;
 		ref(1) = 2;
@@ -263,6 +268,16 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 9;
 	}
+	if( wf == "square-ladder" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 10;
+	}
+	if( wf == "square-VCS" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 11;
+	}
 	if( wf == "square-freeflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
@@ -278,14 +293,14 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 2;
 		ref(2) = 3;
 	}
-	if( wf == "square-jastrow" ){
-		ref(0) = 4;
-		ref(1) = 0;
-	}
 	if( wf == "square-box6" ){
 		ref(0) = 4;
 		ref(1) = 2;
 		ref(2) = 4;
+	}
+	if( wf == "square-jastrow" ){
+		ref(0) = 4;
+		ref(1) = 0;
 	}
 
 	if( wf == "kagome-fermi" ){

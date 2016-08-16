@@ -101,8 +101,11 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 /*{public methods*/
 template<typename Type>
 void GenericSystem<Type>::save_param(IOFiles& w) const {
-	w<<Vector<double>();
-	w.add_header()->add(system_info_.get());
+	if(w.is_binary()){
+		w<<Vector<double>();
+		w.add_header()->title("No parameter",'<');
+		w.add_header()->add(system_info_.get());
+	}
 }
 /*}*/
 

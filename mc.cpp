@@ -77,10 +77,8 @@ int main(int argc, char* argv[]){
 				if(iof){ delete iof; }
 				iof = new IOFiles(cs->get_path() + fname +".jdbin",true,false);
 				cs->save(*iof);
-
-			} else { cs->check(); }
+			} else {/* cs->check();*/ }
 			cs->print(1);
-
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::create(&p,NULL) failed "<<std::endl; }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : CreateSystem::init(&p,NULL) failed (status="<<cs->get_status()<<")"<<std::endl; }
 	if(cs->get_status()!=1){

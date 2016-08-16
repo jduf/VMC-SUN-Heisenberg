@@ -19,9 +19,9 @@ IOSystem::IOSystem(std::string const& filename, std::string const& sim, std::str
 	filename_(filename),
 	rst_file_(rst_file)
 {
-	if(sim_.back()!='/'){ sim_ += "/"; }
-	if(info_.back()!='/'){ info_ += "/"; }
-	if(analyse_.back()!='/'){ analyse_ += "/"; }
+	my::ensure_trailing_slash(sim_);
+	my::ensure_trailing_slash(info_);
+	my::ensure_trailing_slash(analyse_);
 }
 
 void IOSystem::set_IOSystem(IOSystem const* const ios){

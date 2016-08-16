@@ -6,7 +6,7 @@
 
 class AnalyseExtract : public Analyse{
 	public:
-		AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd, bool const& display_results);
+		AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd, unsigned int const& display_results);
 		~AnalyseExtract();
 		/*{Forbidden*/
 		AnalyseExtract() = delete;
@@ -16,7 +16,7 @@ class AnalyseExtract : public Analyse{
 		/*}*/
 
 	protected:
-		bool display_results_;
+		unsigned int const display_results_;
 		List<MCSim> kept_samples_;
 
 		void open_files();

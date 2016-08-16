@@ -88,7 +88,9 @@ class VMCMinimization{
 
 		std::string const& get_path() const { return path_; }
 		std::string get_filename() const { return time_+"_"+prefix_+basename_; }
+
 		void set_time() const { time_ = Time().date("-"); }
+		std::string const& get_time() const { return time_; }
 
 		/*!Real call to the MonteCarlo evaluation via MCSim*/
 		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, Vector<unsigned int> const& which_obs);

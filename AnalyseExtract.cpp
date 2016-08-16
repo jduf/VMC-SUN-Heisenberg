@@ -1,9 +1,10 @@
 #include "AnalyseExtract.hpp"
 
-AnalyseExtract::AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd, bool const& display_results):
+AnalyseExtract::AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd, unsigned int const& display_results):
 	Analyse(sim,path,max_level,run_cmd),
 	display_results_(display_results)
 {
+	if(display_results_){ std::cout<<"will call display_results() for "<<display_results_<<" samples"<<std::endl; }
 	do_analyse();
 }
 
@@ -63,8 +64,9 @@ std::string AnalyseExtract::extract_level_9(){
 	rst.text(read_->get_header());
 	rst.save(false,true);
 
-	VMCExtract min(*read_,true);
+	VMCExtract min(*read_,1e3,1e4);
 	List<MCSim>::Node* target(min.analyse(analyse_+path_+dir_,filename_,kept_samples_));
+	if(!kept_samples_.size()){ std::cerr<<__PRETTY_FUNCTION__<<" : need to have at least one sample in 'kept_samples_'"<<std::endl; }
 	list_rst_.last().figure(rel_level_+analyse_+path_+dir_+filename_+".png",filename_,RST::target(rel_level_+analyse_+path_+dir_+filename_+".gp")+RST::width("1000"));
 	if(target){ target->get()->save(*jd_write_); }
 
@@ -79,12 +81,10 @@ std::string AnalyseExtract::extract_level_8(){ return extract_best_of_previous_l
 std::string AnalyseExtract::extract_level_7(){ return extract_default(); }
 
 std::string AnalyseExtract::extract_level_6(){
-	if(display_results_){
-		kept_samples_.set_target();
-		unsigned int i(100);
-		while(kept_samples_.target_next() && i--){
-			kept_samples_.get().display_results(sim_,info_,analyse_,path_,dir_,&list_rst_.last());
-		}
+	kept_samples_.set_target();
+	unsigned int i(0);
+	while(kept_samples_.target_next() && i++<display_results_){
+		kept_samples_.get().display_results(my::tostring(i)+"-",sim_,info_,analyse_,path_,dir_,&list_rst_.last());
 	}
 
 	return filename_;
@@ -119,7 +119,6 @@ std::string AnalyseExtract::extract_level_3(){
 
 	jd_write_->add_header()->nl();
 	cs.save(*jd_write_);
-
 
 	delete read_;
 	read_ = NULL;

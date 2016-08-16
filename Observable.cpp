@@ -106,6 +106,7 @@ void Observable::add_sample(){
 }
 
 void Observable::merge(Observable& obs){
+	/*see Observable::combine_measurement for explanation on the 1234 value*/
 	if(type_ == (obs.type_)%1234 && nval_ == obs.nval_){
 		for(unsigned int i(0);i<nval_;i++){ val_[i].merge(obs.val_[i]); }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : inconsistent size "<<nval_<<"!="<<obs.nval_<<" for "<<name_<<" and "<<obs.name_<<std::endl; }

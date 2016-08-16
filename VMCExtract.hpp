@@ -5,7 +5,7 @@
 
 class VMCExtract : public VMCMinimization{
 	public:
-		VMCExtract(IOFiles& in, bool const& sort);
+		VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int const& max_sort);
 		/*!Default destructor*/
 		virtual ~VMCExtract() = default;
 		/*{Forbidden*/
@@ -16,7 +16,7 @@ class VMCExtract : public VMCMinimization{
 		/*}*/
 
 		void refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& t, unsigned int maxiter = 0);
-		void save(std::string const& filename) const;
+		void save(std::string dirname) const;
 		void print() const;
 		List<MCSim>::Node* analyse(std::string const& path, std::string const& filename, List<MCSim>& kept_samples) const;
 
@@ -29,9 +29,7 @@ class VMCExtract : public VMCMinimization{
 						E_.complete_analysis(1e-5);
 						E_.delete_binning();
 					}
-				DiscardedSim(IOFiles& in):
-					param_(in),
-					E_(in){};
+				DiscardedSim(IOFiles& in): param_(in), E_(in){}
 
 				void write(IOFiles& w) const { w<<param_<<E_; }
 				static unsigned int sort(DiscardedSim const& list, DiscardedSim const& new_elem);

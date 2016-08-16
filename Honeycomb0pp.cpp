@@ -134,10 +134,11 @@ void Honeycomb0pp::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="honeycomb-0pp";
-	//display_results();
+	display_results();
 
 	//compute_H();
 	//plot_band_structure();
+	
 	
 	Data<double> b1;
 	b1.merge(obs_[1][0]);
@@ -152,8 +153,8 @@ void Honeycomb0pp::check(){
 	b2.merge(obs_[1][6]);
 	b2.merge(obs_[1][7]);
 	b2.complete_analysis(1e-5);
-	print(1);
-	std::cerr<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<td_<<" "<<b1<<" "<<b2<<std::endl;
+
+	std::cerr<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<td_<<" "<<obs_[0][0]<<" "<<b1<<" "<<b2<<" "<<ref_<<std::endl;
 }
 
 std::string Honeycomb0pp::get_mc_run_command() const {

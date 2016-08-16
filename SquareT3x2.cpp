@@ -102,7 +102,7 @@ unsigned int SquareT3x2::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void SquareT3x2::display_results(){
 	compute_H();
-	draw_lattice(true,true);
+	draw_lattice(true,true,(dir_nn_[2]+dir_nn_[3])*0.5);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
@@ -151,5 +151,32 @@ std::string SquareT3x2::get_mc_run_command() const {
 	run_cmd += my::tostring(t_.back()) + " -d -u:tmax 10";
 
 	return run_cmd;
+}
+
+std::string SquareT3x2::extract_level_2(){
+	Gnuplot gp(analyse_+path_+dir_,filename_);
+	gp+="f(x) = a+b*x*x";
+	gp+="g(x,a,b) = a+b*x*x";
+	gp+="set fit quiet";
+	gp+="fit f(x) '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) every 2::1 yerror via a,b";
+	gp+="a0=a";
+	gp+="b0=b";
+	gp+="fit f(x) '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) every 2::2 yerror via a,b";
+	gp+="a1=a";
+	gp+="b1=b";
+	gp+="set print \'../"+sim_.substr(0,sim_.size()-1)+".dat\' append";
+	gp+="print " + my::tostring(N_) + "," + my::tostring(m_) + ",a0,a1,(a0+a1)/2.0,mymin(a0,a1)";
+	gp.range("x","0","");
+	gp.label("x","$\\frac{ 1}{n}$");
+	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
+	gp+="plot '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) w e lc 1 notitle,\\";
+	gp+="     '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) every 2::1 w e lc 2 notitle,\\";
+	gp+="     '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) every 2::2 w e lc 3 notitle,\\";
+	gp+="     [0:0.015] g(x,a0,b0) lc 2 t sprintf('$a_0=%f$',a0),\\";
+	gp+="     [0:0.015] g(x,a1,b1) lc 3 t sprintf('$a_1=%f$',a1)";
+	gp.save_file();
+	gp.create_image(true,true);
+
+	return filename_;
 }
 /*}*/

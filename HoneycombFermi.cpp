@@ -52,7 +52,7 @@ unsigned int HoneycombFermi::unit_cell_index(Vector<double> const& x) const {
 	match(1) = 1.0/3.0;
 	if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return 2;
+	return spuc_;
 }
 /*}*/
 
@@ -67,7 +67,7 @@ void HoneycombFermi::display_results(){
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
 		std::string title("Fermi");
-		std::string run_cmd("./mc -s:wf ladder-fermi");
+		std::string run_cmd("./mc -s:wf honeycomb-fermi");
 		run_cmd += " -u:N " + my::tostring(N_);
 		run_cmd += " -u:m " + my::tostring(m_);
 		run_cmd += " -u:n " + my::tostring(n_);

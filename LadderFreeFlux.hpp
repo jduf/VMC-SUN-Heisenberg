@@ -18,7 +18,6 @@ class LadderFreeFlux: public Ladder<std::complex<double> >{
 		void create();
 		void save_param(IOFiles& w) const;
 		void check();
-		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const;
 
 	private:
 		Vector<double> t_;
@@ -28,8 +27,6 @@ class LadderFreeFlux: public Ladder<std::complex<double> >{
 		unsigned int set_spuc(Vector<double> const& t, Vector<double> const& flux);
 
 		void display_results();
-		void plot(bool const& create_image);
-		void lattice();
 
 		std::string extract_level_6();
 };

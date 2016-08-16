@@ -57,9 +57,7 @@ void VMCMinimization::refine(){
 				E = m_->samples_.get().get_energy().get_x();
 			}
 		}
-		std::cout<<E<<std::endl;
 		E -= 10*dEoE*E;
-		std::cout<<E<<std::endl;
 		refine(E,dEoE);
 		dEoE /= 1.5;
 		m_->tmax_ *= 2;
@@ -217,7 +215,16 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, Vector<uns
 		unsigned int maxiter(1);
 		total_eval_ = potential_minima.size();
 		std::cout<<RST::hashtag_line_<<std::endl;
-		std::string msg("compute observables "+my::tostring(which_obs)+" for "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
+
+		std::string msg("compute the energy ");
+		if(which_obs.size()){
+			msg += "and observables ";
+			for(unsigned int i(0);i<which_obs.size()-1;i++){
+				msg += my::tostring(which_obs(i))+"," ;
+			}
+			msg += my::tostring(which_obs.back())+" ";
+		} 
+		msg += "for each "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
@@ -331,10 +338,15 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, Vector<u
 		unsigned int maxiter(10);
 		total_eval_ = param.size();
 		std::cout<<RST::hashtag_line_<<std::endl;
-		std::string msg("measures "+my::tostring(total_eval_)+" samples close to potential minimas (max time "+my::tostring(m_->tmax_*maxiter*total_eval_)+"s)");
-		std::cout<<"#"<<msg<<std::endl;
-		m_->info_.item(msg);
-		msg = "compute observables "+my::tostring(which_obs)+" for each samples";
+		std::string msg("compute the energy ");
+		if(which_obs.size()){
+			msg += "and observables ";
+			for(unsigned int i(0);i<which_obs.size()-1;i++){
+				msg += my::tostring(which_obs(i))+",";
+			}
+			msg += my::tostring(which_obs.back())+" ";
+		} 
+		msg += "for each "+my::tostring(total_eval_)+" samples close to potential minimas (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
@@ -492,7 +504,7 @@ void VMCMinimization::evaluate_until_precision(Vector<double> const& param, Vect
 	if(sim.get()){
 		sim->complete_analysis(1e-5);
 		sim->print(0);
-	} else { std::cerr<<__PRETTY_FUNCTION__<<std::cout<<" : failed"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : failed"<<std::endl; }
 }
 
 void VMCMinimization::save(IOFiles& out) const {
@@ -698,7 +710,7 @@ void VMCMinimization::Minimization::save(IOFiles& out, bool const& all) const {
 	out.add_header()->text(cs.get_system_info().get());
 	out.add_header()->np();
 
-	if(all){
+	if(all && samples_.size()){
 		double E(0);
 		List<MCSim>::Node* best(NULL);
 		samples_.set_target();

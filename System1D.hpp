@@ -95,7 +95,7 @@ bool System1D<Type>::full_diagonalization(){
 		for(unsigned int j(i+1);j<this->n_;j++){
 			if(my::are_equal(eval(i),eval(j),this->eq_prec_,this->eq_prec_)){
 				std::cerr<<__PRETTY_FUNCTION__<<" : eigenvalue "<<i<<" and "<<j<<" degenerate"<<std::endl;
-				return false;
+				//return false;
 			}
 		}
 	}

@@ -98,7 +98,7 @@ unsigned int SquareT2x2::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void SquareT2x2::display_results(){
 	compute_H();
-	draw_lattice(true,true);
+	draw_lattice(true,true,(dir_nn_[2]+dir_nn_[3])*0.5);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

@@ -11,15 +11,8 @@ ChainPolymerized::ChainPolymerized(System const& s, Vector<double> const& t):
 		for(unsigned int i(0);i<t_.size();i++){ filename_ += ((t_(i)>0)?"+":"")+my::tostring(t_(i)); }
 		system_info_.text("ChainPolymerized :");
 		system_info_.item("Each color has the same Hamiltonian.");
-		if(spuc_ != 1){
-			system_info_.item("Different real hopping terms : ");
-			if(spuc_ != 4){
-				std::string tmp("");
-				for(unsigned int i(0);i<spuc_-1;i++){ tmp += "=\\bullet"; }
-				system_info_.text(" "+RST::math("t_i : "+tmp+"-"));
-			} else { system_info_.text(" "+RST::math("t_i : \\equiv\\bullet=\\bullet\\equiv\\bullet-")); }
-			system_info_.nl();
-		} else { system_info_.item("Uniform real hopping"); }
+		if(spuc_ != 1){ system_info_.item("Different real hopping terms : "); }
+		else { system_info_.item("Uniform real hopping"); }
 	}
 }
 
@@ -138,7 +131,7 @@ void ChainPolymerized::display_results(){
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(relative_path+filename_+".pdf")+RST::scale("200"));
+		rst_file_->figure(relative_path+filename_+"-corr.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(relative_path+filename_+"-corr.gp")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
 		rst_file_->figure(relative_path+filename_+"-sf.png","structure factor",RST::target(relative_path+filename_+"-sf.gp")+RST::scale("200"));
 	}

@@ -19,7 +19,7 @@ class SquareMu: public Square<double>{
 		void display_results();
 
 		/*!Set the unit cell's vectors*/
-		Matrix<double> set_ab(unsigned int const& ref3) const;
+		Matrix<double> set_ab(unsigned int const& ref3, unsigned int const& k) const;
 		/*!Returns the index of the site at position x in the unit cell*/
 		unsigned int unit_cell_index(Vector<double> const& x) const;
 };

@@ -80,7 +80,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 						{
 							switch(ref_(2)){
 								case 0:
-									{ RGL_ = new LadderFermi<double>(*s_); }break;
+									{ RGL_ = new LadderFermi(*s_); }break;
 								case 1:
 									{
 										Vector<double> t;
@@ -103,8 +103,6 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					case 2:
 						{
 							switch(ref_(2)){
-								case 0:
-									{ CGL_ = new LadderFermi<std::complex<double> >(*s_); }break;
 								case 1:
 									{
 										Vector<double> t;
@@ -168,6 +166,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(param){ t = (*param); }
 										if(C){ t = C->get<std::vector<double> >("t"); }
 										RGL_ = new TriangleT3x2(*s_,t);
+									}break;
+								case 5:
+									{
+										double t;
+										if(param){ t = (*param)(0); }
+										if(C){ t = C->get<double>("t"); }
+										RGL_ = new TriangleAlternatingPlaquette(*s_,t);
 									}break;
 								default:{ error(); }break;
 							}
@@ -286,6 +291,20 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(param){ t = *param; }
 										if(C){ t = C->get<std::vector<double> >("t"); }
 										RGL_ = new SquareT4x4(*s_,t);
+									}break;
+								case 10:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new SquareLadder(*s_,t);
+									}break;
+								case 11:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new SquareVCS(*s_,t);
 									}break;
 								default:{ error(); }break;
 							}
@@ -503,7 +522,7 @@ void CreateSystem::create(bool const& try_solve_degeneracy){
 	} else {
 		if(CGL_){ CGL_->create(); }
 		if(CGL_ && get_status()!=1){
-			std::cerr<<__PRETTY_FUNCTION__<<" : behaviour undefined"<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : don't know what to do for the degeneracy at the Fermi level"<<std::endl;
 		}
 	}
 }

@@ -36,23 +36,23 @@ void SquareDimerizedBar::compute_H(unsigned int const& c){
 			switch(obs_[0](i,5)){
 				case 0: { t = obs_[0](i,3)?1:0; s =-(obs_[0](i,4)?bc_:1); }break;
 				case 1: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break;
-				case 2: { t = obs_[0](i,3)?3:4; s =-(obs_[0](i,4)?bc_:1); }break;
-				case 3: { t = obs_[0](i,3)?1:2; s = (obs_[0](i,4)?bc_:1); }break;
+				case 2: { t = obs_[0](i,3)?1:4; s =-(obs_[0](i,4)?bc_:1); }break;
+				case 3: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break;
 				case 4: { t = obs_[0](i,3)?5:4; s = (obs_[0](i,4)?bc_:1); }break;
 				case 5: { t = obs_[0](i,3)?6:7; s = (obs_[0](i,4)?bc_:1); }break;
-				case 6: { t = obs_[0](i,3)?6:0; s = (obs_[0](i,4)?bc_:1); }break;
-				case 7: { t = obs_[0](i,3)?5:7; s = (obs_[0](i,4)?bc_:1); }break;
+				case 6: { t = obs_[0](i,3)?5:0; s = (obs_[0](i,4)?bc_:1); }break;
+				case 7: { t = obs_[0](i,3)?6:7; s = (obs_[0](i,4)?bc_:1); }break;
 			}
 		} else {
 			switch(obs_[0](i,5)){
 				case 0: { t = obs_[0](i,3)?1:4; s =-(obs_[0](i,4)?bc_:1); }break;
 				case 1: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break;
-				case 2: { t = obs_[0](i,3)?3:0; s =-(obs_[0](i,4)?bc_:1); }break;
-				case 3: { t = obs_[0](i,3)?1:2; s = (obs_[0](i,4)?bc_:1); }break;
+				case 2: { t = obs_[0](i,3)?1:0; s =-(obs_[0](i,4)?bc_:1); }break;
+				case 3: { t = obs_[0](i,3)?3:2; s = (obs_[0](i,4)?bc_:1); }break;
 				case 4: { t = obs_[0](i,3)?5:0; s = (obs_[0](i,4)?bc_:1); }break;
 				case 5: { t = obs_[0](i,3)?6:7; s = (obs_[0](i,4)?bc_:1); }break;
-				case 6: { t = obs_[0](i,3)?6:4; s = (obs_[0](i,4)?bc_:1); }break;
-				case 7: { t = obs_[0](i,3)?5:7; s = (obs_[0](i,4)?bc_:1); }break;
+				case 6: { t = obs_[0](i,3)?5:4; s = (obs_[0](i,4)?bc_:1); }break;
+				case 7: { t = obs_[0](i,3)?6:7; s = (obs_[0](i,4)?bc_:1); }break;
 			}
 		}
 		H_(obs_[0](i,0),obs_[0](i,1)) = s*t_(t);
@@ -124,7 +124,7 @@ unsigned int SquareDimerizedBar::unit_cell_index(Vector<double> const& x) const 
 /*{method needed for checking*/
 void SquareDimerizedBar::display_results(){
 	compute_H(0);
-	draw_lattice(true,true);
+	draw_lattice(true,true,(dir_nn_[2]+dir_nn_[3])*0.5);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

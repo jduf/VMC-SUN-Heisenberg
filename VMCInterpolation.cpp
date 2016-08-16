@@ -228,7 +228,7 @@ void VMCInterpolation::search_minima(){
 						if(pidx(k)+1<m_->ps_[k].size()){
 							param(k) = m_->ps_[k](pidx(k)+1);
 							tmp = interp_(param);
-							if(!isnan(tmp) && tmp<min){
+							if(!std::isnan(tmp) && tmp<min){
 								min = tmp;
 								dir = 2*k;
 							}
@@ -236,7 +236,7 @@ void VMCInterpolation::search_minima(){
 						if(pidx(k)>0){
 							param(k) = m_->ps_[k](pidx(k)-1);
 							tmp = interp_(param);
-							if(!isnan(tmp) && tmp<min){
+							if(!std::isnan(tmp) && tmp<min){
 								min = tmp;
 								dir = 2*k+1;
 							}
@@ -313,18 +313,18 @@ void VMCInterpolation::select_if_min(Vector<double>* x, Vector<unsigned int> con
 	Vector<double> param(m_->dof_);
 	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
 	f = interp_(param);
-	if(!isnan(f)){
+	if(!std::isnan(f)){
 		for(unsigned int j(0);j<m_->dof_;j++){
 			if(is_min){
 				if(idx(j)+1<m_->ps_[j].size()){
 					param(j) = x[j](idx(j)+1);
 					f_tmp = interp_(param);
-					if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
+					if(std::isnan(f_tmp) || f>f_tmp){ is_min = false; }
 				}
 				if(is_min && idx(j)>0){
 					param(j) = x[j](idx(j)-1);
 					f_tmp = interp_(param);
-					if(isnan(f_tmp) || f>f_tmp){ is_min = false; }
+					if(std::isnan(f_tmp) || f>f_tmp){ is_min = false; }
 				}
 				param(j) = x[j](idx(j));
 			}

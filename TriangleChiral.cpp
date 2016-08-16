@@ -5,7 +5,7 @@ TriangleChiral::TriangleChiral(System const& s, double const& phi):
 	Triangle<std::complex<double> >(set_ab(N_/m_),N_/m_,"triangle-chiral"),
 	phi_(phi)
 {
-	if(2.0*phi_<=N_/m_){
+	if(1.0*phi_<=N_/m_){
 		if(status_==3){ init_lattice(); }
 		if(status_==2){
 			init_fermionic();
@@ -97,7 +97,7 @@ unsigned int TriangleChiral::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void TriangleChiral::display_results(){
 	compute_H();
-	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25);
+	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*0.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
@@ -129,7 +129,7 @@ std::string TriangleChiral::get_mc_run_command() const {
 	run_cmd += " -u:m " + my::tostring(m_);
 	run_cmd += " -u:n " + my::tostring(n_);
 	run_cmd += " -i:bc "+ my::tostring(bc_);
-	run_cmd += " -d:phi "+ my::tostring(phi_);;
+	run_cmd += " -d:phi "+ my::tostring(phi_);
 	run_cmd += " -d -u:tmax 10";
 
 	return run_cmd;

@@ -71,7 +71,7 @@ class System2D: public GenericSystem<Type>{
 		void draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, double const& xd, double const& yd, Vector<unsigned int> const& dir) const;
 
 	private:
-		Matrix<double> const ab_;//!< basis vectors of the unit cell  ((a_1,b_1),(a_2,b_2))
+		Matrix<double> const ab_;//!< the unit cell basis vectors a,b : ((a_1,b_1),(a_2,b_2))
 		Matrix<double> inv_ab_;	 //!< inverse of the matrix ab_
 		Matrix<Type> Tx_;		 //!< translation operator along x-axis
 		Matrix<Type> Ty_;		 //!< translation operator along y-axis
@@ -303,10 +303,18 @@ void System2D<Type>::plot_band_structure(){
 			return 2;
 		};
 
+		double kx(0.0);
+		double ky(0.0);
 		double min_e(e_.min());
 		double max_e(e_.max());
 		IOFiles bs(this->filename_+"-band-structure.dat",true,false);
 		for(unsigned int i(0);i<this->n_;i++){
+			/*to compute the total impulsion of the occupied states*/
+			if(i<this->M_(0)){
+				kx += px_(i);
+				ky += py_(i);
+			}
+
 			a = std::make_shared<Vector<double> >(2+this->spuc_,666);
 			b = NULL;
 			(*a)(0) = my::chop(my::are_equal(std::abs(px_(i)),M_PI,1e-12)?-M_PI:px_(i));
@@ -325,6 +333,10 @@ void System2D<Type>::plot_band_structure(){
 			}
 			l.set_target();
 		}
+		double ip(0);
+		std::cout<<kx<<" "<<ky<<std::endl;
+		kx = std::modf(my::chop(kx/M_PI),&ip);
+		ky = std::modf(my::chop(ky/M_PI),&ip);
 
 		IOFiles bsf(this->filename_+"-band-structure-formated.dat",true,false);
 		l.set_target();
@@ -338,6 +350,7 @@ void System2D<Type>::plot_band_structure(){
 		}
 
 		Gnuplot gp("./",this->filename_+"-band-structure");
+		gp.title("$(k_x,ky)=("+my::tostring(kx)+","+my::tostring(ky)+")$");
 		gp.range("x","-pi","pi");
 		gp.range("y","-pi","pi");
 		gp.range("z",min_e,max_e);

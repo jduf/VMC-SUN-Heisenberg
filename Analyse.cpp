@@ -46,7 +46,7 @@ void Analyse::do_analyse(){
 		case 2: /*only study a given directory and its subdirectories*/
 			{
 				std::cout<<"analysing only directories below "<<path_<<std::endl;
-				if(path_[path_.size()-1] != '/'){ path_ += '/'; }
+				my::ensure_trailing_slash(path_);
 				std::vector<std::string> tmp(my::string_split(path_,'/'));
 				path_ = "";
 				level_=1;

@@ -27,7 +27,7 @@ class MCSim{
 		/*!Creates MonteCarlo, then run on MCS_*/
 		void run(unsigned int const& ts, unsigned int const& tmax);
 		/*!Creates a CreateSystem and call its display_results method*/
-		void display_results(std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file);
+		void display_results(std::string const& filename, std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file);
 		/*}*/
 
 		/*{System and MCSystem calls*/

@@ -1,12 +1,12 @@
-#include "AnalyseEnergy.hpp"
+#include "AnalyseLadder.hpp"
 
-AnalyseEnergy::AnalyseEnergy(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
+AnalyseLadder::AnalyseLadder(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
 	Analyse(sim,path,max_level,run_cmd)
 {
 	do_analyse();
 }
 
-AnalyseEnergy::~AnalyseEnergy(){
+AnalyseLadder::~AnalyseLadder(){
 	Gnuplot gp(analyse_+path_+dir_,sim_.substr(0,sim_.size()-1));
 	gp.label("x","$\\frac{1}{N}$");
 	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
@@ -16,7 +16,7 @@ AnalyseEnergy::~AnalyseEnergy(){
 	gp.create_image(true,true);
 }
 
-void AnalyseEnergy::open_files(){
+void AnalyseLadder::open_files(){
 	if(level_>1){
 		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true,false);
 	}
@@ -43,7 +43,7 @@ void AnalyseEnergy::open_files(){
 	}
 }
 
-void AnalyseEnergy::close_files(){
+void AnalyseLadder::close_files(){
 	switch(level_){
 		case 3:
 			{ list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","energy evolution with the system size",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }break;
@@ -59,15 +59,34 @@ void AnalyseEnergy::close_files(){
 	}
 }
 
-std::string AnalyseEnergy::extract_level_8(){ return extract_default(); }
+std::string AnalyseLadder::extract_level_8(){
+	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
+	rst_file_ = list_rst_.last_ptr().get();
 
-std::string AnalyseEnergy::extract_level_7(){ return extract_best_of_previous_level(); }
+	Vector<double> tmp(*read_);
+	System s(*read_);
+	CreateSystem cs(&s);
+	cs.init(&tmp,NULL);
+	cs.set_IOSystem(this);
 
-std::string AnalyseEnergy::extract_level_6(){ return extract_best_of_previous_level(); }
+	jd_write_->add_header()->nl();
+	cs.save(*jd_write_);
+	cs.display_results();
 
-std::string AnalyseEnergy::extract_level_5(){ return extract_default(); }
+	delete read_;
+	read_ = NULL;
+	rst_file_ = NULL;
 
-std::string AnalyseEnergy::extract_level_4(){
+	return filename_;
+}
+
+std::string AnalyseLadder::extract_level_7(){ return extract_best_of_previous_level(); }
+
+std::string AnalyseLadder::extract_level_6(){ return extract_best_of_previous_level(); }
+
+std::string AnalyseLadder::extract_level_5(){ return extract_default(); }
+
+std::string AnalyseLadder::extract_level_4(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 	/*!must save now nof_ because it doesn't refer to the number of file in
@@ -91,7 +110,7 @@ std::string AnalyseEnergy::extract_level_4(){
 	return filename_;
 }
 
-std::string AnalyseEnergy::extract_level_3(){
+std::string AnalyseLadder::extract_level_3(){
 	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
 	(*read_)>>nof_;
 
@@ -115,4 +134,4 @@ std::string AnalyseEnergy::extract_level_3(){
 	return filename_;
 }
 
-std::string AnalyseEnergy::extract_level_2(){ return fit_therm_limit(); }
+std::string AnalyseLadder::extract_level_2(){ return fit_therm_limit(); }

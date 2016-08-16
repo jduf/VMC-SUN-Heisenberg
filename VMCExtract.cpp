@@ -1,12 +1,10 @@
 #include "VMCExtract.hpp"
 
-VMCExtract::VMCExtract(IOFiles& in, bool const& sort):
+VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int const& max_sort):
 	VMCMinimization(in,false,"EXT")
 {
 	List<MCSim> possible_samples;
-	Vector<double> param;
 	unsigned int n_samples(in.read<unsigned int>());
-	unsigned int iter(0);
 
 	std::cout<<"#######################"<<std::endl;
 	std::string msg("VMCExtract");
@@ -16,53 +14,58 @@ VMCExtract::VMCExtract(IOFiles& in, bool const& sort):
 	std::cout<<"#"<<in.get_filename()<<std::endl;
 	m_->info_.item(in.get_filename());
 
-	if(sort){
+	unsigned int iter(0);
+	if(min_sort && max_sort){
 		std::shared_ptr<MCSim> sim;
 		List<MCSim> sorted_samples;
-		while(iter++<1000 && iter<n_samples){
-			sim = std::make_shared<MCSim>(in);
-			sorted_samples.add_sort(sim,MCSim::sort_by_E);
-		}
 
-		double Emax(sorted_samples.last().get_energy().get_x());
-		param = sim->get_param();
-		iter--; //otherwise one sample is skipped
+		/*update sorted_samples so it always contains the min_sort lowest
+		 *samples, the other ones are set in possible_samples list*/
+		double Emax(0.0);
 		while(iter++<n_samples){
 			sim = std::make_shared<MCSim>(in);
+			if(sorted_samples.size() < min_sort){
+				sorted_samples.add_sort(sim,MCSim::sort_by_E);
+			} else if(sim->get_energy().get_x()<Emax){
+				sorted_samples.add_sort(sim,MCSim::sort_by_E);
+				possible_samples.add_sort(sorted_samples.last_ptr(),MCSim::sort_for_merge);
+				sorted_samples.pop_end();
+				Emax = sorted_samples.last().get_energy().get_x();
+			} else { possible_samples.add_end(sim); }
 
-			if(MCSim::sort_by_param_for_merge(param,sim->get_param())==1){
-				if(sim->get_energy().get_x()<Emax){
-					sorted_samples.add_sort(sim,MCSim::sort_by_E);
-					possible_samples.add_sort(sorted_samples.last_ptr(),MCSim::sort_for_merge);
-					sorted_samples.pop_end();
-					Emax = sorted_samples.last().get_energy().get_x();
-				} else { possible_samples.add_end(sim); }
-
-				param = sim->get_param();
-			} else {
-				iter = n_samples;
-				std::cerr<<__PRETTY_FUNCTION__<<" : the samples are not sorted correctly"<<std::endl;
-			}
-			if(!(iter%1000)){ my::display_progress(iter,n_samples,"loading : "); }
+			if(!(iter%1000)){ my::display_progress(iter,n_samples,"loading (A): "); }
 		}
 
+		iter=0;
+		/*add to m_->samples all samples of possible_samples that are close in energy*/
+		double Emin(sorted_samples.first().get_energy().get_x());
+		double Etmp(0.0);
+		double dEtmp(0.0);
+		possible_samples.set_target();
+		while(possible_samples.target_next()){
+			if(!(iter++%1000)){ my::display_progress(iter,possible_samples.size(),"loading (B): "); }
+			Etmp = possible_samples.get().get_energy().get_x();
+			dEtmp= possible_samples.get().get_energy().get_dx();
+			if( Emax > Etmp-dEtmp || Emin > Etmp-2*dEtmp ){
+				if(sorted_samples.size() >= max_sort){
+					if( Etmp < sorted_samples.last().get_energy().get_x() ){
+						possible_samples.add_sort(sorted_samples.last_ptr(),MCSim::sort_for_merge);
+						sorted_samples.pop_end(); 
+
+						sorted_samples.add_sort(possible_samples.get_ptr(),MCSim::sort_by_E);
+						possible_samples.pop_target();
+					}
+				} else {
+					sorted_samples.add_sort(possible_samples.get_ptr(),MCSim::sort_by_E);
+					possible_samples.pop_target();
+				}
+			}
+		}
+
+		/*set m_->samples_ so it contains the samples of sorted_samples*/
 		sorted_samples.set_target();
 		while(sorted_samples.target_next()){
 			m_->samples_.add_sort(sorted_samples.get_ptr(),MCSim::sort_for_merge);
-		}
-
-		double Emin(sorted_samples.first().get_energy().get_x());
-		possible_samples.set_target();
-		while(possible_samples.target_next()){
-			if(
-					Emax > possible_samples.get().get_energy().get_x()-possible_samples.get().get_energy().get_dx()
-					||
-					Emin > possible_samples.get().get_energy().get_x()-2*possible_samples.get().get_energy().get_dx()
-			  )
-			{
-				m_->samples_.add_sort(possible_samples.get_ptr(),MCSim::sort_for_merge);
-				possible_samples.pop_target();
-			}
 		}
 	} else {
 		while(iter++<n_samples){ m_->samples_.add_end(std::make_shared<MCSim>(in)); }
@@ -93,28 +96,34 @@ VMCExtract::VMCExtract(IOFiles& in, bool const& sort):
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.item(msg);
 
-	msg="keep only "+my::tostring(m_->samples_.size())+" samples";
+	msg="keep only "+my::tostring(m_->samples_.size())+" MCSim";
+	std::cout<<"#"<<msg<<std::endl;
+	m_->info_.item(msg);;
+
+	msg="and keep  "+my::tostring(dis_sim_.size())+" DiscardedSim";
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.item(msg);
 
 	dis_sim_.set_target();
-	dis_sim_.target_next();
-	param = dis_sim_.get().get_param();
-	while(dis_sim_.target_next()){
-		if(!MCSim::sort_by_param_for_merge(param,dis_sim_.get().get_param())==1){
-			std::cerr<<__PRETTY_FUNCTION__<<" : the samples are not sorted correctly after construction"<<std::endl;
+	if(dis_sim_.target_next()){
+		Vector<double> param(dis_sim_.get().get_param());
+		while(dis_sim_.target_next()){
+			if(!MCSim::sort_by_param_for_merge(param,dis_sim_.get().get_param())==1){
+				std::cerr<<__PRETTY_FUNCTION__<<" : the discarded samples are not sorted correctly after construction"<<std::endl;
+			}
+			param = dis_sim_.get().get_param();
 		}
-		param = dis_sim_.get().get_param();
 	}
 
 	m_->samples_.set_target();
-	m_->samples_.target_next();
-	param = m_->samples_.get().get_param();
-	while(m_->samples_.target_next()){
-		if(!MCSim::sort_by_param_for_merge(param,m_->samples_.get().get_param())==1){
-			std::cerr<<__PRETTY_FUNCTION__<<" : the samples are not sorted correctly after construction"<<std::endl;
+	if(m_->samples_.target_next()){
+		Vector<double> param(m_->samples_.get().get_param());
+		while(m_->samples_.target_next()){
+			if(!MCSim::sort_by_param_for_merge(param,m_->samples_.get().get_param())==1){
+				std::cerr<<__PRETTY_FUNCTION__<<" : the samples are not sorted correctly after construction"<<std::endl;
+			}
+			param = m_->samples_.get().get_param();
 		}
-		param = m_->samples_.get().get_param();
 	}
 }
 
@@ -144,11 +153,13 @@ void VMCExtract::refine(Vector<unsigned int> const& which_obs, double const& dEo
 	}
 }
 
-void VMCExtract::save(std::string const& path) const {
+void VMCExtract::save(std::string dirname) const {
 	if(m_->samples_.size()){
+		my::ensure_trailing_slash(dirname);
+		dirname += get_path();
 		set_time();
-		Linux().mkpath((path+get_path()).c_str());
-		IOFiles out(path+get_path()+get_filename()+".jdbin",true,false);
+		Linux().mkpath(dirname.c_str());
+		IOFiles out(dirname+get_filename()+".jdbin",true,false);
 		out.add_header()->text(RST::textbf("Contains the "+my::tostring(m_->samples_.size())+" best samples and a list "+my::tostring(dis_sim_.size())+ " of discarded samples"));
 		VMCMinimization::save(out);
 		out<<dis_sim_.size();
@@ -177,7 +188,7 @@ List<MCSim>::Node* VMCExtract::analyse(std::string const& path, std::string cons
 		double tmp(0.0);
 		unsigned int i(0);
 		Vector<double> param;
-		std::vector<unsigned int> n;
+		std::set<unsigned int> n_zone;
 
 		m_->samples_.set_target();
 		m_->samples_.target_next();
@@ -200,34 +211,40 @@ List<MCSim>::Node* VMCExtract::analyse(std::string const& path, std::string cons
 		} while(m_->samples_.target_next());
 		v_norm = sqrt(v_norm/(i-1));
 
-		m_->samples_.set_target();
-		m_->samples_.target_next();
-		param = m_->samples_.get().get_param();
-		E = m_->samples_.get().get_energy().get_x();
-		Erange = E;
-		i=0;
-		do {
-			Erange = std::max(Erange,m_->samples_.get().get_energy().get_x()+3*m_->samples_.get().get_energy().get_dx());
-			norm = sqrt((param-m_->samples_.get().get_param()).norm_squared())/param.size();
+		unsigned int k(0);
+		while(n_zone.size()<50 && k++<5){
+			m_->samples_.set_target();
+			m_->samples_.target_next();
 			param = m_->samples_.get().get_param();
+			E = m_->samples_.get().get_energy().get_x();
+			Erange = E;
+			i=0;
+			do {
+				Erange = std::max(Erange,m_->samples_.get().get_energy().get_x()+3*m_->samples_.get().get_energy().get_dx());
+				norm = sqrt((param-m_->samples_.get().get_param()).norm_squared())/param.size();
+				param = m_->samples_.get().get_param();
 
-			if(norm>m_norm+2*v_norm){ n.push_back(i); }
-			i++;
-		} while(m_->samples_.target_next());
+				if(norm>m_norm+2*v_norm/k){ n_zone.insert(i); }
+				i++;
+			} while(m_->samples_.target_next());
+		}
+		for(unsigned int i(0);i<5;i++){ n_zone.insert((i+1)*m_->samples_.size()/5); }
 
-		if(n.size()){
+		if(n_zone.size()){
 			i=0;
 			unsigned int idx(0);
 			unsigned int j(0);
 			m_->samples_.set_target();
+			std::vector<unsigned int> n;
+			std::set<unsigned int>::iterator z(n_zone.begin());
 			while(m_->samples_.target_next()){
 				if(E>m_->samples_.get().get_energy().get_x()){
 					E = m_->samples_.get().get_energy().get_x();
 					idx = i;
 				}
-				if(++i==n[j]){
-					n[j] = idx;
-					j++;
+				if(++i==*z){
+					z++;
+					n.push_back(idx);
 					E=0.0;
 				}
 			}

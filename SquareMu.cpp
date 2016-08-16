@@ -2,7 +2,7 @@
 
 SquareMu::SquareMu(System const& s, double const& mu):
 	System(s),
-	Square<double>(set_ab(ref_(3)),5,"square-mu"),
+	Square<double>(set_ab(ref_(3),N_/m_),N_/m_,"square-mu"),
 	mu_(mu)
 {
 	if(status_==3){ init_lattice(); }
@@ -59,62 +59,79 @@ void SquareMu::save_param(IOFiles& w) const {
 	} else { w<<mu_<<" "; }
 }
 
-Matrix<double> SquareMu::set_ab(unsigned int const& ref3) const {
+Matrix<double> SquareMu::set_ab(unsigned int const& ref3, unsigned int const& k) const {
 	Matrix<double> tmp(2,2);
-	if(ref3==2){
-		tmp(0,0) = 2.0;
-		tmp(1,0) = 1.0;
-		tmp(0,1) =-1.0;
-		tmp(1,1) = 2.0;
-	} else {
-		tmp(0,0) = 2.0;
-		tmp(1,0) =-1.0;
+	if(k==3){
+		tmp(0,0) = 3.0;
+		tmp(1,0) = 0.0;
 		tmp(0,1) = 1.0;
-		tmp(1,1) = 2.0;
+		tmp(1,1) = 1.0;
+	}
+	if(k==5){
+		if(ref3==2){
+			tmp(0,0) = 2.0;
+			tmp(1,0) = 1.0;
+			tmp(0,1) =-1.0;
+			tmp(1,1) = 2.0;
+		} else {
+			tmp(0,0) = 2.0;
+			tmp(1,0) =-1.0;
+			tmp(0,1) = 1.0;
+			tmp(1,1) = 2.0;
+		}
 	}
 	return tmp;
 }
 
 unsigned int SquareMu::unit_cell_index(Vector<double> const& x) const {
-	Vector<double> match(2,0);
-	if(ref_(3)==2){
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-		match(0) = 0.2;
-		match(1) = 0.4;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-		match(0) = 0.4;
-		match(1) = 0.8;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-		match(0) = 0.6;
-		match(1) = 0.2;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
-		match(0) = 0.8;
-		match(1) = 0.6;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
-	} else {
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
-		match(0) = 0.4;
-		match(1) = 0.2;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
-		match(0) = 0.8;
-		match(1) = 0.4;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
-		match(0) = 0.2;
-		match(1) = 0.6;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
-		match(0) = 0.6;
-		match(1) = 0.8;
-		if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
+	if(spuc_ == 3){
+		if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
+			if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0; }
+			if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 1; }
+			if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 2; }
+		}
+	}
+	if(spuc_ == 5){
+		Vector<double> match(2,0);
+		if(ref_(3)==2){
+			if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
+			match(0) = 0.2;
+			match(1) = 0.4;
+			if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+			match(0) = 0.4;
+			match(1) = 0.8;
+			if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+			match(0) = 0.6;
+			match(1) = 0.2;
+			if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+			match(0) = 0.8;
+			match(1) = 0.6;
+			if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
+		} else {
+			if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 0; }
+			match(0) = 0.4;
+			match(1) = 0.2;
+			if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 1; }
+			match(0) = 0.8;
+			match(1) = 0.4;
+			if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 2; }
+			match(0) = 0.2;
+			match(1) = 0.6;
+			if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 3; }
+			match(0) = 0.6;
+			match(1) = 0.8;
+			if(my::are_equal(x,match,eq_prec_,eq_prec_)){ return 4; }
+		}
 	}
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
-	return 5;
+	return spuc_;
 }
 /*}*/
 
 /*{method needed for checking*/
 void SquareMu::display_results(){
-	compute_H(0);
-	draw_lattice(true,true);
+	compute_H(4);
+	draw_lattice(false,true,(spuc_==3?dir_nn_[2]*0.25+dir_nn_[3]*0.5:dir_nn_[2]*0.5+dir_nn_[3]*0.5));
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

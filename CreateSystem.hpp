@@ -15,6 +15,7 @@
 #include "TrianglePlaquette.hpp"
 #include "TriangleMu.hpp"
 #include "TriangleT3x2.hpp"
+#include "TriangleAlternatingPlaquette.hpp"
 #include "TrianglePhi.hpp"
 #include "TriangleChiral.hpp"
 
@@ -28,10 +29,12 @@
 #include "SquareT4x2.hpp"
 #include "SquareT4x3.hpp"
 #include "SquareT4x4.hpp"
-#include "SquareBox6.hpp"
+#include "SquareLadder.hpp"
 #include "SquareFreeFlux.hpp"
+#include "SquareVCS.hpp"
 #include "SquarePiFlux.hpp"
 #include "SquareChiral.hpp"
+#include "SquareBox6.hpp"
 #include "SquareJastrow.hpp"
 
 #include "KagomeFermi.hpp"

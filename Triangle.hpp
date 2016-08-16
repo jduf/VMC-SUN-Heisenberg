@@ -16,6 +16,8 @@ class Triangle: public System2D<Type>{
 		/*Draw the lattice inside a PSTricks file*/
 		void draw_lattice(bool const& only_unit_cell, bool const& silent, Vector<double> const& uc_shift);
 
+		virtual std::string extract_level_2();
+
 	private:
 		double L_;
 
@@ -112,9 +114,18 @@ template<typename Type>
 void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, Vector<double> const& uc_shift){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(3,0);
+	double max_bond_energy(0);
 	for(unsigned int i(1);i<this->obs_.size();i++){
 		switch(this->obs_[i].get_type()){
-			case 1:{ o(0)=i; }break;//bond energy
+			case 1:
+				{ 
+					o(0)=i;
+					for(unsigned int j(0);j<this->obs_[i].nval();j++){
+						if(max_bond_energy < std::abs(this->obs_[i][j].get_x()/(this->m_*this->m_))){
+							max_bond_energy = std::abs(this->obs_[i][j].get_x()/(this->m_*this->m_));
+						}
+					}
+				}break;//bond energy
 			case 2:{ o(1)=i; }break;//long range correlation
 			case 3:{ o(2)=i; }break;//color occupation
 		}
@@ -140,13 +151,13 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 	loop_b(0) = 1;
 	loop_b(1) = 3;
 	loop_b(2) = 5;
+	Matrix<double> uc(this->draw_unit_cell(uc_shift(0),uc_shift(1)));
 	PSTricks ps(this->get_info_path(),this->filename_);
+	ps.add("\\newcommand{\\wbg}[1]{\\setlength{\\fboxsep}{ 1pt}\\colorbox{white}{\\tiny{#1}}}");
 	ps.begin(-20,-20,20,20,this->filename_);
+	ps.polygon(uc,"linecolor=black,linestyle=dashed");
 	if(only_unit_cell){
-		Matrix<double> uc(this->draw_unit_cell());
-		ps.polygon(uc,"linecolor=yellow");
-
-		shift(0) = uc(1,0)-uc(0,0)+1.5;
+		shift(0) = uc(2,0)-uc(0,0)+1.5;
 		for(unsigned int i(0);i<links.row();i++){
 			s0 = links(i,0);
 			s1 = links(i,1);
@@ -171,16 +182,22 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 						else              { arrow = "<-"; }
 					}
 					ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
-				}
-				mu = my::real(this->H_(s0,s0));
-				if(std::abs(mu)>1e-4){
-					if(mu>0){ color = "cyan"; }
-					else    { color = "magenta"; }
-					ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+					ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(std::abs(t))+"}");
 				}
 				switch(i%3){
-					case 0:{ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/5.0,loop_a); }break;
-					case 1:{ this->draw_flux_per_plaquette(ps,s0,xy0(0),    xy0(1)+sqrt(3.0)/4.0,loop_b); }break;
+					case 0:
+						{ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/5.0,loop_a); }break;
+					case 1:
+						{ this->draw_flux_per_plaquette(ps,s0,xy0(0),    xy0(1)+sqrt(3.0)/4.0,loop_b); }break;
+					case 2:
+						{
+							mu = my::real(this->H_(s0,s0));
+							if(std::abs(mu)>1e-4){
+								if(mu>0){ color = "cyan"; }
+								else    { color = "magenta"; }
+								ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+							}
+						}break;
 				}
 
 				/*Shows bond energy and color occupation*/
@@ -193,21 +210,18 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 						if(bond_energy>0){ color = "blue"; }
 						else             { color = "red"; }
 						ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+						ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(my::round_nearest(std::abs(bond_energy)/max_bond_energy,100))+"}");
 					}
 				}
-				if(i%2 && o(2)){
+				if((i%3==2) && o(2)){
 					Vector<double> p(this->N_);
 					for(unsigned int j(0);j<this->N_;j++){ p(j) = this->obs_[o(2)][j+this->N_*links(i,5)].get_x(); }
 					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
 				}
 			}
 		}
-		/*draws long range correlations over the lattice*/
-		if(o(1)){ this->draw_long_range_correlation(ps,shift,this->obs_[o(1)]); }
 	} else {
 		ps.polygon(this->cluster_vertex_,"linecolor=green");
-		Matrix<double> uc(this->draw_unit_cell(uc_shift(0),uc_shift(1)));
-		ps.polygon(uc,"linecolor=yellow");
 		ps.linked_lines("-",this->draw_boundary(false),"linecolor=yellow");
 		for(unsigned int i(0);i<links.row();i++){
 			s0 = links(i,0);
@@ -217,6 +231,8 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 
 			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
+				xy1 = (xy0+this->dir_nn_[links(i,3)]*1.2).chop();
+				ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(s1)+"}");
 				xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
 			} else { linestyle = "solid"; }
 
@@ -240,7 +256,7 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 					ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
 				}
 			}
-			if(i%2 && o(2)){
+			if(!(i%3) && o(2)){
 				Vector<double> p(this->N_);
 				for(unsigned int j(0);j<this->N_;j++){ p(j) = this->obs_[o(2)][j+this->N_*links(i,5)].get_x(); }
 				ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
@@ -262,21 +278,45 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 				}
 				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
 			}
-			mu = my::real(this->H_(s0,s0));
-			if(std::abs(mu)>1e-4){
-				if(mu>0){ color = "cyan"; }
-				else    { color = "magenta"; }
-				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
-			}
 			switch(i%3){
-				case 0:{ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/5.0,loop_a); }break;
-				case 1:{ this->draw_flux_per_plaquette(ps,s0,xy0(0),    xy0(1)+sqrt(3.0)/4.0,loop_b); }break;
+				case 0:
+					{ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/5.0,loop_a); }break;
+				case 1:
+					{ this->draw_flux_per_plaquette(ps,s0,xy0(0),    xy0(1)+sqrt(3.0)/4.0,loop_b); }break;
+				case 2:
+					{
+						mu = my::real(this->H_(s0,s0));
+						if(std::abs(mu)>1e-4){
+							if(mu>0){ color = "cyan"; }
+							else    { color = "magenta"; }
+							ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+						}
+					}break;
 			}
 		}
-		/*draws long range correlations over the lattice*/
-		if(o(1)){ this->draw_long_range_correlation(ps,shift,this->obs_[o(1)]); }
 	}
+	/*draws long range correlations over the lattice*/
+	if(o(1)){ this->draw_long_range_correlation(ps,shift,this->obs_[o(1)]); }
 	ps.end(silent,true,true);
+}
+
+template<typename Type>
+std::string Triangle<Type>::extract_level_2(){
+	Gnuplot gp(this->analyse_+this->path_+this->dir_,this->filename_);
+	gp+="f(x) = a+b*x*x";
+	gp+="set fit quiet";
+	gp+="fit f(x) '"+this->filename_+".dat' u (1.0/$4):($6/($2*$2)):($7/($2*$2)) yerror via a,b";
+	gp+="set print \'../"+this->sim_.substr(0,this->sim_.size()-1)+".dat\' append";
+	gp+="print " + my::tostring(this->N_) + "," + my::tostring(this->m_) + ",a";
+	gp.range("x","0","");
+	gp.label("x","$\\frac{ 1}{n}$");
+	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
+	gp+="plot '"+this->filename_+".dat' u (1.0/$4):($6/($2*$2)):($7/($2*$2)) w e lc 1 notitle,\\";
+	gp+="     f(x) lc 1 t sprintf('%f',a0)";
+	gp.save_file();
+	gp.create_image(true,true);
+
+	return this->filename_;
 }
 /*}*/
 

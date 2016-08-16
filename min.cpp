@@ -12,7 +12,10 @@ int main(int argc, char* argv[]){
 	P.find("what",i,true);
 	Vector<unsigned int> what(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
 	if(!P.locked()){
-		if(what(0)<12){
+		double dEoE(P.find("dEoE",i,false)?P.get<double>(i):0.01);
+		unsigned int maxiter(P.find("maxiter",i,false)?P.get<unsigned int>(i):1);
+		Vector<unsigned int> obs(P.find("obs",i,false)?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0);
+		if(what(0)<20){
 			VMCMinimization m(P);
 			if(P.find("reset_PS",i,false)){ m.set_phase_space(P); }
 			if(m.ready() && !P.locked()){
@@ -46,10 +49,11 @@ int main(int argc, char* argv[]){
 							}break;
 						case 1:
 							{
+								m.complete_analysis(1e-5);
 								unsigned int j(0);
 								if(P.find("dEoE",j,false)){
 									if(P.find("E",i,false)){ m.refine(P.get<double>(i),P.get<double>(j)); }
-									if(P.find("nmin",i,false)){ m.refine(P.get<unsigned int>(i),P.get<bool>("set_obs"),P.get<double>(j),P.get<unsigned int>("maxiter")); }
+									if(P.find("nmin",i,false)){ m.refine(P.get<unsigned int>(i),obs,P.get<double>(j),maxiter); }
 								} else { m.refine(); }
 							}break;
 						case 2:
@@ -59,7 +63,7 @@ int main(int argc, char* argv[]){
 							}break;
 						case 3:
 							{
-								m.improve_bad_samples(P.get<double>("dEoE"));
+								m.improve_bad_samples(dEoE);
 								m.save();
 								m.refine();
 							}break;
@@ -75,7 +79,7 @@ int main(int argc, char* argv[]){
 						case 5:
 							{
 								VMCSystematic m3(m);
-								m3.run(false,1e-6,1);
+								m3.run(obs,dEoE,maxiter);
 								m3.save();
 								m3.plot();
 							}break;
@@ -116,59 +120,42 @@ int main(int argc, char* argv[]){
 				}
 			}
 		} else {
-			for(unsigned int w(0);w<what.size();w++){
-				switch(what(w)){
-					case 12:
-						{
-							IOFiles in(P.get<std::string>("load"),false,false);
-							VMCExtract m4(in,true);
-							m4.save("best/");
-						}break;
-					case 13:
-						{
-							IOFiles in(P.get<std::string>("load"),false,false);
-							Vector<unsigned int> obs;
-							if(P.find("obs",i,false)){
-								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
-							}
-							VMCExtract m4(in,false);
-							m4.refine(obs,P.get<double>("dEoE"),P.get<unsigned int>("ttotal"));
-							m4.save("best/");
-						}break;
-					case 14:
-						{
-							IOFiles in(P.get<std::string>("load"),false,false);
-							Vector<unsigned int> obs;
-							if(P.find("obs",i,false)){
-								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
-							}
-							VMCExtract m4(in,true);
-							m4.refine(obs,P.get<double>("dEoE"),P.get<unsigned int>("tmax"),P.get<unsigned int>("maxiter"));
-							m4.save("best-with-bond-energy/");
-						}break;
-					case 15:
-						{
-							IOFiles in(P.get<std::string>("load"),false,false);
-							Vector<unsigned int> obs;
-							if(P.find("obs",i,false)){
-								obs = (P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
-							}
-							VMCExtract m4(in,true);
-							List<MCSim> kept_samples;
-							m4.analyse("./","test-m4",kept_samples);
-							kept_samples.set_target();
+			if(P.find("min_sort",i,true) && P.find("max_sort",i,true) && P.find("load",i,true) && P.find("dirname",i,true)){
+				std::string dirname(P.get<std::string>("dirname"));
+				IOFiles in(P.get<std::string>("load"),false,false);
+				VMCExtract m4(in,P.get<unsigned int>("min_sort"),P.get<unsigned int>("max_sort"));
+				for(unsigned int w(0);w<what.size();w++){
+					switch(what(w)){
+						case 20:
+							{ m4.save(dirname); }break;
+						case 21:
+							{
+								m4.refine(obs,dEoE,P.get<unsigned int>("ttotal"));
+								for(unsigned int i(0);i<obs.size();i++){
+									if(obs(i)==1){ dirname += "_bond-energy"; }
+									if(obs(i)==2){ dirname += "_long-range-correlation"; }
+									if(obs(i)==3){ dirname += "_color-occupation"; }
+								}
+								m4.save(dirname);
+							}break;
+						case 22:
+							{
+								List<MCSim> kept_samples;
+								m4.analyse("./","test-m4",kept_samples);
+								kept_samples.set_target();
 
-							std::string fname("bla");
-							RSTFile rst("/tmp/",fname);
-							while(kept_samples.target_next()){
-								kept_samples.get().display_results("","","","","/tmp/",&rst);
-							}
-							//rst.text(iof.get_header());
-							rst.save(false,true);
-							Linux()(Linux::html_browser("/tmp/"+fname+".html"),true);
-						}break;
+								std::string fname("bla");
+								RSTFile rst("/tmp/",fname);
+								while(kept_samples.target_next()){
+									kept_samples.get().display_results("","","","","","/tmp/",&rst);
+								}
+								//rst.text(iof.get_header());
+								rst.save(false,true);
+								Linux()(Linux::html_browser("/tmp/"+fname+".html"),true);
+							}break;
+					}
 				}
-			}
+			} else { std::cerr<<__PRETTY_FUNCTION__<<" : missing arguments"<<std::endl; }
 		}
 	}
 }

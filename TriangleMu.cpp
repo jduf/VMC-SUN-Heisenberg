@@ -28,7 +28,7 @@ void TriangleMu::compute_H(unsigned int const& c){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
 		H_(s0,s1) = (obs_[0](i,4)?bc_*t:t);
-		if((unsigned int)(obs_[0](i,5))==c%spuc_){ H_(s0,s0) = mu_/2; }
+		if((unsigned int)(obs_[0](i,5))==c%spuc_){ H_(s0,s0) = mu_/2.0; }
 	}
 	H_ += H_.transpose();
 }
@@ -85,7 +85,7 @@ unsigned int TriangleMu::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void TriangleMu::display_results(){
 	compute_H(0);
-	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25);
+	draw_lattice(false,true,dir_nn_[3]*0.5);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
@@ -93,16 +93,8 @@ void TriangleMu::display_results(){
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
 		std::string title(RST::math("\\mu="+my::tostring(mu_)));
-		std::string run_cmd("./mc -s:wf triangle-mu");
-		run_cmd += " -u:N " + my::tostring(N_);
-		run_cmd += " -u:m " + my::tostring(m_);
-		run_cmd += " -u:n " + my::tostring(n_);
-		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d:mu "+ my::tostring(mu_);
-		run_cmd += " -d -u:tmax 10";
-
 		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",run_cmd);
+		rst_file_->change_text_onclick("run command",get_mc_run_command());
 
 		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 	}
@@ -113,8 +105,21 @@ void TriangleMu::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="triangle-mu";
-	display_results();
+	//display_results();
 
-	//plot_band_structure();
+	compute_H(0);
+	plot_band_structure();
+}
+
+std::string TriangleMu::get_mc_run_command() const {
+	std::string run_cmd("./mc -s:wf triangle-mu");
+	run_cmd += " -u:N " + my::tostring(N_);
+	run_cmd += " -u:m " + my::tostring(m_);
+	run_cmd += " -u:n " + my::tostring(n_);
+	run_cmd += " -i:bc "+ my::tostring(bc_);
+	run_cmd += " -d:mu "+ my::tostring(mu_);
+	run_cmd += " -d -u:tmax 10";
+
+	return run_cmd;
 }
 /*}*/

@@ -1,12 +1,12 @@
-#ifndef DEF_SQUARET3X2
-#define DEF_SQUARET3X2
+#ifndef DEF_SQUAREVCS
+#define DEF_SQUAREVCS
 
 #include "Square.hpp"
 
-class SquareT3x2: public Square<double>{
+class SquareVCS: public Square<double>{
 	public:
-		SquareT3x2(System const& s, Vector<double> const& t);
-		~SquareT3x2() = default;
+		SquareVCS(System const& s, Vector<double> const& t);
+		~SquareVCS() = default;
 
 		void create();
 		void save_param(IOFiles& w) const;
@@ -17,7 +17,6 @@ class SquareT3x2: public Square<double>{
 
 		void compute_H();
 		void display_results();
-		void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
 
 		/*!Sets the unit cell's vectors*/
 		Matrix<double> set_ab() const;
@@ -25,6 +24,5 @@ class SquareT3x2: public Square<double>{
 		unsigned int unit_cell_index(Vector<double> const& x) const;
 
 		std::string get_mc_run_command() const;
-		std::string extract_level_2();
 };
 #endif
