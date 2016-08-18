@@ -49,7 +49,7 @@ void check_troyer(){
 	} while (iter++<M);
 	H_correct.complete_analysis(tol);
 
-	IOFiles hist_correct("hist_correct.dat",true);
+	IOFiles hist_correct("hist_correct.dat",true,false);
 	for(unsigned int i(0);i<N+1;i++){ 
 		hist_correct<<i<<" "<<H_correct[i].get_x()<<" "<<H_correct[i].get_dx()<<" "<<H_correct[i].get_conv()<<IOFiles::endl;
 	}
@@ -94,7 +94,7 @@ void check_flip_coin(){
 	H.set(B,b,conv);
 	double xtot;
 	double x;
-	IOFiles w("coin.jdbin",true);
+	IOFiles w("coin.jdbin",true,false);
 	w<<N;
 	for(unsigned int i(0);i<N;i++){
 		iter=0;
@@ -145,7 +145,7 @@ void check_flip_coin(){
 }
 
 void read_output_files(){
-	IOFiles flip("coin.jdbin",false);
+	IOFiles flip("coin.jdbin",false,false);
 	if(flip.is_open()){
 		unsigned int N;
 		flip>>N;
@@ -155,7 +155,7 @@ void read_output_files(){
 			std::cout<<H<<std::endl;
 		}
 	}
-	IOFiles troyer("coin.jdbin",false);
+	IOFiles troyer("coin.jdbin",false,false);
 	if(troyer.is_open()){
 	}
 }

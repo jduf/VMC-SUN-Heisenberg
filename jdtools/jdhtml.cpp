@@ -4,7 +4,7 @@
 int main(int argc, char* argv[]){
 	if(argc == 2){
 		std::string name(argv[1]);
-		IOFiles r(name,false);
+		IOFiles r(name,false,false);
 		name = r.get_filename();
 		std::size_t pos(name.find_last_of('/'));
 		if(pos != std::string::npos){ name = name.substr(pos,name.size()-6); }

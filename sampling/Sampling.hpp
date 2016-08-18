@@ -71,9 +71,9 @@ class Data{
 				/*!Set x_ to the mean value, dx_ to the variance*/
 				void complete_analysis(double const& convergence_criterion, Type& x, Type& dx, double& N, bool& conv);
 				/*!Compute the mean value*/
-				Type get_x() const { return (m_bin_(0)*double(Ml_(0)*DPL_)+bin_[0](Ml_(0)))/get_N(); }
+				Type get_x() const { return ((Ml_(0)*m_bin_(0)*DPL_)+bin_[0](Ml_(0)))/get_N(); }
 				/*!Compute the number of samples*/
-				double get_N() const { return 1.0*Ml_(0)*DPL_+dpl_; }
+				double get_N() const { return Ml_(0)*1.0*DPL_+dpl_; }
 				/*!Merge this with b*/
 				void merge(Binning const& b);
 
@@ -278,9 +278,7 @@ void Data<Type>::Binning::merge(Binning const& other){
 			recompute_dx_usefull_ = other.recompute_dx_usefull_;
 			do_merge(tmp_bin,tmp_dpl,tmp_DPL,tmp_Ml);
 		}
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : B_ != b.B_ || b_ != b.b_ "<<std::endl;
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : B_ != b.B_ || b_ != b.b_ "<<std::endl; }
 }
 
 template<typename Type>

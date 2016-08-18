@@ -17,7 +17,7 @@ class PSTricks {
 		/*}*/
 
 		void begin(double const& xbl, double const& ybl, double const& xtr, double const& ytr, std::string const& imagename);
-		void end(bool const& silent, bool const& pdf, bool const& crop);
+		void end(bool const& silent, bool const& png, bool const& crop);
 
 		void add(std::string const& s);
 		void line(std::string const& linetype, double const& x0, double const& y0, double const& x1, double const& y1, std::string const& options);

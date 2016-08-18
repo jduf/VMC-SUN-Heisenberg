@@ -77,7 +77,7 @@ void Linux::mkpath(const char *path, mode_t mode){
 /*{methods returning a std::string that is then to by executed by system*/
 std::string Linux::latex(std::string const& path, std::string const& filename){
 	std::string cmd(MY_BIN_LATEX);
-	cmd+= " -output-directory " +path + " ";
+	cmd+= " -output-directory " + path + " ";
 	cmd+= path+filename + ".tex";
 	return cmd;
 }
@@ -92,15 +92,13 @@ std::string Linux::pdflatex(std::string const& path, std::string const& filename
 
 std::string Linux::dvipdf(std::string const& path, std::string const& filename){
 	std::string cmd(MY_BIN_DVIPDF);
-	cmd+= " " + path  + filename + ".dvi ";
-	cmd+= path + filename + ".pdf ";
+	cmd = "(cd " + path + "; " + cmd + " " + filename + ".dvi " + filename + ".pdf)";
 	return cmd;
 }
 
 std::string Linux::pdfcrop(std::string const& path, std::string const& filename){
 	std::string cmd(MY_BIN_PDFCROP);
-	cmd+= " "  + path + filename + ".pdf ";
-	cmd+=       path + filename + ".pdf > /dev/null";
+	cmd = "(cd " + path + "; " + cmd + " " + filename + ".pdf " + filename + ".pdf > /dev/null)";
 	return cmd;
 }
 
@@ -112,7 +110,7 @@ std::string Linux::pdf2png(std::string const& infile, std::string const& outfile
 
 std::string Linux::gp2latex(std::string const& texfile, std::string const& path, std::string const& gpfile){
 	std::string cmd(MY_BIN_GNUPLOT);
-	cmd = "( cd " + path + " && " + cmd;
+	cmd = "(cd " + path + " && " + cmd;
 	std::ifstream file(path+gpfile+".gp",std::ifstream::in);
 	std::string size;
 	if(file.is_open() && std::getline(file,size) && size.find("#latex_size") != std::string::npos){
@@ -126,7 +124,7 @@ std::string Linux::gp2latex(std::string const& texfile, std::string const& path,
 
 std::string Linux::rst2latex(std::string const& texfile, std::string const& path, std::string const& filename){
 	std::string cmd(MY_BIN_RST2LATEX);
-	cmd+= " --latex-preamble='\\usepackage{grffile}\\usepackage[a4paper,total={13cm,27cm}]{geometry}'";
+	cmd+= " --latex-preamble='\\usepackage{grffile}\\usepackage[a4paper,total={ 13cm,27cm}]{geometry}'";
 	cmd+= " " + path + filename + ".rst ";
 	cmd+=       texfile + ".tex ";
 	return cmd;

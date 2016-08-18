@@ -12,9 +12,9 @@ int main(){
 	d.print();
 	for(unsigned int i(0); i<d.size();i++){
 		file = d.get_path(i) + "/" + d.get_name(i) + d.get_ext(i);
-		IOFiles r(file,false);
+		IOFiles r(file,false,false);
 		file = d.get_name(i) + ".rst";
-		IOFiles w(save_in+file,true);
+		IOFiles w(save_in+file,true,false);
 		w<<r.get_header();
 
 		file = d.get_name(i);

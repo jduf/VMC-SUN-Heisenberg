@@ -1,8 +1,8 @@
-EXEC=test
-EXEC+=young
+EXEC=young
+EXEC+=permutation
 
-test_SRCS=test.cpp YoungTableau.cpp
-young_SRCS=test.cpp YoungTableau.cpp
+young_SRCS=young.cpp YoungTableau.cpp
+permutation_SRCS=permutation.cpp Parseur.cpp IOFiles.cpp RST.cpp Header.cpp
 
 #-----------------------------------------------------------------
 

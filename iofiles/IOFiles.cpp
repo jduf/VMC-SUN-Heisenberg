@@ -2,12 +2,32 @@
 
 /*constructors*/
 /*{*/
-IOFiles::IOFiles(std::string const& filename, bool const& write):
+IOFiles::IOFiles(std::string const& filename, bool const& write, bool const& append_txt_file):
 	filename_(filename),
 	write_(write),
 	binary_(filename_.find("bin",(filename_.size()-3)) != std::string::npos),
-	header_((binary_ && filename_.find(".jdbin", (filename_.size()-6)) != std::string::npos)?new Header():NULL),
-	file_(filename_.c_str(), (binary_?(write_?(std::ios::out | std::ios::binary):(std::ios::in | std::ios::binary)) : (write_?std::ios::out : std::ios::in))),
+	header_(
+			(binary_ && filename_.find(".jdbin", (filename_.size()-6)) != std::string::npos)
+			?new Header()
+			:NULL
+		   ),
+	file_(filename_.c_str(),
+			(binary_
+			 ?(
+				 write_
+				 ?(std::ios::out | std::ios::binary)
+				 :(std::ios::in  | std::ios::binary)
+			  )
+			 :(
+				 write_
+				 ?(
+					 append_txt_file
+					 ?(std::ios::out | std::ios::app)
+					 :(std::ios::out)
+				  )
+				 :(std::ios::in))
+			)
+		 ),
 	open_(file_.is_open())
 {
 	if(open_){
@@ -16,6 +36,7 @@ IOFiles::IOFiles(std::string const& filename, bool const& write):
 			else { read_header(); }
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : failed to open "<< filename_<<std::endl; }
+	if(binary_ && append_txt_file){  std::cerr<<__PRETTY_FUNCTION__<<" : can't append to binary file "<< filename_<<std::endl; }
 }
 
 IOFiles::~IOFiles(){

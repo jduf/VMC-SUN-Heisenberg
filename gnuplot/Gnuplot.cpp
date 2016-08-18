@@ -58,7 +58,7 @@ void Gnuplot::operator=(std::string const& s){ plot_ = s + "\n"; }
 void Gnuplot::operator+=(std::string const& s){ plot_ += s + "\n"; }
 
 void Gnuplot::save_file(){
-	IOFiles w_gp(path_ + filename_+".gp",true);
+	IOFiles w_gp(path_ + filename_+".gp",true,false);
 	if(multiplot_){ plot_ += "unset multiplot\n"; }
 	w_gp<<plot_<<IOFiles::endl;
 }

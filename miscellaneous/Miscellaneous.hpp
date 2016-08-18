@@ -68,6 +68,8 @@ namespace my{
 		return elems;
 	}
 
+	inline void ensure_trailing_slash(std::string& s){ if(s.back() != '/'){ s += '/'; } }
+
 	/*int to alphabet*/
 	inline char int_to_alphabet(unsigned int const& i, bool const& upper_case){
 		if(i<26){
@@ -75,6 +77,21 @@ namespace my{
 			else { return "abcdefghijklmnopqrstuvwxyz"[i]; }
 		} else { return '?'; }
 	}
+
+	/*round*/
+	/*{*/
+	inline double round_nearest(double const& d, unsigned int const decimal_place){
+		return roundf(d*decimal_place)/decimal_place;
+	}
+
+	inline double round_down(double const& d, unsigned int const decimal_place){
+		return floorf(d*decimal_place)/decimal_place;
+	}
+
+	inline double round_up(double const& d, unsigned int const decimal_place){
+		return ceil(d*decimal_place)/decimal_place;
+	}
+	/*}*/
 
 	/*sign*/
 	/*{*/
@@ -169,7 +186,7 @@ namespace my{
 		std::cout<<msg<<100.*step/total<<"%       \r"<<std::flush;
 	}
 
-	/*!check wether a point in inside a polygon (see https://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html) */
+	/*!checks wether a point in inside a polygon (see https://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html) */
 	inline bool in_polygon(unsigned int const& nvert, double const* const vertx, double const* const verty, double const& testx, double const& testy){
 		unsigned int i(0);
 		unsigned int j(0);
@@ -180,7 +197,7 @@ namespace my{
 		return c;
 	}
 
-	/*determine if two segments intersect (see from http://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect)*/
+	/*determines if two segments intersect (see from http://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect)*/
 	/*{*/
 	/*!given three colinear points p, q, r, checks if point q lies between 'pr'*/
 	inline bool on_segment(double const* p, double const* q, double const* r){
@@ -217,6 +234,31 @@ namespace my{
 		return false;
 	}
 	/*}*/
+
+	/*!transforms a double into a fration*/
+	inline unsigned int to_fraction(double const& x0, unsigned long long& num, unsigned long long& den, double& sign, double const& err = 1e-15){
+		sign = my::sign(x0);
+		double g(std::abs(x0));
+		unsigned long long a(0);
+		unsigned long long b(1);
+		unsigned long long c(1);
+		unsigned long long d(0);
+		unsigned long long s;
+		unsigned int iter(0);
+		do {
+			s = std::floor(g);
+			num = a + s*c;
+			den = b + s*d;
+			a = c;
+			b = d;
+			c = num;
+			d = den;
+			g = 1.0/(g-s);
+			if(err>std::abs(sign*num/den-x0)){ return iter; }
+		} while(iter++<1e6);
+		std::cerr<<__PRETTY_FUNCTION__<<" : failed to find a fraction for "<<x0<<std::endl;
+		return 0;
+	}
 }
 
 namespace BLAS{

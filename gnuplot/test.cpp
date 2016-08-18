@@ -21,7 +21,7 @@ int main(){
 	Linux command;
 
 	Gnuplot gp(command.pwd(),"bla");
-	IOFiles w("data.dat",true);
+	IOFiles w("data.dat",true,false);
 	for(unsigned int i(0);i<x.size();i++){
 		for(unsigned int j(0);j<y.size();j++){
 			w<<x(i)<<" "<<y(j)<<" "<<m(i,j)<<IOFiles::endl;

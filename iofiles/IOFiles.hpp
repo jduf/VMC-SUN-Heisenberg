@@ -22,7 +22,7 @@ class IOFiles{
 		/*!Opens a file named filename_ and deduces from filename_ if the file
 		 * is a binary or a text file*/
 		/*}*/
-		IOFiles(std::string const& filename, bool const& write);
+		IOFiles(std::string const& filename, bool const& write, bool const& append_txt_file);
 		/*!Destructor that closes the file*/
 		~IOFiles();
 		/*{Forbidden*/

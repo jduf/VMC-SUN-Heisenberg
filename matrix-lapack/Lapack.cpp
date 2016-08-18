@@ -427,8 +427,8 @@ void Lapack<double>::sygv(Matrix<double>& B, Vector<double>& EVal){
 	dsygv_(1,jobl, 'U', N, mat_->ptr(), N, B.ptr(), N, EVal.ptr(), work, lwork, info);
 
 	delete[] work;
-	if(info){ 
-		std::cerr<<__PRETTY_FUNCTION__<<" : info="<<info<<std::endl; 
+	if(info){
+		std::cerr<<__PRETTY_FUNCTION__<<" : info="<<info<<std::endl;
 		EVal.set();
 	}
 }

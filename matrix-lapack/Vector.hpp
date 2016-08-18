@@ -111,6 +111,8 @@ class Vector{
 		Type min() const;
 		/*!Returns the norm squared of the vector (xx+yy+zz+...)*/
 		double norm_squared() const;
+		/*!Returns the norm of the vector (sqrt(xx+yy+zz+...))*/
+		double norm() const;
 
 		void swap(unsigned int i, unsigned int j);
 
@@ -434,8 +436,13 @@ Type Vector<Type>::prod() const {
 template<typename Type>
 double Vector<Type>::norm_squared() const {
 	double ns(0);
-	for(unsigned int i(0);i<size_;i++){ ns += my::norm_squared(vec_[i]); }
+	for(unsigned int i(0);i<size_;i++){ ns += std::norm(vec_[i]); }
 	return ns;
+}
+
+template<typename Type>
+double Vector<Type>::norm() const {
+	return sqrt(norm_squared());
 }
 /*}*/
 

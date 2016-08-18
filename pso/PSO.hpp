@@ -13,7 +13,7 @@ class Particle{
 		/*{Forbidden*/
 		Particle(Particle const&) = delete;
 		Particle(Particle&&) = delete;
-		Particle& operator=(Particle) = delete;
+		Particle& operator=(Particle const&) = delete;
 		/*}*/
 
 		virtual void init_Particle(double fx);
@@ -29,6 +29,8 @@ class Particle{
 
 		static void set_limit(unsigned int const& param, double const& min, double const& max);
 		static void set(unsigned int const& dof, double const& cg, double const& cp);
+
+		void define_current_as_best(double const& fbx){ fbx_ = fbx; bx_ = x_; }
 		
 	protected:
 		double fbx_;		//!< value at the best position

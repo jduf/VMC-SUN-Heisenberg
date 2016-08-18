@@ -22,7 +22,7 @@ class Myclass{
 			auto func = [this](double x, const double* p){return f(x,p);};
 			Fit F(x,y,p,func);
 
-			IOFiles data("data.dat",true);
+			IOFiles data("data.dat",true,false);
 			for(unsigned int i(0);i<m;i++){
 				 data<<i<<" "<<y(i)<<" "<<f(x(i),p.ptr())<<IOFiles::endl;
 			}
@@ -36,7 +36,7 @@ class Myclass{
 		}
 
 		void fitcorr(){
-			IOFiles r("chain-fermi-N3-m1-n60-M-20-20-20-P-long-range-corr.dat",false);
+			IOFiles r("chain-fermi-N3-m1-n60-M-20-20-20-P-long-range-corr.dat",false,false);
 
 			unsigned int s(3);
 			Matrix<double> xy(60,6);
@@ -56,7 +56,7 @@ class Myclass{
 			};
 			Fit F(x,y,p,func);
 
-			IOFiles data("data.dat",true);
+			IOFiles data("data.dat",true,false);
 			for(unsigned int i(0);i<x.size();i++){
 				data<<x(i)<<" "<<y(i)<<" "<<func(x(i),p.ptr())<<IOFiles::endl;
 			}

@@ -56,18 +56,16 @@ class Linux{
 		static std::string dvipdf(std::string const& path, std::string const& filename);
 		static std::string pdfcrop(std::string const& path, std::string const& filename);
 		static std::string pdf2png(std::string const& infile, std::string const& outfile);
-		/*{Description*/
-		/*!Using a simple gnuplot file (with extension .gp) creates and .eps
-		 * picture and .tex file which can be used to create .pdf files via
-		 * Linux::pdflatex
-		 * A default size size is set such that its ratio equals the golden
-		 * number and when reduced by 70%, fits perfectly in one column in
-		 * revtex-4.1 articles
-		 * To specify a personal ratio, the first line of the .gp file must
-		 * start with "#latex_size x,y" where x,y are dimension of the desired
-		 * picture
-		 * */
-		/*}*/
+		/*{*//*!Creates gnuplot plots
+			   Using a simple gnuplot file (with extension .gp) creates and
+			   .eps picture and .tex file which can be used to create .pdf
+			   files via Linux::pdflatex
+			   A default size size is set such that its ratio equals the
+			   golden number and when reduced by 70%, fits perfectly in one
+			   column in revtex-4.1 articles
+			   To specify a personal ratio, the first line of the .gp file
+			   must start with "#latex_size x,y" where x,y are dimension of
+			   the desired picture *//*}*/
 		static std::string gp2latex(std::string const& texfile, std::string const& path, std::string const& gpfile);
 		static std::string rst2latex(std::string const& texfile, std::string const& path, std::string const& filename);
 		static std::string rst2html(std::string const& path, std::string const& filename);

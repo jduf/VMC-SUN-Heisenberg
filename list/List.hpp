@@ -7,18 +7,16 @@
 /*{Description*/
 /*! The list is constructed according this scheme
 \verbatim
-    ________________________
-   |   *t_  *t_  *t_  *t_   |
-   |    ↑    ↑    ↑    ↑    |
-   | x─→o←──→o←──→o←──→o─→> |
-   | │       ^            | |
-   | NULL              NULL |
-   |                        |
-   | o = Node               |
-   | x = Node head_         |
-   | > = Node tail_         |
-   | ^ = Node target_       |
-   |________________________|
+    _______________________________________
+   |        *t_  *t_  *t_  *t_  *t_        |
+   |         ↑    ↑    ↑    ↑    ↑         |
+   | NULL←──→x←──→o←──→o←──→o←──→>←──→NULL |
+   |                   ^                   |
+   | o = Node                              |
+   | x = Node head_                        |
+   | > = Node tail_                        |
+   | ^ = Node target_                      |
+   |_______________________________________|
 \endverbatim
  * The list contains 3 Nodes.
  *
@@ -67,6 +65,8 @@ class List{
 		bool target_next() const;
 		void set_target(Node* const target = NULL) const { target_ = target; }
 		Node* get_target() const { return target_; }
+		Node* prev() const { return target_->prev_; }
+		Node* next() const { return target_->next_; }
 
 		Type& operator[](unsigned int i){
 			target_ = NULL;
@@ -83,6 +83,12 @@ class List{
 
 		std::shared_ptr<Type>& get_ptr(){ return target_->t_; }
 		std::shared_ptr<Type> const& get_ptr() const { return target_->t_; }
+
+		std::shared_ptr<Type>& first_ptr() { return head_->t_; }
+		std::shared_ptr<Type> const& first_ptr() const { return head_->t_; }
+
+		std::shared_ptr<Type>& last_ptr() { return tail_->t_; }
+		std::shared_ptr<Type> const& last_ptr() const { return tail_->t_; }
 
 		Type& get() { return (*target_->t_); }
 		Type const& get() const { return (*target_->t_); }
@@ -103,6 +109,7 @@ class List{
 
 		void pop_start();
 		void pop_end();
+		void pop_target();
 		void pop(unsigned int const& idx);
 		void pop_range(unsigned int const& a, unsigned int const& b);
 
@@ -153,9 +160,7 @@ void List<Type>::set(){
 }
 
 template<typename Type>
-List<Type>::~List(){
-	if(head_){ delete head_; }
-}
+List<Type>::~List(){ set(); }
 
 template<typename Type>
 List<Type>::Node::Node(std::shared_ptr<Type> t, Node* prev, Node* next):
@@ -166,9 +171,12 @@ List<Type>::Node::Node(std::shared_ptr<Type> t, Node* prev, Node* next):
 
 template<typename Type>
 List<Type>::Node::~Node(){
-	if(next_){
-		delete next_;
-		next_ = NULL;
+	Node* tmp(next_);
+	while(tmp){
+		next_ = tmp->next_;
+		tmp->next_ = NULL;
+		delete tmp;
+		tmp = next_;
 	}
 }
 /*}*/
@@ -221,10 +229,9 @@ IOFiles& operator>>(IOFiles& r, List<Type>& l){
 template<typename Type>
 void List<Type>::add_start(std::shared_ptr<Type> const& t){
 	if(head_){
-		target_ = new Node(t,NULL,head_);
-		head_->prev_ = target_;
-		head_ = target_;
-		target_ = NULL;
+		Node* tmp(new Node(t,NULL,head_));
+		head_->prev_ = tmp;
+		head_ = tmp;
 	} else {
 		head_ = new Node(t,NULL,NULL);
 		tail_ = head_;
@@ -235,10 +242,9 @@ void List<Type>::add_start(std::shared_ptr<Type> const& t){
 template<typename Type>
 void List<Type>::add_end(std::shared_ptr<Type> const& t){
 	if(tail_){
-		target_ = new Node(t,tail_,NULL);
-		tail_->next_ = target_;
-		tail_ = target_;
-		target_ = NULL;
+		Node* tmp(new Node(t,tail_,NULL));
+		tail_->next_ = tmp;
+		tail_ = tmp;
 	} else {
 		tail_ = new Node(t,NULL,NULL);
 		head_ = tail_;
@@ -250,19 +256,16 @@ template<typename Type>
 void List<Type>::add(std::shared_ptr<Type> const& t, unsigned int const& idx){
 	if(idx == 0){ add_start(t); }
 	else{
-		target_ = head_;
+		Node* tmp(head_);
 		unsigned int i(0);
-		while ( ++i<idx && target_ ) { target_ = target_->next_; }
-		if(target_){
-			if(target_->next_){
-				target_->next_ = new Node(t,target_,target_->next_);
-				target_->next_->next_->prev_ = target_->next_;
-				target_ = NULL;
+		while( ++i<idx && tmp ){ tmp = tmp->next_; }
+		if(tmp){
+			if(tmp->next_){
+				tmp->next_ = new Node(t,tmp,tmp->next_);
+				tmp->next_->next_->prev_ = tmp->next_;
 				size_++;
 			} else { add_end(t); }
-		} else  {
-			std::cerr<<__PRETTY_FUNCTION__<<" : try to add a element outside the list range"<<std::endl;
-		}
+		} else  { std::cerr<<__PRETTY_FUNCTION__<<" : try to add a element outside the list range"<<std::endl; }
 	}
 }
 
@@ -272,7 +275,6 @@ void List<Type>::add_after_target(std::shared_ptr<Type> const& t){
 		if(target_->next_){
 			target_->next_ = new Node(t,target_,target_->next_);
 			target_->next_->next_->prev_ = target_->next_;
-			target_ = NULL;
 			size_++;
 		} else { add_end(t); }
 	} else { add_start(t); }
@@ -285,9 +287,11 @@ void List<Type>::add_sort(std::shared_ptr<Type> const& t, std::function<bool (Ty
 			if(cmp(*tail_->t_,*t)){ add_end(t); }
 			else {
 				if(cmp(*head_->t_,*t)){
+					Node* tmp(target_);
 					target_ = head_;
 					while( cmp(*target_->next_->t_,*t) ){ target_ = target_->next_; }
 					add_after_target(t);
+					target_ = tmp;
 				} else { add_start(t); }
 			}
 		} else {
@@ -304,11 +308,10 @@ template<typename Type>
 void List<Type>::pop_start(){
 	if(head_){
 		if(head_->next_){
-			target_ = head_;
+			Node* tmp(head_);
 			head_ = head_->next_;
-			target_->next_ = NULL;
-			delete target_;
-			target_ = NULL;
+			tmp->next_ = NULL;
+			delete tmp;
 		} else {
 			delete head_;
 			head_ = NULL;
@@ -322,11 +325,10 @@ template<typename Type>
 void List<Type>::pop_end(){
 	if(head_){
 		if(head_->next_){
-			target_ = tail_;
+			Node* tmp(tail_);
 			tail_ = tail_->prev_;
 			tail_->next_ = NULL;
-			delete target_;
-			target_ = NULL;
+			delete tmp;
 		} else {
 			delete head_;
 			head_ = NULL;
@@ -337,26 +339,41 @@ void List<Type>::pop_end(){
 }
 
 template<typename Type>
+void List<Type>::pop_target(){
+	if(target_){
+		if(target_->next_ && target_->prev_){
+			Node* tmp(target_);
+			target_ = tmp->prev_;
+
+			tmp->prev_->next_ = tmp->next_;
+			tmp->next_->prev_ = tmp->prev_;
+			tmp->next_ = NULL;
+			delete tmp;
+			size_--;
+		} else {
+			if(target_->next_){ pop_start(); }
+			else{ pop_end(); }
+			target_ = head_;
+		}
+	}
+}
+
+template<typename Type>
 void List<Type>::pop(unsigned int const& idx){
 	if(idx == 0){ pop_start(); }
 	else {
-		target_ = head_;
+		Node* tmp(head_);
 		unsigned int i(0);
-		while ( i++<idx && target_ ){ target_ = target_->next_; }
-		if(target_){
-			if(target_->next_){
-				target_->prev_->next_ = target_->next_;
-				target_->next_->prev_ = target_->prev_;
-				target_->next_ = NULL;
-				delete target_;
-				target_ = NULL;
+		while ( i++<idx && tmp ){ tmp = tmp->next_; }
+		if(tmp){
+			if(tmp->next_){
+				tmp->prev_->next_ = tmp->next_;
+				tmp->next_->prev_ = tmp->prev_;
+				tmp->next_ = NULL;
+				delete tmp;
 				size_--;
-			} else {
-				pop_end();
-			}
-		} else {
-			std::cerr<<__PRETTY_FUNCTION__<<" : try to remove an element outside the list range"<<std::endl;
-		}
+			} else { pop_end(); }
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : try to remove an element outside the list range"<<std::endl; }
 	}
 }
 

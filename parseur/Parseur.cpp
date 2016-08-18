@@ -70,10 +70,10 @@ Parseur::Parseur(unsigned int const& argc, char* argv[]):
 							set(name.substr(1),name.substr(1));
 						} else {
 							/*!this is problematic because there is no way to
-							 * know if it is a an value related to the current
+							 * know if it is a value related to the current
 							 * argument or a new argument*/
 							std::cerr<<__PRETTY_FUNCTION__<<" : problematic argument (impossible to know if '"
-								<<tmp<<"' an option related to '"<<name<<"' or a new argument)"<<std::endl;
+								<<tmp<<"' is an option related to '"<<name<<"' or a new argument)"<<std::endl;
 							locked_ = true;
 						}
 					} else {

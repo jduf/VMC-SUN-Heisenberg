@@ -1,0 +1,377 @@
+********************************************************************
+ *  CSS style for reStructuredText HTML output
+ *  by Cezary Sobaniec <Cezary.Sobaniec@put.edu.pl>
+ *
+ *  $Id: rst.css,v 1.11 2008/05/09 20:05:11 sobaniec Exp $
+ ********************************************************************/
+
+body  {
+  margin: 0pt;
+  margin-bottom: 2ex;
+  padding: 0ex 1em;
+  color: #000000;
+  background-color: #F4F4F4;
+  font-family: "Trebuchet MS", "Tahoma", "Verdana", sans-serif;
+  font-size: 15.5px;
+  line-height: 18px;
+}
+div.document {
+  background-color: white;
+  padding: 1ex 1em;
+  margin: 0ex auto;
+  max-width: 65em;
+  min-width: 15em;
+}
+p {
+  margin: 0ex 0em;
+  padding: 0ex 0em;
+  text-indent: 1.5em;
+}
+ul p, ol p, dl p,
+h1+p, h2+p, h3+p, pre+p, dl+p, blockquote+p, ul+p, ol+p, dl+p,
+p:first-child, table+p, div.sidebar p, p.caption,
+table.footnote p.first, p.topic-title, img.align-left+p,
+h1+img.align-right+p, h2+img.align-right+p,
+h1+div+p, h2+div+p,
+h1+a.image-reference+p, h2+a.image-reference+p,
+div.abstract p
+{
+  text-indent: 0em;
+}
+blockquote {
+  margin: 2ex 2em;
+  margin-right: 0em;
+}
+ul blockquote, ol blockquote, dl blockquote {
+  margin-left: 1.5em;
+}
+p.attribution {
+  text-align: right;
+  font-size: 90%;
+  line-height: 90%;
+}
+/* small paragraphs */
+div.abstract p, div.sidebar p, p.caption, table.footnote td,
+div.legend, table.docutils[border="1"] {
+  font-size: 92%;
+  line-height: 115%;
+}
+a { text-decoration: none }
+a:link  { color: #A00000; }
+a:active { color: #FF0000; }
+a:visited { color: #A00000; }
+a[href]:hover {
+  text-decoration: underline;
+  color: #FF0000
+}
+a.toc-backref {
+  color: inherit;
+}
+
+/* sidebar */
+div.sidebar {
+  border: 2px solid #CCC;
+  background-color: #F8F8F8;
+  padding: 0.7ex 0.5em;
+  width: 20%;
+  float: right;
+  margin-left: 1em;
+  margin-top: 0.5ex;
+  margin-bottom: 0.5ex;
+  color: #440;
+}
+p.sidebar-title {
+  font-weight: bold;
+  margin: 0.5ex 0em;
+}
+
+/* headings */
+h1, h2, h3, h4 {
+  font-weight: normal;
+}
+h1, div.contents p.topic-title {
+  font-size: 160%;
+  line-height: 125%;
+  margin-top: 1.5ex;
+  margin-bottom: 1ex;
+}
+h1.title {
+  font-size: 210%;
+  font-weight: normal;
+  text-align: center;
+  color: inherit;
+  margin-bottom: 0.3ex;
+}
+h2 {
+  font-size: 130%;
+  line-height: 110%;
+  margin-top: 1.7ex;
+  margin-bottom: 1ex;
+  padding-bottom: 0ex;
+  color: inherit;
+}
+h2.subtitle {
+  margin-top: 1ex;
+  font-size: 140%;
+  text-align: center;
+}
+h3 {
+  font-size: 100%;
+  font-weight: bold;
+  margin-top: 0.7ex;
+  margin-bottom: 0.3ex;
+}
+h1.title + *, h2.subtitle + *, table.docinfo + *, div.abstract + * {
+  margin-top: 10ex;
+}
+h2.subtitle {
+  margin-top: 0.5ex;
+}
+
+table.docinfo {
+  margin: 1.5ex auto;
+  padding: 0pt;
+}
+th.docinfo-name {
+  text-align: left;
+  padding-right: 0.3em;
+}
+
+div.abstract {
+  min-width: 17em;
+  max-width: 28em;
+  margin: 2ex auto;
+}
+div.abstract p.topic-title {
+  text-align: center;
+  font-weight: bold;
+}
+div.abstract p {
+  margin: 0.7ex 0em;
+}
+
+/* lists */
+pre, code, tt, span.pre {
+  font-family: "Andale Mono", "Lucida Console", "Monaco", monospace;
+  color: #000060;
+}
+span.pre {
+  font-size: 97%;
+}
+pre {
+  white-space: pre;
+  line-height: 120%;
+  margin: 2ex 2.22em;		/*   2.22 = 2 * 10/9   */
+  margin-right: 0em;
+  font-size: 90%;
+}
+ul pre, ol pre, dl pre {
+  margin-left: 1.67em;		/*   1.67 = 1.5 * 10/9  */
+}
+ul, ol, dl {
+  padding-top: 0ex;
+  padding-bottom: 0ex;
+  margin-top: 0ex;
+  margin-bottom: 0ex;
+  margin-left: 0pt;
+}
+ul, ol {
+  padding-left: 2.5em;
+}
+ul ul, ol ul, ol ol, ul ol {
+  padding-left: 1.6em;
+  margin-top: 0.4ex;
+  margin-bottom: 0.4ex;
+}
+ol ol {
+  list-style-type: lower-alpha;
+}
+li {
+  padding: 0pt;
+  margin: 1.2ex 0em;
+}
+li li {
+  padding: 0pt;
+  margin: 1ex 0em;
+}
+
+/* nested numbered lists */
+ol ol {
+  padding-left: 0em;
+  counter-reset: nitem;
+}
+ol ol ul {
+  padding-left: 3.2em;
+}
+ol ol ul ul {
+  padding-left: 1.6em;
+}
+ol ol > li {
+  list-style-type: none;
+  counter-increment: nitem;
+}
+ol ol > li > p {
+  margin-left: 1.6em;
+}
+ol ol > li > p.first {
+  text-indent: -1.2em;
+}
+ol ol > li > p.first:before {
+  display: inline;
+  content: counter(nitem, lower-alpha) ") ";
+}
+
+dt {
+  margin-top: 1.2ex;
+}
+dl {
+  margin-bottom: 1.5ex;
+}
+dd {
+  margin-top: 0.3ex;
+  margin-left: 2.5em;
+}
+ul.auto-toc {
+  list-style-type: none;
+}
+ul.auto-toc ul.auto-toc {
+  padding-left: 1.5em;
+}
+ul.auto-toc ul.auto-toc ul.auto-toc {
+  padding-left: 2.5em;
+}
+
+/* images */
+img {
+  margin: 1ex auto;
+  border: none;
+}
+img.align-right {
+  margin-top: 0.5ex;
+  margin-bottom: 0.5ex;
+  margin-left: 1em;
+}
+img.align-left {
+  margin-top: 0.5ex;
+  margin-bottom: 0.5ex;
+  margin-right: 1em;
+}
+
+/* figures */
+div.figure[align=left] {
+  float: left;
+  margin-right: 1em;
+  margin-top: 0.4ex;
+  margin-bottom: 0.1ex;
+}
+div.figure[align=right] {
+  float: right;
+  margin-left: 1em;
+  margin-top: 0.4ex;
+  margin-bottom: 0.1ex;
+}
+div.figure[align=center] {
+  margin: 2.5ex auto;
+}
+p.caption {
+  text-align: center;
+  max-width: 100%;
+  color: #000070;
+}
+div.figure[align=center] p.caption {
+  max-width: 70%;
+}
+
+/* footnotes & biblio */
+table.footnote td.label {
+  padding-right: 0.5em;
+  text-align: right;
+}
+table.footnote col.label {
+  width: 2.5em;
+}
+table.footnote p.first {
+  margin-top: 0ex;
+}
+table.citation, table.citation + * {
+  margin-top: 1.2ex;
+}
+table.citation col.label {
+  width: 6em;
+}
+table.citation + table.citation {
+  margin-top: 0.2ex;
+  margin-bottom: 0.2ex;
+}
+
+/* tables */
+table.docutils {
+  border-spacing: 0;
+}
+table.docutils[border="1"] {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  empty-cells: show;
+  margin: 2ex auto;
+}
+table.docutils[border="1"] td, table.docutils[border="1"] th {
+  border: 1px solid #AAA;
+  padding: 0.2ex 0.2em;
+}
+caption {
+  margin: 2ex auto;
+  margin-bottom: -0.5ex;
+  color: #000060;
+  max-width: 70%;
+}
+
+/* other */
+hr {
+  border: none;
+  height: 1px;
+  background-color: #A08080;
+  margin: 2ex 0em;
+}
+div.line br {
+  line-height: 70%;
+}
+div.contents li {
+  margin-top: 0.5ex;
+  margin-bottom: 0.5ex;
+}
+div.contents li li, div.contents p {
+  margin-top: 0ex;
+  margin-bottom: 0ex;
+}
+
+/* printing */
+@media print {
+  body {
+    color: #000000;
+    font-size: 11pt;
+    line-height: 120%;
+    margin: 0ex 0em;
+    background: none;
+    padding: 0pt;
+  }
+  div.document {
+    padding: 0ex 0em;
+    margin: 0ex 0ex;
+    width: 100%;
+  }
+  pre, code, span.pre, span.date {
+    color: black;
+  }
+  h1, h2, h3, h4, code, a:link, a:visited, span.type, blockquote {
+    color: black;
+  }
+  pre {
+    background-color: white;
+  }
+  div.sidebar {
+    border: 2px solid #CCC;
+    background-color: white;
+    color: black;
+  }
+}

@@ -11,8 +11,8 @@ Prime::Prime(unsigned int N):
 	while(new_prime<N-1){
 		j = 0;
 		while(p[j]*p[j] <= i && j<new_prime  && prime){
-			if(i % p[j] == 0 ){prime=false;}
-		j++;
+			if(i % p[j] == 0 ){ prime=false; }
+			j++;
 		}
 
 		if(prime){
@@ -39,9 +39,7 @@ std::vector<unsigned int> Prime::pnd(unsigned int a) const{
 			if(a % p[i] == 0){
 				out.push_back(p[i]);
 				a /= p[i];
-			} else {
-				i++;
-			}
+			} else { i++; }
 		}
 	}
 	return out;

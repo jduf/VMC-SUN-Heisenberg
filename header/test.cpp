@@ -9,7 +9,7 @@ void write_bin(){
 	std::complex<double> c(7.5,1.5);
 	Vector<std::complex<double> > C(3,c);
 
-	IOFiles write("data.jdbin",true);
+	IOFiles write("data.jdbin",true,false);
 	write.write("a",a);	
 	write.write("A",A);	
 	write.write("C",C);	
@@ -22,7 +22,7 @@ void read_bin(){
 	std::complex<double> c;
 	Vector<std::complex<double> > C;
 
-	IOFiles read("data.jdbin",false);
+	IOFiles read("data.jdbin",false,false);
 	std::cout<<read.get_header();
 	read>>a>>A>>C;
 	std::cout<<a<<std::endl;

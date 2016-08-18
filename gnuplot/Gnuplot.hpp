@@ -4,7 +4,7 @@
 #include"IOFiles.hpp"
 #include"Linux.hpp"
 
-class Gnuplot {
+class Gnuplot{
 	public:
 		/*!Constructor for the creation of a .gp file in path/filename*/
 		Gnuplot(std::string const&  path, std::string const& filename);

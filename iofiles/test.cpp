@@ -8,15 +8,15 @@ void write_bin(){
 	std::complex<double> c(1.2,2);
 	Vector<std::complex<double> > v(3,c);
 	double a(12.2);
-	std::string slt("salut");
-	IOFiles write("data.jdbin",true);
+	std::string slt("salut",false);
+	IOFiles write("data.jdbin",true,false);
 	write<<a<<M<<c<<slt;
 	write.write("Vector",v);
 }
 
 void read_bin(){
 	std::cout<<"lecture d'un fichier binaire"<<std::endl;
-	IOFiles read("data.jdbin",false);
+	IOFiles read("data.jdbin",false,false);
 	Matrix<double> M;
 	Vector<std::complex<double> > v;
 	std::complex<double> c;
@@ -33,9 +33,9 @@ void read_bin(){
 
 void write_txt(){
 	std::cout<<"écriture d'un fichier text"<<std::endl;
-	IOFiles write_single("single.dat",true);
-	IOFiles write_mat("matrix.dat",true);
-	IOFiles write_vec_complex("vector-complex.dat",true);
+	IOFiles write_single("single.dat",true,false);
+	IOFiles write_mat("matrix.dat",true,false);
+	IOFiles write_vec_complex("vector-complex.dat",true,false);
 
 	double a(12.3);
 	Matrix<double> M(5,5,2.5);
@@ -49,9 +49,9 @@ void write_txt(){
 
 void read_txt(){
 	std::cout<<"lecture d'un fichier text"<<std::endl;
-	IOFiles read_single("single.dat",false);
-	IOFiles read_mat("matrix.dat",false);
-	IOFiles read_vec_complex("vector-complex.dat",false);
+	IOFiles read_single("single.dat",false,false);
+	IOFiles read_mat("matrix.dat",false,false);
+	IOFiles read_vec_complex("vector-complex.dat",false,false);
 
 	double a(0);
 	Matrix<double> M1(5,5);
@@ -68,9 +68,21 @@ void read_txt(){
 	std::cout<<C1<<std::endl;
 }
 
+void append_txt(){
+	std::cout<<"addition à un fichier text"<<std::endl;
+	IOFiles write_single("single.dat",true,true);
+	IOFiles write_mat("matrix.dat",true,true);
+	IOFiles write_vec_complex("vector-complex.dat",true,true);
+
+	write_single<<"extra"<<IOFiles::endl;
+	write_mat<<"extra"<<IOFiles::endl;
+	write_vec_complex<<"extra"<<IOFiles::endl;
+}
+
 int main(){
-	write_bin();
-	read_bin();
-	//write_txt();
-	//read_txt();
+	//write_bin();
+	//read_bin();
+	write_txt();
+	read_txt();
+	append_txt();
 }
