@@ -166,6 +166,76 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		J[1] = sin(theta); //rungs (J⊥)
 		P.set("J",J);
 	}
+	if( wf == "ladder-dimerA" ){
+		ref(0) = 2;
+		ref(1) = 1;
+		ref(2) = 2;
+		std::vector<double> J(2);
+		double theta(P.get<double>("theta"));
+		J[0] = cos(theta); //legs  (J‖)
+		J[1] = sin(theta); //rungs (J⊥)
+		P.set("J",J);
+	}
+	if( wf == "ladder-dimerB" ){
+		ref(0) = 2;
+		ref(1) = 1;
+		ref(2) = 3;
+		std::vector<double> J(2);
+		double theta(P.get<double>("theta"));
+		J[0] = cos(theta); //legs  (J‖)
+		J[1] = sin(theta); //rungs (J⊥)
+		P.set("J",J);
+	}
+	if( wf == "ladder-squareplaquetteA" ){
+		ref(0) = 2;
+		ref(1) = 1;
+		ref(2) = 4;
+		std::vector<double> J(2);
+		double theta(P.get<double>("theta"));
+		J[0] = cos(theta); //legs  (J‖)
+		J[1] = sin(theta); //rungs (J⊥)
+		P.set("J",J);
+	}
+	if( wf == "ladder-squareplaquetteB" ){
+		ref(0) = 2;
+		ref(1) = 1;
+		ref(2) = 5;
+		std::vector<double> J(2);
+		double theta(P.get<double>("theta"));
+		J[0] = cos(theta); //legs  (J‖)
+		J[1] = sin(theta); //rungs (J⊥)
+		P.set("J",J);
+	}
+	if( wf == "ladder-squareplaquetteC" ){
+		ref(0) = 2;
+		ref(1) = 1;
+		ref(2) = 6;
+		std::vector<double> J(2);
+		double theta(P.get<double>("theta"));
+		J[0] = cos(theta); //legs  (J‖)
+		J[1] = sin(theta); //rungs (J⊥)
+		P.set("J",J);
+	}
+	if( wf == "ladder-rectangularplaquetteA" ){
+		ref(0) = 2;
+		ref(1) = 1;
+		ref(2) = 7;
+		std::vector<double> J(2);
+		double theta(P.get<double>("theta"));
+		J[0] = cos(theta); //legs  (J‖)
+		J[1] = sin(theta); //rungs (J⊥)
+		P.set("J",J);
+	}
+	if( wf == "ladder-rectangularplaquetteB" ){
+		ref(0) = 2;
+		ref(1) = 1;
+		ref(2) = 8;
+		std::vector<double> J(2);
+		double theta(P.get<double>("theta"));
+		J[0] = cos(theta); //legs  (J‖)
+		J[1] = sin(theta); //rungs (J⊥)
+		P.set("J",J);
+	}
 	if( wf == "ladder-freeflux" ){
 		ref(0) = 2;
 		ref(1) = 2;

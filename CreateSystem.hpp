@@ -8,6 +8,13 @@
 
 #include "LadderFermi.hpp"
 #include "LadderFree.hpp"
+#include "LadderDimerA.hpp"
+#include "LadderDimerB.hpp"
+#include "LadderSquarePlaquetteA.hpp"
+#include "LadderSquarePlaquetteB.hpp"
+#include "LadderSquarePlaquetteC.hpp"
+#include "LadderRectangularPlaquetteA.hpp"
+#include "LadderRectangularPlaquetteB.hpp"
 #include "LadderFreeFlux.hpp"
 
 #include "TriangleFermi.hpp"

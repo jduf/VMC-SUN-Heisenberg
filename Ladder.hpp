@@ -130,6 +130,12 @@ void Ladder<Type>::create_obs(unsigned int const& which_obs){
 					}
 				}
 			}break;
+		default:{
+					std::cerr<<__PRETTY_FUNCTION__<<" : unknown observable "<<which_obs<<std::endl;
+					std::cerr<<"Available observables are :"<<std::endl;
+					std::cerr<<" + Bond energy            : 1"<<std::endl;
+					std::cerr<<" + Long range correlation : 2"<<std::endl;
+				}
 	}
 }
 

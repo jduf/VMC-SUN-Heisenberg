@@ -106,10 +106,24 @@ void Observable::add_sample(){
 }
 
 void Observable::merge(Observable& obs){
+	if(type_ == 1234){ 
+		type_ = 0; 
+		std::cerr<<__PRETTY_FUNCTION__<<" : redefine the type_ of the Observable 'Energy per site'"<<std::endl;
+		/*! This can is a well defined behaviour  when VMCMinimization tries to
+		 * measure the Obervable 'Bond energy' for a new sample. This is
+		 * because for a new sample created using Minimisation::s_, the
+		 * Observable 'Energy per site' will have its type_ changed to 1234 and
+		 * when merging with another mesure of the same sample with type 1234,
+		 * this method would merge two Observables with the type :
+		 * type_ = obs.type_ = 1234
+		 *
+		 * To keep the type_ of the Obervable 'Energy per site' equal to 0, it
+		 * is redefined here.*/
+	}
 	/*see Observable::combine_measurement for explanation on the 1234 value*/
 	if(type_ == (obs.type_)%1234 && nval_ == obs.nval_){
 		for(unsigned int i(0);i<nval_;i++){ val_[i].merge(obs.val_[i]); }
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : inconsistent size "<<nval_<<"!="<<obs.nval_<<" for "<<name_<<" and "<<obs.name_<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : inconsistent size "<<nval_<<"!="<<obs.nval_<<" for "<<name_<<" ("<<type_<<") and "<<obs.name_<<" ("<<obs.type_<<")"<<std::endl; }
 }
 
 void Observable::delete_binning(){
@@ -128,7 +142,7 @@ void Observable::combine_measurement(bool const& combine){
 	if(!type_){
 		if(combine){ type_ = 1234; }
 		else { type_ = 0; }
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : should only be used with the Observable of the energy so that it is measured at the same time then the bond energy"<<std::endl; }
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : should only be used with the Observable 'Energy per site' that can be measured with the Observable 'Bond energy'"<<std::endl; }
 }
 /*}*/
 

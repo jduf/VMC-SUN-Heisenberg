@@ -32,7 +32,7 @@ else
 endif
 
 CHAIN     = ChainFermi.cpp ChainPolymerized.cpp ChainFree.cpp ChainSAS.cpp
-LADDER    = LadderFermi.cpp LadderFree.cpp LadderFreeFlux.cpp
+LADDER    = LadderFermi.cpp LadderFree.cpp LadderDimerA.cpp LadderDimerB.cpp LadderSquarePlaquetteA.cpp LadderSquarePlaquetteB.cpp LadderSquarePlaquetteC.cpp LadderRectangularPlaquetteA.cpp LadderRectangularPlaquetteB.cpp LadderFreeFlux.cpp 
 SQUARE    = SquareFermi.cpp SquareFree.cpp SquareMu.cpp SquareDimerizedBar.cpp SquareT2x2.cpp SquareT3x2.cpp SquareT3x3.cpp SquareT4x2.cpp SquareT4x3.cpp SquareT4x4.cpp SquareLadder.cpp SquareVCS.cpp SquareFreeFlux.cpp SquarePiFlux.cpp SquareChiral.cpp SquareBox6.cpp SquareJastrow.cpp 
 TRIANGLE  = TriangleFermi.cpp TriangleFree.cpp TrianglePlaquette.cpp TriangleAlternatingPlaquette.cpp TriangleMu.cpp TriangleT3x2.cpp TrianglePhi.cpp TriangleChiral.cpp
 HONEYCOMB = HoneycombFermi.cpp HoneycombFree.cpp Honeycombp00.cpp Honeycomb0pp.cpp HoneycombPiFlux.cpp HoneycombChiral.cpp

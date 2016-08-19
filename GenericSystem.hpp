@@ -157,8 +157,7 @@ void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 			for(auto const& uic:unit_cell_links){
 				std::cout<<std::get<0>(uic)<<" "<<std::get<1>(uic)<<" "<<std::get<2>(uic)<<std::endl;
 			}
-		}
-		else {
+		} else {
 			/*!This value has nothing to do with the index of the bond l having
 			 * a coupling J_(l). This value is only the index of a given bond
 			 * in the unit cell. It means that J_(tmp(k,2)) would be completely

@@ -97,6 +97,55 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										}
 										RGL_ = new LadderFree(*s_,t,mu);
 									}break;
+								case 2:
+									{
+										Vector<double> t;
+										if(param){ t = (*param); }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new LadderDimerA(*s_,t);
+									}break;
+								case 3:
+									{
+										Vector<double> t;
+										if(param){ t = (*param); }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new LadderDimerB(*s_,t);
+									}break;
+								case 4:
+									{
+										Vector<double> t;
+										if(param){ t = (*param); }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new LadderSquarePlaquetteA(*s_,t);
+									}break;
+								case 5:
+									{
+										Vector<double> t;
+										if(param){ t = (*param); }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new LadderSquarePlaquetteB(*s_,t);
+									}break;
+								case 6:
+									{
+										Vector<double> t;
+										if(param){ t = (*param); }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new LadderSquarePlaquetteC(*s_,t);
+									}break;
+								case 7:
+									{
+										Vector<double> t;
+										if(param){ t = (*param); }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new LadderRectangularPlaquetteA(*s_,t);
+									}break;
+								case 8:
+									{
+										Vector<double> t;
+										if(param){ t = (*param); }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new LadderRectangularPlaquetteB(*s_,t);
+									}break;
 								default:{ error(); }break;
 							}
 						}break;

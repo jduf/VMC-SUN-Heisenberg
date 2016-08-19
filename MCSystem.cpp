@@ -124,7 +124,7 @@ void MCSystem::measure_new_step(){
 						}
 					}
 				}break;
-			case 1:// for energy and bond energy
+			case 1:// for energy and bond energy (if E->get_type()==1234)
 				{
 					double r;
 					o.set_x(0.0);

@@ -83,6 +83,10 @@ void VMCSystematic::analyse(std::string const& path, std::string const& filename
 	if(m_->samples_.size()){
 		Vector<unsigned int> ref(m_->s_->get_ref());
 		switch(ref(0)){
+			case 2:
+				{
+					std::cerr<<__PRETTY_FUNCTION__<<" : undefined analyse for "<<ref<<std::endl; 
+				}break;
 			case 3:
 				{
 					IOFiles data(path+filename+".dat",true,false);
