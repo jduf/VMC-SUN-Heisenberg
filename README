@@ -1,0 +1,71 @@
+VARIATIONAL MONTE-CARLO ALGORITHM FOR THE SU(N) HEISENBERG MODEL
+===============================================================
+
+The code provided here is what I wrote during my PhD thesis at the École
+Polythecnique Fédérale de Lausanne (EPFL) in Frédéric Mila's group. It is aimed
+to compute variational energies of the SU(N) Heisenberg model in any fully
+antisymmetric irreducible representation (one or more particle per site) on
+various lattices. The make transparent what the code can do, let very briefly
+explain what this model is about. It describes the Mott insulating phase of a
+gas of fermionic ultracold atoms trapped in optical lattice, this field belong
+to quantum physics. The fermionic atoms have N internal degrees of freedom that
+will be referred to as colours. On each site of the lattice, there are m<N
+particles that can be exchanged with other sites.
+
+
+It is based on the Monte-Carlo metropolis sampling of
+fermionic Gutzwiller projected wave functions. This does not currently support
+the bosonic variational wave functions based on Jastrow factors but the
+structure of the code is such that this type of wave function can certainly be
+added with little effort (it has already been tested in this code for SU(2) and
+first neighbour Jastrow factor, so the generalisation to N>2 and long range
+Jastrow is possible).
+
+The following scientific articles are examples of what this code is able to do:
+
+
+and other (unpublished) results can be found in my thesis:
+
+
+
+It currently supports:
+
++ any value of N>1
++ any number of particle per site m>N
++ any number of site n
++ any simple boundary condition (periodic, antiperiodic, none)
++ any number of particle of each color (having more particles of one colour is allowed)
++ first neighbour Heisenberg model (easily generalisable to further neighbours)
++ inhomogeneous coupling between sites 
+
+
+The code is commented and the documentation can be generated via Doxyfile 
+
+
+It can do
+
++ can visualise the lattice with unit cell, site numbers, basis vectors, hopping amplitude, fluxes 
+
+It requires
+
++ c++ 4.9.2 (can maybe work with older version)
+
+All the following softwares are not essential be should be present to use this
+code at its best potential. Indeed, the visualisation of the results, already
+implemented in the code, relies on:
+
++ gnuplot 
++ latex 
++ ReStructuedText 
++ rst2html 
++ rst2latex 
++ pdflatex 
++ latex 
++ dvipdf 
++ pdfcrop 
++ imagemagick 
++ firefox 
+
+All these software can be set and personalised in the Linux.hpp and Linux.cpp
+files. For instance imagemagick is not available to convert images, only these
+two files require some changes.
