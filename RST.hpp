@@ -1,1 +1,1 @@
-/home/jdufour/travail/cpp-dev/rst/RST.hpp
+lib/rst/RST.hpp

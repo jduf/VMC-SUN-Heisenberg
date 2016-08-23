@@ -1,1 +1,1 @@
-/home/jdufour/travail/cpp-dev/parseur/Parseur.cpp
+lib/parseur/Parseur.cpp

@@ -1,1 +1,1 @@
-/home/jdufour/travail/cpp-dev/fit/Fit.cpp
+lib/fit/Fit.cpp

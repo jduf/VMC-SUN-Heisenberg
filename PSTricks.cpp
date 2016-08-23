@@ -1,1 +1,1 @@
-/home/jdufour/travail/cpp-dev/pstricks2pdf/PSTricks.cpp
+lib/pstricks2pdf/PSTricks.cpp

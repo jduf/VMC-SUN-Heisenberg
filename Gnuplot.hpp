@@ -1,1 +1,1 @@
-/home/jdufour/travail/cpp-dev/gnuplot/Gnuplot.hpp
+lib/gnuplot/Gnuplot.hpp

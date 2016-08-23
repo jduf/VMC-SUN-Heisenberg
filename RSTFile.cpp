@@ -1,1 +1,1 @@
-/home/jdufour/travail/cpp-dev/rst/RSTFile.cpp
+lib/rst/RSTFile.cpp
