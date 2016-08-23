@@ -1,1 +1,0 @@
-../gnuplot/Gnuplot.cpp
