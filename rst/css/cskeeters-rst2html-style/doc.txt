@@ -1,0 +1,76 @@
+.. rst2html --stylesheet=style.css doc.txt > doc.html
+
+==========================================
+Sample Documentation
+==========================================
+:Author: Chad Skeeters
+:Date: 18-Feb-2013
+
+Basic Text Markup
+=================
+
+This is a sample paragraph demonstrating *italic text*, *bold text*, and ``monospaced``.
+
+Lists
+=====
+
+* This is a bulletted List
+* This is a bulletted List
+
+
+Sub Heading
+-----------
+
+This is a sub-Heading
+
+Sub Sub Heading
+^^^^^^^^^^^^^^^
+
+This is a sub-sub-Heading
+
+
+Code
+====
+
+.. code-block:: c++
+
+  #include <vector>
+
+  int main(int argc, char argv[][])
+  {
+    std::cout << "Something very detailed is happening" << std::endl;
+  }
+
+Admonishments
+=============
+
+.. NOTE::
+  Sample Note
+
+.. WARNING::
+  Sample warning
+
+Tables
+======
+
+=====  =====  ======
+  A      B    A or B
+=====  =====  ======
+False  False  False
+True   False  True
+False  True   True
+True   True   True
+=====  =====  ======
+
+Images
+======
+
+.. image:: http://www.google.com/images/srpr/logo3w.png
+
+Links
+=====
+
+This is a `link`_.
+
+.. _`link`: http://google.com
+

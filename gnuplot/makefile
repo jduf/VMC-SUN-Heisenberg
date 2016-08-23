@@ -1,0 +1,39 @@
+EXEC=test gnuplot2image
+
+test_SRCS=test.cpp Gnuplot.cpp IOFiles.cpp Header.cpp RST.cpp Linux.cpp
+gnuplot2image_SRCS=gnuplot2image.cpp Linux.cpp
+#gnuplot2image_SRCS=gnuplot2image.cpp Gnuplot.cpp Parseur.cpp IOFiles.cpp Header.cpp RST.cpp 
+
+#-----------------------------------------------------------------
+
+CXX = g++ -std=c++11
+
+ERRORS = -Wall -Wextra -pedantic
+OPTION = 
+
+BUILD=build
+
+CXXFLAGS = $(ERRORS) $(OPTION)
+LDFLAGS  = $(ERRORS) $(OPTION)
+
+SRCS=$(wildcard *.cpp)
+
+all: OPTION += -O3 -DNDEBUG
+all:$(EXEC)
+
+debug: OPTION += -ggdb 
+debug:$(EXEC)
+
+.SECONDEXPANSION:
+$(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS)) 
+	@echo Links $(notdir $^)
+	$(CXX) -o $@ $^ $(LDFLAGS) 
+
+$(BUILD)/%.o:%.cpp
+	@echo Creates $(notdir $@)
+	$(CXX) -MD -c $(CXXFLAGS) $< -o $@
+
+-include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
+
+clean:
+	rm -f $(BUILD)/* test
