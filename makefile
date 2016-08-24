@@ -52,8 +52,9 @@ $(MACHINE)min_SRCS   = min.cpp   $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMI
 $(MACHINE)study_SRCS = study.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN) $(ANALYSE)
 
 #-----------------------------------------------------------------
+include lib/config.mk
 
-CXXFLAGS = $(ERRORS) $(OPTION)
+CXXFLAGS = $(ERRORS) $(OPTION) $(CONFIG)
 LDFLAGS  = $(ERRORS) $(OPTION) $(LAPACK) libcminpack.a
 
 EXEC+=

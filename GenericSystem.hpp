@@ -42,7 +42,6 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void create() = 0;
 		virtual void check() = 0;
 		virtual void display_results() = 0;
-		virtual void get_wf_symmetries(std::vector<Matrix<int> >& sym) const { (void)(sym); }
 
 		virtual std::string get_mc_run_command() const { return "undefined"; }
 

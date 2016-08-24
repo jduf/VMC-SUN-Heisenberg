@@ -130,11 +130,6 @@ class CreateSystem{
 			if(RGL_){ return RGL_->create_obs(which_obs); }
 			if(CGL_){ return CGL_->create_obs(which_obs); }
 		}
-		/*!Calls GenericSystem::get_wf_symmetries pure virtual method*/
-		void get_wf_symmetries(std::vector<Matrix<int> >& sym) const {
-			if(RGL_){ RGL_->get_wf_symmetries(sym); }
-			if(CGL_){ CGL_->get_wf_symmetries(sym); }
-		}
 		/*!Calls GenericSystem::check pure virtual method*/
 		void check() const {
 			if(RGL_){ return RGL_->check(); }

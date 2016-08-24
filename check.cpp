@@ -142,33 +142,6 @@ int main(int argc, char* argv[]){
 				mcsim->complete_analysis(1e-5);
 				std::cout<<mcsim->get_energy()<<std::endl;
 			} break;
-		case 7:/*check symmetries*/
-			{
-				Vector<double> t_ref(P.get<std::vector<double> >("t"));
-				Vector<double> mu_ref(P.get<std::vector<double> >("mu"));
-				Vector<double> param_ref(t_ref.size()+mu_ref.size());
-				for(unsigned int i(0);i<t_ref.size();i++){ param_ref(i) = t_ref(i); }
-				for(unsigned int i(0);i<mu_ref.size();i++){ param_ref(t_ref.size()+i) = mu_ref(i); }
-				cs.init(NULL,&P);
-				std::vector<Matrix<int> > all_sym;
-				cs.get_wf_symmetries(all_sym);
-				for(unsigned int j(0);j<all_sym.size();j++){
-					Vector<double> param(param_ref);
-					Matrix<int> sym(all_sym[j]);
-					for(unsigned int i(0);i<sym.row();i++){
-						if(sym(i,1)<0){ param(sym(i,0)) = sym(i,2)*66; }
-						else { param(sym(i,0)) = sym(i,2)*param(sym(i,1)); }
-					}
-					for(unsigned int i(0);i<param.size();i++){
-						if( my::are_equal(std::abs(param(i)),66) ){
-							std::cout<<(param(i)>=0?" A ":"-A ");
-						} else {
-							std::cout<<(param(i)>=0?" ":"")<<param(i)<<" ";
-						}
-					}
-					std::cout<<std::endl;
-				}
-			} break;
 		default:
 			{
 				std::cerr<<__PRETTY_FUNCTION__<<" : unknown option 'what', options are :"<<std::endl;
@@ -179,7 +152,6 @@ int main(int argc, char* argv[]){
 				std::cerr<<"    - init + create + run + write : 4"<<std::endl;
 				std::cerr<<"    - load + run + rewrite        : 5"<<std::endl;
 				std::cerr<<"    - MCSim                       : 6"<<std::endl;
-				std::cerr<<"    - load + check_symmetries     : 7"<<std::endl;
 			}
 	}
 }

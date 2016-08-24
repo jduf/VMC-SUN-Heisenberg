@@ -23,7 +23,7 @@ int main(int argc, char* argv[]){
 					switch(what(w)){
 						case 0:
 							{
-								VMCPSO m1(P,m,P.get<int>("symmetry"));
+								VMCPSO m1(P,m);
 								VMCInterpolation m2(m);
 								unsigned int loop(P.get<unsigned int>("loop"));
 								if(!P.locked()){
@@ -66,15 +66,6 @@ int main(int argc, char* argv[]){
 								m.improve_bad_samples(dEoE);
 								m.save();
 								m.refine();
-							}break;
-						case 4:
-							{
-								VMCPSO m1(P,m,P.get<int>("symmetry"));
-
-								m1.init_param_and_symmetry(P.get<std::vector<double> >("param"));
-								m1.run();
-								m1.complete_analysis(1e-5);
-								m1.save();
 							}break;
 						case 5:
 							{
