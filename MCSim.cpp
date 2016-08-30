@@ -96,10 +96,21 @@ void MCSim::save(IOFiles& w) const {
 }
 /*}*/
 
+std::string MCSim::analyse(unsigned int const& level, IOSystem* ios){
+	CreateSystem cs(MCS_.get());
+	cs.init(&param_,NULL);
+	cs.set_IOSystem(ios);
+	return cs.analyse(level);
+}
+
 /*static methods*/
 /*{*/
 bool MCSim::sort_by_E(MCSim const& a, MCSim const& b){
 	return a.get_energy().get_x()<b.get_energy().get_x();
+}
+
+bool MCSim::sort_by_theta_for_ladder(MCSim const& a, MCSim const& b){
+	return a.get_J()(1)<b.get_J()(1);
 }
 
 unsigned int MCSim::sort_for_merge(MCSim const& list, MCSim const& new_elem){

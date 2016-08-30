@@ -6,7 +6,7 @@
 
 class AnalyseSystematic : public Analyse{
 	public:
-		AnalyseSystematic(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd, bool const& display_results);
+		AnalyseSystematic(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd);
 		/*!Default destructor*/
 		~AnalyseSystematic();
 		/*{Forbidden*/
@@ -17,7 +17,6 @@ class AnalyseSystematic : public Analyse{
 		/*}*/
 
 	protected:
-		bool display_results_;
 		List<MCSim> kept_samples_;
 
 		void open_files();

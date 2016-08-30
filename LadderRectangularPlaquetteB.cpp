@@ -5,20 +5,22 @@ LadderRectangularPlaquetteB::LadderRectangularPlaquetteB(System const& s, Vector
 	Ladder<double>(6,"ladder-rectangularplaquetteB"),
 	t_(t)
 {
-	if(status_==2 && t_.size()==4){
-		init_fermionic();
+	if(t_.size()==4){
+		if(status_==2){
+			init_fermionic();
 
-		system_info_.text("LadderRectangularPlaquetteB :");
-		system_info_.text(" Each color has the same Hamiltonian.");
-		system_info_.text(" Rectangular plaquette in a 6 site unit cell");
-		system_info_.text(" pi flux between the rectangular plaquettes");
-		system_info_.text(" pi flux inside the rectangular plaquettes");
+			system_info_.text("LadderRectangularPlaquetteB :");
+			system_info_.text(" Each color has the same Hamiltonian.");
+			system_info_.text(" Rectangular plaquette in a 6 site unit cell");
+			system_info_.text(" pi flux between the rectangular plaquettes");
+			system_info_.text(" pi flux inside the rectangular plaquettes");
 
-		filename_ += "-t";
-		for(unsigned int i(0);i<t_.size();i++){
-			filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
+			filename_ += "-t";
+			for(unsigned int i(0);i<t_.size();i++){
+				filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
+			}
 		}
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : t must contain 4 values (currently contains "<<t_.size()<<")"<<std::endl; }
 }
 
 /*{method needed for running*/

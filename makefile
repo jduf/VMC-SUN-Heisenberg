@@ -4,10 +4,8 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 	EXEC = check
 	EXEC+= mc
 	EXEC+= min
-	#EXEC+= mcbi
-	POSTPROCESS = cp $(EXEC) ../sim;
+	EXEC+= mcbi
 	EXEC+= study
-	POSTPROCESS+= cp ../sim/study  ../
 
 	CXX = g++ -std=c++14
 	LAPACK = -llapack -lblas
@@ -16,14 +14,12 @@ ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
 else
 	EXEC= $(MACHINE)min
 	EXEC+= $(MACHINE)mc
-	POSTPROCESS= cp $(EXEC) ../sim/;
 	EXEC+= $(MACHINE)study
-	POSTPROCESS+= cp ../sim/$(MACHINE)study ../
 
 	CXX = icpc -std=c++11
 	LAPACK =# -Wl,--no-as-needed -L${MKL_ROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
 	ERRORS = -Wall -Wextra -pedantic
-	OPTION = -openmp -mkl -D MY_BLAS_ZDOTU
+	OPTION = -qopenmp -mkl -D MY_BLAS_ZDOTU -no-inline-max-size -no-inline-max-total-size
 
 	#CXX = g++ -std=c++11
 	#LAPACK = -Wl,--no-as-needed -L${MKL_ROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
@@ -41,7 +37,7 @@ KAGOME    = KagomeFermi.cpp KagomeFree.cpp KagomePlaquette3A.cpp KagomePlaquette
 WF         = $(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)
 MONTECARLO = MonteCarlo.cpp MCSystem.cpp MCSim.cpp BiSystem.cpp
 VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp VMCExtract.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp VMCSystematic.cpp
-ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseMin.cpp AnalyseExtract.cpp AnalyseSystematic.cpp AnalyseChain.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp VMCMinimization.cpp VMCExtract.cpp VMCSystematic.cpp Interpolation.cpp Directory.cpp
+ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseMin.cpp AnalyseExtract.cpp AnalyseSystematic.cpp AnalyseSystematicLadder.cpp AnalyseChain.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp VMCMinimization.cpp VMCExtract.cpp VMCSystematic.cpp Interpolation.cpp Directory.cpp
 IOFILES    = Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
 OTHER      = System.cpp IOSystem.cpp Observable.cpp CreateSystem.cpp Lapack.cpp Parseur.cpp Fit.cpp
 
@@ -66,11 +62,9 @@ SRCS=$(wildcard *.cpp)
 
 all: OPTION += -O3 -DNDEBUG
 all:$(EXEC)
-	$(POSTPROCESS)
 
 debug: OPTION += -ggdb
 debug:$(EXEC)
-	$(POSTPROCESS)
 
 .SECONDEXPANSION:
 $(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS))

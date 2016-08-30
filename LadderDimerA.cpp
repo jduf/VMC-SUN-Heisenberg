@@ -5,18 +5,20 @@ LadderDimerA::LadderDimerA(System const& s, Vector<double> const& t):
 	Ladder<double>(2,"ladder-dimerA"),
 	t_(t)
 {
-	if(status_==2 && t_.size()==2){
-		init_fermionic();
+	if(t_.size()==2){
+		if(status_==2){
+			init_fermionic();
 
-		system_info_.text("LadderDimerA :");
-		system_info_.text(" Each color has the same Hamiltonian.");
-		system_info_.text(" Dimer");
+			system_info_.text("LadderDimerA :");
+			system_info_.text(" Each color has the same Hamiltonian.");
+			system_info_.text(" Dimer");
 
-		filename_ += "-t";
-		for(unsigned int i(0);i<t_.size();i++){
-			filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
+			filename_ += "-t";
+			for(unsigned int i(0);i<t_.size();i++){
+				filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
+			}
 		}
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : t must contain 2 values (currently contains "<<t_.size()<<")"<<std::endl; }
 }
 
 /*{method needed for running*/

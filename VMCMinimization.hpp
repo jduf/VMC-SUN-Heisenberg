@@ -19,6 +19,7 @@ class VMCMinimization{
 
 		void load(IOFiles& in, bool const& loadall){ m_->load(in,path_,basename_,loadall); }
 		void set_phase_space(Parseur const& P){ m_->set_phase_space(P); }
+		void swap_phase_space(Vector<double>*& ps){ m_->swap_phase_space(ps); }
 		void set_tmax(unsigned int const& tmax){ m_->tmax_ = tmax; }
 
 		void refine();
@@ -26,7 +27,7 @@ class VMCMinimization{
 		void refine(unsigned int const& nmin, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter);
 
 		void complete_analysis(double const& convergence_criterion);
-		void save() const;
+		void save(std::string const& tmp_path = "") const;
 		void save_parameters(unsigned int nbest) const;
 		void run_parameters(Parseur& P);
 
@@ -38,8 +39,10 @@ class VMCMinimization{
 
 		void improve_bad_samples(double const& dEoE);
 
-		bool ready() const { return m_.get(); }
 		RST& get_header(){ return m_->info_; }
+		bool ready() const { return m_.get(); }
+		std::string const& get_path() const { return path_; }
+		std::string get_filename() const { return time_+"_"+prefix_+basename_; }
 
 	private:
 		mutable std::string time_;
@@ -62,6 +65,7 @@ class VMCMinimization{
 				void create(Parseur& P, std::string& path, std::string& basename);
 				void load(IOFiles& in, std::string& path, std::string& filename, bool const& loadall);
 				bool set_phase_space(Parseur const& P);
+				bool swap_phase_space(Vector<double>*& ps);
 
 				bool within_limit(Vector<double> const& x) const;
 				void save(IOFiles& out, bool const& all) const;
@@ -69,7 +73,7 @@ class VMCMinimization{
 				List<MCSim> samples_;
 				RST info_;
 				System* s_             = NULL;
-				unsigned int dof_ 	   = 0;
+				unsigned int dof_ 	   = 0;   //!< number of variational parameters (degrees of freedom)
 				Vector<double>* ps_    = NULL;//!< parameter space
 				double ps_size_        = 0.0; //!< parameter space size
 				double effective_time_ = 0.0;
@@ -85,9 +89,6 @@ class VMCMinimization{
 		std::shared_ptr<Minimization> m_;
 		unsigned int progress_;
 		unsigned int total_eval_;
-
-		std::string const& get_path() const { return path_; }
-		std::string get_filename() const { return time_+"_"+prefix_+basename_; }
 
 		void set_time() const { time_ = Time().date("-"); }
 		std::string const& get_time() const { return time_; }

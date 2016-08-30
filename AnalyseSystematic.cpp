@@ -1,8 +1,7 @@
 #include "AnalyseSystematic.hpp"
 
-AnalyseSystematic::AnalyseSystematic(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd, bool const& display_results):
-	Analyse(sim,path,max_level,run_cmd),
-	display_results_(display_results)
+AnalyseSystematic::AnalyseSystematic(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
+	Analyse(sim,path,max_level,run_cmd)
 {
 	do_analyse();
 }

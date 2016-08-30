@@ -79,13 +79,24 @@ void VMCSystematic::plot(){
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
-void VMCSystematic::analyse(std::string const& path, std::string const& filename, List<MCSim>& keep) const {
+void VMCSystematic::analyse(std::string const& path, std::string const& filename, List<MCSim>& kept_samples) const {
 	if(m_->samples_.size()){
 		Vector<unsigned int> ref(m_->s_->get_ref());
 		switch(ref(0)){
 			case 2:
 				{
-					std::cerr<<__PRETTY_FUNCTION__<<" : undefined analyse for "<<ref<<std::endl; 
+					IOFiles data(path+filename+".dat",true,false);
+
+					List<MCSim>::Node* min(NULL);
+					m_->samples_.target_next();
+					while(m_->samples_.target_next()){
+						data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
+
+						if(!min || min->get()->get_energy().get_x()>m_->samples_.get().get_energy().get_x())
+						{ min = m_->samples_.get_target(); }
+					}
+					if(min){ kept_samples.add_end(min->get()); }
+					else { std::cerr<<__PRETTY_FUNCTION__<<" : no minium found for "<<path+filename+".jdbin"<<std::endl; }
 				}break;
 			case 3:
 				{
@@ -107,7 +118,7 @@ void VMCSystematic::analyse(std::string const& path, std::string const& filename
 							{ min = m_->samples_.get_target(); }
 						}
 					}
-					if(min){ keep.add_end(min->get()); }
+					if(min){ kept_samples.add_end(min->get()); }
 
 					Gnuplot gp(path,filename);
 					gp+="plot '"+filename+".dat' u 1:2:3 w e notitle";
@@ -143,8 +154,8 @@ void VMCSystematic::analyse(std::string const& path, std::string const& filename
 								}
 							}
 						}
-						if(min_neg){ keep.add_end(min_neg->get()); }
-						if(min_pos){ keep.add_end(min_pos->get()); }
+						if(min_neg){ kept_samples.add_end(min_neg->get()); }
+						if(min_pos){ kept_samples.add_end(min_pos->get()); }
 
 						Gnuplot gp(path,filename);
 						gp+="plot '"+filename+".dat' u 1:2:3 w e notitle";

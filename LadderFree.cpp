@@ -142,12 +142,12 @@ void LadderFree::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="ladder-free";
-	//display_results();
+	display_results();
 
 	//compute_H();
 	//plot_band_structure();
-	create_obs(0);
-	std::cout<<obs_[3].get_links()<<std::endl;
+	//create_obs(0);
+	//std::cout<<obs_[3].get_links()<<std::endl;
 }
 /*}*/
 

@@ -3,7 +3,7 @@
 AnalyseMin::AnalyseMin(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
 	Analyse(sim,path,max_level,run_cmd)
 {
-	child_in_AnalyseMin_ = true;
+	consider_only_most_recent_jdbin_ = true;
 	do_analyse();
 }
 

@@ -28,6 +28,8 @@ class Ladder: public System1D<Type>{
 		void create_obs(unsigned int const& which_obs);
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
+		/*!To get a plot of E(theta) for all N,m,n,bc*/
+		std::string extract_level_6();
 		/*!Given N and m, save the best simulation in a text file for any n*/
 		std::string extract_level_3();
 		/*Draw the lattice inside a PSTricks file*/
@@ -188,6 +190,13 @@ Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {
 		}
 	}
 	return nb;
+}
+
+template<typename Type>
+std::string Ladder<Type>::extract_level_6(){
+	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<acos(this->J_(0))<<" "<<this->obs_[0][0]<<" "<<this->ref_<<IOFiles::endl;
+
+	return this->filename_;
 }
 
 template<typename Type>

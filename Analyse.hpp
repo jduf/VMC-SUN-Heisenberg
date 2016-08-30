@@ -25,10 +25,12 @@ class Analyse: public IOSystem{
 		unsigned int nof_ 		  = 0;
 		unsigned int level_ 	  = 0;
 		std::string rel_level_ 	  = "";
-		bool child_in_AnalyseMin_ = false;
+		bool consider_only_most_recent_jdbin_ = false;
 
 		void do_analyse();
+		/*!At each level, this method is called to create usefull output files*/
 		virtual void open_files()  = 0;
+		/*!At each level, this method is called to close open files*/
 		virtual void close_files() = 0;
 
 		std::string extract_default();

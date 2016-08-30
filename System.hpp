@@ -64,9 +64,9 @@ class System{
 		/*}*/
 
 		/*{Saves/prints ref_, N_, m_, n_, bc_, M_, J_, status_ and obs_*/
-		/*!Call child method to save all children without description*/
+		/*!Call child method to save MCSystem's children without header*/
 		virtual void write(IOFiles& w) const;
-		/*!Saves only this class with description*/
+		/*!Saves this class and GenericSystem's children with description*/
 		void save(IOFiles& w) const;
 		/*!Prints the values of the nobs first observables*/
 		void print(unsigned int nobs) const;
@@ -81,6 +81,8 @@ class System{
 		Data<double> const& get_energy() const { return obs_[0][0]; }
 		/*!Returns the energy*/
 		unsigned int const& get_n() const { return n_; }
+		/*!Returns the coupling strength*/
+		Vector<double> const& get_J() const { return J_; }
 		/*!Returns the number of observables*/
 		unsigned int nobs() const { return obs_.size(); }
 		/*!Returns all observables*/

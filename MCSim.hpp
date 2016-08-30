@@ -20,7 +20,7 @@ class MCSim{
 		/*}*/
 
 		/*{Core methods*/
-		/*!Sets MCS_ to a new MCSystem created via C*/
+		/*!Sets MCS_ to a new MCSystem created via a pointer to System*/
 		void create_S(System const* const s);
 		/*!Sets MCS_ to a copy obtained via MCSystem::clone() run on MCS*/
 		void copy_clear_S(std::shared_ptr<MCSim> const& mcsim);
@@ -46,9 +46,9 @@ class MCSim{
 		/*}*/
 
 		/*{Output in IOFiles methods*/
-		/*!Write raw data (no output in header) => made to save many MCSim*/
+		/*!Write raw data (no output in header): save many MCSim*/
 		void write(IOFiles& w) const;
-		/*!Write nice data (with output header) => made to save one MCSim*/
+		/*!Write formatted data (with output header): save one MCSim or in text files*/
 		void save(IOFiles& w) const;
 		/*}*/
 
@@ -57,18 +57,18 @@ class MCSim{
 		Data<double> const& get_energy() const { return MCS_->get_energy(); }
 		/*!Returns param_*/
 		Vector<double> const& get_param() const { return param_; }
+		/*!Return the coupling strength*/
+		Vector<double> const& get_J() const { return MCS_->get_J(); }
 		/*!Returns true if MCS_ can be run by MonteCarlo*/
 		bool is_created() const { return (MCS_.get() && !MCS_->get_status()); }
-		/*!Returns true if MCS_ can be run by MonteCarlo*/
-		std::string get_mc_run_command() const {
-			CreateSystem cs(MCS_.get());
-			cs.init(&param_,NULL);
-			return cs.get_mc_run_command();
-		}
 		/*}*/
+
+		/*!Analyse and output in ios*/
+		std::string analyse(unsigned int const& level, IOSystem* ios);
 
 		/*{Static methods*/
 		static bool sort_by_E(MCSim const& a, MCSim const& b);
+		static bool sort_by_theta_for_ladder(MCSim const& a, MCSim const& b);
 		static unsigned int sort_for_merge(MCSim const& list, MCSim const& new_elem);
 		static unsigned int sort_by_param_for_merge(Vector<double> const& a, Vector<double> const& b);
 		/*}*/

@@ -5,20 +5,22 @@ LadderSquarePlaquetteC::LadderSquarePlaquetteC(System const& s, Vector<double> c
 	Ladder<double>(4,"ladder-squareplaquetteC"),
 	t_(t)
 {
-	if(status_==2 && t_.size()==3){
-		init_fermionic();
+	if(t_.size()==3){
+		if(status_==2){
+			init_fermionic();
 
-		system_info_.text("LadderSquarePlaquetteC :");
-		system_info_.text(" Each color has the same Hamiltonian.");
-		system_info_.text(" Square plaquette in a 4 site unit cell");
-		system_info_.text(" pi flux between the plaquettes");
-		system_info_.text(" pi flux inside the plaquettes");
+			system_info_.text("LadderSquarePlaquetteC :");
+			system_info_.text(" Each color has the same Hamiltonian.");
+			system_info_.text(" Square plaquette in a 4 site unit cell");
+			system_info_.text(" pi flux between the plaquettes");
+			system_info_.text(" pi flux inside the plaquettes");
 
-		filename_ += "-t";
-		for(unsigned int i(0);i<t_.size();i++){
-			filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
+			filename_ += "-t";
+			for(unsigned int i(0);i<t_.size();i++){
+				filename_ += ((t_(i)>=0)?"+":"")+my::tostring(t_(i));
+			}
 		}
-	}
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : t must contain 3 values (currently contains "<<t_.size()<<")"<<std::endl; }
 }
 
 /*{method needed for running*/

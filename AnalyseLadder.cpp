@@ -8,7 +8,7 @@ AnalyseLadder::AnalyseLadder(std::string const& sim, std::string const& path, un
 
 AnalyseLadder::~AnalyseLadder(){
 	Gnuplot gp(analyse_+path_+dir_,sim_.substr(0,sim_.size()-1));
-	gp.label("x","$\\frac{1}{N}$");
+	gp.label("x","$\\frac{ 1}{N}$");
 	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
 	gp+="plot '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==6?1.0/$1:1/0):3 t '$k=6$',\\";
 	gp+="     '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==3?1.0/$1:1/0):3 t '$k=3$'";

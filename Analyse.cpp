@@ -106,7 +106,7 @@ void Analyse::search_jdbin(){
 		command.mkpath((analyse_+path_+dir_).c_str());
 		open_files();
 
-		if(level_==9 && child_in_AnalyseMin_){
+		if(level_==9 && consider_only_most_recent_jdbin_){
 			std::cout<<"lev "<<level_<<" : "<<path_+dir_<<std::endl;
 			std::cout<<std::string(6+path_.size()+dir_.size(),' ')<<"|->"<<d.get_name(d.size()-1)<<std::endl;
 
