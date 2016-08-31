@@ -16,7 +16,7 @@ class Honeycomb: public System2D<Type>{
 		/*Draw the lattice inside a PSTricks file*/
 		void draw_lattice(bool const& only_unit_cell, bool const& silent, Vector<double> const& uc_shift);
 		/*!Create the long range correlation observables*/
-		void compute_long_range_correlation();
+		void long_range_correlations_obs();
 
 		virtual void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
 		virtual std::string extract_level_2();
@@ -112,7 +112,7 @@ void Honeycomb<Type>::init_lattice(){
 					Vector<unsigned int> l(2);
 					l(0) = 3;
 					l(1) = 0;
-					this->create_energy_obs(l);
+					this->energy_obs(l);
 				} else {
 					this->ref_(4) = 0;
 					this->status_ = 2;
@@ -129,7 +129,7 @@ void Honeycomb<Type>::init_lattice(){
 }
 
 template<typename Type>
-void Honeycomb<Type>::compute_long_range_correlation(){
+void Honeycomb<Type>::long_range_correlations_obs(){
 	Vector<double>* dx(new Vector<double>[this->n_]);
 	for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[i]-this->x_[0]; }
 
@@ -332,7 +332,7 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 		}
 	}
 	/*draws long range correlations over the lattice*/
-	if(o(1)){ this->draw_long_range_correlation(ps,shift,this->obs_[o(1)]); }
+	if(o(1)){ this->draw_long_range_correlations(ps,shift,this->obs_[o(1)]); }
 	ps.end(silent,true,true);
 }
 

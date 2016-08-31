@@ -75,15 +75,6 @@ void MCSystem::swap(){
 	} while (is_new_state_forbidden() || new_c_[0] == new_c_[1]);
 }
 
-void MCSystem::swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
-	new_s_[0] = s0;
-	new_p_[0] = p0;
-	new_c_[0] = s_(s0,p0);
-	new_s_[1] = s1;
-	new_p_[1] = p1;
-	new_c_[1] = s_(s1,p1);
-}
-
 void MCSystem::update(){
 	s_(new_s_[0],new_p_[0]) = new_c_[1];
 	s_(new_s_[1],new_p_[1]) = new_c_[0];
@@ -199,6 +190,8 @@ void MCSystem::measure_new_step(){
 						}
 					}
 				}break;
+			default:
+				{ compute_peculiar_observable(o); }break;
 		}
 	}
 	E->divide(n_);
@@ -209,8 +202,17 @@ void MCSystem::add_sample(){ for(auto& o:obs_){ o.add_sample(); } }
 void MCSystem::write(IOFiles& w) const { w<<s_; }
 /*}*/
 
-/*private methods*/
+/*protected methods*/
 /*{*/
+void MCSystem::swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
+	new_s_[0] = s0;
+	new_p_[0] = p0;
+	new_c_[0] = s_(s0,p0);
+	new_s_[1] = s1;
+	new_p_[1] = p1;
+	new_c_[1] = s_(s1,p1);
+}
+
 bool MCSystem::is_new_state_forbidden(){
 	for(unsigned int i(0);i<m_;i++){
 		if(i != new_p_[0] && s_(new_s_[0],i) == new_c_[1]){ return true; }

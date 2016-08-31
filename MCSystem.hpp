@@ -33,8 +33,6 @@ class MCSystem: public virtual System{
 		void initialize_measure();
 		/*!Exchanges two particles of different colors on random sites*/
 		virtual void swap();
-		/*!Exchanges the p0's particle of site s0 with the p1's of site s1*/
-		virtual void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
 		/*!Pure virtual method that computes the ratio between two states*/
 		virtual double ratio()=0;
 		/*!Updates only s_*/
@@ -62,9 +60,14 @@ class MCSystem: public virtual System{
 
 		Matrix<unsigned int> s_;  //!< s_(site,particle)=color
 
-	private:
+		/*!Exchanges the p0's particle of site s0 with the p1's of site s1*/
+		virtual void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
 		/*!Checks only if the new state has not the same color on one site*/
 		bool is_new_state_forbidden();
+
+	private:
+		/*!Pure virtual method that computes the value of particular obervables (like H^2)*/
+		virtual void compute_peculiar_observable(Observable& O)=0;
 
 		Rand<unsigned int> n_rnd_;//!< generator of random numbers
 		Rand<unsigned int> m_rnd_;//!< generator of random numbers

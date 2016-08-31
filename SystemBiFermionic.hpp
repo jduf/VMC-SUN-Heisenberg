@@ -56,6 +56,8 @@ class SystemBiFermionic: public MCSystem, public BiFermionic<Type>{
 		/*!Authorizes copy only via clone()*/
 		SystemBiFermionic(SystemBiFermionic<Type> const& SBF);
 
+		void compute_peculiar_observable(Observable& O){ (void)(O); }
+
 		bool ratio_for_measure_;  //!< allows the correct matrices' selection to compute the ratio
 		Matrix<unsigned int> row_;//!< row of the matrix A that is modified
 		Matrix<Type>* A_[2];	  //!< A matrices (one for each wavefunction and colors)

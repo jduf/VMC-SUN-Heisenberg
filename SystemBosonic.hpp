@@ -40,6 +40,8 @@ class SystemBosonic: public MCSystem, public Bosonic<Type>{
 	private:
 		/*!Autorize copy only via clone()*/
 		SystemBosonic(SystemBosonic<Type> const& S);
+
+		void compute_peculiar_observable(Observable& O){ (void)(O); }
 };
 
 /*constructors and destructor*/

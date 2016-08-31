@@ -23,11 +23,11 @@ class Observable{
 		Observable() = delete;
 		/*}*/
 
+		Matrix<int> const& get_links() const { return links_; }
 		std::string const& get_name() const { return name_; }
-		unsigned int const& get_type() const { return type_; }
 		unsigned int const& nval() const { return nval_; }
 		unsigned int const& nlinks() const { return links_.row(); }
-		Matrix<int> const& get_links() const { return links_; }
+		unsigned int const& get_type() const { return type_; }
 
 		void merge(Observable& obs);
 		void delete_binning();

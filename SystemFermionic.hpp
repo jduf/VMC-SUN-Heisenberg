@@ -72,6 +72,10 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 
 		/*!Returns true if the Ainv_ matrices are invertible*/
 		bool are_invertible();
+
+		Type determinant_lemma(unsigned int const& i);
+		Type determinant_lemma(unsigned int const& col, unsigned int const& s0, unsigned int const& s1, unsigned int const& r0, unsigned int const& r1);
+		void compute_peculiar_observable(Observable& O);
 };
 
 /*constructors and destructor and initialization*/
@@ -328,19 +332,10 @@ double SystemFermionic<Type>::ratio(){
 		 * minus sign is then cancelled by the reordering of the operators */
 		return 1.0;
 	} else {
-		unsigned int c;
-		for(unsigned int i(0);i<2;i++){
-			//w_[i] = BLAS::dot(M_(new_c_[i]),this->EVec_[new_c_[i]].ptr(),true,this->EVec_[new_c_[i]].row(),new_ev_[i],Ainv_[new_c_[i]].ptr(),false,M_(new_c_[i]),new_r_[i]);
-			c= new_c_[i];
-			w_[i] = 0.0;
-			for(unsigned int k(0);k<M_(c);k++){
-				w_[i] += this->EVec_[c](new_ev_[i],k)*Ainv_[c](k,new_r_[i]);
-			}
-		}
 		/*!the minus sign is correct, it comes from <C|H|C'> because when H is
 		 * applied on |C>, the operators are not in the correct color order,
 		 * so they need to be exchanged*/
-		return -my::real(w_[0]*w_[1]);
+		return -my::real(determinant_lemma(0)*determinant_lemma(1));
 	}
 }
 
@@ -365,6 +360,33 @@ void SystemFermionic<Type>::print(){
 /*private method*/
 /*{*/
 template<typename Type>
+Type SystemFermionic<Type>::determinant_lemma(unsigned int const& i){
+	unsigned int c(new_c_[i]);
+	//w_[i] = BLAS::dot(M_(new_c_[i]),this->EVec_[new_c_[i]].ptr(),true,this->EVec_[new_c_[i]].row(),new_ev_[i],Ainv_[new_c_[i]].ptr(),false,M_(new_c_[i]),new_r_[i]);
+	w_[i] = 0.0;
+	for(unsigned int k(0);k<M_(c);k++){
+		w_[i] += this->EVec_[c](new_ev_[i],k)*Ainv_[c](k,new_r_[i]);
+	}
+	return w_[i];
+}
+
+template<typename Type>
+Type SystemFermionic<Type>::determinant_lemma(unsigned int const& col, unsigned int const& s0, unsigned int const& s1, unsigned int const& r0, unsigned int const& r1){
+	Type a(0.0);
+	Type b(0.0);
+	Type c(0.0);
+	Type d(0.0);
+	unsigned int M(this->M_(col));
+	for(unsigned int k(0);k<M;k++){
+		a += this->EVec_[col](s1,k)*Ainv_[col](k,r0);
+		c += this->EVec_[col](s0,k)*Ainv_[col](k,r0);
+		c += this->EVec_[col](s1,k)*Ainv_[col](k,r1);
+		d += this->EVec_[col](s0,k)*Ainv_[col](k,r1);
+	}
+	return a*d-b*c;
+}
+
+template<typename Type>
 bool SystemFermionic<Type>::are_invertible(){
 	Vector<int> ipiv;
 	double rcn(0.0);
@@ -374,6 +396,315 @@ bool SystemFermionic<Type>::are_invertible(){
 		if(!ipiv.ptr()){ return false; }
 	}
 	return true;
+}
+
+template<typename Type>
+void SystemFermionic<Type>::compute_peculiar_observable(Observable& O){
+	if(O.get_type()==4){
+		Data<double>* H2(&O[0]);
+		H2->set_x(0.0);
+
+		Type w;
+		unsigned int L(this->obs_[0].nlinks());
+
+		auto colors_involved = [](unsigned int const& ci0, unsigned int const& ci1, unsigned int const& cj0, unsigned int const& cj1){
+			if(ci0 == ci1){
+				if(ci0 == cj0){
+					if(ci0 == cj1){ /*AAAA*/ return 10; }
+					else { /*AAAB*/ return 30; }
+				} else {
+					if(ci0 == cj1){ /*AABA*/ return 31; }
+					else if( cj0 == cj1) {  /*AABB*/ return 11; }
+					else {  /*AABC*/ return 32; }
+				}
+			} else if(ci0 == cj0){
+				if(ci0 == cj1){ /*ABAA*/ return 20; }
+				else if (ci1 == cj1) { /*ABAB*/ return 50; }
+				else { /*ABAC*/ return 40; }
+			} else if(ci0 == cj1){
+				if(ci1 == cj0){ /*ABBA*/ return 51; }
+				else {  /*ABCA*/ return 41; }
+			} else {
+				if(ci1 == cj0){
+					if(ci1 == cj1){ /*ABBB*/ return 21; }
+					else { /*ABBC*/ return 42; }
+				} else {
+					if(cj0 == cj1){ /*ABCC*/ return 22; }
+					else if ( ci1 == cj1){  /*ABCB*/ return 43; }
+					else {  /*ABCD*/ return 60; }
+				}
+			}
+		};
+
+		int* idx[2];
+		idx[0] = this->obs_[0].get_links().ptr();
+		idx[1] = idx[0]+L;
+		unsigned int ci0;
+		unsigned int ci1;
+		unsigned int cj0;
+		unsigned int cj1;
+		for(unsigned int i(0);i<L;i++){
+			int* jdx[2];
+			jdx[0] = this->obs_[0].get_links().ptr();
+			jdx[1] = jdx[0]+L;
+			for(unsigned int j(0);j<L;j++){
+				if(
+						i>j && /*!To avoid the double computation*/
+						*idx[0] != *jdx[0] &&
+						*idx[0] != *jdx[1] &&
+						*idx[1] != *jdx[0] &&
+						*idx[1] != *jdx[1]
+				  ){
+					/*!Consider here only pairs of links that do not share any
+					 * site, they can therefore be treated independently*/
+					for(unsigned int ip0(0);ip0<this->m_;ip0++){
+						ci0 = this->s_(*idx[0],ip0);
+						for(unsigned int ip1(0);ip1<this->m_;ip1++){
+							ci1 = this->s_(*idx[1],ip1);
+							swap(*idx[0],*idx[1],ip0,ip1);
+
+							if(!this->is_new_state_forbidden()){
+								for(unsigned int jp0(0);jp0<this->m_;jp0++){
+									cj0 = this->s_(*jdx[0],jp0);
+									for(unsigned int jp1(0);jp1<this->m_;jp1++){
+										cj1 = this->s_(*jdx[1],jp1);
+										swap(*jdx[0],*jdx[1],jp0,jp1);
+
+										if(!this->is_new_state_forbidden()){
+											switch(colors_involved(ci0,ci1,cj0,cj1)){
+												case 60:/*ABCD*/
+													{
+														swap(*idx[0],*idx[1],ip0,ip1);
+														w = ratio();
+														swap(*jdx[0],*jdx[1],jp0,jp1);
+														w*= ratio();
+														H2->add(2*J_(i)*J_(j)*my::real(w));
+													}break;
+												case 51:/*ABBA*/
+													{
+														w = determinant_lemma(ci0,*idx[0],*jdx[1],row_(*idx[0],ip0),row_(*jdx[1],jp1));
+														w*= determinant_lemma(ci1,*idx[1],*jdx[0],row_(*idx[1],ip1),row_(*jdx[0],jp0));
+														H2->add(2*J_(i)*J_(j)*my::real(w));
+													}break;
+												case 50:/*ABAB*/
+													{
+														w = determinant_lemma(ci0,*idx[0],*jdx[0],row_(*idx[0],ip0),row_(*jdx[0],jp0));
+														w*= determinant_lemma(ci1,*idx[1],*jdx[1],row_(*idx[1],ip1),row_(*jdx[1],jp1));
+														H2->add(2*J_(i)*J_(j)*my::real(w));
+													}break;
+												case 43:/*ABCB*/
+													{
+														swap(*idx[0],*idx[1],ip0,ip1);
+														w = determinant_lemma(0);
+														swap(*jdx[0],*jdx[1],ip0,ip1);
+														w*= determinant_lemma(0);
+														w*= determinant_lemma(ci1,*idx[1],*jdx[1],row_(*idx[1],ip1),row_(*jdx[1],jp1));
+
+														H2->add(2*J_(i)*J_(j)*my::real(w));
+													}break;
+												case 42:/*ABBC*/
+													{
+														swap(*idx[0],*idx[1],ip0,ip1);
+														w = determinant_lemma(1);
+														swap(*jdx[0],*jdx[1],ip0,ip1);
+														w*= determinant_lemma(1);
+														w*= determinant_lemma(ci1,*idx[1],*jdx[0],row_(*idx[1],ip1),row_(*jdx[0],jp0));
+
+														H2->add(2*J_(i)*J_(j)*my::real(w));
+													}break;
+												case 41:/*ABCA*/
+													{
+														swap(*idx[0],*idx[1],ip0,ip1);
+														w = determinant_lemma(0);
+														swap(*jdx[0],*jdx[1],ip0,ip1);
+														w*= determinant_lemma(1);
+														w*= determinant_lemma(ci0,*idx[0],*jdx[1],row_(*idx[0],ip0),row_(*jdx[1],jp1));
+
+														H2->add(2*J_(i)*J_(j)*my::real(w));
+													}break;
+												case 40:/*ABAC*/
+													{
+														swap(*idx[0],*idx[1],ip0,ip1);
+														w = determinant_lemma(1);
+														swap(*jdx[0],*jdx[1],ip0,ip1);
+														w*= determinant_lemma(0);
+														w*= determinant_lemma(ci0,*idx[0],*jdx[0],row_(*idx[0],ip0),row_(*jdx[0],jp0));
+
+														H2->add(2*J_(i)*J_(j)*my::real(w));
+													}break;
+												case 32:/*AABC*/
+												case 31:/*AABA*/
+												case 30:/*AAAB*/
+													{
+														swap(*idx[0],*idx[1],ip0,ip1);
+														H2->add(2*J_(i)*J_(j)*ratio());
+													}break;
+												case 22:/*ABCC*/
+												case 21:/*ABBB*/
+												case 20:/*ABAA*/
+													{
+														swap(*jdx[0],*jdx[1],jp0,jp1);
+														H2->add(2*J_(i)*J_(j)*ratio());
+													}break;
+												case 11:/*AABB*/
+												case 10:/*AAAA*/
+													{ H2->add(2*J_(i)*J_(j)); }break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				} else if (i==j){
+					H2->add(m_*m_*J_(i)*J_(j));
+				} else {
+					/*!Consider here only pairs of links that share only one
+					 * site which will always be labelled by b. The operator H2
+					 * will act on three sites a,b,c and can be decomposed in a
+					 * product of two operators Hab and Hbc. */
+					unsigned int a(0);
+					unsigned int b(0);
+					unsigned int c(0);
+					if     ( *idx[0] == *jdx[0] ){ a = *idx[1]; b = *idx[0]; c = *jdx[1]; }
+					else if( *idx[0] == *jdx[1] ){ a = *idx[1]; b = *idx[0]; c = *jdx[0]; }
+					else if( *idx[1] == *jdx[0] ){ a = *idx[0]; b = *idx[1]; c = *jdx[1]; }
+					else if( *idx[1] == *jdx[1] ){ a = *idx[0]; b = *idx[1]; c = *jdx[0]; }
+
+					if(a || b || c){
+						/*!Thanks to the definition of a,b,c the common site for
+						 * the two permutation is b, therefore for example when
+						 * a state is symbolised by ABCD, it corresponds to
+						 * abbc and after applying Hab*Hbc it becomes BADC
+						 * because on the site B there are two different
+						 * particles BC. If the initial state in ABBC, then
+						 * Hab*Hbc applies on the same particle on the site B
+						 * which implies that after the application of Hbc, it
+						 * becomes ACCB and after Hab it becomes CAAB.*/
+						for(unsigned int ip0(0);ip0<this->m_;ip0++){
+							ci0 = this->s_(a,ip0);
+							for(unsigned int ip1(0);ip1<this->m_;ip1++){
+								ci1 = this->s_(b,ip1);
+								for(unsigned int jp0(0);jp0<this->m_;jp0++){
+									cj0 = this->s_(b,jp0);
+									for(unsigned int jp1(0);jp1<this->m_;jp1++){
+										cj1 = this->s_(c,jp1);
+										/*test authorised states*/
+										switch(colors_involved(ci0,ci1,cj0,cj1)){
+											case 60:/*ABCD*/
+												{
+													bool allowed(true);
+													for(unsigned int k(0);k<this->m_;k++){
+														if(this->s_(a,k) == ci1 || this->s_(b,k) == ci0 || this->s_(b,k) == cj1 || this->s_(c,k) == cj0) { allowed = false; k=this->m_; }
+													}
+													if(allowed){ 
+														swap(*idx[0],*idx[1],ip0,ip1);
+														w = ratio();/*det(A)det(B)*/
+														swap(*jdx[0],*jdx[1],jp0,jp1);
+														w*= ratio();/*det(C)det(D)*/
+														H2->add(J_(i)*J_(j)*my::real(w));
+													}
+												}break;
+											case 51:/*ABBA*/
+												{
+													swap(b,c,jp0,jp1);
+													if(!this->is_new_state_forbidden()){ H2->add(J_(i)*J_(j)*ratio()); }
+												}break;
+											case 50:/*ABAB*/
+												{
+													swap(a,c,ip0,jp1);
+													if(!this->is_new_state_forbidden()){ H2->add(J_(i)*J_(j)*ratio()); }
+												}break;
+											case 43:/*ABCB*/
+												{
+													bool allowed(true);
+													for(unsigned int k(0);k<this->m_;k++){
+														if(this->s_(a,k) == ci1 || this->s_(b,k) == ci0 || this->s_(c,k) == cj0) { allowed = false; k=this->m_; }
+													}
+													if(allowed){ 
+														swap(a,b,ip0,ip1);
+														w = determinant_lemma(0);
+														w*= determinant_lemma(1);
+														swap(b,c,jp0,jp1);
+														w*= determinant_lemma(1);
+														H2->add(J_(i)*J_(j)*my::real(w));
+													}
+												}break;
+											case 42:/*ABBC*/
+												{
+													bool allowed(true);
+													for(unsigned int k(0);k<this->m_;k++){
+														if(this->s_(a,k) == cj1 || this->s_(b,k) == ci0 || this->s_(c,k) == ci1) { allowed = false; k=this->m_; }
+													}
+													if(allowed){
+														swap(a,b,ip0,ip1);
+														w = determinant_lemma(0);/*det(A)*/
+														swap(b,c,ip1,jp1);
+														w*= determinant_lemma(1);/*det(B)*/
+														swap(a,c,ip0,jp1);
+														w*= determinant_lemma(1);/*det(C)*/
+														H2->add(J_(i)*J_(j)*my::real(w));
+													}
+												}break;
+											case 41:/*ABCA*/
+												{ /*impossible output state*/ }break;
+											case 40:/*ABAC*/
+												{
+													bool allowed(true);
+													for(unsigned int k(0);k<this->m_;k++){
+														if(this->s_(a,k) == ci1 || this->s_(b,k) == cj1 || this->s_(c,k) == cj0) { allowed = false; k=this->m_; }
+													}
+													if(allowed){
+														swap(a,b,ip0,ip1);
+														w = determinant_lemma(0);
+														w*= determinant_lemma(1);
+														swap(b,c,jp0,jp1);
+														w*= determinant_lemma(1);
+														H2->add(J_(i)*J_(j)*my::real(w));
+													}
+												}break;
+											case 32:/*AABC*/
+												{
+													swap(b,c,jp0,jp1);
+													if(!this->is_new_state_forbidden()){ H2->add(J_(i)*J_(j)*ratio()); }
+												}break;
+											case 31:/*AABA*/
+												{ /*impossible output state*/ }break;
+											case 30:/*AAAB*/
+												{
+													swap(a,c,ip0,jp1);
+													if(!this->is_new_state_forbidden()){ H2->add(J_(i)*J_(j)*ratio()); }
+												}break;
+											case 22:/*ABCC*/
+												{
+													swap(a,b,ip0,ip1);
+													if(!this->is_new_state_forbidden()){ H2->add(J_(i)*J_(j)*ratio()); }
+												}break;
+											case 21:/*ABBB*/
+												{
+													swap(a,b,ip0,ip1);
+													if(!this->is_new_state_forbidden()){ H2->add(J_(i)*J_(j)*ratio()); }
+												}break;
+											case 20:/*ABAA*/
+												{ /*impossible output state*/ }break;
+											case 11:/*AABB*/
+											case 10:/*AAAA*/
+												{ H2->add(J_(i)*J_(j)); }break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				jdx[0]++;
+				jdx[1]++;
+			}
+			idx[0]++;
+			idx[1]++;
+		}
+		H2->divide(this->n_*this->n_);
+	}
 }
 /*}*/
 #endif

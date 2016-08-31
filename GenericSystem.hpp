@@ -38,7 +38,8 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*!Substitute method for wavefunctions without parameters to save*/
 		virtual void save_param(IOFiles& w) const;
 		/*!Creates observable (bond energy, long range correlations,...)*/
-		virtual void create_obs(unsigned int const& which_obs) = 0;
+		void create_obs(unsigned int const& which_obs);
+
 		virtual void create() = 0;
 		virtual void check() = 0;
 		virtual void display_results() = 0;
@@ -57,7 +58,16 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 			   argument l gives the number of links that need to be computed
 			   for the site i%l.size(). Once this array is computed, it is set
 			   to the energy observable *//*}*/
-		void create_energy_obs(Vector<unsigned int> const& l);
+		void energy_obs(Vector<unsigned int> const& l);
+		/*!Create the bond energy observables*/
+		void bond_energy_obs();
+		/*!Create the long range correlation observables*/
+		virtual void long_range_correlations_obs() = 0;
+		/*!Create the color occupation observables*/
+		virtual void color_occupation_obs();
+		/*!Create the observable H*H allowing the computation of the energy variance*/
+		void energy_variance_obs(); 
+
 		/*{*//*!Returns the neighbours of site i.
 			   This pure virtual method must be defined here because it is
 			   needed by GenericSystem<Type>::set_nn_links() *//*}*/
@@ -110,7 +120,7 @@ void GenericSystem<Type>::save_param(IOFiles& w) const {
 
 /*{protected methods*/
 template<typename Type>
-void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
+void GenericSystem<Type>::energy_obs(Vector<unsigned int> const& l){
 	bool conflict(false);
 	for(auto const& o:this->obs_){ if(o.get_type() == 0){ conflict = true; } }
 	if(conflict){ std::cerr<<__PRETTY_FUNCTION__<<" : energy observable already defined"<<std::endl; }
@@ -172,6 +182,48 @@ void GenericSystem<Type>::create_energy_obs(Vector<unsigned int> const& l){
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link"<<std::endl; }
 	if(!this->bc_){ std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl; }
+}
+
+template<typename Type>
+void GenericSystem<Type>::create_obs(unsigned int const& which_obs){
+	switch(which_obs){
+		case 0: { for(unsigned int i(1);i<5;i++){ create_obs(i); } }break;
+		case 1: { bond_energy_obs(); }break;
+		case 2: { long_range_correlations_obs(); }break;
+		case 3: { color_occupation_obs(); }break;
+		case 4: { energy_variance_obs(); }break;
+		default:{
+					std::cerr<<__PRETTY_FUNCTION__<<" : unknown observable "<<which_obs<<std::endl;
+					std::cerr<<"Available observables are :"<<std::endl;
+					std::cerr<<" + Bond energy            : 1"<<std::endl;
+					std::cerr<<" + Long range correlations: 2"<<std::endl;
+					std::cerr<<" + Color occupation       : 3"<<std::endl;
+					std::cerr<<" + H*H (energy variance)  : 4"<<std::endl;
+				}
+	}
+}
+
+template<typename Type>
+void GenericSystem<Type>::bond_energy_obs(){
+	unsigned int idx(this->obs_.size());
+	this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
+	this->obs_[idx].remove_links();
+}
+
+template<typename Type>
+void GenericSystem<Type>::color_occupation_obs(){
+	Matrix<int> tmp(this->n_,this->N_);
+	for(unsigned int i(0);i<this->n_;i++){
+		for(unsigned int j(0);j<this->N_;j++){
+			tmp(i,j) = site_index_to_unit_cell_index(i)*this->N_+j;
+		}
+	}
+	this->obs_.push_back(Observable("Color occupation",3,this->N_*this->spuc_,tmp,this->n_/this->spuc_));
+}
+
+template<typename Type>
+void GenericSystem<Type>::energy_variance_obs(){
+	this->obs_.push_back(Observable("H*H (energy variance)",4,1,0));
 }
 
 template<typename Type>

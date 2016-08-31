@@ -50,7 +50,8 @@ class Chain: public System1D<Type>{
 		Vector<double> compute_J(Vector<double> const& Jp);
 
 	protected:
-		void create_obs(unsigned int const& which_obs);
+		/*!Implement the pure virtual method in GenericSystem*/
+		void long_range_correlations_obs();
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Given N and m, save the best simulation in a text file for any n*/
@@ -58,8 +59,8 @@ class Chain: public System1D<Type>{
 		/*!Find the best range to compute the critcal exponents*/
 		bool compute_critical_exponents(Vector<double> const& lrc, unsigned int& xi, unsigned int& xf, Vector<double>& p);
 
-		virtual void energy_bound(){};
-		void long_range_correlation_and_structure_factor();
+		virtual void plot_bond_energy(){};
+		void plot_long_range_correlations_and_structure_factor();
 
 	private:
 		/*{Description*/
@@ -69,12 +70,13 @@ class Chain: public System1D<Type>{
 		void do_fit(Vector<double> const& lrc, unsigned int const& xi, unsigned int const& xf, Vector<double>& p, double& R_squared, double& d_squared);
 };
 
+/*{constructor*/
 template<typename Type>
 Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 	System1D<Type>(spuc,2,filename)
 {
 	if(this->status_==3){
-		if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,1)); }
+		if(this->ref_(4)==2){ this->energy_obs(Vector<unsigned int>(1,1)); }
 		else {
 			this->ref_(4) = 0;
 			this->status_ = 2;
@@ -99,33 +101,22 @@ Chain<Type>::Chain(unsigned int const& spuc, std::string const& filename):
 
 template<typename Type>
 Chain<Type>::~Chain() = default;
+/*}*/
 
+/*{protected methods*/
 template<typename Type>
-void Chain<Type>::create_obs(unsigned int const& which_obs){
-	switch(which_obs){
-		case 0:
-			{ for(unsigned int i(1);i<3;i++){ create_obs(i); } }break;
-		case 1:
-			{
-				unsigned int idx(this->obs_.size());
-				this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
-				this->obs_[idx].remove_links();
-			}break;
-		case 2:
-			{
-				unsigned int m(this->n_);
-				unsigned int nval(this->n_);
-				unsigned int nlinks(m*nval);
-				unsigned int idx(this->obs_.size());
-				this->obs_.push_back(Observable("Long range correlations",2,nval,nlinks));
-				for(unsigned int i(0);i<this->n_;i++){
-					for(unsigned int j(0);j<this->n_;j++){
-						this->obs_[idx](i*nval+j,0) = i;
-						this->obs_[idx](i*nval+j,1) = (i+j)%this->n_;
-						this->obs_[idx](i*nval+j,2) = j;
-					}
-				}
-			}
+void Chain<Type>::long_range_correlations_obs(){
+	unsigned int m(this->n_);
+	unsigned int nval(this->n_);
+	unsigned int nlinks(m*nval);
+	unsigned int idx(this->obs_.size());
+	this->obs_.push_back(Observable("Long range correlations",2,nval,nlinks));
+	for(unsigned int i(0);i<this->n_;i++){
+		for(unsigned int j(0);j<this->n_;j++){
+			this->obs_[idx](i*nval+j,0) = i;
+			this->obs_[idx](i*nval+j,1) = (i+j)%this->n_;
+			this->obs_[idx](i*nval+j,2) = j;
+		}
 	}
 }
 
@@ -217,47 +208,7 @@ bool Chain<Type>::compute_critical_exponents(Vector<double> const& lrc, unsigned
 }
 
 template<typename Type>
-void Chain<Type>::do_fit(Vector<double> const& lrc, unsigned int const& xi, unsigned int const& xf, Vector<double>& p, double& R_squared, double& d_squared){
-	double rss(0.0);
-	double tss(0.0);
-	double ym;
-	p.set(4,2);
-	p(1) -= 2.0/this->N_;
-	Vector<double> x(xf-xi);
-	Vector<double> y(xf-xi);
-	for(unsigned int i(0);i<x.size();i++){
-		x(i) = i+xi;
-		y(i) = lrc(i+xi);
-	}
-	ym = y.mean();
-
-	if(p.size()==3){
-		auto func = [this](double x, const double* p){
-			return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-2.0)+pow(this->n_-x,-2.0));
-		};
-		Fit(x,y,p,func);
-		for(unsigned int i(0);i<x.size();i++){
-			rss += my::norm_squared(y(i)-func(x(i),p.ptr()));
-			tss += my::norm_squared(ym-y(i));
-		}
-	}
-	if(p.size()==4){
-		auto func = [this](double x, const double* p){
-			return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-p[3])+pow(this->n_-x,-p[3]));
-		};
-		Fit(x,y,p,func);
-		for(unsigned int i(0);i<x.size();i++){
-			rss += my::norm_squared(y(i)-func(x(i),p.ptr()));
-			tss += my::norm_squared(ym-y(i));
-		}
-	}
-
-	R_squared = 1-rss/tss*(x.size()-1)/(x.size()-p.size());
-	d_squared = rss/(x.size()-p.size());
-}
-
-template<typename Type>
-void Chain<Type>::long_range_correlation_and_structure_factor(){
+void Chain<Type>::plot_long_range_correlations_and_structure_factor(){
 	for(auto const& o:this->obs_){
 		if(o.get_type()==2){
 			unsigned int llr(o.nval());
@@ -328,4 +279,47 @@ void Chain<Type>::long_range_correlation_and_structure_factor(){
 		}
 	}
 }
+/*}*/
+
+/*{private methods*/
+template<typename Type>
+void Chain<Type>::do_fit(Vector<double> const& lrc, unsigned int const& xi, unsigned int const& xf, Vector<double>& p, double& R_squared, double& d_squared){
+	double rss(0.0);
+	double tss(0.0);
+	double ym;
+	p.set(4,2);
+	p(1) -= 2.0/this->N_;
+	Vector<double> x(xf-xi);
+	Vector<double> y(xf-xi);
+	for(unsigned int i(0);i<x.size();i++){
+		x(i) = i+xi;
+		y(i) = lrc(i+xi);
+	}
+	ym = y.mean();
+
+	if(p.size()==3){
+		auto func = [this](double x, const double* p){
+			return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-2.0)+pow(this->n_-x,-2.0));
+		};
+		Fit(x,y,p,func);
+		for(unsigned int i(0);i<x.size();i++){
+			rss += my::norm_squared(y(i)-func(x(i),p.ptr()));
+			tss += my::norm_squared(ym-y(i));
+		}
+	}
+	if(p.size()==4){
+		auto func = [this](double x, const double* p){
+			return p[0]*cos(2*M_PI*x*this->m_/this->N_)*(pow(x,-p[1])+pow(this->n_-x,-p[1]))+p[2]*(pow(x,-p[3])+pow(this->n_-x,-p[3]));
+		};
+		Fit(x,y,p,func);
+		for(unsigned int i(0);i<x.size();i++){
+			rss += my::norm_squared(y(i)-func(x(i),p.ptr()));
+			tss += my::norm_squared(ym-y(i));
+		}
+	}
+
+	R_squared = 1-rss/tss*(x.size()-1)/(x.size()-p.size());
+	d_squared = rss/(x.size()-p.size());
+}
+/*}*/
 #endif

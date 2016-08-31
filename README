@@ -41,8 +41,15 @@ It currently supports:
 
 The code is commented and the documentation can be generated via Doxyfile 
 
+It can measure various observables :
 
-It can do
++ energy per site
++ bond energy
++ long range correlations and associated structure factor
++ colour occupation
++ variance of the energy
+
+Beside performing a VMC simulation
 
 + can visualise the lattice with unit cell, site numbers, basis vectors, hopping amplitude, fluxes 
 

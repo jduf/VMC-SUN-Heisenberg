@@ -94,7 +94,7 @@ void Triangle<Type>::init_lattice(){
 			}
 
 			if(this->unit_cell_allowed()){
-				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,3)); }
+				if(this->ref_(4)==2){ this->energy_obs(Vector<unsigned int>(1,3)); }
 				else {
 					this->ref_(4) = 0;
 					this->status_ = 2;
@@ -296,7 +296,7 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 		}
 	}
 	/*draws long range correlations over the lattice*/
-	if(o(1)){ this->draw_long_range_correlation(ps,shift,this->obs_[o(1)]); }
+	if(o(1)){ this->draw_long_range_correlations(ps,shift,this->obs_[o(1)]); }
 	ps.end(silent,true,true);
 }
 

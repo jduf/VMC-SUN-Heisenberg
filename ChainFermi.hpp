@@ -23,7 +23,7 @@ class ChainFermi: public Chain<Type>{
 		void compute_H();
 
 		void display_results();
-		void energy_bound();
+		void plot_bond_energy();
 
 		std::string extract_level_8();
 		std::string extract_level_7();
@@ -63,7 +63,7 @@ void ChainFermi<Type>::check(){
 }
 
 template<typename Type>
-void ChainFermi<Type>::energy_bound(){
+void ChainFermi<Type>::plot_bond_energy(){
 	IOFiles corr_file(this->analyse_+this->path_+this->dir_+this->filename_+"-corr.dat",true,false);
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
@@ -84,8 +84,8 @@ void ChainFermi<Type>::energy_bound(){
 
 template<typename Type>
 void ChainFermi<Type>::display_results(){
-	this->energy_bound();
-	this->long_range_correlation_and_structure_factor();
+	this->plot_bond_energy();
+	this->plot_long_range_correlations_and_structure_factor();
 	if(this->rst_file_){
 		std::string relative_path(this->analyse_+this->path_+this->dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
@@ -110,10 +110,10 @@ std::string ChainFermi<Type>::extract_level_8(){
 	this->save_param(*this->jd_write_);
 	this->save(*this->jd_write_);
 
-	energy_bound();
+	plot_bond_energy();
 	this->rst_file_->figure(basename+"-corr.png","Correlation on links",RST::target(basename+"-corr.gp")+RST::width("1000"));
 
-	this->long_range_correlation_and_structure_factor();
+	this->plot_long_range_correlations_and_structure_factor();
 	this->rst_file_->figure(basename+"-long-range-corr.png","Long range correlation",RST::target(basename+"-long-range-corr.gp")+RST::width("1000"));
 	this->rst_file_->figure(basename+"-structure-factor.png","Structure factor",RST::target(basename+"-structure-factor.gp")+RST::width("1000"));
 

@@ -86,10 +86,10 @@ unsigned int ChainFree::set_spuc(Vector<double> const& t, Vector<double> const& 
 
 /*{method needed for checking*/
 void ChainFree::check(){
-	long_range_correlation_and_structure_factor();
+	plot_long_range_correlations_and_structure_factor();
 }
 
-void ChainFree::energy_bound(){
+void ChainFree::plot_bond_energy(){
 	compute_H();
 
 	std::string color("black");
@@ -172,8 +172,8 @@ void ChainFree::energy_bound(){
 }
 
 void ChainFree::display_results(){
-	energy_bound();
-	long_range_correlation_and_structure_factor();
+	plot_bond_energy();
+	plot_long_range_correlations_and_structure_factor();
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);

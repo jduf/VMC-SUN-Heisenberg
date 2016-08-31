@@ -26,6 +26,6 @@ class ChainFree: public Chain<double> {
 		unsigned int set_spuc(Vector<double> const& t, Vector<double> const& mu, unsigned int const& spuc);
 
 		void display_results();
-		void energy_bound();
+		void plot_bond_energy();
 };
 #endif

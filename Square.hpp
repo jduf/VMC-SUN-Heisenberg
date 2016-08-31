@@ -81,7 +81,7 @@ void Square<Type>::init_lattice(){
 			this->equivalent_vertex_[2] = this->dir_nn_[3]*0.5*(p_-q_)+this->dir_nn_[0]*0.5*(p_+q_);
 
 			if(this->unit_cell_allowed()){
-				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(1,2)); }
+				if(this->ref_(4)==2){ this->energy_obs(Vector<unsigned int>(1,2)); }
 				else {
 					this->ref_(4) = 0;
 					this->status_ = 2;
@@ -266,7 +266,7 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 		}
 	}
 	/*draw long range correlations over the lattice*/
-	if(o(1)){ this->draw_long_range_correlation(ps,shift,this->obs_[o(1)]); }
+	if(o(1)){ this->draw_long_range_correlations(ps,shift,this->obs_[o(1)]); }
 	ps.end(silent,true,true);
 }
 /*}*/

@@ -25,7 +25,7 @@ class ChainPolymerized: public Chain<double> {
 		unsigned int set_spuc(Vector<double> const& t, unsigned int const& spuc);
 
 		void display_results();
-		void energy_bound();
+		void plot_bond_energy();
 
 		std::string extract_level_8();
 		std::string extract_level_7();

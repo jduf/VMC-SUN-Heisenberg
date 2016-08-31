@@ -94,11 +94,11 @@ unsigned int ChainPolymerized::set_spuc(Vector<double> const& t, unsigned int co
 
 /*{method needed for checking*/
 void ChainPolymerized::check(){
-	energy_bound();
-	long_range_correlation_and_structure_factor();
+	plot_bond_energy();
+	plot_long_range_correlations_and_structure_factor();
 }
 
-void ChainPolymerized::energy_bound(){
+void ChainPolymerized::plot_bond_energy(){
 	IOFiles corr_file(analyse_+path_+dir_+filename_+"-corr.dat",true,false);
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 
@@ -124,8 +124,8 @@ void ChainPolymerized::energy_bound(){
 }
 
 void ChainPolymerized::display_results(){
-	energy_bound();
-	long_range_correlation_and_structure_factor();
+	plot_bond_energy();
+	plot_long_range_correlations_and_structure_factor();
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
 		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
@@ -154,10 +154,10 @@ std::string ChainPolymerized::extract_level_8(){
 	save_param(*jd_write_);
 	save(*jd_write_);
 
-	energy_bound();
+	plot_bond_energy();
 	rst_file_->figure(basename+"-corr.png","Correlation on links",RST::target(basename+"-corr.gp")+RST::width("1000"));
 
-	long_range_correlation_and_structure_factor();
+	plot_long_range_correlations_and_structure_factor();
 	rst_file_->figure(basename+"-long-range-corr.png","Long range correlation",RST::target(basename+"-long-range-corr.gp")+RST::width("1000"));
 	rst_file_->figure(basename+"-structure-factor.png","Structure factor",RST::target(basename+"-structure-factor.gp")+RST::width("1000"));
 

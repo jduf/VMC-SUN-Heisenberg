@@ -35,15 +35,8 @@ class System2D: public GenericSystem<Type>{
 		Vector<double>* dir_nn_;				//!< vectors towards nearest neighbours
 		Vector<double>* x_;						//!< position of the sites
 
-		/*!Set which observable will be measured*/
-		void create_obs(unsigned int const& which_obs);
-		/*!Create the bond energy observables*/
-		virtual void bond_energy();
-		/*!Create the long range correlation observables*/
-		virtual void compute_long_range_correlation();
-		/*!Create the color occupation observables*/
-		virtual void color_occupation();
-
+		/*!Implement the pure virtual method in GenericSystem*/
+		virtual void long_range_correlations_obs();
 		/*!Check if the unit cell can correctly fit inside the cluster*/
 		bool unit_cell_allowed();
 		/*!Returns the index of the position x the unit cell basis (a,b)*/
@@ -66,7 +59,7 @@ class System2D: public GenericSystem<Type>{
 		/*!Returns a matrix containing the vertices of the boundary*/
 		Matrix<double> draw_boundary(bool const& full_boundary) const;
 		/*!Draws the long range correlations contained int O in the PSTricks file*/
-		void draw_long_range_correlation(PSTricks& ps, Vector<double> const& shift, Observable const& O) const;
+		void draw_long_range_correlations(PSTricks& ps, Vector<double> const& shift, Observable const& O) const;
 		/*!Computes and writes the flux per plaquette in the PSTricks file*/
 		void draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, double const& xd, double const& yd, Vector<unsigned int> const& dir) const;
 
@@ -136,31 +129,7 @@ System2D<Type>::~System2D(){
 /*{protected methods*/
 /*{observables*/
 template<typename Type>
-void System2D<Type>::create_obs(unsigned int const& which_obs){
-	switch(which_obs){
-		case 0: { for(unsigned int i(1);i<4;i++){ create_obs(i); } }break;
-		case 1: { bond_energy(); }break;
-		case 2: { compute_long_range_correlation(); }break;
-		case 3: { color_occupation(); }break;
-		default:{
-					std::cerr<<__PRETTY_FUNCTION__<<" : unknown observable "<<which_obs<<std::endl;
-					std::cerr<<"Available observables are :"<<std::endl;
-					std::cerr<<" + Bond energy            : 1"<<std::endl;
-					std::cerr<<" + Long range correlation : 2"<<std::endl;
-					std::cerr<<" + Color occupation       : 3"<<std::endl;
-				}
-	}
-}
-
-template<typename Type>
-void System2D<Type>::bond_energy(){
-	unsigned int idx(this->obs_.size());
-	this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
-	this->obs_[idx].remove_links();
-}
-
-template<typename Type>
-void System2D<Type>::compute_long_range_correlation(){
+void System2D<Type>::long_range_correlations_obs(){
 	Vector<double>* dx(new Vector<double>[this->n_]);
 	for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[i]-this->x_[0]; }
 
@@ -173,17 +142,6 @@ void System2D<Type>::compute_long_range_correlation(){
 		}
 	}
 	delete[] dx;
-}
-
-template<typename Type>
-void System2D<Type>::color_occupation(){
-	Matrix<int> tmp(this->n_,this->N_);
-	for(unsigned int i(0);i<this->n_;i++){
-		for(unsigned int j(0);j<this->N_;j++){
-			tmp(i,j) = this->site_index_to_unit_cell_index(i)*this->N_+j;
-		}
-	}
-	this->obs_.push_back(Observable("Color occupation",3,this->N_*this->spuc_,tmp,this->n_/this->spuc_));
 }
 /*}*/
 
@@ -397,7 +355,7 @@ Matrix<double> System2D<Type>::draw_boundary(bool const& full_boundary) const {
 }
 
 template<typename Type>
-void System2D<Type>::draw_long_range_correlation(PSTricks& ps, Vector<double> const& shift, Observable const& O) const {
+void System2D<Type>::draw_long_range_correlations(PSTricks& ps, Vector<double> const& shift, Observable const& O) const {
 	std::string color;
 	double corr;
 	double rescale(std::abs(0.25/O[1].get_x()));

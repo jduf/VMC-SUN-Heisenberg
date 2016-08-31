@@ -15,7 +15,7 @@ class Kagome: public System2D<Type>{
 		void init_lattice();
 		void draw_lattice(bool const& only_unit_cell, bool const& silent, Vector<double> const& uc_shift);
 		/*!Create the long range correlation observables*/
-		void compute_long_range_correlation();
+		void long_range_correlations_obs();
 
 	private:
 		double L_;
@@ -99,7 +99,7 @@ void Kagome<Type>::init_lattice(){
 			}
 
 			if(this->unit_cell_allowed()){
-				if(this->ref_(4)==2){ this->create_energy_obs(Vector<unsigned int>(3,2)); }
+				if(this->ref_(4)==2){ this->energy_obs(Vector<unsigned int>(3,2)); }
 				else {
 					this->ref_(4) = 0;
 					this->status_ = 2;
@@ -301,12 +301,12 @@ void Kagome<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 		}
 	}
 	/*draws long range correlations over the lattice*/
-	if(o(1)){ this->draw_long_range_correlation(ps,-shift,this->obs_[o(1)]); }
+	if(o(1)){ this->draw_long_range_correlations(ps,-shift,this->obs_[o(1)]); }
 	ps.end(silent,true,true);
 }
 
 template<typename Type>
-void Kagome<Type>::compute_long_range_correlation(){
+void Kagome<Type>::long_range_correlations_obs(){
 	Vector<double>* dx(new Vector<double>[this->n_]);
 	for(unsigned int i(0);i<this->n_;i++){ dx[i] = this->x_[i]-this->x_[0]; }
 
