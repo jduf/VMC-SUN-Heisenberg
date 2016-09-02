@@ -58,7 +58,7 @@ int main(int argc, char* argv[]){
 							}break;
 						case 2:
 							{
-								m.find_and_run_minima(10,true,1e-5);
+								m.find_and_run_minima(10,obs,1e-5);
 								m.save();
 							}break;
 						case 3:

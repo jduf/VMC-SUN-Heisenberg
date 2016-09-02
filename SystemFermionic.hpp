@@ -28,9 +28,9 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 		 * constructed via clone() or SystemFermionic(IOFiles& r).*/
 		void init_after_clone_or_reading();
 
-		/*!Set row_ and new_ev_*/
+		/*!Set new_r_*/
 		void swap();
-		/*!Set row_ and new_ev_*/
+		/*!Set new_r_*/
 		void swap(unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1);
 
 		/*{*//*!Computes the ratio of two determinants
@@ -68,7 +68,6 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 		Vector<Type>* tmp_v;	  //!< temporary vector used during the update
 		Type w_[2];				  //!< det(W)= d = determinant ratios of <GS|a>/<GS|b>; W=(w11,0;0,w22)
 		unsigned int new_r_[2];	  //!< selected rows of the A matrices
-		unsigned int new_ev_[2];  //!< selected rows of the EVec matrices
 
 		/*!Returns true if the Ainv_ matrices are invertible*/
 		bool are_invertible();
@@ -244,8 +243,6 @@ void SystemFermionic<Type>::swap(){
 	MCSystem::swap();
 	new_r_[0] = row_(new_s_[0],new_p_[0]);
 	new_r_[1] = row_(new_s_[1],new_p_[1]);
-	new_ev_[0] = new_s_[1];
-	new_ev_[1] = new_s_[0];
 }
 
 template<typename Type>
@@ -253,8 +250,6 @@ void SystemFermionic<Type>::swap(unsigned int const& s0, unsigned int const& s1,
 	MCSystem::swap(s0,s1,p0,p1);
 	new_r_[0] = row_(new_s_[0],new_p_[0]);
 	new_r_[1] = row_(new_s_[1],new_p_[1]);
-	new_ev_[0] = new_s_[1];
-	new_ev_[1] = new_s_[0];
 }
 
 template<typename Type>
@@ -265,13 +260,15 @@ void SystemFermionic<Type>::update(){
 
 	Type t_tmp;
 	unsigned int c;
+	unsigned int ev;
 	for(unsigned int i(0);i<2;i++){
 		c = new_c_[i];
+		ev = (i==0)?new_s_[1]:new_s_[0];
 		for(unsigned int j(0);j<M_(c);j++){
 			if(new_r_[i] == j){ t_tmp = -1.0; }
 			else { t_tmp = 0.0; }
 			for(unsigned int k(0);k<M_(c);k++){
-				t_tmp += this->EVec_[c](new_ev_[i],k)*Ainv_[c](k,j);
+				t_tmp += this->EVec_[c](ev,k)*Ainv_[c](k,j);
 			}
 			t_tmp /= w_[i];
 			for(unsigned int k(0);k<M_(c);k++){
@@ -286,12 +283,14 @@ void SystemFermionic<Type>::update(){
 	//unsigned int c;
 	//unsigned int M;
 	//unsigned int r;
+	//unsigned int ev;
 	//for(unsigned int i(0);i<2;i++){
 	//c = new_c_[i];
 	//r = new_r_[i];
+	//ev = (i==0)?new_s_[1]:new_s_[0];
 	//M = M_(c);
 	///*!compute u.u^T.Ã.A^(-1) = ((A^(-1))^T.Ã^T.u.u^T)^T*/
-	//BLAS::gemv('T',M,M,Ainv_[c].ptr(),this->EVec_[c].ptr()+new_ev_[i],this->EVec_[c].row(),tmp_v[c].ptr());
+	//BLAS::gemv('T',M,M,Ainv_[c].ptr(),this->EVec_[c].ptr()+ev,this->EVec_[c].row(),tmp_v[c].ptr());
 	//tmp_v[c](r) -= 1.0;
 	//for(unsigned int j(0);j<M;j++){
 	///*need to save this temporary value because Ainv_ is overwritten*/
@@ -362,10 +361,13 @@ void SystemFermionic<Type>::print(){
 template<typename Type>
 Type SystemFermionic<Type>::determinant_lemma(unsigned int const& i){
 	unsigned int c(new_c_[i]);
+	unsigned int ev((i==0)?new_s_[1]:new_s_[0]);
+	unsigned int M(this->M_(new_c_[i]));
+
 	//w_[i] = BLAS::dot(M_(new_c_[i]),this->EVec_[new_c_[i]].ptr(),true,this->EVec_[new_c_[i]].row(),new_ev_[i],Ainv_[new_c_[i]].ptr(),false,M_(new_c_[i]),new_r_[i]);
 	w_[i] = 0.0;
-	for(unsigned int k(0);k<M_(c);k++){
-		w_[i] += this->EVec_[c](new_ev_[i],k)*Ainv_[c](k,new_r_[i]);
+	for(unsigned int k(0);k<M;k++){
+		w_[i] += this->EVec_[c](ev,k)*Ainv_[c](k,new_r_[i]);
 	}
 	return w_[i];
 }
@@ -378,10 +380,10 @@ Type SystemFermionic<Type>::determinant_lemma(unsigned int const& col, unsigned 
 	Type d(0.0);
 	unsigned int M(this->M_(col));
 	for(unsigned int k(0);k<M;k++){
-		a += this->EVec_[col](s1,k)*Ainv_[col](k,r0);
-		c += this->EVec_[col](s0,k)*Ainv_[col](k,r0);
-		c += this->EVec_[col](s1,k)*Ainv_[col](k,r1);
-		d += this->EVec_[col](s0,k)*Ainv_[col](k,r1);
+		a += this->EVec_[col](s0,k)*Ainv_[col](k,r0);
+		b += this->EVec_[col](s0,k)*Ainv_[col](k,r1);
+		c += this->EVec_[col](s1,k)*Ainv_[col](k,r0);
+		d += this->EVec_[col](s1,k)*Ainv_[col](k,r1);
 	}
 	return a*d-b*c;
 }
@@ -401,12 +403,6 @@ bool SystemFermionic<Type>::are_invertible(){
 template<typename Type>
 void SystemFermionic<Type>::compute_peculiar_observable(Observable& O){
 	if(O.get_type()==4){
-		Data<double>* H2(&O[0]);
-		H2->set_x(0.0);
-
-		Type w;
-		unsigned int L(this->obs_[0].nlinks());
-
 		auto colors_involved = [](unsigned int const& ci0, unsigned int const& ci1, unsigned int const& cj0, unsigned int const& cj1){
 			if(ci0 == ci1){
 				if(ci0 == cj0){
@@ -435,6 +431,10 @@ void SystemFermionic<Type>::compute_peculiar_observable(Observable& O){
 				}
 			}
 		};
+		unsigned int L(this->obs_[0].nlinks());
+		Data<double>* H2(&O[0]);
+		H2->set_x(0.0);
+		Type w;
 
 		int* idx[2];
 		idx[0] = this->obs_[0].get_links().ptr();
@@ -449,7 +449,7 @@ void SystemFermionic<Type>::compute_peculiar_observable(Observable& O){
 			jdx[1] = jdx[0]+L;
 			for(unsigned int j(0);j<L;j++){
 				if(
-						i>j && /*!To avoid the double computation*/
+						i>j && /*!Avoid the double computation*/
 						*idx[0] != *jdx[0] &&
 						*idx[0] != *jdx[1] &&
 						*idx[1] != *jdx[0] &&
@@ -482,68 +482,65 @@ void SystemFermionic<Type>::compute_peculiar_observable(Observable& O){
 													}break;
 												case 51:/*ABBA*/
 													{
-														w = determinant_lemma(ci0,*idx[0],*jdx[1],row_(*idx[0],ip0),row_(*jdx[1],jp1));
-														w*= determinant_lemma(ci1,*idx[1],*jdx[0],row_(*idx[1],ip1),row_(*jdx[0],jp0));
+														w = determinant_lemma(ci0,*idx[1],*jdx[0],row_(*idx[0],ip0),row_(*jdx[1],jp1));/*det(A)*/
+														w*= determinant_lemma(ci1,*idx[0],*jdx[1],row_(*idx[1],ip1),row_(*jdx[0],jp0));/*det(B)*/
 														H2->add(2*J_(i)*J_(j)*my::real(w));
 													}break;
 												case 50:/*ABAB*/
 													{
-														w = determinant_lemma(ci0,*idx[0],*jdx[0],row_(*idx[0],ip0),row_(*jdx[0],jp0));
-														w*= determinant_lemma(ci1,*idx[1],*jdx[1],row_(*idx[1],ip1),row_(*jdx[1],jp1));
+														w = determinant_lemma(ci0,*idx[1],*jdx[1],row_(*idx[0],ip0),row_(*jdx[0],jp0));
+														w*= determinant_lemma(ci1,*idx[0],*jdx[0],row_(*idx[1],ip1),row_(*jdx[1],jp1));
 														H2->add(2*J_(i)*J_(j)*my::real(w));
 													}break;
 												case 43:/*ABCB*/
 													{
 														swap(*idx[0],*idx[1],ip0,ip1);
 														w = determinant_lemma(0);
-														swap(*jdx[0],*jdx[1],ip0,ip1);
+														swap(*jdx[0],*jdx[1],jp0,jp1);
 														w*= determinant_lemma(0);
-														w*= determinant_lemma(ci1,*idx[1],*jdx[1],row_(*idx[1],ip1),row_(*jdx[1],jp1));
+														w*= determinant_lemma(ci1,*idx[0],*jdx[0],row_(*idx[1],ip1),row_(*jdx[1],jp1));
 
 														H2->add(2*J_(i)*J_(j)*my::real(w));
 													}break;
 												case 42:/*ABBC*/
 													{
 														swap(*idx[0],*idx[1],ip0,ip1);
-														w = determinant_lemma(1);
-														swap(*jdx[0],*jdx[1],ip0,ip1);
+														w = determinant_lemma(0);
+														swap(*jdx[0],*jdx[1],jp0,jp1);
 														w*= determinant_lemma(1);
-														w*= determinant_lemma(ci1,*idx[1],*jdx[0],row_(*idx[1],ip1),row_(*jdx[0],jp0));
-
+														w*= determinant_lemma(ci1,*idx[0],*jdx[1],row_(*idx[1],ip1),row_(*jdx[0],jp0));
 														H2->add(2*J_(i)*J_(j)*my::real(w));
 													}break;
 												case 41:/*ABCA*/
 													{
 														swap(*idx[0],*idx[1],ip0,ip1);
-														w = determinant_lemma(0);
-														swap(*jdx[0],*jdx[1],ip0,ip1);
-														w*= determinant_lemma(1);
-														w*= determinant_lemma(ci0,*idx[0],*jdx[1],row_(*idx[0],ip0),row_(*jdx[1],jp1));
-
+														w = determinant_lemma(1);
+														swap(*jdx[0],*jdx[1],jp0,jp1);
+														w*= determinant_lemma(0);
+														w*= determinant_lemma(ci0,*idx[1],*jdx[0],row_(*idx[0],ip0),row_(*jdx[1],jp1));
 														H2->add(2*J_(i)*J_(j)*my::real(w));
 													}break;
 												case 40:/*ABAC*/
 													{
 														swap(*idx[0],*idx[1],ip0,ip1);
 														w = determinant_lemma(1);
-														swap(*jdx[0],*jdx[1],ip0,ip1);
-														w*= determinant_lemma(0);
-														w*= determinant_lemma(ci0,*idx[0],*jdx[0],row_(*idx[0],ip0),row_(*jdx[0],jp0));
-
+														swap(*jdx[0],*jdx[1],jp0,jp1);
+														w*= determinant_lemma(1);
+														w*= determinant_lemma(ci0,*idx[1],*jdx[1],row_(*idx[0],ip0),row_(*jdx[0],jp0));
 														H2->add(2*J_(i)*J_(j)*my::real(w));
 													}break;
 												case 32:/*AABC*/
 												case 31:/*AABA*/
 												case 30:/*AAAB*/
 													{
-														swap(*idx[0],*idx[1],ip0,ip1);
+														swap(*jdx[0],*jdx[1],jp0,jp1);
 														H2->add(2*J_(i)*J_(j)*ratio());
 													}break;
 												case 22:/*ABCC*/
 												case 21:/*ABBB*/
 												case 20:/*ABAA*/
 													{
-														swap(*jdx[0],*jdx[1],jp0,jp1);
+														swap(*idx[0],*idx[1],ip0,ip1);
 														H2->add(2*J_(i)*J_(j)*ratio());
 													}break;
 												case 11:/*AABB*/
@@ -598,9 +595,9 @@ void SystemFermionic<Type>::compute_peculiar_observable(Observable& O){
 														if(this->s_(a,k) == ci1 || this->s_(b,k) == ci0 || this->s_(b,k) == cj1 || this->s_(c,k) == cj0) { allowed = false; k=this->m_; }
 													}
 													if(allowed){ 
-														swap(*idx[0],*idx[1],ip0,ip1);
+														swap(a,b,ip0,ip1);
 														w = ratio();/*det(A)det(B)*/
-														swap(*jdx[0],*jdx[1],jp0,jp1);
+														swap(b,c,jp0,jp1);
 														w*= ratio();/*det(C)det(D)*/
 														H2->add(J_(i)*J_(j)*my::real(w));
 													}
@@ -707,4 +704,23 @@ void SystemFermionic<Type>::compute_peculiar_observable(Observable& O){
 	}
 }
 /*}*/
+
+//template<typename Type>
+//void SystemFermionic<Type>::check(unsigned int const& col, unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
+	//Matrix<Type> A0(M_(c),M_(c));
+	//Matrix<Type> A1(M_(c),M_(c));
+	//unsigned int c(0);
+	//for(unsigned int s(0);s<n_;s++){
+		//for(unsigned int p(0);p<m_;p++){
+			//if(s_(s,p) == c){
+				//for(unsigned int j(0);j<M_(c);j++){
+					//A0(row_(s,p),j) = this->EVec_[c](s,j);
+					//A1(row_(s,p),j) = this->EVec_[c](s,j);
+				//}
+			//}
+		//}
+	//}
+//
+	//return Lapack<Type>(A0,true,'G').det()/Lapack<Type>(A1,true,'G').det();
+//}
 #endif

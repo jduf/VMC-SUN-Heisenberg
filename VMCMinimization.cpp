@@ -218,7 +218,7 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, Vector<uns
 
 		std::string msg("compute the energy ");
 		if(which_obs.size()){
-			msg += "and observables ";
+			msg += "and observable(s) ";
 			for(unsigned int i(0);i<which_obs.size()-1;i++){
 				msg += my::tostring(which_obs(i))+"," ;
 			}
@@ -340,7 +340,7 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, Vector<u
 		std::cout<<RST::hashtag_line_<<std::endl;
 		std::string msg("compute the energy ");
 		if(which_obs.size()){
-			msg += "and observables ";
+			msg += "and observable(s) ";
 			for(unsigned int i(0);i<which_obs.size()-1;i++){
 				msg += my::tostring(which_obs(i))+",";
 			}

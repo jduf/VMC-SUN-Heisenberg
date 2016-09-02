@@ -463,13 +463,6 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		P.set("M",std::vector<unsigned int>(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N")));
 	}
 	switch(ref(0)){
-		case 3:
-			{
-				unsigned int n(P.get<unsigned int>("n"));
-				ref(3) = 2;
-				if(my::are_equal(sqrt(n/3.0),floor(sqrt(n/3.0)))){ ref(3) = 0; }
-				if(my::are_equal(sqrt(n)/3.0,floor(sqrt(n)/3)))  { ref(3) = 1; }
-			}break;
 		case 4:
 			{
 				unsigned int n(P.get<unsigned int>("n"));

@@ -19,7 +19,9 @@ class Triangle: public System2D<Type>{
 		virtual std::string extract_level_2();
 
 	private:
-		double L_;
+		unsigned int p_;
+		unsigned int q_;
+		Matrix<double> R_;
 
 		Matrix<double> set_geometry(unsigned int const& n, unsigned int const& k, unsigned int const& spuc);
 		bool reset_pos_in_lattice(Vector<double>& x) const;
@@ -68,8 +70,25 @@ void Triangle<Type>::init_lattice(){
 			this->dir_nn_[5](0) = 0.5;
 			this->dir_nn_[5](1) =-sqrt(3.0)/2.0;
 
-			this->x_[0](0)+= 0.01;
-			this->x_[0](1)+= 0.01;
+			for(unsigned int i(0);i<3;i++){
+				this->equivalent_vertex_[i].set(2);
+				this->equivalent_vertex_[i](0) = this->cluster_vertex_(2*i,0);
+				this->equivalent_vertex_[i](1) = this->cluster_vertex_(2*i,1);
+			}
+
+			double theta(atan(q_*0.25*sqrt(3.0)/(p_*0.5+q_*0.25))-M_PI/6.0);
+			R_.set(2,2);
+			R_(0,0) = cos(theta);
+			R_(0,1) = sin(theta);
+			R_(1,0) =-sin(theta);
+			R_(1,1) = cos(theta);
+
+			//std::cout<<this->equivalent_vertex_[0]<<" : "<<this->equivalent_vertex_[0].norm()<<std::endl;
+			//std::cout<<this->equivalent_vertex_[1]<<" : "<<this->equivalent_vertex_[1].norm()<<std::endl;
+			//std::cout<<this->equivalent_vertex_[2]<<" : "<<this->equivalent_vertex_[2].norm()<<std::endl;
+			//std::cout<<this->equivalent_vertex_[2]-this->equivalent_vertex_[0]<<std::endl;
+			//std::cout<<theta<<std::endl;
+			//std::cout<<std::endl<<R_<<std::endl<<std::endl;
 
 			Vector<double> x_loop(this->x_[0]);
 			for(unsigned int i(1);i<this->n_;i++){
@@ -83,15 +102,13 @@ void Triangle<Type>::init_lattice(){
 				this->x_[i] = this->x_[i].chop();
 			}
 
-			if(this->ref_(3)){
-				this->equivalent_vertex_[0] = (this->dir_nn_[3]+this->dir_nn_[4])*L_ + (this->dir_nn_[3]+this->dir_nn_[4])*0.5;
-				this->equivalent_vertex_[1] = (this->dir_nn_[0]+this->dir_nn_[5])*L_ + (this->dir_nn_[3]+this->dir_nn_[4])*0.5;
-				this->equivalent_vertex_[2] = (this->dir_nn_[1]+this->dir_nn_[2])*L_ + (this->dir_nn_[3]+this->dir_nn_[4])*0.5;
-			} else {
-				this->equivalent_vertex_[0] = this->dir_nn_[4]*L_ + this->dir_nn_[3]*0.2;
-				this->equivalent_vertex_[1] = this->dir_nn_[0]*L_ + this->dir_nn_[3]*0.2;
-				this->equivalent_vertex_[2] = this->dir_nn_[2]*L_ + this->dir_nn_[3]*0.2;
-			}
+			//std::cout<<"#######"<<std::endl;
+			//for(unsigned int i(0);i<this->n_;i++){ std::cout<<this->x_[i]<<std::endl; }
+			//std::cout<<"#######"<<std::endl;
+			//for(unsigned int i(0);i<3;i++){ std::cout<<this->equivalent_vertex_[i]<<std::endl; }
+			//std::cout<<"#######"<<std::endl;
+			//std::cout<<this->cluster_vertex_<<std::endl;
+			//std::cout<<"#######"<<std::endl;
 
 			if(this->unit_cell_allowed()){
 				if(this->ref_(4)==2){ this->energy_obs(Vector<unsigned int>(1,3)); }
@@ -324,58 +341,54 @@ std::string Triangle<Type>::extract_level_2(){
 template<typename Type>
 Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n, unsigned int const& k, unsigned int const& spuc){
 	if(n){
-		L_ = sqrt(n/3.0);
-		if(my::are_equal(L_,floor(L_))){
-			double a(sqrt(3.0)/2.0);
-			Matrix<double> tmp(7,2);
-			tmp(0,0) =-0.5*L_;
-			tmp(0,1) =-a*L_;
-			tmp(1,0) =-tmp(0,0);
-			tmp(1,1) = tmp(0,1);
-			tmp(2,0) = L_;
-			tmp(2,1) = 0.0;
-			tmp(3,0) =-tmp(0,0);
-			tmp(3,1) =-tmp(0,1);
-			tmp(4,0) =-tmp(1,0);
-			tmp(4,1) =-tmp(1,1);
-			tmp(5,0) =-tmp(2,0);
-			tmp(5,1) =-tmp(2,1);
-			tmp(6,0) = tmp(0,0);
-			tmp(6,1) = tmp(0,1);
-			return tmp;
+		Matrix<double> tmp;
+		for(unsigned int p(0);p<=sqrt(n);p++){
+			for(unsigned int q(0);q<p+1;q++){
+				if(p*p+q*q+p*q==n){
+					tmp.set(7,2);
+					p_ = p;
+					q_ = q;
+					p = n;
+					q = n;
+				}
+			}
 		}
-		L_ = sqrt(n)/3.0;
-		if(my::are_equal(L_,floor(L_))){
-			double a(sqrt(3.0)/2.0);
-			Matrix<double> tmp(7,2);
-			tmp(0,0) = 0.0;
-			tmp(0,1) =-2.0*a*L_;
-			tmp(1,0) = 1.5*L_;
-			tmp(1,1) =-a*L_;
-			tmp(2,0) = tmp(1,0);
-			tmp(2,1) =-tmp(1,1);
-			tmp(3,0) =-tmp(0,0);
-			tmp(3,1) =-tmp(0,1);
-			tmp(4,0) =-tmp(1,0);
-			tmp(4,1) =-tmp(1,1);
-			tmp(5,0) =-tmp(2,0);
-			tmp(5,1) =-tmp(2,1);
+		if(tmp.ptr()){
+			double x(p_*0.5+q_*0.25);
+			double y(q_*0.25*sqrt(3.0));
+			double theta(atan(y/x));
+			double r(2.0*std::sqrt((x*x+y*y)/3.0));
+
+			tmp(0,0) = my::chop(r*cos(theta-5.0*M_PI/6.0))-0.0001;
+			tmp(0,1) = my::chop(r*sin(theta-5.0*M_PI/6.0))-0.0001;
+			tmp(1,0) = my::chop(r*cos(theta-3.0*M_PI/6.0))-0.0001;
+			tmp(1,1) = my::chop(r*sin(theta-3.0*M_PI/6.0))-0.0001;
+			tmp(2,0) = my::chop(r*cos(theta-1.0*M_PI/6.0))-0.0001;
+			tmp(2,1) = my::chop(r*sin(theta-1.0*M_PI/6.0))-0.0001;
+			tmp(3,0) = my::chop(r*cos(theta+1.0*M_PI/6.0))-0.0001;
+			tmp(3,1) = my::chop(r*sin(theta+1.0*M_PI/6.0))-0.0001;
+			tmp(4,0) = my::chop(r*cos(theta+3.0*M_PI/6.0))-0.0001;
+			tmp(4,1) = my::chop(r*sin(theta+3.0*M_PI/6.0))-0.0001;
+			tmp(5,0) = my::chop(r*cos(theta+5.0*M_PI/6.0))-0.0001;
+			tmp(5,1) = my::chop(r*sin(theta+5.0*M_PI/6.0))-0.0001;
 			tmp(6,0) = tmp(0,0);
 			tmp(6,1) = tmp(0,1);
+			//std::cout<<p_<<" "<<q_<<" "<<theta<<" "<<theta+5*M_PI/6<<" "<<r<<std::endl;
+			//std::cout<<std::endl<<tmp<<std::endl<<std::endl;
 			return tmp;
 		}
 
 		std::set<unsigned int> v;
 		unsigned int m;
-		for(unsigned int i(2);i<n;i++){
-			m = 3*i*i;
-			if(!(m%spuc) && !(m%k) && m<2000){ v.insert(m); }
-			m = (3*i)*(3*i);
-			if(!(m%spuc) && !(m%k) && m<2000){ v.insert(m); }
+		for(unsigned int p(2);p<n;p++){
+			for(unsigned int q(0);q<p+1;q++){
+				m = p*p+q*q+p*q;
+				if(!(m%spuc) && !(m%k) && m<2000){ v.insert(m); }
+			}
 		}
 		std::cerr<<__PRETTY_FUNCTION__<<" : unknown geometry (possible sizes)"<<std::endl;
 		for(auto const& n:v){ std::cerr<<"n="<<n<<std::endl; }
-		std::cerr<<"n=3*l*l or (3*l)^2"<<std::endl;
+		std::cerr<<"n=p*p+q*q+p*q"<<std::endl;
 	}
 	return Matrix<double>();
 }
@@ -383,37 +396,25 @@ Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n, unsigned int 
 template<typename Type>
 bool Triangle<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 	if(this->pos_out_of_lattice(x)){
-		if(this->ref_(3)){
-			double t(tan(M_PI/6.0)*x(0)/x(1));
-			if(x(0)>0){
-				if(std::abs(t)>1){ x+= this->dir_nn_[3]*L_*3.0; }
-				else {
-					if(t>0){       x+= this->dir_nn_[4]*L_*3.0; }
-					else   {       x+= this->dir_nn_[2]*L_*3.0; }
-				}
-			} else {
-				if(std::abs(t)>1){ x+= this->dir_nn_[0]*L_*3.0; }
-				else {
-					if(t>0){       x+= this->dir_nn_[1]*L_*3.0; }
-					else   {       x+= this->dir_nn_[5]*L_*3.0; }
-				}
-			}
+		Vector<double> tmp((R_*x).chop());
+		//std::cout<<x<<" "<<tmp;
+		/*hack to avoid situations where x <-> x' (infite loop)*/
+		tmp(0) += 0.0001;
+		tmp(1) += 0.0001;
+		if(tmp(1)>=0){
+			double t(acos(tmp(0)/std::sqrt(tmp.norm_squared())));
+			if      (t <     M_PI/3.0){ x += this->equivalent_vertex_[0] - this->equivalent_vertex_[1]; }
+			else if (t < 2.0*M_PI/3.0){ x += this->equivalent_vertex_[0] - this->equivalent_vertex_[2]; }
+			else                      { x += this->equivalent_vertex_[1] - this->equivalent_vertex_[2]; }
+			//std::cout<<" up   "<<x<<" | "<<t<<" "<<(t< M_PI/3.0)<<std::endl;
 		} else {
-			double t(tan(M_PI/3.0)*x(0)/x(1));
-			if(x(1)>0){
-				if(std::abs(t)<1){ x+= (this->dir_nn_[4]+this->dir_nn_[5])*L_; }
-				else {
-					if(t>0){       x+= (this->dir_nn_[4]+this->dir_nn_[3])*L_; }
-					else   {       x+= (this->dir_nn_[5]+this->dir_nn_[0])*L_; }
-				}
-			} else {
-				if(std::abs(t)<1){ x+= (this->dir_nn_[1]+this->dir_nn_[2])*L_; }
-				else {
-					if(t>0){       x+= (this->dir_nn_[1]+this->dir_nn_[0])*L_; }
-					else   {       x+= (this->dir_nn_[2]+this->dir_nn_[3])*L_; }
-				}
-			}
+			double t(acos(tmp(0)/std::sqrt(tmp.norm_squared())));
+			if      (t <     M_PI/3.0){ x += this->equivalent_vertex_[2] - this->equivalent_vertex_[1]; }
+			else if (t < 2.0*M_PI/3.0){ x += this->equivalent_vertex_[2] - this->equivalent_vertex_[0]; }
+			else                      { x += this->equivalent_vertex_[1] - this->equivalent_vertex_[0]; }
+			//std::cout<<" down "<<x<<" | "<<t<<" "<<(t< M_PI/3.0)<<std::endl;
 		}
+		reset_pos_in_lattice(x);
 		return true;
 	} else { return false; }
 }

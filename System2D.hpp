@@ -209,17 +209,21 @@ Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 			}
 		}
 	} while(dir.size() && ++j<this->n_+1);
-	/*{*//*to debug if assert fails
-	if(j>=this->n_+1){
-		std::cerr<<"-----"<<std::endl;
-		std::cerr<<i<<std::endl;
+	/*{*//*to debug if assert fails*/
+	if(dir.size()){
+		std::cerr<<"vvvvvvv"<<std::endl;
+		std::cerr<<i<<" : "<<x_[i]<<std::endl;
 		for(unsigned int d(0);d<this->z_;d++){
 			std::cerr<< nn[d]<<std::endl;
 		}
 		std::cerr<<nb<<std::endl;
-	}*/
+		std::cerr<<"missing dir : ";
+		for(unsigned int d(0);d<dir.size();d++){ std::cout<<dir[d]<<" "; }
+		std::cout<<std::endl;
+		std::cerr<<"^^^^^^"<<std::endl;
+	}
 	/*}*/
-	assert(j<this->n_+1);
+	//assert(j<this->n_+1);
 	delete[] nn;
 	return nb;
 }

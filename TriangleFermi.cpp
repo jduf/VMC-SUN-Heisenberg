@@ -51,7 +51,7 @@ Matrix<double> TriangleFermi::set_ab() const {
 /*{method needed for checking*/
 void TriangleFermi::display_results(){
 	compute_H();
-	draw_lattice(false,true,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25);
+	draw_lattice(false,true,(dir_nn_[4]+dir_nn_[3])*1.5);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
@@ -77,8 +77,8 @@ void TriangleFermi::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="triangle-fermi";
-	//display_results();
+	filename_ ="triangle-fermi-n"+my::tostring(n_);
+	display_results();
 
 	//plot_band_structure();
 	//Vector<unsigned int> c(3,0);
@@ -86,15 +86,15 @@ void TriangleFermi::check(){
 		//c(obs_[0](i,2))++;
 		//if(obs_[0](i,2)==2){ std::cout<<obs_[0](i,0)<<" "<<obs_[0](i,1)<<std::endl; }
 	//}
-	create_obs(2);
-	Vector<unsigned int> c(n_,0);
-	for(auto const& o:obs_){
-		if(o.get_type()==2){
-			for(unsigned int i(0);i<o.nlinks();i++){
-				c(o(i,2))++;
-			}
-		}
-	}
-	std::cout<<c<<std::endl;
+	//create_obs(2);
+	//Vector<unsigned int> c(n_,0);
+	//for(auto const& o:obs_){
+		//if(o.get_type()==2){
+			//for(unsigned int i(0);i<o.nlinks();i++){
+				//c(o(i,2))++;
+			//}
+		//}
+	//}
+	//std::cout<<c<<std::endl;
 }
 /*}*/
