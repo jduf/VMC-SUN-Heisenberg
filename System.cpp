@@ -287,6 +287,11 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 2;
 		ref(2) = 2;
 	}
+	if( wf == "triangle-chiralSG" ){
+		ref(0) = 3;
+		ref(1) = 2;
+		ref(2) = 3;
+	}
 
 	if( wf == "square-fermi" ){
 		ref(0) = 4;

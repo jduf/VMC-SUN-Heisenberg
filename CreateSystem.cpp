@@ -243,6 +243,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C)    { phi = C->get<double>("phi"); }
 										CGL_ = new TrianglePhi(*s_,phi);
 									}break;
+								case 3:
+									{
+										double phi;
+										if(param){ phi = (*param)(0); }
+										if(C){ phi = C->get<double>("phi"); }
+										CGL_ = new TriangleChiralSG(*s_,phi);
+									}break;
 								default:{ error(); }break;
 							}
 						}break;

@@ -25,6 +25,7 @@
 #include "TriangleAlternatingPlaquette.hpp"
 #include "TrianglePhi.hpp"
 #include "TriangleChiral.hpp"
+#include "TriangleChiralSG.hpp"
 
 #include "SquareFermi.hpp"
 #include "SquareFree.hpp"
