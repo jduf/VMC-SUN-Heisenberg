@@ -198,11 +198,11 @@ void Kagome<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 				}
 				switch(links(i,5)%3){
 					case 0:
-						{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/4.0,loop_c); } }break;
-					case 1:
-						{ if(links(i,3)==1){ this->draw_flux_per_plaquette(ps,s0,xy0(0),xy0(1)+sqrt(3.0)/3.0,loop_b); } }break;
-					case 2:
-						{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/2.0,loop_a); } }break;
+						{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/4.0,this->flux_per_plaquette(s0,loop_c)); } }break;
+					case 1:                                                         
+						{ if(links(i,3)==1){ ps.put(xy0(0),xy0(1)+sqrt(3.0)/3.0    ,this->flux_per_plaquette(s0,loop_b)); } }break;
+					case 2:                                                         
+						{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/2.0,this->flux_per_plaquette(s0,loop_a)); } }break;
 				}
 
 				/*Shows bond energy and color occupation*/
@@ -292,11 +292,11 @@ void Kagome<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 			}
 			switch(links(i,5)%3){
 				case 0:
-					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/4.0,loop_c); } }break;
-				case 1:
-					{ if(links(i,3)==1){ this->draw_flux_per_plaquette(ps,s0,xy0(0),xy0(1)+sqrt(3.0)/3.0,loop_b); } }break;
-				case 2:
-					{ if(links(i,3)==0){ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/2.0,loop_a); } }break;
+					{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/4.0,this->flux_per_plaquette(s0,loop_c)); } }break;
+				case 1:                                                         
+					{ if(links(i,3)==1){ ps.put(xy0(0),xy0(1)+sqrt(3.0)/3.0    ,this->flux_per_plaquette(s0,loop_b)); } }break;
+				case 2:                                                         
+					{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/2.0,this->flux_per_plaquette(s0,loop_a)); } }break;
 			}
 		}
 	}

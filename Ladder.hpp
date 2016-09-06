@@ -36,7 +36,7 @@ class Ladder: public System1D<Type>{
 		/*Draw the lattice inside a PSTricks file*/
 		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image);
 		/*!Computes and writes the flux per plaquette in the PSTricks file*/
-		void draw_flux_per_plaquette(PSTricks& ps, unsigned int const& s0, unsigned int const& s1, double const& xd, double const& yd) const;
+		std::string flux_per_plaquette(unsigned int const& s0, unsigned int const& s1) const;
 };
 
 /*{constructor*/
@@ -280,7 +280,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 						ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 					}
 				} 
-				if(i%3==0){ draw_flux_per_plaquette(ps,s0,s1,xy0(0)+0.5,xy0(1)+0.5); }
+				if(i%3==0){ ps.put(xy0(0)+0.5,xy0(1)+0.5,flux_per_plaquette(s0,s1)); }
 
 				/*Shows bond energy and color occupation*/
 				xy0 += shift;
@@ -371,7 +371,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 					ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 				}
 			}
-			if(i%3==0){ draw_flux_per_plaquette(ps,s0,s1,xy0(0)+0.5,xy0(1)+0.5); }
+			if(i%3==0){ ps.put(xy0(0)+0.5,xy0(1)+0.5,flux_per_plaquette(s0,s1)); }
 		}
 	}
 	if(o(2) && o(3)){/*long range correlations*/
@@ -515,7 +515,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 }
 
 template<typename Type>
-void Ladder<Type>::draw_flux_per_plaquette(PSTricks& ps, unsigned int const& s0, unsigned int const& s1, double const& xd, double const& yd) const {
+std::string Ladder<Type>::flux_per_plaquette(unsigned int const& s0, unsigned int const& s1) const {
 	double flux(0.0);
 	flux+= std::arg(-this->H_(s0,s1));
 	flux+= std::arg(-this->H_(s1,s1+1));
@@ -529,9 +529,10 @@ void Ladder<Type>::draw_flux_per_plaquette(PSTricks& ps, unsigned int const& s0,
 	unsigned long long a;
 	unsigned long long b;
 	if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-		if(my::to_fraction(flux,a,b,sign) && b!=1){ ps.put(xd,yd,std::string(sign<0?"-":"")+"$\\frac{"+(a==1?"":my::tostring(a))+"\\pi}{"+my::tostring(b)+"}$"); }
-		else if((unsigned int)(my::chop(flux))%2){  ps.put(xd,yd,"$\\pi$"); }
+		if(my::to_fraction(flux,a,b,sign) && b!=1){ return std::string(sign<0?"-":"")+"$\\frac{"+(a==1?"":my::tostring(a))+"\\pi}{"+my::tostring(b)+"}$"; }
+		else if((unsigned int)(my::chop(flux))%2){  return "$\\pi$"; }
 	}
+	return "";
 }
 /*}*/
 #endif

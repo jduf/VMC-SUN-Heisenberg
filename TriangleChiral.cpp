@@ -120,6 +120,9 @@ void TriangleChiral::check(){
 	display_results();
 
 	//compute_H();
+	//std::cout<<H_<<std::endl;
+
+	//compute_H();
 	//plot_band_structure();
 }
 

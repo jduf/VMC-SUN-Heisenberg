@@ -175,7 +175,7 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 						else    { color = "magenta"; }
 						ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 					}
-				} else { this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+0.5,loop); }
+				} else { ps.put(xy0(0)+0.5,xy0(1)+0.5,this->flux_per_plaquette(s0,loop)); }
 
 				/*Shows bond energy and color occupation*/
 				xy0 += shift;
@@ -262,7 +262,7 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 					else    { color = "magenta"; }
 					ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 				}
-			} else { this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+0.5,loop); }
+			} else { ps.put(xy0(0)+0.5,xy0(1)+0.5,this->flux_per_plaquette(s0,loop)); }
 		}
 	}
 	/*draw long range correlations over the lattice*/

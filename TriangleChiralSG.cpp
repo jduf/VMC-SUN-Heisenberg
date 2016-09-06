@@ -41,10 +41,7 @@ void TriangleChiralSG::compute_H(){
 	unsigned int m;
 	for(unsigned int i(0);i<n_;i++){
 		move = (M*(x_[i]-x_[0])).chop();
-		std::cout<<"---------------------"<<std::endl;
-		std::cout<<move<<std::endl;
 		s = 0;
-		std::cout<<i<<" : "<<s<<" ";
 		if(move(0)>0){
 			m = std::round(move(0));
 			for(unsigned int j(0);j<m;j++){
@@ -53,7 +50,6 @@ void TriangleChiralSG::compute_H(){
 				s = nn(s,0);
 				H_(s,nn(s,2)) -= 2.0;
 				H_(nn(s,2),s) += 2.0;
-				std::cout<<s<<" ";
 			}
 		}
 		if(move(0)<0){
@@ -64,7 +60,6 @@ void TriangleChiralSG::compute_H(){
 				s = nn(s,3);
 				H_(s,nn(s,1)) += 2.0;
 				H_(nn(s,1),s) -= 2.0;
-				std::cout<<s<<" ";
 			}
 		}
 		if(move(1)>0){
@@ -75,7 +70,6 @@ void TriangleChiralSG::compute_H(){
 				H_(s,nn(s,3)) -= 2.0;
 				H_(nn(s,2),s) += 2.0;
 				H_(nn(s,3),s) += 2.0;
-				std::cout<<s<<" ";
 			}
 		}
 		if(move(1)<0){
@@ -86,12 +80,10 @@ void TriangleChiralSG::compute_H(){
 				H_(nn(s,2),s) -= 2.0;
 				H_(nn(s,3),s) -= 2.0;
 				s = nn(s,4);
-				std::cout<<s<<" ";
 			}
 		}
 		H_(s,nn(s,1)) -= 1.0;
 		H_(nn(s,1),s) += 1.0;
-		std::cout<<std::endl;
 	}
 
 	int p;
@@ -99,15 +91,14 @@ void TriangleChiralSG::compute_H(){
 	double phi(phi_*m_*M_PI/N_);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		p = std::real(H_(obs_[0](i,0),obs_[0](i,1)));
-		p = p%(2*N_/m_);
+		p = p%int(2*N_/m_);
 		H_(obs_[0](i,0),obs_[0](i,1)) = std::polar((obs_[0](i,4)?t*bc_:t),p*phi);
 
 		p = std::real(H_(obs_[0](i,1),obs_[0](i,0)));
-		p = p%(2*N_/m_);
+		p = p%int(2*N_/m_);
 		H_(obs_[0](i,1),obs_[0](i,0)) = std::polar((obs_[0](i,4)?t*bc_:t),p*phi);
 	}
 
-	std::cout<<H_<<std::endl;
 }
 
 void TriangleChiralSG::create(){
@@ -143,6 +134,14 @@ Matrix<double> TriangleChiralSG::set_ab() const {
 	tmp(1,1) = sqrt(3.0)/2.0;
 	return tmp;
 }
+
+void TriangleChiralSG::bond_energy_obs(){
+	unsigned int idx(obs_.size());
+	obs_.push_back(Observable("Bond energy",1,obs_[0].nlinks(),obs_[0].nlinks()));
+	obs_[idx].remove_links();
+
+	for(unsigned int i(0);i<obs_[0].nlinks();i++){ obs_[0](i,2) = i; }
+}
 /*}*/
 
 /*{method needed for checking*/
@@ -169,6 +168,9 @@ void TriangleChiralSG::check(){
 	dir_  = "./";
 	filename_ ="triangle-chiralSG";
 	display_results();
+
+	//compute_H();
+	//std::cout<<H_<<std::endl;
 
 	//compute_H();
 	//plot_band_structure();

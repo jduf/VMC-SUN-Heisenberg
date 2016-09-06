@@ -224,7 +224,7 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 					else    { color = "magenta"; }
 					ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 				}
-				if(!(i%3)){ this->draw_flux_per_plaquette(ps,s0,(xy0(0)+xy1(0))/2.0,xy0(1)+0.9,loop); }
+				if(!(i%3)){ ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.9,this->flux_per_plaquette(s0,loop)); }
 
 				/*Shows bond energy and color occupation*/
 				xy0 += shift;
@@ -328,7 +328,7 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 				else    { color = "magenta"; }
 				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 			}
-			if(!(i%3)){ this->draw_flux_per_plaquette(ps,s0,(xy0(0)+xy1(0))/2.0,xy0(1)+0.9,loop); }
+			if(!(i%3)){ ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.9,this->flux_per_plaquette(s0,loop)); }
 		}
 	}
 	/*draws long range correlations over the lattice*/

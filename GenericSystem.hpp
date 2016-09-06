@@ -60,7 +60,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 			   to the energy observable *//*}*/
 		void energy_obs(Vector<unsigned int> const& l);
 		/*!Create the bond energy observables*/
-		void bond_energy_obs();
+		virtual void bond_energy_obs();
 		/*!Create the long range correlation observables*/
 		virtual void long_range_correlations_obs() = 0;
 		/*!Create the color occupation observables*/

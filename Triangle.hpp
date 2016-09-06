@@ -203,9 +203,9 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 				}
 				switch(i%3){
 					case 0:
-						{ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/5.0,loop_a); }break;
+						{ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/5.0,this->flux_per_plaquette(s0,loop_a)); }break;
 					case 1:
-						{ this->draw_flux_per_plaquette(ps,s0,xy0(0),    xy0(1)+sqrt(3.0)/4.0,loop_b); }break;
+						{ ps.put(xy0(0),    xy0(1)+sqrt(3.0)/4.0,this->flux_per_plaquette(s0,loop_b)); }break;
 					case 2:
 						{
 							mu = my::real(this->H_(s0,s0));
@@ -297,9 +297,9 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 			}
 			switch(i%3){
 				case 0:
-					{ this->draw_flux_per_plaquette(ps,s0,xy0(0)+0.5,xy0(1)+sqrt(3.0)/5.0,loop_a); }break;
+					{ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/5.0,this->flux_per_plaquette(s0,loop_a)); }break;
 				case 1:
-					{ this->draw_flux_per_plaquette(ps,s0,xy0(0),    xy0(1)+sqrt(3.0)/4.0,loop_b); }break;
+					{ ps.put(xy0(0),    xy0(1)+sqrt(3.0)/4.0,this->flux_per_plaquette(s0,loop_b)); }break;
 				case 2:
 					{
 						mu = my::real(this->H_(s0,s0));

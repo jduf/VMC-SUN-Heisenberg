@@ -17,6 +17,7 @@ class TriangleChiralSG: public Triangle<std::complex<double> >{
 
 		void compute_H();
 		void display_results();
+		void bond_energy_obs();
 
 		/*!Sets the unit cell's vectors*/
 		Matrix<double> set_ab() const;

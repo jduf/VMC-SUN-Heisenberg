@@ -61,7 +61,7 @@ class System2D: public GenericSystem<Type>{
 		/*!Draws the long range correlations contained int O in the PSTricks file*/
 		void draw_long_range_correlations(PSTricks& ps, Vector<double> const& shift, Observable const& O) const;
 		/*!Computes and writes the flux per plaquette in the PSTricks file*/
-		void draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, double const& xd, double const& yd, Vector<unsigned int> const& dir) const;
+		std::string flux_per_plaquette(unsigned int s0, Vector<unsigned int> const& dir) const;
 
 	private:
 		Matrix<double> const ab_;//!< the unit cell basis vectors a,b : ((a_1,b_1),(a_2,b_2))
@@ -376,7 +376,7 @@ void System2D<Type>::draw_long_range_correlations(PSTricks& ps, Vector<double> c
 }
 
 template<typename Type>
-void System2D<Type>::draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, double const& xd, double const& yd, Vector<unsigned int> const& dir) const {
+std::string System2D<Type>::flux_per_plaquette(unsigned int s0, Vector<unsigned int> const& dir) const {
 	unsigned int s1;
 	double flux(0.0);
 	Vector<double> x(x_[s0]);
@@ -394,9 +394,10 @@ void System2D<Type>::draw_flux_per_plaquette(PSTricks& ps, unsigned int s0, doub
 	unsigned long long a;
 	unsigned long long b;
 	if(!my::are_equal(flux,0.0,this->eq_prec_,this->eq_prec_)){
-		if(my::to_fraction(flux,a,b,sign) && b!=1){ ps.put(xd,yd,std::string(sign<0?"-":"")+"$\\frac{"+(a==1?"":my::tostring(a))+"\\pi}{"+my::tostring(b)+"}$"); }
-		else if((unsigned int)(my::chop(flux))%2){  ps.put(xd,yd,"$\\pi$"); }
+		if(my::to_fraction(flux,a,b,sign) && b!=1){ return std::string(sign<0?"-":"")+"$\\frac{"+(a==1?"":my::tostring(a))+"\\pi}{"+my::tostring(b)+"}$"; }
+		else if((unsigned int)(my::chop(flux))%2){  return "$\\pi$"; }
 	}
+	return "";
 }
 /*}*/
 /*}*/

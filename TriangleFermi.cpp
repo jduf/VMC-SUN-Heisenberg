@@ -77,7 +77,7 @@ void TriangleFermi::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="triangle-fermi-n"+my::tostring(n_);
+	filename_ ="triangle-fermi";
 	display_results();
 
 	//plot_band_structure();
