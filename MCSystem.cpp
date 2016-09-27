@@ -72,7 +72,7 @@ void MCSystem::swap(){
 		new_s_[1] = n_rnd_.get();
 		new_p_[1] = m_rnd_.get();
 		new_c_[1] = s_(new_s_[1],new_p_[1]);
-	} while (is_new_state_forbidden() || new_c_[0] == new_c_[1]);
+	} while (new_c_[0] == new_c_[1] || is_new_state_forbidden());
 }
 
 void MCSystem::update(){
@@ -81,7 +81,7 @@ void MCSystem::update(){
 }
 
 void MCSystem::measure_new_step(){
-	unsigned int L(obs_[0].nlinks());
+	unsigned int const L(obs_[0].nlinks());
 	int* idx[3];
 	idx[0] = obs_[0].get_links().ptr();
 	idx[1] = idx[0]+L;
@@ -152,20 +152,20 @@ void MCSystem::measure_new_step(){
 			case 2:// for long range correlation
 				{
 					o.set_x(-1.0*m_*m_/N_);
-					L = o.nlinks();
+					unsigned int const Lc(o.nlinks());
 					idx[0] = o.get_links().ptr();
-					idx[1] = idx[0]+L;
-					idx[2] = idx[1]+L;
+					idx[1] = idx[0]+Lc;
+					idx[2] = idx[1]+Lc;
 
-					if(m_ == 1){
-						for(unsigned int l(0);l<L;l++){
+					if(m_==1){
+						for(unsigned int l(0);l<Lc;l++){
 							if(s_(*idx[0],0) == s_(*idx[1],0)){ o.add(*idx[2],1.0); }
 							idx[0]++;
 							idx[1]++;
 							idx[2]++;
 						}
 					} else {
-						for(unsigned int l(0);l<L;l++){
+						for(unsigned int l(0);l<Lc;l++){
 							for(unsigned int p0(0);p0<m_;p0++){
 								for(unsigned int p1(0);p1<m_;p1++){
 									if(s_(*idx[0],p0) == s_(*idx[1],p1)){ o.add(*idx[2],1.0); }
@@ -180,7 +180,7 @@ void MCSystem::measure_new_step(){
 			case 3:// for color occupation
 				{
 					o.set_x(0);
-					if(m_ == 1){
+					if(m_==1){
 						for(unsigned int i(0);i<n_;i++){ o.add(o(i,s_(i,0)),1.0); }
 					} else {
 						for(unsigned int i(0);i<n_;i++){
@@ -214,9 +214,11 @@ void MCSystem::swap(unsigned int const& s0, unsigned int const& s1, unsigned int
 }
 
 bool MCSystem::is_new_state_forbidden(){
-	for(unsigned int i(0);i<m_;i++){
-		if(i != new_p_[0] && s_(new_s_[0],i) == new_c_[1]){ return true; }
-		if(i != new_p_[1] && s_(new_s_[1],i) == new_c_[0]){ return true; }
+	if(m_>1){
+		for(unsigned int i(0);i<m_;i++){
+			if(i != new_p_[0] && s_(new_s_[0],i) == new_c_[1]){ return true; }
+			if(i != new_p_[1] && s_(new_s_[1],i) == new_c_[0]){ return true; }
+		}
 	}
 	return false;
 }

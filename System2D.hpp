@@ -209,7 +209,7 @@ Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 			}
 		}
 	} while(dir.size() && ++j<this->n_+1);
-	/*{*//*to debug if assert fails*/
+	/*{*//*to debug if assert fails
 	if(dir.size()){
 		std::cerr<<"vvvvvvv"<<std::endl;
 		std::cerr<<i<<" : "<<x_[i]<<std::endl;
@@ -221,9 +221,9 @@ Matrix<int> System2D<Type>::get_neighbourg(unsigned int const& i) const {
 		for(unsigned int d(0);d<dir.size();d++){ std::cout<<dir[d]<<" "; }
 		std::cout<<std::endl;
 		std::cerr<<"^^^^^^"<<std::endl;
-	}
+	}*/
 	/*}*/
-	//assert(j<this->n_+1);
+	assert(j<this->n_+1);
 	delete[] nn;
 	return nb;
 }
@@ -321,7 +321,7 @@ void System2D<Type>::plot_band_structure(){
 			gp+=std::string(!i?"splot":"     ")+" '"+this->filename_+"-band-structure-formated.dat' u 1:2:"+my::tostring(i+3)+" w l notitle"+(i+1==this->spuc_?"":",\\");
 		}
 		gp.save_file();
-		gp.create_image(true,true);
+		gp.create_image(true,"png");
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : band structure not plotted"<<std::endl; }
 }
 

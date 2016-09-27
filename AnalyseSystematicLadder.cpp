@@ -94,7 +94,7 @@ void AnalyseSystematicLadder::close_files(){
 				gp+="     '"+fname+".dat' u ($12==7?$5:1/0):6 pt 7 t 'Rectangle pipipi',\\";
 				gp+="     '"+fname+".dat' u ($12==8?$5:1/0):6 pt 7 t 'Rectangle 0pipi'";
 				gp.save_file();
-				gp.create_image(true,true);
+				gp.create_image(true,"png");
 				list_rst_.last().figure(rel_level_+analyse_+path_+fname+".png","Energy per site",RST::target(rel_level_+analyse_+path_+fname+".gp")+RST::width("1000"));
 
 				best_J_.set_target();

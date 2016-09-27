@@ -1,31 +1,18 @@
-MACHINE=$(shell uname -n)_
-ifneq (,$(filter $(MACHINE),ctmcpc33_ pink-floyd_))
-	MACHINE=
-	EXEC = check
-	EXEC+= mc
-	#EXEC+= min
-	#EXEC+= mcbi
-	#EXEC+= study
+EXEC = check
+EXEC+= mc
+#EXEC+= min
+#EXEC+= mcbi
+#EXEC+= study
 
-	CXX = g++ -std=c++14
-	LAPACK = -llapack -lblas
-	ERRORS = -Wall -Wextra -pedantic
-	OPTION = -fopenmp
-else
-	EXEC= $(MACHINE)min
-	EXEC+= $(MACHINE)mc
-	EXEC+= $(MACHINE)study
+CXX = g++ -std=c++14
+LAPACK = -llapack -lblas
+OPTION = -fopenmp
 
-	CXX = icpc -std=c++11
-	LAPACK =# -Wl,--no-as-needed -L${MKL_ROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
-	ERRORS = -Wall -Wextra -pedantic
-	OPTION = -qopenmp -mkl -D MY_BLAS_ZDOTU -no-inline-max-size -no-inline-max-total-size
+#CXX = icpc -std=c++14
+#LAPACK =# -Wl,--no-as-needed -L${MKL_ROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
+#OPTION = -qopenmp -mkl -D MY_BLAS_ZDOTU -no-inline-max-size -no-inline-max-total-size
 
-	#CXX = g++ -std=c++11
-	#LAPACK = -Wl,--no-as-needed -L${MKL_ROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
-	#ERRORS = -Wall -Wextra -pedantic
-	#OPTION = -fopenmp
-endif
+ERRORS = -Wall -Wextra -pedantic
 
 CHAIN     = ChainFermi.cpp ChainPolymerized.cpp ChainFree.cpp ChainSAS.cpp
 LADDER    = LadderFermi.cpp LadderFree.cpp LadderDimerA.cpp LadderDimerB.cpp LadderSquarePlaquetteA.cpp LadderSquarePlaquetteB.cpp LadderSquarePlaquetteC.cpp LadderRectangularPlaquetteA.cpp LadderRectangularPlaquetteB.cpp LadderFreeFlux.cpp 
@@ -41,11 +28,11 @@ ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseMin.cpp AnalyseExtract.cpp Ana
 IOFILES    = Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
 OTHER      = System.cpp IOSystem.cpp Observable.cpp CreateSystem.cpp Lapack.cpp Parseur.cpp Fit.cpp
 
-$(MACHINE)check_SRCS = check.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
-$(MACHINE)mc_SRCS    = mc.cpp    $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
-$(MACHINE)mcbi_SRCS  = mcbi.cpp  $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
-$(MACHINE)min_SRCS   = min.cpp   $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN)
-$(MACHINE)study_SRCS = study.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN) $(ANALYSE)
+check_SRCS = check.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
+mc_SRCS    = mc.cpp    $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
+mcbi_SRCS  = mcbi.cpp  $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
+min_SRCS   = min.cpp   $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN)
+study_SRCS = study.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN) $(ANALYSE)
 
 #-----------------------------------------------------------------
 include lib/config.mk

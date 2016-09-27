@@ -83,13 +83,6 @@ void Triangle<Type>::init_lattice(){
 			R_(1,0) =-sin(theta);
 			R_(1,1) = cos(theta);
 
-			//std::cout<<this->equivalent_vertex_[0]<<" : "<<this->equivalent_vertex_[0].norm()<<std::endl;
-			//std::cout<<this->equivalent_vertex_[1]<<" : "<<this->equivalent_vertex_[1].norm()<<std::endl;
-			//std::cout<<this->equivalent_vertex_[2]<<" : "<<this->equivalent_vertex_[2].norm()<<std::endl;
-			//std::cout<<this->equivalent_vertex_[2]-this->equivalent_vertex_[0]<<std::endl;
-			//std::cout<<theta<<std::endl;
-			//std::cout<<std::endl<<R_<<std::endl<<std::endl;
-
 			Vector<double> x_loop(this->x_[0]);
 			for(unsigned int i(1);i<this->n_;i++){
 				this->x_[i] = this->x_[i-1] + this->dir_nn_[0];
@@ -101,14 +94,6 @@ void Triangle<Type>::init_lattice(){
 				}
 				this->x_[i] = this->x_[i].chop();
 			}
-
-			//std::cout<<"#######"<<std::endl;
-			//for(unsigned int i(0);i<this->n_;i++){ std::cout<<this->x_[i]<<std::endl; }
-			//std::cout<<"#######"<<std::endl;
-			//for(unsigned int i(0);i<3;i++){ std::cout<<this->equivalent_vertex_[i]<<std::endl; }
-			//std::cout<<"#######"<<std::endl;
-			//std::cout<<this->cluster_vertex_<<std::endl;
-			//std::cout<<"#######"<<std::endl;
 
 			if(this->unit_cell_allowed()){
 				if(this->ref_(4)==2){ this->energy_obs(Vector<unsigned int>(1,3)); }
@@ -331,7 +316,7 @@ std::string Triangle<Type>::extract_level_2(){
 	gp+="plot '"+this->filename_+".dat' u (1.0/$4):($6/($2*$2)):($7/($2*$2)) w e lc 1 notitle,\\";
 	gp+="     f(x) lc 1 t sprintf('%f',a0)";
 	gp.save_file();
-	gp.create_image(true,true);
+	gp.create_image(true,"png");
 
 	return this->filename_;
 }
@@ -373,8 +358,6 @@ Matrix<double> Triangle<Type>::set_geometry(unsigned int const& n, unsigned int 
 			tmp(5,1) = my::chop(r*sin(theta+5.0*M_PI/6.0))-0.0001;
 			tmp(6,0) = tmp(0,0);
 			tmp(6,1) = tmp(0,1);
-			//std::cout<<p_<<" "<<q_<<" "<<theta<<" "<<theta+5*M_PI/6<<" "<<r<<std::endl;
-			//std::cout<<std::endl<<tmp<<std::endl<<std::endl;
 			return tmp;
 		}
 
@@ -397,7 +380,6 @@ template<typename Type>
 bool Triangle<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 	if(this->pos_out_of_lattice(x)){
 		Vector<double> tmp((R_*x).chop());
-		//std::cout<<x<<" "<<tmp;
 		/*hack to avoid situations where x <-> x' (infite loop)*/
 		tmp(0) += 0.0001;
 		tmp(1) += 0.0001;
@@ -406,13 +388,11 @@ bool Triangle<Type>::reset_pos_in_lattice(Vector<double>& x) const {
 			if      (t <     M_PI/3.0){ x += this->equivalent_vertex_[0] - this->equivalent_vertex_[1]; }
 			else if (t < 2.0*M_PI/3.0){ x += this->equivalent_vertex_[0] - this->equivalent_vertex_[2]; }
 			else                      { x += this->equivalent_vertex_[1] - this->equivalent_vertex_[2]; }
-			//std::cout<<" up   "<<x<<" | "<<t<<" "<<(t< M_PI/3.0)<<std::endl;
 		} else {
 			double t(acos(tmp(0)/std::sqrt(tmp.norm_squared())));
 			if      (t <     M_PI/3.0){ x += this->equivalent_vertex_[2] - this->equivalent_vertex_[1]; }
 			else if (t < 2.0*M_PI/3.0){ x += this->equivalent_vertex_[2] - this->equivalent_vertex_[0]; }
 			else                      { x += this->equivalent_vertex_[1] - this->equivalent_vertex_[0]; }
-			//std::cout<<" down "<<x<<" | "<<t<<" "<<(t< M_PI/3.0)<<std::endl;
 		}
 		reset_pos_in_lattice(x);
 		return true;

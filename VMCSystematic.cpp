@@ -58,7 +58,7 @@ void VMCSystematic::plot(){
 					gp.label("y2","$\\frac{E}{n}$","rotate by 0");
 					gp+="plot '"+get_filename()+".dat' u 1:2:3 w e notitle";
 					gp.save_file();
-					gp.create_image(true,true);
+					gp.create_image(true,"png");
 				}break;
 			case 2:
 				{
@@ -67,7 +67,7 @@ void VMCSystematic::plot(){
 					gp+="splot '"+get_filename()+".dat' u 1:2:($3+$4) lc 1 pt 8 notitle,\\";
 					gp+="      '"+get_filename()+".dat' u 1:2:($3-$4) lc 1 pt 7 notitle";
 					gp.save_file();
-					gp.create_image(true,true);
+					gp.create_image(true,"png");
 				}break;
 			default:
 				{
@@ -123,7 +123,7 @@ void VMCSystematic::analyse(std::string const& path, std::string const& filename
 					Gnuplot gp(path,filename);
 					gp+="plot '"+filename+".dat' u 1:2:3 w e notitle";
 					gp.save_file();
-					gp.create_image(true,true);
+					gp.create_image(true,"png");
 				}break;
 			case 6:
 				{
@@ -160,7 +160,7 @@ void VMCSystematic::analyse(std::string const& path, std::string const& filename
 						Gnuplot gp(path,filename);
 						gp+="plot '"+filename+".dat' u 1:2:3 w e notitle";
 						gp.save_file();
-						gp.create_image(true,true);
+						gp.create_image(true,"png");
 					} else { std::cerr<<__PRETTY_FUNCTION__<<" : undefined analyse for "<<ref<<std::endl; }
 				}break;
 			default:

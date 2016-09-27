@@ -72,6 +72,7 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 		/*!Returns true if the Ainv_ matrices are invertible*/
 		bool are_invertible();
 
+		Type ratio_explicit(unsigned int const& i);
 		Type determinant_lemma(unsigned int const& i);
 		Type determinant_lemma(unsigned int const& col, unsigned int const& s0, unsigned int const& s1, unsigned int const& r0, unsigned int const& r1);
 		void compute_peculiar_observable(Observable& O);
@@ -165,9 +166,8 @@ SystemFermionic<Type>::SystemFermionic(Fermionic<Type> const& F):
 	/*!Proceed to the inversion if possible*/
 	if(l<TRY_MAX){
 		status_=0;
-		for(unsigned int c(0); c<N_; c++){
-			Lapack<Type> inv(Ainv_[c],false,'G');
-			inv.inv();
+		for(unsigned int c(0);c<N_;c++){
+			Lapack<Type>(Ainv_[c],false,'G').inv();
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no initial configuration found after "<<TRY_MAX<<" attempts"<<std::endl; }
 
@@ -369,6 +369,8 @@ Type SystemFermionic<Type>::determinant_lemma(unsigned int const& i){
 	for(unsigned int k(0);k<M;k++){
 		w_[i] += this->EVec_[c](ev,k)*Ainv_[c](k,new_r_[i]);
 	}
+	//Type tmp(ratio_explicit(i));
+	//if(!my::are_equal(w_[i],tmp)){ std::cout<<w_[i]<<" "<<tmp<<std::endl; }
 	return w_[i];
 }
 
@@ -705,22 +707,26 @@ void SystemFermionic<Type>::compute_peculiar_observable(Observable& O){
 }
 /*}*/
 
-//template<typename Type>
-//void SystemFermionic<Type>::check(unsigned int const& col, unsigned int const& s0, unsigned int const& s1, unsigned int const& p0, unsigned int const& p1){
-	//Matrix<Type> A0(M_(c),M_(c));
-	//Matrix<Type> A1(M_(c),M_(c));
-	//unsigned int c(0);
-	//for(unsigned int s(0);s<n_;s++){
-		//for(unsigned int p(0);p<m_;p++){
-			//if(s_(s,p) == c){
-				//for(unsigned int j(0);j<M_(c);j++){
-					//A0(row_(s,p),j) = this->EVec_[c](s,j);
-					//A1(row_(s,p),j) = this->EVec_[c](s,j);
-				//}
-			//}
-		//}
-	//}
-//
-	//return Lapack<Type>(A0,true,'G').det()/Lapack<Type>(A1,true,'G').det();
-//}
+template<typename Type>
+Type SystemFermionic<Type>::ratio_explicit(unsigned int const& i){
+	unsigned int c(new_c_[i]);
+	unsigned int ev((i==0)?new_s_[1]:new_s_[0]);
+	Matrix<Type> A0(M_(c),M_(c));
+	Matrix<Type> A1(M_(c),M_(c));
+	for(unsigned int s(0);s<n_;s++){
+		for(unsigned int p(0);p<m_;p++){
+			if(s_(s,p) == c){
+				for(unsigned int j(0);j<M_(c);j++){
+					A0(row_(s,p),j) = this->EVec_[c](s,j);
+					A1(row_(s,p),j) = this->EVec_[c](s,j);
+				}
+			}
+		}
+	}
+	for(unsigned int j(0);j<M_(c);j++){
+		A1(new_r_[i],j) = this->EVec_[c](ev,j);
+	}
+
+	return Lapack<Type>(A1,true,'G').det()/Lapack<Type>(A0,true,'G').det();
+}
 #endif

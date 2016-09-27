@@ -17,7 +17,6 @@ class MCParticle: public Particle{
 		/*}*/
 
 		void set_ps(Vector<double> const* const ps){ ps_ = ps; }
-		void set_symmetry(Matrix<int> const& sym){ sym_ = sym; }
 
 		/*!Could remove the test within this function if I don't see any bug*/
 		Vector<double> get_param() const;
@@ -32,7 +31,6 @@ class MCParticle: public Particle{
 
 	private:
 		List<MCSim> history_;
-		Matrix<int> sym_;
 		Vector<double> const* ps_ 	   = NULL;
 		unsigned int Nupdate_		   = 0;
 		unsigned int const update_now_ = 10;

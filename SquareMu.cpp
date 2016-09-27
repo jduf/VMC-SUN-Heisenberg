@@ -61,6 +61,12 @@ void SquareMu::save_param(IOFiles& w) const {
 
 Matrix<double> SquareMu::set_ab(unsigned int const& ref3, unsigned int const& k) const {
 	Matrix<double> tmp(2,2);
+	if(k==2){
+		tmp(0,0) = 1.0;
+		tmp(1,0) = 1.0;
+		tmp(0,1) = 1.0;
+		tmp(1,1) =-1.0;
+	}
 	if(k==3){
 		tmp(0,0) = 3.0;
 		tmp(1,0) = 0.0;
@@ -84,6 +90,10 @@ Matrix<double> SquareMu::set_ab(unsigned int const& ref3, unsigned int const& k)
 }
 
 unsigned int SquareMu::unit_cell_index(Vector<double> const& x) const {
+	if(spuc_ == 2){
+		if(my::are_equal(x(0),0.0,eq_prec_,eq_prec_) && my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ return 0; }
+		if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_) && my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ return 1; }
+	}
 	if(spuc_ == 3){
 		if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
 			if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0; }

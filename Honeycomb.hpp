@@ -375,7 +375,7 @@ std::string Honeycomb<Type>::extract_level_2(){
 	gp+="     [0:0.025] g(x,a2,b2) lc 3 t sprintf('%f',a2),\\";
 	gp+="     [0:0.025] g(x,a3,b3) lc 2 t sprintf('%f',a3)";
 	gp.save_file();
-	gp.create_image(true,true);
+	gp.create_image(true,"png");
 
 	return this->filename_;
 }

@@ -175,7 +175,7 @@ std::string SquareT3x2::extract_level_2(){
 	gp+="     [0:0.015] g(x,a0,b0) lc 2 t sprintf('$a_0=%f$',a0),\\";
 	gp+="     [0:0.015] g(x,a1,b1) lc 3 t sprintf('$a_1=%f$',a1)";
 	gp.save_file();
-	gp.create_image(true,true);
+	gp.create_image(true,"png");
 
 	return filename_;
 }

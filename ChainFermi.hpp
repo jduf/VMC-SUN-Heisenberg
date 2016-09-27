@@ -77,7 +77,7 @@ void ChainFermi<Type>::plot_bond_energy(){
 	gp.label("y2","$<S_{\\alpha}^{\\beta}(i)S_{\\beta}^{\\alpha}(i+1)>$");
 	gp+="plot '"+this->filename_+"-corr.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle";
 	gp.save_file();
-	gp.create_image(true,true);
+	gp.create_image(true,"png");
 
 	if(this->jd_write_){ this->jd_write_->write("polymerization strength",0.0); }
 }

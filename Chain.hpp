@@ -257,7 +257,7 @@ void Chain<Type>::plot_long_range_correlations_and_structure_factor(){
 			gplr+="plot '"+this->filename_+"-lr-c.dat' u 1:2:3 w errorbars lt 1 lc 7 notitle,\\";
 			gplr+="     f(x) lc 7 " + std::string(fit?"lw 0.5":"dt 2") + " t sprintf('$\\eta=%f$, $\\mu=%f$',p1,p3)";
 			gplr.save_file();
-			gplr.create_image(true,true);
+			gplr.create_image(true,"png");
 			/*}*/
 			/*!structure factor*/
 			/*{*/
@@ -274,7 +274,7 @@ void Chain<Type>::plot_long_range_correlations_and_structure_factor(){
 			gpsf+="plot '"+this->filename_+"-sf.dat' u 1:2 lt 1 lc 6 t 'real',\\";
 			gpsf+="     '"+this->filename_+"-sf.dat' u 1:3 lt 1 lc 7 t 'imag'";
 			gpsf.save_file();
-			gpsf.create_image(true,true);
+			gpsf.create_image(true,"png");
 			/*}*/
 		}
 	}

@@ -321,7 +321,7 @@ std::string AnalyseChain::extract_level_2(){
 		gpenergy+="     f(x) lc 3 t sprintf('$E=%f$',E)";
 	}
 	gpenergy.save_file();
-	gpenergy.create_image(true,true);
+	gpenergy.create_image(true,"png");
 
 	Gnuplot gpexp(analyse_+path_+dir_,filename_+"-exponents");
 	gpexp.multiplot();
@@ -343,7 +343,7 @@ std::string AnalyseChain::extract_level_2(){
 	gpexp+="     2.0 axes x1y2 lc 2 notitle";
 	gpexp+="unset multiplot";
 	gpexp.save_file();
-	gpexp.create_image(true,true);
+	gpexp.create_image(true,"png");
 
 	Gnuplot gppolym(analyse_+path_+dir_,filename_+"-polymerization");
 	gppolym.label("x","$n^{-1}$");
@@ -354,7 +354,7 @@ std::string AnalyseChain::extract_level_2(){
 	gppolym+="plot '"+filename_+".dat' u (1/$4):($3==1?$9:1/0) t 'P',\\";
 	gppolym+="     '"+filename_+".dat' u (1/$4):($3==0?$9:1/0) t 'O'";
 	gppolym.save_file();
-	gppolym.create_image(true,true);
+	gppolym.create_image(true,"png");
 
 	return filename_;
 }

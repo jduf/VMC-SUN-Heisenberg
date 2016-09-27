@@ -184,7 +184,7 @@ std::string HoneycombChiral::extract_level_2(){
 	gp+="plot '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) w e lc 1 t 'chiral',\\";
 	gp+="     [0:0.015] f(x) lc 1 t sprintf('%f',a)";
 	gp.save_file();
-	gp.create_image(true,true);
+	gp.create_image(true,"png");
 
 	return filename_;
 }

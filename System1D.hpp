@@ -62,7 +62,7 @@ void System1D<Type>::plot_band_structure(){
 		gp+="plot 'spectrum.dat' u ($3==1?$1:1/0):2 w p ps 1.5 lt 1 lc 4 t 'selected ev',\\";
 		gp+="     'spectrum.dat' u ($3==0?$1:1/0):2 w p ps 1.5 lt 1 lc 7 notitle";
 		gp.save_file();
-		gp.create_image(true,false);
+		gp.create_image(true,"png");
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : diagonalization failed, the band structure can't be computed"<<std::endl; }
 }
 /*}*/

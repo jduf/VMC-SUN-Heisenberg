@@ -118,7 +118,7 @@ void ChainPolymerized::plot_bond_energy(){
 	gp+="     "+my::tostring(poly_e(N_/m_-1)) + " w l lc 3 t 'd-merization="+my::tostring(poly_e(N_/m_-1)-poly_e(N_/m_-2))+"',\\";
 	gp+="     "+my::tostring(poly_e(N_/m_-2)) + " w l lc 3 notitle";
 	gp.save_file();
-	gp.create_image(true,true);
+	gp.create_image(true,"png");
 
 	if(jd_write_){ jd_write_->write("polymerization strength",poly_e(N_/m_-1)-poly_e(N_/m_-2)); }
 }
@@ -193,7 +193,7 @@ std::string ChainPolymerized::extract_level_7(){
 	}
 
 	gp.save_file();
-	gp.create_image(true,true);
+	gp.create_image(true,"png");
 
 	jd_write_->add_header()->title("System's parameters",'-');
 	save_param(*jd_write_);

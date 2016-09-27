@@ -262,7 +262,7 @@ std::string GenericSystem<Type>::extract_level_2(){
 	gp+="plot '"+this->filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) w e notitle,\\";
 	gp+="     " + r + " f(x) t sprintf('%f'," + p[0] + ")";
 	gp.save_file();
-	gp.create_image(true,true);
+	gp.create_image(true,"png");
 
 	return this->filename_;
 }

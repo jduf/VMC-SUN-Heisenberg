@@ -261,7 +261,7 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_pm, IOFi
 			Gnuplot gp(path,filename);
 			gp+="plot '"+filename+".dat' u 1:2:3 w xe notitle";
 			gp.save_file();
-			gp.create_image(true,true);
+			gp.create_image(true,"png");
 
 		} else {
 			List<MCSim> potential_minima;
@@ -300,7 +300,7 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_pm, IOFi
 				gp+=std::string(!i?"plot":"    ")+" '"+filename+".dat' u "+my::tostring(m_->dof_+2)+":"+my::tostring(i+1)+":"+my::tostring(m_->dof_+3)+" w xe t '$"+my::tostring(i)+"$'"+(i==m_->dof_-1?"":",\\");
 			}
 			gp.save_file();
-			gp.create_image(true,true);
+			gp.create_image(true,"png");
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }

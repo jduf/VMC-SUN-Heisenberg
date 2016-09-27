@@ -290,7 +290,7 @@ List<MCSim>::Node* VMCExtract::analyse(std::string const& path, std::string cons
 			gp+="     '"+filename+"-Er.dat' u ($6==1?$1:1/0):2:3 w e notitle,\\";
 			gp+="     '"+filename+"-Er.dat' u ($6==2?$1:1/0):2:3 w e notitle";
 			gp.save_file();
-			gp.create_image(true,true);
+			gp.create_image(true,"png");
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" : can't find characteristic spacing"<<std::endl; }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 	return target;

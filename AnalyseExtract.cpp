@@ -15,7 +15,7 @@ AnalyseExtract::~AnalyseExtract(){
 	gp+="plot '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==6?1.0/$1:1/0):3 t '$k=6$',\\";
 	gp+="     '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==3?1.0/$1:1/0):3 t '$k=3$'";
 	gp.save_file();
-	gp.create_image(true,true);
+	gp.create_image(true,"png");
 }
 
 void AnalyseExtract::open_files(){
