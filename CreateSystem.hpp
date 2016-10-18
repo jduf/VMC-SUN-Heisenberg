@@ -38,6 +38,7 @@
 #include "SquareT4x3.hpp"
 #include "SquareT4x4.hpp"
 #include "SquareLadder.hpp"
+#include "SquareMuk2.hpp"
 #include "SquareFreeFlux.hpp"
 #include "SquareVCS.hpp"
 #include "SquarePiFlux.hpp"

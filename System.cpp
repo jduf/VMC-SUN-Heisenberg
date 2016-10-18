@@ -353,6 +353,11 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 11;
 	}
+	if( wf == "square-muk2" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 12;
+	}
 	if( wf == "square-freeflux" ){
 		ref(0) = 4;
 		ref(1) = 2;

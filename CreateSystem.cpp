@@ -73,7 +73,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 					default:{ error(); }break;
 				}
 			}break;
-		case 2:	
+		case 2:
 			{
 				switch(ref_(1)){
 					case 1:
@@ -361,6 +361,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(param){ t = *param; }
 										if(C){ t = C->get<std::vector<double> >("t"); }
 										RGL_ = new SquareVCS(*s_,t);
+									}break;
+								case 12:
+									{
+										double mu;
+										if(param){ mu = (*param)(0); }
+										if(C){ mu = C->get<double>("mu"); }
+										RGL_ = new SquareMuk2(*s_,mu);
 									}break;
 								default:{ error(); }break;
 							}
