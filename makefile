@@ -1,8 +1,8 @@
 EXEC = check
 EXEC+= mc
-#EXEC+= min
+EXEC+= min
 #EXEC+= mcbi
-#EXEC+= study
+EXEC+= study
 
 CXX = g++ -std=c++14
 LAPACK = -llapack -lblas

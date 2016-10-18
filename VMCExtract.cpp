@@ -10,6 +10,9 @@ VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int c
 	std::string msg("VMCExtract");
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.title(msg,'-');
+	msg = "sorts all samples and discard information for the ones far from the minimum";
+	std::cout<<"#"<<msg<<std::endl;
+	m_->info_.text(msg);
 
 	std::cout<<"#"<<in.get_filename()<<std::endl;
 	m_->info_.item(in.get_filename());
@@ -194,6 +197,8 @@ List<MCSim>::Node* VMCExtract::analyse(std::string const& path, std::string cons
 		m_->samples_.target_next();
 		param = m_->samples_.get().get_param();
 		IOFiles data_n(path+filename+"-n.dat",true,false);
+		/*!compute the mean distance between paramters set (norm) and related
+		 * variance*/
 		do {
 			norm = sqrt((param-m_->samples_.get().get_param()).norm_squared())/param.size();
 			param = m_->samples_.get().get_param();
@@ -211,6 +216,8 @@ List<MCSim>::Node* VMCExtract::analyse(std::string const& path, std::string cons
 		} while(m_->samples_.target_next());
 		v_norm = sqrt(v_norm/(i-1));
 
+		/*!split the whole list of samples into intervals of size proportional
+		 * to the variance*/
 		unsigned int k(0);
 		while(n_zone.size()<50 && k++<5){
 			m_->samples_.set_target();
@@ -230,6 +237,7 @@ List<MCSim>::Node* VMCExtract::analyse(std::string const& path, std::string cons
 		}
 		for(unsigned int i(0);i<5;i++){ n_zone.insert((i+1)*m_->samples_.size()/5); }
 
+		/*!in each interval, find and save the local minima*/
 		if(n_zone.size()){
 			i=0;
 			unsigned int idx(0);

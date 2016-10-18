@@ -356,28 +356,6 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, Vector<u
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
 
-void VMCMinimization::check(unsigned int const& max_pm){
-	if(m_->samples_.size()){
-		/*!find the minima and sort by energy*/
-		List<MCSim> sorted_samples;
-		List<MCSim> potential_minima;
-		find_minima(max_pm,0.9,sorted_samples,potential_minima);
-
-		Vector<double> param;
-		unsigned int i(0);
-		sorted_samples.set_target();
-		std::cout<<m_->samples_.size()<<std::endl;
-		while(sorted_samples.target_next() && i++<max_pm){
-			param = sorted_samples.get().get_param();
-			std::cout
-				<<my::sign(param(0)*param(1)*param(3)*param(4))+1<<" "
-				<<my::sign(param(2)*param(3)*param(1)*param(6))+1<<" "
-				<<my::sign(param(0)*param(4)*param(5)*param(7))+1<<" "
-				<<my::sign(param(2)*param(7)*param(5)*param(6))+1<<std::endl;
-		}
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
-}
-
 void VMCMinimization::improve_bad_samples(double const& dEoE){
 	if(m_->samples_.size() && m_->tmax_){
 		complete_analysis(1e-5);
@@ -412,10 +390,12 @@ void VMCMinimization::improve_bad_samples(double const& dEoE){
 			evaluate(to_improve[i],0);
 		}
 		complete_analysis(1e-5);
+		save();
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
 
-void VMCMinimization::save_parameters(unsigned int nbest) const {
+void VMCMinimization::save_parameters(Parseur& P) const {
+	unsigned int nbest(P.get<unsigned int>("nparam"));
 	List<MCSim> potential_minima;
 	List<MCSim> sorted_samples;
 	find_minima(0,0.999,sorted_samples,potential_minima);
@@ -453,6 +433,7 @@ void VMCMinimization::run_parameters(Parseur& P){
 			in>>param;
 			evaluate_until_precision(param,P.get<std::vector<unsigned int> >("which_obs"),P.get<double>("dEoE"),P.get<unsigned int>("maxiter"));
 		}
+		save();
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 /*}*/
