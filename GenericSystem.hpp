@@ -130,7 +130,7 @@ void GenericSystem<Type>::energy_obs(Vector<unsigned int> const& l){
 		Matrix<int> nb;
 		if(!this->bc_){
 			for(unsigned int i(0);i<this->n_;i++){
-				l_tmp =l(i%l.size());
+				l_tmp = l(i%l.size());
 				if(l_tmp){
 					nb = get_neighbourg(i);
 					for(unsigned int j(0);j<l_tmp;j++){
