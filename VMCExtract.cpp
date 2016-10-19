@@ -50,7 +50,7 @@ VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int c
 				if(sorted_samples.size() >= max_sort){
 					if( Etmp < sorted_samples.last().get_energy().get_x() ){
 						possible_samples.add_sort(sorted_samples.last_ptr(),MCSim::sort_for_merge);
-						sorted_samples.pop_end(); 
+						sorted_samples.pop_end();
 
 						sorted_samples.add_sort(possible_samples.get_ptr(),MCSim::sort_by_E);
 						possible_samples.pop_target();
@@ -108,7 +108,7 @@ VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int c
 	if(dis_sim_.target_next()){
 		Vector<double> param(dis_sim_.get().get_param());
 		while(dis_sim_.target_next()){
-			if(!MCSim::sort_by_param_for_merge(param,dis_sim_.get().get_param())==1){
+			if(MCSim::sort_by_param_for_merge(param,dis_sim_.get().get_param())!=1){
 				std::cerr<<__PRETTY_FUNCTION__<<" : the discarded samples are not sorted correctly after construction"<<std::endl;
 			}
 			param = dis_sim_.get().get_param();
@@ -119,7 +119,7 @@ VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int c
 	if(m_->samples_.target_next()){
 		Vector<double> param(m_->samples_.get().get_param());
 		while(m_->samples_.target_next()){
-			if(!MCSim::sort_by_param_for_merge(param,m_->samples_.get().get_param())==1){
+			if(MCSim::sort_by_param_for_merge(param,m_->samples_.get().get_param())!=1){
 				std::cerr<<__PRETTY_FUNCTION__<<" : the samples are not sorted correctly after construction"<<std::endl;
 			}
 			param = m_->samples_.get().get_param();

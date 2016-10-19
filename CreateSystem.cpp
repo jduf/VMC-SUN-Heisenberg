@@ -365,9 +365,16 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 12:
 									{
 										double mu;
-										if(param){ mu = (*param)(0); }
-										if(C){ mu = C->get<double>("mu"); }
-										RGL_ = new SquareMuk2(*s_,mu);
+										Vector<double> t;
+										if(param){
+                                                                                    mu = (*param)(0);
+                                                                                    t = param->range(1,5);
+                                                                                }
+										if(C){
+                                                                                    mu = C->get<double>("mu");
+                                                                                    t = C->get<std::vector<double> >("t");
+                                                                                }
+										RGL_ = new SquareMuk2(*s_,mu,t);
 									}break;
 								default:{ error(); }break;
 							}

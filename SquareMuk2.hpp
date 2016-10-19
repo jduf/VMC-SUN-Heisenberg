@@ -5,7 +5,7 @@
 
 class SquareMuk2: public Square<double>{
 	public:
-		SquareMuk2(System const& s, double const& mu);
+		SquareMuk2(System const& s, double const& mu, Vector<double> const& t);
 		~SquareMuk2() = default;
 
 		void create();
@@ -14,6 +14,7 @@ class SquareMuk2: public Square<double>{
 
 	private:
 		double const mu_;//!< chemical potential
+		Vector<double> const t_; //!< free hopping term
 
 		void compute_H(unsigned int const& c);
 		void display_results();

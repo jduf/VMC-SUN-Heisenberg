@@ -651,7 +651,7 @@ bool VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 						vec[k]= Vector<double>(my::string2type<double>(v[0]), my::string2type<double>(v[2]), my::string2type<double>(v[1]));
 						size += vec[k].size();
 						k++;
-					} else { std::cerr<<__PRETTY_FUNCTION__<<" : each range must be given this way [min:dx:max]"<<std::endl; }
+					} else { std::cerr<<__PRETTY_FUNCTION__<<" : each range should be given like this : '[min:dx:max]'"<<std::endl; }
 				}
 				ps_size_ *= size;
 				ps_[i].set(size);
