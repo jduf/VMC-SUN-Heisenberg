@@ -13,10 +13,8 @@ System::System(Parseur& P):
 	status_(5)
 {
 	if(M_.sum() != m_*n_ || m_>N_){ std::cerr<<__PRETTY_FUNCTION__<<" : N, M, m and n are incompatible"<<std::endl; }
-	else{
-		if(bc_ != -1 && bc_ != 0 && bc_ != 1){ std::cerr<<__PRETTY_FUNCTION__<<" : unknown boundary condition"<<std::endl; }
-		else { status_ = 4; }
-	}
+	else if(bc_ != -1 && bc_ != 0 && bc_ != 1){ std::cerr<<__PRETTY_FUNCTION__<<" : unknown boundary condition"<<std::endl; }
+	else { status_ = 4; }
 }
 
 System::System(IOFiles& r):

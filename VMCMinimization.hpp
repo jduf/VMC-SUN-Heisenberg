@@ -28,14 +28,13 @@ class VMCMinimization{
 
 		void complete_analysis(double const& convergence_criterion);
 		void save(std::string const& tmp_path = "") const;
-		void save_parameters(unsigned int nbest) const;
+		void save_parameters(Parseur& P) const;
 		void run_parameters(Parseur& P);
 
 		double find_minima(unsigned int const& max_local_minima, double const& range, List<MCSim>& sorted_list, List<MCSim>& list_min) const;
 		void find_and_run_minima(unsigned int const& max_samples, Vector<unsigned int> const& which_obs, double const& dEoE);
 		void find_save_and_plot_minima(unsigned int const& max_samples, IOFiles& w, std::string path="", std::string filename="") const;
 		void explore_around_minima(unsigned int const& max_local_minima, Vector<unsigned int> const& which_obs, double const& dEoE, double const& dx);
-		void check(unsigned int const& max_samples);
 
 		void improve_bad_samples(double const& dEoE);
 
