@@ -26,10 +26,9 @@ int main(int argc, char* argv[]){
 					switch(what(w)){
 						case 0:
 							{
-								unsigned int j(0);
-								if(P.find("dEoE",j,false)){
-									if(P.find("E",i,false)){ m.refine(P.get<double>(i),P.get<double>(j)); }
-									if(P.find("nmin",i,false)){ m.refine(P.get<unsigned int>(i),obs,P.get<double>(j),maxiter); }
+								if(P.find("dEoE",i,false)){
+									if(P.find("E",i,false)){ m.refine(P.get<double>(i),dEoE); }
+									if(P.find("nmin",i,false)){ m.refine(P.get<unsigned int>(i),obs,dEoE,maxiter); }
 								} else { m.refine(); }
 							}break;
 						case 1:
@@ -52,7 +51,6 @@ int main(int argc, char* argv[]){
 										pso.refine(30,false,1e-5,5);
 										pso.save();
 									}
-									m.refine();
 								} else { std::cerr<<__PRETTY_FUNCTION__<<" : some argument are not correctly set"<<std::endl; }
 							}break;
 						case 20:
@@ -76,7 +74,7 @@ int main(int argc, char* argv[]){
 									}
 								}
 							}break;
-						case 40:{ /*kim*/ }break; 
+						case 40:{ /*kim*/ }break;
 						default:
 							{ error(); }
 					}
@@ -97,7 +95,7 @@ int main(int argc, char* argv[]){
 					case 101:
 						{
 							extract.refine(obs,dEoE,ttotal);
-							extract.save(dirname); 
+							extract.save(dirname);
 						}break;
 					case 102:
 						{
@@ -114,7 +112,7 @@ int main(int argc, char* argv[]){
 							rst.save(false,true);
 							Linux()(Linux::html_browser("/tmp/"+fname+".html"),true);
 						}break;
-					default: 
+					default:
 						{ error(); }break;
 				}
 			}
