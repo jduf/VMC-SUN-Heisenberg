@@ -1,5 +1,4 @@
-VARIATIONAL MONTE-CARLO ALGORITHM FOR THE SU(N) HEISENBERG MODEL
-===============================================================
+* VARIATIONAL MONTE-CARLO ALGORITHM FOR THE SU(N) HEISENBERG MODEL
 
 The code provided here is what I wrote during my PhD thesis at the École
 Polythecnique Fédérale de Lausanne (EPFL) in Frédéric Mila's group. It is aimed
@@ -21,13 +20,16 @@ added with little effort (it has already been tested in this code for SU(2) and
 first neighbour Jastrow factor, so the generalisation to N>2 and long range
 Jastrow is possible).
 
-The following scientific articles are examples of what this code is able to do:
+* Table of Contents                                                :TOC_2_gh:
+ - [[#variational-monte-carlo-algorithm-for-the-sun-heisenberg-model][VARIATIONAL MONTE-CARLO ALGORITHM FOR THE SU(N) HEISENBERG MODEL]]
+ - [[#possible-computations][Possible computations]]
+   - [[#observables-with-vmc][Observables with VMC]]
+   - [[#visualization-of-results][Visualization of results]]
+   - [[#examples][Examples]]
+ - [[#documentation][Documentation]]
+ - [[#dependencies][Dependencies]]
 
-
-and other (unpublished) results can be found in my thesis:
-
-
-
+* Possible computations
 It currently supports:
 
 + any value of N>1
@@ -36,11 +38,9 @@ It currently supports:
 + any simple boundary condition (periodic, antiperiodic, none)
 + any number of particle of each color (having more particles of one colour is allowed)
 + first neighbour Heisenberg model (easily generalisable to further neighbours)
-+ inhomogeneous coupling between sites 
++ inhomogeneous coupling between sites
 
-
-The code is commented and the documentation can be generated via Doxyfile 
-
+** Observables with VMC
 It can measure various observables :
 
 + energy per site
@@ -49,10 +49,22 @@ It can measure various observables :
 + colour occupation
 + variance of the energy
 
+** Visualization of results
 Beside performing a VMC simulation
 
-+ can visualise the lattice with unit cell, site numbers, basis vectors, hopping amplitude, fluxes 
++ can visualise the lattice with unit cell, site numbers, basis vectors, hopping amplitude, fluxes
 
+** Examples
+The following scientific articles are examples of what this code is able to do:
+
+
+and other (unpublished) results can be found in my thesis:
+
+
+* Documentation
+The code is commented and the documentation can be generated via Doxyfile
+
+* Dependencies
 It requires
 
 + c++ 4.9.2 (can maybe work with older version)
@@ -61,17 +73,17 @@ All the following softwares are not essential be should be present to use this
 code at its best potential. Indeed, the visualisation of the results, already
 implemented in the code, relies on:
 
-+ gnuplot 
-+ latex 
-+ ReStructuedText 
-+ rst2html 
-+ rst2latex 
-+ pdflatex 
-+ latex 
-+ dvipdf 
-+ pdfcrop 
-+ imagemagick 
-+ firefox 
++ gnuplot
++ latex
++ ReStructuedText
++ rst2html
++ rst2latex
++ pdflatex
++ latex
++ dvipdf
++ pdfcrop
++ imagemagick
++ firefox
 
 All these software can be set and personalised in the Linux.hpp and Linux.cpp
 files. For instance imagemagick is not available to convert images, only these
