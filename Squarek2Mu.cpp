@@ -1,8 +1,8 @@
-#include "SquareMuk2.hpp"
+#include "Squarek2Mu.hpp"
 
-SquareMuk2::SquareMuk2(System const& s, double const& mu, Vector<double> const& t):
+Squarek2Mu::Squarek2Mu(System const& s, double const& mu, Vector<double> const& t):
 	System(s),
-	Square<double>(set_ab(),N_/m_,"square-muk2"),
+	Square<double>(set_ab(),N_/m_,"square-k2mu"),
 	mu_(mu),
 	t_(t)
 {
@@ -12,7 +12,7 @@ SquareMuk2::SquareMuk2(System const& s, double const& mu, Vector<double> const& 
 			init_fermionic();
 			same_wf_ = false;
 
-			system_info_.text("SquareMuk2 :");
+			system_info_.text("Squarek2Mu :");
 			system_info_.item("Each color has a different Hamiltonian.");
 
 			filename_ += "-mu"+std::string(mu_>=0?"+":"")+my::tostring(mu_);
@@ -25,7 +25,7 @@ SquareMuk2::SquareMuk2(System const& s, double const& mu, Vector<double> const& 
 }
 
 /*{method needed for running*/
-void SquareMuk2::compute_H(unsigned int const& c){
+void Squarek2Mu::compute_H(unsigned int const& c){
 	H_.set(n_,n_,0);
 
 	unsigned int s0(0);
@@ -39,7 +39,7 @@ void SquareMuk2::compute_H(unsigned int const& c){
 	H_ += H_.transpose();
 }
 
-void SquareMuk2::create(){
+void Squarek2Mu::create(){
 	for(unsigned int c(0);c<N_;c++){
 		status_ = 2;
 		compute_H(c);
@@ -54,7 +54,7 @@ void SquareMuk2::create(){
 	}
 }
 
-void SquareMuk2::save_param(IOFiles& w) const {
+void Squarek2Mu::save_param(IOFiles& w) const {
 	if(w.is_binary()){
 		std::string s("mu="+my::tostring(mu_)+" t=(");
 		Vector<double> param(5);
@@ -70,7 +70,7 @@ void SquareMuk2::save_param(IOFiles& w) const {
 	} else { w<<mu_<<" "<<t_; }
 }
 
-Matrix<double> SquareMuk2::set_ab() const {
+Matrix<double> Squarek2Mu::set_ab() const {
 	Matrix<double> tmp(2,2);
 	tmp(0,0) = 1.0;
 	tmp(1,0) = 1.0;
@@ -79,7 +79,7 @@ Matrix<double> SquareMuk2::set_ab() const {
 	return tmp;
 }
 
-unsigned int SquareMuk2::unit_cell_index(Vector<double> const& x) const {
+unsigned int Squarek2Mu::unit_cell_index(Vector<double> const& x) const {
 	if(my::are_equal(x(0),0.0,eq_prec_,eq_prec_) && my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ return 0; }
 	if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_) && my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ return 1; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
@@ -88,7 +88,7 @@ unsigned int SquareMuk2::unit_cell_index(Vector<double> const& x) const {
 /*}*/
 
 /*{method needed for checking*/
-void SquareMuk2::display_results(){
+void Squarek2Mu::display_results(){
 	compute_H(0);
 	draw_lattice(false,true,(spuc_==3?dir_nn_[2]*0.25+dir_nn_[3]*0.5:dir_nn_[2]*0.5+dir_nn_[3]*0.5));
 
@@ -119,7 +119,7 @@ void SquareMuk2::display_results(){
 	}
 }
 
-void SquareMuk2::check(){
+void Squarek2Mu::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";

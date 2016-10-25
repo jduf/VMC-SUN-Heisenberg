@@ -374,7 +374,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
                                                                                     mu = C->get<double>("mu");
                                                                                     t = C->get<std::vector<double> >("t");
                                                                                 }
-										RGL_ = new SquareMuk2(*s_,mu,t);
+										RGL_ = new Squarek2Mu(*s_,mu,t);
 									}break;
 								default:{ error(); }break;
 							}

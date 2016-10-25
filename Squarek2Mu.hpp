@@ -3,10 +3,10 @@
 
 #include "Square.hpp"
 
-class SquareMuk2: public Square<double>{
+class Squarek2Mu: public Square<double>{
 	public:
-		SquareMuk2(System const& s, double const& mu, Vector<double> const& t);
-		~SquareMuk2() = default;
+		Squarek2Mu(System const& s, double const& mu, Vector<double> const& t);
+		~Squarek2Mu() = default;
 
 		void create();
 		void save_param(IOFiles& w) const;
