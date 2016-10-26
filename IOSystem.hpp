@@ -17,9 +17,9 @@ class IOSystem{
 		/*!Set this to the value contained in t*/
 		void set_IOSystem(IOSystem const* const ios);
 
-		/*!Returns the filename (only usefull for mc via CreateSystem)*/
+		/*!Returns the filename (only useful for mc via CreateSystem)*/
 		std::string const& get_filename() const { return filename_; }
-		/*!Returns the path (only usefull for mc via CreateSystem)*/
+		/*!Returns the path (only useful for mc via CreateSystem)*/
 		std::string const& get_path() const { return path_; }
 		/*Returns the total path from info*/
 		std::string get_info_path() const { return info_+path_+dir_; }
@@ -44,7 +44,7 @@ class IOSystem{
 		IOFiles* jd_write_	  = NULL;//!< binary file in which data are written in sim_/path_
 		IOFiles* data_write_  = NULL;//!< textfile in which data are written saved in analyse_/path_
 		RSTFile* rst_file_	  = NULL;//!< rst file saved in info_/path_/dir_
-		
+
 		RST system_info_;//!< information about the wavefunction
 
 		virtual std::string extract_level_1(){ return filename_; }

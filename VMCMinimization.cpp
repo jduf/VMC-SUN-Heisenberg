@@ -89,7 +89,7 @@ void VMCMinimization::refine(double const& E, double const& dEoE){
 			while(best.target_next()){ evaluate_until_precision(best.get().get_param(),false,dEoE,maxiter); }
 			save();
 		} else {
-			if(total_eval_<1000){ msg = "not enough samples to be usefull, skip the evaluation"; }
+			if(total_eval_<1000){ msg = "not enough samples to be useful, skip the evaluation"; }
 			else { msg = "too many samples, would take too much time, skip the evaluation"; }
 			std::cout<<"#"<<msg<<std::endl;
 			m_->info_.item(msg);
@@ -223,7 +223,7 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, Vector<uns
 				msg += my::tostring(which_obs(i))+"," ;
 			}
 			msg += my::tostring(which_obs.back())+" ";
-		} 
+		}
 		msg += "for each "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
@@ -345,7 +345,7 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, Vector<u
 				msg += my::tostring(which_obs(i))+",";
 			}
 			msg += my::tostring(which_obs.back())+" ";
-		} 
+		}
 		msg += "for each "+my::tostring(total_eval_)+" samples close to potential minimas (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
@@ -658,13 +658,13 @@ bool VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 }
 
 bool VMCMinimization::Minimization::swap_phase_space(Vector<double>*& ps){
-	std::swap(ps_,ps); 
+	std::swap(ps_,ps);
 
 	if(ps_){
 		ps_size_ = 1;
 		std::string PS("");
-		for(unsigned int i(0);i<dof_;i++){ 
-			ps_size_ *= ps_[i].size(); 
+		for(unsigned int i(0);i<dof_;i++){
+			ps_size_ *= ps_[i].size();
 			if(ps_[i].size()==1){
 				PS += my::tostring(ps_[i](0))+":1:"+my::tostring(ps_[i](0))+RST::nl_;
 			} else {

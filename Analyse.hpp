@@ -28,7 +28,7 @@ class Analyse: public IOSystem{
 		bool consider_only_most_recent_jdbin_ = false;
 
 		void do_analyse();
-		/*!At each level, this method is called to create usefull output files*/
+		/*!At each level, this method is called to create useful output files*/
 		virtual void open_files()  = 0;
 		/*!At each level, this method is called to close open files*/
 		virtual void close_files() = 0;
@@ -40,7 +40,7 @@ class Analyse: public IOSystem{
 	private:
 		unsigned int study_;
 		unsigned int const run_cmd_;
-		
+
 		void recursive_search();
 		void search_jdbin();
 		void extract_jdbin();
