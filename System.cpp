@@ -356,6 +356,11 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 12;
 	}
+	if( wf == "square-k2mu-2x2" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 13;
+	}
 	if( wf == "square-freeflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
