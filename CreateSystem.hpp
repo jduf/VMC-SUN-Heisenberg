@@ -40,6 +40,7 @@
 #include "SquareLadder.hpp"
 #include "Squarek2Mu.hpp"
 #include "Squarek2Mu2x2.hpp"
+#include "Squarek2Mu2x2Col.hpp"
 #include "SquareFreeFlux.hpp"
 #include "SquareVCS.hpp"
 #include "SquarePiFlux.hpp"
