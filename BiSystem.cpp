@@ -136,9 +136,9 @@ void BiSystem::compute_dE(){
 		Etmp.set();
 		for(unsigned int j(0);j<n_wfs;j++){
 			for(unsigned int k(j);k<n_wfs;k++){
-				Htmp(j,k)+= rnd.get()*dH_(j,k);
+				Htmp(j,k)+= rnd()*dH_(j,k);
 				Htmp(k,j) = Htmp(j,k);
-				Otmp(j,k)+= rnd.get()*dO_(j,k);
+				Otmp(j,k)+= rnd()*dO_(j,k);
 				Otmp(k,j) = Otmp(j,k);
 			}
 		}

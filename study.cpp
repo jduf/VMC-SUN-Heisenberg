@@ -20,15 +20,16 @@ int main(int argc, char* argv[]){
 		std::string sim(P.find("sim",i,false)?P.get<std::string>(i):"sim/");
 		unsigned int max_level(P.find("ml",i,false)?P.get<unsigned int>(i):10);
 		unsigned int run_cmd(P.find("run",i,false)?P.get<unsigned int>(i):0);
+		unsigned int display(P.find("display",i,false)?P.get<unsigned int>(i):0);
 		switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
 			case 0: { AnalyseEnergy ana(sim,path,max_level,run_cmd); }break;
 			case 1: { AnalyseMin ana(sim,path,max_level,run_cmd); }break;
-			case 2: { AnalyseExtract ana(sim,path,max_level,run_cmd,(P.find("display",i,false)?P.get<unsigned int>(i):0)); }break;
+			case 2: { AnalyseExtract ana(sim,path,max_level,run_cmd,display); }break;
 			case 3: { AnalyseSystematic ana(sim,path,max_level,run_cmd); }break;
 			case 4: { AnalyseChain ana(sim,path,max_level,run_cmd); }break;
 			case 5: { AnalyseHoneycomb ana(sim,path,max_level,run_cmd); }break;
 			case 6: { AnalyseLadder ana(sim,path,max_level,run_cmd); }break;
-			case 7: { AnalyseSystematicLadder ana(sim,path,max_level,run_cmd,P.find("display",i,false)?P.get<bool>(i):false); }break;
+			case 7: { AnalyseSystematicLadder ana(sim,path,max_level,run_cmd,display); }break;
 			default:{
 						std::cerr<<__PRETTY_FUNCTION__<<" : unknown option 'what', options are :"<<std::endl;
 						std::cerr<<"   - Energy           : 0"<<std::endl;

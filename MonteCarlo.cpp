@@ -18,7 +18,7 @@ void MonteCarlo::thermalize(unsigned int const& ts){
 		for(unsigned int i(0);i<ts;i++){
 			S_->swap();
 			ratio_ = my::norm_squared(S_->ratio());
-			if( ratio_ > 1.0 || ratio_ > rnd_.get() ){ S_->update(); }
+			if( ratio_ > 1.0 || ratio_ > rnd_() ){ S_->update(); }
 		}
 		S_->measure_new_step();
 	}
@@ -40,7 +40,7 @@ void MonteCarlo::run(unsigned int const& maxiter){
 		do{
 			S_->swap();
 			ratio_ = my::norm_squared(S_->ratio());
-			if( ratio_ > 1.0 || ratio_ > rnd_.get() ){
+			if( ratio_ > 1.0 || ratio_ > rnd_() ){
 				S_->update();
 				S_->measure_new_step();
 				measures++;
@@ -58,7 +58,7 @@ void MonteCarlo::run(unsigned int const& maxiter){
 void MonteCarlo::next_step(){
 	S_->swap();
 	ratio_ = my::norm_squared(S_->ratio());
-	if( ratio_ > 1.0 || ratio_ > rnd_.get() ){
+	if( ratio_ > 1.0 || ratio_ > rnd_() ){
 		S_->update();
 		S_->measure_new_step();
 	}

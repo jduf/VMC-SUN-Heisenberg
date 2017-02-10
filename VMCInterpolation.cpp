@@ -65,8 +65,8 @@ void VMCInterpolation::run(bool const& explore_around_minima){
 				j = 0;
 				do{
 					evaluate(m_->ps_,pos,tmp,dE,Ee);
-					dir = choose_dir.get(thread);
-					if( tmp < E*rnd.get(thread) ){
+					dir = choose_dir(thread);
+					if( tmp < E*rnd(thread) ){
 						E = tmp;
 						if(dir%2){
 							if( pos(dir/2)+1<m_->ps_[dir/2].size() ){
@@ -78,7 +78,7 @@ void VMCInterpolation::run(bool const& explore_around_minima){
 							} else { j=maxjter; }
 						}
 					} else { j=maxjter; }
-				} while ( j++<maxjter && 2.0*j*dE/std::abs(Ee-E) > rnd.get(thread) );
+				} while ( j++<maxjter && 2.0*j*dE/std::abs(Ee-E) > rnd(thread) );
 			}
 		} else {
 #pragma omp parallel for
@@ -214,7 +214,7 @@ void VMCInterpolation::search_minima(){
 				Vector<unsigned int> pidx(m_->dof_);
 				unsigned int thread(omp_get_thread_num());
 				for(unsigned int j(0);j<m_->dof_;j++){
-					pidx(j) = rnd[j].get(thread);
+					pidx(j) = rnd[j](thread);
 					param(j) = m_->ps_[j](pidx(j));
 				}
 

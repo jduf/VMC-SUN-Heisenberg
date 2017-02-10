@@ -65,12 +65,12 @@ void MCSystem::initialize_measure(){
 }
 
 void MCSystem::swap(){
-	new_s_[0] = n_rnd_.get();
-	new_p_[0] = m_rnd_.get();
+	new_s_[0] = n_rnd_();
+	new_p_[0] = m_rnd_();
 	new_c_[0] = s_(new_s_[0],new_p_[0]);
 	do {
-		new_s_[1] = n_rnd_.get();
-		new_p_[1] = m_rnd_.get();
+		new_s_[1] = n_rnd_();
+		new_p_[1] = m_rnd_();
 		new_c_[1] = s_(new_s_[1],new_p_[1]);
 	} while (new_c_[0] == new_c_[1] || is_new_state_forbidden());
 }

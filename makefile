@@ -1,7 +1,7 @@
 EXEC = check
 EXEC+= mc
 EXEC+= min
-#EXEC+= mcbi
+EXEC+= mcbi
 EXEC+= study
 
 CXX = g++ -std=c++14
@@ -28,7 +28,7 @@ ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseMin.cpp AnalyseExtract.cpp Ana
 IOFILES    = Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
 OTHER      = System.cpp IOSystem.cpp Observable.cpp CreateSystem.cpp Lapack.cpp Parseur.cpp Fit.cpp
 
-check_SRCS = check.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
+check_SRCS = check.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(ANALYSE)
 mc_SRCS    = mc.cpp    $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 mcbi_SRCS  = mcbi.cpp  $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 min_SRCS   = min.cpp   $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN)
