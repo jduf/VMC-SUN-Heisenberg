@@ -5,6 +5,7 @@
 
 class VMCExtract : public VMCMinimization{
 	public:
+		/*!Constructor that reads from file and extracts the best solutions*/
 		VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int const& max_sort);
 		/*!Default destructor*/
 		virtual ~VMCExtract() = default;
@@ -15,7 +16,7 @@ class VMCExtract : public VMCMinimization{
 		VMCExtract& operator=(VMCExtract) = delete;
 		/*}*/
 
-		void refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& t, unsigned int maxiter = 0);
+		void refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& tmax, unsigned int maxiter = 0);
 		void save(std::string dirname) const;
 		void print() const;
 		List<MCSim>::Node* analyse(std::string const& path, std::string const& filename, List<MCSim>& kept_samples) const;

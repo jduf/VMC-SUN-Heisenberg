@@ -109,9 +109,9 @@ void Observable::merge(Observable& obs){
 	if(type_ == 1234){ 
 		type_ = 0; 
 		std::cerr<<__PRETTY_FUNCTION__<<" : redefine the type_ of the Observable 'Energy per site'"<<std::endl;
-		/*! This can is a well defined behaviour  when VMCMinimization tries to
+		/*! This can is a well defined behaviour when VMCMinimization tries to
 		 * measure the Obervable 'Bond energy' for a new sample. This is
-		 * because for a new sample created using Minimisation::s_, the
+		 * because for a new sample created using Minimization::s_, the
 		 * Observable 'Energy per site' will have its type_ changed to 1234 and
 		 * when merging with another mesure of the same sample with type 1234,
 		 * this method would merge two Observables with the type :

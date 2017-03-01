@@ -28,6 +28,8 @@ class MCSim{
 		void run(unsigned int const& ts, unsigned int const& tmax);
 		/*!Creates a CreateSystem and call its display_results method*/
 		void display_results(std::string const& filename, std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file);
+		/*!Creates a CreateSystem and call its display_results method with default filenames and no RST*/
+		void display_results();
 		/*}*/
 
 		/*{System and MCSystem calls*/

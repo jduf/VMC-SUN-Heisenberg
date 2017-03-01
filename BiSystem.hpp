@@ -3,7 +3,7 @@
 
 #include "MonteCarlo.hpp"
 #include "CreateSystem.hpp"
-#include <omp.h>
+#include "omp.h"
 
 class BiSystem {
 	public:

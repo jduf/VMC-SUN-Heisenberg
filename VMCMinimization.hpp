@@ -42,6 +42,8 @@ class VMCMinimization{
 		bool ready() const { return m_.get(); }
 		std::string const& get_path() const { return path_; }
 		std::string get_filename() const { return time_+"_"+prefix_+basename_; }
+		unsigned int get_number_of_samples() const { return m_.get()?m_->samples_.size():0; }
+		List<MCSim>::Node* get_best_target() const;
 
 	private:
 		mutable std::string time_;
@@ -94,7 +96,7 @@ class VMCMinimization{
 
 		/*!Real call to the MonteCarlo evaluation via MCSim*/
 		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, Vector<unsigned int> const& which_obs);
-		void evaluate_until_precision(Vector<double> const& param, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter);
+		std::shared_ptr<MCSim> evaluate_until_precision(Vector<double> const& param, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter);
 		void save(IOFiles& out) const;
 };
 #endif

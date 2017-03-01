@@ -10,7 +10,7 @@ VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int c
 	std::string msg("VMCExtract");
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.title(msg,'-');
-	msg = "sorts all samples and discard information for the ones far from the minimum";
+	msg = "sorts all samples and discards information for the ones far from the minimum";
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.text(msg);
 
@@ -130,11 +130,11 @@ VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int c
 	}
 }
 
-void VMCExtract::refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& t, unsigned int maxiter){
+void VMCExtract::refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& tmax, unsigned int maxiter){
 	total_eval_ = m_->samples_.size();
-	if(maxiter){ m_->tmax_ = t; }
+	if(maxiter){ m_->tmax_ = tmax; }
 	else {
-		maxiter = std::min((unsigned int)sqrt(t/(5*total_eval_)),(unsigned int)5);
+		maxiter = (unsigned int)std::min(sqrt(tmax/(5*total_eval_)),5.0);
 		m_->tmax_ = std::min(maxiter*5,(unsigned int)60);
 	}
 
@@ -165,8 +165,8 @@ void VMCExtract::save(std::string dirname) const {
 		IOFiles out(dirname+get_filename()+".jdbin",true,false);
 		out.add_header()->text(RST::textbf("Contains the "+my::tostring(m_->samples_.size())+" best samples and a list "+my::tostring(dis_sim_.size())+ " of discarded samples"));
 		VMCMinimization::save(out);
-		out<<dis_sim_.size();
 
+		out<<dis_sim_.size();
 		dis_sim_.set_target();
 		while(dis_sim_.target_next()){ dis_sim_.get().write(out); }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no sample to save"<<std::endl; }

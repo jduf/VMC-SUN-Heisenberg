@@ -436,6 +436,19 @@ void VMCMinimization::run_parameters(Parseur& P){
 		save();
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
+
+List<MCSim>::Node* VMCMinimization::get_best_target() const {
+	List<MCSim>::Node* target(NULL);
+	double E(666);
+	m_->samples_.set_target();
+	while(m_->samples_.target_next()){
+		if(E>m_->samples_.get().get_energy().get_x()){
+			E = m_->samples_.get().get_energy().get_x();
+			target = m_->samples_.get_target();
+		}
+	};
+	return target;
+}
 /*}*/
 
 /*{protected methods*/
@@ -474,7 +487,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate(Vector<double> const& param, Ve
 	} else { return NULL; }
 }
 
-void VMCMinimization::evaluate_until_precision(Vector<double> const& param, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter){
+std::shared_ptr<MCSim> VMCMinimization::evaluate_until_precision(Vector<double> const& param, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter){
 	std::shared_ptr<MCSim> sim(NULL);
 	unsigned int iter(0);
 	std::cout<<++progress_<<"/"<<total_eval_<<" : param : "<<param<<std::endl;
@@ -486,6 +499,7 @@ void VMCMinimization::evaluate_until_precision(Vector<double> const& param, Vect
 		sim->complete_analysis(1e-5);
 		sim->print(0);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : failed"<<std::endl; }
+	return sim;
 }
 
 void VMCMinimization::save(IOFiles& out) const {

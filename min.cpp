@@ -4,6 +4,7 @@
 #include "VMCInterpolation.hpp"
 #include "VMCSystematic.hpp"
 #include "VMCExtract.hpp"
+#include "VMCACiD.hpp"
 
 void error();
 
@@ -83,9 +84,7 @@ int main(int argc, char* argv[]){
 		}
 	} else {
 		IOFiles in(P.get<std::string>("load"),false,false);
-		unsigned int ttotal(P.get<unsigned int>("ttotal"));
 		std::string dirname(P.get<std::string>("dirname"));
-
 		VMCExtract extract(in,P.get<unsigned int>("min_sort"),P.get<unsigned int>("max_sort"));
 		if(!P.locked()){
 			for(unsigned int w(0);w<what.size();w++){
@@ -94,7 +93,7 @@ int main(int argc, char* argv[]){
 						{ extract.save(dirname); }break;
 					case 101:
 						{
-							extract.refine(obs,dEoE,ttotal);
+							extract.refine(obs,dEoE,P.get<unsigned int>("ttotal"));
 							extract.save(dirname);
 						}break;
 					case 102:
@@ -111,6 +110,22 @@ int main(int argc, char* argv[]){
 							}
 							rst.save(false,true);
 							Linux()(Linux::html_browser("/tmp/"+fname+".html"),true);
+						}break;
+					case 103:
+						{
+							Vector<unsigned int> d(P.get<std::vector<unsigned int> >("d"));
+							VMCACiD min(extract,d);
+							min.run(2,1,10,1e-4);
+							min.save(dirname);
+							extract.save(dirname);
+						}break;
+					case 104:
+						{
+							IOFiles in_ACiD(P.get<std::string>("ACiD"),false,false);
+							VMCACiD min(extract,in_ACiD);
+							min.run(1,1,10,1e-4);
+							min.save(dirname);
+							extract.save(dirname);
 						}break;
 					default:
 						{ error(); }break;
@@ -132,4 +147,5 @@ void error(){
 	std::cerr<<"    - save relevant samples       :100"<<std::endl;
 	std::cerr<<"    - refine relevant samples     :101"<<std::endl;
 	std::cerr<<"    - display relevant samples    :102"<<std::endl;
+	std::cerr<<"    - perform a free minimization :103"<<std::endl;
 }

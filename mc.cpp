@@ -46,6 +46,8 @@ int main(int argc, char* argv[]){
 				while(maxiter){
 #pragma omp parallel for
 					for(unsigned int j=0;j<nruns;j++){
+#pragma omp critical
+						std::cout<<"core number "<<j<<" "<<omp_get_thread_num()<<std::endl;
 						MCSystem* mcsys(NULL);
 						if(cs->use_complex()){
 							if(cs->is_bosonic()){ mcsys = new SystemBosonic<std::complex<double> >(*dynamic_cast<const Bosonic<std::complex<double> >*>(cs->get_GenericSystem())); }

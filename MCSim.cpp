@@ -79,6 +79,23 @@ void MCSim::display_results(std::string const& filename, std::string const& sim,
 
 	MCS_->create_cluster(false);
 }
+
+void MCSim::display_results(){
+	MCS_->create_cluster(true);
+
+	CreateSystem cs(MCS_.get());
+	cs.init(&param_,NULL);
+	if(cs.get_status()==2){
+		cs.create(false);
+		if(cs.get_status()==1){
+			IOSystem ios("tmp","./","","","","",NULL);
+			cs.set_IOSystem(&ios);
+			cs.display_results();
+		}
+	}
+
+	MCS_->create_cluster(false);
+}
 /*}*/
 
 /*print and output in IOFiles methods*/

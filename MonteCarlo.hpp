@@ -4,7 +4,7 @@
 #include "SystemBosonic.hpp"
 #include "SystemFermionic.hpp"
 #include "SystemBiFermionic.hpp"
-#include <omp.h>
+#include "omp.h"
 
 /*{*//*!Class that implement the Monte-Carlo importance sampling algorithm on
 	   configuration stored in MCSystem.
