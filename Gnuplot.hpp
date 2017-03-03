@@ -1,1 +1,0 @@
-lib/gnuplot/Gnuplot.hpp

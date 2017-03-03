@@ -1,4 +1,4 @@
-EXEC= 
+EXEC=
 EXEC+= mc
 EXEC+= min
 #EXEC+= check
@@ -8,14 +8,15 @@ EXEC+= min
 CXX = g++ -std=c++14
 LAPACK = -llapack -lblas
 OPTION = -fopenmp
+ERRORS = -Wall -Wextra -pedantic
 
 #CXX = icpc -std=c++14
 #LAPACK =# -Wl,--no-as-needed -L${MKL_ROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
 #OPTION = -qopenmp -mkl -D MY_BLAS_ZDOTU -no-inline-max-size -no-inline-max-total-size
-
 ERRORS = -Wall -Wextra -pedantic
-include lib/config.mk
 
+JDLIB = /home/jdufour/travail/change-tree/lib/lib
+BUILD = build
 #ADAPT DEPENDENCIES -----------------------------------------------------------------
 
 CHAIN     = ChainFermi.cpp ChainPolymerized.cpp ChainFree.cpp ChainSAS.cpp
@@ -40,15 +41,12 @@ study_SRCS = study.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN) $(ANALY
 
 #DO NOT CHANGE BELOW ----------------------------------------------------------------
 
-CXXFLAGS = $(ERRORS) $(OPTION) $(CONFIG)
-LDFLAGS  = $(ERRORS) $(OPTION) $(LAPACK) libcminpack.a
+VPATH = $(JDLIB) .
+MYLIB = $(addprefix -I,$(VPATH))
+-include $(JDLIB)/config.mk
 
-EXEC+=
-$(EXEC)_SRCS=$(EXEC_SRCS)
-
-BUILD=build
-
-SRCS=$(wildcard *.cpp)
+CXXFLAGS = $(MYLIB) $(ERRORS) $(OPTION) $(CONFIG)
+LDFLAGS  = $(MYLIB) $(ERRORS) $(OPTION) $(LAPACK) $(JDLIB)/libcminpack.a
 
 all: OPTION += -O3 -DNDEBUG
 all:$(EXEC)
@@ -59,13 +57,13 @@ debug:$(EXEC)
 .SECONDEXPANSION:
 $(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS))
 	@echo Links $(notdir $^)
-	$(CXX) -o $@ $^ $(LDFLAGS)
+	$(CXX) $^ $(LDFLAGS) -o $@
 
 $(BUILD)/%.o:%.cpp
 	@echo Creates $(notdir $@)
-	$(CXX) -MD -c $(CXXFLAGS) $< -o $@
+	$(CXX) $< $(CXXFLAGS) -MMD -c -o $@
 
--include $(addprefix $(BUILD)/,$(SRCS:.cpp=.d))
+-include $(wildcard $(BUILD)/*.d)
 
 clean:
 	rm -f $(BUILD)/* $(EXEC)
