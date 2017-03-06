@@ -15,7 +15,7 @@ ERRORS = -Wall -Wextra -pedantic
 #OPTION = -qopenmp -mkl -D MY_BLAS_ZDOTU -no-inline-max-size -no-inline-max-total-size
 ERRORS = -Wall -Wextra -pedantic
 
-JDLIB = /home/jdufour/travail/change-tree/lib/lib
+JDLIB = lib/lib
 BUILD = build
 #ADAPT DEPENDENCIES -----------------------------------------------------------------
 

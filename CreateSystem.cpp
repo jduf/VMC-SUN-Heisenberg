@@ -367,13 +367,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										double mu;
 										Vector<double> t;
 										if(param){
-                                                                                    mu = (*param)(0);
-                                                                                    t = param->range(1,5);
-                                                                                }
+											mu = (*param)(0);
+											t = param->range(1,5);
+										}
 										if(C){
-                                                                                    mu = C->get<double>("mu");
-                                                                                    t = C->get<std::vector<double> >("t");
-                                                                                }
+											mu = C->get<double>("mu");
+											t = C->get<std::vector<double> >("t");
+										}
 										RGL_ = new Squarek2Mu(*s_,mu,t);
 									}break;
 								case 13:
@@ -381,13 +381,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										double mu;
 										Vector<double> t;
 										if(param){
-                                                                                    mu = (*param)(0);
-                                                                                    t = param->range(1,5);
-                                                                                }
+											mu = (*param)(0);
+											t = param->range(1,5);
+										}
 										if(C){
-                                                                                    mu = C->get<double>("mu");
-                                                                                    t = C->get<std::vector<double> >("t");
-                                                                                }
+											mu = C->get<double>("mu");
+											t = C->get<std::vector<double> >("t");
+										}
 										RGL_ = new Squarek2Mu2x2(*s_,mu,t);
 									}break;
 								case 14:
@@ -395,13 +395,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										double mu;
 										Vector<double> t;
 										if(param){
-                                                                                    mu = (*param)(0);
-                                                                                    t = param->range(1,5);
-                                                                                }
+											mu = (*param)(0);
+											t = param->range(1,5);
+										}
 										if(C){
-                                                                                    mu = C->get<double>("mu");
-                                                                                    t = C->get<std::vector<double> >("t");
-                                                                                }
+											mu = C->get<double>("mu");
+											t = C->get<std::vector<double> >("t");
+										}
 										RGL_ = new Squarek2Mu2x2Col(*s_,mu,t);
 									}break;
 								default:{ error(); }break;
@@ -454,40 +454,40 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 							switch(ref_(2)){
 								case 0: { RGL_ = new KagomeFermi(*s_); }break;
 								case 1:
-									{
-										Vector<double> t;
-										if(param){ t = (*param); }
-										if(C){ t = C->get<std::vector<double> >("t"); }
-										RGL_ = new KagomeFree(*s_,t);
-									}break;
+										{
+											Vector<double> t;
+											if(param){ t = (*param); }
+											if(C){ t = C->get<std::vector<double> >("t"); }
+											RGL_ = new KagomeFree(*s_,t);
+										}break;
 								case 2:
-									{
-										double td;
-										if(param){ td = (*param)(0); }
-										if(C){ td = C->get<double>("td"); }
-										RGL_ = new KagomePlaquette3A(*s_,td);
-									}break;
+										{
+											double td;
+											if(param){ td = (*param)(0); }
+											if(C){ td = C->get<double>("td"); }
+											RGL_ = new KagomePlaquette3A(*s_,td);
+										}break;
 								case 3:
-									{
-										double td;
-										if(param){ td = (*param)(0); }
-										if(C){ td = C->get<double>("td"); }
-										RGL_ = new KagomePlaquette3B(*s_,td);
-									}break;
+										{
+											double td;
+											if(param){ td = (*param)(0); }
+											if(C){ td = C->get<double>("td"); }
+											RGL_ = new KagomePlaquette3B(*s_,td);
+										}break;
 								case 4:
-									{
-										double td;
-										if(param){ td = (*param)(0); }
-										if(C){ td = C->get<double>("td"); }
-										RGL_ = new KagomePlaquette6A(*s_,td);
-									}break;
+										{
+											double td;
+											if(param){ td = (*param)(0); }
+											if(C){ td = C->get<double>("td"); }
+											RGL_ = new KagomePlaquette6A(*s_,td);
+										}break;
 								case 5:
-									{
-										double td;
-										if(param){ td = (*param)(0); }
-										if(C){ td = C->get<double>("td"); }
-										RGL_ = new KagomePlaquette6B(*s_,td);
-									}break;
+										{
+											double td;
+											if(param){ td = (*param)(0); }
+											if(C){ td = C->get<double>("td"); }
+											RGL_ = new KagomePlaquette6B(*s_,td);
+										}break;
 								default:{ error(); }break;
 							}
 						} break;
@@ -504,12 +504,12 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 2: { CGL_ = new KagomeVBC(*s_); }break;
 								case 3:
 								case 4:
-									{
-										double phi;
-										if(param){ phi = (*param)(0); }
-										if(C){ phi = C->get<double>("phi"); }
-										CGL_ = new KagomeChiralB(*s_,phi);
-									}break;
+										{
+											double phi;
+											if(param){ phi = (*param)(0); }
+											if(C){ phi = C->get<double>("phi"); }
+											CGL_ = new KagomeChiralB(*s_,phi);
+										}break;
 										{
 											Vector<double> t;
 											Vector<double> phi;
