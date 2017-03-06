@@ -374,7 +374,35 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
                                                                                     mu = C->get<double>("mu");
                                                                                     t = C->get<std::vector<double> >("t");
                                                                                 }
-										RGL_ = new SquareMuk2(*s_,mu,t);
+										RGL_ = new Squarek2Mu(*s_,mu,t);
+									}break;
+								case 13:
+									{
+										double mu;
+										Vector<double> t;
+										if(param){
+                                                                                    mu = (*param)(0);
+                                                                                    t = param->range(1,5);
+                                                                                }
+										if(C){
+                                                                                    mu = C->get<double>("mu");
+                                                                                    t = C->get<std::vector<double> >("t");
+                                                                                }
+										RGL_ = new Squarek2Mu2x2(*s_,mu,t);
+									}break;
+								case 14:
+									{
+										double mu;
+										Vector<double> t;
+										if(param){
+                                                                                    mu = (*param)(0);
+                                                                                    t = param->range(1,5);
+                                                                                }
+										if(C){
+                                                                                    mu = C->get<double>("mu");
+                                                                                    t = C->get<std::vector<double> >("t");
+                                                                                }
+										RGL_ = new Squarek2Mu2x2Col(*s_,mu,t);
 									}break;
 								default:{ error(); }break;
 							}

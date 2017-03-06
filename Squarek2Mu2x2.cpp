@@ -1,8 +1,8 @@
-#include "SquareMuk2.hpp"
+#include "Squarek2Mu2x2.hpp"
 
-SquareMuk2::SquareMuk2(System const& s, double const& mu, Vector<double> const& t):
+Squarek2Mu2x2::Squarek2Mu2x2(System const& s, double const& mu, Vector<double> const& t):
 	System(s),
-	Square<double>(set_ab(),N_/m_,"square-muk2"),
+	Square<double>(set_ab(),4,"square-k2mu-2x2"),
 	mu_(mu),
 	t_(t)
 {
@@ -12,7 +12,7 @@ SquareMuk2::SquareMuk2(System const& s, double const& mu, Vector<double> const& 
 			init_fermionic();
 			same_wf_ = false;
 
-			system_info_.text("SquareMuk2 :");
+			system_info_.text("Squarek2Mu2x2 :");
 			system_info_.item("Each color has a different Hamiltonian.");
 
 			filename_ += "-mu"+std::string(mu_>=0?"+":"")+my::tostring(mu_);
@@ -25,7 +25,7 @@ SquareMuk2::SquareMuk2(System const& s, double const& mu, Vector<double> const& 
 }
 
 /*{method needed for running*/
-void SquareMuk2::compute_H(unsigned int const& c){
+void Squarek2Mu2x2::compute_H(unsigned int const& c){
 	H_.set(n_,n_,0);
 
 	unsigned int s0(0);
@@ -33,13 +33,23 @@ void SquareMuk2::compute_H(unsigned int const& c){
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
 		s0 = obs_[0](i,0);
 		s1 = obs_[0](i,1);
-		H_(s0,s1) = (obs_[0](i,4)?bc_*t_(obs_[0](i,2)):t_(obs_[0](i,2)));
-		if((unsigned int)(obs_[0](i,5))==c%spuc_){ H_(s0,s0) = mu_/2; }
+		if(obs_[0](i,3)==1){
+			if(obs_[0](i,5) < 2){ H_(s0,s1) = (obs_[0](i,4)?bc_*t_(1):t_(1)); }
+			else { H_(s0,s1) = (obs_[0](i,4)?bc_*t_(3):t_(3)); }
+		} else {
+			switch(obs_[0](i,5)){
+			case 0: { H_(s0,s1) =-(obs_[0](i,4)?bc_*t_(0):t_(0)); }break;
+			case 1: { H_(s0,s1) =-(obs_[0](i,4)?bc_*t_(2):t_(2)); }break;
+			case 2: { H_(s0,s1) = (obs_[0](i,4)?bc_*t_(2):t_(2)); }break;
+			case 3: { H_(s0,s1) = (obs_[0](i,4)?bc_*t_(0):t_(0)); }break;
+			}
+		}
+		if((unsigned int)(obs_[0](i,5))%2==c%2){ H_(s0,s0) = mu_/2; }
 	}
 	H_ += H_.transpose();
 }
 
-void SquareMuk2::create(){
+void Squarek2Mu2x2::create(){
 	for(unsigned int c(0);c<N_;c++){
 		status_ = 2;
 		compute_H(c);
@@ -54,7 +64,7 @@ void SquareMuk2::create(){
 	}
 }
 
-void SquareMuk2::save_param(IOFiles& w) const {
+void Squarek2Mu2x2::save_param(IOFiles& w) const {
 	if(w.is_binary()){
 		std::string s("mu="+my::tostring(mu_)+" t=(");
 		Vector<double> param(5);
@@ -70,25 +80,27 @@ void SquareMuk2::save_param(IOFiles& w) const {
 	} else { w<<mu_<<" "<<t_; }
 }
 
-Matrix<double> SquareMuk2::set_ab() const {
+Matrix<double> Squarek2Mu2x2::set_ab() const {
 	Matrix<double> tmp(2,2);
-	tmp(0,0) = 1.0;
-	tmp(1,0) = 1.0;
-	tmp(0,1) = 1.0;
-	tmp(1,1) =-1.0;
+	tmp(0,0) = 2.0;
+	tmp(1,0) = 0.0;
+	tmp(0,1) = 0.0;
+	tmp(1,1) = 2.0;
 	return tmp;
 }
 
-unsigned int SquareMuk2::unit_cell_index(Vector<double> const& x) const {
+unsigned int Squarek2Mu2x2::unit_cell_index(Vector<double> const& x) const {
 	if(my::are_equal(x(0),0.0,eq_prec_,eq_prec_) && my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ return 0; }
-	if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_) && my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ return 1; }
+	if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_) && my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){ return 1; }
+	if(my::are_equal(x(0),0.5,eq_prec_,eq_prec_) && my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ return 2; }
+	if(my::are_equal(x(0),0.0,eq_prec_,eq_prec_) && my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){ return 3; }
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;
 	return spuc_;
 }
 /*}*/
 
 /*{method needed for checking*/
-void SquareMuk2::display_results(){
+void Squarek2Mu2x2::display_results(){
 	compute_H(0);
 	draw_lattice(false,true,(spuc_==3?dir_nn_[2]*0.25+dir_nn_[3]*0.5:dir_nn_[2]*0.5+dir_nn_[3]*0.5));
 
@@ -98,7 +110,7 @@ void SquareMuk2::display_results(){
 		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
 
 		std::string title(RST::math("\\mu")+"="+my::tostring(mu_) + " ");
-		std::string run_cmd("./mc -s:wf square-muk2");
+		std::string run_cmd("./mc -s:wf square-k2mu-2x2");
 		run_cmd += " -u:N " + my::tostring(N_);
 		run_cmd += " -u:m " + my::tostring(m_);
 		run_cmd += " -u:n " + my::tostring(n_);
@@ -119,11 +131,11 @@ void SquareMuk2::display_results(){
 	}
 }
 
-void SquareMuk2::check(){
+void Squarek2Mu2x2::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="square-muk2";
+	filename_ ="square-k2mu-2x2";
 	display_results();
 
 	//plot_band_structure();
