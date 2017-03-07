@@ -13,6 +13,8 @@ VMCACiD::VMCACiD(VMCMinimization const& min, Vector<unsigned int> const& d):
 		Linux cmd;
 		target->get()->display_results();
 		cmd("~/divers/linux/scripts/display-image-terminal.bash "+cmd.pwd()+"tmp.png min",false);
+		std::cout<<target->get()->get_energy()<<std::endl;
+
 
 		Vector<double> x(target->get()->get_param());
 		Rand<double> rnd(-0.05,0.05);
@@ -26,7 +28,7 @@ VMCACiD::VMCACiD(VMCMinimization const& min, Vector<unsigned int> const& d):
 		}
 
 		for(unsigned int i(0);i<m_->dof_;i++){
-			x(i) = (idx_(i,0)?xmean_(idx_(i,1)):1.0)*idx_(i,2);
+			x(i) = (idx_(i,0)?xmean_(idx_(i,1)):1.0)*(idx_(i,2)?idx_(i,2):1);
 		}
 		MCSim test(x);
 		test.create_S(m_->s_);
@@ -37,13 +39,30 @@ VMCACiD::VMCACiD(VMCMinimization const& min, Vector<unsigned int> const& d):
 }
 
 VMCACiD::VMCACiD(VMCMinimization const& min, IOFiles& in_ACiD):
-	VMCMinimization(min,"ACiD"),
+	VMCMinimization(IOFiles("bla.jdbin",true,false),false,"ACiD"),
+	//VMCMinimization(min,"ACiD"),
 	ACiD(in_ACiD),
 	idx_(in_ACiD)
-{}
+{
+	List<MCSim>::Node* target(get_best_target());
+
+	Linux cmd;
+	target->get()->display_results();
+	cmd("~/divers/linux/scripts/display-image-terminal.bash "+cmd.pwd()+"tmp.png min",false);
+	std::cout<<target->get()->get_energy()<<std::endl;
+
+	Vector<double> x(m_->dof_);
+	for(unsigned int i(0);i<m_->dof_;i++){
+		x(i) = (idx_(i,0)?xmean_(idx_(i,1)):1.0)*(idx_(i,2)?idx_(i,2):1);
+	}
+	MCSim test(x);
+	test.create_S(m_->s_);
+	test.display_results();
+
+	cmd("~/divers/linux/scripts/display-image-terminal.bash "+cmd.pwd()+"tmp.png min",false);
+}
 
 double VMCACiD::function(Vector<double> const& x){
-	std::cout<<"-> "<<x<<std::endl;
 	Vector<double> param(m_->dof_);
 	for(unsigned int i(0);i<m_->dof_;i++){
 		param(i) = (idx_(i,0)?x(idx_(i,1)):1.0)*(idx_(i,2)?idx_(i,2):1.0);
@@ -53,27 +72,36 @@ double VMCACiD::function(Vector<double> const& x){
 	return sim->get_energy().get_x();
 }
 
-void VMCACiD::run(unsigned int const& max_steps, unsigned int const& maxiter, unsigned int const& tmax, double const& dEoE){
-	progress_ = 0;
-	total_eval_ = 2*max_steps+1;
-	m_->tmax_=tmax;
-	dEoE_ = dEoE;
-	maxiter_ = maxiter;
+void VMCACiD::run(unsigned int const& maxsteps, unsigned int const& maxiter, double const& dEoE){
+	if(m_->tmax_){
+		progress_ = 0;
+		total_eval_ = 2*maxsteps+1;
+		dEoE_ = dEoE;
+		maxiter_ = maxiter;
 
-	std::cout<<"#######################"<<std::endl;
-	std::string msg("VMCACiD");
-	std::cout<<"#"<<msg<<std::endl;
-	m_->info_.title(msg,'-');
+		std::cout<<"#######################"<<std::endl;
+		std::string msg("VMCACiD");
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.title(msg,'-');
 
-	msg="will perform a minimization with the ACiD method with " + my::tostring(total_eval_) + " measures";
-	std::cout<<"#"<<msg<<std::endl;
-	m_->info_.item(msg);
+		msg = "will perform a minimization with the ACiD method measuring " + my::tostring(total_eval_) + " new samples";
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
 
-	msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE)) + " , max_steps="+my::tostring(maxiter);
-	std::cout<<"#"<<msg<<std::endl;
-	m_->info_.item(msg);
+		msg = "each sample can be measured at most " + my::tostring(maxiter_) + " times";
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
 
-	ACiD::run(max_steps);
+		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE)) + " , max_{iter}="+my::tostring(maxiter);
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
+
+		msg = "maximum time : "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s";
+		std::cout<<"#"<<msg<<std::endl;
+		m_->info_.item(msg);
+
+		ACiD::run(maxsteps);
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 
 void VMCACiD::save(std::string dirname){

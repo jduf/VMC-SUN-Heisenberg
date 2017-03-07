@@ -35,7 +35,7 @@ void Analyse::do_analyse(){
 				r>>h;
 				rst.text(h);
 				Directory d;
-				d.search_file_ext(".jdbin",sim_+dir_,false,false);
+				d.search_files_ext(".jdbin",sim_+dir_,false,false);
 				d.sort();
 				for(unsigned int j(0);j<d.size();j++){
 					rst.hyperlink(d.get_name(j),info_+d.get_name(j)+".html");
@@ -96,7 +96,7 @@ void Analyse::recursive_search(){
 
 void Analyse::search_jdbin(){
 	Directory d;
-	d.search_file_ext(".jdbin",sim_+path_+dir_,false,false);
+	d.search_files_ext(".jdbin",sim_+path_+dir_,false,false);
 	nof_ = d.size();
 	if(d.size()>0){
 		d.sort();

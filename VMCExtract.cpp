@@ -76,7 +76,7 @@ VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int c
 
 	load_filenames(in);
 
-	msg="contains "+my::tostring(n_samples)+" samples";
+	msg = "contains "+my::tostring(n_samples)+" samples";
 	if(in.get_filename().find("EXT") != std::string::npos){
 		in>>n_samples;
 		for(unsigned int i(0);i<n_samples;i++){
@@ -99,11 +99,11 @@ VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int c
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.item(msg);
 
-	msg="keep only "+my::tostring(m_->samples_.size())+" MCSim";
+	msg = "keep only "+my::tostring(m_->samples_.size())+" MCSim";
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.item(msg);;
 
-	msg="and keep  "+my::tostring(dis_sim_.size())+" DiscardedSim";
+	msg = "and keep  "+my::tostring(dis_sim_.size())+" DiscardedSim";
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.item(msg);
 

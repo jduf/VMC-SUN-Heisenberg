@@ -88,7 +88,7 @@ void MCSim::display_results(){
 	if(cs.get_status()==2){
 		cs.create(false);
 		if(cs.get_status()==1){
-			IOSystem ios("tmp","./","","","","",NULL);
+			IOSystem ios("tmp","./","./","./","./","./",NULL);
 			cs.set_IOSystem(&ios);
 			cs.display_results();
 		}

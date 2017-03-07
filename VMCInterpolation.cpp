@@ -21,7 +21,7 @@ void VMCInterpolation::init(){
 	std::cout<<"#"<<get_filename()<<std::endl;
 	m_->info_.item(get_filename());
 
-	msg="contains "+my::tostring(m_->samples_.size())+" samples";
+	msg = "contains "+my::tostring(m_->samples_.size())+" samples";
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.item(msg);
 

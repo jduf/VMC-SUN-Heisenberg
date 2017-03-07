@@ -28,7 +28,7 @@ KAGOME    = KagomeFermi.cpp KagomeFree.cpp KagomePlaquette3A.cpp KagomePlaquette
 
 WF         = $(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)
 MONTECARLO = MonteCarlo.cpp MCSystem.cpp MCSim.cpp BiSystem.cpp
-VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp VMCExtract.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp VMCSystematic.cpp ACiD.cpp VMCACiD.cpp
+VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp VMCExtract.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp VMCSystematic.cpp ACiD.cpp VMCACiD.cpp Directory.cpp
 ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseMin.cpp AnalyseExtract.cpp AnalyseSystematic.cpp AnalyseSystematicLadder.cpp AnalyseChain.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp VMCMinimization.cpp VMCExtract.cpp VMCSystematic.cpp Interpolation.cpp Directory.cpp
 IOFILES    = Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
 OTHER      = System.cpp IOSystem.cpp Observable.cpp CreateSystem.cpp Lapack.cpp Parseur.cpp Fit.cpp

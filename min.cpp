@@ -1,5 +1,6 @@
 /*!@file min.cpp */
 
+#include "Directory.hpp"
 #include "VMCPSO.hpp"
 #include "VMCInterpolation.hpp"
 #include "VMCSystematic.hpp"
@@ -75,7 +76,6 @@ int main(int argc, char* argv[]){
 									}
 								}
 							}break;
-						case 40:{ /*kim*/ }break;
 						default:
 							{ error(); }
 					}
@@ -83,54 +83,72 @@ int main(int argc, char* argv[]){
 			}
 		}
 	} else {
-		IOFiles in(P.get<std::string>("load"),false,false);
-		std::string dirname(P.get<std::string>("dirname"));
-		VMCExtract extract(in,P.get<unsigned int>("min_sort"),P.get<unsigned int>("max_sort"));
-		if(!P.locked()){
-			for(unsigned int w(0);w<what.size();w++){
-				switch(what(w)){
-					case 100:
-						{ extract.save(dirname); }break;
-					case 101:
-						{
-							extract.refine(obs,dEoE,P.get<unsigned int>("ttotal"));
-							extract.save(dirname);
-						}break;
-					case 102:
-						{
-							std::string fname("VMCExtract-tmp");
-							RSTFile rst("/tmp/",fname);
+		Directory dir;
+		dir.search_files(P.get<std::string>("load"),P.get<std::string>("pathload"),false,true);
+		if(dir.size() == 1){
+			IOFiles in(dir[0],false,false);
+			std::string dirname(P.get<std::string>("dirname"));
+			VMCExtract extract(in,P.get<unsigned int>("min_sort"), P.get<unsigned int>("max_sort"));
 
-							List<MCSim> kept_samples;
-							extract.analyse(dirname,"test",kept_samples);
+			if(!P.locked()){
+				for(unsigned int w(0);w<what.size();w++){
+					switch(what(w)){
+						case 100:
+							{ extract.save(dirname); }break;
+						case 101:
+							{
+								extract.refine(obs,dEoE,P.get<unsigned int>("ttotal"));
+								extract.save(dirname);
+							}break;
+						case 102:
+							{
+								std::string fname("VMCExtract-tmp");
+								RSTFile rst("/tmp/",fname);
 
-							kept_samples.set_target();
-							while(kept_samples.target_next()){
-								kept_samples.get().display_results("","","","","","/tmp/",&rst);
-							}
-							rst.save(false,true);
-							Linux()(Linux::html_browser("/tmp/"+fname+".html"),true);
-						}break;
-					case 103:
-						{
-							Vector<unsigned int> d(P.get<std::vector<unsigned int> >("d"));
-							VMCACiD min(extract,d);
-							min.run(2,1,10,1e-4);
-							min.save(dirname);
-							extract.save(dirname);
-						}break;
-					case 104:
-						{
-							IOFiles in_ACiD(P.get<std::string>("ACiD"),false,false);
-							VMCACiD min(extract,in_ACiD);
-							min.run(1,1,10,1e-4);
-							min.save(dirname);
-							extract.save(dirname);
-						}break;
-					default:
-						{ error(); }break;
+								List<MCSim> kept_samples;
+								extract.analyse(dirname,"test",kept_samples);
+
+								kept_samples.set_target();
+								while(kept_samples.target_next()){
+									kept_samples.get().display_results("","","","","","/tmp/",&rst);
+								}
+								rst.save(false,true);
+								Linux()(Linux::html_browser("/tmp/"+fname+".html"),true);
+							}break;
+						case 103:
+							{
+								Vector<unsigned int> d(P.get<std::vector<unsigned int> >("d"));
+								VMCACiD min(extract,d);
+								min.set_tmax(P.get<unsigned int>("tmax"));
+								if(!P.find("norun",i,false) && !P.locked()){
+									min.run(P.get<unsigned int>("maxstep"),maxiter,dEoE);
+									min.save(dirname);
+									extract.save(dirname);
+								} else {
+									min.save(dirname);
+								}
+							}break;
+						case 104:
+							{
+								IOFiles in_ACiD(P.get<std::string>("ACiD"),false,false);
+								VMCACiD min(extract,in_ACiD);
+								min.set_tmax(P.get<unsigned int>("tmax"));
+								if(!P.find("norun",i,false) && !P.locked()){
+									min.run(P.get<unsigned int>("maxstep"),maxiter,dEoE);
+									min.save(dirname);
+									extract.save(dirname);
+								} else {
+									min.save(dirname);
+								}
+							}break;
+						default:
+							{ error(); }
+					}
 				}
 			}
+		} else {
+			std::cerr<<__PRETTY_FUNCTION__<<" : no or multiples files were found :"<<std::endl;
+			dir.print(std::cerr);
 		}
 	}
 }

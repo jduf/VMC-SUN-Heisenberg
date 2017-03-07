@@ -22,27 +22,27 @@ void VMCPSO::init(bool const& clear_particle_history){
 		std::cout<<"#"<<get_filename()<<std::endl;
 		m_->info_.item(get_filename());
 
-		msg="contains "+my::tostring(m_->samples_.size())+" samples";
+		msg = "contains "+my::tostring(m_->samples_.size())+" samples";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
 		if(m_->samples_.size()){
 			if(clear_particle_history){
-				msg="clear particles' history";
+				msg = "clear particles' history";
 				m_->info_.item(msg);
 				std::cout<<"#"<<msg<<std::endl;
 				for(unsigned int p(0);p<Nparticles_;p++){
 					std::dynamic_pointer_cast<MCParticle>(particle_[p])->clear_history();
 				}
 			} else {
-				msg="keep old particles' history";
+				msg = "keep old particles' history";
 				m_->info_.item(msg);
 				std::cout<<"#"<<msg<<std::endl;
 			}
 		}
 
 		Time chrono;
-		msg="initializing particles";
+		msg = "initializing particles";
 		m_->info_.item(msg);
 		std::cout<<"#"<<msg<<std::endl;
 		for(unsigned int p(0);p<Nparticles_;p++){
@@ -55,8 +55,8 @@ void VMCPSO::init(bool const& clear_particle_history){
 
 void VMCPSO::run(){
 	if(m_->tmax_){
-		std::string msg1("exploring with "+my::tostring(Nparticles_)+" particles for "+my::tostring(maxiter_)+" steps,");
-		msg1 += " estimated time "+my::tostring(1.1*Nparticles_*maxiter_*m_->effective_time_/omp_get_max_threads())+"s ";
+		std::string msg1("exploring with "+my::tostring(Nparticles_)+" particles for "+my::tostring(maxsteps_)+" steps,");
+		msg1 += " estimated time "+my::tostring(1.1*Nparticles_*maxsteps_*m_->effective_time_/omp_get_max_threads())+"s ";
 		std::cout<<"#"<<msg1<<std::endl;
 		Time chrono;
 
