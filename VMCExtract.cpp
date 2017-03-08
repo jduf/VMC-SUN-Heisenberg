@@ -163,7 +163,7 @@ void VMCExtract::save(std::string dirname) const {
 		set_time();
 		Linux().mkpath(dirname.c_str());
 		IOFiles out(dirname+get_filename()+".jdbin",true,false);
-		out.add_header()->text(RST::textbf("Contains the "+my::tostring(m_->samples_.size())+" best samples and a list "+my::tostring(dis_sim_.size())+ " of discarded samples"));
+		out.add_to_header()->text(RST::textbf("Contains the "+my::tostring(m_->samples_.size())+" best samples and a list "+my::tostring(dis_sim_.size())+ " of discarded samples"));
 		VMCMinimization::save(out);
 
 		out<<dis_sim_.size();

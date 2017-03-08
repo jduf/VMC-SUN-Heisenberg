@@ -26,7 +26,7 @@ void AnalyseExtract::open_files(){
 		case 9:
 			{
 				jd_write_->write("number of different wavefunction",nof_);
-				jd_write_->add_header()->np();
+				jd_write_->add_to_header()->np();
 			}break;
 		case 3:
 			{
@@ -117,7 +117,7 @@ std::string AnalyseExtract::extract_level_3(){
 	cs.init(&tmp,NULL);
 	cs.set_IOSystem(this);
 
-	jd_write_->add_header()->nl();
+	jd_write_->add_to_header()->nl();
 	cs.save(*jd_write_);
 
 	delete read_;

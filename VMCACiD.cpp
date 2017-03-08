@@ -38,11 +38,10 @@ VMCACiD::VMCACiD(VMCMinimization const& min, Vector<unsigned int> const& d):
 	}
 }
 
-VMCACiD::VMCACiD(VMCMinimization const& min, IOFiles& in_ACiD):
-	VMCMinimization(IOFiles("bla.jdbin",true,false),false,"ACiD"),
-	//VMCMinimization(min,"ACiD"),
-	ACiD(in_ACiD),
-	idx_(in_ACiD)
+VMCACiD::VMCACiD(VMCMinimization const& min, IOFiles& in):
+	VMCMinimization(min,"ACiD"),
+	ACiD(in),
+	idx_(in)
 {
 	List<MCSim>::Node* target(get_best_target());
 
@@ -88,11 +87,7 @@ void VMCACiD::run(unsigned int const& maxsteps, unsigned int const& maxiter, dou
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
-		msg = "each sample can be measured at most " + my::tostring(maxiter_) + " times";
-		std::cout<<"#"<<msg<<std::endl;
-		m_->info_.item(msg);
-
-		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE)) + " , max_{iter}="+my::tostring(maxiter);
+		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE)) + " , maxiter="+my::tostring(maxiter_);
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
@@ -104,7 +99,12 @@ void VMCACiD::run(unsigned int const& maxsteps, unsigned int const& maxiter, dou
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 
-void VMCACiD::save(std::string dirname){
+bool VMCACiD::stop(bool const& improve_overall) const {
+	if(!improve_overall){ std::cerr<<__PRETTY_FUNCTION__<<" : no imrovement detected, will continue anyway"<<std::endl; }
+	return false;
+}
+
+void VMCACiD::save(std::string dirname) const {
 	my::ensure_trailing_slash(dirname);
 	dirname += get_path();
 	set_time();

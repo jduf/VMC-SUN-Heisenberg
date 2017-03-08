@@ -27,11 +27,11 @@ void AnalyseChain::open_files(){
 		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true,false);
 		if(level_==7){
 			jd_write_->write("number of different wavefunction",nof_);
-			jd_write_->add_header()->np();
+			jd_write_->add_to_header()->np();
 		}
 		if(level_==6){
 			jd_write_->write("number of different boundary condition",nof_);
-			jd_write_->add_header()->np();
+			jd_write_->add_to_header()->np();
 		}
 		if(level_==3 || level_==8){
 			data_write_ = new IOFiles(analyse_+path_+dir_.substr(0,dir_.size()-1)+".dat",true,false);
@@ -82,7 +82,7 @@ std::string AnalyseChain::extract_level_8(){
 	cs.set_IOSystem(this);
 
 	if(!all_link_names_.size()){
-		jd_write_->add_header()->title("Simulations",'<');
+		jd_write_->add_to_header()->title("Simulations",'<');
 		jd_write_->write("number of jdfiles",nof_);
 		(*data_write_)<<"% t E dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	}

@@ -414,8 +414,8 @@ void VMCMinimization::save_parameters(Parseur& P) const {
 	std::string note(RST::textbf("Maximal Energy :"));
 	note += RST::math("E="+my::tostring(sorted_samples.get().get_energy().get_x())) + " ";
 	note += RST::math("\\pm\\mathrm{d}E="+my::tostring(sorted_samples.get().get_energy().get_dx()));
-	out.add_header()->np();
-	out.add_header()->text(note);
+	out.add_to_header()->np();
+	out.add_to_header()->text(note);
 }
 
 void VMCMinimization::run_parameters(Parseur& P){
@@ -728,9 +728,9 @@ void VMCMinimization::Minimization::save(IOFiles& out, bool const& all) const {
 	Vector<double> tmp(dof_,1.0);
 	CreateSystem cs(s_);
 	cs.init(&tmp,NULL);
-	out.add_header()->np();
-	out.add_header()->text(cs.get_system_info().get());
-	out.add_header()->np();
+	out.add_to_header()->np();
+	out.add_to_header()->text(cs.get_system_info().get());
+	out.add_to_header()->np();
 
 	if(all && samples_.size()){
 		double E(0);
@@ -746,12 +746,12 @@ void VMCMinimization::Minimization::save(IOFiles& out, bool const& all) const {
 		std::string p("(");
 		for(unsigned int i(0);i<best->get()->get_param().size()-1;i++){ p += my::tostring(best->get()->get_param()(i))+","; }
 		p += my::tostring(best->get()->get_param().back())+")";
-		out.add_header()->def("Best parameter","p="+p);
-		out.add_header()->def("Best energy","E="+my::tostring(best->get()->get_energy().get_x())+", dEoE="+my::tostring(best->get()->get_energy().get_dx()));
-		out.add_header()->np();
+		out.add_to_header()->def("Best parameter","p="+p);
+		out.add_to_header()->def("Best energy","E="+my::tostring(best->get()->get_energy().get_x())+", dEoE="+my::tostring(best->get()->get_energy().get_dx()));
+		out.add_to_header()->np();
 	}
 
-	out.add_header()->comment("end_of_saved_variables");
-	out.add_header()->text(info_.get());
+	out.add_to_header()->comment("end_of_saved_variables");
+	out.add_to_header()->text(info_.get());
 }
 /*}*/

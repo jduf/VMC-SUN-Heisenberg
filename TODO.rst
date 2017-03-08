@@ -36,5 +36,4 @@ IDEA
   for SquareChiral
 + display_results() should take an argument so it plots the whole lattice when
   needed
-+ remove symmetry from VMCMinimization (VMCPSO->ladder)
 + get rid of my::norm_squared

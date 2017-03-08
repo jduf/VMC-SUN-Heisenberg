@@ -87,9 +87,9 @@ void LadderFreeFlux::save_param(IOFiles& w) const {
 		}
 		param.back() = flux_.back();
 		s += my::tostring(flux_.back())+")";
-		w.add_header()->title(s,'<');
+		w.add_to_header()->title(s,'<');
 		w<<param;
-		w.add_header()->add(system_info_.get());
+		w.add_to_header()->add(system_info_.get());
 	} else { w<<t_<<" "<<flux_<<" "; }
 }
 

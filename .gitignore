@@ -1,11 +1,12 @@
 *.jdbin
+*.html
 *.swp
-*.db
 *.png
 *.jpg
 *.pdf
 *.dat
 *.gp
+*.db
 
 cluster_creation
 doxygen/log

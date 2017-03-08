@@ -24,12 +24,12 @@ void AnalyseLadder::open_files(){
 		case 8:
 			{
 				jd_write_->write("number of different wavefunction",nof_);
-				jd_write_->add_header()->np();
+				jd_write_->add_to_header()->np();
 			}break;
 		case 7:
 			{
 				jd_write_->write("number of different wavefunction",nof_);
-				jd_write_->add_header()->np();
+				jd_write_->add_to_header()->np();
 			}break;
 		case 5:
 			{ jd_write_->write("number of different boundary condition",nof_); }break;
@@ -69,7 +69,7 @@ std::string AnalyseLadder::extract_level_8(){
 	cs.init(&tmp,NULL);
 	cs.set_IOSystem(this);
 
-	jd_write_->add_header()->nl();
+	jd_write_->add_to_header()->nl();
 	cs.save(*jd_write_);
 	cs.display_results();
 
@@ -100,7 +100,7 @@ std::string AnalyseLadder::extract_level_4(){
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
 
-		jd_write_->add_header()->nl();
+		jd_write_->add_to_header()->nl();
 		cs.save(*jd_write_);
 	}
 
@@ -123,7 +123,7 @@ std::string AnalyseLadder::extract_level_3(){
 		cs.init(&tmp,NULL);
 		cs.set_IOSystem(this);
 
-		jd_write_->add_header()->nl();
+		jd_write_->add_to_header()->nl();
 		cs.save(*jd_write_);
 		cs.save(*data_write_);
 	}

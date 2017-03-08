@@ -122,11 +122,9 @@ int main(int argc, char* argv[]){
 								min.set_tmax(P.get<unsigned int>("tmax"));
 								if(!P.find("norun",i,false) && !P.locked()){
 									min.run(P.get<unsigned int>("maxstep"),maxiter,dEoE);
-									min.save(dirname);
 									extract.save(dirname);
-								} else {
-									min.save(dirname);
 								}
+								min.save(dirname);
 							}break;
 						case 104:
 							{
@@ -135,11 +133,9 @@ int main(int argc, char* argv[]){
 								min.set_tmax(P.get<unsigned int>("tmax"));
 								if(!P.find("norun",i,false) && !P.locked()){
 									min.run(P.get<unsigned int>("maxstep"),maxiter,dEoE);
-									min.save(dirname);
 									extract.save(dirname);
-								} else {
-									min.save(dirname);
 								}
+								min.save(dirname);
 							}break;
 						default:
 							{ error(); }

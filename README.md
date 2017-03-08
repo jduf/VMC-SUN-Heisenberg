@@ -10,10 +10,10 @@ to compute variational energies of the SU($N$) Heisenberg model in any fully
 antisymmetric irreducible representation (one or more particle per site) on
 various lattices. To make transparent what the code can do, let us very briefly
 explain what this model is about. It describes the Mott insulating phase of
-fermionic ultracold atom  gas trapped in optical lattices. This field belongs
-to quantum physics . The fermionic atoms have $N$ internal degrees of freedom
-that will be referred to as colours. On each of the $n$ sites of the lattice,
-there are $m$  particles  $(N>m)$ that can be exchanged with particles on
+fermionic ultracold atom gas trapped in optical lattices. This field belongs
+to quantum physics. The fermionic atoms have $N$ internal degrees of freedom
+that will be referred to as colors. On each of the $n$ sites of the lattice,
+there are $m$ particles $(N>m)$ that can be exchanged with particles on
 neighbouring sites.
 
 The code computes the variational energy of a fermionic Gutzwiller projected
@@ -24,13 +24,10 @@ can be added with little effort (it has already been tested in this code for
 SU(2) and first neighbour Jastrow factors, so the generalisations to $N>2$ and
 long range Jastrow are possible).
 
-
 The following scientific articles exemplify the abilities of this code:
 
-
-+ [Stabilization of the chiral phase of the SU $(6m)$ Heisenberg model on the honeycomb lattice with $m$ particles per site for $m$  larger than 1](https://arxiv.org/abs/1607.05227) 
++ [Stabilization of the chiral phase of the SU$(6m)$ Heisenberg model on the honeycomb lattice with $m$ particles per site for $m$ larger than 1](https://arxiv.org/abs/1607.05227)
 + [Variational Monte-Carlo investigation of SU$(N)$ Heisenberg chains](https://arxiv.org/abs/1502.01895)
-
 
 and other (unpublished) results can be found in my thesis:
 
@@ -39,32 +36,49 @@ and other (unpublished) results can be found in my thesis:
 Installation
 ---
 
-Simply  enter the directory and type 
+Get all the sources:
+
+	git clone --recursive https://github.com/jduf/VMC-SUN-Heisenberg.git
+
+This should download the main sources and a submodule containing libraries
+also available via:
+
+	git clone https://github.com/jduf/lib.git
+
+Enter the main directory:
+
+	cd VMC-SUN-Heisenberg
+
+and simply type:
 
 	make
-	
-Note that it will create different executables
+
+If you choose to install the submodules elsewhere, just set the variable
+"JDLIB" in the makefile to the path where they have been downloaded 
+
+Note that you can choose which executable to create by by un-/-commenting one
+of the first line of the makefile or setting the "EXEC" variable to one of the
+following
 
 + mc
 + min
 + study
-+ (some other executable may be created by created by un-/-commenting one of
-  the first line of the makefile)
++ check
++ mcbi
 
 Usage
 ---
 
-To run an executable the structure is the following
+To run an executable, the structure of the command is the following
 
-	./executable -args -t:name1 val1  -t:name2 val2  -t:name3 val3 ... 
-	
-where 
+	./executable -args -t:name1 val1 -t:name2 val2 -t:name3 val3 ...
+
+where
 
 + args are arguments without options for instance:
 	- norun: do not do run a Monte-Carlo simulation
 	- d: display the result of the simulation in the browser
-	
-+  t is the c++ type of variable, all possible choices are:
++ t is the c++ type of variable, all possible choices are:
 	- s for string
 	- d for double
 	- u for unsigned int
@@ -82,8 +96,8 @@ Here is an example of a simple command:
 
 which runs a simulation for 10 seconds on the wave function named square-mu for
 SU(4) with $m=2$ particles per site and $n=20$ sites on a periodic lattice and
-an on site chemical potential of $\mu=0.1$ and mesures the bond energy and long
-range-correlations (observables 1 and 3).
+an on site chemical potential of $\mu=0.1$ and measures the bond energy and
+long range-correlations (observables 1 and 3).
 
 The code currently supports:
 
@@ -91,9 +105,23 @@ The code currently supports:
 + any number of particle per site $m>N$
 + any number of site $n$
 + any simple boundary condition (periodic, antiperiodic, none)
-+ any number of particle of each color (having more particles of one colour is allowed)
-+ first neighbour Heisenberg model (easily generalisable to further neighbours)
-+ inhomogeneous coupling between sites 
++ any number of particle of each color (having more particles of one color is
+ allowed)
++ first neighbour Heisenberg model (easily generalisable to further
+  neighbours)
++ inhomogeneous coupling between sites
+
+The message returned when an error occurs should be self explanatory, for
+instance if N=4 m=1 and n=13 the error message will be
+
+	N, M, m and n are incompatible
+
+because if you want to have N=4 colors and m=1 particle per site, the you need
+a number of sites which is a multiple of 4. Moreover, the number of site that
+you set has to be coherent with the lattice geometry you chose (chain, ladder,
+square, triangle,...). For instance, on the square lattice, only the clusters
+with n=p\*p+q\*q (p and q integers) are allowed therefore n=13=3\*3+2\*2 would
+be allowed.
 
 The values that the option obs take defines what observables are measured (the
 energy per site is always measured):
@@ -101,13 +129,13 @@ energy per site is always measured):
 0. all possible observable
 1. bond energy
 2. long range correlations and associated structure factor
-3. colour occupation
+3. color occupation
 4. variance of the energy
 
 Beside performing a VMC simulation
 
 + can visualise the lattice with unit cell, site numbers, basis vectors,
-  hopping amplitude, fluxes 
+  hopping amplitude, fluxes
 
 
 The executable min intends to perform a minimisation of variational parameters
@@ -122,17 +150,17 @@ All the following softwares are not essential be should be present to use this
 code at its best potential. Indeed, the visualisation of the results, already
 implemented in the code, relies on:
 
-+ gnuplot 
-+ latex 
-+ ReStructuedText 
-+ rst2html 
-+ rst2latex 
-+ pdflatex 
-+ latex 
-+ dvipdf 
-+ pdfcrop 
++ gnuplot
++ latex
++ ReStructuedText
++ rst2html
++ rst2latex
++ pdflatex
++ latex
++ dvipdf
++ pdfcrop
 + gs
-+ firefox 
++ firefox
 
 All these software can be set and personalised in the lib/config.mk and file.
 For instance if is not available to convert images, only these two files

@@ -146,7 +146,7 @@ std::string Analyse::extract_default(){
 	cs.init(&tmp,NULL);
 	cs.set_IOSystem(this);
 
-	jd_write_->add_header()->nl();
+	jd_write_->add_to_header()->nl();
 	cs.save(*jd_write_);
 
 	delete read_;

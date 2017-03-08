@@ -21,7 +21,9 @@ class VMCACiD: public VMCMinimization,  public ACiD{
 
 		double function(Vector<double> const& x);
 		void run(unsigned int const& maxsteps, unsigned int const& maxiter, double const& dEoE);
-		void save(std::string dirname);
+		bool stop(bool const& improve_overall) const;
+
+		void save(std::string dirname) const;
 
 	private:
 		Matrix<int> idx_;

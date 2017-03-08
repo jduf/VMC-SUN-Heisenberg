@@ -74,9 +74,9 @@ void Squarek2Mu2x2Col::save_param(IOFiles& w) const {
 			s += my::tostring(t_(i))+(i+1!=t_.size()?",":")");
 		}
 
-		w.add_header()->title(s,'<');
+		w.add_to_header()->title(s,'<');
 		w<<param;
-		w.add_header()->add(system_info_.get());
+		w.add_to_header()->add(system_info_.get());
 	} else { w<<mu_<<" "<<t_; }
 }
 

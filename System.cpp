@@ -86,7 +86,7 @@ void System::save(IOFiles& w) const {
 void System::save_input(IOFiles& w) const {
 	RST rst;
 	rst.title("Input",'+');
-	w.add_header()->add(rst.get());
+	w.add_to_header()->add(rst.get());
 
 	w.write("ref (geometry "+my::tostring(ref_(3))+")",ref_);
 	w.write("SU",N_);
@@ -100,7 +100,7 @@ void System::save_input(IOFiles& w) const {
 void System::save_output(IOFiles& w) const {
 	RST rst;
 	rst.title("Results",'+');
-	w.add_header()->add(rst.get());
+	w.add_to_header()->add(rst.get());
 
 	w.write("status",status_);
 	unsigned int nobs(obs_.size());

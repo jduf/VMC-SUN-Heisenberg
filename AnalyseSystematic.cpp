@@ -24,7 +24,7 @@ void AnalyseSystematic::open_files(){
 		case 9:
 			{
 				jd_write_->write("number of different wavefunction",nof_);
-				jd_write_->add_header()->np();
+				jd_write_->add_to_header()->np();
 			}break;
 		case 3:
 			{

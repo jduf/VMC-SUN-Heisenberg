@@ -55,9 +55,9 @@ void KagomePlaquette3A::save_param(IOFiles& w) const {
 		std::string s("td="+my::tostring(td_));
 		Vector<double> param(1,td_);
 
-		w.add_header()->title(s,'<');
+		w.add_to_header()->title(s,'<');
 		w<<param;
-		w.add_header()->add(system_info_.get());
+		w.add_to_header()->add(system_info_.get());
 	} else { w<<td_<<" "; }
 }
 

@@ -58,7 +58,7 @@ void SquareJastrow::save_param(IOFiles& w) const {
 	w.write("sl (sublattice)",sl_);
 	w.write("omega (omega)",omega_);
 
-	w.add_header()->add(system_info_.get());
+	w.add_to_header()->add(system_info_.get());
 }
 
 Matrix<double> SquareJastrow::set_ab() const {

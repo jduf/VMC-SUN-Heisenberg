@@ -112,8 +112,8 @@ template<typename Type>
 void GenericSystem<Type>::save_param(IOFiles& w) const {
 	if(w.is_binary()){
 		w<<Vector<double>();
-		w.add_header()->title("No parameter",'<');
-		w.add_header()->add(system_info_.get());
+		w.add_to_header()->title("No parameter",'<');
+		w.add_to_header()->add(system_info_.get());
 	}
 }
 /*}*/

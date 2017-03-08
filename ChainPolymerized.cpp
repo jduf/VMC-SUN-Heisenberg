@@ -77,9 +77,9 @@ void ChainPolymerized::save_param(IOFiles& w) const {
 		}
 		s += my::tostring(t_.back())+")";
 
-		w.add_header()->title(s,'<');
+		w.add_to_header()->title(s,'<');
 		w<<t_;
-		w.add_header()->add(system_info_.get());
+		w.add_to_header()->add(system_info_.get());
 	} else { w<<t_<<" "; }
 }
 
@@ -150,7 +150,7 @@ std::string ChainPolymerized::extract_level_8(){
 	std::string title("$N="+my::tostring(N_)+"$ $m="+my::tostring(m_)+"$ $n="+my::tostring(n_)+"$ bc="+my::tostring(bc_)+" $t_{ij}="+t_string+"$");
 
 	(*data_write_)<<t_<<" "<<obs_[0][0]<<IOFiles::endl;
-	jd_write_->add_header()->title("System's parameters",'-');
+	jd_write_->add_to_header()->title("System's parameters",'-');
 	save_param(*jd_write_);
 	save(*jd_write_);
 
@@ -195,7 +195,7 @@ std::string ChainPolymerized::extract_level_7(){
 	gp.save_file();
 	gp.create_image(true,"png");
 
-	jd_write_->add_header()->title("System's parameters",'-');
+	jd_write_->add_to_header()->title("System's parameters",'-');
 	save_param(*jd_write_);
 	save(*jd_write_);
 	jd_write_->write("polymerization strength",read_->read<double>());

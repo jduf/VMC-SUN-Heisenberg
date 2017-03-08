@@ -106,7 +106,7 @@ std::string ChainFermi<Type>::extract_level_8(){
 	std::string title("$N="+my::tostring(this->N_)+"$ $m="+my::tostring(this->m_)+"$ $n="+my::tostring(this->n_)+"$ bc="+my::tostring(this->bc_));
 
 	(*this->data_write_)<<this->obs_[0][0]<<IOFiles::endl;
-	this->jd_write_->add_header()->title("System's parameters",'-');
+	this->jd_write_->add_to_header()->title("System's parameters",'-');
 	this->save_param(*this->jd_write_);
 	this->save(*this->jd_write_);
 
@@ -127,7 +127,7 @@ std::string ChainFermi<Type>::extract_level_8(){
 
 template<typename Type>
 std::string ChainFermi<Type>::extract_level_7(){
-	this->jd_write_->add_header()->title("System's parameters",'-');
+	this->jd_write_->add_to_header()->title("System's parameters",'-');
 	this->save_param(*this->jd_write_);
 	this->save(*this->jd_write_);
 
