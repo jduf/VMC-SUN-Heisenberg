@@ -10,6 +10,7 @@
 void error();
 
 int main(int argc, char* argv[]){
+	Time running_time;
 	Parseur P(argc,argv);
 
 	unsigned int i;
@@ -119,9 +120,9 @@ int main(int argc, char* argv[]){
 							{
 								Vector<unsigned int> d(P.get<std::vector<unsigned int> >("d"));
 								VMCACiD min(extract,d);
-								min.set_tmax(P.get<unsigned int>("tmax"));
 								if(!P.find("norun",i,false) && !P.locked()){
-									min.run(P.get<unsigned int>("maxstep"),maxiter,dEoE);
+									min.init(maxiter,dEoE,P.get<unsigned int>("tmax"));
+									min.run(P.get<unsigned int>("maxstep"));
 									extract.save(dirname);
 								}
 								min.save(dirname);
@@ -130,9 +131,9 @@ int main(int argc, char* argv[]){
 							{
 								IOFiles in_ACiD(P.get<std::string>("ACiD"),false,false);
 								VMCACiD min(extract,in_ACiD);
-								min.set_tmax(P.get<unsigned int>("tmax"));
 								if(!P.find("norun",i,false) && !P.locked()){
-									min.run(P.get<unsigned int>("maxstep"),maxiter,dEoE);
+									min.init(maxiter,dEoE,P.get<unsigned int>("tmax"));
+									min.run(P.get<unsigned int>("maxstep"));
 									extract.save(dirname);
 								}
 								min.save(dirname);
@@ -143,10 +144,15 @@ int main(int argc, char* argv[]){
 				}
 			}
 		} else {
-			std::cerr<<__PRETTY_FUNCTION__<<" : no or multiples files were found :"<<std::endl;
-			dir.print(std::cerr);
+			if(dir.size()){
+				std::cerr<<__PRETTY_FUNCTION__<<" : multiples files found :"<<std::endl;
+				dir.print(std::cerr);
+			} else {
+				std::cerr<<__PRETTY_FUNCTION__<<" : no file found"<<std::endl;
+			}
 		}
 	}
+	std::cout<<"code has run for "<<my::convert_seconds(running_time.elapsed())<<" ("<<running_time.elapsed()<<"s)"<<std::endl;
 }
 
 void error(){
