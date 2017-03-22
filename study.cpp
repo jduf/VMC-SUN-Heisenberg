@@ -15,13 +15,12 @@ int main(int argc, char* argv[]){
 	Linux command;
 	if(!command.status()){
 		Parseur P(argc,argv);
-		unsigned int i(0);
-		std::string path(P.find("path",i,false)?P.get<std::string>(i):"");
-		std::string sim(P.find("sim",i,false)?P.get<std::string>(i):"sim/");
-		unsigned int max_level(P.find("ml",i,false)?P.get<unsigned int>(i):10);
-		unsigned int run_cmd(P.find("run",i,false)?P.get<unsigned int>(i):0);
-		unsigned int display(P.find("display",i,false)?P.get<unsigned int>(i):0);
-		switch(P.find("what",i,true)?P.get<unsigned int>(i):666){
+		std::string path(P.check_get("path",std::string("")));
+		std::string sim(P.check_get("sim",std::string("sim/")));
+		unsigned int max_level(P.check_get("ml",10));
+		unsigned int run_cmd(P.check_get("run",0));
+		unsigned int display(P.check_get("display",0));
+		switch(P.check_get("what",666)){
 			case 0: { AnalyseEnergy ana(sim,path,max_level,run_cmd); }break;
 			case 1: { AnalyseMin ana(sim,path,max_level,run_cmd); }break;
 			case 2: { AnalyseExtract ana(sim,path,max_level,run_cmd,display); }break;

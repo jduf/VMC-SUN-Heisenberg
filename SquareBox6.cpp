@@ -92,22 +92,22 @@ Matrix<double> SquareBox6::set_ab() const {
 
 unsigned int SquareBox6::unit_cell_index(Vector<double> const& x) const {
 	if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
-		if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0; }
+		if(my::are_equal(x(0),0.0,    eq_prec_,eq_prec_)){ return 0; }
 		if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 1; }
 		if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 2; }
 	}
 	if(my::are_equal(x(1),0.25,eq_prec_,eq_prec_)){
-		if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 3; }
+		if(my::are_equal(x(0),0.0,    eq_prec_,eq_prec_)){ return 3; }
 		if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 4; }
 		if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 5; }
 	}
 	if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){
-		if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 6; }
+		if(my::are_equal(x(0),0.0,    eq_prec_,eq_prec_)){ return 6; }
 		if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 7; }
 		if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 8; }
 	}
 	if(my::are_equal(x(1),0.75,eq_prec_,eq_prec_)){
-		if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 9; }
+		if(my::are_equal(x(0),0.0,    eq_prec_,eq_prec_)){ return 9; }
 		if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 10; }
 		if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 11; }
 	}

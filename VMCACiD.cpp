@@ -55,23 +55,6 @@ VMCACiD::VMCACiD(VMCMinimization const& min, IOFiles& in):
 	std::string msg("VMCACiD");
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.title(msg,'-');
-
-	List<MCSim>::Node* target(get_best_target());
-
-	Linux cmd;
-	target->get()->display_results();
-	cmd("~/divers/linux/scripts/display-image-terminal.bash "+cmd.pwd()+"tmp.png min",false);
-	std::cout<<target->get()->get_energy()<<std::endl;
-
-	Vector<double> x(m_->dof_);
-	for(unsigned int i(0);i<m_->dof_;i++){
-		x(i) = (idx_(i,0)?xmean_(idx_(i,1)):1.0)*(idx_(i,2)?idx_(i,2):1);
-	}
-	MCSim test(x);
-	test.create_S(m_->s_);
-	test.display_results();
-
-	cmd("~/divers/linux/scripts/display-image-terminal.bash "+cmd.pwd()+"tmp.png min",false);
 }
 
 double VMCACiD::function(Vector<double> const& x){
@@ -84,27 +67,31 @@ double VMCACiD::function(Vector<double> const& x){
 	return sim->get_energy().get_x();
 }
 
-void VMCACiD::init(unsigned int const& maxiter, double const& dEoE, unsigned int const& tmax){
+void VMCACiD::run(double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& maxsteps){
 	m_->tmax_ = tmax;
-	if(m_->tmax_ && idx_.ptr()){
 		dEoE_ = dEoE;
 		maxiter_ = maxiter;
 
-		x_min_ = xmean_;
-		bf_ = function(x_min_);
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
-}
-
-void VMCACiD::run(unsigned int const& maxsteps){
 	if(m_->tmax_ && idx_.ptr()){
-		progress_ = 0;
-		total_eval_ = 2*maxsteps;
-
-		std::string msg("will perform a minimization with the ACiD method measuring " + my::tostring(total_eval_) + " new samples");
+		std::string msg(RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE_)) + ",  maxiter="+my::tostring(maxiter_));
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
-		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE_)) + " , maxiter="+my::tostring(maxiter_);
+		if(!x_min_.ptr()){
+			msg = "initialise the starting point";
+			std::cout<<"#"<<msg<<std::endl;
+			m_->info_.item(msg);
+
+			progress_ = 0;
+			total_eval_ = 1;
+			x_min_ = xmean_;
+			bf_ = function(x_min_);
+		}
+
+		progress_ = 0;
+		total_eval_ = 2*maxsteps;
+
+		msg = "will perform a minimization with the ACiD method measuring " + my::tostring(total_eval_) + " new samples";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 

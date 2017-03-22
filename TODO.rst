@@ -9,10 +9,6 @@ BUGS
 URGENT
 ------
 
-+ set a counter to know how many times a VMCPSO, VMCInterp... have been run 
-+ using the symmetry forces me to use the same parameter space for all dof...
-  will need to change that for instance by giving for each particle a personal
-  min and max values, maybe also dof
 + PSO check the number of *new* value that is computed and stop if the ratio is
   too low
 + Need to check how MCParticles updates its best known value. check also

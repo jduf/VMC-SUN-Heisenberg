@@ -155,14 +155,14 @@ Matrix<double> SquareFree::set_ab(unsigned int const& ref3) const {
 
 unsigned int SquareFree::unit_cell_index(Vector<double> const& x) const {
 	if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
-		if(my::are_equal(x(0),0.0 ,eq_prec_,eq_prec_)){ return 0; }
+		if(my::are_equal(x(0),0.0, eq_prec_,eq_prec_)){ return 0; }
 		if(my::are_equal(x(0),0.25,eq_prec_,eq_prec_)){ return 1; }
-		if(my::are_equal(x(0),0.5 ,eq_prec_,eq_prec_)){ return 2; }
+		if(my::are_equal(x(0),0.5, eq_prec_,eq_prec_)){ return 2; }
 		if(my::are_equal(x(0),0.75,eq_prec_,eq_prec_)){ return 3; }
 	} else {
-		if(my::are_equal(x(0),0.0 ,eq_prec_,eq_prec_)){ return 4; }
+		if(my::are_equal(x(0),0.0, eq_prec_,eq_prec_)){ return 4; }
 		if(my::are_equal(x(0),0.25,eq_prec_,eq_prec_)){ return 5; }
-		if(my::are_equal(x(0),0.5 ,eq_prec_,eq_prec_)){ return 6; }
+		if(my::are_equal(x(0),0.5, eq_prec_,eq_prec_)){ return 6; }
 		if(my::are_equal(x(0),0.75,eq_prec_,eq_prec_)){ return 7; }
 	}
 	std::cerr<<__PRETTY_FUNCTION__<<" : unknown position in ab for x="<<x<<std::endl;

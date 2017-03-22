@@ -200,7 +200,7 @@ void Kagome<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 					case 0:
 						{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/4.0,this->flux_per_plaquette(s0,loop_c)); } }break;
 					case 1:                                                         
-						{ if(links(i,3)==1){ ps.put(xy0(0),xy0(1)+sqrt(3.0)/3.0    ,this->flux_per_plaquette(s0,loop_b)); } }break;
+						{ if(links(i,3)==1){ ps.put(xy0(0),xy0(1)+sqrt(3.0)/3.0,    this->flux_per_plaquette(s0,loop_b)); } }break;
 					case 2:                                                         
 						{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/2.0,this->flux_per_plaquette(s0,loop_a)); } }break;
 				}
@@ -294,7 +294,7 @@ void Kagome<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 				case 0:
 					{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/4.0,this->flux_per_plaquette(s0,loop_c)); } }break;
 				case 1:                                                         
-					{ if(links(i,3)==1){ ps.put(xy0(0),xy0(1)+sqrt(3.0)/3.0    ,this->flux_per_plaquette(s0,loop_b)); } }break;
+					{ if(links(i,3)==1){ ps.put(xy0(0),xy0(1)+sqrt(3.0)/3.0,    this->flux_per_plaquette(s0,loop_b)); } }break;
 				case 2:                                                         
 					{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/2.0,this->flux_per_plaquette(s0,loop_a)); } }break;
 			}

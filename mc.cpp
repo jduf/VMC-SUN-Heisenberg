@@ -12,7 +12,7 @@ int main(int argc, char* argv[]){
 	System* sys;
 	CreateSystem* cs(NULL);
 	std::string fname;
-	if(P.find("sim",i,false)){
+	if(P.find("sim",i)){
 		iof = new IOFiles(P.get<std::string>(i),false,false);
 		Vector<double> tmp(*iof);
 		sys = new System (*iof);
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
 		sys = new System(P);
 		cs  = new CreateSystem(sys);
 		cs->init(NULL,&P);
-		if(cs->get_status()==2 && P.find("obs",i,false)){
+		if(cs->get_status()==2 && P.find("obs",i)){
 			Vector<unsigned int> obs(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
 			for(unsigned int j(0);j<obs.size();j++){ cs->create_obs(obs(j)); }
 		}
@@ -38,11 +38,11 @@ int main(int argc, char* argv[]){
 		std::cout<<std::endl;
 		cs->create(false);
 		if(cs->get_status()==1){
-			if(!P.find("norun",i,false)){
-				double dEoE(P.find("dEoE",i,false)?P.get<double>(i):0.001);
-				unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
-				unsigned int nruns(P.find("nruns",i,false)?P.get<unsigned int>(i):omp_get_max_threads());
-				unsigned int maxiter(P.find("maxiter",i,false)?P.get<unsigned int>(i):1);
+			if(!P.find("norun")){
+				double dEoE(P.check_get("dEoE",1e-5));
+				unsigned int tmax(P.check_get("tmax",10));
+				unsigned int nruns(P.check_get("nruns",omp_get_max_threads()));
+				unsigned int maxiter(P.check_get("maxiter",1));
 				while(maxiter){
 #pragma omp parallel for
 					for(unsigned int j=0;j<nruns;j++){
@@ -86,7 +86,7 @@ int main(int argc, char* argv[]){
 		std::cout<<RST::dash_line_<<std::endl;
 	}
 
-	if(P.find("d",i,false) && cs && iof){
+	if(P.find("d") && cs && iof){
 		RSTFile rst("/tmp/",fname);
 		IOSystem ios(fname,"","","","","/tmp/",&rst);
 		cs->set_IOSystem(&ios);

@@ -6,14 +6,14 @@ Introduction
 
 The code provided here is what I wrote during my PhD thesis at the École
 Polythecnique Fédérale de Lausanne (EPFL) in Frédéric Mila's group. It is aimed
-to compute variational energies of the SU($N$) Heisenberg model in any fully
+to compute variational energies of the SU(*N*) Heisenberg model in any fully
 antisymmetric irreducible representation (one or more particle per site) on
 various lattices. To make transparent what the code can do, let us very briefly
 explain what this model is about. It describes the Mott insulating phase of
 fermionic ultracold atom gas trapped in optical lattices. This field belongs
-to quantum physics. The fermionic atoms have $N$ internal degrees of freedom
-that will be referred to as colors. On each of the $n$ sites of the lattice,
-there are $m$ particles $(N>m)$ that can be exchanged with particles on
+to quantum physics. The fermionic atoms have *N* internal degrees of freedom
+that will be referred to as colors. On each of the *n* sites of the lattice,
+there are *m* particles *(N>m)* that can be exchanged with particles on
 neighbouring sites.
 
 The code computes the variational energy of a fermionic Gutzwiller projected
@@ -21,13 +21,13 @@ wave function thanks to a Monte-Carlo metropolis sampling. It does not
 currently support the bosonic variational wave functions based on Jastrow
 factors but the structure of the code is such that this type of wave function
 can be added with little effort (it has already been tested in this code for
-SU(2) and first neighbour Jastrow factors, so the generalisations to $N>2$ and
+SU(2) and first neighbour Jastrow factors, so the generalisations to *N>2* and
 long range Jastrow are possible).
 
 The following scientific articles exemplify the abilities of this code:
 
-+ [Stabilization of the chiral phase of the SU$(6m)$ Heisenberg model on the honeycomb lattice with $m$ particles per site for $m$ larger than 1](https://arxiv.org/abs/1607.05227)
-+ [Variational Monte-Carlo investigation of SU$(N)$ Heisenberg chains](https://arxiv.org/abs/1502.01895)
++ [Stabilization of the chiral phase of the SU*(6m)* Heisenberg model on the honeycomb lattice with *m* particles per site for *m* larger than 1](https://arxiv.org/abs/1607.05227)
++ [Variational Monte-Carlo investigation of SU*(N)* Heisenberg chains](https://arxiv.org/abs/1502.01895)
 
 and other (unpublished) results can be found in my thesis:
 
@@ -56,8 +56,8 @@ and simply type:
 If you choose to install the submodules elsewhere, just set the variable
 "JDLIB" in the makefile to the path where they have been downloaded 
 
-Note that you can choose which executable to create by by un-/-commenting one
-of the first line of the makefile or setting the "EXEC" variable to one of the
+Note that you can choose which executable to create by un-/-commenting one of
+the first line of the makefile or setting the "EXEC" variable to one of the
 following
 
 + mc
@@ -85,9 +85,9 @@ where
 	- i for int
 + name is the name of the argument, some examples are:
 	- wf for the type of wave function
-	- n for the number of sites
-	- N for the number of colors
-	- m for the number of particles per sites
+	- *n* for the number of sites
+	- *N* for the number of colors
+	- *m* for the number of particles per sites
 + val is the value of the argument
 
 Here is an example of a simple command:
@@ -95,33 +95,33 @@ Here is an example of a simple command:
 	./mc -d -u:tmax 10 -s:wf square-mu -u:N 4 -u:m 2 -u:n 20 -i:bc 1 -d:mu 0.1 -u:obs 1,3
 
 which runs a simulation for 10 seconds on the wave function named square-mu for
-SU(4) with $m=2$ particles per site and $n=20$ sites on a periodic lattice and
-an on site chemical potential of $\mu=0.1$ and measures the bond energy and
+SU(4) with *m=2* particles per site and *n=20* sites on a periodic lattice and
+an on site chemical potential of *\mu=0.1* and measures the bond energy and
 long range-correlations (observables 1 and 3).
 
 The code currently supports:
 
-+ any value of $N>1$
-+ any number of particle per site $m>N$
-+ any number of site $n$
++ any value of *N>1*
++ any number of particle per site *m>N*
++ any number of site *n*
 + any simple boundary condition (periodic, antiperiodic, none)
 + any number of particle of each color (having more particles of one color is
- allowed)
+  allowed)
 + first neighbour Heisenberg model (easily generalisable to further
   neighbours)
 + inhomogeneous coupling between sites
 
 The message returned when an error occurs should be self explanatory, for
-instance if N=4 m=1 and n=13 the error message will be
+instance if *N=4 m=1* and *n=13* the error message will be
 
 	N, M, m and n are incompatible
 
-because if you want to have N=4 colors and m=1 particle per site, the you need
-a number of sites which is a multiple of 4. Moreover, the number of site that
-you set has to be coherent with the lattice geometry you chose (chain, ladder,
-square, triangle,...). For instance, on the square lattice, only the clusters
-with n=p\*p+q\*q (p and q integers) are allowed therefore n=13=3\*3+2\*2 would
-be allowed.
+because if you want to have *N=4* colors and *m=1* particle per site, the you
+need a number of sites which is a multiple of 4. Moreover, the number of site
+that you set has to be coherent with the lattice geometry you chose (chain,
+ladder, square, triangle,...). For instance, on the square lattice, only the
+clusters with *n=pp+qq* (*p* and *q* integers) are allowed therefore *n=13=9+4*
+would be allowed.
 
 The values that the option obs take defines what observables are measured (the
 energy per site is always measured):

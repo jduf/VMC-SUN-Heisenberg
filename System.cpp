@@ -473,18 +473,14 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(2) = 1;
 	}
 
-	unsigned int i;
-	if(!P.find("J",i,false)){
-		P.set("J",std::vector<double>(1,1));
-	}
-	if(!P.find("M",i,false)){
-		P.set("M",std::vector<unsigned int>(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N")));
-	}
+	if(!P.find("J")){ P.set("J",std::vector<double>(1,1)); }
+	if(!P.find("M")){ P.set("M",std::vector<unsigned int>(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"))); }
 	switch(ref(0)){
 		case 4:
 			{
 				unsigned int n(P.get<unsigned int>("n"));
-				if(P.find("cluster",i,false)){ ref(3) = P.get<unsigned int>(i); }
+				unsigned int i;
+				if(P.find("cluster",i)){ ref(3) = P.get<unsigned int>(i); }
 				else {
 					ref(3)=1;
 					if(my::are_equal(sqrt(n),floor(sqrt(n)))){

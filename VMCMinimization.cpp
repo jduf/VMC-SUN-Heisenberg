@@ -517,8 +517,8 @@ VMCMinimization::Minimization::~Minimization(){
 
 void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::string& basename){
 	unsigned int i(0);
-	if(P.find("tmax",i,false)){ tmax_ = P.get<unsigned int>(i); }
-	if(P.find("load",i,false)){
+	if(P.find("tmax",i)){ tmax_ = P.get<unsigned int>(i); }
+	if(P.find("load",i)){
 		Time chrono;
 		std::string filename(P.get<std::string>(i));
 		std::string msg("loading samples from "+filename);
@@ -540,8 +540,7 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::string& basename){
 	dof_= P.get<unsigned int>("dof");
 	if(set_phase_space(P)){
-		unsigned int i;
-		if(!P.find("M",i,false)){
+		if(!P.find("M")){
 			std::vector<unsigned int> M(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"));
 			P.set("M",M);
 		}
@@ -619,25 +618,24 @@ void VMCMinimization::Minimization::load(IOFiles& in, std::string& path, std::st
 }
 
 bool VMCMinimization::Minimization::set_phase_space(Parseur const& P){
-	unsigned int size;
-	if(P.find("PS",size,true)){
-		IOFiles load(P.get<std::string>(size),false,false);
+	unsigned int idx;
+	if(P.find("PS",idx,true)){
+		IOFiles load(P.get<std::string>(idx),false,false);
 		std::string PS;
 		load>>PS;
 
 		ps_size_ = 1;
 		std::vector<std::string> ps(my::string_split(PS,'\n'));
 		if(ps.size() == dof_){
-			unsigned int k;
-
 			if(ps_){ delete[] ps_; }
 			ps_ = new Vector<double>[dof_];
+
 			for(unsigned int i(0);i<ps.size();i++){
 				ps[i].erase(remove_if(ps[i].begin(),ps[i].end(),isspace),ps[i].end());
 				std::vector<std::string> u(my::string_split(ps[i],'U'));
 				Vector<double>* vec(new Vector<double>[u.size()]);
-				size = 0;
-				k = 0;
+				unsigned int size(0);
+				unsigned int k(0);
 				for(unsigned int j(0);j<u.size();j++){
 					u[j].erase(remove(u[j].begin(),u[j].end(),'['),u[j].end());
 					u[j].erase(remove(u[j].begin(),u[j].end(),']'),u[j].end());

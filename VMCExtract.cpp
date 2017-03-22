@@ -144,7 +144,7 @@ void VMCExtract::refine(Vector<unsigned int> const& which_obs, double const& dEo
 		std::string msg("refines "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
-		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE)) + " , maxiter="+my::tostring(maxiter);
+		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE)) + ",  maxiter="+my::tostring(maxiter);
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 

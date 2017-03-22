@@ -20,8 +20,7 @@ class VMCACiD: public VMCMinimization,  public ACiD{
 		/*}*/
 
 		double function(Vector<double> const& x);
-		void init(unsigned int const& maxiter, double const& dEoE, unsigned int const& tmax);
-		void run(unsigned int const& maxsteps);
+		void run(double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& maxsteps);
 		bool keepon(bool const& improve_overall) const;
 
 		void save(std::string dirname) const;

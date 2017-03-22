@@ -162,7 +162,7 @@ unsigned int SquareChiral::unit_cell_index(Vector<double> const& x) const {
 		case 3:
 			{
 				if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
-					if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0; }
+					if(my::are_equal(x(0),0.0,    eq_prec_,eq_prec_)){ return 0; }
 					if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 1; }
 					if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 2; }
 				}
@@ -213,7 +213,7 @@ unsigned int SquareChiral::unit_cell_index(Vector<double> const& x) const {
 		case 6:
 			{
 				if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
-					if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0; }
+					if(my::are_equal(x(0),0.0,    eq_prec_,eq_prec_)){ return 0; }
 					if(my::are_equal(x(0),1.0/6.0,eq_prec_,eq_prec_)){ return 1; }
 					if(my::are_equal(x(0),2.0/6.0,eq_prec_,eq_prec_)){ return 2; }
 					if(my::are_equal(x(0),3.0/6.0,eq_prec_,eq_prec_)){ return 3; }
@@ -224,7 +224,7 @@ unsigned int SquareChiral::unit_cell_index(Vector<double> const& x) const {
 		case 7:
 			{
 				if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
-					if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0; }
+					if(my::are_equal(x(0),0.0,    eq_prec_,eq_prec_)){ return 0; }
 					if(my::are_equal(x(0),1.0/7.0,eq_prec_,eq_prec_)){ return 1; }
 					if(my::are_equal(x(0),2.0/7.0,eq_prec_,eq_prec_)){ return 2; }
 					if(my::are_equal(x(0),3.0/7.0,eq_prec_,eq_prec_)){ return 3; }

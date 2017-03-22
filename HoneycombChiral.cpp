@@ -99,12 +99,12 @@ unsigned int HoneycombChiral::unit_cell_index(Vector<double> const& x) const {
 	return spuc_;
 
 	//if(my::are_equal(x(1),0.0,eq_prec_,eq_prec_)){
-	//if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 0; }
+	//if(my::are_equal(x(0),0.0,    eq_prec_,eq_prec_)){ return 0; }
 	//if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 2; }
 	//if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 4; }
 	//}
 	//if(my::are_equal(x(1),0.5,eq_prec_,eq_prec_)){
-	//if(my::are_equal(x(0),0.0    ,eq_prec_,eq_prec_)){ return 6; }
+	//if(my::are_equal(x(0),0.0,    eq_prec_,eq_prec_)){ return 6; }
 	//if(my::are_equal(x(0),1.0/3.0,eq_prec_,eq_prec_)){ return 8; }
 	//if(my::are_equal(x(0),2.0/3.0,eq_prec_,eq_prec_)){ return 10; }
 	//}

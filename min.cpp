@@ -14,30 +14,28 @@ int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 
 	unsigned int i;
-	P.find("what",i,true);
-	Vector<unsigned int> what(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
-	double dEoE(P.find("dEoE",i,false)?P.get<double>(i):0.01);
-	unsigned int maxiter(P.find("maxiter",i,false)?P.get<unsigned int>(i):1);
-	Vector<unsigned int> obs(P.find("obs",i,false)?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0);
+	Vector<unsigned int> what(P.find("what",i,true)?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0);
+	Vector<unsigned int> obs (P.find("obs",i)      ?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0);
 
 	if(what(0)<100){
 		if(!P.locked()){
 			VMCMinimization m(P);
-			if(P.find("reset_PS",i,false)){ m.set_phase_space(P); }
+			if(P.find("reset_PS")){ m.set_phase_space(P); }
 			if(m.ready() && !P.locked()){
 				for(unsigned int w(0);w<what.size();w++){
 					switch(what(w)){
 						case 0:
 							{
-								if(P.find("dEoE",i,false)){
-									if(P.find("E",i,false)){ m.refine(P.get<double>(i),dEoE); }
-									if(P.find("nmin",i,false)){ m.refine(P.get<unsigned int>(i),obs,dEoE,maxiter); }
+								if(P.find("dEoE",i)){
+									double dEoE(P.get<double>(i));
+									if(P.find("E",i)){ m.refine(P.get<double>(i),dEoE); }
+									if(P.find("nmin",i)){ m.refine(P.get<unsigned int>(i),obs,dEoE,P.check_get("maxiter",10)); }
 								} else { m.refine(); }
 							}break;
 						case 1:
-							{ m.find_and_run_minima(10,obs,1e-5); }break;
+							{ m.find_and_run_minima(10,obs,P.check_get("dEoE",1e-5)); }break;
 						case 2:
-							{ m.improve_bad_samples(dEoE); }break;
+							{ m.improve_bad_samples(P.check_get("dEoE",1e-5)); }break;
 						case 3:
 							{ m.save_parameters(P); }break;
 						case 4:
@@ -50,8 +48,8 @@ int main(int argc, char* argv[]){
 									for(unsigned int l(0);l<loop;l++){
 										pso.init(true);
 										pso.run();
-										pso.complete_analysis(1e-5);
-										pso.refine(30,false,1e-5,5);
+										pso.complete_analysis(P.check_get("dEoE",1e-5));
+										pso.refine(30,false,P.check_get("dEoE",1e-5),5);
 										pso.save();
 									}
 								} else { std::cerr<<__PRETTY_FUNCTION__<<" : some argument are not correctly set"<<std::endl; }
@@ -59,7 +57,7 @@ int main(int argc, char* argv[]){
 						case 20:
 							{
 								VMCSystematic sys(m);
-								sys.run(obs,dEoE,maxiter);
+								sys.run(obs,P.check_get("dEoE",1e-5),P.check_get("maxiter",1));
 								sys.save();
 							}break;
 						case 21:
@@ -98,7 +96,7 @@ int main(int argc, char* argv[]){
 							{ extract.save(dirname); }break;
 						case 101:
 							{
-								extract.refine(obs,dEoE,P.get<unsigned int>("ttotal"));
+								extract.refine(obs,P.check_get("dEoE",1e-5),P.get<unsigned int>("ttotal"));
 								extract.save(dirname);
 							}break;
 						case 102:
@@ -120,23 +118,27 @@ int main(int argc, char* argv[]){
 							{
 								Vector<unsigned int> d(P.get<std::vector<unsigned int> >("d"));
 								VMCACiD min(extract,d);
-								if(!P.find("norun",i,false) && !P.locked()){
-									min.init(maxiter,dEoE,P.get<unsigned int>("tmax"));
-									min.run(P.get<unsigned int>("maxstep"));
-									extract.save(dirname);
+								if(!P.find("norun")){
+									if(!P.locked()){
+										for(unsigned int j(0);j<10;j++){
+											min.run(P.check_get("dEoE",1e-6),P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("maxstep",100));
+											extract.save(dirname);
+											min.save(dirname);
+										}
+									}
 								}
-								min.save(dirname);
 							}break;
 						case 104:
 							{
 								IOFiles in_ACiD(P.get<std::string>("ACiD"),false,false);
 								VMCACiD min(extract,in_ACiD);
-								if(!P.find("norun",i,false) && !P.locked()){
-									min.init(maxiter,dEoE,P.get<unsigned int>("tmax"));
-									min.run(P.get<unsigned int>("maxstep"));
-									extract.save(dirname);
+								if(!P.find("norun") && !P.locked()){
+									for(unsigned int j(0);j<10;j++){
+										min.run(P.check_get("dEoE",1e-6),P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("maxstep",100));
+										extract.save(dirname);
+										min.save(dirname);
+									}
 								}
-								min.save(dirname);
 							}break;
 						default:
 							{ error(); }

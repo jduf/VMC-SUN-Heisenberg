@@ -6,7 +6,7 @@ int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
 	unsigned int i(0);
 
-	if(P.find("load",i,false)){
+	if(P.find("load",i)){
 		IOFiles r(P.get<std::string>(i),false,false);
 		BiSystem bs(r);
 
@@ -25,11 +25,11 @@ int main(int argc, char* argv[]){
 		bs.study();
 	} else {
 		unsigned int tmax(P.get<unsigned int>("tmax"));
-		unsigned int nruns(P.find("nruns",i,false)?P.get<unsigned int>(i):omp_get_max_threads());
+		unsigned int nruns(P.check_get("nruns",omp_get_max_threads()));
 
 		BiSystem bs(P);
 		if(!P.locked()){
-			if(P.find("chain",i,false)){
+			if(P.find("chain")){
 				double t(P.get<double>("t"));
 				for(unsigned int s(0);s<4;s++){
 					Vector<double> param(4,1);
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]){
 					bs.add_new_param(param);
 				}
 			}
-			if(P.find("ladder",i,false)){
+			if(P.find("ladder")){
 				Vector<double> param(20,0);
 				double t(P.get<double>("t"));
 				for(unsigned int s(0);s<4;s++){
@@ -53,7 +53,7 @@ int main(int argc, char* argv[]){
 					bs.add_new_param(param);
 				}
 			}
-			if(P.find("honeycomb",i,false)){
+			if(P.find("honeycomb")){
 				double t(P.get<double>("td"));
 				Vector<double> param(2,0);
 				param(0) = t;
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]){
 					bs.add_new_param(param);
 				}
 			}
-			if(P.find("boundary",i,false)){
+			if(P.find("boundary")){
 				//Vector<double> param(8,0);
 				//param(0) = 1;
 				//param(1) = 1;
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]){
 				bs.add_new_param(param);
 			}
 
-			if(P.find("square",i,false)){
+			if(P.find("square")){
 				bs.add_new_param(P.get<std::vector<double> >("t1"));
 				bs.add_new_param(P.get<std::vector<double> >("t2"));
 			}

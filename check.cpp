@@ -8,9 +8,8 @@
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	unsigned int i(0);
-	unsigned int tmax(P.find("tmax",i,false)?P.get<unsigned int>(i):10);
-	unsigned int what(P.find("what",i,false)?P.get<unsigned int>(i):0);
+	unsigned int tmax(P.check_get("tmax",10));
+	unsigned int what(P.check_get("what",0));
 	if(what<6){
 		std::cout<<"############# Init System #################"<<std::endl;
 		System s(P);
