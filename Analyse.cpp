@@ -1,9 +1,9 @@
 #include "Analyse.hpp"
 
-Analyse::Analyse(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
+Analyse::Analyse(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file):
 	IOSystem("",sim,"info-"+sim,"analyse-"+sim,"","",NULL),
 	max_level_(max_level),
-	run_cmd_(run_cmd)
+	bash_file_(bash_file)
 {
 	if(path == ""){ study_=0; }
 	if(path == "README"){ study_=1; }
@@ -11,7 +11,7 @@ Analyse::Analyse(std::string const& sim, std::string const& path, unsigned int c
 	if(path.find(".jdbin")!=std::string::npos){ study_=3; }
 }
 
-Analyse::~Analyse(){ Linux::close(run_cmd_>1); }
+Analyse::~Analyse(){ Linux::close(bash_file_>1); }
 
 void Analyse::do_analyse(){
 	switch(study_){
@@ -59,7 +59,7 @@ void Analyse::do_analyse(){
 
 				list_rst_.add_end(std::make_shared<RSTFile>(info_+path_,dir_.substr(0,dir_.size()-1)));
 
-				if(level_ != 1 && run_cmd_){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
+				if(level_ != 1 && bash_file_){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
 				recursive_search();
 			}break;
 		case 3:
@@ -68,7 +68,7 @@ void Analyse::do_analyse(){
 }
 
 void Analyse::recursive_search(){
-	if(level_ == 1 && run_cmd_){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
+	if(level_ == 1 && bash_file_){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
 
 	Directory d;
 	d.list_dir(sim_+path_+dir_);

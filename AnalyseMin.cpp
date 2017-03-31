@@ -1,7 +1,7 @@
 #include "AnalyseMin.hpp"
 
-AnalyseMin::AnalyseMin(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
-	Analyse(sim,path,max_level,run_cmd)
+AnalyseMin::AnalyseMin(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file):
+	Analyse(sim,path,max_level,bash_file)
 {
 	consider_only_most_recent_jdbin_ = true;
 	do_analyse();

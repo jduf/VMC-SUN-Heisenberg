@@ -6,7 +6,7 @@
 
 class Analyse: public IOSystem{
 	public:
-		Analyse(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd);
+		Analyse(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file);
 		/*Default destructor*/
 		virtual ~Analyse();
 		/*{Forbidden*/
@@ -39,7 +39,7 @@ class Analyse: public IOSystem{
 
 	private:
 		unsigned int study_;
-		unsigned int const run_cmd_;
+		unsigned int const bash_file_;//!< 0: execute bash commands; 1: write bash file: 2: execute bash file
 
 		void recursive_search();
 		void search_jdbin();

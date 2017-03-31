@@ -270,7 +270,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 						else              { arrow = "<-"; }
 					}
 					ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
-					ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(std::abs(t))+"}");
+					ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(my::round_nearest(std::abs(t),1000))+"}");
 				}
 				if(i%3 != 1){
 					mu = my::real(this->H_(s0,s0))/M_PI;

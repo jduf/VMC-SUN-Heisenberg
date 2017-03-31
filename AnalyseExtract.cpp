@@ -1,7 +1,7 @@
 #include "AnalyseExtract.hpp"
 
-AnalyseExtract::AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd, unsigned int const& display_results):
-	Analyse(sim,path,max_level,run_cmd),
+AnalyseExtract::AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& display_results):
+	Analyse(sim,path,max_level,bash_file),
 	display_results_(display_results)
 {
 	if(display_results_){ std::cout<<"will call display_results() for "<<display_results_<<" samples"<<std::endl; }

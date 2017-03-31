@@ -2,7 +2,7 @@ EXEC=
 EXEC+= mc
 EXEC+= min
 #EXEC+= check
-#EXEC+= study
+EXEC+= study
 #EXEC+= mcbi
 
 CXX = g++ -std=c++14

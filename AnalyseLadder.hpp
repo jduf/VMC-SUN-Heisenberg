@@ -5,7 +5,7 @@
 
 class AnalyseLadder : public Analyse{
 	public:
-		AnalyseLadder(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd);
+		AnalyseLadder(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file);
 		/*!Default destructor*/
 		~AnalyseLadder();
 		/*{Forbidden*/

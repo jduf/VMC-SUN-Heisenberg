@@ -86,9 +86,6 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
 
 	private:
-		/*!Method only used in the unique constructor*/
-		std::vector<std::string> generate_names() const;
-
 		/*!Diagonalizes H_*/
 		bool simple_diagonalization();
 		/*!Diagonalizes H_+Translation operators (compute the band structure)*/
@@ -97,7 +94,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 
 template<typename Type>
 GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename):
-	IOSystem(filename,generate_names()),
+	IOSystem(filename,this->N_,this->m_,this->n_,this->M_,this->bc_,this->ref_),
 	spuc_(spuc),
 	z_(z)
 {
@@ -276,25 +273,6 @@ void GenericSystem<Type>::param_fit_therm_limit(std::string& f, std::string& par
 /*}*/
 
 /*{private methods*/
-template<typename Type>
-std::vector<std::string> GenericSystem<Type>::generate_names() const {
-	std::vector<std::string> parameter_names;
-	parameter_names.push_back("N" + my::tostring(this->N_));
-	parameter_names.push_back("m" + my::tostring(this->m_));
-	parameter_names.push_back("n" + my::tostring(this->n_));
-	std::string tmp("M");
-	for(unsigned int i(0);i<this->M_.size();i++){ tmp  += "_" + my::tostring(this->M_(i)); }
-	parameter_names.push_back(tmp);
-	switch(this->bc_){
-		case -1:{ parameter_names.push_back("A"); }break;
-		case 0: { parameter_names.push_back("O"); }break;
-		case 1: { parameter_names.push_back("P"); }break;
-	}
-	parameter_names.push_back("Juniform");
-	parameter_names.push_back(my::tostring(this->ref_(0))+my::tostring(this->ref_(1))+my::tostring(this->ref_(2)));
-	return parameter_names;
-}
-
 template<typename Type>
 bool GenericSystem<Type>::simple_diagonalization(){
 	Vector<double> eval;

@@ -117,7 +117,10 @@ int main(int argc, char* argv[]){
 						case 103:
 							{
 								Vector<unsigned int> d(P.get<std::vector<unsigned int> >("d"));
-								VMCACiD min(extract,d);
+								Vector<double> param;
+								unsigned int i;
+								if(P.find("param",i)){ param = P.get<std::vector<double> >(i); }
+								VMCACiD min(extract,d,param);
 								if(!P.find("norun")){
 									if(!P.locked()){
 										for(unsigned int j(0);j<10;j++){
@@ -126,7 +129,7 @@ int main(int argc, char* argv[]){
 											min.save(dirname);
 										}
 									}
-								}
+								} else { min.display_param_and_xmean(param); }
 							}break;
 						case 104:
 							{

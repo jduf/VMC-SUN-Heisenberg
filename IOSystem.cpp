@@ -1,13 +1,40 @@
 #include "IOSystem.hpp"
 
-IOSystem::IOSystem(std::string const& filename, std::vector<std::string> names):
+IOSystem::IOSystem(std::string const& filename, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<unsigned int> const& ref):
 	filename_(filename)
 {
-	for(unsigned int i(0);i<names.size()-1;i++){
-		filename_ += "-"+names[i];
-		path_ += names[i]+"/";
+	std::string tmp;
+	tmp = "N" + my::tostring(N);
+	filename_ += "-"+tmp;
+	path_ += tmp+"/";
+
+	tmp = "m" + my::tostring(m);
+	filename_ += "-"+tmp;
+	path_ += tmp+"/";
+
+	tmp = "n" + my::tostring(n);
+	filename_ += "-"+tmp;
+	path_ += tmp+"/";
+
+	tmp = "M";
+	for(unsigned int i(0);i<M.size();i++){ tmp  += "_" + my::tostring(M(i)); }
+	filename_ += "-"+tmp;
+	path_ += tmp+"/";
+
+	switch(bc){
+		case-1:{ tmp = "A"; }break;
+		case 0:{ tmp = "O"; }break;
+		case 1:{ tmp = "P"; }break;
 	}
-	path_ += names.back()+"/";
+	filename_ += "-"+tmp;
+	path_ += tmp+"/";
+
+	tmp = "Juniform";
+	filename_ += "-"+tmp;
+	path_ += tmp+"/";
+
+	tmp = my::tostring(ref(0))+my::tostring(ref(1))+my::tostring(ref(2));
+	path_ += tmp+"/";
 }
 
 IOSystem::IOSystem(std::string const& filename, std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file):

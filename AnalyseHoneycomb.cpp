@@ -1,7 +1,7 @@
 #include "AnalyseHoneycomb.hpp"
 
-AnalyseHoneycomb::AnalyseHoneycomb(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
-	Analyse(sim,path,max_level,run_cmd)
+AnalyseHoneycomb::AnalyseHoneycomb(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file):
+	Analyse(sim,path,max_level,bash_file)
 { do_analyse(); }
 
 void AnalyseHoneycomb::open_files(){

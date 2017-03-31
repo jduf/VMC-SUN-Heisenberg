@@ -7,7 +7,7 @@
 class VMCACiD: public VMCMinimization,  public ACiD{
 	public:
 		/*!Constructor*/
-		VMCACiD(VMCMinimization const& min, Vector<unsigned int> const& d);
+		VMCACiD(VMCMinimization const& min, Vector<unsigned int> const& d, Vector<double> const& param);
 		/*!Constructor that reads from file*/
 		VMCACiD(VMCMinimization const& min, IOFiles& in_ACiD);
 		/*!Default destructor*/
@@ -23,6 +23,8 @@ class VMCACiD: public VMCMinimization,  public ACiD{
 		void run(double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& maxsteps);
 		bool keepon(bool const& improve_overall) const;
 
+		void display_param_and_xmean(Vector<double> const& param) const;
+		void test();
 		void save(std::string dirname) const;
 
 	private:

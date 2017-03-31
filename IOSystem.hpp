@@ -2,6 +2,7 @@
 #define DEF_IOSYSTEM
 
 #include "RSTFile.hpp"
+#include "Vector.hpp"
 #include "List.hpp"
 
 class IOSystem{
@@ -30,7 +31,7 @@ class IOSystem{
 		std::string analyse(unsigned int const& level);
 
 	protected:
-		IOSystem(std::string const& filename, std::vector<std::string> names);
+		IOSystem(std::string const& filename, unsigned int const& N, unsigned int const& m, unsigned int const& n, Vector<unsigned int> const& M, int const& bc, Vector<unsigned int> const& ref);
 		IOSystem() = default;
 
 		std::string sim_	  = "sim/";		//!< sim directory name

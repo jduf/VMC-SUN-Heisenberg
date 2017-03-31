@@ -1,7 +1,7 @@
 #include "AnalyseEnergy.hpp"
 
-AnalyseEnergy::AnalyseEnergy(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd):
-	Analyse(sim,path,max_level,run_cmd)
+AnalyseEnergy::AnalyseEnergy(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file):
+	Analyse(sim,path,max_level,bash_file)
 {
 	do_analyse();
 }

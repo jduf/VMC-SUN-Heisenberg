@@ -184,7 +184,7 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 						else              { arrow = "<-"; }
 					}
 					ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
-					ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(std::abs(t))+"}");
+					ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(my::round_nearest(std::abs(t),1000))+"}");
 				}
 				switch(i%3){
 					case 0:

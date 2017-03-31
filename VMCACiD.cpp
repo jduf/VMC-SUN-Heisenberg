@@ -1,6 +1,6 @@
 #include "VMCACiD.hpp"
 
-VMCACiD::VMCACiD(VMCMinimization const& min, Vector<unsigned int> const& d):
+VMCACiD::VMCACiD(VMCMinimization const& min, Vector<unsigned int> const& d, Vector<double> const& param):
 	VMCMinimization(min,"ACiD"),
 	ACiD(d.max(),5.0),
 	idx_(m_->dof_,3,0)
@@ -15,17 +15,15 @@ VMCACiD::VMCACiD(VMCMinimization const& min, Vector<unsigned int> const& d):
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.title(msg,'-');
 
-		List<MCSim>::Node* target(get_best_target());
+		Vector<double> x;
+		if(param.size()){ x = param; }
+		else {
+			List<MCSim>::Node* target(get_best_target());
+			x = target->get()->get_param();
+		}
 
-		Linux cmd;
-		target->get()->display_results();
-		cmd("~/divers/linux/scripts/display-image-terminal.bash "+cmd.pwd()+"tmp.png min",false);
-		std::cout<<target->get()->get_energy()<<std::endl;
-		std::cout<<target->get()->get_param()<<std::endl;
-
-		Vector<double> x(target->get()->get_param());
 		sigma_.set(N_,0.05);
-		Rand<double> rnd(-0.05,0.05);
+		RandGaussian rnd(0,0.025);
 		for(unsigned int i(0);i<m_->dof_;i++){
 			idx_(i,0) = d(i);
 			if(idx_(i,0)){
@@ -34,15 +32,6 @@ VMCACiD::VMCACiD(VMCMinimization const& min, Vector<unsigned int> const& d):
 			}
 			idx_(i,2) = my::sign(x(i));
 		}
-
-		for(unsigned int i(0);i<m_->dof_;i++){
-			x(i) = (idx_(i,0)?xmean_(idx_(i,1)):1.0)*(idx_(i,2)?idx_(i,2):1);
-		}
-
-		MCSim test(x);
-		test.create_S(m_->s_);
-		test.display_results();
-		cmd("~/divers/linux/scripts/display-image-terminal.bash "+cmd.pwd()+"tmp.png min",false);
 	}
 }
 
@@ -69,11 +58,11 @@ double VMCACiD::function(Vector<double> const& x){
 
 void VMCACiD::run(double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& maxsteps){
 	m_->tmax_ = tmax;
-		dEoE_ = dEoE;
-		maxiter_ = maxiter;
+	dEoE_ = dEoE;
+	maxiter_ = maxiter;
 
 	if(m_->tmax_ && idx_.ptr()){
-		std::string msg(RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE_)) + ",  maxiter="+my::tostring(maxiter_));
+		std::string msg(RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE_)) + ", maxiter="+my::tostring(maxiter_));
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
@@ -104,7 +93,7 @@ void VMCACiD::run(double const& dEoE, unsigned int const& maxiter, unsigned int 
 }
 
 bool VMCACiD::keepon(bool const& improve_overall) const {
-	if(!improve_overall){ std::cerr<<__PRETTY_FUNCTION__<<" : no imrovement detected, will continue anyway"<<std::endl; }
+	if(!improve_overall){ std::cerr<<__PRETTY_FUNCTION__<<" : no improvement detected, will continue anyway"<<std::endl; }
 	return true;
 }
 
@@ -116,4 +105,46 @@ void VMCACiD::save(std::string dirname) const {
 	IOFiles out(dirname+get_filename()+".jdbin",true,false);
 	ACiD::save(out);
 	out<<idx_;
+}
+
+void VMCACiD::display_param_and_xmean(Vector<double> const& param) const {
+	List<MCSim>::Node* target(NULL);
+	Vector<double> x;
+	if(param.size()){
+		std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
+		if(m_->samples_.find_in_sorted_list(sim,target,MCSim::sort_for_merge)){ 
+			x = param; 
+		} else {
+			std::cerr<<__PRETTY_FUNCTION__<<" : can find sample with parameter "<<param<<std::endl;
+		}
+	} else {
+		target = get_best_target();
+		x = target->get()->get_param();
+	}
+
+	Linux cmd;
+	if(x.size()){
+		target->get()->display_results();
+		cmd("~/divers/linux/scripts/display-image-terminal.bash "+cmd.pwd()+"tmp.png min",false);
+		std::cout<<target->get()->get_energy()<<std::endl;
+		std::cout<<target->get()->get_param()<<std::endl;
+	}
+
+	for(unsigned int i(0);i<m_->dof_;i++){
+		x(i) = (idx_(i,0)?xmean_(idx_(i,1)):1.0)*(idx_(i,2)?idx_(i,2):1);
+	}
+
+	MCSim test(x);
+	test.create_S(m_->s_);
+	test.display_results();
+	cmd("~/divers/linux/scripts/display-image-terminal.bash "+cmd.pwd()+"tmp.png min",false);
+}
+
+void VMCACiD::test(){
+	Vector<double> x(m_->dof_);
+	for(unsigned int i(0);i<m_->dof_;i++){
+		x(i) = (idx_(i,0)?xmean_(idx_(i,1)):1.0)*(idx_(i,2)?idx_(i,2):1);
+	}
+
+	std::cout<<function(x)<<std::endl;
 }

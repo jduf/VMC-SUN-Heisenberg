@@ -136,8 +136,8 @@ unsigned int MCSim::sort_for_merge(MCSim const& list, MCSim const& new_elem){
 
 unsigned int MCSim::sort_by_param_for_merge(Vector<double> const& a, Vector<double> const& b){
 	for(unsigned int i(0);i<a.size();i++){
-		if(a(i) - b(i) > 0.0001){ return 0; }
-		if(a(i) - b(i) <-0.0001){ return 1; }
+		if(a(i) - b(i) > 1e-10){ return 0; }
+		if(a(i) - b(i) <-1e-10){ return 1; }
 	}
 	return 2;
 }
