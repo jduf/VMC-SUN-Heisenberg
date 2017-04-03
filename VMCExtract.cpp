@@ -130,39 +130,14 @@ VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int c
 	}
 }
 
-void VMCExtract::refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& tmax, unsigned int maxiter){
-	total_eval_ = m_->samples_.size();
-	if(maxiter){ m_->tmax_ = tmax; }
-	else {
-		maxiter = (unsigned int)std::min(sqrt(tmax/(5*total_eval_)),5.0);
-		m_->tmax_ = std::min(maxiter*5,(unsigned int)60);
-	}
-
-	if(total_eval_ && m_->tmax_){
-		progress_ = 0;
-
-		std::string msg("refines "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
-		std::cout<<"#"<<msg<<std::endl;
-		m_->info_.item(msg);
-		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE)) + ",  maxiter="+my::tostring(maxiter);
-		std::cout<<"#"<<msg<<std::endl;
-		m_->info_.item(msg);
-
-		m_->samples_.set_target();
-		while(m_->samples_.target_next()){ evaluate_until_precision(m_->samples_.get().get_param(),which_obs,dEoE,maxiter); }
-	} else {
-		std::cerr<<__PRETTY_FUNCTION__<<" : not enough time to refine "<<my::tostring(m_->samples_.size())<<" samples (would need at least "<<my::tostring(total_eval_*5)<<"s)"<<std::endl;
-		m_->samples_.set();
-	}
-}
-
-void VMCExtract::save(std::string dirname) const {
+void VMCExtract::save(std::string save_in) const {
 	if(m_->samples_.size()){
-		my::ensure_trailing_slash(dirname);
-		dirname += get_path();
+		my::ensure_trailing_slash(save_in);
+		save_in += get_path();
 		set_time();
-		Linux().mkpath(dirname.c_str());
-		IOFiles out(dirname+get_filename()+".jdbin",true,false);
+		Linux().mkpath(save_in.c_str());
+
+		IOFiles out(save_in+get_filename()+".jdbin",true,false);
 		out.add_to_header()->text(RST::textbf("Contains the "+my::tostring(m_->samples_.size())+" best samples and a list "+my::tostring(dis_sim_.size())+ " of discarded samples"));
 		VMCMinimization::save(out);
 

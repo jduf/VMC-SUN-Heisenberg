@@ -83,9 +83,13 @@ std::string AnalyseExtract::extract_level_7(){ return extract_default(); }
 std::string AnalyseExtract::extract_level_6(){
 	kept_samples_.set_target();
 	unsigned int i(0);
-	while(kept_samples_.target_next() && i++<display_results_){
+	while(kept_samples_.target_next() && i<display_results_){
+		if(!i++){ std::cout<<std::string(6+path_.size()+dir_.size()+filename_.size(),' ')<<"|-> create lattice"; }
+		else  { std::cout<<" "<<kept_samples_.size()-i<<std::flush; }
+
 		kept_samples_.get().display_results(my::tostring(i)+"-",sim_,info_,analyse_,path_,dir_,&list_rst_.last());
 	}
+	std::cout<<std::endl;
 
 	return filename_;
 }

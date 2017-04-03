@@ -53,7 +53,7 @@ void VMCPSO::init(bool const& clear_particle_history){
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 
-void VMCPSO::run(){
+void VMCPSO::run(double const& dEoE, unsigned int const& maxiter, std::string const& save_in){
 	if(m_->tmax_){
 		std::string msg1("exploring with "+my::tostring(Nparticles_)+" particles for "+my::tostring(maxsteps_)+" steps,");
 		msg1 += " estimated time "+my::tostring(1.1*Nparticles_*maxsteps_*m_->effective_time_/omp_get_max_threads())+"s ";
@@ -65,6 +65,8 @@ void VMCPSO::run(){
 		std::string msg2("(done in "+my::tostring(chrono.elapsed())+"s)");
 		std::cout<<msg2<<std::endl;
 		m_->info_.item(msg1+msg2);
+
+		refine(30,false,dEoE,maxiter,save_in);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 /*}*/

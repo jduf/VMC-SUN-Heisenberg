@@ -15,7 +15,7 @@ int main(int argc, char* argv[]){
 
 	unsigned int i;
 	Vector<unsigned int> what(P.find("what",i,true)?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0);
-	Vector<unsigned int> obs (P.find("obs",i)      ?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0);
+	Vector<unsigned int> which_obs(P.find("obs",i) ?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0);
 
 	if(what(0)<100){
 		if(!P.locked()){
@@ -28,18 +28,18 @@ int main(int argc, char* argv[]){
 							{
 								if(P.find("dEoE",i)){
 									double dEoE(P.get<double>(i));
-									if(P.find("E",i)){ m.refine(P.get<double>(i),dEoE); }
-									if(P.find("nmin",i)){ m.refine(P.get<unsigned int>(i),obs,dEoE,P.check_get("maxiter",10)); }
-								} else { m.refine(); }
+									if(P.find("E",i)){ m.refine(P.get<double>(i),dEoE,P.check_get("save_in",std::string("./"))); }
+									if(P.find("nmin",i)){ m.refine(P.get<unsigned int>(i),which_obs,dEoE,P.check_get("maxiter",10),P.check_get("save_in",std::string("./"))); }
+								} else { m.refine(P.check_get("save_in",std::string("./"))); }
 							}break;
 						case 1:
-							{ m.find_and_run_minima(10,obs,P.check_get("dEoE",1e-5)); }break;
+							{ m.find_and_run_minima(10,which_obs,P.check_get("dEoE",1e-5),P.check_get("save_in",std::string("./"))); }break;
 						case 2:
-							{ m.improve_bad_samples(P.check_get("dEoE",1e-5)); }break;
+							{ m.improve_bad_samples(P.check_get("dEoE",1e-5),P.check_get("save_in",std::string("./"))); }break;
 						case 3:
-							{ m.save_parameters(P); }break;
+							{ m.save_parameters(P.check_get("nbest",10),P.check_get("save_in",std::string("./"))); }break;
 						case 4:
-							{ m.run_parameters(P); }break;
+							{ m.run_parameters(P.get<std::string>("parameters_file"),which_obs,P.check_get("dEoE",1e-5),P.check_get("maxiter",10),P.check_get("save_in",std::string("./"))); }break;
 						case 10:
 							{
 								VMCPSO pso(P,m);
@@ -47,33 +47,41 @@ int main(int argc, char* argv[]){
 								if(!P.locked()){
 									for(unsigned int l(0);l<loop;l++){
 										pso.init(true);
-										pso.run();
-										pso.complete_analysis(P.check_get("dEoE",1e-5));
-										pso.refine(30,false,P.check_get("dEoE",1e-5),5);
-										pso.save();
+										pso.run(P.check_get("dEoE",1e-5),P.check_get("maxiter",5),P.check_get("save_in",std::string("./")));
 									}
 								} else { std::cerr<<__PRETTY_FUNCTION__<<" : some argument are not correctly set"<<std::endl; }
 							}break;
 						case 20:
-							{
-								VMCSystematic sys(m);
-								sys.run(obs,P.check_get("dEoE",1e-5),P.check_get("maxiter",1));
-								sys.save();
-							}break;
+							{ VMCSystematic(m).run(which_obs,P.check_get("dEoE",1e-5),P.check_get("maxiter",1),P.check_get("save_in",std::string("./"))); }break;
 						case 21:
 							{ VMCSystematic(m).plot(); }break;
 						case 30:
 							{
-								std::cerr<<"WARNING : this method has never really optimized anything"<<std::endl;
+								std::cerr<<"WARNING : this method has never been really tested"<<std::endl;
 								VMCInterpolation interp(m);
 								unsigned int loop(P.get<unsigned int>("loop"));
 								if(!P.locked()){
 									for(unsigned int l(0);l<loop;l++){
 										interp.init();
-										interp.run(true);
-										interp.save();
+										interp.run(true,P.check_get("save_in",std::string("./")));
 									}
 								}
+							}break;
+						case 40:
+							{
+								Vector<unsigned int> d(P.get<std::vector<unsigned int> >("d"));
+								Vector<double> param;
+								unsigned int i;
+								if(P.find("param",i)){ param = P.get<std::vector<double> >(i); }
+								VMCACiD min(m,d,param);
+								if(!P.find("norun")){
+									if(!P.locked()){
+										for(unsigned int j(0);j<10;j++){
+											min.run(P.check_get("dEoE",1e-6),P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("maxstep",100),P.check_get("save_in",std::string("./")));
+											m.save(P.check_get("save_in",std::string("./")));
+										}
+									}
+								} else { min.display_param_and_xmean(param); }
 							}break;
 						default:
 							{ error(); }
@@ -86,26 +94,22 @@ int main(int argc, char* argv[]){
 		dir.search_files(P.get<std::string>("load"),P.get<std::string>("pathload"),false,true);
 		if(dir.size() == 1){
 			IOFiles in(dir[0],false,false);
-			std::string dirname(P.get<std::string>("dirname"));
 			VMCExtract extract(in,P.get<unsigned int>("min_sort"), P.get<unsigned int>("max_sort"));
 
 			if(!P.locked()){
 				for(unsigned int w(0);w<what.size();w++){
 					switch(what(w)){
 						case 100:
-							{ extract.save(dirname); }break;
+							{ extract.save(P.check_get("save_in",std::string("./"))); }break;
 						case 101:
-							{
-								extract.refine(obs,P.check_get("dEoE",1e-5),P.get<unsigned int>("ttotal"));
-								extract.save(dirname);
-							}break;
+							{ extract.refine(P.get<unsigned int>("ttotal"),which_obs,P.check_get("dEoE",1e-5),P.check_get("save_in",std::string("./"))); }break;
 						case 102:
 							{
 								std::string fname("VMCExtract-tmp");
 								RSTFile rst("/tmp/",fname);
 
 								List<MCSim> kept_samples;
-								extract.analyse(dirname,"test",kept_samples);
+								extract.analyse(P.check_get("save_in",std::string("./")),"test",kept_samples);
 
 								kept_samples.set_target();
 								while(kept_samples.target_next()){
@@ -124,9 +128,8 @@ int main(int argc, char* argv[]){
 								if(!P.find("norun")){
 									if(!P.locked()){
 										for(unsigned int j(0);j<10;j++){
-											min.run(P.check_get("dEoE",1e-6),P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("maxstep",100));
-											extract.save(dirname);
-											min.save(dirname);
+											min.run(P.check_get("dEoE",1e-6),P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("maxstep",100),P.check_get("save_in",std::string("./")));
+											extract.save(P.check_get("save_in",std::string("./")));
 										}
 									}
 								} else { min.display_param_and_xmean(param); }
@@ -137,9 +140,8 @@ int main(int argc, char* argv[]){
 								VMCACiD min(extract,in_ACiD);
 								if(!P.find("norun") && !P.locked()){
 									for(unsigned int j(0);j<10;j++){
-										min.run(P.check_get("dEoE",1e-6),P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("maxstep",100));
-										extract.save(dirname);
-										min.save(dirname);
+										min.run(P.check_get("dEoE",1e-6),P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("maxstep",100),P.check_get("save_in",std::string("./")));
+										extract.save(P.check_get("save_in",std::string("./")));
 									}
 								}
 							}break;
@@ -169,6 +171,7 @@ void error(){
 	std::cerr<<"    - measure all phase space     : 20"<<std::endl;
 	std::cerr<<"    - plot all phase space        : 21"<<std::endl;
 	std::cerr<<"    - d-dimensional interpolation : 30"<<std::endl;
+	std::cerr<<"    - adaptive coordinate descent : 40"<<std::endl;
 	std::cerr<<"    - save relevant samples       :100"<<std::endl;
 	std::cerr<<"    - refine relevant samples     :101"<<std::endl;
 	std::cerr<<"    - display relevant samples    :102"<<std::endl;

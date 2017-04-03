@@ -32,7 +32,7 @@ void VMCInterpolation::init(){
 	}
 }
 
-void VMCInterpolation::run(bool const& explore_around_minima){
+void VMCInterpolation::run(bool const& explore_around_minima, std::string const& save_in){
 	unsigned int lmis(list_min_idx_.size());
 	if(lmis){
 		std::string msg1("explore around minima");
@@ -90,6 +90,8 @@ void VMCInterpolation::run(bool const& explore_around_minima){
 		std::string msg2(" (done in "+my::tostring(chrono.elapsed())+"s)");
 		std::cout<<msg2<<std::endl;
 		m_->info_.item(msg1+msg2);
+
+		save(save_in);
 	}
 }
 

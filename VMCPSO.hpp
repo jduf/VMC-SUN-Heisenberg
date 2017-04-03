@@ -17,7 +17,7 @@ class VMCPSO: public VMCMinimization, public Swarm<MCParticle>{
 		/*}*/
 
 		void init(bool const& clear_particle_history);
-		void run();
+		void run(double const& dEoE, unsigned int const& maxiter, std::string const& save_in);
 
 	private:
 		/*!Create param p then call VMCMinimization::evaluate(param)*/

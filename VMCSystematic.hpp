@@ -16,7 +16,7 @@ class VMCSystematic : public VMCMinimization{
 		VMCSystematic& operator=(VMCSystematic) = delete;
 		/*}*/
 
-		void run(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter);
+		void run(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, std::string const& save_in);
 		void plot();
 		void analyse(std::string const& path, std::string const& filename, List<MCSim>& keep) const;
 

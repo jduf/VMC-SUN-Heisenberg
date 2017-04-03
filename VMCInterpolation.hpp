@@ -17,7 +17,7 @@ class VMCInterpolation : public VMCMinimization{
 		/*}*/
 
 		void init();
-		void run(bool const& explore_around_minima);
+		void run(bool const& explore_around_minima, std::string const& save_in);
 
 		void plot();
 

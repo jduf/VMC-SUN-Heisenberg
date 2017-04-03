@@ -6,7 +6,9 @@
 
 class VMCMinimization{
 	public:
+		/*!Constructor that start a new minimisation from arguments given via Parseur*/
 		VMCMinimization(Parseur& P);
+		/*!Constructor that reads data from in and loads all m_->samples if loadall=true*/
 		VMCMinimization(IOFiles& in, bool const& loadall, std::string const& prefix);
 		/*!Default destructor*/
 		virtual ~VMCMinimization() = default;
@@ -22,21 +24,24 @@ class VMCMinimization{
 		void swap_phase_space(Vector<double>*& ps){ m_->swap_phase_space(ps); }
 		void set_tmax(unsigned int const& tmax){ m_->tmax_ = tmax; }
 
-		void refine();
-		void refine(double const& E, double const& dEoE);
-		void refine(unsigned int const& nmin, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter);
+		/*!Different ways to improve the measures of the best samples, saves the result*/
+		void refine(std::string const& save_in);
+		void refine(double const& E, double const& dEoE, std::string const& save_in);
+		void refine(unsigned int const& nmin, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, std::string const& save_in);
+		void refine(unsigned int const& ttotal, Vector<unsigned int> const& which_obs, double const& dEoE, std::string const& save_in);
+
+		void improve_bad_samples(double const& dEoE, std::string const& save_in);
 
 		void complete_analysis(double const& convergence_criterion);
-		void save(std::string const& tmp_path = "") const;
-		void save_parameters(Parseur& P) const;
-		void run_parameters(Parseur& P);
+		virtual void save(std::string save_in) const;
 
 		double find_minima(unsigned int const& max_local_minima, double const& range, List<MCSim>& sorted_list, List<MCSim>& list_min) const;
-		void find_and_run_minima(unsigned int const& max_samples, Vector<unsigned int> const& which_obs, double const& dEoE);
+		void find_and_run_minima(unsigned int const& max_samples, Vector<unsigned int> const& which_obs, double const& dEoE, std::string const& save_in);
 		void find_save_and_plot_minima(unsigned int const& max_samples, IOFiles& w, std::string path="", std::string filename="") const;
-		void explore_around_minima(unsigned int const& max_local_minima, Vector<unsigned int> const& which_obs, double const& dEoE, double const& dx);
+		void explore_around_minima(unsigned int const& max_local_minima, Vector<unsigned int> const& which_obs, double const& dEoE, double const& dx, std::string const& save_in);
 
-		void improve_bad_samples(double const& dEoE);
+		void save_parameters(unsigned int nbest, std::string save_in) const;
+		void run_parameters(std::string const& parameters_file, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, std::string const& save_in);
 
 		RST& get_header(){ return m_->info_; }
 		bool ready() const { return m_.get(); }

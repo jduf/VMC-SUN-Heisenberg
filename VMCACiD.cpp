@@ -56,7 +56,7 @@ double VMCACiD::function(Vector<double> const& x){
 	return sim->get_energy().get_x();
 }
 
-void VMCACiD::run(double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& maxsteps){
+void VMCACiD::run(double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& maxsteps, std::string const& save_in){
 	m_->tmax_ = tmax;
 	dEoE_ = dEoE;
 	maxiter_ = maxiter;
@@ -89,6 +89,7 @@ void VMCACiD::run(double const& dEoE, unsigned int const& maxiter, unsigned int 
 		m_->info_.item(msg);
 
 		ACiD::run(maxsteps);
+		save(save_in);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 
@@ -109,13 +110,13 @@ void VMCACiD::save(std::string dirname) const {
 
 void VMCACiD::display_param_and_xmean(Vector<double> const& param) const {
 	List<MCSim>::Node* target(NULL);
-	Vector<double> x;
+	Vector<double> x(m_->dof_);
 	if(param.size()){
 		std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
 		if(m_->samples_.find_in_sorted_list(sim,target,MCSim::sort_for_merge)){ 
 			x = param; 
 		} else {
-			std::cerr<<__PRETTY_FUNCTION__<<" : can find sample with parameter "<<param<<std::endl;
+			std::cerr<<__PRETTY_FUNCTION__<<" : can't find sample with parameter "<<param<<std::endl;
 		}
 	} else {
 		target = get_best_target();
@@ -123,7 +124,7 @@ void VMCACiD::display_param_and_xmean(Vector<double> const& param) const {
 	}
 
 	Linux cmd;
-	if(x.size()){
+	if(target){
 		target->get()->display_results();
 		cmd("~/divers/linux/scripts/display-image-terminal.bash "+cmd.pwd()+"tmp.png min",false);
 		std::cout<<target->get()->get_energy()<<std::endl;

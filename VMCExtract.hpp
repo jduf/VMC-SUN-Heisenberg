@@ -16,8 +16,7 @@ class VMCExtract : public VMCMinimization{
 		VMCExtract& operator=(VMCExtract) = delete;
 		/*}*/
 
-		void refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& tmax, unsigned int maxiter = 0);
-		void save(std::string dirname) const;
+		void save(std::string save_in) const;
 		void print() const;
 		List<MCSim>::Node* analyse(std::string const& path, std::string const& filename, List<MCSim>& kept_samples) const;
 

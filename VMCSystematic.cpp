@@ -9,7 +9,7 @@ VMCSystematic::VMCSystematic(IOFiles& in):
 {}
 
 /*{public methods*/
-void VMCSystematic::run(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter){
+void VMCSystematic::run(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, std::string const& save_in){
 	if(m_->tmax_){
 		which_obs_ = which_obs;
 		dEoE_ = dEoE;
@@ -38,6 +38,7 @@ void VMCSystematic::run(Vector<unsigned int> const& which_obs, double const& dEo
 		total_eval_ = m_->ps_size_;
 		progress_ = 0;
 		while(go_through_parameter_space(m_->ps_,idx,0,0,&VMCSystematic::evaluate));
+		save(save_in);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 
