@@ -85,7 +85,7 @@ unsigned int TriangleMu::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void TriangleMu::display_results(){
 	compute_H(0);
-	draw_lattice(false,true,dir_nn_[3]*0.5);
+	draw_lattice(false,true,false,dir_nn_[3]*0.5);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

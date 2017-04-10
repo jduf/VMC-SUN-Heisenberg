@@ -141,7 +141,7 @@ unsigned int SquareMu::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void SquareMu::display_results(){
 	compute_H(4);
-	draw_lattice(false,true,(spuc_==3?dir_nn_[2]*0.25+dir_nn_[3]*0.5:dir_nn_[2]*0.5+dir_nn_[3]*0.5));
+	draw_lattice(false,true,false,(spuc_==3?dir_nn_[2]*0.25+dir_nn_[3]*0.5:dir_nn_[2]*0.5+dir_nn_[3]*0.5));
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

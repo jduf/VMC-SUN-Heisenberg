@@ -27,8 +27,7 @@ class VMCMinimization{
 		/*!Different ways to improve the measures of the best samples, saves the result*/
 		void refine(std::string const& save_in);
 		void refine(double const& E, double const& dEoE, std::string const& save_in);
-		void refine(unsigned int const& nmin, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, std::string const& save_in);
-		void refine(unsigned int const& ttotal, Vector<unsigned int> const& which_obs, double const& dEoE, std::string const& save_in);
+		void refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& nmin, std::string const& save_in);
 
 		void improve_bad_samples(double const& dEoE, std::string const& save_in);
 

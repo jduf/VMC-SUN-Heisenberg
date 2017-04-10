@@ -8,10 +8,29 @@
 #include "VMCACiD.hpp"
 
 void error();
+//class Input {
+	//public:
+		//Input(Parseur& P, unsigned int i=0): 
+			//which_obs(P.find("obs",i) ?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0),
+			//what(P.find("what",i,true)?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0),
+			//dEoE(P.check_get("dEoE",1e-5)),
+			//tmax(P.check_get("tmax",10)),
+			//maxiter(P.check_get("maxiter",10)),
+			//save_in(P.check_get("save_in",std::string("./")))
+			//{}
+//
+		//Vector<unsigned int> const which_obs;
+		//Vector<unsigned int> const what;
+		//double const dEoE;
+		//unsigned int const tmax;
+		//unsigned int const maxiter;
+		//std::string const save_in;
+//};
 
 int main(int argc, char* argv[]){
 	Time running_time;
 	Parseur P(argc,argv);
+	//Input in(P);
 
 	unsigned int i;
 	Vector<unsigned int> what(P.find("what",i,true)?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0);
@@ -29,7 +48,7 @@ int main(int argc, char* argv[]){
 								if(P.find("dEoE",i)){
 									double dEoE(P.get<double>(i));
 									if(P.find("E",i)){ m.refine(P.get<double>(i),dEoE,P.check_get("save_in",std::string("./"))); }
-									if(P.find("nmin",i)){ m.refine(P.get<unsigned int>(i),which_obs,dEoE,P.check_get("maxiter",10),P.check_get("save_in",std::string("./"))); }
+									if(P.find("nmin")){ m.refine(which_obs,dEoE,P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("nmin",10),P.check_get("save_in",std::string("./"))); }
 								} else { m.refine(P.check_get("save_in",std::string("./"))); }
 							}break;
 						case 1:
@@ -102,7 +121,7 @@ int main(int argc, char* argv[]){
 						case 100:
 							{ extract.save(P.check_get("save_in",std::string("./"))); }break;
 						case 101:
-							{ extract.refine(P.get<unsigned int>("ttotal"),which_obs,P.check_get("dEoE",1e-5),P.check_get("save_in",std::string("./"))); }break;
+							{ extract.refine(which_obs,P.check_get("dEoE",1e-5),P.check_get("maxiter",10),P.check_get("tmax",60),P.check_get("nmin",1000),P.check_get("save_in",std::string("./"))); }break;
 						case 102:
 							{
 								std::string fname("VMCExtract-tmp");

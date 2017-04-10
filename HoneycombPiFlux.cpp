@@ -71,7 +71,7 @@ unsigned int HoneycombPiFlux::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void HoneycombPiFlux::display_results(){
 	compute_H();
-	draw_lattice(true,true,ref_(3)?dir_nn_[3]*1.5+(dir_nn_[4]+dir_nn_[5])*0.75:dir_nn_[3]*1.5+(dir_nn_[4]+dir_nn_[5])*0.25);
+	draw_lattice(true,true,false,ref_(3)?dir_nn_[3]*1.5+(dir_nn_[4]+dir_nn_[5])*0.75:dir_nn_[3]*1.5+(dir_nn_[4]+dir_nn_[5])*0.25);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

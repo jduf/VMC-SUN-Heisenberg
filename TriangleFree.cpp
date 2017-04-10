@@ -120,7 +120,7 @@ unsigned int TriangleFree::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void TriangleFree::display_results(){
 	compute_H();
-	draw_lattice(false,true,(dir_nn_[4]+dir_nn_[3])*1.5);
+	draw_lattice(false,true,false,(dir_nn_[4]+dir_nn_[3])*1.5);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

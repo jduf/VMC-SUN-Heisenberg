@@ -14,7 +14,7 @@ class Honeycomb: public System2D<Type>{
 	protected:
 		void init_lattice();
 		/*Draw the lattice inside a PSTricks file*/
-		void draw_lattice(bool const& only_unit_cell, bool const& silent, Vector<double> const& uc_shift);
+		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift);
 		/*!Create the long range correlation observables*/
 		void long_range_correlations_obs();
 
@@ -145,7 +145,7 @@ void Honeycomb<Type>::long_range_correlations_obs(){
 }
 
 template<typename Type>
-void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, Vector<double> const& uc_shift){
+void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(3,0);
 	double max_bond_energy(0);
@@ -285,50 +285,52 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 				ps.put(xy1tmp(0),xy1tmp(1),"\\textcolor{green}{\\tiny{"+my::tostring(this->obs_[0](i,6))+"}}");
 			}
 
-			/*Bond energy and color occupation*/
-			shift = this->equivalent_vertex_[1]-this->equivalent_vertex_[2];
-			xy0 += shift;
-			xy1 += shift;
-			if(o(0)){
-				bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_);
-				linewidth = my::tostring(std::abs(bond_energy))+"mm";
-				if(std::abs(bond_energy)>1e-4){
-					if(bond_energy>0){ color = "blue"; }
-					else             { color = "red"; }
-					ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+			if(!only_lattice){
+				/*Bond energy and color occupation*/
+				shift = this->equivalent_vertex_[1]-this->equivalent_vertex_[2];
+				xy0 += shift;
+				xy1 += shift;
+				if(o(0)){
+					bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_);
+					linewidth = my::tostring(std::abs(bond_energy))+"mm";
+					if(std::abs(bond_energy)>1e-4){
+						if(bond_energy>0){ color = "blue"; }
+						else             { color = "red"; }
+						ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+					}
 				}
-			}
-			if(i%2 && o(2)){
-				std::cout<<__PRETTY_FUNCTION__<<" : the display of the color occupation might be wrong, need to check the code"<<std::endl;
-				Vector<double> p(this->N_);
-				for(unsigned int j(0);j<this->N_;j++){ p(j) = this->obs_[o(2)][j+this->N_*links(i,5)].get_x(); }
-				ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
-			}
+				if(i%2 && o(2)){
+					std::cout<<__PRETTY_FUNCTION__<<" : the display of the color occupation might be wrong, need to check the code"<<std::endl;
+					Vector<double> p(this->N_);
+					for(unsigned int j(0);j<this->N_;j++){ p(j) = this->obs_[o(2)][j+this->N_*links(i,5)].get_x(); }
+					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
+				}
 
-			/*Shows hopping amplitude, chemical potential and fluxes*/
-			shift = this->equivalent_vertex_[0]-this->equivalent_vertex_[1];
-			xy0 += shift;
-			xy1 += shift;
-			t = this->H_(s0,s1);
-			if(std::abs(t)>1e-4){
-				linewidth = my::tostring(std::abs(t))+"mm";
-				if(my::real(t)>0){ color = "blue"; }
-				else             { color = "red"; }
-				if(my::are_equal(my::imag(t),0)){ arrow = "-"; }
-				else {
-					if(my::imag(-t)>0){ arrow = "->"; }
-					else              { arrow = "<-"; }
+				/*Shows hopping amplitude, chemical potential and fluxes*/
+				shift = this->equivalent_vertex_[0]-this->equivalent_vertex_[1];
+				xy0 += shift;
+				xy1 += shift;
+				t = this->H_(s0,s1);
+				if(std::abs(t)>1e-4){
+					linewidth = my::tostring(std::abs(t))+"mm";
+					if(my::real(t)>0){ color = "blue"; }
+					else             { color = "red"; }
+					if(my::are_equal(my::imag(t),0)){ arrow = "-"; }
+					else {
+						if(my::imag(-t)>0){ arrow = "->"; }
+						else              { arrow = "<-"; }
+					}
+					ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
 				}
-				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+				mu = my::real(this->H_(s0,s0));
+				if(std::abs(mu)>1e-4){
+					std::cout<<__PRETTY_FUNCTION__<<" : the display of the color occupation might be wrong, need to check the code"<<std::endl;
+					if(mu>0){ color = "cyan"; }
+					else    { color = "magenta"; }
+					ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+				}
+				if(!(i%3)){ ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.9,this->flux_per_plaquette(s0,loop)); }
 			}
-			mu = my::real(this->H_(s0,s0));
-			if(std::abs(mu)>1e-4){
-				std::cout<<__PRETTY_FUNCTION__<<" : the display of the color occupation might be wrong, need to check the code"<<std::endl;
-				if(mu>0){ color = "cyan"; }
-				else    { color = "magenta"; }
-				ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
-			}
-			if(!(i%3)){ ps.put((xy0(0)+xy1(0))/2.0,xy0(1)+0.9,this->flux_per_plaquette(s0,loop)); }
 		}
 	}
 	/*draws long range correlations over the lattice*/

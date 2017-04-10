@@ -15,6 +15,7 @@
 #include "LadderSquarePlaquetteC.hpp"
 #include "LadderRectangularPlaquetteA.hpp"
 #include "LadderRectangularPlaquetteB.hpp"
+#include "LadderRectangularPlaquetteC.hpp"
 #include "LadderFreeFlux.hpp"
 
 #include "TriangleFermi.hpp"

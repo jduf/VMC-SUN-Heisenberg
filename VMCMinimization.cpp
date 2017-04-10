@@ -97,28 +97,8 @@ void VMCMinimization::refine(double const& E, double const& dEoE, std::string co
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
 
-void VMCMinimization::refine(unsigned int const& ttotal, Vector<unsigned int> const& which_obs, double const& dEoE, std::string const& save_in){
-	total_eval_ = m_->samples_.size();
-	unsigned int maxiter(std::min(sqrt(ttotal/(5*total_eval_)),5.0));
-	m_->tmax_ = std::min(maxiter*5,(unsigned int)60);
-
-	if(total_eval_ && m_->tmax_){
-		progress_ = 0;
-
-		std::string msg("refines "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
-		std::cout<<"#"<<msg<<std::endl;
-		m_->info_.item(msg);
-		msg = RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE)) + ",  maxiter="+my::tostring(maxiter);
-		std::cout<<"#"<<msg<<std::endl;
-		m_->info_.item(msg);
-
-		m_->samples_.set_target();
-		while(m_->samples_.target_next()){ evaluate_until_precision(m_->samples_.get().get_param(),which_obs,dEoE,maxiter); }
-		save(save_in);
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : not enough time to refine "<<my::tostring(m_->samples_.size())<<" samples (would need at least "<<my::tostring(total_eval_*5)<<"s)"<<std::endl; }
-}
-
-void VMCMinimization::refine(unsigned int const& nmin, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, std::string const& save_in){
+void VMCMinimization::refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& nmin, std::string const& save_in){
+	m_->tmax_ = tmax;
 	if(m_->samples_.size() && m_->tmax_){
 		total_eval_ = std::min(nmin,m_->samples_.size());
 		List<MCSim> potential_minima;
@@ -548,7 +528,7 @@ VMCMinimization::Minimization::~Minimization(){
 
 void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::string& basename){
 	unsigned int i(0);
-	if(P.find("tmax",i)){ tmax_ = P.get<unsigned int>(i); }
+	tmax_ = P.check_get("tmax",0);
 	if(P.find("load",i)){
 		Time chrono;
 		std::string filename(P.get<std::string>(i));

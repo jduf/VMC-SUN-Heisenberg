@@ -146,6 +146,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										if(C){ t = C->get<std::vector<double> >("t"); }
 										RGL_ = new LadderRectangularPlaquetteB(*s_,t);
 									}break;
+								case 9:
+									{
+										Vector<double> t;
+										if(param){ t = (*param); }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new LadderRectangularPlaquetteC(*s_,t);
+									}break;
 								default:{ error(); }break;
 							}
 						}break;

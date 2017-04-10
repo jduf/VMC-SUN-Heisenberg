@@ -8,7 +8,6 @@
 
 int main(int argc, char* argv[]){
 	Parseur P(argc,argv);
-	unsigned int tmax(P.check_get("tmax",10));
 	unsigned int what(P.check_get("what",0));
 	if(what<6){
 		std::cout<<"############# Init System #################"<<std::endl;
@@ -53,7 +52,7 @@ int main(int argc, char* argv[]){
 								S = new SystemFermionic<double>(*dynamic_cast<const Fermionic<double>*>(cs.get_GenericSystem()));
 							}
 							std::cout<<"############# Init Monte Carlo ############"<<std::endl;
-							MonteCarlo sim(S,tmax);
+							MonteCarlo sim(S,P.check_get("tmax",10));
 							sim.thermalize(1e6);
 							std::cout<<"############# Run Monte Carlo #############"<<std::endl;
 							sim.run();
@@ -79,7 +78,7 @@ int main(int argc, char* argv[]){
 							}
 							S->set_obs(cs.get_obs()[0]);
 							std::cout<<"############# Init Monte Carlo ############"<<std::endl;
-							MonteCarlo sim(S,tmax);
+							MonteCarlo sim(S,P.check_get("tmax",10));
 							sim.thermalize(1e6);
 							std::cout<<"############# Run Monte Carlo #############"<<std::endl;
 							sim.run();
@@ -102,7 +101,7 @@ int main(int argc, char* argv[]){
 							S = new SystemFermionic<double>(in);
 						}
 						std::cout<<"############# Init Monte Carlo ############"<<std::endl;
-						MonteCarlo sim(S,tmax);
+						MonteCarlo sim(S,P.check_get("tmax",10));
 						sim.thermalize(10);
 						std::cout<<"############# Run Monte Carlo #############"<<std::endl;
 						sim.run();

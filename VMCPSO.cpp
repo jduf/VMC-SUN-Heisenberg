@@ -66,7 +66,7 @@ void VMCPSO::run(double const& dEoE, unsigned int const& maxiter, std::string co
 		std::cout<<msg2<<std::endl;
 		m_->info_.item(msg1+msg2);
 
-		refine(30,false,dEoE,maxiter,save_in);
+		refine(0,dEoE,maxiter,10*m_->tmax_,30,save_in);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 /*}*/

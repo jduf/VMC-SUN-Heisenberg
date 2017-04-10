@@ -110,7 +110,7 @@ unsigned int TriangleAlternatingPlaquette::unit_cell_index(Vector<double> const&
 /*{method needed for checking*/
 void TriangleAlternatingPlaquette::display_results(){
 	compute_H();
-	draw_lattice(true,true,(dir_nn_[3]+dir_nn_[4])*0.25);
+	draw_lattice(true,true,false,(dir_nn_[3]+dir_nn_[4])*0.25);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);

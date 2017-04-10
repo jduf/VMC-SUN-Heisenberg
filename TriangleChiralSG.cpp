@@ -147,7 +147,7 @@ void TriangleChiralSG::bond_energy_obs(){
 /*{method needed for checking*/
 void TriangleChiralSG::display_results(){
 	compute_H();
-	draw_lattice(false,true,dir_nn_[3]*1.75+dir_nn_[4]*0.25);
+	draw_lattice(false,true,false,dir_nn_[3]*1.75+dir_nn_[4]*0.25);
 
 	if(rst_file_){
 		std::string relative_path(analyse_+path_+dir_);
