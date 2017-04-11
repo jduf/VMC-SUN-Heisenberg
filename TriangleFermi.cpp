@@ -54,10 +54,6 @@ void TriangleFermi::display_results(){
 	draw_lattice(false,true,false,(dir_nn_[4]+dir_nn_[3])*1.5);
 
 	if(rst_file_){
-		std::string relative_path(analyse_+path_+dir_);
-		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
-		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-
 		std::string title("Fermi");
 		std::string run_cmd("./mc -s:wf triangle-fermi");
 		run_cmd += " -u:N " + my::tostring(N_);

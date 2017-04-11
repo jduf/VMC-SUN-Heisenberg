@@ -127,13 +127,9 @@ void ChainPolymerized::display_results(){
 	plot_bond_energy();
 	plot_long_range_correlations_and_structure_factor();
 	if(rst_file_){
-		std::string relative_path(analyse_+path_+dir_);
-		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
-		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-
-		rst_file_->figure(relative_path+filename_+"-corr.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(relative_path+filename_+"-corr.gp")+RST::scale("200"));
-		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
-		rst_file_->figure(relative_path+filename_+"-sf.png","structure factor",RST::target(relative_path+filename_+"-sf.gp")+RST::scale("200"));
+		rst_file_->figure(dir_+filename_+"-corr.png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+"-corr.gp")+RST::scale("200"));
+		rst_file_->figure(dir_+filename_+"-lr.png","long range correlations",RST::target(dir_+filename_+"-lr.gp")+RST::scale("200"));
+		rst_file_->figure(dir_+filename_+"-sf.png","structure factor",RST::target(dir_+filename_+"-sf.gp")+RST::scale("200"));
 	}
 }
 /*}*/

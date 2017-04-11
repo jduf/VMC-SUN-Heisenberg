@@ -71,7 +71,7 @@ int main(int argc, char* argv[]){
 								} else { std::cerr<<__PRETTY_FUNCTION__<<" : some argument are not correctly set"<<std::endl; }
 							}break;
 						case 20:
-							{ VMCSystematic(m).run(which_obs,P.check_get("dEoE",1e-5),P.check_get("maxiter",1),P.check_get("save_in",std::string("./"))); }break;
+							{ VMCSystematic(m).run(which_obs,P.check_get("dEoE",1e-5),P.check_get("maxiter",5),P.check_get("save_in",std::string("./"))); }break;
 						case 21:
 							{ VMCSystematic(m).plot(); }break;
 						case 30:

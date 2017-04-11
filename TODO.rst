@@ -4,8 +4,6 @@ TODO
 BUGS
 ----
 
-+ seem like relative_path can be removed from display_results method
-  because it is useless
 + can't add Vector to Parseur...
 
 URGENT

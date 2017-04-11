@@ -105,10 +105,6 @@ void Squarek2Mu2x2::display_results(){
 	draw_lattice(false,true,false,(spuc_==3?dir_nn_[2]*0.25+dir_nn_[3]*0.5:dir_nn_[2]*0.5+dir_nn_[3]*0.5));
 
 	if(rst_file_){
-		std::string relative_path(analyse_+path_+dir_);
-		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
-		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-
 		std::string title(RST::math("\\mu")+"="+my::tostring(mu_) + " ");
 		std::string run_cmd("./mc -s:wf square-k2mu-2x2");
 		run_cmd += " -u:N " + my::tostring(N_);

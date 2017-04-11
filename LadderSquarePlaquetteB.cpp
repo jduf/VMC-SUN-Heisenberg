@@ -90,10 +90,6 @@ void LadderSquarePlaquetteB::display_results(){
 	draw_lattice(true,true,true);
 
 	if(rst_file_){
-		std::string relative_path(analyse_+path_+dir_);
-		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
-		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-
 		std::string title(RST::math("\\theta=")+my::tostring(acos(J_(0))) + " : t=(");
 		std::string run_cmd("./mc -s:wf ladder-squareplaquetteB");
 		run_cmd += " -u:N " + my::tostring(N_);
@@ -115,8 +111,12 @@ void LadderSquarePlaquetteB::display_results(){
 
 		rst_file_->change_text_onclick("run command",run_cmd);
 		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200"));
-		rst_file_->figure(relative_path+filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+filename_+"-as.gp")+RST::scale("200"));
+
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+dir_+filename_+"-lr.gp")+RST::scale("200")); 
+		rst_file_->figure(relative_path+filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+dir_+filename_+"-as.gp")+RST::scale("200")); 
 	}
 }
 

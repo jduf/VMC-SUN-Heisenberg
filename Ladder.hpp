@@ -472,7 +472,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 		gp_in+="     data_sf u 1:12 axes x1y2 lt "+std::string(sum_llp<0?"1":"2")+" lc 7 notitle";
 		/*}*/
 		gp_in.save_file();
-		gp_in.create_image(create_image,"png");
+		if(create_image){ gp_in.create_image(silent,"png"); }
 		/*}*/
 		/*!(anti)symmetric correlations and structure factors*/
 		/*{*/
@@ -509,7 +509,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 		gp_sas+="     data_sf u 1:6 axes x1y2 lt "+std::string(sum_p<0?"1":"2")+" lc 7 notitle";
 		/*}*/
 		gp_sas.save_file();
-		gp_sas.create_image(create_image,"png");
+		if(create_image){ gp_sas.create_image(silent,"png"); }
 		/*}*/
 	}
 }

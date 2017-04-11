@@ -22,11 +22,13 @@ int main(int argc, char* argv[]){
 		fname = cs->get_filename();
 	} else {
 		sys = new System(P);
-		cs  = new CreateSystem(sys);
-		cs->init(NULL,&P);
-		if(cs->get_status()==2 && P.find("obs",i)){
-			Vector<unsigned int> obs(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
-			for(unsigned int j(0);j<obs.size();j++){ cs->create_obs(obs(j)); }
+		if(sys->get_status() == 4){
+			cs  = new CreateSystem(sys);
+			cs->init(NULL,&P);
+			if(cs->get_status()==2 && P.find("obs",i)){
+				Vector<unsigned int> obs(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i)));
+				for(unsigned int j(0);j<obs.size();j++){ cs->create_obs(obs(j)); }
+			}
 		}
 	}
 

@@ -5,7 +5,6 @@ ChainSAS::ChainSAS(System const& s, Vector<double> const& t):
 	Chain<double>(set_spuc(N_),"chain-sas"),
 	t_(t)
 {
-	std::cout<<J_<<std::endl;
 	if(m_ == 1 && std::abs(J_(1)/J_(0))>0.2){ status_ = 4; }
 	if(status_==2){
 		init_fermionic();

@@ -129,10 +129,6 @@ void HoneycombChiral::display_results(){
 	draw_lattice(false,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25);
 
 	if(rst_file_){
-		std::string relative_path(analyse_+path_+dir_);
-		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
-		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-
 		std::string title("Chiral with "+RST::math("\\phi")+"="+my::tostring(phi_));
 		rst_file_->title(title,'-');
 		rst_file_->change_text_onclick("run command",get_mc_run_command());

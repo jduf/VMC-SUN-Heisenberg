@@ -62,10 +62,6 @@ void HoneycombFermi::display_results(){
 	draw_lattice(false,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25);
 
 	if(rst_file_){
-		std::string relative_path(analyse_+path_+dir_);
-		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
-		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-
 		std::string title("Fermi");
 		std::string run_cmd("./mc -s:wf honeycomb-fermi");
 		run_cmd += " -u:N " + my::tostring(N_);

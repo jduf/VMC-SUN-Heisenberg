@@ -100,10 +100,6 @@ void TrianglePlaquette::display_results(){
 	draw_lattice(true,true,false,dir_nn_[3]*0.5);
 
 	if(rst_file_){
-		std::string relative_path(analyse_+path_+dir_);
-		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
-		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-
 		std::string title("t="+my::tostring(t_));
 		rst_file_->title(title,'-');
 		rst_file_->change_text_onclick("run command",get_mc_run_command());

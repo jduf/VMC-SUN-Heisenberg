@@ -128,10 +128,6 @@ void LadderFreeFlux::display_results(){
 	draw_lattice(true,true,true);
 
 	if(rst_file_){
-		std::string relative_path(analyse_+path_+dir_);
-		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
-		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-
 		std::string title(RST::math("\\theta=")+my::tostring(acos(J_(0))) + " : t=(");
 		std::string run_cmd("./mc -s:wf ladder-free");
 		run_cmd += " -u:N " + my::tostring(N_);
@@ -160,17 +156,11 @@ void LadderFreeFlux::display_results(){
 		rst_file_->change_text_onclick("run command",run_cmd);
 		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 
-		Vector<unsigned int> o(6,0);
-		unsigned int o_index_tmp(2);
-		for(unsigned int i(1);i<obs_.size();i++){
-			switch(obs_[i].get_type()){
-				case 1:{ o(0)=i; }break;//bond energy
-				case 2:{ o(o_index_tmp++)=i; }break;//long range correlation
-				case 3:{ o(1)=i; }break;//color occupation
-			}
-		}
-		if(o(2) && o(3)){ rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+filename_+"-lr.gp")+RST::scale("200")); }
-		if(o(2) && o(3) && o(4) && o(5)){ rst_file_->figure(relative_path+filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+filename_+"-as.gp")+RST::scale("200")); }
+		std::string relative_path(analyse_+path_+dir_);
+		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+		rst_file_->figure(relative_path+filename_+"-lr.png","long range correlations",RST::target(relative_path+dir_+filename_+"-lr.gp")+RST::scale("200")); 
+		rst_file_->figure(relative_path+filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+dir_+filename_+"-as.gp")+RST::scale("200")); 
 	}
 }
 /*}*/

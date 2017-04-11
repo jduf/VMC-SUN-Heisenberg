@@ -78,10 +78,6 @@ unsigned int SquareJastrow::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void SquareJastrow::display_results(){
 	if(rst_file_){
-		std::string relative_path(analyse_+path_+dir_);
-		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
-		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-
 		std::string title("Jastrow");
 		std::string run_cmd("./mc -s:wf square-jastow");
 		run_cmd += " -u:N " + my::tostring(N_);

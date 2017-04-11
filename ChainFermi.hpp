@@ -87,13 +87,9 @@ void ChainFermi<Type>::display_results(){
 	this->plot_bond_energy();
 	this->plot_long_range_correlations_and_structure_factor();
 	if(this->rst_file_){
-		std::string relative_path(this->analyse_+this->path_+this->dir_);
-		unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
-		for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-
-		this->rst_file_->figure(this->dir_+this->filename_+"-pstricks.png",RST::math("E="+my::tostring(this->obs_[0][0].get_x())+"\\pm"+my::tostring(this->obs_[0][0].get_dx())),RST::target(relative_path+this->filename_+"-pstricks.pdf")+RST::scale("200"));
-		this->rst_file_->figure(relative_path+this->filename_+"-lr.png","long range correlations",RST::target(relative_path+this->filename_+"-lr.gp")+RST::scale("200"));
-		this->rst_file_->figure(relative_path+this->filename_+"-sf.png","structure factor",RST::target(relative_path+this->filename_+"-sf.gp")+RST::scale("200"));
+		this->rst_file_->figure(this->dir_+this->filename_+"-pstricks.png",RST::math("E="+my::tostring(this->obs_[0][0].get_x())+"\\pm"+my::tostring(this->obs_[0][0].get_dx())),RST::target(this->dir_+this->filename_+"-pstricks.pdf")+RST::scale("200"));
+		this->rst_file_->figure(this->dir_+this->filename_+"-lr.png","long range correlations",RST::target(this->dir_+this->filename_+"-lr.gp")+RST::scale("200"));
+		this->rst_file_->figure(this->dir_+this->filename_+"-sf.png","structure factor",RST::target(this->dir_+this->filename_+"-sf.gp")+RST::scale("200"));
 	}
 }
 /*}*/
