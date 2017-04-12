@@ -1,18 +1,18 @@
-#include "LadderRectangularPlaquetteA.hpp"
+#include "LadderRectangularPlaquetteD.hpp"
 
-LadderRectangularPlaquetteA::LadderRectangularPlaquetteA(System const& s, Vector<double> const& t):
+LadderRectangularPlaquetteD::LadderRectangularPlaquetteD(System const& s, Vector<double> const& t):
 	System(s),
-	Ladder<double>(6,"ladder-rectangularplaquetteA"),
+	Ladder<double>(6,"ladder-rectangularplaquetteD"),
 	t_(t)
 {
 	if(t_.size()==4){
 		if(status_==2){
 			init_fermionic();
 
-			system_info_.text("LadderRectangularPlaquetteA :");
+			system_info_.text("LadderRectangularPlaquetteD :");
 			system_info_.text(" Each color has the same Hamiltonian.");
 			system_info_.text(" Rectangular plaquette in a 6 site unit cell");
-			system_info_.text(" pi flux in each square plaquette");
+			system_info_.text(" No flux");
 
 			filename_ += "-t";
 			for(unsigned int i(0);i<t_.size();i++){
@@ -23,7 +23,7 @@ LadderRectangularPlaquetteA::LadderRectangularPlaquetteA(System const& s, Vector
 }
 
 /*{method needed for running*/
-void LadderRectangularPlaquetteA::compute_H(){
+void LadderRectangularPlaquetteD::compute_H(){
 	H_.set(n_,n_,0);
 
 	double t(0.0);
@@ -35,21 +35,21 @@ void LadderRectangularPlaquetteA::compute_H(){
 					else            { t = t_(0); }
 				}break;
 			case 1:
-				{ t = -t_(0); }break;
+				{ t = t_(0); }break;
 			case 2:
 				{ 
 					if(obs_[0](i,3)){ t = t_(2); }
 					else            { t = t_(0); }
 				}break;
 			case 3:
-				{ t = -t_(0); }break;
+				{ t = t_(0); }break;
 			case 4:
 				{ 
 					if(obs_[0](i,3)){ t = t_(1); }
 					else            { t = t_(3); }
 				}break;
 			case 5:
-				{ t = -t_(3); }break;
+				{ t = t_(3); }break;
 		}
 
 		H_(obs_[0](i,0),obs_[0](i,1)) = (obs_[0](i,4)?bc_*t:t);
@@ -57,7 +57,7 @@ void LadderRectangularPlaquetteA::compute_H(){
 	H_ += H_.transpose();
 }
 
-void LadderRectangularPlaquetteA::create(){
+void LadderRectangularPlaquetteD::create(){
 	compute_H();
 	diagonalize(true);
 
@@ -72,7 +72,7 @@ void LadderRectangularPlaquetteA::create(){
 	}
 }
 
-void LadderRectangularPlaquetteA::save_param(IOFiles& w) const {
+void LadderRectangularPlaquetteD::save_param(IOFiles& w) const {
 	if(w.is_binary()){
 		std::string s("t=(");
 		Vector<double> param(t_.size());
@@ -92,13 +92,13 @@ void LadderRectangularPlaquetteA::save_param(IOFiles& w) const {
 /*}*/
 
 /*{method needed for checking*/
-void LadderRectangularPlaquetteA::display_results(){
+void LadderRectangularPlaquetteD::display_results(){
 	compute_H();
 	draw_lattice(true,true,true);
 
 	if(rst_file_){
 		std::string title(RST::math("\\theta=")+my::tostring(acos(J_(0))) + " : t=(");
-		std::string run_cmd("./mc -s:wf ladder-rectangularplaquetteA");
+		std::string run_cmd("./mc -s:wf ladder-rectangularplaquetteD");
 		run_cmd += " -u:N " + my::tostring(N_);
 		run_cmd += " -u:m " + my::tostring(m_);
 		run_cmd += " -u:n " + my::tostring(n_);
@@ -115,8 +115,8 @@ void LadderRectangularPlaquetteA::display_results(){
 			rst_file_->title("|theta"+my::tostring(acos(J_(0)))+"|_",'-');
 			rst_file_->replace("theta"+my::tostring(acos(J_(0))),title);
 		} else { rst_file_->title(title,'-'); }
-
 		rst_file_->change_text_onclick("run command",run_cmd);
+
 		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
 
 		std::string relative_path(analyse_+path_+dir_);
@@ -127,11 +127,11 @@ void LadderRectangularPlaquetteA::display_results(){
 	}
 }
 
-void LadderRectangularPlaquetteA::check(){
+void LadderRectangularPlaquetteD::check(){
 	info_ = "";
 	path_ = "";
 	dir_  = "./";
-	filename_ ="ladder-rectangularplaquetteA";
+	filename_ ="ladder-rectangularplaquetteD";
 	display_results();
 
 	//compute_H();

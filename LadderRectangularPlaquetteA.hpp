@@ -16,8 +16,6 @@ class LadderRectangularPlaquetteA: public Ladder<double>{
 		Vector<double> const t_; //!< hopping terms
 
 		void compute_H();
-		unsigned int set_spuc();
-
 		void display_results();
 };
 #endif

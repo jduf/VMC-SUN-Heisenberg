@@ -9,9 +9,8 @@ VMCSystematic::VMCSystematic(IOFiles& in):
 {}
 
 /*{public methods*/
-void VMCSystematic::run(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, std::string const& save_in){
+void VMCSystematic::run(double const& dEoE, unsigned int const& maxiter, std::string const& save_in){
 	if(m_->tmax_){
-		which_obs_ = which_obs;
 		dEoE_ = dEoE;
 
 		std::cout<<"#######################"<<std::endl;
@@ -21,15 +20,7 @@ void VMCSystematic::run(Vector<unsigned int> const& which_obs, double const& dEo
 		msg = "do a systematic measure over the phase space";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
-		msg = "compute the energy ";
-		if(which_obs_.size()){
-			msg += "and observables ";
-			for(unsigned int i(0);i<which_obs_.size()-1;i++){
-				msg += my::tostring(which_obs_(i))+"," ;
-			}
-			msg += my::tostring(which_obs_.back())+" ";
-		} 
-		msg += "for each "+my::tostring(m_->ps_size_)+" samples (max time "+my::tostring(m_->tmax_*maxiter*m_->ps_size_)+"s)";
+		msg = my::tostring(m_->ps_size_)+" samples (max time "+my::tostring(m_->tmax_*maxiter*m_->ps_size_)+"s)";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
@@ -205,6 +196,6 @@ bool VMCSystematic::go_through_parameter_space(Vector<double>* x, Vector<unsigne
 void VMCSystematic::evaluate(Vector<double>* x, Vector<unsigned int> const& idx){
 	Vector<double> param(m_->dof_);
 	for(unsigned int i(0); i<m_->dof_;i++){ param(i) = x[i](idx(i)); }
-	evaluate_until_precision(param,which_obs_,dEoE_,maxiter_);
+	evaluate_until_precision(param,0,dEoE_,maxiter_);
 }
 /*}*/

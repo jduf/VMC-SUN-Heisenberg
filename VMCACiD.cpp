@@ -51,8 +51,7 @@ double VMCACiD::function(Vector<double> const& x){
 	for(unsigned int i(0);i<m_->dof_;i++){
 		param(i) = (idx_(i,0)?x(idx_(i,1)):1.0)*(idx_(i,2)?idx_(i,2):1.0);
 	}
-	Vector<unsigned int> obs(0,0);
-	std::shared_ptr<MCSim> sim(evaluate_until_precision(param,obs,dEoE_,maxiter_));
+	std::shared_ptr<MCSim> sim(evaluate_until_precision(param,0,dEoE_,maxiter_));
 	return sim->get_energy().get_x();
 }
 

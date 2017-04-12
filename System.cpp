@@ -244,6 +244,16 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		J[1] = sin(theta); //rungs (J⊥)
 		P.set("J",J);
 	}
+	if( wf == "ladder-rectangularplaquetteD" ){
+		ref(0) = 2;
+		ref(1) = 1;
+		ref(2) = 10;
+		std::vector<double> J(2);
+		double theta(P.get<double>("theta"));
+		J[0] = cos(theta); //legs  (J‖)
+		J[1] = sin(theta); //rungs (J⊥)
+		P.set("J",J);
+	}
 	if( wf == "ladder-freeflux" ){
 		ref(0) = 2;
 		ref(1) = 2;

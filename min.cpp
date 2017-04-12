@@ -48,7 +48,7 @@ int main(int argc, char* argv[]){
 								if(P.find("dEoE",i)){
 									double dEoE(P.get<double>(i));
 									if(P.find("E",i)){ m.refine(P.get<double>(i),dEoE,P.check_get("save_in",std::string("./"))); }
-									if(P.find("nmin")){ m.refine(which_obs,dEoE,P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("nmin",10),P.check_get("save_in",std::string("./"))); }
+									if(P.find("nmin",i)){ m.refine(which_obs,dEoE,P.check_get("maxiter",10),P.check_get("tmax",10),P.get<unsigned int>(i),P.check_get("save_in",std::string("./"))); }
 								} else { m.refine(P.check_get("save_in",std::string("./"))); }
 							}break;
 						case 1:
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]){
 								} else { std::cerr<<__PRETTY_FUNCTION__<<" : some argument are not correctly set"<<std::endl; }
 							}break;
 						case 20:
-							{ VMCSystematic(m).run(which_obs,P.check_get("dEoE",1e-5),P.check_get("maxiter",5),P.check_get("save_in",std::string("./"))); }break;
+							{ VMCSystematic(m).run(P.check_get("dEoE",1e-5),P.check_get("maxiter",1),P.check_get("save_in",std::string("./"))); }break;
 						case 21:
 							{ VMCSystematic(m).plot(); }break;
 						case 30:
