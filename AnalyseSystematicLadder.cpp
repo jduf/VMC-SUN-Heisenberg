@@ -38,28 +38,6 @@ void AnalyseSystematicLadder::close_files(){
 						sim = best_sim_.get();
 					}
 				}
-				if(param.size() && false){
-					//std::cout<<sim<<" "<<param<<" "<<E<<std::endl;
-					read_ = new IOFiles(sim,false,false);
-
-					VMCMinimization min(*read_,true,"RUN");
-					Vector<double>* ps(NULL);
-					unsigned int dof(param.size());
-					min.swap_phase_space(ps);
-					for(unsigned int i(0);i<dof;i++){
-						if(ps[i].size()>1){
-							double dx = std::abs(ps[i](1)-ps[i](0));
-							ps[i] = Vector<double>(std::max(param(i)-dx,0.0),std::min(param(i)+dx,1.0),dx/4);
-						}
-					}
-					min.swap_phase_space(ps);
-					std::string tmp_path(date_+"-rerun/");
-					Linux().mkpath((tmp_path+min.get_path()).c_str());
-					min.save(tmp_path);
-
-					delete read_;
-					read_ = NULL;
-				}
 				best_wf_.set();
 				best_sim_.set();
 			}break;
@@ -86,13 +64,15 @@ void AnalyseSystematicLadder::close_files(){
 				gp.label("x","$\\theta$");
 				gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
 				gp.key("outside horizontal");
-				gp+="plot '"+fname+".dat' u ($12==2?$5:1/0):6 pt 7 t 'Dimer 0',\\";
-				gp+="     '"+fname+".dat' u ($12==3?$5:1/0):6 pt 7 t 'Dimer pi',\\";
-				gp+="     '"+fname+".dat' u ($12==4?$5:1/0):6 pt 7 t 'Square 00',\\";
-				gp+="     '"+fname+".dat' u ($12==5?$5:1/0):6 pt 7 t 'Square 0pi',\\";
-				gp+="     '"+fname+".dat' u ($12==6?$5:1/0):6 pt 7 t 'Square pipi',\\";
-				gp+="     '"+fname+".dat' u ($12==7?$5:1/0):6 pt 7 t 'Rectangle pipipi',\\";
-				gp+="     '"+fname+".dat' u ($12==8?$5:1/0):6 pt 7 t 'Rectangle 0pipi'";
+				gp+="plot '"+fname+".dat' u ($12==2?$5:1/0):6 pt 7 t 'Dimer $0$',\\";
+				gp+="     '"+fname+".dat' u ($12==3?$5:1/0):6 pt 7 t 'Dimer $\\pi$',\\";
+				gp+="     '"+fname+".dat' u ($12==4?$5:1/0):6 pt 7 t 'Square $00$',\\";
+				gp+="     '"+fname+".dat' u ($12==5?$5:1/0):6 pt 7 t 'Square $0\\pi$',\\";
+				gp+="     '"+fname+".dat' u ($12==6?$5:1/0):6 pt 7 t 'Square $\\pi\\pi$',\\";
+				gp+="     '"+fname+".dat' u ($12==7?$5:1/0):6 pt 7 t 'Rectangle $\\pi\\pi\\pi$',\\";
+				gp+="     '"+fname+".dat' u ($12==8?$5:1/0):6 pt 7 t 'Rectangle $0\\pi\\pi$',\\";
+				gp+="     '"+fname+".dat' u ($12==9?$5:1/0):6 pt 7 t 'Rectangle $00\\pi$',\\";
+				gp+="     '"+fname+".dat' u ($12==10?$5:1/0):6 pt 7 t 'Rectangle $000$'";
 				gp.save_file();
 				gp.create_image(true,"png");
 				list_rst_.last().figure(rel_level_+analyse_+path_+fname+".png","Energy per site",RST::target(rel_level_+analyse_+path_+fname+".gp")+RST::width("1000"));

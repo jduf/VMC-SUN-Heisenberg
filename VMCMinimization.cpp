@@ -680,33 +680,6 @@ bool VMCMinimization::Minimization::set_phase_space(Parseur const& P){
 	return false;
 }
 
-bool VMCMinimization::Minimization::swap_phase_space(Vector<double>*& ps){
-	std::swap(ps_,ps);
-
-	if(ps_){
-		ps_size_ = 1;
-		std::string PS("");
-		for(unsigned int i(0);i<dof_;i++){
-			ps_size_ *= ps_[i].size();
-			if(ps_[i].size()==1){
-				PS += my::tostring(ps_[i](0))+":1:"+my::tostring(ps_[i](0))+RST::nl_;
-			} else {
-				PS += my::tostring(ps_[i](0))+":";
-				PS += my::tostring(std::abs(ps_[i](0)-ps_[i](1)))+":";
-				PS += my::tostring(ps_[i].back())+" "+RST::nl_;
-			}
-		}
-		PS += RST::nl_;
-		std::string msg("phase space contains "+my::tostring(ps_size_)+" values");
-		std::cout<<"#"+msg<<std::endl;
-		info_.title(msg,'<');
-		info_.nl();
-		info_.lineblock(PS);
-		return true;
-	}
-	return false;
-}
-
 //bool VMCMinimization::Minimization::within_limit(Vector<double> const& x){
 //for(unsigned int i(0);i<dof_;i++){
 //if(x(i)<ps_[i](0) || x(i)>ps_[i].back()) { return false; }

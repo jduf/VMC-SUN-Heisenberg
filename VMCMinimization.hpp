@@ -21,7 +21,6 @@ class VMCMinimization{
 
 		void load(IOFiles& in, bool const& loadall){ m_->load(in,path_,basename_,loadall); }
 		void set_phase_space(Parseur const& P){ m_->set_phase_space(P); }
-		void swap_phase_space(Vector<double>*& ps){ m_->swap_phase_space(ps); }
 		void set_tmax(unsigned int const& tmax){ m_->tmax_ = tmax; }
 
 		/*!Different ways to improve the measures of the best samples, saves the result*/
@@ -70,7 +69,6 @@ class VMCMinimization{
 				void create(Parseur& P, std::string& path, std::string& basename);
 				void load(IOFiles& in, std::string& path, std::string& filename, bool const& loadall);
 				bool set_phase_space(Parseur const& P);
-				bool swap_phase_space(Vector<double>*& ps);
 
 				bool within_limit(Vector<double> const& x) const;
 				void save(IOFiles& out, bool const& all) const;

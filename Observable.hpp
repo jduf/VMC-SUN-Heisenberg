@@ -51,6 +51,8 @@ class Observable{
 		void reset();
 		void remove_links(){ links_.set(); }
 
+		static unsigned int const number_of_observables_defined = 5; //!< Number of different type of observables defined
+
 	protected:
 		std::string name_;
 		unsigned int type_;

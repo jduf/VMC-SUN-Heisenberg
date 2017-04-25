@@ -2,7 +2,7 @@ EXEC=
 EXEC+= mc
 EXEC+= min
 EXEC+= check
-#EXEC+= study
+EXEC+= study
 #EXEC+= mcbi
 
 CXX = g++ -std=c++14
@@ -28,16 +28,16 @@ KAGOME    = KagomeFermi.cpp KagomeFree.cpp KagomePlaquette3A.cpp KagomePlaquette
 
 WF         = $(CHAIN) $(LADDER) $(SQUARE) $(TRIANGLE) $(HONEYCOMB) $(KAGOME)
 MONTECARLO = MonteCarlo.cpp MCSystem.cpp MCSim.cpp BiSystem.cpp
-VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp VMCExtract.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp VMCSystematic.cpp ACiD.cpp VMCACiD.cpp Directory.cpp
-ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseMin.cpp AnalyseExtract.cpp AnalyseSystematic.cpp AnalyseSystematicLadder.cpp AnalyseChain.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp VMCMinimization.cpp VMCExtract.cpp VMCSystematic.cpp Interpolation.cpp Directory.cpp
+VMCMIN     = VMCMinimization.cpp Interpolation.cpp VMCInterpolation.cpp VMCExtract.cpp PSO.cpp VMCPSO.cpp MCParticle.cpp VMCSystematic.cpp ACiD.cpp VMCACiD.cpp VMCAnalyse.cpp Directory.cpp
+ANALYSE    = Analyse.cpp AnalyseEnergy.cpp AnalyseMin.cpp AnalyseExtract.cpp AnalyseSystematic.cpp AnalyseSystematicLadder.cpp AnalyseChain.cpp AnalyseHoneycomb.cpp AnalyseLadder.cpp Interpolation.cpp
 IOFILES    = Linux.cpp IOFiles.cpp Header.cpp RST.cpp RSTFile.cpp PSTricks.cpp Gnuplot.cpp
 OTHER      = System.cpp IOSystem.cpp Observable.cpp CreateSystem.cpp Lapack.cpp Parseur.cpp Fit.cpp
 
-check_SRCS = check.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(ANALYSE)
 mc_SRCS    = mc.cpp    $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
-mcbi_SRCS  = mcbi.cpp  $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 min_SRCS   = min.cpp   $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN)
+check_SRCS = check.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN) $(ANALYSE)
 study_SRCS = study.cpp $(MONTECARLO) $(IOFILES) $(OTHER) $(WF) $(VMCMIN) $(ANALYSE)
+mcbi_SRCS  = mcbi.cpp  $(MONTECARLO) $(IOFILES) $(OTHER) $(WF)
 
 #DO NOT CHANGE BELOW ----------------------------------------------------------------
 
@@ -56,7 +56,7 @@ debug:$(EXEC)
 
 .SECONDEXPANSION:
 $(EXEC): $$(patsubst %.cpp, $(BUILD)/%.o, $$($$@_SRCS))
-	@echo Links $(notdir $^)
+	@echo Links $(notdir $^) 
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 $(BUILD)/%.o:%.cpp

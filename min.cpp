@@ -6,6 +6,7 @@
 #include "VMCSystematic.hpp"
 #include "VMCExtract.hpp"
 #include "VMCACiD.hpp"
+#include "VMCAnalyse.hpp"
 
 void error();
 //class Input {
@@ -170,7 +171,16 @@ int main(int argc, char* argv[]){
 				}
 			}
 		} else {
-			if(dir.size()){
+			if(what(0)==200 && !P.locked()){
+				List<IOFiles> in;
+				for(unsigned int i(0);i<dir.size();i++){
+					in.add_end(std::make_shared<IOFiles>(dir[i],false,false));
+				}
+
+				VMCAnalyse m(in);
+				m.complete_analysis(P.check_get("dEoE",1e-5));
+				m.save(P.check_get("save_in",std::string("./")));
+			} else if(dir.size()){
 				std::cerr<<__PRETTY_FUNCTION__<<" : multiples files found :"<<std::endl;
 				dir.print(std::cerr);
 			} else {

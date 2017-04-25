@@ -184,7 +184,11 @@ void GenericSystem<Type>::energy_obs(Vector<unsigned int> const& l){
 template<typename Type>
 void GenericSystem<Type>::create_obs(unsigned int const& which_obs){
 	switch(which_obs){
-		case 0: { for(unsigned int i(1);i<5;i++){ create_obs(i); } }break;
+		/*As the energy_variance_obs observable is certainly not correctly
+		 * defined, one needs to explicitly ask for its creation, i.e. if
+		 * which_obs==0, it will not create this observable because of the -1
+		 * in the for loop*/
+		case 0: { for(unsigned int i(1);i<Observable::number_of_observables_defined-1;i++){ create_obs(i); } }break;
 		case 1: { bond_energy_obs(); }break;
 		case 2: { long_range_correlations_obs(); }break;
 		case 3: { color_occupation_obs(); }break;

@@ -34,7 +34,7 @@ class Ladder: public System1D<Type>{
 		/*!Given N and m, save the best simulation in a text file for any n*/
 		std::string extract_level_3();
 		/*Draw the lattice inside a PSTricks file*/
-		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image);
+		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image, std::string cmd_name, std::string title);
 		/*!Computes and writes the flux per plaquette in the PSTricks file*/
 		std::string flux_per_plaquette(unsigned int const& s0, unsigned int const& s1) const;
 };
@@ -190,7 +190,7 @@ std::string Ladder<Type>::extract_level_3(){
 }
 
 template<typename Type>
-void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image){
+void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image, std::string cmd_name, std::string title){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(6,0);
 	double max_bond_energy(0);
@@ -296,6 +296,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 					ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(my::round_nearest(std::abs(bond_energy)/max_bond_energy,100))+"}");
 				}
 				if(i%3 != 1 && o(1)){
+					xy0 += shift;
 					Vector<double> p(this->N_);
 					for(unsigned int j(0);j<this->N_;j++){ p(j) = this->obs_[o(1)][j+this->N_*links(i,5)].get_x(); }
 					ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
@@ -511,6 +512,32 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 		gp_sas.save_file();
 		if(create_image){ gp_sas.create_image(silent,"png"); }
 		/*}*/
+	}
+	
+	if(this->rst_file_){
+		title = RST::math("\\theta=")+my::tostring(acos(this->J_(0))) + " : " + title;
+		cmd_name = "./mc -s:wf "+cmd_name;
+
+		cmd_name += " -u:N " + my::tostring(this->N_);
+		cmd_name += " -u:m " + my::tostring(this->m_);
+		cmd_name += " -u:n " + my::tostring(this->n_);
+		cmd_name += " -i:bc "+ my::tostring(this->bc_);
+		cmd_name += " -d:theta " + my::tostring(acos(this->J_(0)));
+		cmd_name += " -d -u:tmax 10";
+		if(this->dir_ == "P/" || this->dir_ == "O/" || this->dir_ == "A/"){
+			this->rst_file_->title("|theta"+my::tostring(acos(this->J_(0)))+"|_",'-');
+			this->rst_file_->replace("theta"+my::tostring(acos(this->J_(0))),title);
+		} else { this->rst_file_->title(title,'-'); }
+		this->rst_file_->change_text_onclick("run command",cmd_name);
+		this->rst_file_->figure(this->dir_+this->filename_+".png",RST::math("E="+my::tostring(this->obs_[0][0].get_x())+"\\pm"+my::tostring(this->obs_[0][0].get_dx())),RST::target(this->dir_+this->filename_+".pdf")+RST::scale("200"));
+
+		if(o(2) && o(3) && o(4) && o(5)){
+			std::string relative_path(this->analyse_+this->path_+this->dir_);
+			unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
+			for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
+			this->rst_file_->figure(relative_path+this->filename_+"-lr.png","long range correlations",RST::target(relative_path+this->dir_+this->filename_+"-lr.gp")+RST::scale("200")); 
+			this->rst_file_->figure(relative_path+this->filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+this->dir_+this->filename_+"-as.gp")+RST::scale("200")); 
+		}
 	}
 }
 

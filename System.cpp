@@ -57,6 +57,17 @@ void System::complete_analysis(double const& convergence_criterion){
 }
 
 void System::merge(System* const s){
+	/*this commented bit should be used instead of the last bit when one is
+	 * trying to merge two independant simulations where the order of the
+	 * observable might be different*/
+	//unsigned int match[Observable::number_of_observables_defined] = { 0 };
+	//for(unsigned int i(0);i<obs_.size();i++){ match[obs_[i].get_type()%1234]=i+1; }
+	//for(unsigned int i(0);i<s->obs_.size();i++){ 
+		//unsigned int o(match[s->obs_[i].get_type()%1234]);
+		//if(o){ obs_[o-1].merge(s->obs_[i]); }
+		//else { obs_.push_back(s->obs_[i]); }
+	//}
+
 	unsigned int i(0);
 	while(i<obs_.size())   { obs_[i].merge(s->obs_[i]);  i++; }
 	while(i<s->obs_.size()){ obs_.push_back(s->obs_[i]); i++; }

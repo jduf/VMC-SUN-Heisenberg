@@ -2,7 +2,7 @@
 #define DEF_ANALYSEMIN
 
 #include "Analyse.hpp"
-#include "VMCMinimization.hpp"
+#include "VMCAnalyse.hpp"
 
 class AnalyseMin : public Analyse{
 	public:
