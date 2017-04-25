@@ -112,8 +112,8 @@ void VMCACiD::display_param_and_xmean(Vector<double> const& param) const {
 	Vector<double> x(m_->dof_);
 	if(param.size()){
 		std::shared_ptr<MCSim> sim(std::make_shared<MCSim>(param));
-		if(m_->samples_.find_in_sorted_list(sim,target,MCSim::sort_for_merge)){ 
-			x = param; 
+		if(m_->samples_.find_in_sorted_list(sim,target,MCSim::sort_for_merge)){
+			x = param;
 		} else {
 			std::cerr<<__PRETTY_FUNCTION__<<" : can't find sample with parameter "<<param<<std::endl;
 		}

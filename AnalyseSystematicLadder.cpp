@@ -33,7 +33,7 @@ void AnalyseSystematicLadder::close_files(){
 				while(best_wf_.target_next() && best_sim_.target_next() ){
 					//std::cout<<best_sim_.get()<<" "<<best_wf_.get().get_param()<<" "<<best_wf_.get().get_energy()<<std::endl;
 					if(E>best_wf_.get().get_energy().get_x()){
-						E = best_wf_.get().get_energy().get_x(); 
+						E = best_wf_.get().get_energy().get_x();
 						param = best_wf_.get().get_param();
 						sim = best_sim_.get();
 					}
@@ -57,7 +57,7 @@ void AnalyseSystematicLadder::close_files(){
 			{
 				kept_samples_all_.set_target();
 				while(kept_samples_all_.target_next()){ kept_samples_all_.get().analyse(level_,this); }
-				kept_samples_all_.set(); 
+				kept_samples_all_.set();
 
 				std::string fname(dir_.substr(0,dir_.size()-1));
 				Gnuplot gp(analyse_+path_,fname);

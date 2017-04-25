@@ -45,21 +45,21 @@ void Minimization::min(double xmax){
 				f1=ft1;
 				x1=xt1;
 				cond++;
-			} 
+			}
 			if((f0-ft0)*(ft0-f)<0 && (f-ft1)*(ft1-f1)>0 ){
 				f1=f;
 				x1=x;
 				f=ft0;
 				x=xt0;
 				cond++;
-			} 
+			}
 			if((f0-ft0)*(ft0-f)>0 && (f-ft1)*(ft1-f1)<0 ){
 				f0=f;
 				x0=x;
 				f=ft1;
 				x=xt1;
 				cond++;
-			} 
+			}
 		}while (++i<10 && cond==1);
 	}
 }

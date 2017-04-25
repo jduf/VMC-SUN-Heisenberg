@@ -198,7 +198,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 	for(unsigned int i(1);i<this->obs_.size();i++){
 		switch(this->obs_[i].get_type()){
 			case 1:
-				{ 
+				{
 					o(0)=i;
 					for(unsigned int j(0);j<this->obs_[i].nval();j++){
 						if(max_bond_energy < std::abs(this->obs_[i][j].get_x()/(this->m_*this->m_))){
@@ -279,7 +279,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 						else    { color = "magenta"; }
 						ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 					}
-				} 
+				}
 				if(i%3==0){ ps.put(xy0(0)+0.5,xy0(1)+0.5,flux_per_plaquette(s0,s1)); }
 
 				/*Shows bond energy and color occupation*/
@@ -535,8 +535,8 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 			std::string relative_path(this->analyse_+this->path_+this->dir_);
 			unsigned int a(std::count(relative_path.begin()+1,relative_path.end(),'/')-1);
 			for(unsigned int i(0);i<a;i++){ relative_path = "../"+relative_path; }
-			this->rst_file_->figure(relative_path+this->filename_+"-lr.png","long range correlations",RST::target(relative_path+this->dir_+this->filename_+"-lr.gp")+RST::scale("200")); 
-			this->rst_file_->figure(relative_path+this->filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+this->dir_+this->filename_+"-as.gp")+RST::scale("200")); 
+			this->rst_file_->figure(relative_path+this->filename_+"-lr.png","long range correlations",RST::target(relative_path+this->dir_+this->filename_+"-lr.gp")+RST::scale("200"));
+			this->rst_file_->figure(relative_path+this->filename_+"-as.png","(anti)symmetric correlations",RST::target(relative_path+this->dir_+this->filename_+"-as.gp")+RST::scale("200"));
 		}
 	}
 }

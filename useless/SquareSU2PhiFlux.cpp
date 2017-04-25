@@ -24,10 +24,10 @@ void SquareSU2PhiFlux::compute_T(){
 			else { T_(i+1-Lx_,i) = bc_*t; }
 		}
 		/*vertical hopping*/
-		if( i+Lx_ < n_ ){  T_(i,i+Lx_) = t; } 
+		if( i+Lx_ < n_ ){  T_(i,i+Lx_) = t; }
 		else { T_(i-(Ly_-1)*Lx_,i) = bc_*t;}
 	}
-	T_ += T_.trans_conj(); 
+	T_ += T_.trans_conj();
 }
 
 void SquareSU2PhiFlux::compute_P(Matrix<std::complex<double> >& Px, Matrix<std::complex<double> >& Py){
@@ -70,7 +70,7 @@ void SquareSU2PhiFlux::lattice(){
 		}
 		if(std::abs(prop)<1e-14){ color = "blue";}
 		else{color = "green";}
-		if( i+Lx_<this->n_){ 
+		if( i+Lx_<this->n_){
 			ps.line("->", i%Lx_, i/Ly_, nb(1,0)%Lx_, nb(1,0)/Ly_, "linewidth="+tostring(prop)+"pt,linecolor="+color);
 		} else {
 			ps.line("->", i%Lx_, i/Ly_, nb(1,0)%Lx_, i/Ly_+1, "linewidth="+tostring(prop)+"pt,linecolor="+color);

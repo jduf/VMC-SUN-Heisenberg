@@ -123,7 +123,7 @@ void Kagome<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 	for(unsigned int i(1);i<this->obs_.size();i++){
 		switch(this->obs_[i].get_type()){
 			case 1:
-				{ 
+				{
 					o(0)=i;
 					for(unsigned int j(0);j<this->obs_[i].nval();j++){
 						if(max_bond_energy < std::abs(this->obs_[i][j].get_x()/(this->m_*this->m_))){
@@ -199,9 +199,9 @@ void Kagome<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 				switch(links(i,5)%3){
 					case 0:
 						{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/4.0,this->flux_per_plaquette(s0,loop_c)); } }break;
-					case 1:                                                         
+					case 1:
 						{ if(links(i,3)==1){ ps.put(xy0(0),xy0(1)+sqrt(3.0)/3.0,    this->flux_per_plaquette(s0,loop_b)); } }break;
-					case 2:                                                         
+					case 2:
 						{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/2.0,this->flux_per_plaquette(s0,loop_a)); } }break;
 				}
 
@@ -294,9 +294,9 @@ void Kagome<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 				switch(links(i,5)%3){
 					case 0:
 						{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/4.0,this->flux_per_plaquette(s0,loop_c)); } }break;
-					case 1:                                                         
+					case 1:
 						{ if(links(i,3)==1){ ps.put(xy0(0),xy0(1)+sqrt(3.0)/3.0,    this->flux_per_plaquette(s0,loop_b)); } }break;
-					case 2:                                                         
+					case 2:
 						{ if(links(i,3)==0){ ps.put(xy0(0)+0.5,xy0(1)+sqrt(3.0)/2.0,this->flux_per_plaquette(s0,loop_a)); } }break;
 				}
 			}

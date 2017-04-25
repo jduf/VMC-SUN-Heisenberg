@@ -106,8 +106,8 @@ void Observable::add_sample(){
 }
 
 void Observable::merge(Observable& obs){
-	if(type_ == 1234){ 
-		type_ = 0; 
+	if(type_ == 1234){
+		type_ = 0;
 		std::cerr<<__PRETTY_FUNCTION__<<" : redefine the type_ of the Observable 'Energy per site'"<<std::endl;
 		/*! This can is a well defined behaviour when VMCMinimization tries to
 		 * measure the Obervable 'Bond energy' for a new sample. This is
@@ -126,7 +126,7 @@ void Observable::merge(Observable& obs){
 	} else {
 		std::cerr<<__PRETTY_FUNCTION__<<" : inconsistent type or size : "
 			<<name_    <<" ("<<type_    <<","<<nval_<<") != "
-			<<obs.name_<<" ("<<obs.type_<<","<<obs.nval_<<")"<<std::endl; 
+			<<obs.name_<<" ("<<obs.type_<<","<<obs.nval_<<")"<<std::endl;
 	}
 }
 

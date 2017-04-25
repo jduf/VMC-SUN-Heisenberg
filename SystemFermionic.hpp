@@ -596,7 +596,7 @@ void SystemFermionic<Type>::compute_peculiar_observable(Observable& O){
 													for(unsigned int k(0);k<this->m_;k++){
 														if(this->s_(a,k) == ci1 || this->s_(b,k) == ci0 || this->s_(b,k) == cj1 || this->s_(c,k) == cj0) { allowed = false; k=this->m_; }
 													}
-													if(allowed){ 
+													if(allowed){
 														swap(a,b,ip0,ip1);
 														w = ratio();/*det(A)det(B)*/
 														swap(b,c,jp0,jp1);
@@ -620,7 +620,7 @@ void SystemFermionic<Type>::compute_peculiar_observable(Observable& O){
 													for(unsigned int k(0);k<this->m_;k++){
 														if(this->s_(a,k) == ci1 || this->s_(b,k) == ci0 || this->s_(c,k) == cj0) { allowed = false; k=this->m_; }
 													}
-													if(allowed){ 
+													if(allowed){
 														swap(a,b,ip0,ip1);
 														w = determinant_lemma(0);
 														w*= determinant_lemma(1);

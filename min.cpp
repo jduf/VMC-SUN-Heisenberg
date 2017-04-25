@@ -11,7 +11,7 @@
 void error();
 //class Input {
 	//public:
-		//Input(Parseur& P, unsigned int i=0): 
+		//Input(Parseur& P, unsigned int i=0):
 			//which_obs(P.find("obs",i) ?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0),
 			//what(P.find("what",i,true)?(P.get_type(i)?P.get<std::vector<unsigned int> >(i):Vector<unsigned int>(1,P.get<unsigned int>(i))):0),
 			//dEoE(P.check_get("dEoE",1e-5)),

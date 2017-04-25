@@ -28,7 +28,7 @@ void LadderDimerB::compute_H(){
 
 	double t(0.0);
 	for(unsigned int i(0);i<obs_[0].nlinks();i++){
-		if(obs_[0](i,5)){ t = -t_(0); } 
+		if(obs_[0](i,5)){ t = -t_(0); }
 		else {
 			if(obs_[0](i,3)){ t = t_(1); }
 			else            { t = t_(0); }

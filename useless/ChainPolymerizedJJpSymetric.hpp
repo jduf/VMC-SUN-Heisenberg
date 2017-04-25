@@ -13,8 +13,8 @@ class ChainPolymerizedJJp: public Chain<double> {
 		void check();
 
 	private:
-		Vector<double> t_;//!< polymerization parameter 
-		Vector<double> JJp_;//!< polymerization parameter 
+		Vector<double> t_;//!< polymerization parameter
+		Vector<double> JJp_;//!< polymerization parameter
 
 		void compute_H(unsigned int const& c);
 		std::string extract_level_7();

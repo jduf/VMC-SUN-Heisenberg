@@ -38,7 +38,7 @@ void LadderSquarePlaquetteC::compute_H(){
 			case 1:
 				{ t = -t_(0); }break;
 			case 2:
-				{ 
+				{
 					if(obs_[0](i,3)){ t = t_(2); }
 					else            { t = t_(0); }
 				}break;

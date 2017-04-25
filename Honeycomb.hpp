@@ -152,7 +152,7 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 	for(unsigned int i(1);i<this->obs_.size();i++){
 		switch(this->obs_[i].get_type()){
 			case 1:
-				{ 
+				{
 					o(0)=i;
 					for(unsigned int j(0);j<this->obs_[i].nval();j++){
 						if(max_bond_energy < std::abs(this->obs_[i][j].get_x()/(this->m_*this->m_))){

@@ -25,7 +25,7 @@ VMCAnalyse::VMCAnalyse(List<IOFiles>& in):
 		unsigned int iter(0);
 		merging.m_->samples_.set_target();
 		while(merging.m_->samples_.target_next()){
-			my::display_progress(iter++,merging.m_->samples_.size(),"merging"); 
+			my::display_progress(iter++,merging.m_->samples_.size(),"merging");
 			if( m_->samples_.find_in_sorted_list(merging.m_->samples_.get_ptr(),MCSim::sort_for_merge) ){ m_->samples_.get().merge(merging.m_->samples_.get_ptr()); }
 			else { m_->samples_.add_after_target(merging.m_->samples_.get_ptr()); }
 		}

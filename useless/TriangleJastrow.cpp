@@ -10,7 +10,7 @@ TriangleJastrow::TriangleJastrow(System const& s, Matrix<double> const& nu):
 	system_info_.text("Staggered magnetic field on the triangle lattice, Becca's idea to mimic an on site chemical potential");
 	system_info_.item("only works on a two sites per unit cell system (therefore only for SU(2))");
 
-	status_--; 
+	status_--;
 }
 
 /*{method needed for running*/

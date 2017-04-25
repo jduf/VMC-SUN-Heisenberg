@@ -66,7 +66,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*!Create the color occupation observables*/
 		virtual void color_occupation_obs();
 		/*!Create the observable H*H allowing the computation of the energy variance*/
-		void energy_variance_obs(); 
+		void energy_variance_obs();
 
 		/*{*//*!Returns the neighbours of site i.
 			   This pure virtual method must be defined here because it is

@@ -156,7 +156,7 @@ std::string ChainPolymerizedJJp::extract_level_7(){
 	corr_file<<"%(2i+1)/2 corr(i,i+1) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	lr_corr_file<<"%j corr(i,j) dx conv(0|1) #conv mean(0|1)"<<IOFiles::endl;
 	/*!the +1 is the average over all runs */
-	for(unsigned int i(0);i<nruns+1;i++){ 
+	for(unsigned int i(0);i<nruns+1;i++){
 		(*read_)>>E_>>corr_>>lr_corr_;
 		(*data_write_)<<JJp_<<t_<<E_<<" "<<(i<nruns)<<IOFiles::endl;
 		for(unsigned int j(0);j<corr_.size();j++){
@@ -174,7 +174,7 @@ std::string ChainPolymerizedJJp::extract_level_7(){
 			while(++k<corr_.size());
 		} else {
 			for(unsigned int j(0);j<lr_corr_.size();j++){
-				if(lr_corr_[j].get_conv()){ lrc_mean(j) = lr_corr_[j].get_x(); } 
+				if(lr_corr_[j].get_conv()){ lrc_mean(j) = lr_corr_[j].get_x(); }
 			}
 		}
 	}
@@ -220,7 +220,7 @@ std::string ChainPolymerizedJJp::extract_level_7(){
 	gplr+="p3 = 2.0";
 	gplr+="f(x) = p0*cos(2.0*pi*x*m/N)*(x**(-p1)+(n-x)**(-p1))+p2*(x**(-p3)+(n-x)**(-p3))";
 	gplr+="set fit quiet";
-	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via p0,p1,p2,p3"; 
+	gplr+="fit [" + my::tostring(xi) + ":" + my::tostring(xf) + "] f(x) '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0) noerrors via p0,p1,p2,p3";
 	gplr+="plot '"+filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==0)?$2:1/0):3 w errorbars lt 1 lc 5 t 'Not converged',\\";
 	gplr+="     '"+filename_+"-long-range-corr.dat' u 1:(($6==1 && $5==1)?$2:1/0):3 w errorbars lt 1 lc 6 t 'Converged',\\";
 	gplr+="     '"+filename_+"-long-range-corr.dat' u 1:($6==0?$2:1/0):3 w errorbars lt 1 lc 7 t 'Mean'";
@@ -240,7 +240,7 @@ std::string ChainPolymerizedJJp::extract_level_7(){
 		for(unsigned int i(0);i<llr;i++){
 			Ck(k) += std::polar(lrc_mean(i),dk*k*i);
 		}
-		normalize += Ck(k); 
+		normalize += Ck(k);
 	}
 	Ck /= dk*normalize;
 
@@ -298,7 +298,7 @@ std::string ChainPolymerizedJJp::extract_level_6(){
 
 	for(unsigned int i(0);i<nof;i++){
 		(*read_)>>tmp_t>>tmp_JJp>>tmp_E>>tmp_polymerizaton_strength>>tmp_exponents;
-		if(tmp_E.get_x()<E_.get_x()){ 
+		if(tmp_E.get_x()<E_.get_x()){
 			E_ = tmp_E;
 			t_ = tmp_t;
 			JJp_ = tmp_JJp;
@@ -317,7 +317,7 @@ std::string ChainPolymerizedJJp::extract_level_6(){
 	gp.label("x","$J^{\\prime}/|J|$"," offset 0,1");
 	gp.label("y2","$\\dfrac{E}{n}$","rotate by 0");
 	gp.range("x","0.0","");
-	gp+="f(x) = "+std::string(my::are_equal(t_(N_/m_-1),0)?"a+b*x**c":"a+b*(x-c)*(x-c)"); 
+	gp+="f(x) = "+std::string(my::are_equal(t_(N_/m_-1),0)?"a+b*x**c":"a+b*(x-c)*(x-c)");
 	gp+="a="+my::tostring(E_.get_x());
 	gp+="b=1";
 	gp+="c=1";
