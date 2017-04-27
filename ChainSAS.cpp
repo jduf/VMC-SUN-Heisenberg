@@ -93,7 +93,5 @@ unsigned int ChainSAS::set_spuc(unsigned int const N){
 /*}*/
 
 /*{method needed for checking*/
-void ChainSAS::check(){
-
-}
+void ChainSAS::check(){}
 /*}*/

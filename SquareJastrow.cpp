@@ -77,20 +77,7 @@ unsigned int SquareJastrow::unit_cell_index(Vector<double> const& x) const {
 
 /*{method needed for checking*/
 void SquareJastrow::display_results(){
-	if(rst_file_){
-		std::string title("Jastrow");
-		std::string run_cmd("./mc -s:wf square-jastow");
-		run_cmd += " -u:N " + my::tostring(N_);
-		run_cmd += " -u:m " + my::tostring(m_);
-		run_cmd += " -u:n " + my::tostring(n_);
-		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d -u:tmax 10";
-
-		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",run_cmd);
-
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-	}
+	draw_lattice(true,true,false,(dir_nn_[2]+dir_nn_[3])*0.5,"", "Jastrow");
 }
 
 void SquareJastrow::check(){

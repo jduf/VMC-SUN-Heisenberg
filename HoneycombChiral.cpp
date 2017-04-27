@@ -126,15 +126,8 @@ unsigned int HoneycombChiral::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void HoneycombChiral::display_results(){
 	compute_H();
-	draw_lattice(false,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25);
-
-	if(rst_file_){
-		std::string title("Chiral with "+RST::math("\\phi")+"="+my::tostring(phi_));
-		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",get_mc_run_command());
-
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-	}
+	std::string phi(my::tostring(phi_));
+	draw_lattice(false,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25,"-d:phi "+phi,RST::math("\\phi")+"="+phi);
 }
 
 void HoneycombChiral::check(){
@@ -152,18 +145,6 @@ void HoneycombChiral::param_fit_therm_limit(std::string& f, std::string& param, 
 	f="f(x) = a+b*x*x";
 	param = "a,b";
 	range = "[0:0.015]";
-}
-
-std::string HoneycombChiral::get_mc_run_command() const {
-	std::string run_cmd("./mc -s:wf honeycomb-chiral");
-	run_cmd += " -u:N " + my::tostring(N_);
-	run_cmd += " -u:m " + my::tostring(m_);
-	run_cmd += " -u:n " + my::tostring(n_);
-	run_cmd += " -i:bc "+ my::tostring(bc_);
-	run_cmd += " -d:phi "+ my::tostring(phi_);;
-	run_cmd += " -d -u:tmax 10";
-
-	return run_cmd;
 }
 /*}*/
 

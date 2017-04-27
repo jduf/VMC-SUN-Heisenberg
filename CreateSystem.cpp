@@ -559,17 +559,9 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								case 3:
 									{
 										double t(0);
-										unsigned int fc(0);
-										if(param){
-											t = (*param)(0);
-											if(param->size()==2){ fc = (*param)(1); }
-											else { fc = 0; }
-										}
-										if(C) {
-											t = C->get<double>("td");
-											fc= (C->find("fc",fc,false)?C->get<unsigned int>(fc):0);
-										}
-										RGL_ = new Honeycomb0pp(*s_,t,fc);
+										if(param){ t = (*param)(0); }
+										if(C) { t = C->get<double>("td"); }
+										RGL_ = new Honeycomb0pp(*s_,t);
 									}break;
 								case 4:
 									{

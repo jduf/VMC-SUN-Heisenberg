@@ -95,7 +95,7 @@ void LadderRectangularPlaquetteD::save_param(IOFiles& w) const {
 void LadderRectangularPlaquetteD::display_results(){
 	compute_H();
 	std::string t(my::tostring(t_));
-	draw_lattice(true,true,true,"ladder-rectangularplaquetteD -d:t "+t, "t=("+t+")");
+	draw_lattice(true,true,true,"-d:t "+t, "t=("+t+")");
 }
 
 void LadderRectangularPlaquetteD::check(){

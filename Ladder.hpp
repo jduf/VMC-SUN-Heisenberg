@@ -34,7 +34,7 @@ class Ladder: public System1D<Type>{
 		/*!Given N and m, save the best simulation in a text file for any n*/
 		std::string extract_level_3();
 		/*Draw the lattice inside a PSTricks file*/
-		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image, std::string cmd_name, std::string title);
+		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image, std::string const& param, std::string title);
 		/*!Computes and writes the flux per plaquette in the PSTricks file*/
 		std::string flux_per_plaquette(unsigned int const& s0, unsigned int const& s1) const;
 };
@@ -190,7 +190,7 @@ std::string Ladder<Type>::extract_level_3(){
 }
 
 template<typename Type>
-void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image, std::string cmd_name, std::string title){
+void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image, std::string const& param, std::string title){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(6,0);
 	double max_bond_energy(0);
@@ -516,20 +516,23 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 	
 	if(this->rst_file_){
 		title = RST::math("\\theta=")+my::tostring(acos(this->J_(0))) + " : " + title;
-		cmd_name = "./mc -s:wf "+cmd_name;
-
+		std::string cmd_name("./mc");
+		cmd_name += " -s:wf "+ this->wf_name_;
 		cmd_name += " -u:N " + my::tostring(this->N_);
 		cmd_name += " -u:m " + my::tostring(this->m_);
 		cmd_name += " -u:n " + my::tostring(this->n_);
 		cmd_name += " -i:bc "+ my::tostring(this->bc_);
 		cmd_name += " -d:theta " + my::tostring(acos(this->J_(0)));
+		cmd_name += " " + param;
 		cmd_name += " -d -u:tmax 10";
 		if(this->dir_ == "P/" || this->dir_ == "O/" || this->dir_ == "A/"){
 			this->rst_file_->title("|theta"+my::tostring(acos(this->J_(0)))+"|_",'-');
 			this->rst_file_->replace("theta"+my::tostring(acos(this->J_(0))),title);
 		} else { this->rst_file_->title(title,'-'); }
 		this->rst_file_->change_text_onclick("run command",cmd_name);
-		this->rst_file_->figure(this->dir_+this->filename_+".png",RST::math("E="+my::tostring(this->obs_[0][0].get_x())+"\\pm"+my::tostring(this->obs_[0][0].get_dx())),RST::target(this->dir_+this->filename_+".pdf")+RST::width("800"));
+		this->rst_file_->figure(this->dir_+this->filename_+".png",
+				RST::math("E="+my::tostring(this->obs_[0][0].get_x())+"\\pm"+my::tostring(this->obs_[0][0].get_dx())),
+				RST::target(this->dir_+this->filename_+".pdf")+RST::width("800"));
 
 		if(o(2) && o(3) && o(4) && o(5)){
 			std::string path(this->analyse_+this->path_+this->dir_);

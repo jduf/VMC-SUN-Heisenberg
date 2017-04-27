@@ -100,7 +100,7 @@ void LadderFree::display_results(){
 	compute_H();
 	std::string t(my::tostring(t_));
 	std::string mu(my::tostring(mu_));
-	draw_lattice(true,true,true,"ladder-free -d:t"+t+" -d:mu "+mu, "t=("+t+")"+RST::math("\\mu")+"=("+mu+")");
+	draw_lattice(true,true,true,"-d:t "+t+" -d:mu "+mu,"t=("+t+")"+RST::math("\\mu")+"=("+mu+")");
 }
 
 void LadderFree::check(){

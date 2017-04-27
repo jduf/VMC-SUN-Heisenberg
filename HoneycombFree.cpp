@@ -103,28 +103,8 @@ unsigned int HoneycombFree::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void HoneycombFree::display_results(){
 	compute_H();
-	draw_lattice(false,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25);
-
-	if(rst_file_){
-		std::string title("t=(");
-		std::string run_cmd("./mc -s:wf ladder-free");
-		run_cmd += " -u:N " + my::tostring(N_);
-		run_cmd += " -u:m " + my::tostring(m_);
-		run_cmd += " -u:n " + my::tostring(n_);
-		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d:t ";
-		for(unsigned int i(0);i<t_.size()-1;i++){
-			title   += my::tostring(t_(i)) + ",";
-			run_cmd += my::tostring(t_(i)) + ",";
-		}
-		title   += my::tostring(t_.back()) + "),";
-		run_cmd += " -d:Jp 1 -u:tmax 10 -d";
-
-		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",run_cmd);
-
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-	}
+	std::string t(my::tostring(t_));
+	draw_lattice(false,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25,"-d:t "+t,"t=("+t+")");
 }
 
 void HoneycombFree::check(){

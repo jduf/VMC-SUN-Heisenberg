@@ -180,11 +180,6 @@ class CreateSystem{
 			if(RGL_){ return RGL_->get_obs(); }
 			else { return CGL_->get_obs(); }
 		}
-		/*!Calls GenericSystem::get_mc_run_command : see GenericSystem*/
-		std::string get_mc_run_command() const {
-			if(RGL_){ return RGL_->get_mc_run_command(); }
-			else { return CGL_->get_mc_run_command(); }
-		}
 		/*}*/
 
 		/*{Print and output in IOFiles methods*/

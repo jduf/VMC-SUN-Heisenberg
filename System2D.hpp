@@ -62,6 +62,8 @@ class System2D: public GenericSystem<Type>{
 		void draw_long_range_correlations(PSTricks& ps, Vector<double> const& shift, Observable const& O) const;
 		/*!Computes and writes the flux per plaquette in the PSTricks file*/
 		std::string flux_per_plaquette(unsigned int s0, Vector<unsigned int> const& dir) const;
+		/*!Write the title, the command line and link the lattice in the rst file*/
+		void rst_file_set_default_info(std::string const& param, std::string const& title);
 
 	private:
 		Matrix<double> const ab_;//!< the unit cell basis vectors a,b : ((a_1,b_1),(a_2,b_2))
@@ -325,7 +327,7 @@ void System2D<Type>::plot_band_structure(){
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : band structure not plotted"<<std::endl; }
 }
 
-/*{to draw the lattice*/
+/*{to display the lattice*/
 template<typename Type>
 Matrix<double> System2D<Type>::draw_unit_cell(double const& xshift, double const& yshift) const {
 	Matrix<double> tmp(4,2);
@@ -398,6 +400,25 @@ std::string System2D<Type>::flux_per_plaquette(unsigned int s0, Vector<unsigned 
 		else if((unsigned int)(my::chop(flux))%2){  return "$\\pi$"; }
 	}
 	return "";
+}
+
+template<typename Type>
+void System2D<Type>::rst_file_set_default_info(std::string const& param, std::string const& title){
+	if(this->rst_file_){
+		std::string cmd_name("./mc");
+		cmd_name+= " -s:wf "+this->wf_name_+ " " + param;
+		cmd_name+= " -u:N " + my::tostring(this->N_);
+		cmd_name+= " -u:m " + my::tostring(this->m_);
+		cmd_name+= " -u:n " + my::tostring(this->n_);
+		cmd_name+= " -i:bc "+ my::tostring(this->bc_);
+		cmd_name+= " -d -u:tmax 10";
+
+		this->rst_file_->title(title,'-');
+		this->rst_file_->change_text_onclick("run command",cmd_name);
+		this->rst_file_->figure(this->dir_+this->filename_+".png",
+				RST::math("E="+my::tostring(this->obs_[0][0].get_x())+"\\pm"+my::tostring(this->obs_[0][0].get_dx())),
+				RST::target(this->dir_+this->filename_+".pdf")+RST::scale("200"));
+	}
 }
 /*}*/
 /*}*/

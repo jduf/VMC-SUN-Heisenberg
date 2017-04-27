@@ -102,19 +102,8 @@ unsigned int SquareT3x2::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void SquareT3x2::display_results(){
 	compute_H();
-	draw_lattice(true,true,false,(dir_nn_[2]+dir_nn_[3])*0.5);
-
-	if(rst_file_){
-		std::string title("t=(");
-		for(unsigned int i(0);i<t_.size()-1;i++){
-			title   += my::tostring(t_(i)) + ",";
-		}
-		title   += my::tostring(t_.back()) + ")";
-		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",get_mc_run_command());
-
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-	}
+	std::string t(my::tostring(t_));
+	draw_lattice(true,true,false,(dir_nn_[2]+dir_nn_[3])*0.5,"-d:t "+t,"t=("+t+")");
 }
 
 void SquareT3x2::check(){
@@ -132,21 +121,6 @@ void SquareT3x2::param_fit_therm_limit(std::string& f, std::string& param, std::
 	f="f(x) = a+b*x*x";
 	param = "a,b";
 	range = "[0:0.015]";
-}
-
-std::string SquareT3x2::get_mc_run_command() const {
-	std::string run_cmd("./mc -s:wf square-T3x2");
-	run_cmd += " -u:N " + my::tostring(N_);
-	run_cmd += " -u:m " + my::tostring(m_);
-	run_cmd += " -u:n " + my::tostring(n_);
-	run_cmd += " -i:bc "+ my::tostring(bc_);
-	run_cmd += " -d:t ";
-	for(unsigned int i(0);i<t_.size()-1;i++){
-		run_cmd += my::tostring(t_(i)) + ",";
-	}
-	run_cmd += my::tostring(t_.back()) + " -d -u:tmax 10";
-
-	return run_cmd;
 }
 
 std::string SquareT3x2::extract_level_2(){

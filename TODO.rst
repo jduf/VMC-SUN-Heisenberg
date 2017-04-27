@@ -14,7 +14,6 @@ URGENT
 + Need to check how MCParticles updates its best known value. check also
   MCParticle::set_bx_via(...). If everything works fine, could remove the found
   variable in MCParticle::set_bx_via
-+ Honeycomb0pp : remove variable fc
 
 IDEA
 ----
@@ -22,8 +21,6 @@ IDEA
 + << >> should exactly the same for cout or IOFiles but print and write do
   different things
 + rename SystemFermionic<->FermionicSystem
-+ let all wave function use the method get_mc_run_command() defined in
-  GenericSystem
 + could define once and for all create() because it's always doing the same thing
 + could define set_ab for a given lattice in the lattice main class, then when
   for instance Square is constructed, the constructor could just take an index

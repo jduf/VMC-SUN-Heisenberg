@@ -1,7 +1,7 @@
 EXEC=
 EXEC+= mc
-#EXEC+= min
-#EXEC+= check
+EXEC+= min
+EXEC+= check
 EXEC+= study
 #EXEC+= mcbi
 

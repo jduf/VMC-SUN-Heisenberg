@@ -25,6 +25,5 @@ class HoneycombChiral: public Honeycomb<std::complex<double> >{
 		unsigned int unit_cell_index(Vector<double> const& x) const;
 
 		std::string extract_level_2();
-		std::string get_mc_run_command() const;
 };
 #endif

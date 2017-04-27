@@ -14,7 +14,7 @@ class Honeycomb: public System2D<Type>{
 	protected:
 		void init_lattice();
 		/*Draw the lattice inside a PSTricks file*/
-		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift);
+		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift, std::string const& param, std::string const& title);
 		/*!Create the long range correlation observables*/
 		void long_range_correlations_obs();
 
@@ -145,7 +145,7 @@ void Honeycomb<Type>::long_range_correlations_obs(){
 }
 
 template<typename Type>
-void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift){
+void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift, std::string const& param, std::string const& title){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(3,0);
 	double max_bond_energy(0);
@@ -336,6 +336,8 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 	/*draws long range correlations over the lattice*/
 	if(o(1)){ this->draw_long_range_correlations(ps,shift,this->obs_[o(1)]); }
 	ps.end(silent,true,true);
+
+	this->rst_file_set_default_info(param,title);
 }
 
 template<typename Type>

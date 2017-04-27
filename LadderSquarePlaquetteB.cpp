@@ -88,7 +88,7 @@ void LadderSquarePlaquetteB::save_param(IOFiles& w) const {
 void LadderSquarePlaquetteB::display_results(){
 	compute_H();
 	std::string t(my::tostring(t_));
-	draw_lattice(true,true,true,"ladder-squareplaquetteB -d:t "+t, "t=("+t+")");
+	draw_lattice(true,true,true,"-d:t "+t, "t=("+t+")");
 }
 
 void LadderSquarePlaquetteB::check(){

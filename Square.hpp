@@ -14,7 +14,7 @@ class Square: public System2D<Type>{
 	protected:
 		void init_lattice();
 		/*Draw the lattice inside a PSTricks file*/
-		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift);
+		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift, std::string const& param, std::string const& title);
 
 	private:
 		unsigned int p_;
@@ -98,7 +98,7 @@ void Square<Type>::init_lattice(){
 }
 
 template<typename Type>
-void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift){
+void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift, std::string const& param, std::string const& title){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(3,0);
 	double max_bond_energy(0);
@@ -267,9 +267,11 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 			}
 		}
 	}
-	/*draw long range correlations over the lattice*/
+	/*Draws long range correlations over the lattice*/
 	if(o(1)){ this->draw_long_range_correlations(ps,shift,this->obs_[o(1)]); }
 	ps.end(silent,true,true);
+
+	this->rst_file_set_default_info(param,title);
 }
 /*}*/
 

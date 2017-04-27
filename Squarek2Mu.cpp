@@ -90,29 +90,9 @@ unsigned int Squarek2Mu::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void Squarek2Mu::display_results(){
 	compute_H(0);
-	draw_lattice(false,true,false,(spuc_==3?dir_nn_[2]*0.25+dir_nn_[3]*0.5:dir_nn_[2]*0.5+dir_nn_[3]*0.5));
-
-	if(rst_file_){
-		std::string title(RST::math("\\mu")+"="+my::tostring(mu_) + " ");
-		std::string run_cmd("./mc -s:wf square-muk2");
-		run_cmd += " -u:N " + my::tostring(N_);
-		run_cmd += " -u:m " + my::tostring(m_);
-		run_cmd += " -u:n " + my::tostring(n_);
-		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d:mu "+ my::tostring(mu_);
-		run_cmd += " -d:t ";
-		title += RST::math("t") + "=(";
-		for(unsigned int i(0);i<t_.size();i++){
-			run_cmd += my::tostring(t_(i))+(i+1!=t_.size()?",":"");
-			title += my::tostring(t_(i))+(i+1!=t_.size()?",":")");
-		}
-		run_cmd += " -d -u:tmax 10";
-
-		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",run_cmd);
-
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-	}
+	std::string t(my::tostring(t_));
+	std::string mu(my::tostring(mu_));
+	draw_lattice(false,true,false,(spuc_==3?dir_nn_[2]*0.25+dir_nn_[3]*0.5:dir_nn_[2]*0.5+dir_nn_[3]*0.5),"-d:t "+t+" -d:mu "+mu,"t=("+t+") "+RST::math("\\mu")+"="+mu);
 }
 
 void Squarek2Mu::check(){

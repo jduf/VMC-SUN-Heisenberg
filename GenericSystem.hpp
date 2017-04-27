@@ -44,11 +44,10 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		virtual void check() = 0;
 		virtual void display_results() = 0;
 
-		virtual std::string get_mc_run_command() const { return "undefined"; }
-
 	protected:
-		Matrix<Type> H_;					//!< matrix used to get the band structure
+		std::string const wf_name_ = "";	//!< the name of the wave function
 		Matrix<std::complex<double> > evec_;//!< eigenvectors of H+Tx+Ty
+		Matrix<Type> H_;					//!< matrix used to get the band structure
 		unsigned int const spuc_;			//!< site per unit cell
 		unsigned int const z_;	 			//!< coordination number
 		double const eq_prec_ = 1e-12;		//!< precision for equality (important for matching position in lattice)
@@ -95,6 +94,7 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 template<typename Type>
 GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const& z, std::string const& filename):
 	IOSystem(filename,this->N_,this->m_,this->n_,this->M_,this->bc_,this->ref_),
+	wf_name_(filename),
 	spuc_(spuc),
 	z_(z)
 {

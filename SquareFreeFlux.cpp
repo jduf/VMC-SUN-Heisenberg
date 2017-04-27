@@ -98,34 +98,9 @@ unsigned int SquareFreeFlux::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void SquareFreeFlux::display_results(){
 	compute_H();
-	draw_lattice(true,true,false,(dir_nn_[2]+dir_nn_[3])*0.5);
-
-	if(rst_file_){
-		std::string title("t=(");
-		std::string run_cmd("./mc -s:wf square-freeflux");
-		run_cmd += " -u:N " + my::tostring(N_);
-		run_cmd += " -u:m " + my::tostring(m_);
-		run_cmd += " -u:n " + my::tostring(n_);
-		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d:t ";
-		for(unsigned int i(0);i<t_.size()-1;i++){
-			title   += my::tostring(t_(i)) + ",";
-			run_cmd += my::tostring(t_(i)) + ",";
-		}
-		title   += my::tostring(t_.back()) + ") "+RST::math("\\phi")+"=(";
-		run_cmd += my::tostring(t_.back()) + " -d:phi ";
-		for(unsigned int i(0);i<phi_.size()-1;i++){
-			title   += my::tostring(phi_(i)) + ",";
-			run_cmd += my::tostring(phi_(i)) + ",";
-		}
-		title   += my::tostring(phi_.back()) + ")";
-		run_cmd += my::tostring(phi_.back()) + " -d -u:tmax 10";
-
-		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",run_cmd);
-
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-	}
+	std::string t(my::tostring(t_));
+	std::string phi(my::tostring(phi_));
+	draw_lattice(true,true,false,(dir_nn_[2]+dir_nn_[3])*0.5,"-d:t "+t+" -d:phi "+phi,"t=("+t+") "+RST::math("\\phi")+"=("+phi+")");
 }
 
 void SquareFreeFlux::check(){

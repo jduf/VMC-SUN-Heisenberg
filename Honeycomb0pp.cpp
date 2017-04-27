@@ -1,10 +1,9 @@
 #include "Honeycomb0pp.hpp"
 
-Honeycomb0pp::Honeycomb0pp(System const& s, double const& td, unsigned int const& fc):
+Honeycomb0pp::Honeycomb0pp(System const& s, double const& td):
 	System(s),
 	Honeycomb<double>(set_ab(),6,"honeycomb-0pp"),
-	td_(td),
-	fc_(fc)
+	td_(td)
 {
 	if(status_==3){ init_lattice(); }
 	if(status_==2){
@@ -17,7 +16,7 @@ Honeycomb0pp::Honeycomb0pp(System const& s, double const& td, unsigned int const
 		system_info_.item("If td<0, each 0-flux hexagon is surrounded by pi-flux hexagons, 0-flux otherwise.");
 		system_info_.item("th is set to -1");
 
-		filename_ += "-td" + my::tostring(td_)+"-fc" + my::tostring(fc_);
+		filename_ += "-td" + my::tostring(td_);
 	}
 }
 
@@ -35,25 +34,8 @@ void Honeycomb0pp::compute_H(){
 		s1 = obs_[0](i,1);
 		ab0 = obs_[0](i,5);
 		ab1 = obs_[0](i,6);
-		switch(fc_){
-			case 0:
-				{
-					if((ab0==0 && ab1==1) || (ab0==2 && ab1==3) || (ab0==4 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); }
-					else { H_(s0,s1) = (obs_[0](i,4)?bc_*th:th); }
-				}break;
-			case 1:
-				{
-					if((ab0==4 && ab1==3) || (ab0==2 && ab1==1) || (ab0==0 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); }
-					else { H_(s0,s1) = (obs_[0](i,4)?bc_*th:th); }
-				}break;
-			case 2:
-				{
-					if((ab0==2 && ab1==5) || (ab0==0 && ab1==3) || (ab0==4 && ab1==1)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); }
-					else { H_(s0,s1) = (obs_[0](i,4)?bc_*th:th); }
-				}break;
-			default:
-				{ std::cerr<<__PRETTY_FUNCTION__<<" unknown flux configuration 3>fc="<<fc_<<std::endl; }
-		}
+		if((ab0==0 && ab1==1) || (ab0==2 && ab1==3) || (ab0==4 && ab1==5)){ H_(s0,s1) = (obs_[0](i,4)?bc_*td_:td_); }
+		else { H_(s0,s1) = (obs_[0](i,4)?bc_*th:th); }
 	}
 	H_ += H_.transpose();
 }
@@ -72,10 +54,8 @@ void Honeycomb0pp::create(){
 
 void Honeycomb0pp::save_param(IOFiles& w) const {
 	if(w.is_binary()){
-		std::string s("td="+my::tostring(td_)+", th=-1, fc="+my::tostring(fc_));
-		Vector<double> param(2);
-		param(0) = td_;
-		param(1) = fc_;
+		std::string s("td="+my::tostring(td_)+", th=-1");
+		Vector<double> param(1,td_);
 
 		w.add_to_header()->title(s,'<');
 		w<<param;
@@ -114,15 +94,8 @@ unsigned int Honeycomb0pp::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void Honeycomb0pp::display_results(){
 	compute_H();
-	draw_lattice(true,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.25+dir_nn_[4]*0.25);
-
-	if(rst_file_){
-		std::string title(RST::math("0\\pi\\pi")+" with "+RST::math("t_d")+"="+my::tostring(td_));
-		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",get_mc_run_command());
-
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-	}
+	std::string td(my::tostring(td_));
+	draw_lattice(true,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.25+dir_nn_[4]*0.25,"-d:td "+td,RST::math("0\\pi\\pi")+", "+RST::math("t_d")+"="+td);
 }
 
 void Honeycomb0pp::check(){
@@ -134,8 +107,8 @@ void Honeycomb0pp::check(){
 
 	//compute_H();
 	//plot_band_structure();
-	
-	
+
+
 	Data<double> b1;
 	b1.merge(obs_[1][0]);
 	b1.merge(obs_[1][4]);
@@ -151,18 +124,5 @@ void Honeycomb0pp::check(){
 	b2.complete_analysis(1e-5);
 
 	std::cerr<<N_<<" "<<m_<<" "<<n_<<" "<<bc_<<" "<<td_<<" "<<obs_[0][0]<<" "<<b1<<" "<<b2<<" "<<ref_<<std::endl;
-}
-
-std::string Honeycomb0pp::get_mc_run_command() const {
-	std::string run_cmd("./mc -s:wf honeycomb-0pp");
-	run_cmd += " -u:N " + my::tostring(N_);
-	run_cmd += " -u:m " + my::tostring(m_);
-	run_cmd += " -u:n " + my::tostring(n_);
-	run_cmd += " -i:bc "+ my::tostring(bc_);
-	run_cmd += " -d:td " + my::tostring(td_);
-	run_cmd += " -u:fc " + my::tostring(fc_);
-	run_cmd += " -d:Jp 1 -u:tmax 10 -d";
-
-	return run_cmd;
 }
 /*}*/

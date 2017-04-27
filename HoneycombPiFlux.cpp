@@ -71,22 +71,7 @@ unsigned int HoneycombPiFlux::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void HoneycombPiFlux::display_results(){
 	compute_H();
-	draw_lattice(true,true,false,ref_(3)?dir_nn_[3]*1.5+(dir_nn_[4]+dir_nn_[5])*0.75:dir_nn_[3]*1.5+(dir_nn_[4]+dir_nn_[5])*0.25);
-
-	if(rst_file_){
-		std::string title("Pi-flux");
-		std::string run_cmd("./mc -s:wf honeycomb-piflux");
-		run_cmd += " -u:N " + my::tostring(N_);
-		run_cmd += " -u:m " + my::tostring(m_);
-		run_cmd += " -u:n " + my::tostring(n_);
-		run_cmd += " -i:bc "+ my::tostring(bc_);
-		run_cmd += " -d -u:tmax 10";
-
-		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",run_cmd);
-
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-	}
+	draw_lattice(true,true,false,ref_(3)?dir_nn_[3]*1.5+(dir_nn_[4]+dir_nn_[5])*0.75:dir_nn_[3]*1.5+(dir_nn_[4]+dir_nn_[5])*0.25,"","Pi-flux");
 }
 
 void HoneycombPiFlux::check(){

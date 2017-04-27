@@ -113,6 +113,13 @@ unsigned int LadderFreeFlux::set_spuc(Vector<double> const& t, Vector<double> co
 /*}*/
 
 /*{method needed for checking*/
+void LadderFreeFlux::display_results(){
+	compute_H();
+	std::string t(my::tostring(t_));
+	std::string flux(my::tostring(flux_));
+	draw_lattice(true,true,true,"-d:t "+t+" -d:phi "+flux, "t=("+t+")"+RST::math("\\phi")+"=("+flux+")");
+}
+
 void LadderFreeFlux::check(){
 	info_ = "";
 	path_ = "";
@@ -121,13 +128,6 @@ void LadderFreeFlux::check(){
 	display_results();
 
 	//plot_band_structure();
-}
-
-void LadderFreeFlux::display_results(){
-	compute_H();
-	std::string t(my::tostring(t_));
-	std::string flux(my::tostring(flux_));
-	draw_lattice(true,true,true,"ladder-freeflux -d:t"+t+" -d:phi "+flux, "t=("+t+")"+RST::math("\\phi")+"=("+flux+")");
 }
 /*}*/
 

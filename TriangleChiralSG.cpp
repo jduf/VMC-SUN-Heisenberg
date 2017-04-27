@@ -147,15 +147,8 @@ void TriangleChiralSG::bond_energy_obs(){
 /*{method needed for checking*/
 void TriangleChiralSG::display_results(){
 	compute_H();
-	draw_lattice(false,true,false,dir_nn_[3]*1.75+dir_nn_[4]*0.25);
-
-	if(rst_file_){
-		std::string title(RST::math("\\phi")+"="+my::tostring(phi_));
-		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",get_mc_run_command());
-
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-	}
+	std::string phi(my::tostring(phi_));
+	draw_lattice(false,true,false,dir_nn_[3]*1.75+dir_nn_[4]*0.25,"-d:phi "+phi,RST::math("\\phi")+"="+phi);
 }
 
 void TriangleChiralSG::check(){
@@ -170,17 +163,5 @@ void TriangleChiralSG::check(){
 
 	//compute_H();
 	//plot_band_structure();
-}
-
-std::string TriangleChiralSG::get_mc_run_command() const {
-	std::string run_cmd("./mc -s:wf triangle-chiral");
-	run_cmd += " -u:N " + my::tostring(N_);
-	run_cmd += " -u:m " + my::tostring(m_);
-	run_cmd += " -u:n " + my::tostring(n_);
-	run_cmd += " -i:bc "+ my::tostring(bc_);
-	run_cmd += " -d:phi "+ my::tostring(phi_);
-	run_cmd += " -d -u:tmax 10";
-
-	return run_cmd;
 }
 /*}*/

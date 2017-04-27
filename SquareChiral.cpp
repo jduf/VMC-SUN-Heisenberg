@@ -242,15 +242,8 @@ unsigned int SquareChiral::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void SquareChiral::display_results(){
 	compute_H();
-	draw_lattice(false,true,false,(dir_nn_[2]+dir_nn_[3])*0.5);
-
-	if(rst_file_){
-		std::string title(RST::math("\\phi")+"="+my::tostring(phi_));
-		rst_file_->title(title,'-');
-		rst_file_->change_text_onclick("run command",get_mc_run_command());
-
-		rst_file_->figure(dir_+filename_+".png",RST::math("E="+my::tostring(obs_[0][0].get_x())+"\\pm"+my::tostring(obs_[0][0].get_dx())),RST::target(dir_+filename_+".pdf")+RST::scale("200"));
-	}
+	std::string phi(my::tostring(phi_));
+	draw_lattice(false,true,false,(dir_nn_[2]+dir_nn_[3])*0.5,"-d:phi "+phi,RST::math("\\phi")+"="+phi);
 }
 
 void SquareChiral::check(){
@@ -268,17 +261,5 @@ void SquareChiral::param_fit_therm_limit(std::string& f, std::string& param, std
 	f="f(x) = a+b*x*x";
 	param = "a,b";
 	range = "[0:0.015]";
-}
-
-std::string SquareChiral::get_mc_run_command() const {
-	std::string run_cmd("./mc -s:wf square-chiral");
-	run_cmd += " -u:N " + my::tostring(N_);
-	run_cmd += " -u:m " + my::tostring(m_);
-	run_cmd += " -u:n " + my::tostring(n_);
-	run_cmd += " -i:bc "+ my::tostring(bc_);
-	run_cmd += " -d:phi "+ my::tostring(phi_);;
-	run_cmd += " -d -u:tmax 10";
-
-	return run_cmd;
 }
 /*}*/

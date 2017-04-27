@@ -41,7 +41,7 @@ void LadderFermi::create(){
 /*{method needed for checking*/
 void LadderFermi::display_results(){
 	compute_H();
-	draw_lattice(true,true,true,"ladder-fermi","Fermi");
+	draw_lattice(true,true,true,"","Fermi");
 }
 
 void LadderFermi::check(){
