@@ -170,8 +170,7 @@ void VMCMinimization::complete_analysis(double const& convergence_criterion){
 }
 
 void VMCMinimization::save(std::string save_in) const {
-	my::ensure_trailing_slash(save_in);
-	save_in += path_;
+	save_in = my::ensure_trailing_slash(save_in) + path_;
 	set_time();
 	Linux().mkpath(save_in.c_str());
 
@@ -407,8 +406,7 @@ void VMCMinimization::save_parameters(unsigned int nbest, std::string save_in) c
 	find_minima(0,0.999,sorted_samples,potential_minima);
 	nbest = (sorted_samples.size()>nbest+1?nbest:sorted_samples.size()-1);
 
-	my::ensure_trailing_slash(save_in);
-	save_in += path_;
+	save_in = my::ensure_trailing_slash(save_in) + path_;
 	set_time();
 	Linux().mkpath(save_in.c_str());
 

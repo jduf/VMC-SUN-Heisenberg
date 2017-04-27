@@ -158,7 +158,7 @@ std::string ChainPolymerized::extract_level_8(){
 	rst_file_->figure(basename+"-structure-factor.png","Structure factor",RST::target(basename+"-structure-factor.gp")+RST::width("1000"));
 
 	rst_file_->text(read_->get_header());
-	rst_file_->save(false,true);
+	rst_file_->save(true,false,true);
 	delete rst_file_;
 	rst_file_ = NULL;
 

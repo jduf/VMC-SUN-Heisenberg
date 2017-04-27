@@ -57,7 +57,7 @@ std::string AnalyseMin::extract_level_9(){
 
 	RSTFile rst(info_+path_+dir_,filename_);
 	rst.text(read_->get_header());
-	rst.save(false,true);
+	rst.save(true,false,true);
 
 	VMCAnalyse(*read_).find_save_and_plot_minima(10,*jd_write_,analyse_+path_+dir_,filename_);
 

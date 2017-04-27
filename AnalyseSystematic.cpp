@@ -65,7 +65,7 @@ std::string AnalyseSystematic::extract_level_9(){
 
 	RSTFile rst(info_+path_+dir_,filename_);
 	rst.text(read_->get_header());
-	rst.save(false,true);
+	rst.save(true,false,true);
 
 	List<MCSim> local_minima;
 	VMCSystematic min(*read_);

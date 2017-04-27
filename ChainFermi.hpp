@@ -114,7 +114,7 @@ std::string ChainFermi<Type>::extract_level_8(){
 	this->rst_file_->figure(basename+"-structure-factor.png","Structure factor",RST::target(basename+"-structure-factor.gp")+RST::width("1000"));
 
 	this->rst_file_->text(this->read_->get_header());
-	this->rst_file_->save(false,true);
+	this->rst_file_->save(true,false,true);
 	delete this->rst_file_;
 	this->rst_file_ = NULL;
 

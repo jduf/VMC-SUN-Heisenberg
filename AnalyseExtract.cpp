@@ -62,7 +62,7 @@ std::string AnalyseExtract::extract_level_9(){
 
 	RSTFile rst(info_+path_+dir_,filename_);
 	rst.text(read_->get_header());
-	rst.save(false,true);
+	rst.save(true,false,true);
 
 	VMCExtract min(*read_,1e3,1e4);
 	List<MCSim>::Node* target(min.analyse(analyse_+path_+dir_,filename_,kept_samples_));

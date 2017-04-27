@@ -88,6 +88,7 @@ int main(int argc, char* argv[]){
 		std::cout<<RST::dash_line_<<std::endl;
 	}
 
+	/*Display the results in a html browser*/
 	if(P.find("d") && cs && iof){
 		RSTFile rst("/tmp/",fname);
 		IOSystem ios(fname,"","","","","/tmp/",&rst);
@@ -95,8 +96,23 @@ int main(int argc, char* argv[]){
 		cs->display_results();
 
 		rst.text(iof->get_header());
-		rst.save(false,true);
+		rst.save(true,false,true);
 		command(Linux::html_browser("/tmp/"+fname+".html"),true);
+	}
+
+	/*Print the results in a pdf and html files*/
+	if(P.find("p") && cs && iof){
+		RSTFile rst("./",fname+"-print");
+		IOSystem ios(fname,"./","./","./","./","./",&rst);
+		cs->set_IOSystem(&ios);
+		cs->display_results();
+
+		rst.text(iof->get_header());
+		rst.save(true,true,true);
+
+		command("rm " + fname + "*-print.tex " + fname + "*.png ",true);
+		command.mkdir(fname.c_str());
+		command("mv " + fname + "* " + fname,true);
 	}
 
 	if(cs) { delete cs; }

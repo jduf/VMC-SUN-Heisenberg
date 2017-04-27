@@ -38,18 +38,14 @@ IOSystem::IOSystem(std::string const& filename, unsigned int const& N, unsigned 
 }
 
 IOSystem::IOSystem(std::string const& filename, std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file):
-	sim_(sim),
-	info_(info),
-	analyse_(analyse),
-	path_(path),
-	dir_(dir),
+	sim_(my::ensure_trailing_slash(sim)),
+	info_(my::ensure_trailing_slash(info)),
+	analyse_(my::ensure_trailing_slash(analyse)),
+	path_(my::ensure_trailing_slash(path)),
+	dir_(my::ensure_trailing_slash(dir)),
 	filename_(filename),
 	rst_file_(rst_file)
-{
-	my::ensure_trailing_slash(sim_);
-	my::ensure_trailing_slash(info_);
-	my::ensure_trailing_slash(analyse_);
-}
+{}
 
 void IOSystem::set_IOSystem(IOSystem const* const ios){
 	sim_       = ios->sim_;

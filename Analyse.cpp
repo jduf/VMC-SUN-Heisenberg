@@ -24,7 +24,7 @@ void Analyse::do_analyse(){
 				r>>h;
 				list_rst_.first().text(h);
 				recursive_search();
-				list_rst_.first().save(false,false);
+				list_rst_.first().save(true,false,false);
 			}break;
 		case 1: /*update only the README file*/
 			{
@@ -40,13 +40,13 @@ void Analyse::do_analyse(){
 				for(unsigned int j(0);j<d.size();j++){
 					rst.hyperlink(d.get_name(j),info_+d.get_name(j)+".html");
 				}
-				rst.save(false,true);
+				rst.save(true,false,true);
 				std::cout<<std::endl<<rst.get()<<std::endl;
 			}break;
 		case 2: /*only study a given directory and its subdirectories*/
 			{
 				std::cout<<"analysing only directories below "<<path_<<std::endl;
-				my::ensure_trailing_slash(path_);
+				path_ = my::ensure_trailing_slash(path_);
 				std::vector<std::string> tmp(my::string_split(path_,'/'));
 				path_ = "";
 				level_=1;
@@ -133,7 +133,7 @@ void Analyse::search_jdbin(){
 		close_files();
 		all_link_names_.set();
 		all_link_files_.set();
-		list_rst_.last().save(false,true);
+		list_rst_.last().save(true,false,true);
 	}
 }
 

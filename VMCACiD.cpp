@@ -98,8 +98,7 @@ bool VMCACiD::keepon(bool const& improve_overall) const {
 }
 
 void VMCACiD::save(std::string dirname) const {
-	my::ensure_trailing_slash(dirname);
-	dirname += get_path();
+	dirname = my::ensure_trailing_slash(dirname) + get_path();
 	set_time();
 	Linux().mkpath(dirname.c_str());
 	IOFiles out(dirname+get_filename()+".jdbin",true,false);

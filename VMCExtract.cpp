@@ -132,8 +132,7 @@ VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int c
 
 void VMCExtract::save(std::string save_in) const {
 	if(m_->samples_.size()){
-		my::ensure_trailing_slash(save_in);
-		save_in += get_path();
+		save_in = my::ensure_trailing_slash(save_in) + get_path();
 		set_time();
 		Linux().mkpath(save_in.c_str());
 

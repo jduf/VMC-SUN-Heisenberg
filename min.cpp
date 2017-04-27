@@ -135,7 +135,7 @@ int main(int argc, char* argv[]){
 								while(kept_samples.target_next()){
 									kept_samples.get().display_results("","","","","","/tmp/",&rst);
 								}
-								rst.save(false,true);
+								rst.save(true,false,true);
 								Linux()(Linux::html_browser("/tmp/"+fname+".html"),true);
 							}break;
 						case 103:
