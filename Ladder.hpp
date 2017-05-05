@@ -252,7 +252,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 			xy1(0) = s1/2+0.0001;
 			xy1(1) = s1%2+0.0001;
 
-			if((xy0-xy1).norm_squared()>1.0001){
+			if(links(i,4)){
 				linestyle = "dashed";
 				xy1(0) = xy0(0)+1.0;
 			} else { linestyle = "solid"; }
@@ -313,7 +313,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 			xy1(0) = s1/2+0.0001;
 			xy1(1) = s1%2+0.0001-2;
 
-			if((xy0-xy1).norm_squared()>1.0001){
+			if(links(i,4)){
 				linestyle = "dashed";
 				xy1(0) = xy0(0)+1.2;
 				ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(s1)+"}");

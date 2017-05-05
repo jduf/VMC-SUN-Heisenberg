@@ -43,8 +43,8 @@ class MCSim{
 		void merge(std::shared_ptr<MCSim> const& mcsim){ MCS_->merge(mcsim->MCS_.get()); }
 		/*!Calls virtual void MCSystem::free_memory() = 0*/
 		void free_memory(){ MCS_->free_memory(); }
-		/*!Calls System::print()*/
-		void print(unsigned int const& nobs) const { MCS_->print(nobs); }
+		/*!Calls System::print(bool const& all)*/
+		void print(bool const& all) const { MCS_->print(all); }
 		/*}*/
 
 		/*{Output in IOFiles methods*/

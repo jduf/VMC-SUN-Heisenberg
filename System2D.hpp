@@ -61,7 +61,7 @@ class System2D: public GenericSystem<Type>{
 		/*!Draws the long range correlations contained int O in the PSTricks file*/
 		void draw_long_range_correlations(PSTricks& ps, Vector<double> const& shift, Observable const& O) const;
 		/*!Computes and writes the flux per plaquette in the PSTricks file*/
-		std::string flux_per_plaquette(unsigned int s0, Vector<unsigned int> const& dir) const;
+		std::string flux_per_plaquette(unsigned int s0, Vector<unsigned int> const& loop) const;
 		/*!Write the title, the command line and link the lattice in the rst file*/
 		void rst_file_set_default_info(std::string const& param, std::string const& title);
 
@@ -378,12 +378,12 @@ void System2D<Type>::draw_long_range_correlations(PSTricks& ps, Vector<double> c
 }
 
 template<typename Type>
-std::string System2D<Type>::flux_per_plaquette(unsigned int s0, Vector<unsigned int> const& dir) const {
+std::string System2D<Type>::flux_per_plaquette(unsigned int s0, Vector<unsigned int> const& loop) const {
 	unsigned int s1;
 	double flux(0.0);
 	Vector<double> x(x_[s0]);
-	for(unsigned int i(0);i<dir.size();i++){
-		x += dir_nn_[dir(i)];
+	for(unsigned int i(0);i<loop.size();i++){
+		x += dir_nn_[loop(i)];
 		s1 = this->site_index(x);
 		flux+= std::arg(-this->H_(s0,s1));
 		s0 = s1;
@@ -417,7 +417,7 @@ void System2D<Type>::rst_file_set_default_info(std::string const& param, std::st
 		this->rst_file_->change_text_onclick("run command",cmd_name);
 		this->rst_file_->figure(this->dir_+this->filename_+".png",
 				RST::math("E="+my::tostring(this->obs_[0][0].get_x())+"\\pm"+my::tostring(this->obs_[0][0].get_dx())),
-				RST::target(this->dir_+this->filename_+".pdf")+RST::scale("200"));
+				RST::target(this->dir_+this->filename_+".pdf")+RST::width("800"));
 	}
 }
 /*}*/

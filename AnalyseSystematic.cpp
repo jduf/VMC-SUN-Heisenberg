@@ -1,19 +1,21 @@
 #include "AnalyseSystematic.hpp"
 
-AnalyseSystematic::AnalyseSystematic(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file):
-	Analyse(sim,path,max_level,bash_file)
+AnalyseSystematic::AnalyseSystematic(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file):
+	Analyse(sim,max_level,bash_file)
 {
 	do_analyse();
 }
 
 AnalyseSystematic::~AnalyseSystematic(){
-	Gnuplot gp(analyse_+path_+dir_,sim_.substr(0,sim_.size()-1));
-	gp.label("x","$\\frac{ 1}{N}$");
-	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
-	gp+="plot '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==6?1.0/$1:1/0):3 t '$k=6$',\\";
-	gp+="     '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==3?1.0/$1:1/0):3 t '$k=3$'";
-	gp.save_file();
-	gp.create_image(true,"png");
+	if(study_){
+		Gnuplot gp(analyse_+path_+dir_,sim_.substr(0,sim_.size()-1));
+		gp.label("x","$\\frac{ 1}{N}$");
+		gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
+		gp+="plot '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==6?1.0/$1:1/0):3 t '$k=6$',\\";
+		gp+="     '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==3?1.0/$1:1/0):3 t '$k=3$'";
+		gp.save_file();
+		gp.create_image(true,"png");
+	}
 }
 
 void AnalyseSystematic::open_files(){

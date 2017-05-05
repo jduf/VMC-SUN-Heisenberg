@@ -1,8 +1,8 @@
 #include "AnalyseChain.hpp"
 
-AnalyseChain::AnalyseChain(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file):
-	Analyse(sim,path,max_level,bash_file),
-	outfile_(NULL)
+AnalyseChain::AnalyseChain(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file):
+	Analyse(sim,max_level,bash_file),
+	outfile_(study_==0?new IOFiles("sun-chains.dat",true,false):NULL)
 {
 	std::cout<<"Will proceed to the analyse SU(N) chains. It will consist "
 		"of an analyse of :"<<std::endl<<
@@ -14,7 +14,6 @@ AnalyseChain::AnalyseChain(std::string const& sim, std::string const& path, unsi
 		"comparison of the energies and the polymerization strength in "
 		"function of the system size."<<std::endl;
 
-	if(path==""){ outfile_ = new IOFiles("sun-chains.dat",true,false); }
 	do_analyse();
 }
 

@@ -6,7 +6,7 @@
 
 class AnalyseExtract : public Analyse{
 	public:
-		AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& display_results);
+		AnalyseExtract(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& display_results);
 		~AnalyseExtract();
 		/*{Forbidden*/
 		AnalyseExtract() = delete;

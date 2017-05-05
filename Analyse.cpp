@@ -1,21 +1,43 @@
 #include "Analyse.hpp"
 
-Analyse::Analyse(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file):
-	IOSystem("",sim,"info-"+sim,"analyse-"+sim,"","",NULL),
+Analyse::Analyse(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file):
+	IOSystem("",sim,"info-"+sim,"analyse-"+sim,"./","./",NULL),
 	max_level_(max_level),
 	bash_file_(bash_file)
 {
-	if(path == ""){ study_=0; }
-	if(path == "README"){ study_=1; }
-	if(path != "README" && path != ""){ study_=2; path_ = path; }
-	if(path.find(".jdbin")!=std::string::npos){ study_=3; }
+	if(sim_ == "README/"){ study_ = 0; }
+	else if( std::count(sim_.begin(),sim_.end(),'/') == 1) { study_ = 1; }
+	else {
+		study_ = 2;
+
+		std::vector<std::string> tmp(my::string_split(sim_,'/'));
+		level_=1;
+		path_ = "";
+		sim_ = tmp[0]+'/';
+		info_ = "info-"+sim_;
+		analyse_ = "analyse-"+sim_;
+		for(unsigned int i(1);i<tmp.size()-1;i++){
+			path_ += tmp[i]+'/';
+			level_++;
+			rel_level_ += "../";
+		}
+		dir_ = tmp[tmp.size()-1]+'/';
+	}
 }
 
 Analyse::~Analyse(){ Linux::close(bash_file_>1); }
 
 void Analyse::do_analyse(){
 	switch(study_){
-		case 0: /*treat everything*/
+		case 0: /*update only the README file*/
+			{
+				std::cout<<"analysing only README file"<<std::endl;
+				RSTFile rst("./","README");
+				IOFiles r("README",false,false);
+				rst.text(r.read<std::string>());
+				rst.save(true,false,true);
+			}break;
+		case 1: /*treat everything*/
 			{
 				std::cout<<"analysing the whole "<<sim_<<" directory"<<std::endl;
 				list_rst_.add_end(std::make_shared<RSTFile>("./","README"));
@@ -26,44 +48,14 @@ void Analyse::do_analyse(){
 				recursive_search();
 				list_rst_.first().save(true,false,false);
 			}break;
-		case 1: /*update only the README file*/
-			{
-				std::cout<<"analysing only README file"<<std::endl;
-				RSTFile rst("./","README");
-				IOFiles r("README",false,false);
-				std::string h;
-				r>>h;
-				rst.text(h);
-				Directory d;
-				d.search_files_ext(".jdbin",sim_+dir_,false,false);
-				d.sort();
-				for(unsigned int j(0);j<d.size();j++){
-					rst.hyperlink(d.get_name(j),info_+d.get_name(j)+".html");
-				}
-				rst.save(true,false,true);
-				std::cout<<std::endl<<rst.get()<<std::endl;
-			}break;
 		case 2: /*only study a given directory and its subdirectories*/
 			{
-				std::cout<<"analysing only directories below "<<path_<<std::endl;
-				path_ = my::ensure_trailing_slash(path_);
-				std::vector<std::string> tmp(my::string_split(path_,'/'));
-				path_ = "";
-				level_=1;
-				for(unsigned int i(1);i<tmp.size()-1;i++){
-					path_ += tmp[i]+'/';
-					level_++;
-					rel_level_ += "../";
-				}
-				dir_ = tmp[tmp.size()-1]+'/';
-
+				std::cout<<"analysing only the directories below "<<path_<<std::endl;
 				list_rst_.add_end(std::make_shared<RSTFile>(info_+path_,dir_.substr(0,dir_.size()-1)));
 
 				if(level_ != 1 && bash_file_){ Linux::open(dir_.substr(0,dir_.size()-1)+".bash"); }
 				recursive_search();
 			}break;
-		case 3:
-			{ std::cerr<<__PRETTY_FUNCTION__<<" : can't analyse a *.jdbin file"<<std::endl; }break;
 	}
 }
 
@@ -80,7 +72,7 @@ void Analyse::recursive_search(){
 
 		std::string tmp_path(path_);
 		std::string tmp_dir(dir_);
-		path_ += dir_;
+		if(dir_ != "./"){ path_ += dir_; }
 		dir_ = d.get_name(i) + "/";
 
 		if(level_<max_level_){ recursive_search(); }
@@ -142,6 +134,7 @@ std::string Analyse::extract_default(){
 
 	Vector<double> tmp(*read_);
 	System s(*read_);
+
 	CreateSystem cs(&s);
 	cs.init(&tmp,NULL);
 	cs.set_IOSystem(this);
@@ -195,29 +188,33 @@ std::string Analyse::extract_best_of_previous_level(){
 }
 
 std::string Analyse::fit_therm_limit(){
-	read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
-	(*read_)>>nof_;
+	if(level_ != 2){ std::cerr<<__PRETTY_FUNCTION__<<" : fit thermodynamical limit is usually done at level 2"<<std::endl; }
+	else {
+		read_ = new IOFiles(sim_+path_+dir_+filename_+".jdbin",false,false);
+		(*read_)>>nof_;
 
-	Vector<unsigned int> ref(5,0);
-	for(unsigned int i(0);i<nof_;i++){
-		Vector<double> tmp(*read_);
-		System s(*read_);
-		if(!my::are_equal(ref(0),s.get_ref()(0))){
-			ref = s.get_ref();
-			std::cout<<"n"<<s.get_n()<<" -> "<<ref<<std::endl;
-		}
-		if(i+1==nof_){
-			if(level_ != 2){ std::cerr<<__PRETTY_FUNCTION__<<" : fit thermodynamical limit is usually done at level 2"<<std::endl; }
-
+		data_write_ = new IOFiles(analyse_+dir_.substr(0,dir_.size()-1)+".dat",true,false);
+		unsigned int ref_check(0);
+		for(unsigned int i(0);i<nof_;i++){
+			Vector<double> tmp(*read_);
+			System s(*read_);
+			if(ref_check != s.get_ref()(0)){
+				ref_check = s.get_ref()(0);
+				std::cout<<"n"<<s.get_n()<<" -> "<<s.get_ref()<<std::endl;
+			}
 			CreateSystem cs(&s);
 			cs.init(&tmp,NULL);
 			cs.set_IOSystem(this);
-			return cs.analyse(level_);
+			cs.save(*data_write_);
+			if(i+1==nof_){ filename_ = cs.analyse(level_); }
 		}
-	}
 
-	delete read_;
-	read_ = NULL;
+		delete data_write_;
+		data_write_ = NULL;
+
+		delete read_;
+		read_ = NULL;
+	}
 
 	return filename_;
 }

@@ -64,12 +64,12 @@ class System{
 		/*}*/
 
 		/*{Saves/prints ref_, N_, m_, n_, bc_, M_, J_, status_ and obs_*/
-		/*!Call child method to save MCSystem's children without header*/
+		/*!Call child method to save MCSystem's children without description*/
 		virtual void write(IOFiles& w) const;
 		/*!Saves this class and GenericSystem's children with description*/
 		void save(IOFiles& w) const;
-		/*!Prints the values of the nobs first observables*/
-		void print(unsigned int nobs) const;
+		/*!Prints the results of the simulation in std::cout*/
+		void print(bool const& all) const;
 		/*}*/
 
 		/*{Simple value return*/

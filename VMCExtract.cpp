@@ -150,7 +150,7 @@ void VMCExtract::print() const {
 	m_->samples_.set_target();
 	while(m_->samples_.target_next()){
 		std::cout<<m_->samples_.get().get_param()<<std::endl;
-		m_->samples_.get().print(0);
+		m_->samples_.get().print(false);
 	}
 }
 

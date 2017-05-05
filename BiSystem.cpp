@@ -72,7 +72,7 @@ void BiSystem::run(unsigned int const& nruns, unsigned int const& tmax){
 				{ mcsys_[i][j]->merge(tmp.get()); }
 			}
 			mcsys_[i][j]->complete_analysis(1e-5);
-			mcsys_[i][j]->print(2);
+			mcsys_[i][j]->print(true);
 		}
 	}
 }

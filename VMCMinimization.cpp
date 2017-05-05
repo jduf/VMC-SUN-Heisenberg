@@ -506,7 +506,7 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate_until_precision(Vector<double> 
 	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || std::abs(sim->get_energy().get_dx()/sim->get_energy().get_x()) > dEoE ) );
 	if(sim.get()){
 		sim->complete_analysis(dEoE);
-		sim->print(0);
+		sim->print(false);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : failed"<<std::endl; }
 	return sim;
 }
@@ -543,7 +543,7 @@ void VMCMinimization::Minimization::set(Parseur& P, std::string& path, std::stri
 			std::cout<<"#"+msg_end<<std::endl;
 		}
 	} else { create(P,path,basename); }
-	if(s_){ s_->print(1); }
+	if(s_){ s_->print(true); }
 }
 
 void VMCMinimization::Minimization::create(Parseur& P, std::string& path, std::string& basename){

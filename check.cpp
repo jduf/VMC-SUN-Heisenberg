@@ -33,7 +33,7 @@ int main(int argc, char* argv[]){
 						if(cs.get_status()==2){
 							std::cout<<"############# Create GenericSystem ########"<<std::endl;
 							cs.create();
-							if(cs.get_status()!=1){ s.print(1); }
+							if(cs.get_status()!=1){ s.print(true); }
 						}
 					}break;
 				case 2:/*call CreateSystem::init create, MonteCarlo::run*/

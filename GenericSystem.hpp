@@ -35,11 +35,10 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		GenericSystem& operator=(GenericSystem<Type> const&) = delete;
 		/*}*/
 
-		/*!Substitute method for wavefunctions without parameters to save*/
-		virtual void save_param(IOFiles& w) const;
 		/*!Creates observable (bond energy, long range correlations,...)*/
 		void create_obs(unsigned int const& which_obs);
-
+		/*!Substitute method for wavefunctions without parameters to save*/
+		virtual void save_param(IOFiles& w) const;
 		virtual void create() = 0;
 		virtual void check() = 0;
 		virtual void display_results() = 0;
@@ -105,6 +104,29 @@ GenericSystem<Type>::GenericSystem(unsigned int const& spuc, unsigned int const&
 }
 
 /*{public methods*/
+template<typename Type>
+void GenericSystem<Type>::create_obs(unsigned int const& which_obs){
+	switch(which_obs){
+		/*As the energy_variance_obs observable is certainly not correctly
+		 * defined, one needs to explicitly ask for its creation, i.e. if
+		 * which_obs==0, it will not create this observable because of the -1
+		 * in the for loop*/
+		case 0: { for(unsigned int i(1);i<Observable::number_of_observables_defined-1;i++){ create_obs(i); } }break;
+		case 1: { bond_energy_obs(); }break;
+		case 2: { long_range_correlations_obs(); }break;
+		case 3: { color_occupation_obs(); }break;
+		case 4: { energy_variance_obs(); }break;
+		default:{
+					std::cerr<<__PRETTY_FUNCTION__<<" : unknown observable "<<which_obs<<std::endl;
+					std::cerr<<"Available observables are :"<<std::endl;
+					std::cerr<<" + Bond energy            : 1"<<std::endl;
+					std::cerr<<" + Long range correlations: 2"<<std::endl;
+					std::cerr<<" + Color occupation       : 3"<<std::endl;
+					std::cerr<<" + H*H (energy variance)  : 4"<<std::endl;
+				}
+	}
+}
+
 template<typename Type>
 void GenericSystem<Type>::save_param(IOFiles& w) const {
 	if(w.is_binary()){
@@ -179,29 +201,6 @@ void GenericSystem<Type>::energy_obs(Vector<unsigned int> const& l){
 		}
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of link"<<std::endl; }
 	if(!this->bc_){ std::cerr<<__PRETTY_FUNCTION__<<" : open boundary condition could be problematic when nb(j,1)=0 and l(j) != 0"<<std::endl; }
-}
-
-template<typename Type>
-void GenericSystem<Type>::create_obs(unsigned int const& which_obs){
-	switch(which_obs){
-		/*As the energy_variance_obs observable is certainly not correctly
-		 * defined, one needs to explicitly ask for its creation, i.e. if
-		 * which_obs==0, it will not create this observable because of the -1
-		 * in the for loop*/
-		case 0: { for(unsigned int i(1);i<Observable::number_of_observables_defined-1;i++){ create_obs(i); } }break;
-		case 1: { bond_energy_obs(); }break;
-		case 2: { long_range_correlations_obs(); }break;
-		case 3: { color_occupation_obs(); }break;
-		case 4: { energy_variance_obs(); }break;
-		default:{
-					std::cerr<<__PRETTY_FUNCTION__<<" : unknown observable "<<which_obs<<std::endl;
-					std::cerr<<"Available observables are :"<<std::endl;
-					std::cerr<<" + Bond energy            : 1"<<std::endl;
-					std::cerr<<" + Long range correlations: 2"<<std::endl;
-					std::cerr<<" + Color occupation       : 3"<<std::endl;
-					std::cerr<<" + H*H (energy variance)  : 4"<<std::endl;
-				}
-	}
 }
 
 template<typename Type>

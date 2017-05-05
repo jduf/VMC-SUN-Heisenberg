@@ -56,7 +56,7 @@ class SystemFermionic: public MCSystem, public Fermionic<Type>{
 		 * observables and everything relevant to the simulation*/
 		void write(IOFiles& w) const;
 		/*!Prints some info related to the system*/
-		void print();
+		void print() const;
 
 	private:
 		/*!Authorizes copy only via clone()*/
@@ -339,7 +339,7 @@ double SystemFermionic<Type>::ratio(){
 }
 
 template<typename Type>
-void SystemFermionic<Type>::print(){
+void SystemFermionic<Type>::print() const {
 	Matrix<Type>* A(new Matrix<Type>[N_]);
 	for(unsigned int c(0);c<N_;c++){ A[c].set(M_(c),M_(c)); }
 	unsigned int c(0);

@@ -1,19 +1,21 @@
 #include "AnalyseEnergy.hpp"
 
-AnalyseEnergy::AnalyseEnergy(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file):
-	Analyse(sim,path,max_level,bash_file)
+AnalyseEnergy::AnalyseEnergy(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file):
+	Analyse(sim,max_level,bash_file)
 {
 	do_analyse();
 }
 
 AnalyseEnergy::~AnalyseEnergy(){
-	Gnuplot gp(analyse_+path_+dir_,sim_.substr(0,sim_.size()-1));
-	gp.label("x","$\\frac{1}{N}$");
-	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
-	gp+="plot '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==6?1.0/$1:1/0):3 t '$k=6$',\\";
-	gp+="     '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==3?1.0/$1:1/0):3 t '$k=3$'";
-	gp.save_file();
-	gp.create_image(true,"png");
+	if(study_){
+		Gnuplot gp(analyse_+path_+dir_,sim_.substr(0,sim_.size()-1));
+		gp.label("x","$\\frac{1}{N}$");
+		gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
+		gp+="plot '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==6?1.0/$1:1/0):3 t '$k=6$',\\";
+		gp+="     '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==3?1.0/$1:1/0):3 t '$k=3$'";
+		gp.save_file();
+		gp.create_image(true,"png");
+	}
 }
 
 void AnalyseEnergy::open_files(){
@@ -98,7 +100,7 @@ std::string AnalyseEnergy::extract_level_3(){
 	for(unsigned int i(0);i<nof_;i++){
 		Vector<double> tmp(*read_);
 		System s(*read_);
-		//s.save(*data_write_);
+		s.save(*data_write_);
 
 		CreateSystem cs(&s);
 		cs.init(&tmp,NULL);
@@ -106,7 +108,6 @@ std::string AnalyseEnergy::extract_level_3(){
 
 		jd_write_->add_to_header()->nl();
 		cs.save(*jd_write_);
-		cs.save(*data_write_);
 	}
 
 	delete read_;

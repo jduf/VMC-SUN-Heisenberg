@@ -1,7 +1,7 @@
 #include "AnalyseExtract.hpp"
 
-AnalyseExtract::AnalyseExtract(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& display_results):
-	Analyse(sim,path,max_level,bash_file),
+AnalyseExtract::AnalyseExtract(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& display_results):
+	Analyse(sim,max_level,bash_file),
 	display_results_(display_results)
 {
 	if(display_results_){ std::cout<<"will call display_results() for "<<display_results_<<" samples"<<std::endl; }
@@ -9,13 +9,15 @@ AnalyseExtract::AnalyseExtract(std::string const& sim, std::string const& path, 
 }
 
 AnalyseExtract::~AnalyseExtract(){
-	Gnuplot gp(analyse_+path_+dir_,sim_.substr(0,sim_.size()-1));
-	gp.label("x","$\\frac{ 1}{N}$");
-	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
-	gp+="plot '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==6?1.0/$1:1/0):3 t '$k=6$',\\";
-	gp+="     '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==3?1.0/$1:1/0):3 t '$k=3$'";
-	gp.save_file();
-	gp.create_image(true,"png");
+	if(study_){
+		Gnuplot gp(analyse_+path_+dir_,sim_.substr(0,sim_.size()-1));
+		gp.label("x","$\\frac{ 1}{N}$");
+		gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
+		gp+="plot '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==6?1.0/$1:1/0):3 t '$k=6$',\\";
+		gp+="     '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==3?1.0/$1:1/0):3 t '$k=3$'";
+		gp.save_file();
+		gp.create_image(true,"png");
+	}
 }
 
 void AnalyseExtract::open_files(){

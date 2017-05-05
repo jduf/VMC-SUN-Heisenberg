@@ -195,9 +195,9 @@ class CreateSystem{
 			}
 		}
 		/*!Calls System::print*/
-		void print(unsigned int const& nobs) const {
-			if(RGL_){ RGL_->print(nobs); }
-			if(CGL_){ CGL_->print(nobs); }
+		void print(bool const& all) const {
+			if(RGL_){ RGL_->print(all); }
+			if(CGL_){ CGL_->print(all); }
 		}
 		/*}*/
 

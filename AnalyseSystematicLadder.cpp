@@ -1,7 +1,7 @@
 #include "AnalyseSystematicLadder.hpp"
 
-AnalyseSystematicLadder::AnalyseSystematicLadder(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd, bool const& display_results):
-	Analyse(sim,path,max_level,run_cmd),
+AnalyseSystematicLadder::AnalyseSystematicLadder(std::string const& sim, unsigned int const& max_level, unsigned int const& run_cmd, bool const& display_results):
+	Analyse(sim,max_level,run_cmd),
 	display_results_(display_results),
 	date_(Time().date("-"))
 {

@@ -121,10 +121,9 @@ void System::save_output(IOFiles& w) const {
 	} else { w.write("#obs",nobs); }
 }
 
-void System::print(unsigned int nobs) const {
-	if(nobs){
+void System::print(bool const& all) const {
+	if(all){
 		std::cout<<"SU("<<N_<<") m="<<m_<<" n="<<n_<<" BC="<<bc_<<" nobs="<<obs_.size()<<" ref="<<ref_<<std::endl;
-		if(nobs>obs_.size()){ nobs = obs_.size(); }
 		for(auto& o:obs_){ std::cout<<std::endl<<o; }
 	} else { std::cout<<obs_[0][0]<<std::endl; }
 	std::cout<<RST::dash_line_<<std::endl;

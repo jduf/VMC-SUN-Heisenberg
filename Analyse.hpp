@@ -6,7 +6,7 @@
 
 class Analyse: public IOSystem{
 	public:
-		Analyse(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& bash_file);
+		Analyse(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file);
 		/*Default destructor*/
 		virtual ~Analyse();
 		/*{Forbidden*/
@@ -22,6 +22,7 @@ class Analyse: public IOSystem{
 		List<RSTFile> list_rst_;
 
 		unsigned int const max_level_;
+		unsigned int study_;
 		unsigned int nof_ 		  = 0;
 		unsigned int level_ 	  = 0;
 		std::string rel_level_ 	  = "";
@@ -38,7 +39,6 @@ class Analyse: public IOSystem{
 		std::string fit_therm_limit();
 
 	private:
-		unsigned int study_;
 		unsigned int const bash_file_;//!< 0: execute bash commands; 1: write bash file: 2: execute bash file
 
 		void recursive_search();

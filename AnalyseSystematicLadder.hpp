@@ -6,7 +6,7 @@
 
 class AnalyseSystematicLadder : public Analyse{
 	public:
-		AnalyseSystematicLadder(std::string const& sim, std::string const& path, unsigned int const& max_level, unsigned int const& run_cmd, bool const& display_results);
+		AnalyseSystematicLadder(std::string const& sim, unsigned int const& max_level, unsigned int const& run_cmd, bool const& display_results);
 		/*!Default destructor*/
 		~AnalyseSystematicLadder() = default;
 		/*{Forbidden*/
