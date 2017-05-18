@@ -1,12 +1,12 @@
-#ifndef DEF_SQUAREK2MU2X2COL
-#define DEF_SQUAREK2MU2X2COL
+#ifndef DEF_SQUAREMUT2X2
+#define DEF_SQUAREMUT2X2
 
 #include "Square.hpp"
 
-class Squarek2Mu2x2Col: public Square<double>{
+class SquareMuT2x2: public Square<double>{
 	public:
-		Squarek2Mu2x2Col(System const& s, double const& mu, Vector<double> const& t);
-		~Squarek2Mu2x2Col() = default;
+		SquareMuT2x2(System const& s, double const& mu, Vector<double> const& t);
+		~SquareMuT2x2() = default;
 
 		void create();
 		void save_param(IOFiles& w) const;

@@ -49,25 +49,11 @@ void SquareFreeFlux::create(){
 
 void SquareFreeFlux::save_param(IOFiles& w) const {
 	if(w.is_binary()){
-		std::string s("t=(");
 		Vector<double> param(t_.size()+phi_.size());
-
-		for(unsigned int i(0);i<t_.size()-1;i++){
-			param(i) = t_(i);
-			s += my::tostring(t_(i))+",";
-		}
-		param(t_.size()-1) = t_.back();
-		s += my::tostring(t_.back())+") "+RST::math("\\phi")+"=(";
-
-		for(unsigned int i(0);i<phi_.size()-1;i++){
-			param(i+t_.size()) = phi_(i);
-			s   += my::tostring(phi_(i)) + ",";
-		}
-		param.back() = phi_.back();
-		s += my::tostring(phi_.back())+")";
-
-		w.add_to_header()->title(s,'<');
+		for(unsigned int i(0);i<t_.size();i++){ param(i) = t_(i); }
+		for(unsigned int i(0);i<phi_.size();i++){ param(i+t_.size()) = phi_(i); }
 		w<<param;
+		w.add_to_header()->title("t=("+my::tostring(t_)+") "+RST::math("\\phi")+"=("+my::tostring(phi_)+")",'<');
 		w.add_to_header()->add(system_info_.get());
 	} else { w<<t_<<" "<<phi_<<" "; }
 }

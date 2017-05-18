@@ -163,29 +163,6 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 								default:{ error(); }break;
 							}
 						}break;
-					case 2:
-						{
-							switch(ref_(2)){
-								case 1:
-									{
-										Vector<double> t;
-										Vector<double> flux;
-										if(param){
-											unsigned int l((3*param->size()-1)/4);
-											t.set(l);
-											flux.set(param->size()-l);
-											for(unsigned int i(0);i<l;i++){ t(i) = (*param)(i); }
-											for(unsigned int i(0);i<param->size()-l;i++){ flux(i) = (*param)(l+i); }
-										}
-										if(C){
-											t = C->get<std::vector<double> >("t");
-											flux = C->get<std::vector<double> >("flux");
-										}
-										CGL_ = new LadderFreeFlux(*s_,t,flux);
-									}break;
-								default:{ error(); }break;
-							}
-						}break;
 					default:{ error(); }break;
 				}
 			}break;
@@ -388,7 +365,7 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 											mu = C->get<double>("mu");
 											t = C->get<std::vector<double> >("t");
 										}
-										RGL_ = new Squarek2Mu(*s_,mu,t);
+										RGL_ = new SquareMuT2x1(*s_,mu,t);
 									}break;
 								case 13:
 									{
@@ -396,27 +373,13 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										Vector<double> t;
 										if(param){
 											mu = (*param)(0);
-											t = param->range(1,5);
+											t = param->range(1,9);
 										}
 										if(C){
 											mu = C->get<double>("mu");
 											t = C->get<std::vector<double> >("t");
 										}
-										RGL_ = new Squarek2Mu2x2(*s_,mu,t);
-									}break;
-								case 14:
-									{
-										double mu;
-										Vector<double> t;
-										if(param){
-											mu = (*param)(0);
-											t = param->range(1,5);
-										}
-										if(C){
-											mu = C->get<double>("mu");
-											t = C->get<std::vector<double> >("t");
-										}
-										RGL_ = new Squarek2Mu2x2Col(*s_,mu,t);
+										RGL_ = new SquareMuT2x2(*s_,mu,t);
 									}break;
 								default:{ error(); }break;
 							}

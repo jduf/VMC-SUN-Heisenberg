@@ -50,11 +50,8 @@ void TriangleMu::create(){
 
 void TriangleMu::save_param(IOFiles& w) const {
 	if(w.is_binary()){
-		std::string s("mu=("+my::tostring(mu_)+")");
-		Vector<double> param(1,mu_);
-
-		w.add_to_header()->title(s,'<');
-		w<<param;
+		w<<Vector<double>(1,mu_);
+		w.add_to_header()->title(RST::math("\\mu")+"="+my::tostring(mu_),'<');
 		w.add_to_header()->add(system_info_.get());
 	} else { w<<mu_<<" "; }
 }

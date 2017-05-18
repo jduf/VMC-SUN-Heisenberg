@@ -102,25 +102,11 @@ void SquareFree::create(){
 
 void SquareFree::save_param(IOFiles& w) const {
 	if(w.is_binary()){
-		std::string s("t=(");
 		Vector<double> param(t_.size()+mu_.size());
-
-		for(unsigned int i(0);i<t_.size()-1;i++){
-			param(i) = t_(i);
-			s += my::tostring(t_(i))+",";
-		}
-		param(t_.size()-1) = t_.back();
-		s += my::tostring(t_.back())+") "+RST::math("\\mu")+"=(";
-
-		for(unsigned int i(0);i<mu_.size()-1;i++){
-			param(i+t_.size()) = mu_(i);
-			s += my::tostring(mu_(i))+",";
-		}
-		param.back() = mu_.back();
-		s += my::tostring(mu_.back())+")";
-
-		w.add_to_header()->title(s,'<');
+		for(unsigned int i(0);i<t_.size();i++){ param(i) = t_(i); }
+		for(unsigned int i(0);i<mu_.size();i++){ param(i+t_.size()) = mu_(i); }
 		w<<param;
+		w.add_to_header()->title(RST::math("\\mu")+"=("+my::tostring(mu_)+") t=("+my::tostring(t_)+")",'<');
 		w.add_to_header()->add(system_info_.get());
 	} else { w<<t_<<" "<<mu_<<" "; }
 }

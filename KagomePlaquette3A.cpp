@@ -52,11 +52,8 @@ void KagomePlaquette3A::create(){
 
 void KagomePlaquette3A::save_param(IOFiles& w) const {
 	if(w.is_binary()){
-		std::string s("td="+my::tostring(td_));
-		Vector<double> param(1,td_);
-
-		w.add_to_header()->title(s,'<');
-		w<<param;
+		w<<Vector<double>(1,td_);
+		w.add_to_header()->title(RST::math("t_d")+"="+my::tostring(td_)+", "+RST::math("t_h")+"=-1",'<');
 		w.add_to_header()->add(system_info_.get());
 	} else { w<<td_<<" "; }
 }

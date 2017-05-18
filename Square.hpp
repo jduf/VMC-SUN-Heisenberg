@@ -117,6 +117,12 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 			case 3:{ o(2)=i; }break;//color occupation
 		}
 	}
+	double max_chemical_potential(0);
+	for(unsigned int j(0);j<this->n_;j++){
+		if(max_chemical_potential < std::abs(my::real(this->H_(j,j)))){
+			max_chemical_potential = std::abs(my::real(this->H_(j,j)));
+		}
+	}
 
 	std::string arrow("-");
 	std::string color("black");
@@ -173,11 +179,12 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 					ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(my::round_nearest(std::abs(t),1000))+"}");
 				}
 				if(i%2){
-					mu = my::real(this->H_(s0,s0))/M_PI;
+					mu = my::real(this->H_(s0,s0));
 					if(std::abs(mu)>1e-4){
 						if(mu>0){ color = "cyan"; }
 						else    { color = "magenta"; }
-						ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+						ps.circle(xy0,sqrt(std::abs(mu)/max_chemical_potential*0.1),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
+						ps.put(xy0(0),xy0(1), "\\wbg{"+my::tostring(my::round_nearest(std::abs(mu),1000))+"}");
 					}
 				} else { ps.put(xy0(0)+0.5,xy0(1)+0.5,this->flux_per_plaquette(s0,loop)); }
 

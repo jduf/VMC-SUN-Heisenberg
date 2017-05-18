@@ -38,7 +38,6 @@ void SquareT3x3::compute_H(){
 			case 6: { t = (obs_[0](i,4)?bc_:1)*t_(obs_[0](i,3)?13:12); }break;
 			case 7: { t = (obs_[0](i,4)?bc_:1)*t_(obs_[0](i,3)?15:14); }break;
 			case 8: { t = (obs_[0](i,4)?bc_:1)*t_(obs_[0](i,3)?17:16); }break;
-
 		}
 		H_(obs_[0](i,0),obs_[0](i,1)) = t;
 	}
@@ -61,18 +60,8 @@ void SquareT3x3::create(){
 
 void SquareT3x3::save_param(IOFiles& w) const {
 	if(w.is_binary()){
-		std::string s("t=(");
-		Vector<double> param(t_.size());
-
-		for(unsigned int i(0);i<t_.size()-1;i++){
-			param(i) = t_(i);
-			s += my::tostring(t_(i))+",";
-		}
-		param(t_.size()-1) = t_.back();
-		s += my::tostring(t_.back())+")";
-
-		w.add_to_header()->title(s,'<');
-		w<<param;
+		w<<t_;
+		w.add_to_header()->title("t=("+my::tostring(t_)+")",'<');
 		w.add_to_header()->add(system_info_.get());
 	} else { w<<t_<<" "; }
 }

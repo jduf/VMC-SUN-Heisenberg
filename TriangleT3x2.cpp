@@ -50,15 +50,8 @@ void TriangleT3x2::create(){
 
 void TriangleT3x2::save_param(IOFiles& w) const {
 	if(w.is_binary()){
-		std::string s("t=(");
-
-		for(unsigned int i(0);i<t_.size()-1;i++){
-			s += my::tostring(t_(i))+",";
-		}
-		s += my::tostring(t_.back())+") ";
-
-		w.add_to_header()->title(s,'<');
 		w<<t_;
+		w.add_to_header()->title("t=("+my::tostring(t_)+")",'<');
 		w.add_to_header()->add(system_info_.get());
 	} else { w<<t_<<" "; }
 }

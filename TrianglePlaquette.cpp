@@ -62,11 +62,8 @@ void TrianglePlaquette::create(){
 
 void TrianglePlaquette::save_param(IOFiles& w) const {
 	if(w.is_binary()){
-		std::string s("t="+my::tostring(t_));
-		Vector<double> param(1,t_);
-
-		w.add_to_header()->title(s,'<');
-		w<<param;
+		w<<Vector<double>(1,t_);
+		w.add_to_header()->title("t="+my::tostring(t_),'<');
 		w.add_to_header()->add(system_info_.get());
 	} else { w<<t_<<" "; }
 }

@@ -75,11 +75,8 @@ void SquareChiral::create(){
 
 void SquareChiral::save_param(IOFiles& w) const {
 	if(w.is_binary()){
-		std::string s("phi="+my::tostring(phi_));
-		Vector<double> param(1,phi_);
-
-		w.add_to_header()->title(s,'<');
-		w<<param;
+		w<<Vector<double>(1,phi_);
+		w.add_to_header()->title(RST::math("\\phi")+"="+my::tostring(phi_),'<');
 		w.add_to_header()->add(system_info_.get());
 	} else { w<<phi_<<" "; }
 }
