@@ -71,7 +71,7 @@ void BiSystem::run(unsigned int const& nruns, unsigned int const& tmax){
 #pragma omp critical(System__merge)
 				{ mcsys_[i][j]->merge(tmp.get()); }
 			}
-			mcsys_[i][j]->complete_analysis(1e-5);
+			mcsys_[i][j]->complete_analysis();
 			mcsys_[i][j]->print(true);
 		}
 	}

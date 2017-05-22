@@ -100,11 +100,11 @@ void VMCMinimization::refine(double const& E, double const& dEoE, std::string co
 void VMCMinimization::refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& nmin, std::string const& save_in){
 	m_->tmax_ = tmax;
 	if(m_->samples_.size() && m_->tmax_){
-		total_eval_ = std::min(nmin,m_->samples_.size());
 		List<MCSim> potential_minima;
 		List<MCSim> sorted_samples;
 		find_minima(0,0.999,sorted_samples,potential_minima);
 
+		total_eval_ = std::min(nmin,sorted_samples.size());
 		std::string msg("refines "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*m_->tmax_*maxiter)+"s)");
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
@@ -119,15 +119,16 @@ void VMCMinimization::refine(Vector<unsigned int> const& which_obs, double const
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
 
-void VMCMinimization::improve_bad_samples(double const& dEoE, std::string const& save_in){
+void VMCMinimization::improve_bad_samples(double const& dEoE, unsigned int const& tmax, std::string const& save_in){
+	m_->tmax_ = tmax;
 	if(m_->samples_.size() && m_->tmax_){
-		complete_analysis(dEoE);
+		complete_analysis();
 		double E(666);
 		double tmp;
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
 			tmp = m_->samples_.get().get_energy().get_x();
-			if(tmp<E){ E=tmp; }
+			if(tmp < E){ E = tmp; }
 		}
 
 		std::vector<Vector<double> > to_improve;
@@ -136,7 +137,7 @@ void VMCMinimization::improve_bad_samples(double const& dEoE, std::string const&
 			if(
 					m_->samples_.get().get_energy().get_x() - 10*m_->samples_.get().get_energy().get_dx() < E
 					&&
-					std::abs(m_->samples_.get().get_energy().get_dx()/m_->samples_.get().get_energy().get_x())>dEoE
+					std::abs(m_->samples_.get().get_dEoE())>dEoE
 			  )
 			{ to_improve.push_back(m_->samples_.get().get_param()); }
 		}
@@ -152,21 +153,19 @@ void VMCMinimization::improve_bad_samples(double const& dEoE, std::string const&
 			if(omp_get_thread_num()==0){ std::cout<<i<<"/"<<nmin<<std::endl; }
 			evaluate(to_improve[i],0);
 		}
-		complete_analysis(dEoE);
+		complete_analysis();
 		save(save_in);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax_ = 0"<<std::endl; }
 }
 
-void VMCMinimization::complete_analysis(double const& convergence_criterion){
+void VMCMinimization::complete_analysis(){
 	std::cout<<RST::hashtag_line_<<std::endl;
-	std::string msg("complete_analysis called with convergence_criterion="+my::tostring(convergence_criterion));
+	std::string msg("complete_analysis");
 	std::cout<<"#"<<msg<<std::endl;
 	m_->info_.item(msg);
 
 	m_->samples_.set_target();
-	while(m_->samples_.target_next()){
-		m_->samples_.get().complete_analysis(convergence_criterion);
-	}
+	while(m_->samples_.target_next()){ m_->samples_.get().complete_analysis(); }
 }
 
 void VMCMinimization::save(std::string save_in) const {
@@ -503,9 +502,9 @@ std::shared_ptr<MCSim> VMCMinimization::evaluate_until_precision(Vector<double> 
 	do {
 #pragma omp parallel
 		{ sim = evaluate(param,which_obs); }
-	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv(1e-5) || std::abs(sim->get_energy().get_dx()/sim->get_energy().get_x()) > dEoE ) );
+	} while ( sim.get() && ++iter<maxiter && ( !sim->check_conv() || std::abs(sim->get_dEoE()) > dEoE ) );
 	if(sim.get()){
-		sim->complete_analysis(dEoE);
+		sim->complete_analysis();
 		sim->print(false);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : failed"<<std::endl; }
 	return sim;
@@ -727,7 +726,7 @@ void VMCMinimization::Minimization::save(IOFiles& out, bool const& all) const {
 		for(unsigned int i(0);i<best->get()->get_param().size()-1;i++){ p += my::tostring(best->get()->get_param()(i))+","; }
 		p += my::tostring(best->get()->get_param().back())+")";
 		out.add_to_header()->def("Best parameter","p="+p);
-		out.add_to_header()->def("Best energy","E="+my::tostring(best->get()->get_energy().get_x())+", dEoE="+my::tostring(best->get()->get_energy().get_dx()));
+		out.add_to_header()->def("Best energy","E="+my::tostring(best->get()->get_energy().get_x())+", dE="+my::tostring(best->get()->get_energy().get_dx()));
 		out.add_to_header()->np();
 	}
 

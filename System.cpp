@@ -46,14 +46,14 @@ bool System::try_other_geometry(Vector<unsigned int> const& ref) const {
 	return false;
 }
 
-bool System::check_conv(double const& convergence_criterion){
+bool System::check_conv(){
 	/*check only the energy*/
-	obs_[0][0].complete_analysis(convergence_criterion);
+	obs_[0][0].complete_analysis(1e-5);
 	return obs_[0][0].get_conv();
 }
 
-void System::complete_analysis(double const& convergence_criterion){
-	for(auto& o:obs_){ o.complete_analysis(convergence_criterion); }
+void System::complete_analysis(){
+	for(auto& o:obs_){ o.complete_analysis(); }
 }
 
 void System::merge(System* const s){

@@ -68,11 +68,11 @@ int main(int argc, char* argv[]){
 							delete mcsys;
 						}
 					}
-					cs->complete_analysis(1e-5);
+					cs->complete_analysis();
 
 					maxiter--;
-					if(std::abs(cs->get_obs()[0][0].get_dx()/cs->get_obs()[0][0].get_x())<dEoE){ maxiter=0; }
-					else { std::cerr<<__PRETTY_FUNCTION__<<" : should rerun, bad precision : "<<cs->get_obs()[0][0].get_dx()/cs->get_obs()[0][0].get_x()<<" > dEoE = "<<dEoE<<std::endl; }
+					if(std::abs(cs->get_dEoE())<dEoE){ maxiter=0; }
+					else { std::cerr<<__PRETTY_FUNCTION__<<" : should rerun, bad precision : "<<cs->get_dEoE()<<" > dEoE = "<<dEoE<<std::endl; }
 				}
 				fname = Time().date("-") + "-" + cs->get_filename();
 				command.mkpath(cs->get_path().c_str());

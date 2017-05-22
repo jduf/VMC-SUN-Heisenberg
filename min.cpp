@@ -55,7 +55,7 @@ int main(int argc, char* argv[]){
 						case 1:
 							{ m.find_and_run_minima(10,which_obs,P.check_get("dEoE",1e-5),P.check_get("save_in",std::string("./"))); }break;
 						case 2:
-							{ m.improve_bad_samples(P.check_get("dEoE",1e-5),P.check_get("save_in",std::string("./"))); }break;
+							{ m.improve_bad_samples(P.check_get("dEoE",1e-5),P.check_get("tmax",10),P.check_get("save_in",std::string("./"))); }break;
 						case 3:
 							{ m.save_parameters(P.check_get("nbest",10),P.check_get("save_in",std::string("./"))); }break;
 						case 4:
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]){
 								if(!P.locked()){
 									for(unsigned int l(0);l<loop;l++){
 										pso.init(true);
-										pso.run(P.check_get("dEoE",1e-5),P.check_get("maxiter",5),P.check_get("save_in",std::string("./")));
+										pso.run(P.check_get("dEoE",1e-5),P.check_get("maxiter",1),P.check_get("save_in",std::string("./")));
 									}
 								} else { std::cerr<<__PRETTY_FUNCTION__<<" : some argument are not correctly set"<<std::endl; }
 							}break;
@@ -178,7 +178,7 @@ int main(int argc, char* argv[]){
 				}
 
 				VMCAnalyse m(in);
-				m.complete_analysis(P.check_get("dEoE",1e-5));
+				m.complete_analysis();
 				m.save(P.check_get("save_in",std::string("./")));
 			} else if(dir.size()){
 				std::cerr<<__PRETTY_FUNCTION__<<" : multiples files found :"<<std::endl;

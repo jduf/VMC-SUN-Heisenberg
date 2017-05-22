@@ -54,9 +54,9 @@ class System{
 		void reset_obs(){ for(auto& o:obs_){ o.reset(); } }
 
 		/*!Checks if the energy has converged*/
-		bool check_conv(double const& convergence_criterion);
+		bool check_conv();
 		/*!Calls complete_analysis on the observables*/
-		void complete_analysis(double const& convergence_criterion);
+		void complete_analysis();
 		/*!Merges the binning of all observables of s into (*this)*/
 		void merge(System* const s);
 		/*!Deletes the binning for all observables*/
@@ -79,6 +79,8 @@ class System{
 		unsigned int const& get_status() const { return status_; }
 		/*!Returns the energy*/
 		Data<double> const& get_energy() const { return obs_[0][0]; }
+		/*!Gets relative incertitude of the energy*/
+		double get_dEoE(){ return obs_[0][0].get_dx()/obs_[0][0].get_x(); }
 		/*!Returns the energy*/
 		unsigned int const& get_n() const { return n_; }
 		/*!Returns the coupling strength*/

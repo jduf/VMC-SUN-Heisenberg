@@ -103,10 +103,16 @@ class CreateSystem{
 			if(RGL_){ return RGL_->merge(s); }
 			if(CGL_){ return CGL_->merge(s); }
 		}
+		/*!Calls System::check_dEoE : see System*/
+		double get_dEoE() const {
+			if(RGL_){ return RGL_->get_dEoE(); }
+			if(CGL_){ return CGL_->get_dEoE(); }
+			return 0;
+		}
 		/*!Calls System::complete_analysis : see System*/
-		void complete_analysis(double const& convergence_criterion) const {
-			if(RGL_){ RGL_->complete_analysis(convergence_criterion); }
-			if(CGL_){ CGL_->complete_analysis(convergence_criterion); }
+		void complete_analysis() const {
+			if(RGL_){ RGL_->complete_analysis(); }
+			if(CGL_){ CGL_->complete_analysis(); }
 		}
 		/*}*/
 

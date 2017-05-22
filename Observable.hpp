@@ -31,7 +31,7 @@ class Observable{
 
 		void merge(Observable& obs);
 		void delete_binning();
-		void complete_analysis(double const& convergence_criterion);
+		void complete_analysis();
 
 		void set_x(double const& val);
 		void add(unsigned int const& i, double const& val);

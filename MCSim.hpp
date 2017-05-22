@@ -35,10 +35,12 @@ class MCSim{
 		/*{System and MCSystem calls*/
 		/*!Calls void System::set_obs(Observable const& obs)*/
 		void set_obs(Observable const& obs){ MCS_->set_obs(obs); }
+		/*!Gets relative incertitude of the energy*/
+		double get_dEoE(){ return MCS_->get_dEoE(); }
 		/*!Calls bool System::check_conv(double const& convergence_criterion)*/
-		bool check_conv(double const& convergence_criterion){ return MCS_->check_conv(convergence_criterion); }
+		bool check_conv(){ return MCS_->check_conv(); }
 		/*!Calls void System::complete_analysis(double const& convergence_criterion)*/
-		void complete_analysis(double const& convergence_criterion){ MCS_->complete_analysis(convergence_criterion); }
+		void complete_analysis(){ MCS_->complete_analysis(); }
 		/*!Calls void System::merge(System* const s)*/
 		void merge(std::shared_ptr<MCSim> const& mcsim){ MCS_->merge(mcsim->MCS_.get()); }
 		/*!Calls virtual void MCSystem::free_memory() = 0*/

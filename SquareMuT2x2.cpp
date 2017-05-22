@@ -58,7 +58,7 @@ void SquareMuT2x2::create(){
 					EVec_[c](i,j) = H_(i,j);
 				}
 			}
-		}
+		} else { c = N_; }
 	}
 }
 
@@ -97,7 +97,7 @@ void SquareMuT2x2::display_results(){
 	compute_H(0);
 	std::string t(my::tostring(t_));
 	std::string mu(my::tostring(mu_));
-	draw_lattice(true,true,false,dir_nn_[2]*0.5+dir_nn_[3]*0.5,"-d:t "+t+" -d:mu "+mu,"t=("+t+") "+RST::math("\\mu")+"="+mu);
+	draw_lattice(false,true,true,dir_nn_[2]*0.5+dir_nn_[3]*0.5,"-d:t "+t+" -d:mu "+mu,"t=("+t+") "+RST::math("\\mu")+"="+mu);
 }
 
 void SquareMuT2x2::check(){

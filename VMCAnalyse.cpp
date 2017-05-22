@@ -46,6 +46,6 @@ void VMCAnalyse::update_info(List<MCSim> const& merging_samples){
 	for(unsigned int i(0);i<best->get()->get_param().size()-1;i++){ p += my::tostring(best->get()->get_param()(i))+","; }
 	p += my::tostring(best->get()->get_param().back())+")";
 	m_->info_.def("Best parameter","p="+p);
-	m_->info_.def("Best energy","E="+my::tostring(best->get()->get_energy().get_x())+", dEoE="+my::tostring(best->get()->get_energy().get_dx()));
+	m_->info_.def("Best energy","E="+my::tostring(best->get()->get_energy().get_x())+", dE="+my::tostring(best->get()->get_energy().get_dx()));
 	m_->info_.np();
 }

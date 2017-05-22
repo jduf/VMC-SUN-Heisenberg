@@ -134,8 +134,8 @@ void Observable::delete_binning(){
 	for(unsigned int i(0);i<nval_;i++){ val_[i].delete_binning(); }
 }
 
-void Observable::complete_analysis(double const& convergence_criterion){
-	for(unsigned int i(0);i<nval_;i++){ val_[i].complete_analysis(convergence_criterion); }
+void Observable::complete_analysis(){
+	for(unsigned int i(0);i<nval_;i++){ val_[i].complete_analysis(1e-5); }
 }
 
 void Observable::combine_measurement(bool const& combine){

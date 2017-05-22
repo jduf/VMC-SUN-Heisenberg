@@ -56,7 +56,7 @@ int main(int argc, char* argv[]){
 							sim.thermalize(1e6);
 							std::cout<<"############# Run Monte Carlo #############"<<std::endl;
 							sim.run();
-							S->complete_analysis(1e-5);
+							S->complete_analysis();
 							std::cout<<S->get_energy()<<std::endl;
 							delete S;
 						}
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]){
 							sim.thermalize(1e6);
 							std::cout<<"############# Run Monte Carlo #############"<<std::endl;
 							sim.run();
-							S->complete_analysis(1e-5);
+							S->complete_analysis();
 							std::cout<<S->get_energy()<<std::endl;
 							std::cout<<"############# Save MCSystem ###############"<<std::endl;
 							IOFiles out("check.jdbin",true,false);
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]){
 						sim.thermalize(10);
 						std::cout<<"############# Run Monte Carlo #############"<<std::endl;
 						sim.run();
-						S->complete_analysis(1e-5);
+						S->complete_analysis();
 						std::cout<<S->get_energy()<<std::endl;
 						std::cout<<"############# Save MCSystem ###############"<<std::endl;
 						IOFiles out("check-1.jdbin",true,false);
@@ -124,18 +124,18 @@ int main(int argc, char* argv[]){
 						mcsim->set_obs(cs.get_obs()[0]);
 
 						mcsim->run(1e6,2);
-						mcsim->complete_analysis(1e-5);
+						mcsim->complete_analysis();
 
 						std::shared_ptr<MCSim> mcsim2(std::make_shared<MCSim>(P.get<std::vector<double> >("t")));
 						mcsim2->copy_clear_S(mcsim);
 						mcsim2->set_obs(cs.get_obs()[0]);
 						mcsim2->run(1e6,4);
-						mcsim2->complete_analysis(1e-5);
+						mcsim2->complete_analysis();
 
 						std::cout<<mcsim->get_energy()<<std::endl;
 						std::cout<<mcsim2->get_energy()<<std::endl;
 						mcsim->merge(mcsim2);
-						mcsim->complete_analysis(1e-5);
+						mcsim->complete_analysis();
 						std::cout<<mcsim->get_energy()<<std::endl;
 					}break;
 				default:

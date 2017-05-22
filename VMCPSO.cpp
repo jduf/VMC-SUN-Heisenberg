@@ -2,7 +2,7 @@
 
 VMCPSO::VMCPSO(Parseur const& P, VMCMinimization const& vmcm):
 	VMCMinimization(vmcm,"PSO"),
-	Swarm<MCParticle>(P.get<unsigned int>("Nparticles"),P.get<unsigned int>("maxiter"),m_->dof_,P.get<double>("cg"),P.get<double>("cp"))
+	Swarm<MCParticle>(P.get<unsigned int>("Nparticles"),P.get<unsigned int>("maxsteps"),m_->dof_,P.get<double>("cg"),P.get<double>("cp"))
 {
 	for(unsigned int i(0);i<m_->dof_;i++){
 		Particle::set_limit(i,0,m_->ps_[i].size());
@@ -66,6 +66,7 @@ void VMCPSO::run(double const& dEoE, unsigned int const& maxiter, std::string co
 		std::cout<<msg2<<std::endl;
 		m_->info_.item(msg1+msg2);
 
+		improve_bad_samples(dEoE,m_->tmax_,save_in); 
 		refine(0,dEoE,maxiter,10*m_->tmax_,30,save_in);
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }

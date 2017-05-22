@@ -44,7 +44,7 @@ void SquareMu::create(){
 					EVec_[c](i,j) = H_(i,j);
 				}
 			}
-		}
+		} else { c = N_; }
 	}
 }
 

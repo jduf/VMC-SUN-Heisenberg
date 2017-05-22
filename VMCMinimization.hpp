@@ -28,9 +28,9 @@ class VMCMinimization{
 		void refine(double const& E, double const& dEoE, std::string const& save_in);
 		void refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& nmin, std::string const& save_in);
 
-		void improve_bad_samples(double const& dEoE, std::string const& save_in);
+		void improve_bad_samples(double const& dEoE, unsigned int const& tmax, std::string const& save_in);
 
-		void complete_analysis(double const& convergence_criterion);
+		void complete_analysis();
 		virtual void save(std::string save_in) const;
 
 		double find_minima(unsigned int const& max_local_minima, double const& range, List<MCSim>& sorted_list, List<MCSim>& list_min) const;
