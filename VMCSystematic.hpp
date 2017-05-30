@@ -16,13 +16,14 @@ class VMCSystematic : public VMCMinimization{
 		VMCSystematic& operator=(VMCSystematic) = delete;
 		/*}*/
 
-		void run(double const& dEoE, unsigned int const& maxiter, std::string const& save_in);
+		void run(double const& dEoE, unsigned int const& tmax, unsigned int const& maxiter, std::string const& save_in);
 		void plot();
 		void analyse(std::string const& path, std::string const& filename, List<MCSim>& keep) const;
 
 	private:
-		unsigned int maxiter_;
-		double dEoE_;
+		unsigned int maxiter_= 0;
+		unsigned int tmax_	 = 0;
+		double dEoE_ 		 = 0.0;
 
 		bool go_through_parameter_space(Vector<double>* x, Vector<unsigned int>& idx, unsigned int const& min0, unsigned int const& max0, void (VMCSystematic::*f)(Vector<double>*, Vector<unsigned int> const&));
 		void evaluate(Vector<double>* x, Vector<unsigned int> const& idx);

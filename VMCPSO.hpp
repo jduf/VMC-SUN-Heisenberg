@@ -16,10 +16,10 @@ class VMCPSO: public VMCMinimization, public Swarm<MCParticle>{
 		VMCPSO& operator=(VMCPSO) = delete;
 		/*}*/
 
-		void init(bool const& clear_particle_history);
-		void run(double const& dEoE, unsigned int const& maxiter, std::string const& save_in);
+		void run(bool const& clear_particle_history, double const& dEoE, unsigned int const& tmax, unsigned int const& maxiter, std::string const& save_in);
 
 	private:
+		unsigned int tmax_;
 		/*!Create param p then call VMCMinimization::evaluate(param)*/
 		bool evaluate(unsigned int const& p);
 };

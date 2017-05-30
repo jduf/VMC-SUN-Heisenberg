@@ -51,17 +51,17 @@ double VMCACiD::function(Vector<double> const& x){
 	for(unsigned int i(0);i<m_->dof_;i++){
 		param(i) = (idx_(i,0)?x(idx_(i,1)):1.0)*(idx_(i,2)?idx_(i,2):1.0);
 	}
-	std::shared_ptr<MCSim> sim(evaluate_until_precision(param,0,dEoE_,maxiter_));
+	std::shared_ptr<MCSim> sim(evaluate_until_precision(param,0,dEoE_,maxiter_,tmax_));
 	return sim->get_energy().get_x();
 }
 
-void VMCACiD::run(double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& maxsteps, std::string const& save_in){
-	m_->tmax_ = tmax;
+void VMCACiD::run(double const& dEoE, unsigned int const& tmax, unsigned int const& maxiter, unsigned int const& maxsteps, std::string const& save_in){
+	tmax_ = tmax;
 	dEoE_ = dEoE;
 	maxiter_ = maxiter;
 
-	if(m_->tmax_ && idx_.ptr()){
-		std::string msg(RST::math("t_{max} = "+my::tostring(m_->tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE_)) + ", maxiter="+my::tostring(maxiter_));
+	if(tmax_ && idx_.ptr()){
+		std::string msg(RST::math("t_{max} = "+my::tostring(tmax_)+"s")+", "+RST::math("\\mathrm{d}E/E="+my::tostring(dEoE_)) + ", maxiter="+my::tostring(maxiter_));
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
@@ -83,7 +83,7 @@ void VMCACiD::run(double const& dEoE, unsigned int const& maxiter, unsigned int 
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 
-		msg = "maximum time : "+my::tostring(total_eval_*m_->tmax_*maxiter_)+"s";
+		msg = "maximum time : "+my::tostring(total_eval_*tmax_*maxiter_)+"s";
 		std::cout<<"#"<<msg<<std::endl;
 		m_->info_.item(msg);
 

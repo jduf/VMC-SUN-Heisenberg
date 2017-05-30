@@ -21,12 +21,11 @@ class VMCMinimization{
 
 		void load(IOFiles& in, bool const& loadall){ m_->load(in,path_,basename_,loadall); }
 		void set_phase_space(Parseur const& P){ m_->set_phase_space(P); }
-		void set_tmax(unsigned int const& tmax){ m_->tmax_ = tmax; }
 
 		/*!Different ways to improve the measures of the best samples, saves the result*/
 		void refine(std::string const& save_in);
-		void refine(double const& E, double const& dEoE, std::string const& save_in);
-		void refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& nmin, std::string const& save_in);
+		void refine(double const& E, double const& dEoE, unsigned int const& tmax, std::string const& save_in);
+		void refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& tmax, unsigned int const& maxiter, unsigned int const& nmin, std::string const& save_in);
 
 		void improve_bad_samples(double const& dEoE, unsigned int const& tmax, std::string const& save_in);
 
@@ -34,12 +33,12 @@ class VMCMinimization{
 		virtual void save(std::string save_in) const;
 
 		double find_minima(unsigned int const& max_local_minima, double const& range, List<MCSim>& sorted_list, List<MCSim>& list_min) const;
-		void find_and_run_minima(unsigned int const& max_samples, Vector<unsigned int> const& which_obs, double const& dEoE, std::string const& save_in);
+		void find_and_run_minima(unsigned int const& max_samples, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& tmax, std::string const& save_in);
 		void find_save_and_plot_minima(unsigned int const& max_samples, IOFiles& w, std::string path="", std::string filename="") const;
-		void explore_around_minima(unsigned int const& max_local_minima, Vector<unsigned int> const& which_obs, double const& dEoE, double const& dx, std::string const& save_in);
+		void explore_around_minima(unsigned int const& max_local_minima, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& tmax, double const& dx, std::string const& save_in);
 
 		void save_parameters(unsigned int nbest, std::string save_in) const;
-		void run_parameters(std::string const& parameters_file, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, std::string const& save_in);
+		void run_parameters(std::string const& parameters_file, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& tmax, unsigned int const& maxiter, std::string const& save_in);
 
 		RST& get_header(){ return m_->info_; }
 		bool ready() const { return m_.get(); }
@@ -80,7 +79,6 @@ class VMCMinimization{
 				Vector<double>* ps_    = NULL;//!< parameter space
 				double ps_size_        = 0.0; //!< parameter space size
 				double effective_time_ = 0.0;
-				unsigned int tmax_     = 0;
 				std::vector<Observable> obs_;
 		};
 
@@ -97,8 +95,8 @@ class VMCMinimization{
 		std::string const& get_time() const { return time_; }
 
 		/*!Real call to the MonteCarlo evaluation via MCSim*/
-		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, Vector<unsigned int> const& which_obs);
-		std::shared_ptr<MCSim> evaluate_until_precision(Vector<double> const& param, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter);
+		std::shared_ptr<MCSim> evaluate(Vector<double> const& param, Vector<unsigned int> const& which_obs, unsigned int const& tmax);
+		std::shared_ptr<MCSim> evaluate_until_precision(Vector<double> const& param, Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& tmax, unsigned int const& maxiter);
 		void save(IOFiles& out) const;
 };
 #endif

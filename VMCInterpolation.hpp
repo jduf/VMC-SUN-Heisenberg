@@ -16,12 +16,11 @@ class VMCInterpolation : public VMCMinimization{
 		VMCInterpolation& operator=(VMCInterpolation) = delete;
 		/*}*/
 
-		void init();
-		void run(bool const& explore_around_minima, std::string const& save_in);
-
+		void run(bool const& explore_around_minima, unsigned int const& tmax, std::string const& save_in);
 		void plot();
 
 	private:
+		unsigned int tmax_ = 0;
 		Interpolation<Vector<double> > interp_;
 		std::vector<Vector<unsigned int> > list_min_idx_;
 

@@ -20,7 +20,7 @@ class VMCACiD: public VMCMinimization,  public ACiD{
 		/*}*/
 
 		double function(Vector<double> const& x);
-		void run(double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& maxsteps, std::string const& save_in);
+		void run(double const& dEoE, unsigned int const& tmax, unsigned int const& maxiter, unsigned int const& maxsteps, std::string const& save_in);
 		bool keepon(bool const& improve_overall) const;
 
 		void display_param_and_xmean(Vector<double> const& param) const;
@@ -29,7 +29,8 @@ class VMCACiD: public VMCMinimization,  public ACiD{
 
 	private:
 		Matrix<int> idx_;
+		unsigned int maxiter_ = 0;
+		unsigned int tmax_ = 0;
 		double dEoE_;
-		unsigned int maxiter_;
 };
 #endif

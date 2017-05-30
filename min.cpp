@@ -48,31 +48,30 @@ int main(int argc, char* argv[]){
 							{
 								if(P.find("dEoE",i)){
 									double dEoE(P.get<double>(i));
-									if(P.find("E",i)){ m.refine(P.get<double>(i),dEoE,P.check_get("save_in",std::string("./"))); }
-									if(P.find("nmin",i)){ m.refine(which_obs,dEoE,P.check_get("maxiter",10),P.check_get("tmax",10),P.get<unsigned int>(i),P.check_get("save_in",std::string("./"))); }
+									if(P.find("E",i)){ m.refine(P.get<double>(i),dEoE,P.check_get("tmax",10),P.check_get("save_in",std::string("./"))); }
+									if(P.find("nmin",i)){ m.refine(which_obs,dEoE,P.check_get("tmax",10),P.check_get("maxiter",10),P.get<unsigned int>(i),P.check_get("save_in",std::string("./"))); }
 								} else { m.refine(P.check_get("save_in",std::string("./"))); }
 							}break;
 						case 1:
-							{ m.find_and_run_minima(10,which_obs,P.check_get("dEoE",1e-5),P.check_get("save_in",std::string("./"))); }break;
+							{ m.find_and_run_minima(10,which_obs,P.check_get("dEoE",1e-5),P.check_get("tmax",10),P.check_get("save_in",std::string("./"))); }break;
 						case 2:
 							{ m.improve_bad_samples(P.check_get("dEoE",1e-5),P.check_get("tmax",10),P.check_get("save_in",std::string("./"))); }break;
 						case 3:
 							{ m.save_parameters(P.check_get("nbest",10),P.check_get("save_in",std::string("./"))); }break;
 						case 4:
-							{ m.run_parameters(P.get<std::string>("parameters_file"),which_obs,P.check_get("dEoE",1e-5),P.check_get("maxiter",10),P.check_get("save_in",std::string("./"))); }break;
+							{ m.run_parameters(P.get<std::string>("parameters_file"),which_obs,P.check_get("dEoE",1e-5),P.check_get("tmax",10),P.check_get("maxiter",10),P.check_get("save_in",std::string("./"))); }break;
 						case 10:
 							{
 								VMCPSO pso(P,m);
 								unsigned int loop(P.get<unsigned int>("loop"));
 								if(!P.locked()){
 									for(unsigned int l(0);l<loop;l++){
-										pso.init(true);
-										pso.run(P.check_get("dEoE",1e-5),P.check_get("maxiter",1),P.check_get("save_in",std::string("./")));
+										pso.run(true,P.check_get("dEoE",1e-5),P.check_get("tmax",10),P.check_get("maxiter",1),P.check_get("save_in",std::string("./")));
 									}
 								} else { std::cerr<<__PRETTY_FUNCTION__<<" : some argument are not correctly set"<<std::endl; }
 							}break;
 						case 20:
-							{ VMCSystematic(m).run(P.check_get("dEoE",1e-5),P.check_get("maxiter",1),P.check_get("save_in",std::string("./"))); }break;
+							{ VMCSystematic(m).run(P.check_get("dEoE",1e-5),P.check_get("tmax",10),P.check_get("maxiter",1),P.check_get("save_in",std::string("./"))); }break;
 						case 21:
 							{ VMCSystematic(m).plot(); }break;
 						case 30:
@@ -82,8 +81,7 @@ int main(int argc, char* argv[]){
 								unsigned int loop(P.get<unsigned int>("loop"));
 								if(!P.locked()){
 									for(unsigned int l(0);l<loop;l++){
-										interp.init();
-										interp.run(true,P.check_get("save_in",std::string("./")));
+										interp.run(true,P.check_get("tmax",0),P.check_get("save_in",std::string("./")));
 									}
 								}
 							}break;
@@ -97,7 +95,7 @@ int main(int argc, char* argv[]){
 								if(!P.find("norun")){
 									if(!P.locked()){
 										for(unsigned int j(0);j<10;j++){
-											min.run(P.check_get("dEoE",1e-6),P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("maxstep",100),P.check_get("save_in",std::string("./")));
+											min.run(P.check_get("dEoE",1e-6),P.check_get("tmax",10),P.check_get("maxiter",10),P.check_get("maxstep",100),P.check_get("save_in",std::string("./")));
 											m.save(P.check_get("save_in",std::string("./")));
 										}
 									}
@@ -122,7 +120,7 @@ int main(int argc, char* argv[]){
 						case 100:
 							{ extract.save(P.check_get("save_in",std::string("./"))); }break;
 						case 101:
-							{ extract.refine(which_obs,P.check_get("dEoE",1e-5),P.check_get("maxiter",10),P.check_get("tmax",60),P.check_get("nmin",1000),P.check_get("save_in",std::string("./"))); }break;
+							{ extract.refine(which_obs,P.check_get("dEoE",1e-5),P.check_get("tmax",60),P.check_get("maxiter",10),P.check_get("nmin",1000),P.check_get("save_in",std::string("./"))); }break;
 						case 102:
 							{
 								std::string fname("VMCExtract-tmp");
@@ -148,7 +146,7 @@ int main(int argc, char* argv[]){
 								if(!P.find("norun")){
 									if(!P.locked()){
 										for(unsigned int j(0);j<10;j++){
-											min.run(P.check_get("dEoE",1e-6),P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("maxstep",100),P.check_get("save_in",std::string("./")));
+											min.run(P.check_get("dEoE",1e-6),P.check_get("tmax",10),P.check_get("maxiter",10),P.check_get("maxstep",100),P.check_get("save_in",std::string("./")));
 											extract.save(P.check_get("save_in",std::string("./")));
 										}
 									}
@@ -160,7 +158,7 @@ int main(int argc, char* argv[]){
 								VMCACiD min(extract,in_ACiD);
 								if(!P.find("norun") && !P.locked()){
 									for(unsigned int j(0);j<10;j++){
-										min.run(P.check_get("dEoE",1e-6),P.check_get("maxiter",10),P.check_get("tmax",10),P.check_get("maxstep",100),P.check_get("save_in",std::string("./")));
+										min.run(P.check_get("dEoE",1e-6),P.check_get("tmax",10),P.check_get("maxiter",10),P.check_get("maxstep",100),P.check_get("save_in",std::string("./")));
 										extract.save(P.check_get("save_in",std::string("./")));
 									}
 								}
