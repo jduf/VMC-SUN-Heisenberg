@@ -69,9 +69,9 @@ void SquareMuT2x1::save_param(IOFiles& w) const {
 Matrix<double> SquareMuT2x1::set_ab() const {
 	Matrix<double> tmp(2,2);
 	tmp(0,0) = 1.0;
-	tmp(1,0) = 1.0;
+	tmp(1,0) =-1.0;
 	tmp(0,1) = 1.0;
-	tmp(1,1) =-1.0;
+	tmp(1,1) = 1.0;
 	return tmp;
 }
 
@@ -88,7 +88,7 @@ void SquareMuT2x1::display_results(){
 	compute_H(0);
 	std::string t(my::tostring(t_));
 	std::string mu(my::tostring(mu_));
-	draw_lattice(true,true,false,dir_nn_[2]*0.5+dir_nn_[3]*0.5,"-d:t "+t+" -d:mu "+mu,"t=("+t+") "+RST::math("\\mu")+"="+mu);
+	draw_lattice(true,true,false,dir_nn_[2]*0.5+dir_nn_[1],"-d:t "+t+" -d:mu "+mu,"t=("+t+") "+RST::math("\\mu")+"="+mu);
 }
 
 void SquareMuT2x1::check(){

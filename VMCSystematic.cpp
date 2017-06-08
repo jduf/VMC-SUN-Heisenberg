@@ -72,7 +72,7 @@ void VMCSystematic::plot(){
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
-void VMCSystematic::analyse(std::string const& path, std::string const& filename, List<MCSim>& kept_samples) const {
+void VMCSystematic::read_and_find_min(std::string const& path, std::string const& filename, List<MCSim>& kept_samples) const {
 	if(m_->samples_.size()){
 		Vector<unsigned int> ref(m_->s_->get_ref());
 		switch(ref(0)){
@@ -112,11 +112,30 @@ void VMCSystematic::analyse(std::string const& path, std::string const& filename
 						}
 					}
 					if(min){ kept_samples.add_end(min->get()); }
+					else { std::cerr<<__PRETTY_FUNCTION__<<" : no minium found for "<<path+filename+".jdbin"<<std::endl; }
+				}break;
+			case 4:
+				{
+					IOFiles data(path+filename+".dat",true,false);
 
-					Gnuplot gp(path,filename);
-					gp+="plot '"+filename+".dat' u 1:2:3 w e notitle";
-					gp.save_file();
-					gp.create_image(true,"png");
+					List<MCSim>::Node* min(NULL);
+					m_->samples_.target_next();
+					while(m_->samples_.target_next()){
+						data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
+
+						if(
+								m_->samples_.prev() &&
+								m_->samples_.next() &&
+								m_->samples_.prev()->get()->get_energy().get_x() > m_->samples_.get().get_energy().get_x() &&
+								m_->samples_.next()->get()->get_energy().get_x() > m_->samples_.get().get_energy().get_x()
+						  )
+						{
+							if(!min || min->get()->get_energy().get_x()>m_->samples_.get().get_energy().get_x())
+							{ min = m_->samples_.get_target(); }
+						}
+					}
+					if(min){ kept_samples.add_end(min->get()); }
+					else { std::cerr<<__PRETTY_FUNCTION__<<" : no minium found for "<<path+filename+".jdbin"<<std::endl; }
 				}break;
 			case 6:
 				{
@@ -149,11 +168,6 @@ void VMCSystematic::analyse(std::string const& path, std::string const& filename
 						}
 						if(min_neg){ kept_samples.add_end(min_neg->get()); }
 						if(min_pos){ kept_samples.add_end(min_pos->get()); }
-
-						Gnuplot gp(path,filename);
-						gp+="plot '"+filename+".dat' u 1:2:3 w e notitle";
-						gp.save_file();
-						gp.create_image(true,"png");
 					} else { std::cerr<<__PRETTY_FUNCTION__<<" : undefined analyse for "<<ref<<std::endl; }
 				}break;
 			default:

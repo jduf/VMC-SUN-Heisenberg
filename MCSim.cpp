@@ -126,7 +126,7 @@ bool MCSim::sort_by_E(MCSim const& a, MCSim const& b){
 	return a.get_energy().get_x()<b.get_energy().get_x();
 }
 
-bool MCSim::sort_by_theta_for_ladder(MCSim const& a, MCSim const& b){
+bool MCSim::sort_by_coupling(MCSim const& a, MCSim const& b){
 	return a.get_J()(1)<b.get_J()(1);
 }
 

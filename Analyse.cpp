@@ -1,7 +1,8 @@
 #include "Analyse.hpp"
 
-Analyse::Analyse(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file):
+Analyse::Analyse(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& ref):
 	IOSystem("",sim,"info-"+sim,"analyse-"+sim,"./","./",NULL),
+	ref_(ref),
 	max_level_(max_level),
 	bash_file_(bash_file)
 {

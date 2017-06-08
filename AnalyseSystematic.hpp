@@ -6,7 +6,7 @@
 
 class AnalyseSystematic : public Analyse{
 	public:
-		AnalyseSystematic(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file);
+		AnalyseSystematic(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& ref);
 		/*!Default destructor*/
 		~AnalyseSystematic();
 		/*{Forbidden*/
@@ -23,6 +23,5 @@ class AnalyseSystematic : public Analyse{
 		void close_files();
 
 		std::string extract_level_9();
-		std::string extract_level_2();
 };
 #endif

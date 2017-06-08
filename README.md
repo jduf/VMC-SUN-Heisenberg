@@ -104,7 +104,11 @@ The code currently supports:
 + any value of *N>1*
 + any number of particle per site *m>N*
 + any number of site *n*
-+ any simple boundary condition (periodic, antiperiodic, none)
++ any simple boundary condition (periodic, antiperiodic, none). Note that if a
+  link crosses the boundaries an even number of time, it is considered as if no
+  boundaries were crossed (this is relevant for some particular geometries like
+  a tilted cluster on the square lattice for which the links at the corners
+  might cross twice the boundaries)
 + any number of particle of each color (having more particles of one color is
   allowed)
 + first neighbour Heisenberg model (easily generalisable to further

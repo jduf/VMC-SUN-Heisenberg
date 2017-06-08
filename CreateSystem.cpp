@@ -381,6 +381,27 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										}
 										RGL_ = new SquareMuT2x2(*s_,mu,t);
 									}break;
+								case 14:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new SquareFacingDimers(*s_,t);
+									}break;
+								case 15:
+									{
+										Vector<double> t;
+										if(param){ t = *param; }
+										if(C){ t = C->get<std::vector<double> >("t"); }
+										RGL_ = new SquareAlternatingDimers(*s_,t);
+									}break;
+								case 16:
+									{
+										double mu;
+										if(param){ mu = (*param)(0); }
+										if(C){ mu = C->get<double>("mu"); }
+										RGL_ = new Squarek2MuPi(*s_,mu);
+									}break;
 								default:{ error(); }break;
 							}
 						}break;

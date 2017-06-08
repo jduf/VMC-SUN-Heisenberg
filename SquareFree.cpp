@@ -113,23 +113,6 @@ void SquareFree::save_param(IOFiles& w) const {
 
 Matrix<double> SquareFree::set_ab(unsigned int const& ref3) const {
 	Matrix<double> tmp(2,2);
-	//if(ref3==2){
-	//tmp(0,0) = 2.0;
-	//tmp(1,0) = 1.0;
-	//tmp(0,1) =-1.0;
-	//tmp(1,1) = 2.0;
-	//} else {
-	//tmp(0,0) = 2.0;
-	//tmp(1,0) =-1.0;
-	//tmp(0,1) = 1.0;
-	//tmp(1,1) = 2.0;
-	//}
-	//(void)(ref3);
-	//tmp(0,0) = 2.0;
-	//tmp(1,0) = 0.0;
-	//tmp(0,1) = 0.0;
-	//tmp(1,1) = 2.0;
-	
 	(void)(ref3);
 	tmp(0,0) = 4.0;
 	tmp(1,0) = 0.0;

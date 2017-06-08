@@ -1,7 +1,7 @@
 #include "AnalyseLadder.hpp"
 
 AnalyseLadder::AnalyseLadder(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file):
-	Analyse(sim,max_level,bash_file)
+	Analyse(sim,max_level,bash_file,2)
 {
 	do_analyse();
 }

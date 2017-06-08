@@ -14,7 +14,9 @@ class Square: public System2D<Type>{
 	protected:
 		void init_lattice();
 		/*Draw the lattice inside a PSTricks file*/
-		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift, std::string const& param, std::string const& title);
+		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift, std::string param, std::string title);
+		/*!To get the data for a plot of E(Jp) for all N,m,n,bc*/
+		std::string extract_level_6();
 
 	private:
 		unsigned int p_;
@@ -90,7 +92,21 @@ void Square<Type>::init_lattice(){
 				/*!sets the bond energy if it has not been set yet*/
 				if(this->obs_[0].nlinks() != this->J_.size()){
 					if(this->J_.size() == 1){ this->J_.set(this->obs_[0].nlinks(),this->J_(0)); }
-					else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
+					else if (this->J_.size() == 2){
+						Vector<double> tmp(this->J_);
+						this->J_.set(this->obs_[0].nlinks());
+						for (unsigned int i(0); i<this->J_.size();i++){
+							if(this->obs_[0](i,3)){ this->J_(i) = tmp(1); } //vertical links
+							else { this->J_(i) = tmp(0); } //horizontal links
+						}
+
+						/*!fix the names for the bond energy*/
+						if(this->J_.size()==this->obs_[0].nlinks()){
+							std::string tmp("Jp"+my::tostring(this->J_(1)));
+							this->filename_.replace(this->filename_.find("Juniform"),8,tmp);
+							this->path_.replace(this->path_.find("Juniform"),8,tmp);
+						} else { std::cerr<<__PRETTY_FUNCTION__<<" : J_ has an incoherent size"<<std::endl; }
+					} else { std::cerr<<__PRETTY_FUNCTION__<<" : setting J_ is problematic"<<std::endl; }
 				}
 			}
 		} else { std::cerr<<__PRETTY_FUNCTION__<<" required memory has not been allocated"<<std::endl; }
@@ -98,7 +114,7 @@ void Square<Type>::init_lattice(){
 }
 
 template<typename Type>
-void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift, std::string const& param, std::string const& title){
+void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift, std::string param, std::string title){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(3,0);
 	double max_bond_energy(0);
@@ -147,14 +163,14 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 	ps.begin(-20,-20,20,20,this->filename_);
 	ps.polygon(uc,"linecolor=black,linestyle=dashed");
 	if(only_unit_cell){
-		shift(0) = uc(1,0)-uc(0,0)+0.5;
+		shift(0) = uc(2,0)+1.0;
 		for(unsigned int i(0);i<links.row();i++){
 			s0 = links(i,0);
 			s1 = links(i,1);
 			xy0 = this->x_[s0];
 			xy1 = this->x_[s1];
 
-			if(links(i,4)){
+			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
 				xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
 			} else { linestyle = "solid"; }
@@ -217,7 +233,7 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 			xy0 = this->x_[s0];
 			xy1 = this->x_[s1];
 
-			if(links(i,4)){
+			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
 				xy1 = (xy0+this->dir_nn_[links(i,3)]*1.2).chop();
 				ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(s1)+"}");
@@ -225,7 +241,8 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 			} else { linestyle = "solid"; }
 
 			/*Draws only the lattice, shows links and bc and indices*/
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth=1pt,linecolor=black,linestyle="+linestyle);
+			linewidth = my::tostring(this->J_(i)/this->J_.max()*1)+"pt";
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor=black,linestyle="+linestyle);
 			if(i%2){
 				ps.put(xy0(0)-0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
 				ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}");
@@ -282,7 +299,16 @@ void Square<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 	if(o(1)){ this->draw_long_range_correlations(ps,shift,this->obs_[o(1)]); }
 	ps.end(silent,true,true);
 
-	this->rst_file_set_default_info(param,title);
+	title = RST::math("J_p=")+my::tostring(this->J_(1)) + " : " + title;
+	param += " -d:Jp " + my::tostring(this->J_(1));
+	this->rst_file_set_default_info(param,title,"Jp"+my::tostring(this->J_(1))); 
+}
+
+template<typename Type>
+std::string Square<Type>::extract_level_6(){
+	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->J_(1)<<" "<<this->obs_[0][0]<<" "<<this->ref_<<IOFiles::endl;
+
+	return this->filename_;
 }
 /*}*/
 

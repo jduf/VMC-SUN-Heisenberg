@@ -197,7 +197,7 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 			xy0 = this->x_[s0];
 			xy1 = this->x_[s1];
 
-			if(links(i,4)){
+			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
 				xy1 = (xy0+this->dir_nn_[links(i,3)]).chop();
 			} else { linestyle = "solid"; }
@@ -258,7 +258,7 @@ void Honeycomb<Type>::draw_lattice(bool const& only_unit_cell, bool const& silen
 			xy0 = this->x_[s0];
 			xy1 = this->x_[s1];
 
-			if(links(i,4)){
+			if((xy0-xy1).norm_squared()>1.0001){
 				linestyle = "dashed";
 				xy1 = (xy0+this->dir_nn_[links(i,3)]*1.2).chop();
 				ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(s1)+"}");

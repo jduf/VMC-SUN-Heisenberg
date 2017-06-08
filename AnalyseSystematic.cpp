@@ -1,7 +1,7 @@
 #include "AnalyseSystematic.hpp"
 
-AnalyseSystematic::AnalyseSystematic(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file):
-	Analyse(sim,max_level,bash_file)
+AnalyseSystematic::AnalyseSystematic(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& ref):
+	Analyse(sim,max_level,bash_file,ref)
 {
 	do_analyse();
 }
@@ -70,8 +70,7 @@ std::string AnalyseSystematic::extract_level_9(){
 	rst.save(true,false,true);
 
 	List<MCSim> local_minima;
-	VMCSystematic min(*read_);
-	min.analyse(analyse_+path_+dir_,filename_,local_minima);
+	VMCSystematic(*read_).read_and_find_min(analyse_+path_+dir_,filename_,local_minima);
 	list_rst_.last().figure(rel_level_+analyse_+path_+dir_+filename_+".png",filename_,RST::target(rel_level_+analyse_+path_+dir_+filename_+".gp")+RST::width("1000"));
 
 	local_minima.set_target();
@@ -85,5 +84,3 @@ std::string AnalyseSystematic::extract_level_9(){
 
 	return filename_;
 }
-
-std::string AnalyseSystematic::extract_level_2(){ return fit_therm_limit(); }

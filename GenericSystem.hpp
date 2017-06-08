@@ -78,10 +78,15 @@ class GenericSystem:public Bosonic<Type>, public Fermionic<Type>, public IOSyste
 		/*!Evaluates the value of an operator O as <bra|O|ket>*/
 		std::complex<double> projection(Matrix<Type> const& O, unsigned int const& idx);
 
+		/*!Used in VMCSystematic to plot E(param) with dim(param)=1*/
+		virtual std::string extract_level_9();
 		/*!Extrapolates the energy in the thermodynamical limit*/
 		virtual std::string extract_level_2();
 		/*!Gets the parameter for the fit of the thermodynamical limit*/
 		virtual void param_fit_therm_limit(std::string& f, std::string& param, std::string& range);
+
+		/*!Write the title, the command line and link the lattice in the rst file*/
+		void rst_file_set_default_info(std::string const& param, std::string const& title, std::string const& replace = "");
 
 	private:
 		/*!Diagonalizes H_*/
@@ -144,30 +149,32 @@ void GenericSystem<Type>::energy_obs(Vector<unsigned int> const& l){
 	for(auto const& o:this->obs_){ if(o.get_type() == 0){ conflict = true; } }
 	if(conflict){ std::cerr<<__PRETTY_FUNCTION__<<" : energy observable already defined"<<std::endl; }
 	else if(2*l.sum()==l.size()*z_){
-		unsigned int k(0);
+		unsigned int n_links(0);
 		unsigned int l_tmp;
 		Matrix<int> nb;
 		if(!this->bc_){
+			/*!Need to count the number of links in the cluster when using open
+			 * boundary condition*/
 			for(unsigned int i(0);i<this->n_;i++){
 				l_tmp = l(i%l.size());
 				if(l_tmp){
 					nb = get_neighbourg(i);
 					for(unsigned int j(0);j<l_tmp;j++){
-						if(this->bc_ || nb(j,1)==0){ k++; }
+						if(!nb(j,2)){ n_links++; }
 					}
 				}
 			}
-		} else { k = this->n_*this->z_/2; }
-		Matrix<int> tmp(k,7);
-		k=0;
+		} else { n_links = this->n_*z_/2; }
+		Matrix<int> tmp(n_links,7);
 		typedef std::tuple<unsigned int,unsigned int,unsigned int> ui_tuple;
 		std::set<ui_tuple> unit_cell_links;
+		unsigned int k(0);
 		for(unsigned int i(0);i<this->n_;i++){
 			l_tmp =l(i%l.size());
 			if(l_tmp){
 				nb = get_neighbourg(i);
 				for(unsigned int j(0);j<l_tmp;j++){
-					if(this->bc_ || nb(j,2)==0){
+					if(this->bc_ || !nb(j,2)){
 						tmp(k,0) = i;		//! site i
 						tmp(k,1) = nb(j,0); //! site j
 						tmp(k,3) = nb(j,1);	//! direction of vector linking i->j
@@ -180,7 +187,9 @@ void GenericSystem<Type>::energy_obs(Vector<unsigned int> const& l){
 				}
 			}
 		}
-		if(unit_cell_links.size() != z_*spuc_/2){
+		/*!The second condition is to avoid a problem with open boundary
+		 * condition and cluster of size n_=spuc_*/
+		if(unit_cell_links.size() != z_*spuc_/2 && spuc_ != this->n_){
 			std::cerr<<__PRETTY_FUNCTION__<<" : incoherent number of links in the unit cell ("<<unit_cell_links.size()<<" insead of "<<z_*spuc_/2<<"),  they are :"<<std::endl;
 			for(auto const& uic:unit_cell_links){
 				std::cout<<std::get<0>(uic)<<" "<<std::get<1>(uic)<<" "<<std::get<2>(uic)<<std::endl;
@@ -188,12 +197,12 @@ void GenericSystem<Type>::energy_obs(Vector<unsigned int> const& l){
 		} else {
 			/*!This value has nothing to do with the index of the bond l having
 			 * a coupling J_(l). This value is only the index of a given bond
-			 * in the unit cell. It means that J_(tmp(k,2)) would be completely
+			 * in the unit cell. It means that J_(tmp(i,2)) would be completely
 			 * absurd and wrong. The l-th link involved in the computation of
 			 * E, has a bond energy of J_(l) and corresponds to the tmp(l,2)-th
 			 * link the unit cell*/
-			for(k=0;k<tmp.row();k++){
-				tmp(k,2) = std::distance(unit_cell_links.begin(),unit_cell_links.find(ui_tuple(tmp(k,3),tmp(k,5),tmp(k,6))));
+			for(unsigned int i(0);i<tmp.row();i++){
+				tmp(i,2) = std::distance(unit_cell_links.begin(),unit_cell_links.find(ui_tuple(tmp(i,3),tmp(i,5),tmp(i,6))));
 			}
 			this->obs_.push_back(Observable("Energy per site",0,1,tmp));
 			this->ref_(4) = 0;
@@ -206,7 +215,7 @@ void GenericSystem<Type>::energy_obs(Vector<unsigned int> const& l){
 template<typename Type>
 void GenericSystem<Type>::bond_energy_obs(){
 	unsigned int idx(this->obs_.size());
-	this->obs_.push_back(Observable("Bond energy",1,this->z_*this->spuc_/2,this->obs_[0].nlinks()));
+	this->obs_.push_back(Observable("Bond energy",1,z_*this->spuc_/2,this->obs_[0].nlinks()));
 	this->obs_[idx].remove_links();
 }
 
@@ -245,6 +254,15 @@ std::complex<double> GenericSystem<Type>::projection(Matrix<Type> const& O, unsi
 }
 
 template<typename Type>
+std::string GenericSystem<Type>::extract_level_9(){
+	Gnuplot gp(this->analyse_+this->path_+this->dir_,this->filename_);
+	gp+="plot '"+this->filename_+".dat' u 1:2:3 notitle";
+	gp.save_file();
+	gp.create_image(true,"png");
+	return this->filename_;
+}
+
+template<typename Type>
 std::string GenericSystem<Type>::extract_level_2(){
 	std::string f("");
 	std::string p("");
@@ -272,6 +290,32 @@ void GenericSystem<Type>::param_fit_therm_limit(std::string& f, std::string& par
 	f = "f(x) = a+b*x";
 	param = "a,b";
 	range = "";
+}
+
+template<typename Type>
+void GenericSystem<Type>::rst_file_set_default_info(std::string const& param, std::string const& title, std::string const& replace){
+	if(this->rst_file_){
+		std::string cmd_name("./mc");
+		cmd_name+= " -s:wf "+this->wf_name_+ " " + param;
+		cmd_name+= " -u:N " + my::tostring(this->N_);
+		cmd_name+= " -u:m " + my::tostring(this->m_);
+		cmd_name+= " -u:n " + my::tostring(this->n_);
+		cmd_name+= " -i:bc "+ my::tostring(this->bc_);
+		cmd_name+= " -d -u:tmax 10";
+
+		if(replace == "" || !(this->dir_ == "P/" || this->dir_ == "O/" || this->dir_ == "A/")){ 
+			this->rst_file_->title(title,'-'); 
+		} else {
+			this->rst_file_->title("|"+replace+"|_",'-'); 
+			this->rst_file_->replace(replace,title);
+		}
+		this->rst_file_->change_text_onclick("run command",cmd_name);
+		this->rst_file_->figure(
+				this->dir_+this->filename_+".png",
+				RST::math("E="+my::tostring(this->obs_[0][0].get_x())+"\\pm"+my::tostring(this->obs_[0][0].get_dx())),
+				RST::target(this->dir_+this->filename_+".pdf")+RST::width("800")
+				);
+	}
 }
 /*}*/
 

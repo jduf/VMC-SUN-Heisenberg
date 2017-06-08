@@ -168,101 +168,51 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 1;
-		std::vector<double> J(2);
-		double theta(P.get<double>("theta"));
-		J[0] = cos(theta); //legs  (J‖)
-		J[1] = sin(theta); //rungs (J⊥)
-		P.set("J",J);
 	}
 	if( wf == "ladder-dimerA" ){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 2;
-		std::vector<double> J(2);
-		double theta(P.get<double>("theta"));
-		J[0] = cos(theta); //legs  (J‖)
-		J[1] = sin(theta); //rungs (J⊥)
-		P.set("J",J);
 	}
 	if( wf == "ladder-dimerB" ){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 3;
-		std::vector<double> J(2);
-		double theta(P.get<double>("theta"));
-		J[0] = cos(theta); //legs  (J‖)
-		J[1] = sin(theta); //rungs (J⊥)
-		P.set("J",J);
 	}
 	if( wf == "ladder-squareplaquetteA" ){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 4;
-		std::vector<double> J(2);
-		double theta(P.get<double>("theta"));
-		J[0] = cos(theta); //legs  (J‖)
-		J[1] = sin(theta); //rungs (J⊥)
-		P.set("J",J);
 	}
 	if( wf == "ladder-squareplaquetteB" ){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 5;
-		std::vector<double> J(2);
-		double theta(P.get<double>("theta"));
-		J[0] = cos(theta); //legs  (J‖)
-		J[1] = sin(theta); //rungs (J⊥)
-		P.set("J",J);
 	}
 	if( wf == "ladder-squareplaquetteC" ){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 6;
-		std::vector<double> J(2);
-		double theta(P.get<double>("theta"));
-		J[0] = cos(theta); //legs  (J‖)
-		J[1] = sin(theta); //rungs (J⊥)
-		P.set("J",J);
 	}
 	if( wf == "ladder-rectangularplaquetteA" ){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 7;
-		std::vector<double> J(2);
-		double theta(P.get<double>("theta"));
-		J[0] = cos(theta); //legs  (J‖)
-		J[1] = sin(theta); //rungs (J⊥)
-		P.set("J",J);
 	}
 	if( wf == "ladder-rectangularplaquetteB" ){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 8;
-		std::vector<double> J(2);
-		double theta(P.get<double>("theta"));
-		J[0] = cos(theta); //legs  (J‖)
-		J[1] = sin(theta); //rungs (J⊥)
-		P.set("J",J);
 	}
 	if( wf == "ladder-rectangularplaquetteC" ){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 9;
-		std::vector<double> J(2);
-		double theta(P.get<double>("theta"));
-		J[0] = cos(theta); //legs  (J‖)
-		J[1] = sin(theta); //rungs (J⊥)
-		P.set("J",J);
 	}
 	if( wf == "ladder-rectangularplaquetteD" ){
 		ref(0) = 2;
 		ref(1) = 1;
 		ref(2) = 10;
-		std::vector<double> J(2);
-		double theta(P.get<double>("theta"));
-		J[0] = cos(theta); //legs  (J‖)
-		J[1] = sin(theta); //rungs (J⊥)
-		P.set("J",J);
 	}
 
 	if( wf == "triangle-fermi" ){
@@ -381,6 +331,21 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(1) = 1;
 		ref(2) = 13;
 	}
+	if( wf == "square-facingdimers" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 14;
+	}
+	if( wf == "square-alternatingdimers" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 15;
+	}
+	if( wf == "square-k2mupi" ){
+		ref(0) = 4;
+		ref(1) = 1;
+		ref(2) = 16;
+	}
 	if( wf == "square-freeflux" ){
 		ref(0) = 4;
 		ref(1) = 2;
@@ -488,26 +453,39 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 		ref(2) = 1;
 	}
 
-	if(!P.find("J")){ P.set("J",std::vector<double>(1,1)); }
-	if(!P.find("M")){ P.set("M",std::vector<unsigned int>(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"))); }
 	switch(ref(0)){
+		case 2:
+			{
+				std::vector<double> J(2);
+				double theta(P.get<double>("theta"));
+				J[0] = cos(theta); //legs  (J‖)
+				J[1] = sin(theta); //rungs (J⊥)
+				P.set("J",J);
+			}break;
 		case 4:
 			{
 				unsigned int n(P.get<unsigned int>("n"));
 				unsigned int i;
-				if(P.find("cluster",i)){ ref(3) = P.get<unsigned int>(i); }
+				if(P.find("geometry",i)){ ref(3) = P.get<unsigned int>(i); }
 				else {
 					ref(3)=1;
 					if(my::are_equal(sqrt(n),floor(sqrt(n)))){
 						for(unsigned int p(0);p<=sqrt(n);p++){
 							for(unsigned int q(1);q<p+1;q++){
 								if(p*p+q*q==n){
-									std::cerr<<__PRETTY_FUNCTION__<<" : tilted cluster chosen by default (to change -u:cluster 0)"<<std::endl;
+									std::cerr<<__PRETTY_FUNCTION__<<" : tilted geometry chosen by default (to change -u:geometry 0)"<<std::endl;
 									q = p = n;
 								}
 							}
 						}
 					}
+				}
+				if(P.find("Jp")){
+					std::vector<double> J(2);
+					double Jp(P.get<double>("Jp"));
+					J[0] = 1; //horizontal links
+					J[1] = Jp;//vertical links
+					P.set("J",J);
 				}
 			}break;
 		case 5:
@@ -523,5 +501,7 @@ Vector<unsigned int> System::complete_system_info(Parseur& P){
 				if(my::are_equal(sqrt(n/6.0),floor(sqrt(n/6.0)))){ ref(3) = 1; }
 			}break;
 	}
+	if(!P.find("J")){ P.set("J",std::vector<double>(1,1)); }
+	if(!P.find("M")){ P.set("M",std::vector<unsigned int>(P.get<unsigned int>("N"),P.get<unsigned int>("n")*P.get<unsigned int>("m")/P.get<unsigned int>("N"))); }
 	return ref;
 }

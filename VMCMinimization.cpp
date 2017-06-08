@@ -97,11 +97,11 @@ void VMCMinimization::refine(double const& E, double const& dEoE, unsigned int c
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples or tmax = 0"<<std::endl; }
 }
 
-void VMCMinimization::refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& maxiter, unsigned int const& tmax, unsigned int const& nmin, std::string const& save_in){
+void VMCMinimization::refine(Vector<unsigned int> const& which_obs, double const& dEoE, unsigned int const& tmax, unsigned int const& maxiter, unsigned int const& nmin, std::string const& save_in){
 	if(m_->samples_.size() && tmax){
 		List<MCSim> potential_minima;
 		List<MCSim> sorted_samples;
-		find_minima(0,0.999,sorted_samples,potential_minima);
+		find_minima(0,nmin,0.999,sorted_samples,potential_minima);
 
 		total_eval_ = std::min(nmin,sorted_samples.size());
 		std::string msg("refines "+my::tostring(total_eval_)+" samples (max time "+my::tostring(total_eval_*tmax*maxiter)+"s)");
@@ -175,7 +175,7 @@ void VMCMinimization::save(std::string save_in) const {
 	save(out);
 }
 
-double VMCMinimization::find_minima(unsigned int const& max_pm, double const& range, List<MCSim>& sorted_samples, List<MCSim>& potential_minima) const {
+double VMCMinimization::find_minima(unsigned int const& max_pm, unsigned int const& nmin, double const& range, List<MCSim>& sorted_samples, List<MCSim>& potential_minima) const {
 	double E_range(666);
 	if(m_->samples_.size()){
 		sorted_samples.set();
@@ -190,7 +190,7 @@ double VMCMinimization::find_minima(unsigned int const& max_pm, double const& ra
 		/*!sort by energy all MCSim with energy lower than a threshold*/
 		m_->samples_.set_target();
 		while(m_->samples_.target_next()){
-			if(m_->samples_.get().get_energy().get_x()<E_range){
+			if(m_->samples_.get().get_energy().get_x()<E_range || (nmin?sorted_samples.size()<nmin:false)){
 				sorted_samples.add_sort(m_->samples_.get_ptr(),MCSim::sort_by_E);
 			}
 		}
@@ -249,7 +249,7 @@ void VMCMinimization::find_and_run_minima(unsigned int const& max_pm, Vector<uns
 	if(m_->samples_.size() && tmax){
 		List<MCSim> potential_minima;
 		List<MCSim> sorted_samples;
-		find_minima(max_pm,0.999,sorted_samples,potential_minima);
+		find_minima(max_pm,0,0.999,sorted_samples,potential_minima);
 
 		unsigned int maxiter(1);
 		total_eval_ = potential_minima.size();
@@ -306,7 +306,7 @@ void VMCMinimization::find_save_and_plot_minima(unsigned int const& max_pm, IOFi
 		} else {
 			List<MCSim> potential_minima;
 			List<MCSim> sorted_samples;
-			double E_range(find_minima(max_pm,0.999,sorted_samples,potential_minima));
+			double E_range(find_minima(max_pm,0,0.999,sorted_samples,potential_minima));
 
 			w.write("number of samples",potential_minima.size());
 
@@ -350,7 +350,7 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, Vector<u
 		/*!find the minima and sort by energy*/
 		List<MCSim> sorted_samples;
 		List<MCSim> potential_minima;
-		find_minima(max_pm,0.999,sorted_samples,potential_minima);
+		find_minima(max_pm,0,0.999,sorted_samples,potential_minima);
 
 		Vector<double> p;
 		List<Vector<double> > param;
@@ -400,7 +400,7 @@ void VMCMinimization::explore_around_minima(unsigned int const& max_pm, Vector<u
 void VMCMinimization::save_parameters(unsigned int nbest, std::string save_in) const {
 	List<MCSim> potential_minima;
 	List<MCSim> sorted_samples;
-	find_minima(0,0.999,sorted_samples,potential_minima);
+	find_minima(0,0,0.999,sorted_samples,potential_minima);
 	nbest = (sorted_samples.size()>nbest+1?nbest:sorted_samples.size()-1);
 
 	save_in = my::ensure_trailing_slash(save_in) + path_;

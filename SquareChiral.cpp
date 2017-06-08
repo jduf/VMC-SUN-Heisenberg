@@ -240,7 +240,7 @@ unsigned int SquareChiral::unit_cell_index(Vector<double> const& x) const {
 void SquareChiral::display_results(){
 	compute_H();
 	std::string phi(my::tostring(phi_));
-	draw_lattice(false,true,false,(dir_nn_[2]+dir_nn_[3])*0.5,"-d:phi "+phi,RST::math("\\phi")+"="+phi);
+	draw_lattice(true,true,false,(dir_nn_[2]+dir_nn_[3])*0.5,"-d:phi "+phi,RST::math("\\phi")+"="+phi);
 }
 
 void SquareChiral::check(){

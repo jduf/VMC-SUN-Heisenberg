@@ -72,7 +72,7 @@ class MCSim{
 
 		/*{Static methods*/
 		static bool sort_by_E(MCSim const& a, MCSim const& b);
-		static bool sort_by_theta_for_ladder(MCSim const& a, MCSim const& b);
+		static bool sort_by_coupling(MCSim const& a, MCSim const& b);
 		static unsigned int sort_for_merge(MCSim const& list, MCSim const& new_elem);
 		static unsigned int sort_by_param_for_merge(Vector<double> const& a, Vector<double> const& b);
 		/*}*/

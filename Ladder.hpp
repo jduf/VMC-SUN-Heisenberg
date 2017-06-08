@@ -29,14 +29,14 @@ class Ladder: public System1D<Type>{
 		void long_range_correlations_obs();
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
-		/*!To get a plot of E(theta) for all N,m,n,bc*/
+		/*Draw the lattice inside a PSTricks file*/
+		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image, std::string param, std::string title);
+		/*!Computes and writes the flux per plaquette in the PSTricks file*/
+		std::string flux_per_plaquette(unsigned int const& s0, unsigned int const& s1) const;
+		/*!To get the data for a plot of E(theta) for all N,m,n,bc*/
 		std::string extract_level_6();
 		/*!Given N and m, save the best simulation in a text file for any n*/
 		std::string extract_level_3();
-		/*Draw the lattice inside a PSTricks file*/
-		void draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image, std::string const& param, std::string title);
-		/*!Computes and writes the flux per plaquette in the PSTricks file*/
-		std::string flux_per_plaquette(unsigned int const& s0, unsigned int const& s1) const;
 };
 
 /*{constructor*/
@@ -66,9 +66,9 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 		if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() == 2){
 			Vector<double> tmp(this->J_);
 			this->J_.set(this->obs_[0].nlinks());
-			for (unsigned int i=0; i<this->J_.size();i++){
-				if(i%3==1){ this->J_(i) = tmp(1); } //rungs (J⊥) -> sin(theta)
-				else { this->J_(i) = tmp(0); }        //legs  (J‖) -> cos(theta)
+			for (unsigned int i(0); i<this->J_.size();i++){
+				if(this->obs_[0](i,3)){ this->J_(i) = tmp(1); } //rungs (J⊥) -> sin(theta)
+				else { this->J_(i) = tmp(0); } //legs  (J‖) -> cos(theta)
 			}
 		}
 
@@ -175,22 +175,7 @@ Matrix<int> Ladder<Type>::get_neighbourg(unsigned int const& i) const {
 }
 
 template<typename Type>
-std::string Ladder<Type>::extract_level_6(){
-	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<acos(this->J_(0))<<" "<<this->obs_[0][0]<<" "<<this->ref_<<IOFiles::endl;
-
-	return this->filename_;
-}
-
-template<typename Type>
-std::string Ladder<Type>::extract_level_3(){
-	(*this->read_)>>this->obs_[0][0];
-	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->obs_[0][0]<<IOFiles::endl;
-
-	return this->filename_;
-}
-
-template<typename Type>
-void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image, std::string const& param, std::string title){
+void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image, std::string param, std::string title){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(6,0);
 	double max_bond_energy(0);
@@ -241,11 +226,16 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 	ps.add("\\newcommand{\\wbg}[1]{\\setlength{\\fboxsep}{ 1pt}\\colorbox{white}{\\tiny{#1}}}");
 	ps.begin(-1,-5,this->n_/1.5,2,this->filename_);
 	ps.polygon(uc,"linecolor=black,linestyle=dashed");
+	unsigned int link_type;
 	if(only_unit_cell){
 		shift(0) = uc(1,0)-uc(0,0)+0.5;
 		for(unsigned int i(0);i<links.row();i++){
 			s0 = links(i,0);
 			s1 = links(i,1);
+			if(!(s0%2)){
+				if(!(s1%2)){ link_type = 0; } // lower horizontal link
+				else{ link_type = 1; } // vertical link
+			} else { link_type = 2; } // upper horizontal link
 			/*!shift xy 0 to avoid latex bug for value too close to 0*/
 			xy0(0) = s0/2+0.0001;
 			xy0(1) = s0%2+0.0001;
@@ -258,7 +248,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 			} else { linestyle = "solid"; }
 
 			if(my::in_polygon(uc.row(),uc.ptr(),uc.ptr()+uc.row(),xy0(0),xy0(1))){
-				/*Shows hopping amplitude, chemical potential and fluxes*/
+				/*Hopping amplitude, chemical potential and fluxes*/
 				t = this->H_(s0,s1);
 				if(std::abs(t)>1e-4){
 					linewidth = my::tostring(std::abs(t))+"mm";
@@ -272,17 +262,17 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 					ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
 					ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(my::round_nearest(std::abs(t),1000))+"}");
 				}
-				if(i%3 != 1){
+				if(link_type!=1){
 					mu = my::real(this->H_(s0,s0))/M_PI;
 					if(std::abs(mu)>1e-4){
 						if(mu>0){ color = "cyan"; }
 						else    { color = "magenta"; }
 						ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 					}
+					if(link_type==0){ ps.put(xy0(0)+0.5,xy0(1)+0.5,flux_per_plaquette(s0,s1)); }
 				}
-				if(i%3==0){ ps.put(xy0(0)+0.5,xy0(1)+0.5,flux_per_plaquette(s0,s1)); }
 
-				/*Shows bond energy and color occupation*/
+				/*Bond energy and color occupation*/
 				xy0 += shift;
 				xy1 += shift;
 				if(o(0)){
@@ -295,7 +285,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 					}
 					ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(my::round_nearest(std::abs(bond_energy)/max_bond_energy,100))+"}");
 				}
-				if(i%3 != 1 && o(1)){
+				if(link_type!=1 && o(1)){
 					xy0 += shift;
 					Vector<double> p(this->N_);
 					for(unsigned int j(0);j<this->N_;j++){ p(j) = this->obs_[o(1)][j+this->N_*links(i,5)].get_x(); }
@@ -307,6 +297,10 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 		for(unsigned int i(0);i<links.row();i++){
 			s0 = links(i,0);
 			s1 = links(i,1);
+			if(!(s0%2)){
+				if(!(s1%2)){ link_type = 0; } // lower horizontal link
+				else{ link_type = 1; } // vertical link
+			} else { link_type = 2; } // upper horizontal link
 			/*!shift xy 0 to avoid latex bug for value too close to 0*/
 			xy0(0) = s0/2+0.0001;
 			xy0(1) = s0%2+0.0001-2;
@@ -316,19 +310,17 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 			if(links(i,4)){
 				linestyle = "dashed";
 				xy1(0) = xy0(0)+1.2;
-				ps.put(xy1(0),xy1(1),"\\tiny{"+my::tostring(s1)+"}");
 				xy1(0) = xy0(0)+1.0;
 			} else { linestyle = "solid"; }
 
 			/*Draws only the lattice, shows links and bc and indices*/
-			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth=1pt,linecolor=black,linestyle="+linestyle);
-			if(i%3 == 0){
-				ps.put(xy0(0)-0.2,xy0(1)-0.15,"\\tiny{"+my::tostring(s0)+"}");
-				ps.put(xy0(0)+0.2,xy0(1)-0.15,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}");
-			}
-			if(i%3 == 2){
-				ps.put(xy0(0)-0.2,xy0(1)+0.15,"\\tiny{"+my::tostring(s0)+"}");
-				ps.put(xy0(0)+0.2,xy0(1)+0.15,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}");
+			linewidth = my::tostring(this->J_(i)/this->J_.max()*1)+"pt";
+			ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1),"linewidth="+linewidth+",linecolor=black,linestyle="+linestyle);
+			if(link_type==1){
+				ps.put(xy0(0)-0.15,xy0(1)-0.15,"\\tiny{"+my::tostring(s0)+"}");
+				ps.put(xy0(0)+0.15,xy0(1)-0.15,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,5))+"}}");
+				ps.put(xy0(0)-0.15,xy1(1)+0.15,"\\tiny{"+my::tostring(s1)+"}");
+				ps.put(xy0(0)+0.15,xy1(1)+0.15,"\\textcolor{green}{\\tiny{"+my::tostring(links(i,6))+"}}");
 			}
 
 			/*Bond energy and color occupation*/
@@ -343,13 +335,13 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 					ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
 				}
 			}
-			if(i%3 != 1 && o(1)){
+			if(link_type!=1 && o(1)){
 				Vector<double> p(this->N_);
 				for(unsigned int j(0);j<this->N_;j++){ p(j) = this->obs_[o(1)][j+this->N_*links(i,5)].get_x(); }
 				ps.pie(xy0(0),xy0(1),p,0.2,"chartColor=color");
 			}
 
-			/*Shows hopping amplitude, chemical potential and fluxes*/
+			/*Hopping amplitude, chemical potential and fluxes*/
 			xy0(1) += 4.0;
 			xy1(1) += 4.0;
 			t = this->H_(s0,s1);
@@ -362,17 +354,17 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 					if(my::imag(-t)>0){ arrow = "->"; }
 					else              { arrow = "<-"; }
 				}
-				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
+				ps.line(arrow,xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle="+linestyle);
 			}
-			if(i%3 != 1){
+			if(link_type!=1){
 				mu = my::real(this->H_(s0,s0))/M_PI;
 				if(std::abs(mu)>1e-4){
 					if(mu>0){ color = "cyan"; }
 					else    { color = "magenta"; }
 					ps.circle(xy0,sqrt(std::abs(mu)),"fillstyle=solid,fillcolor="+color+",linecolor="+color);
 				}
+				if(link_type==0){ ps.put(xy0(0)+0.5,xy0(1)+0.5,flux_per_plaquette(s0,s1)); }
 			}
-			if(i%3==0){ ps.put(xy0(0)+0.5,xy0(1)+0.5,flux_per_plaquette(s0,s1)); }
 		}
 	}
 	if(o(2) && o(3)){/*long range correlations*/
@@ -513,26 +505,11 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 		if(create_image){ gp_sas.create_image(silent,"png"); }
 		/*}*/
 	}
-	
+
 	if(this->rst_file_){
 		title = RST::math("\\theta=")+my::tostring(acos(this->J_(0))) + " : " + title;
-		std::string cmd_name("./mc");
-		cmd_name += " -s:wf "+ this->wf_name_;
-		cmd_name += " -u:N " + my::tostring(this->N_);
-		cmd_name += " -u:m " + my::tostring(this->m_);
-		cmd_name += " -u:n " + my::tostring(this->n_);
-		cmd_name += " -i:bc "+ my::tostring(this->bc_);
-		cmd_name += " -d:theta " + my::tostring(acos(this->J_(0)));
-		cmd_name += " " + param;
-		cmd_name += " -d -u:tmax 10";
-		if(this->dir_ == "P/" || this->dir_ == "O/" || this->dir_ == "A/"){
-			this->rst_file_->title("|theta"+my::tostring(acos(this->J_(0)))+"|_",'-');
-			this->rst_file_->replace("theta"+my::tostring(acos(this->J_(0))),title);
-		} else { this->rst_file_->title(title,'-'); }
-		this->rst_file_->change_text_onclick("run command",cmd_name);
-		this->rst_file_->figure(this->dir_+this->filename_+".png",
-				RST::math("E="+my::tostring(this->obs_[0][0].get_x())+"\\pm"+my::tostring(this->obs_[0][0].get_dx())),
-				RST::target(this->dir_+this->filename_+".pdf")+RST::width("800"));
+		param += " -d:theta " + my::tostring(acos(this->J_(0)));
+		this->rst_file_set_default_info(param,title,"theta"+my::tostring(acos(this->J_(0))));
 
 		if(o(2) && o(3) && o(4) && o(5)){
 			std::string path(this->analyse_+this->path_+this->dir_);
@@ -570,6 +547,21 @@ std::string Ladder<Type>::flux_per_plaquette(unsigned int const& s0, unsigned in
 		else if((unsigned int)(my::chop(flux))%2){ return "$\\pi$"; }
 	}
 	return "";
+}
+
+template<typename Type>
+std::string Ladder<Type>::extract_level_6(){
+	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<acos(this->J_(0))<<" "<<this->obs_[0][0]<<" "<<this->ref_<<IOFiles::endl;
+
+	return this->filename_;
+}
+
+template<typename Type>
+std::string Ladder<Type>::extract_level_3(){
+	(*this->read_)>>this->obs_[0][0];
+	(*this->data_write_)<<this->N_<<" "<<this->m_<<" "<<this->bc_<<" "<<this->n_<<" "<<this->obs_[0][0]<<IOFiles::endl;
+
+	return this->filename_;
 }
 /*}*/
 #endif

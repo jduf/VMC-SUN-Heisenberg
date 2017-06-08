@@ -6,7 +6,7 @@
 
 class Analyse: public IOSystem{
 	public:
-		Analyse(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file);
+		Analyse(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& ref);
 		/*Default destructor*/
 		virtual ~Analyse();
 		/*{Forbidden*/
@@ -21,6 +21,7 @@ class Analyse: public IOSystem{
 		List<std::string> all_link_files_;
 		List<RSTFile> list_rst_;
 
+		unsigned int const ref_;      //!< stores the type of lattice
 		unsigned int const max_level_;
 		unsigned int study_;
 		unsigned int nof_ 		  = 0;

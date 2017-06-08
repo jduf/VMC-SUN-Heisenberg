@@ -137,9 +137,9 @@ unsigned int SquareMu::unit_cell_index(Vector<double> const& x) const {
 
 /*{method needed for checking*/
 void SquareMu::display_results(){
-	compute_H(4);
+	compute_H(0);
 	std::string mu(my::tostring(mu_));
-	draw_lattice(false,true,false,(spuc_==3?dir_nn_[2]*0.25+dir_nn_[3]*0.5:dir_nn_[2]*0.5+dir_nn_[3]*0.5),"-d:mu "+mu,RST::math("\\mu")+"="+mu);
+	draw_lattice(true,true,false,(spuc_==3?dir_nn_[2]*0.25+dir_nn_[3]*0.5:dir_nn_[2]*0.5+dir_nn_[1]),"-d:mu "+mu,RST::math("\\mu")+"="+mu);
 }
 
 void SquareMu::check(){

@@ -37,11 +37,11 @@ class System2D: public GenericSystem<Type>{
 
 		/*!Implement the pure virtual method in GenericSystem*/
 		virtual void long_range_correlations_obs();
+
 		/*!Check if the unit cell can correctly fit inside the cluster*/
 		bool unit_cell_allowed();
 		/*!Returns the index of the position x the unit cell basis (a,b)*/
 		virtual unsigned int unit_cell_index(Vector<double> const& x) const = 0;
-
 		/*!Returns the neighbours of site i*/
 		Matrix<int> get_neighbourg(unsigned int const& i) const;
 		/*!Returns the index of the site at position x (if outside the cluster, it is first reset inside)*/
@@ -51,9 +51,6 @@ class System2D: public GenericSystem<Type>{
 		/*!Returns true if the segment (x0,x1) cross a boundary (not the cluster border)*/
 		bool cross_boundary(Vector<double> const& x0, Vector<double> const& x1) const;
 
-		/*!Plots the band structure E(px,py)*/
-		void plot_band_structure();
-
 		/*!Returns a matrix containing the vertices of the unit cell*/
 		Matrix<double> draw_unit_cell(double const& xshift=0, double const& yshift=0) const;
 		/*!Returns a matrix containing the vertices of the boundary*/
@@ -62,8 +59,9 @@ class System2D: public GenericSystem<Type>{
 		void draw_long_range_correlations(PSTricks& ps, Vector<double> const& shift, Observable const& O) const;
 		/*!Computes and writes the flux per plaquette in the PSTricks file*/
 		std::string flux_per_plaquette(unsigned int s0, Vector<unsigned int> const& loop) const;
-		/*!Write the title, the command line and link the lattice in the rst file*/
-		void rst_file_set_default_info(std::string const& param, std::string const& title);
+
+		/*!Plots the band structure E(px,py)*/
+		void plot_band_structure();
 
 	private:
 		Matrix<double> const ab_;//!< the unit cell basis vectors a,b : ((a_1,b_1),(a_2,b_2))
@@ -147,6 +145,7 @@ void System2D<Type>::long_range_correlations_obs(){
 }
 /*}*/
 
+/*{construct the lattice*/
 template<typename Type>
 bool System2D<Type>::unit_cell_allowed(){
 	/*{*//*!Solves a system of equation, check if the solution belongs to N^2
@@ -252,80 +251,7 @@ bool System2D<Type>::cross_boundary(Vector<double> const& x0, Vector<double> con
 	if(my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[4].ptr(),boundary_vertex_[5].ptr()) || my::intersect(x0.ptr(),x1.ptr(),boundary_vertex_[6].ptr(),boundary_vertex_[7].ptr()) ){ does=!does; }
 	return does;
 }
-
-template<typename Type>
-void System2D<Type>::plot_band_structure(){
-	if(full_diagonalization()){
-		List<Vector<double> > l;
-		std::shared_ptr<Vector<double> > a;
-		List<Vector<double> >::Node* b;
-		auto cmp = [](Vector<double> const& a, Vector<double> const& b){
-			for(unsigned int i(0);i<2;i++){
-				if(a(i) - b(i) > 0.0001){ return 0; }
-				if(a(i) - b(i) <-0.0001){ return 1; }
-			}
-			return 2;
-		};
-
-		double kx(0.0);
-		double ky(0.0);
-		double min_e(e_.min());
-		double max_e(e_.max());
-		IOFiles bs(this->filename_+"-band-structure.dat",true,false);
-		for(unsigned int i(0);i<this->n_;i++){
-			/*to compute the total impulsion of the occupied states*/
-			if(i<this->M_(0)){
-				kx += px_(i);
-				ky += py_(i);
-			}
-
-			a = std::make_shared<Vector<double> >(2+this->spuc_,666);
-			b = NULL;
-			(*a)(0) = my::chop(my::are_equal(std::abs(px_(i)),M_PI,1e-12)?-M_PI:px_(i));
-			(*a)(1) = my::chop(my::are_equal(std::abs(py_(i)),M_PI,1e-12)?-M_PI:py_(i));
-
-			bs<<(*a)(0)<<" "<<(*a)(1)<<" "<<e_(i)<<IOFiles::endl;
-
-			if(l.find_in_sorted_list(a,b,cmp)){
-				for(unsigned int j(2);j<2+this->spuc_;j++){
-					if(e_(i)<(*b->get())(j)){ std::swap(e_(i),(*b->get())(j)); }
-				}
-			} else {
-				(*a)(2) = e_(i);
-				l.set_target(b);
-				l.add_after_target(a);
-			}
-			l.set_target();
-		}
-		double ip(0);
-		std::cout<<kx<<" "<<ky<<std::endl;
-		kx = std::modf(my::chop(kx/M_PI),&ip);
-		ky = std::modf(my::chop(ky/M_PI),&ip);
-
-		IOFiles bsf(this->filename_+"-band-structure-formated.dat",true,false);
-		l.set_target();
-		double x(666);
-		while(l.target_next()){
-			if(!my::are_equal(x,l.get()(0),this->eq_prec_,this->eq_prec_)){
-				x = l.get()(0);
-				bsf<<IOFiles::endl;
-			}
-			bsf<<l.get()<<IOFiles::endl;
-		}
-
-		Gnuplot gp("./",this->filename_+"-band-structure");
-		gp.title("$(k_x,ky)=("+my::tostring(kx)+","+my::tostring(ky)+")$");
-		gp.range("x","-pi","pi");
-		gp.range("y","-pi","pi");
-		gp.range("z",min_e,max_e);
-		gp += "set ticslevel 0";
-		for(unsigned int i(0);i<this->spuc_;i++){
-			gp+=std::string(!i?"splot":"     ")+" '"+this->filename_+"-band-structure-formated.dat' u 1:2:"+my::tostring(i+3)+" w l notitle"+(i+1==this->spuc_?"":",\\");
-		}
-		gp.save_file();
-		gp.create_image(true,"png");
-	} else { std::cerr<<__PRETTY_FUNCTION__<<" : band structure not plotted"<<std::endl; }
-}
+/*}*/
 
 /*{to display the lattice*/
 template<typename Type>
@@ -401,24 +327,81 @@ std::string System2D<Type>::flux_per_plaquette(unsigned int s0, Vector<unsigned 
 	}
 	return "";
 }
+/*}*/
 
+/*{get additional info*/
 template<typename Type>
-void System2D<Type>::rst_file_set_default_info(std::string const& param, std::string const& title){
-	if(this->rst_file_){
-		std::string cmd_name("./mc");
-		cmd_name+= " -s:wf "+this->wf_name_+ " " + param;
-		cmd_name+= " -u:N " + my::tostring(this->N_);
-		cmd_name+= " -u:m " + my::tostring(this->m_);
-		cmd_name+= " -u:n " + my::tostring(this->n_);
-		cmd_name+= " -i:bc "+ my::tostring(this->bc_);
-		cmd_name+= " -d -u:tmax 10";
+void System2D<Type>::plot_band_structure(){
+	if(full_diagonalization()){
+		List<Vector<double> > l;
+		std::shared_ptr<Vector<double> > a;
+		List<Vector<double> >::Node* b;
+		auto cmp = [](Vector<double> const& a, Vector<double> const& b){
+			for(unsigned int i(0);i<2;i++){
+				if(a(i) - b(i) > 0.0001){ return 0; }
+				if(a(i) - b(i) <-0.0001){ return 1; }
+			}
+			return 2;
+		};
 
-		this->rst_file_->title(title,'-');
-		this->rst_file_->change_text_onclick("run command",cmd_name);
-		this->rst_file_->figure(this->dir_+this->filename_+".png",
-				RST::math("E="+my::tostring(this->obs_[0][0].get_x())+"\\pm"+my::tostring(this->obs_[0][0].get_dx())),
-				RST::target(this->dir_+this->filename_+".pdf")+RST::width("800"));
-	}
+		double kx(0.0);
+		double ky(0.0);
+		double min_e(e_.min());
+		double max_e(e_.max());
+		IOFiles bs(this->filename_+"-band-structure.dat",true,false);
+		for(unsigned int i(0);i<this->n_;i++){
+			/*to compute the total impulsion of the occupied states*/
+			if(i<this->M_(0)){
+				kx += px_(i);
+				ky += py_(i);
+			}
+
+			a = std::make_shared<Vector<double> >(2+this->spuc_,666);
+			b = NULL;
+			(*a)(0) = my::chop(my::are_equal(std::abs(px_(i)),M_PI,1e-12)?-M_PI:px_(i));
+			(*a)(1) = my::chop(my::are_equal(std::abs(py_(i)),M_PI,1e-12)?-M_PI:py_(i));
+
+			bs<<(*a)(0)<<" "<<(*a)(1)<<" "<<e_(i)<<IOFiles::endl;
+
+			if(l.find_in_sorted_list(a,b,cmp)){
+				for(unsigned int j(2);j<2+this->spuc_;j++){
+					if(e_(i)<(*b->get())(j)){ std::swap(e_(i),(*b->get())(j)); }
+				}
+			} else {
+				(*a)(2) = e_(i);
+				l.set_target(b);
+				l.add_after_target(a);
+			}
+			l.set_target();
+		}
+		double ip(0);
+		std::cout<<kx<<" "<<ky<<std::endl;
+		kx = std::modf(my::chop(kx/M_PI),&ip);
+		ky = std::modf(my::chop(ky/M_PI),&ip);
+
+		IOFiles bsf(this->filename_+"-band-structure-formated.dat",true,false);
+		l.set_target();
+		double x(666);
+		while(l.target_next()){
+			if(!my::are_equal(x,l.get()(0),this->eq_prec_,this->eq_prec_)){
+				x = l.get()(0);
+				bsf<<IOFiles::endl;
+			}
+			bsf<<l.get()<<IOFiles::endl;
+		}
+
+		Gnuplot gp("./",this->filename_+"-band-structure");
+		gp.title("$(k_x,ky)=("+my::tostring(kx)+","+my::tostring(ky)+")$");
+		gp.range("x","-pi","pi");
+		gp.range("y","-pi","pi");
+		gp.range("z",min_e,max_e);
+		gp += "set ticslevel 0";
+		for(unsigned int i(0);i<this->spuc_;i++){
+			gp+=std::string(!i?"splot":"     ")+" '"+this->filename_+"-band-structure-formated.dat' u 1:2:"+my::tostring(i+3)+" w l notitle"+(i+1==this->spuc_?"":",\\");
+		}
+		gp.save_file();
+		gp.create_image(true,"png");
+	} else { std::cerr<<__PRETTY_FUNCTION__<<" : band structure not plotted"<<std::endl; }
 }
 /*}*/
 /*}*/

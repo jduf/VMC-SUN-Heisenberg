@@ -74,6 +74,11 @@ int main(int argc, char* argv[]){
 							{ VMCSystematic(m).run(P.check_get("dEoE",1e-5),P.check_get("tmax",10),P.check_get("maxiter",1),P.check_get("save_in",std::string("./"))); }break;
 						case 21:
 							{ VMCSystematic(m).plot(); }break;
+						case 22:
+							{ 
+								List<MCSim> min;
+								VMCSystematic(m).read_and_find_min("./","test",min);
+							}break;
 						case 30:
 							{
 								std::cerr<<"WARNING : this method has never been really tested"<<std::endl;
@@ -112,7 +117,7 @@ int main(int argc, char* argv[]){
 		dir.search_files(P.get<std::string>("load"),P.get<std::string>("pathload"),false,true);
 		if(dir.size() == 1){
 			IOFiles in(dir[0],false,false);
-			VMCExtract extract(in,P.get<unsigned int>("min_sort"), P.get<unsigned int>("max_sort"));
+			VMCExtract extract(in,P.check_get("min_sort",0), P.check_get("max_sort",0));
 
 			if(!P.locked()){
 				for(unsigned int w(0);w<what.size();w++){
@@ -161,6 +166,15 @@ int main(int argc, char* argv[]){
 										min.run(P.check_get("dEoE",1e-6),P.check_get("tmax",10),P.check_get("maxiter",10),P.check_get("maxstep",100),P.check_get("save_in",std::string("./")));
 										extract.save(P.check_get("save_in",std::string("./")));
 									}
+								}
+							}break;
+						case 106:
+							{
+								if(P.find("reset_PS")){
+									extract.set_phase_space(P);
+									VMCSystematic(extract).run(P.check_get("dEoE",1e-5),P.check_get("tmax",10),P.check_get("maxiter",1),P.check_get("save_in",std::string("./")));
+									extract.save(P.check_get("save_in",std::string("./")));
+									extract.refine(which_obs,P.check_get("dEoE",1e-6),P.check_get("tmax",10),P.check_get("maxiter",10),P.check_get("nmin",100),P.check_get("save_in",std::string("./")));
 								}
 							}break;
 						default:
