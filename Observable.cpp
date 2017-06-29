@@ -26,7 +26,7 @@ Observable::Observable(IOFiles& r):
 	modulo_(r.read<unsigned int>()),
 	nval_(r.read<unsigned int>()),
 	links_(r),
-	val_(new Data<double>[nval_])
+	val_(nval_?new Data<double>[nval_]:NULL)
 {
 	for(unsigned int i(0);i<nval_;i++){ val_[i] = std::move(Data<double>(r)); }
 }

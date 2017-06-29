@@ -6,18 +6,6 @@ AnalyseSystematic::AnalyseSystematic(std::string const& sim, unsigned int const&
 	do_analyse();
 }
 
-AnalyseSystematic::~AnalyseSystematic(){
-	if(study_){
-		Gnuplot gp(analyse_+path_+dir_,sim_.substr(0,sim_.size()-1));
-		gp.label("x","$\\frac{ 1}{N}$");
-		gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
-		gp+="plot '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==6?1.0/$1:1/0):3 t '$k=6$',\\";
-		gp+="     '"+sim_.substr(0,sim_.size()-1)+".dat' u ($1/$2==3?1.0/$1:1/0):3 t '$k=3$'";
-		gp.save_file();
-		gp.create_image(true,"png");
-	}
-}
-
 void AnalyseSystematic::open_files(){
 	if(level_>1){
 		jd_write_ = new IOFiles(sim_+path_+dir_.substr(0,dir_.size()-1)+".jdbin",true,false);
@@ -48,7 +36,10 @@ void AnalyseSystematic::close_files(){
 		case 3:
 			{ list_rst_.last().figure(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".png","energy evolution with the system size",RST::target(rel_level_+analyse_+path_+dir_.substr(0,dir_.size()-1)+".gp")+RST::width("1000")); }break;
 		case 2:
-			{ kept_samples_.set(); }break;
+			{
+				kept_samples_.first().analyse(level_,this);
+				kept_samples_.set();
+			}break;
 	}
 	if(jd_write_){
 		list_rst_.last().text(jd_write_->get_header());
@@ -70,7 +61,9 @@ std::string AnalyseSystematic::extract_level_9(){
 	rst.save(true,false,true);
 
 	List<MCSim> local_minima;
-	VMCSystematic(*read_).read_and_find_min(analyse_+path_+dir_,filename_,local_minima);
+	VMCSystematic vmc(*read_);
+	vmc.analyse(local_minima);
+	vmc.plot(analyse_+path_+dir_,filename_);
 	list_rst_.last().figure(rel_level_+analyse_+path_+dir_+filename_+".png",filename_,RST::target(rel_level_+analyse_+path_+dir_+filename_+".gp")+RST::width("1000"));
 
 	local_minima.set_target();

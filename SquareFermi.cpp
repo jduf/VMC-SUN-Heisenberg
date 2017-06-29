@@ -51,7 +51,7 @@ Matrix<double> SquareFermi::set_ab() const {
 /*{method needed for checking*/
 void SquareFermi::display_results(){
 	compute_H();
-	draw_lattice(false,true,false,(dir_nn_[2]+dir_nn_[3])*0.5,"","Fermi");
+	draw_lattice(true,true,false,(dir_nn_[2]+dir_nn_[3])*0.5,"","Fermi");
 }
 
 void SquareFermi::check(){

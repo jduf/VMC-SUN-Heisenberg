@@ -60,7 +60,6 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 			this->ref_(4) = 0;
 			this->status_ = 2;
 		}
-		
 
 		/*!sets the bond energy if it has not been set yet*/
 		if(this->obs_[0].nlinks() != this->J_.size() && this->J_.size() == 2){
@@ -77,7 +76,7 @@ Ladder<Type>::Ladder(unsigned int const& spuc, std::string const& filename):
 			std::string tmp("theta"+my::tostring(acos(this->J_(0))));
 			this->filename_.replace(this->filename_.find("Juniform"),8,tmp);
 			this->path_.replace(this->path_.find("Juniform"),8,tmp);
-		} else { std::cerr<<__PRETTY_FUNCTION__<<" : J_ has an incoherent size"<<std::endl; }
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : J_ has an incoherent size : "<<this->J_.size()<<" "<<this->obs_[0].nlinks()<<std::endl; }
 	} else {
 		/*!if the ladder has a spuc_ equal to one, the creation is impossible
 		 * but the construction should be silent to have a nice display when
@@ -178,19 +177,10 @@ template<typename Type>
 void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& create_image, std::string param, std::string title){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(6,0);
-	double max_bond_energy(0);
 	unsigned int o_index_tmp(2);
 	for(unsigned int i(1);i<this->obs_.size();i++){
 		switch(this->obs_[i].get_type()){
-			case 1:
-				{
-					o(0)=i;
-					for(unsigned int j(0);j<this->obs_[i].nval();j++){
-						if(max_bond_energy < std::abs(this->obs_[i][j].get_x()/(this->m_*this->m_))){
-							max_bond_energy = std::abs(this->obs_[i][j].get_x()/(this->m_*this->m_));
-						}
-					}
-				}break;//bond energy
+			case 1:{ o(0)=i; }break;//bond energy
 			case 2:{ o(o_index_tmp++)=i; }break;//long range correlation
 			case 3:{ o(1)=i; }break;//color occupation
 		}
@@ -276,14 +266,14 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 				xy0 += shift;
 				xy1 += shift;
 				if(o(0)){
-					bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_);
+					bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_*this->J_(i));
 					linewidth = my::tostring(std::abs(bond_energy))+"mm";
 					if(std::abs(bond_energy)>1e-4){
 						if(bond_energy>0){ color = "blue"; }
 						else             { color = "red"; }
 						ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
 					}
-					ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(my::round_nearest(std::abs(bond_energy)/max_bond_energy,100))+"}");
+					ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(my::round_nearest(std::abs(bond_energy),1000))+"}");
 				}
 				if(link_type!=1 && o(1)){
 					xy0 += shift;
@@ -327,7 +317,7 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 			xy0(1) -= 2.0;
 			xy1(1) -= 2.0;
 			if(o(0)){
-				bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_);
+				bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_*this->J_(i));
 				linewidth = my::tostring(std::abs(bond_energy))+"mm";
 				if(std::abs(bond_energy)>1e-4){
 					if(bond_energy>0){ color = "blue"; }
@@ -512,15 +502,15 @@ void Ladder<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, 
 		this->rst_file_set_default_info(param,title,"theta"+my::tostring(acos(this->J_(0))));
 
 		if(o(2) && o(3) && o(4) && o(5)){
-			std::string path(this->analyse_+this->path_+this->dir_);
+			std::string path(this->analyse_+this->path_);
 			std::string rp("");
 			int p(0);
-			if( (p=path.find('/',p)) == 0){ rp = path; }
+			if( (p=path.find('/',p)) == 0){ rp = path+this->dir_; }
 			else {
 				while( (p=path.find('/',p)+1) ){
-					if(path[p-1] != '.' && path[p-1] != '/'){ rp += "../"; }
-					else if( p>1 && path[p-1] == '.' && path[p-2] != '/'){ rp += "../"; }
+					if(path[p] != '.' && path[p] != '/'){ rp += "../"; }
 				}
+				rp+=path+this->dir_;
 			}
 			this->rst_file_->figure(rp+this->filename_+"-lr.png","long range correlations",     RST::target(rp+this->filename_+"-lr.gp")+RST::width("800"));
 			this->rst_file_->figure(rp+this->filename_+"-as.png","(anti)symmetric correlations",RST::target(rp+this->filename_+"-as.gp")+RST::width("800"));

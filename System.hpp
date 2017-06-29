@@ -21,11 +21,19 @@
 	   + status_ = 0 : Found an initial state (in SystemFermionic)
 
 	   The ref_ variable references the wavefunction, cluster shape...:
-	   + ref_(0) : lattice
-	   + ref_(1) : requires complex numbers
+	   + ref_(0) : 1=chain
+	               2=ladder
+				   3=triangle
+				   4=square
+				   5=kagome
+				   6=honeycomb
+	   + ref_(1) : 1=real wave function
+	               2=complex wave function
 	   + ref_(2) : kind of wavefunction
 	   + ref_(3) : geometry of the cluster
-	   + ref_(4) : needs to recreate the cluster
+	   + ref_(4) : 0=do not create the cluster
+	               1=create the cluster
+				   2=create the cluster and the energy observable
 	   *//*}*/
 class System{
 	public:

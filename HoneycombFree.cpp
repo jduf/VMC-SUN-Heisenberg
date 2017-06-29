@@ -97,7 +97,7 @@ unsigned int HoneycombFree::unit_cell_index(Vector<double> const& x) const {
 void HoneycombFree::display_results(){
 	compute_H();
 	std::string t(my::tostring(t_));
-	draw_lattice(false,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25,"-d:t "+t,"t=("+t+")");
+	draw_lattice(true,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25,"-d:t "+t,"t=("+t+")");
 }
 
 void HoneycombFree::check(){

@@ -4,6 +4,10 @@
 #include "Analyse.hpp"
 #include "VMCExtract.hpp"
 
+/*!This class must be used in a tree that contains different types of phase
+ * space in level 9 (could contain only one type of phase space but should not
+ * handle the same phase space at different stage of the optimisation because
+ * it can't be used with consider_only_most_recent_jdbin_ = true;) */
 class AnalyseExtract : public Analyse{
 	public:
 		AnalyseExtract(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& display_results, unsigned int const& ref);

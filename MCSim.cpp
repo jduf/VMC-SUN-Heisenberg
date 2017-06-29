@@ -63,7 +63,7 @@ void MCSim::run(unsigned int const& ts, unsigned int const& tmax){
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : faulty parameters : "<<param_<<std::endl; }
 }
 
-void MCSim::display_results(std::string const& filename, std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file){
+void MCSim::display_results(std::string const& filename, std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file, bool const& replace_title_with_link_in_rst){
 	MCS_->create_cluster(true);
 
 	CreateSystem cs(MCS_.get());
@@ -71,7 +71,7 @@ void MCSim::display_results(std::string const& filename, std::string const& sim,
 	if(cs.get_status()==2){
 		cs.create(false);
 		if(cs.get_status()==1){
-			IOSystem ios(filename+cs.get_filename(),sim,info,analyse,path,dir,rst_file);
+			IOSystem ios(filename+cs.get_filename(),sim,info,analyse,path,dir,rst_file,replace_title_with_link_in_rst);
 			cs.set_IOSystem(&ios);
 			cs.display_results();
 		}
@@ -88,7 +88,7 @@ void MCSim::display_results(){
 	if(cs.get_status()==2){
 		cs.create(false);
 		if(cs.get_status()==1){
-			IOSystem ios("tmp","./","./","./","./","./",NULL);
+			IOSystem ios("tmp","./","./","./","./","./",NULL,false);
 			cs.set_IOSystem(&ios);
 			cs.display_results();
 		}

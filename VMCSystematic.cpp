@@ -34,72 +34,62 @@ void VMCSystematic::run(double const& dEoE, unsigned int const& tmax, unsigned i
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : tmax_ = 0"<<std::endl; }
 }
 
-void VMCSystematic::plot(){
+void VMCSystematic::plot(std::string const& path, std::string const& filename) const {
 	if(m_->samples_.size()){
-		IOFiles data(get_path()+get_filename()+".dat",true,false);
-		m_->samples_.set_target();
-		Vector<double> param;
-		while(m_->samples_.target_next()){
-			param = m_->samples_.get().get_param();
-			data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
+		{/*to make sure that the file is closed when the plot is done*/
+			IOFiles data(path+filename+".dat",true,false);
+			m_->samples_.set_target();
+			Vector<double> param;
+			while(m_->samples_.target_next()){
+				data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
+			}
 		}
 
-		switch(m_->dof_){
-			case 1:
-				{
-					Gnuplot gp(get_path(),get_filename());
-					gp.label("y2","$\\frac{E}{n}$","rotate by 0");
-					gp+="plot '"+get_filename()+".dat' u 1:2:3 w e notitle";
-					gp.save_file();
-					gp.create_image(true,"png");
-				}break;
-			case 2:
-				{
-					Gnuplot gp(get_path(),get_filename());
-					gp.label("z","$\\frac{E}{n}$");
-					gp+="splot '"+get_filename()+".dat' u 1:2:($3+$4) lc 1 pt 8 notitle,\\";
-					gp+="      '"+get_filename()+".dat' u 1:2:($3-$4) lc 1 pt 7 notitle";
-					gp.save_file();
-					gp.create_image(true,"png");
-				}break;
-			default:
-				{
-					Gnuplot gp(get_path(),get_filename());
-					gp+="plot '"+get_filename()+".dat' u  w e notitle";
-					gp.save_file();
-				}break;
-		}
+		if(m_->dof_<4){
+			Gnuplot gp(path,filename);
+			switch(m_->dof_){
+				case 1:
+					{
+						gp.label("y2","$\\frac{E}{n}$","rotate by 0");
+						gp+="plot '"+filename+".dat' u 1:2:3 w e notitle";
+					}break;
+				case 2:
+					{
+						gp.label("y2","$\\frac{E}{n}$","rotate by 0");
+						gp+="plot '"+filename+".dat' u 2:3:4 w e notitle";
+					}break;
+				case 3:
+					{
+						gp.label("z","$\\frac{E}{n}$");
+						gp+="splot '"+filename+".dat' u 2:3:($4+$5) lc 1 pt 8 notitle,\\";
+						gp+="      '"+filename+".dat' u 2:3:($4-$5) lc 1 pt 7 notitle";
+					}break;
+			}
+			gp.save_file();
+			gp.create_image(true,"png");
+		} else { std::cerr<<__PRETTY_FUNCTION__<<" : don't know how to handle "<<m_->dof_<<"-dimensional plots"<<std::endl; }
 	} else { std::cerr<<__PRETTY_FUNCTION__<<" : no samples"<<std::endl; }
 }
 
-void VMCSystematic::read_and_find_min(std::string const& path, std::string const& filename, List<MCSim>& kept_samples) const {
+void VMCSystematic::analyse(List<MCSim>& kept_samples) const {
 	if(m_->samples_.size()){
 		Vector<unsigned int> ref(m_->s_->get_ref());
 		switch(ref(0)){
 			case 2:
 				{
-					IOFiles data(path+filename+".dat",true,false);
-
 					List<MCSim>::Node* min(NULL);
 					m_->samples_.target_next();
 					while(m_->samples_.target_next()){
-						data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
-
 						if(!min || min->get()->get_energy().get_x()>m_->samples_.get().get_energy().get_x())
 						{ min = m_->samples_.get_target(); }
 					}
 					if(min){ kept_samples.add_end(min->get()); }
-					else { std::cerr<<__PRETTY_FUNCTION__<<" : no minium found for "<<path+filename+".jdbin"<<std::endl; }
 				}break;
 			case 3:
 				{
-					IOFiles data(path+filename+".dat",true,false);
-
 					List<MCSim>::Node* min(NULL);
 					m_->samples_.target_next();
 					while(m_->samples_.target_next()){
-						data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
-
 						if(
 								m_->samples_.prev() &&
 								m_->samples_.next() &&
@@ -112,17 +102,12 @@ void VMCSystematic::read_and_find_min(std::string const& path, std::string const
 						}
 					}
 					if(min){ kept_samples.add_end(min->get()); }
-					else { std::cerr<<__PRETTY_FUNCTION__<<" : no minium found for "<<path+filename+".jdbin"<<std::endl; }
 				}break;
 			case 4:
 				{
-					IOFiles data(path+filename+".dat",true,false);
-
 					List<MCSim>::Node* min(NULL);
 					m_->samples_.target_next();
 					while(m_->samples_.target_next()){
-						data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
-
 						if(
 								m_->samples_.prev() &&
 								m_->samples_.next() &&
@@ -135,20 +120,15 @@ void VMCSystematic::read_and_find_min(std::string const& path, std::string const
 						}
 					}
 					if(min){ kept_samples.add_end(min->get()); }
-					else { std::cerr<<__PRETTY_FUNCTION__<<" : no minium found for "<<path+filename+".jdbin"<<std::endl; }
 				}break;
 			case 6:
 				{
 					if(ref(1) == 1 && (ref(2) == 3 || ref(2) == 4)){
-						IOFiles data(path+filename+".dat",true,false);
-
 						/*keep the two minima for at (0pp,000) and (p00,pp) for the honeycomb wave functions */
 						List<MCSim>::Node* min_neg(NULL);
 						List<MCSim>::Node* min_pos(NULL);
 						m_->samples_.target_next();
 						while(m_->samples_.target_next()){
-							data<<m_->samples_.get().get_param()<<" "<<m_->samples_.get().get_energy()<<IOFiles::endl;
-
 							if(
 									m_->samples_.prev() &&
 									m_->samples_.next() &&

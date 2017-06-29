@@ -124,7 +124,7 @@ unsigned int HoneycombChiral::unit_cell_index(Vector<double> const& x) const {
 void HoneycombChiral::display_results(){
 	compute_H();
 	std::string phi(my::tostring(phi_));
-	draw_lattice(false,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25,"-d:phi "+phi,RST::math("\\phi")+"="+phi);
+	draw_lattice(true,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:dir_nn_[3]*1.75+dir_nn_[4]*0.25,"-d:phi "+phi,RST::math("\\phi")+"="+phi);
 }
 
 void HoneycombChiral::check(){

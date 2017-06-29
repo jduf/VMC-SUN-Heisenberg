@@ -22,5 +22,7 @@ class TriangleChiral: public Triangle<std::complex<double> >{
 		Matrix<double> set_ab(unsigned int const& k) const;
 		/*!Returns the index of the site at position x in the unit cell*/
 		unsigned int unit_cell_index(Vector<double> const& x) const;
+
+		std::string extract_level_2();
 };
 #endif

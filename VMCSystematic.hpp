@@ -17,8 +17,8 @@ class VMCSystematic : public VMCMinimization{
 		/*}*/
 
 		void run(double const& dEoE, unsigned int const& tmax, unsigned int const& maxiter, std::string const& save_in);
-		void plot();
-		void read_and_find_min(std::string const& path, std::string const& filename, List<MCSim>& keep) const;
+		void plot(std::string const& path, std::string const& filename) const;
+		void analyse(List<MCSim>& keep) const;
 
 	private:
 		unsigned int maxiter_= 0;

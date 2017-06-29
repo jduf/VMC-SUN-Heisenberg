@@ -54,11 +54,11 @@ and simply type:
 	make
 
 If you choose to install the submodules elsewhere, just set the variable
-"JDLIB" in the makefile to the path where they have been downloaded 
+"JDLIB" in the makefile to the path where they have been downloaded.
 
 Note that you can choose which executable to create by un-/-commenting one of
 the first line of the makefile or setting the "EXEC" variable to one of the
-following
+following:
 
 + mc
 + min
@@ -75,9 +75,12 @@ To run an executable, the structure of the command is the following
 
 where
 
-+ args are arguments without options for instance:
-	- norun: do not do run a Monte-Carlo simulation
-	- d: display the result of the simulation in the browser
++ args are arguments without options for instance **min** handles:
+	- d: displays the results of the simulation in the web browser (can be set
+	  in **lib/lib/config.mk**)
+	- p: prints the results of the simulation in a pdf file
+	- norun: does not do run a Monte-Carlo simulation (useful to display or
+	  print the results of a simulation that already exists)
 + t is the c++ type of variable, all possible choices are:
 	- s for string
 	- d for double
@@ -97,7 +100,15 @@ Here is an example of a simple command:
 which runs a simulation for 10 seconds on the wave function named square-mu for
 SU(4) with *m=2* particles per site and *n=20* sites on a periodic lattice and
 an on site chemical potential of *\mu=0.1* and measures the bond energy and
-long range-correlations (observables 1 and 3).
+long range-correlations (observables 1 and 3). The results of the simulation
+are then saved in a directory tree with the extension **.jdbin** and displayed
+in a web browser. The **.jdbin** files can be reloaded for further use, for
+instance the following command print the results in a pdf file.
+
+    ./mc -p -s:sim path/to/results.jdbin -norun
+
+Abilities
+---
 
 The code currently supports:
 
@@ -127,23 +138,33 @@ ladder, square, triangle,...). For instance, on the square lattice, only the
 clusters with *n=pp+qq* (*p* and *q* integers) are allowed therefore *n=13=9+4*
 would be allowed.
 
-The values that the option obs take defines what observables are measured (the
-energy per site is always measured):
+The values that the option *obs* take defines what observables are measured
+(the energy per site is always measured):
 
 0. all possible observable
 1. bond energy
 2. long range correlations and associated structure factor
 3. color occupation
-4. variance of the energy
+4. variance of the energy (development phase)
 
 Beside performing a VMC simulation
 
 + can visualise the lattice with unit cell, site numbers, basis vectors,
   hopping amplitude, fluxes
 
+The executable **min** intends to perform a minimisation of variational
+parameters and **study** allows an analysis of these results in a web browser.
 
-The executable min intends to perform a minimisation of variational parameters
-and study allows an analysis of these results in a web browser.
+Note on the output files
+---
+
+In order to save disk space for large simulations, the results are saved in a
+binary file with the extension **.jdbin**. These files contains a footer that can
+be read with the utilities in **lib/jdtools/**. For instance :
+
+    jdhtml path/to/results.jdbin
+
+will display the results in the web browser
 
 Requirement
 ---
@@ -166,9 +187,9 @@ implemented in the code, relies on:
 + gs
 + firefox
 
-All these software can be set and personalised in the lib/config.mk and file.
-For instance if is not available to convert images, only these two files
-require some changes.
+All these software can be set and personalised in the **lib/lib/config.mk** and
+**lib/lib/Linux.cpp** files.  For instance if *gs* is not available to convert
+images, only these two files need to be modified.
 
 The code is commented and the documentation can be generated via Doxyfile using
 

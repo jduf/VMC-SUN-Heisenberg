@@ -27,7 +27,7 @@ void AnalyseExtract::open_files(){
 	switch(level_){
 		case 9:
 			{
-				jd_write_->write("number of different wavefunction",nof_);
+				jd_write_->write("number of different phase spaces",nof_);
 				jd_write_->add_to_header()->np();
 			}break;
 		case 3:
@@ -89,7 +89,7 @@ std::string AnalyseExtract::extract_level_6(){
 		if(!i++){ std::cout<<std::string(6+path_.size()+dir_.size()+filename_.size(),' ')<<"|-> create lattice"; }
 		else  { std::cout<<" "<<kept_samples_.size()-i<<std::flush; }
 
-		kept_samples_.get().display_results(my::tostring(i)+"-",sim_,info_,analyse_,path_,dir_,&list_rst_.last());
+		kept_samples_.get().display_results(my::tostring(i)+"-",sim_,info_,analyse_,path_,dir_,&list_rst_.last(),false);
 	}
 	std::cout<<std::endl;
 

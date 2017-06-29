@@ -214,9 +214,8 @@ void GenericSystem<Type>::energy_obs(Vector<unsigned int> const& l){
 
 template<typename Type>
 void GenericSystem<Type>::bond_energy_obs(){
-	unsigned int idx(this->obs_.size());
 	this->obs_.push_back(Observable("Bond energy",1,z_*this->spuc_/2,this->obs_[0].nlinks()));
-	this->obs_[idx].remove_links();
+	this->obs_.back().remove_links();
 }
 
 template<typename Type>
@@ -303,10 +302,10 @@ void GenericSystem<Type>::rst_file_set_default_info(std::string const& param, st
 		cmd_name+= " -i:bc "+ my::tostring(this->bc_);
 		cmd_name+= " -d -u:tmax 10";
 
-		if(replace == "" || !(this->dir_ == "P/" || this->dir_ == "O/" || this->dir_ == "A/")){ 
-			this->rst_file_->title(title,'-'); 
+		if(!replace_title_with_link_in_rst_){
+			this->rst_file_->title(title,'-');
 		} else {
-			this->rst_file_->title("|"+replace+"|_",'-'); 
+			this->rst_file_->title("|"+replace+"|_",'-');
 			this->rst_file_->replace(replace,title);
 		}
 		this->rst_file_->change_text_onclick("run command",cmd_name);

@@ -73,12 +73,7 @@ int main(int argc, char* argv[]){
 						case 20:
 							{ VMCSystematic(m).run(P.check_get("dEoE",1e-5),P.check_get("tmax",10),P.check_get("maxiter",1),P.check_get("save_in",std::string("./"))); }break;
 						case 21:
-							{ VMCSystematic(m).plot(); }break;
-						case 22:
-							{ 
-								List<MCSim> min;
-								VMCSystematic(m).read_and_find_min("./","test",min);
-							}break;
+							{ VMCSystematic(m).plot(m.get_path(),m.get_filename()); }break;
 						case 30:
 							{
 								std::cerr<<"WARNING : this method has never been really tested"<<std::endl;
@@ -114,7 +109,7 @@ int main(int argc, char* argv[]){
 		}
 	} else {
 		Directory dir;
-		dir.search_files(P.get<std::string>("load"),P.get<std::string>("pathload"),false,true);
+		dir.search_files(P.get<std::string>("load"),P.get<std::string>("pathload"),false,true,false);
 		if(dir.size() == 1){
 			IOFiles in(dir[0],false,false);
 			VMCExtract extract(in,P.check_get("min_sort",0), P.check_get("max_sort",0));
@@ -136,7 +131,7 @@ int main(int argc, char* argv[]){
 
 								kept_samples.set_target();
 								while(kept_samples.target_next()){
-									kept_samples.get().display_results("","","","","","/tmp/",&rst);
+									kept_samples.get().display_results("","","","","","/tmp/",&rst,false);
 								}
 								rst.save(true,false,true);
 								Linux()(Linux::html_browser("/tmp/"+fname+".html"),true);

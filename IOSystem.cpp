@@ -37,14 +37,15 @@ IOSystem::IOSystem(std::string const& filename, unsigned int const& N, unsigned 
 	path_ += tmp+"/";
 }
 
-IOSystem::IOSystem(std::string const& filename, std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file):
+IOSystem::IOSystem(std::string const& filename, std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file, bool const& replace_title_with_link_in_rst):
 	sim_(my::ensure_trailing_slash(sim)),
 	info_(my::ensure_trailing_slash(info)),
 	analyse_(my::ensure_trailing_slash(analyse)),
 	path_(my::ensure_trailing_slash(path)),
 	dir_(my::ensure_trailing_slash(dir)),
 	filename_(filename),
-	rst_file_(rst_file)
+	rst_file_(rst_file),
+	replace_title_with_link_in_rst_(replace_title_with_link_in_rst)
 {}
 
 void IOSystem::set_IOSystem(IOSystem const* const ios){
@@ -58,6 +59,7 @@ void IOSystem::set_IOSystem(IOSystem const* const ios){
 	jd_write_  = ios->jd_write_;
 	data_write_= ios->data_write_;
 	rst_file_  = ios->rst_file_;
+	replace_title_with_link_in_rst_ = ios->replace_title_with_link_in_rst_;
 }
 
 std::string IOSystem::analyse(unsigned int const& level){

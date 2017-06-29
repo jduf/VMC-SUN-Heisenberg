@@ -116,18 +116,9 @@ template<typename Type>
 void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent, bool const& only_lattice, Vector<double> const& uc_shift, std::string const& param, std::string const& title){
 	Matrix<int> links(this->obs_[0].get_links());
 	Vector<unsigned int> o(3,0);
-	double max_bond_energy(0);
 	for(unsigned int i(1);i<this->obs_.size();i++){
 		switch(this->obs_[i].get_type()){
-			case 1:
-				{
-					o(0)=i;
-					for(unsigned int j(0);j<this->obs_[i].nval();j++){
-						if(max_bond_energy < std::abs(this->obs_[i][j].get_x()/(this->m_*this->m_))){
-							max_bond_energy = std::abs(this->obs_[i][j].get_x()/(this->m_*this->m_));
-						}
-					}
-				}break;//bond energy
+			case 1:{ o(0)=i; }break;//bond energy
 			case 2:{ o(1)=i; }break;//long range correlation
 			case 3:{ o(2)=i; }break;//color occupation
 		}
@@ -206,13 +197,13 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 				xy0 += shift;
 				xy1 += shift;
 				if(o(0)){
-					bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_);
+					bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_*this->J_(i));
 					linewidth = my::tostring(std::abs(bond_energy))+"mm";
 					if(std::abs(bond_energy)>1e-4){
 						if(bond_energy>0){ color = "blue"; }
 						else             { color = "red"; }
 						ps.line("-",xy0(0),xy0(1),xy1(0),xy1(1), "linewidth="+linewidth+",linecolor="+color+",linestyle=solid");
-						ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(my::round_nearest(std::abs(bond_energy)/max_bond_energy,100))+"}");
+						ps.put((xy0(0)+xy1(0))/2.0,(xy0(1)+xy1(1))/2.0, "\\wbg{"+my::tostring(my::round_nearest(std::abs(bond_energy),100))+"}");
 					}
 				}
 				if((i%3==2) && o(2)){
@@ -251,7 +242,7 @@ void Triangle<Type>::draw_lattice(bool const& only_unit_cell, bool const& silent
 				xy0 += shift;
 				xy1 += shift;
 				if(o(0)){
-					bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_);
+					bond_energy = this->obs_[o(0)][links(i,2)].get_x()/(this->m_*this->m_*this->J_(i));
 					linewidth = my::tostring(std::abs(bond_energy))+"mm";
 					if(std::abs(bond_energy)>1e-4){
 						if(bond_energy>0){ color = "blue"; }
@@ -318,7 +309,7 @@ std::string Triangle<Type>::extract_level_2(){
 	gp.label("x","$\\frac{ 1}{n}$");
 	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
 	gp+="plot '"+this->filename_+".dat' u (1.0/$4):($6/($2*$2)):($7/($2*$2)) w e lc 1 notitle,\\";
-	gp+="     f(x) lc 1 t sprintf('%f',a0)";
+	gp+="     f(x) lc 1 t sprintf('%f',a)";
 	gp.save_file();
 	gp.create_image(true,"png");
 

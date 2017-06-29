@@ -1,7 +1,7 @@
 #include "Analyse.hpp"
 
 Analyse::Analyse(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& ref):
-	IOSystem("",sim,"info-"+sim,"analyse-"+sim,"./","./",NULL),
+	IOSystem("",sim,"info-"+sim,"analyse-"+sim,"./","./",NULL,false),
 	ref_(ref),
 	max_level_(max_level),
 	bash_file_(bash_file)
@@ -89,7 +89,7 @@ void Analyse::recursive_search(){
 
 void Analyse::search_jdbin(){
 	Directory d;
-	d.search_files_ext(".jdbin",sim_+path_+dir_,false,false);
+	d.search_files_ext(".jdbin",sim_+path_+dir_,false,false,false);
 	nof_ = d.size();
 	if(d.size()>0){
 		d.sort();

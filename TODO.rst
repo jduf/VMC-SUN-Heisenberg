@@ -18,6 +18,10 @@ URGENT
 IDEA
 ----
 
++ in MCSystem, the bond energy is computed with the value of J : JSiSj. but
+  when the results are displayed, the factor J is removed so that it actually
+  displays the correlations and not the energy. so it might be smarter to
+  compute SiSj instead of JSiSj
 + << >> should exactly the same for cout or IOFiles but print and write do
   different things
 + rename SystemFermionic<->FermionicSystem

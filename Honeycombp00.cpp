@@ -141,7 +141,7 @@ unsigned int Honeycombp00::unit_cell_index(Vector<double> const& x) const {
 void Honeycombp00::display_results(){
 	compute_H();
 	std::string td(my::tostring(td_));
-	draw_lattice(false,true,false,ref_(3)?(dir_nn_[3]+dir_nn_[4]+dir_nn_[5])*1.5:dir_nn_[3]*1.5+dir_nn_[4]+dir_nn_[5],"-d:td "+td,RST::math("\\pi 00")+" with "+RST::math("t_d")+"="+td);
+	draw_lattice(true,true,false,ref_(3)?(dir_nn_[3]+dir_nn_[4]+dir_nn_[5])*1.5:dir_nn_[3]*1.5+dir_nn_[4]+dir_nn_[5],"-d:td "+td,RST::math("\\pi 00")+" with "+RST::math("t_d")+"="+td);
 }
 
 void Honeycombp00::check(){
@@ -149,9 +149,9 @@ void Honeycombp00::check(){
 	path_ = "";
 	dir_  = "./";
 	filename_ ="honeycomb-p00";
-	//display_results();
+	display_results();
 
-	compute_H();
-	plot_band_structure();
+	//compute_H();
+	//plot_band_structure();
 }
 /*}*/

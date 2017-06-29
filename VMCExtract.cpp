@@ -113,6 +113,12 @@ VMCExtract::VMCExtract(IOFiles& in, unsigned int const& min_sort, unsigned int c
 		while(dis_sim_.target_next()){
 			if(MCSim::sort_by_param_for_merge(param,dis_sim_.get().get_param())!=1){
 				std::cerr<<__PRETTY_FUNCTION__<<" : the discarded samples are not sorted correctly after construction"<<std::endl;
+				if(my::are_equal(param,dis_sim_.get().get_param())){
+					// this issue could be solved by keeping only the one with the smallest error
+					std::cerr<<my::whitespace(__PRETTY_FUNCTION__)<<" : two discarded samples appear with the same parameters "<<param<<std::endl;
+				} else {
+					std::cerr<<my::whitespace(__PRETTY_FUNCTION__)<<" : ("<<param<<")!<("<<dis_sim_.get().get_param()<<")"<<std::endl;
+				}
 			}
 			param = dis_sim_.get().get_param();
 		}
@@ -230,22 +236,52 @@ List<MCSim>::Node* VMCExtract::analyse(std::string const& path, std::string cons
 					E=0.0;
 				}
 			}
+			if(dis_sim_.size()){
+				dis_sim_.set_target();
+				dis_sim_.target_next();
+				m_->samples_.set_target();
+				m_->samples_.target_next();
+				param = dis_sim_.get().get_param();
+				IOFiles data_Er(path+filename+"-Er.dat",true,false);
+				data_Er.precision(15);
+				bool remain_samples(true);
+				bool keepon;
 
-			dis_sim_.set_target();
-			dis_sim_.target_next();
-			m_->samples_.set_target();
-			m_->samples_.target_next();
-			param = dis_sim_.get().get_param();
-			IOFiles data_Er(path+filename+"-Er.dat",true,false);
-			data_Er.precision(15);
-			bool remain_samples(true);
-			bool keepon;
+				j=0;
+				i=0;
+				norm=0.0;
+				do{
+					if(remain_samples && MCSim::sort_by_param_for_merge(m_->samples_.get().get_param(),dis_sim_.get().get_param())){
+						norm += (param-m_->samples_.get().get_param()).norm_squared();
+						if(i++!=n[j]){
+							data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 1"<<IOFiles::endl;
+						} else {
+							data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 2"<<IOFiles::endl;
+							kept_samples.add_sort(m_->samples_.get_ptr(),MCSim::sort_by_E);
+							j++;
+						}
 
-			j=0;
-			i=0;
-			norm=0.0;
-			do{
-				if(remain_samples && MCSim::sort_by_param_for_merge(m_->samples_.get().get_param(),dis_sim_.get().get_param())){
+						param = m_->samples_.get().get_param();
+						remain_samples = m_->samples_.target_next();
+					} else {
+						norm += (param-dis_sim_.get().get_param()).norm_squared();
+						data_Er<<norm<<" "<<dis_sim_.get().get_energy()<<" 0"<<IOFiles::endl;
+
+						param = dis_sim_.get().get_param();
+						keepon = dis_sim_.target_next() ;
+					}
+				} while(keepon);
+			} else {
+				m_->samples_.set_target();
+				m_->samples_.target_next();
+				param = m_->samples_.get().get_param();
+				IOFiles data_Er(path+filename+"-Er.dat",true,false);
+				data_Er.precision(15);
+
+				j=0;
+				i=0;
+				norm=0.0;
+				while(m_->samples_.target_next()){
 					norm += (param-m_->samples_.get().get_param()).norm_squared();
 					if(i++!=n[j]){
 						data_Er<<norm<<" "<<m_->samples_.get().get_energy()<<" 1"<<IOFiles::endl;
@@ -254,17 +290,9 @@ List<MCSim>::Node* VMCExtract::analyse(std::string const& path, std::string cons
 						kept_samples.add_sort(m_->samples_.get_ptr(),MCSim::sort_by_E);
 						j++;
 					}
-
 					param = m_->samples_.get().get_param();
-					remain_samples = m_->samples_.target_next();
-				} else {
-					norm += (param-dis_sim_.get().get_param()).norm_squared();
-					data_Er<<norm<<" "<<dis_sim_.get().get_energy()<<" 0"<<IOFiles::endl;
-
-					param = dis_sim_.get().get_param();
-					keepon = dis_sim_.target_next() ;
 				}
-			} while(keepon);
+			}
 
 			Gnuplot gp(path,filename);
 			gp.range("y","",Erange);

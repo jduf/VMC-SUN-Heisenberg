@@ -111,4 +111,22 @@ void TriangleChiral::check(){
 	//compute_H();
 	//plot_band_structure();
 }
+
+std::string TriangleChiral::extract_level_2(){
+	Gnuplot gp(analyse_+path_+dir_,filename_);
+	gp+="f(x) = a+b*x*x";
+	gp+="set fit quiet";
+	gp+="fit [0:0.015] f(x) '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) yerror via a,b";
+	gp+="set print \'../"+sim_.substr(0,sim_.size()-1)+".dat\' append";
+	gp+="print " + my::tostring(N_) + "," + my::tostring(m_) + ",a";
+	gp.range("x","0","");
+	gp.label("x","$\\frac{ 1}{n}$");
+	gp.label("y2","$\\frac{E}{nN^2}$","rotate by 0");
+	gp+="plot '"+filename_+".dat' u (1.0/$3):($5/($1*$1)):($6/($1*$1)) w e lc 1 t 'chiral',\\";
+	gp+="     [0:0.015] f(x) lc 1 t sprintf('%f',a)";
+	gp.save_file();
+	gp.create_image(true,"png");
+
+	return filename_;
+}
 /*}*/

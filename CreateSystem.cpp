@@ -86,9 +86,9 @@ void CreateSystem::init(Vector<double> const* const param, Container* C){
 										Vector<double> t;
 										Vector<double> mu;
 										if(param){
-											mu.set((param->size()+1)*2/5);
-											t.set(param->size()-mu.size());
+											t.set(param->size()*3/5);
 											for(unsigned int i(0);i<t.size();i++){ t(i) = (*param)(i); }
+											mu.set(param->size()*2/5);
 											for(unsigned int i(0);i<mu.size();i++){ mu(i) = (*param)(i+t.size()); }
 										}
 										if(C){

@@ -8,7 +8,7 @@ class AnalyseSystematic : public Analyse{
 	public:
 		AnalyseSystematic(std::string const& sim, unsigned int const& max_level, unsigned int const& bash_file, unsigned int const& ref);
 		/*!Default destructor*/
-		~AnalyseSystematic();
+		~AnalyseSystematic() = default;
 		/*{Forbidden*/
 		AnalyseSystematic() = delete;
 		AnalyseSystematic(AnalyseSystematic const&) = delete;

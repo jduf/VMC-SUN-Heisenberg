@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
 	/*Display the results in a html browser*/
 	if(P.find("d") && cs && iof){
 		RSTFile rst("/tmp/",fname);
-		IOSystem ios(fname,"","","","","/tmp/",&rst);
+		IOSystem ios(fname,"","","","","/tmp/",&rst,false);
 		cs->set_IOSystem(&ios);
 		cs->display_results();
 
@@ -103,7 +103,7 @@ int main(int argc, char* argv[]){
 	/*Print the results in a pdf and html files*/
 	if(P.find("p") && cs && iof){
 		RSTFile rst("./",fname+"-print");
-		IOSystem ios(fname,"./","./","./","./","./",&rst);
+		IOSystem ios(fname,"./","./","./","./","./",&rst,false);
 		cs->set_IOSystem(&ios);
 		cs->display_results();
 

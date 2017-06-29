@@ -63,9 +63,9 @@ void System::merge(System* const s){
 	//unsigned int match[Observable::number_of_observables_defined] = { 0 };
 	//for(unsigned int i(0);i<obs_.size();i++){ match[obs_[i].get_type()%1234]=i+1; }
 	//for(unsigned int i(0);i<s->obs_.size();i++){
-		//unsigned int o(match[s->obs_[i].get_type()%1234]);
-		//if(o){ obs_[o-1].merge(s->obs_[i]); }
-		//else { obs_.push_back(s->obs_[i]); }
+	//unsigned int o(match[s->obs_[i].get_type()%1234]);
+	//if(o){ obs_[o-1].merge(s->obs_[i]); }
+	//else { obs_.push_back(s->obs_[i]); }
 	//}
 
 	unsigned int i(0);

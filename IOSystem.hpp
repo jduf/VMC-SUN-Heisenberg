@@ -7,7 +7,7 @@
 
 class IOSystem{
 	public:
-		IOSystem(std::string const& filename, std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file);
+		IOSystem(std::string const& filename, std::string const& sim, std::string const& info, std::string const& analyse, std::string const& path, std::string const& dir, RSTFile* const rst_file, bool const& replace_title_with_link_in_rst);
 		virtual ~IOSystem() = default;
 		/*{Forbidden*/
 		IOSystem(IOSystem const&) = delete;
@@ -45,6 +45,8 @@ class IOSystem{
 		IOFiles* jd_write_	  = NULL;//!< binary file in which data are written in sim_/path_
 		IOFiles* data_write_  = NULL;//!< textfile in which data are written saved in analyse_/path_
 		RSTFile* rst_file_	  = NULL;//!< rst file saved in info_/path_/dir_
+		
+		bool replace_title_with_link_in_rst_ = false;//!< allow title in RSTFile to be hyperlinks
 
 		RST system_info_;//!< information about the wavefunction
 

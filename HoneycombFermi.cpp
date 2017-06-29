@@ -59,7 +59,7 @@ unsigned int HoneycombFermi::unit_cell_index(Vector<double> const& x) const {
 /*{method needed for checking*/
 void HoneycombFermi::display_results(){
 	compute_H();
-	draw_lattice(false,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25,"","Fermi");
+	draw_lattice(true,true,false,ref_(3)?(dir_nn_[4]+dir_nn_[3])*1.5:this->dir_nn_[3]*1.25+this->dir_nn_[4]*0.25,"","Fermi");
 }
 
 void HoneycombFermi::check(){
